@@ -1095,3 +1095,6 @@ All notable changes to this project are documented here. The project will follow
 - Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.
 
 
+
+- Independent whole-word tuple replay follows fixed nested tuple aliases in
+  `UNCHANGED`; conditional permutations remain refused.

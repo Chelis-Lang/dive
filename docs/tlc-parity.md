@@ -667,3 +667,11 @@ global helpers and exact post-translation defs serialization. Declaration scope,
 AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
+
+The [tuple-history replay guide](inductive-tuple-trace-replay.md) now includes
+fixed nested `UNCHANGED` projections through actual lazy aliases, LET and
+substitution scopes (ADR 0071). The sealed proof admits four fresh alias
+controls and rejects altered words, while conditional tuple permutations retain
+strict refusal. The separate generated procedure study admits 32/32
+strict words at the archived producer; general runtime-name and stack provenance
+remain pending. No family certification or denominator changes.
