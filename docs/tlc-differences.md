@@ -1891,3 +1891,15 @@ This is an intentional-boundary observation, not a newly declared TLC bug. A
 native early hook/service stop remains incomplete or refused and cannot be Holds.
 All original selections, cleanup events and raw command/timing facts are retained
 in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+## Stopped-worker diagnostic boundary (issue 224)
+
+The bounded Rust stopped-service API preserves the original deciding worker
+error: pinned Next division returns2179/CLI255, invariant2110/12, action
+property2112/13, incomplete2109/75 and deadlock2114/11 at1/4/8. An actual FALSE
+hook does not override a prior division/invariant error. This is an honest native
+limitation, not a new default divergence or upstream-bug claim: Java can write
+liveness successor records after its error winner, while native diagnostics
+contain only the earlier actually committed prefix. No ordinary queue/count/graph
+or clock parity follows. The [guide](stopped-periodic-service.md) distinguishes
+actual method returns, CLI exits, callback failures and joins.

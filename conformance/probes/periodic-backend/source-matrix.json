@@ -1,20 +1,20 @@
 {
   "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "cc8aba3ed498b2fc9be4bc277023731f64181ce76bfd31a70517a5ebad324b47",
-    "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
-    "crates/dive-check/src/parallel.rs": "7bbcb03cd7a7ef512f8269ca8800e6b7679a21b9d25b37c3c6d5a2f3400f867b",
+    "crates/dive-check/src/capture.rs": "2226e33c8cc913b05287e371ea5e6f1f95cbf614f130b276aa4af79ecca0b90a",
+    "crates/dive-check/src/engine.rs": "2cd33171e6c07a796b81a31eaa223ee75ec3c748fc677c9d11d9aeffb215713e",
+    "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
     "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
-    "crates/dive-liveness/src/phase_execution.rs": "09f9f036a8a49412700ec060fb4ddbe46a2e7657babb70f441389abcb2080497",
+    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
     "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
-    "crates/dive-liveness/src/lib.rs": "5c1b4f63b7965f0fd976253b47539158783e87f85584e2a64e99a138316b4ec5",
+    "crates/dive-liveness/src/lib.rs": "78a0483df51157f275d07b8c050cc3ed8714d297e1ce5121962415b94a96a571",
     "crates/dive-liveness/tests/periodic_backend.rs": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
     "crates/dive-api/examples/periodic_backend.rs": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
     "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
     "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
     "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
-    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0"
+    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9"
   },
-  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

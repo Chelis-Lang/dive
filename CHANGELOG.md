@@ -1,5 +1,13 @@
 # Changelog
 
+- Add source-owned stopped-worker periodic diagnostics through
+  `periodic_candidate::check_optional_stopped`. Eligible ordered source errors
+  remain authoritative across diagnostic callback failures and timer/pool joins;
+  no failed source becomes EOF, final checking or temporal Holds. Ordinary
+  scheduling remains refused; the executable guide records actual method/CLI
+  evidence and the unproved Java after-error graph/count boundary.
+
+
 - Explicit final TLC mode now admits pure state conditional predicates through
   the corrected shared planner and fresh independent witness replay. Scoped
   LET/INSTANCE, entry/closing and error controls retain all earlier refusals;

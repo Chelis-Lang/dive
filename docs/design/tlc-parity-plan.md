@@ -160,3 +160,11 @@ ADR0059 implements a bounded diagnostic claim barrier and actual joined pause, n
 #208 adds request-owned whole-prefix/empty controller service after real frontier append, with distinct request/source/EOF facts and unchanged ordinary refusal. The next proof boundary remains actual asynchronous request/queue/stop/count/checkpoint composition plus independent deciding witness admission; controlled method observations and partial success do not certify F-023.
 
 #213 supplies the independent deciding-word prerequisite through a privately owned configuration/request run and original source retention. Fresh binding rehomes material atoms before memory replay; separately parsed JSON binds again. Remaining ordinary scheduling proof must still establish request/clock/queue ordering, stop/error/count/checkpoint/end composition. No candidate API input can supply a graph, fingerprint representative, witness, Valid result or clock, and no result certifies model completion.
+
+### Ordered worker-stop service checkpoint (issue 224)
+
+ADR0078 adds a bounded private actual prejoin stopped transaction, immutable
+original source winner and postjoin matching. Controlled method/CLI captures and
+fresh independent candidates are separate from native clock/count proof. Java
+after-error `doNextCheckLiveness` writes, complete ordinary queue/stop-prefix and
+checkpoint scheduling remain prerequisites; F-023 remains missing/audit-required.

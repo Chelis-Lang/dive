@@ -1,0 +1,362 @@
+[
+  {
+    "id": "init-division-w1-observed",
+    "case": "init-division",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "init-division-w1-cli",
+    "case": "init-division",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "init-division-w4-observed",
+    "case": "init-division",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "init-division-w4-cli",
+    "case": "init-division",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "init-division-w8-observed",
+    "case": "init-division",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "init-division-w8-cli",
+    "case": "init-division",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-w1-observed",
+    "case": "next-division",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-w1-cli",
+    "case": "next-division",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-w4-observed",
+    "case": "next-division",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-w4-cli",
+    "case": "next-division",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-w8-observed",
+    "case": "next-division",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-w8-cli",
+    "case": "next-division",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "invariant-w1-observed",
+    "case": "invariant",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "invariant-w1-cli",
+    "case": "invariant",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "invariant-w4-observed",
+    "case": "invariant",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "invariant-w4-cli",
+    "case": "invariant",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "invariant-w8-observed",
+    "case": "invariant",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "invariant-w8-cli",
+    "case": "invariant",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "action-property-w1-observed",
+    "case": "action-property",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "action-property-w1-cli",
+    "case": "action-property",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "action-property-w4-observed",
+    "case": "action-property",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "action-property-w4-cli",
+    "case": "action-property",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "action-property-w8-observed",
+    "case": "action-property",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "action-property-w8-cli",
+    "case": "action-property",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "incomplete-w1-observed",
+    "case": "incomplete",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "incomplete-w1-cli",
+    "case": "incomplete",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "incomplete-w4-observed",
+    "case": "incomplete",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "incomplete-w4-cli",
+    "case": "incomplete",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "incomplete-w8-observed",
+    "case": "incomplete",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "incomplete-w8-cli",
+    "case": "incomplete",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "deadlock-w1-observed",
+    "case": "deadlock",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "deadlock-w1-cli",
+    "case": "deadlock",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "deadlock-w4-observed",
+    "case": "deadlock",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "deadlock-w4-cli",
+    "case": "deadlock",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "deadlock-w8-observed",
+    "case": "deadlock",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "deadlock-w8-cli",
+    "case": "deadlock",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-false-hook-w1-observed",
+    "case": "next-division-false-hook",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-false-hook-w1-cli",
+    "case": "next-division-false-hook",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-false-hook-w4-observed",
+    "case": "next-division-false-hook",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-false-hook-w4-cli",
+    "case": "next-division-false-hook",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-false-hook-w8-observed",
+    "case": "next-division-false-hook",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-false-hook-w8-cli",
+    "case": "next-division-false-hook",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "invariant-false-hook-w1-observed",
+    "case": "invariant-false-hook",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "invariant-false-hook-w1-cli",
+    "case": "invariant-false-hook",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "invariant-false-hook-w4-observed",
+    "case": "invariant-false-hook",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "invariant-false-hook-w4-cli",
+    "case": "invariant-false-hook",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "invariant-false-hook-w8-observed",
+    "case": "invariant-false-hook",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "invariant-false-hook-w8-cli",
+    "case": "invariant-false-hook",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-w1-observed",
+    "case": "safe",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-w1-cli",
+    "case": "safe",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-w4-observed",
+    "case": "safe",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-w4-cli",
+    "case": "safe",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-w8-observed",
+    "case": "safe",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-w8-cli",
+    "case": "safe",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "empty-init-w1-observed",
+    "case": "empty-init",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "empty-init-w1-cli",
+    "case": "empty-init",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "empty-init-w4-observed",
+    "case": "empty-init",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "empty-init-w4-cli",
+    "case": "empty-init",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "empty-init-w8-observed",
+    "case": "empty-init",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "empty-init-w8-cli",
+    "case": "empty-init",
+    "width": 8,
+    "mode": "cli"
+  }
+]

@@ -9,5 +9,5 @@
     "scripts/check-runtime-ratio.py": "d6992bf1ec42bdca6dab8f4a7cf4bfc3f0ee3dfdffd60699ab5675002fae1950",
     "docs/ordinary-periodic-controller.md": "3b6602080050c07b3fd9ff371e2749f3ce4973bed925ca9f05ddafcb03a89ccb"
   },
-  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

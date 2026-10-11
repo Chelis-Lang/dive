@@ -598,3 +598,15 @@ This is an intentional-boundary observation, not a newly declared TLC bug. A
 native early hook/service stop remains incomplete or refused and cannot be Holds.
 All original selections, cleanup events and raw command/timing facts are retained
 in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+## Stopped-queue worker diagnostics (ADR 0078, issue 224)
+
+`Worker.run`, `ModelChecker.setErrState/setError`, `runTLC` and
+`AbstractChecker.modelCheck` determine first-error/finished-queue behavior. The
+complete `conformance/probes/stopped-periodic-service/primary` selection preserves
+actual integer returns and independent CLI exits at 1/4/8, plus all earlier
+rejected selections. Native private transaction facts retain original source
+error/counters through joins; no claim reproduces Java graph writes after errors,
+natural clock scheduling or ordinary model proof. See
+[ADR0078](decisions/0078-stopped-queue-worker-errors.md) and the
+[executable guide](stopped-periodic-service.md).

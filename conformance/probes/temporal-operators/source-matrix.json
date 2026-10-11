@@ -12,10 +12,10 @@
     "crates/dive-liveness/tests/temporal_operators.rs": "3e78bc3a46a3b15ca03232377f320505d528c214947f511fd3ab4d304f4aa43e"
   },
   "source_sha256": {
-    ".github/workflows/ci.yml": "9e201e7e3eb66e8956276c94f0c0f1bb114ba3ab93967bf0d4aca0461ac451b1",
-    "AGENTS.md": "776114479b1142720c51bfec6923d8c932f861c8c224b139889b1186d381c8e2",
-    "CHANGELOG.md": "6ec9b3f2407cdacb953d9ca665c26a46fd280198668c0cfd10f80ac1acb283ac",
-    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0",
+    ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340",
+    "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
+    "CHANGELOG.md": "4395aa1f1c2b2b3818ba96c7b0591acf26378e6d562bd9751ffb55600cf87cfb",
+    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
@@ -3145,13 +3145,13 @@
     "crates/dive-trace/src/temporal.rs": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
     "docs/divergences.md": "4a639a0bebdd900f304d5e33ef37afb5c8cedee3c067bd4ab70c2ef8840756af",
-    "docs/provenance.md": "c11274bd49700b76109ccb86d9bf67a6fb993875b94e1d83f0f53cd1b1b50ce3",
+    "docs/provenance.md": "e2305ea74d0c82ea6e75995297eaf348b7ef8594fe9df4fcab699c57013e804c",
     "docs/temporal-operators.md": "107543cf79d996b9671c6c5b82705e8745c3beda9d7ea94040a1a33cdf7d0101",
-    "docs/tlc-differences.md": "4007a44380d3aaed5c7484d7626860d02b5e7cd9cc60581b745d4e4d8d97ae4a",
-    "docs/user/rust-api.md": "d1a1fa362636038388134a0b89b785655d2097eb24fc5a87c475392da34b940f",
-    "docs/user/temporal.md": "5d2c9debba7afca7ead54a5359b15d431fc4dc6319b2437e8b473606adcb772e",
+    "docs/tlc-differences.md": "186c213628d907b749c0fd1b629a02ccfe75d181a04691d60290dbdde6af9ec5",
+    "docs/user/rust-api.md": "be22a0ca289e32d22a7a7a1ba3a26a9ca9d9aa194646587109990f00c13346be",
+    "docs/user/temporal.md": "c28dcb0c600e37213ac00daf38eb1bfeb7a36700818567bb318f2f14d3169799",
     "scripts/check-material-capture.py": "61a9244a12241707d82bed553afbf4c46007fa9a3c80791874e6ad0a6370ad5a",
     "scripts/check-temporal-operators.py": "57621d5c2cff4c2c8b73f49afc7861f7a99d15fb4c473cf373f68119f433f29c"
   },
-  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

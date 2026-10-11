@@ -103,3 +103,8 @@ An absent original role remains None, never TRUE; ordinary scheduling remains
 unsupported and both independent replay routes are required for an admitted word.
 
 `periodic_candidate::check_optional_terminal` is an additive [terminal diagnostic](../terminal-periodic-service.md): actual exhausted queue service before joins, bounded final candidates and fresh memory/JSON replay. No witness absence or controller Complete establishes temporal Holds or ordinary scheduling/count equality.
+
+`periodic_candidate::check_optional_stopped` adds an eligible ordered-worker-stop
+transaction to the optional configured-hook diagnostic. The original source
+result remains authoritative; no diagnostic receipt certifies ordinary scheduling
+or Holds. See the [Cargo example and exact contract](../stopped-periodic-service.md).

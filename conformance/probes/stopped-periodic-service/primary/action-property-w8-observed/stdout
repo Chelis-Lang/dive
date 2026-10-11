@@ -1,0 +1,76 @@
+Parsing file /private/tmp/dive-stopped-queue-primary-candidate3/action-property-w8-observed/Terminal.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-5667755478809128909/Naturals.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Terminal
+Linting of module Terminal
+Starting... (2026-10-11 21:28:45)
+Implied-temporal checking--satisfiability problem has 1 branches.
+EVENT	modelCheck-enter
+Computing initial states...
+EVENT	live-addInitState-enter
+EVENT	live-addInitState-return:null
+Finished computing initial states: 1 distinct state generated at 2026-10-11 21:28:45.
+EVENT	start-workers-enter
+EVENT	start-workers-return:8
+EVENT	setErrState-enter:2112:keep=false:done=false
+EVENT	setErrState-return:true:code=2112:done=true
+Error: Action property Action is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ x = 0
+/\ y = 0
+
+State 2: <Next line 5, col 9 to line 5, col 24 of module Terminal>
+/\ x = 1
+/\ y = 0
+
+EVENT	queue-finishAll-enter:TLCWorkerThread-000:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-dequeue-EOF:TLCWorkerThread-001
+EVENT	queue-dequeue-EOF:TLCWorkerThread-007
+EVENT	queue-dequeue-EOF:TLCWorkerThread-005
+EVENT	queue-dequeue-EOF:TLCWorkerThread-002
+EVENT	queue-dequeue-EOF:TLCWorkerThread-003
+EVENT	queue-dequeue-EOF:TLCWorkerThread-004
+EVENT	queue-dequeue-EOF:TLCWorkerThread-006
+EVENT	queue-finishAll-enter:TLCWorkerThread-004:size=0
+EVENT	setErrState-enter:1000:keep=true:done=true
+EVENT	queue-finishAll-enter:TLCWorkerThread-006:size=0
+EVENT	setErrState-return:false:code=2112:done=true
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-finishAll-enter:TLCWorkerThread-003:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-finishAll-enter:TLCWorkerThread-002:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-finishAll-enter:TLCWorkerThread-005:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-finishAll-enter:TLCWorkerThread-007:size=0
+EVENT	queue-finishAll-enter:TLCWorkerThread-001:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	live-doLiveCheck-enter
+EVENT	live-doLiveCheck-return:false
+EVENT	live-addNextState-enter
+EVENT	live-addNextState-return:null
+EVENT	queue-dequeue-EOF:TLCWorkerThread-000
+EVENT	queue-finishAll-enter:TLCWorkerThread-000:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	ratio-update:0
+2 states generated, 2 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 2.
+EVENT	modelCheck-return-code:2112
+EVENT	worker-at-return:0:false
+EVENT	worker-at-return:1:false
+EVENT	worker-at-return:2:false
+EVENT	worker-at-return:3:false
+EVENT	worker-at-return:4:false
+EVENT	worker-at-return:5:false
+EVENT	worker-at-return:6:false
+EVENT	worker-at-return:7:false
+EVENT	checker-done-at-return:true
+EVENT	checker-error-at-return:2112
+EVENT	observer-cleanup-enter
+EVENT	queue-finishAll-enter:main:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	observer-cleanup-return

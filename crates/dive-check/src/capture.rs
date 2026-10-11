@@ -233,6 +233,162 @@ impl ExhaustedQueue<'_> {
     }
 }
 
+/// Explicit source-worker failure families admitted to the stopped diagnostic.
+/// Classification alone is not queue, graph, scheduling or witness authority.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum WorkerStop {
+    /// An invariant failed in a successor, rather than during initialization.
+    Invariant,
+    /// An implied action failed on an actual generated step.
+    ActionProperty,
+    /// An expanded source had no successors.
+    Deadlock,
+    /// A successor left variables unassigned.
+    Incomplete,
+    /// Evaluation failed in successor generation or its safety predicates.
+    Evaluation,
+}
+impl WorkerStop {
+    /// Classify the original result without evaluating or reconstructing a model.
+    /// Init, resource, library, observer and unsupported failures remain excluded.
+    #[must_use]
+    pub fn classify(verdict: &Verdict) -> Option<Self> {
+        match verdict {
+            Verdict::InvariantViolated { initial: false, .. } => Some(Self::Invariant),
+            Verdict::ActionPropertyViolated { .. } => Some(Self::ActionProperty),
+            Verdict::Deadlock => Some(Self::Deadlock),
+            Verdict::NotCompletelySpecified { initial: false, .. } => Some(Self::Incomplete),
+            Verdict::EvaluationError {
+                site:
+                    crate::ErrorSite::Next
+                    | crate::ErrorSite::Invariant
+                    | crate::ErrorSite::ImpliedAction,
+                ..
+            } => Some(Self::Evaluation),
+            _ => None,
+        }
+    }
+}
+
+/// A diagnostic failure after an original source-worker winner. It must never
+/// replace that winner or turn a stopped search into successful EOF.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum StoppedDiagnosticFault {
+    /// Actual request-lane close failed.
+    LaneClose,
+    /// Actual request-thread join failed after the search had returned.
+    LaneJoin,
+    /// Actual dispatch authority could not be acquired.
+    Dispatch,
+    /// The diagnostic callback rejected the transaction.
+    Callback,
+    /// The diagnostic callback unwound; the original winner is retained.
+    Unwind,
+}
+
+/// Private borrowed authority from an actual eligible ordered source stop under
+/// a joined live pool's dispatch mutex. Unlike [`ExhaustedQueue`], this token
+/// does not assert exhaustion, zero queued states, graph completion or success.
+pub struct StoppedQueue<'a> {
+    verdict: &'a Verdict,
+    kind: WorkerStop,
+    stats: Stats,
+    workers: usize,
+    generation: u64,
+    pending: Option<crate::progress::Request>,
+    source: u64,
+    authority: std::marker::PhantomData<&'a mut ()>,
+}
+impl<'a> StoppedQueue<'a> {
+    pub(crate) fn new(
+        verdict: &'a Verdict,
+        kind: WorkerStop,
+        stats: Stats,
+        pause: &DispatchPause<'_>,
+        pending: Option<crate::progress::Request>,
+        source: u64,
+    ) -> Self {
+        Self {
+            verdict,
+            kind,
+            stats,
+            workers: pause.workers(),
+            generation: pause.generation(),
+            pending,
+            source,
+            authority: std::marker::PhantomData,
+        }
+    }
+    /// Original immutable deciding error, before any diagnostic callback.
+    #[must_use]
+    pub fn verdict(&self) -> &Verdict {
+        self.verdict
+    }
+    /// Explicit eligible family; classification cannot create this token.
+    #[must_use]
+    pub fn kind(&self) -> WorkerStop {
+        self.kind
+    }
+    /// Actual source/discovery identity from the original stop's predecessor
+    /// path, not a graph fingerprint or submitted-wave ordinal.
+    #[must_use]
+    pub fn source(&self) -> u64 {
+        self.source
+    }
+    /// Original logical stopping counters, not a finished queue's zero counters.
+    #[must_use]
+    pub fn stats(&self) -> Stats {
+        self.stats
+    }
+    /// Actual pool width/generation under the live dispatch pause, before joins.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.workers, self.generation)
+    }
+    /// Genuine unserviced request removed by closing the lane, if any.
+    #[must_use]
+    pub fn pending_request(&self) -> Option<crate::progress::Request> {
+        self.pending
+    }
+}
+
+/// Internal fact minted only immediately before invoking the stopped callback.
+pub(crate) struct StoppedTransaction {
+    pub(crate) verdict: Verdict,
+    pub(crate) source: u64,
+    pub(crate) stats: Stats,
+    pub(crate) workers: usize,
+    pub(crate) generation: u64,
+}
+/// Actual eligible error result after timer/pool closure. A copied result or
+/// zero counters cannot construct this borrowed postjoin authority.
+pub struct ExplorationStop<'a> {
+    result: &'a CheckResult,
+    transaction: &'a StoppedTransaction,
+}
+impl ExplorationStop<'_> {
+    /// Original result, including deciding error, counters, trace and workers.
+    #[must_use]
+    pub fn result(&self) -> &CheckResult {
+        self.result
+    }
+    /// Original source identity from the actually entered prejoin transaction.
+    #[must_use]
+    pub fn source(&self) -> u64 {
+        self.transaction.source
+    }
+    /// Original prejoin stopping counters; final error replay can differ.
+    #[must_use]
+    pub fn before_join_stats(&self) -> Stats {
+        self.transaction.stats
+    }
+    /// Actual paused pool width and dispatch generation of that transaction.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.transaction.workers, self.transaction.generation)
+    }
+}
+
 /// Successful safety EOF after the pool has joined and closed. This is not a
 /// temporal check or proof; a source's zero queue counter cannot create it.
 pub struct ExplorationEnd {
@@ -358,6 +514,24 @@ pub trait SourceObserver: Send {
     fn terminal_queue_finished(&mut self, _end: &ExhaustedQueue<'_>) -> Result<(), String> {
         Ok(())
     }
+    /// Opt in to the separate eligible source-error transaction. Default routes
+    /// never call these diagnostics and retain their original behavior.
+    fn requires_stopped_service(&self) -> bool {
+        false
+    }
+    /// Actual ordered source winner before timer/pool joins, with request
+    /// publication closed and dispatch held. Failure never replaces the winner.
+    ///
+    /// # Errors
+    /// A consumer diagnostic failure, retained separately from the search result.
+    fn stopped_queue_finished(&mut self, _end: &StoppedQueue<'_>) -> Result<(), String> {
+        Ok(())
+    }
+    /// A diagnostic-only fault; never an alternate deciding search error.
+    fn stopped_diagnostic_failed(&mut self, _fault: StoppedDiagnosticFault) {}
+    /// Actual postjoin result of an eligible source stop. Never called for Init,
+    /// library/resource/unsupported errors or as successful final completion.
+    fn exploration_stopped(&mut self, _end: &ExplorationStop<'_>) {}
     /// Successful actual safety EOF after the pool closes. Never called after
     /// assumption, Init, source, safety, worker or resource failure.
     ///
@@ -1016,6 +1190,7 @@ fn explore_inner(
     } else {
         engine::search_graph(model, opts, &host, limits)
     };
+    let stopped_transaction = outcome.stopped_transaction;
     result.verdict = outcome.verdict;
     result.stats = outcome.stats;
     result.tlc_prints_stats = outcome.tlc_prints_stats;
@@ -1026,6 +1201,22 @@ fn explore_inner(
     result.notes = outcome.notes;
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
+        if let (Some(consumer), Some(transaction)) = (observer, stopped_transaction)
+            && transaction.verdict == result.verdict
+            && transaction.workers == result.workers.used
+        {
+            let end = ExplorationStop {
+                result: &result,
+                transaction: &transaction,
+            };
+            if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                consumer.exploration_stopped(&end);
+            }))
+            .is_err()
+            {
+                result.notes.push("Stopped diagnostic postjoin callback unwound; original deciding result retained.".into());
+            }
+        }
         return Exploration::Stopped(Box::new(result));
     }
     if let (Some(consumer), Some(stats)) = (observer, result.stats) {

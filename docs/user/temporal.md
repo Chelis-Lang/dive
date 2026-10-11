@@ -108,3 +108,7 @@ The [request-owned service diagnostic](../request-owned-periodic-service.md) run
 For original-value reconstruction and fresh independent memory/JSON replay of an actual diagnostic request/EOF candidate, see the [producer-owned candidate Rust guide](../producer-owned-temporal-candidate.md). This separate API does not enable ordinary periodic CLI checking or certify temporal absence/completion.
 
 The additive [exhausted-queue terminal Rust diagnostic](../terminal-periodic-service.md) services genuine frontier exhaustion before joins and independently replays deciding words. It does not enable ordinary temporal verdicts or certify absence.
+
+The Rust [stopped-worker service diagnostic](../stopped-periodic-service.md)
+keeps original source errors separate from controller faults and successful EOF.
+It does not expose ordinary scheduling or temporal Holds.

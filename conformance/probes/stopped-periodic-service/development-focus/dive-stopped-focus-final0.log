@@ -1,0 +1,41 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.31s
+     Running tests/stopped_periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/stopped_periodic_candidate-1db75b76266e8b51)
+
+running 4 tests
+test diagnostic_meter_failure_cannot_replace_actual_source_winner_or_mint_completion ... ok
+test forced_stopped_queue_attempts_false_suspension_without_running_false_hook ... ok
+test outside_eligible_stops_and_default_profile_never_create_stopped_receipt ... ok
+test source_error_skips_hook_partial_final_and_preserves_original_result ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.60s
+
+     Running tests/terminal_periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/terminal_periodic_candidate-1224a6320cafaf28)
+
+running 4 tests
+test empty_init_is_genuine_exhaustion_while_profile_and_zero_work_remain_refused ... ok
+test deciding_final_words_use_same_independent_replay_and_strict_mutants ... ok
+test failed_init_expansion_cut_hook_and_quota_never_create_terminal_authority ... ok
+test safe_finished_queue_skips_false_integer_hook_and_confirms_post_service_joins ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/stopped_observer.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/stopped_observer-9d6c41daa536b797)
+
+running 3 tests
+test init_resource_unsupported_and_lane_setup_stops_never_mint_source_authority ... ok
+test stateful_admission_is_read_once_and_never_mints_postjoin_authority ... ok
+test every_source_family_retains_verdict_counts_trace_and_workers_on_rejection_or_unwind ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.19s
+
+     Running tests/terminal_observer.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/terminal_observer-1af9c968b7b4805f)
+
+running 3 tests
+test actual_terminal_failure_preserves_completed_counters_and_never_calls_final ... ok
+test invalid_interval_keeps_actual_initial_set_queue_counts_before_store_swap ... ok
+test init_source_and_capture_limit_stops_never_authorize_terminal_or_final ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+

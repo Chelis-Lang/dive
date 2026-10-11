@@ -8,24 +8,24 @@
   "source_sha256": {
     "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
     "crates/dive-store/tests/properties.rs": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
-    "crates/dive-check/src/progress.rs": "366aac793c8225833a83fa9187be39ce6d06580be611230c8d4ff37ac30e422b",
+    "crates/dive-check/src/progress.rs": "b82fca9201f86013d9a4ef53940889ba70271db22d036309df8eb48158a6cc79",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
-    "crates/dive-check/src/capture.rs": "cc8aba3ed498b2fc9be4bc277023731f64181ce76bfd31a70517a5ebad324b47",
-    "crates/dive-check/src/parallel.rs": "7bbcb03cd7a7ef512f8269ca8800e6b7679a21b9d25b37c3c6d5a2f3400f867b",
+    "crates/dive-check/src/capture.rs": "2226e33c8cc913b05287e371ea5e6f1f95cbf614f130b276aa4af79ecca0b90a",
+    "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
     "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "ecd1d229c215785fc746f2b9492c01b697da25babc44309dd8ef6b628d9f0a76",
-    "crates/dive-liveness/src/periodic_snapshot.rs": "d1f17ea82c34382028263773e4ea2654682f8dbca90351701faf3092f172a84c",
-    "crates/dive-liveness/src/phase_execution.rs": "09f9f036a8a49412700ec060fb4ddbe46a2e7657babb70f441389abcb2080497",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "8a1ca8bf07dee05d39bee30b8b3d166ed7c7a9f1a4710b8eb4775bd757cee3da",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
+    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
     "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
     "crates/dive-api/examples/committed_prefix.rs": "221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb",
     "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "776114479b1142720c51bfec6923d8c932f861c8c224b139889b1186d381c8e2",
-    ".github/workflows/ci.yml": "9e201e7e3eb66e8956276c94f0c0f1bb114ba3ab93967bf0d4aca0461ac451b1",
-    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0"
+    "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
+    ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340",
+    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9"
   },
-  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

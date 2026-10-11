@@ -310,6 +310,28 @@ impl OptionalSnapshot {
     ) -> Result<OptionalRun, EvalError> {
         self.execute_inner(options, limits, policy, requests, true, true)
     }
+    /// Retain real source provenance and service an eligible ordered worker
+    /// failure before joins. Diagnostic faults never replace the original error;
+    /// no failed source is promoted to EOF, final checking or temporal Holds.
+    ///
+    /// # Errors
+    /// Existing source/profile admission and cumulative resource bounds.
+    pub fn execute_stopped_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_mode(
+            options,
+            limits,
+            policy,
+            requests,
+            true,
+            ServiceMode::Stopped,
+        )
+    }
     fn execute_inner(
         &self,
         options: &dive_check::CheckOptions,
@@ -319,8 +341,30 @@ impl OptionalSnapshot {
         retain_sources: bool,
         terminal: bool,
     ) -> Result<OptionalRun, EvalError> {
+        self.execute_mode(
+            options,
+            limits,
+            policy,
+            requests,
+            retain_sources,
+            if terminal {
+                ServiceMode::Terminal
+            } else {
+                ServiceMode::Requests
+            },
+        )
+    }
+    fn execute_mode(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+        retain_sources: bool,
+        mode: ServiceMode,
+    ) -> Result<OptionalRun, EvalError> {
         admit_source(&self.model().ir, &self.configuration)?;
-        let lifecycle = owned_service(
+        let lifecycle = owned_service_mode(
             self.model(),
             self.predicate(),
             options,
@@ -328,7 +372,7 @@ impl OptionalSnapshot {
             policy,
             requests,
             retain_sources,
-            terminal,
+            mode,
         )?;
         let role = match (self.configured_name(), self.definition(), self.predicate()) {
             (Some(name), Some(definition), Some(predicate)) => {
@@ -393,6 +437,12 @@ pub fn bind_optional(
         configuration: cfg.clone(),
     })
 }
+#[derive(Clone, Copy)]
+enum ServiceMode {
+    Requests,
+    Terminal,
+    Stopped,
+}
 #[allow(
     clippy::too_many_arguments,
     reason = "one shared request-service admission boundary"
@@ -406,6 +456,35 @@ fn owned_service(
     requests: dive_check::progress::Options,
     retain_sources: bool,
     terminal: bool,
+) -> Result<crate::periodic_lifecycle::Run, EvalError> {
+    owned_service_mode(
+        bound,
+        predicate,
+        options,
+        limits,
+        policy,
+        requests,
+        retain_sources,
+        if terminal {
+            ServiceMode::Terminal
+        } else {
+            ServiceMode::Requests
+        },
+    )
+}
+#[allow(
+    clippy::too_many_arguments,
+    reason = "one shared source-owned admission boundary"
+)]
+fn owned_service_mode(
+    bound: &dive_model::Model,
+    predicate: Option<&dive_model::Pred>,
+    options: &dive_check::CheckOptions,
+    limits: crate::phase_graph::Limits,
+    policy: crate::periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+    retain_sources: bool,
+    mode: ServiceMode,
 ) -> Result<crate::periodic_lifecycle::Run, EvalError> {
     bound.validate_context()?;
     let hook = predicate
@@ -429,17 +508,31 @@ fn owned_service(
                 && marker.feature == PeriodicSnapshot::ORDINARY_REFUSAL => {}
         _ => return Err(refusal()),
     }
-    Ok(crate::phase_execution::execute_periodic_service(
-        &model,
-        options,
-        limits,
-        policy,
-        hook,
-        requests,
-        retain_sources,
-        terminal,
-    ))
+    Ok(match mode {
+        ServiceMode::Stopped => crate::phase_execution::execute_periodic_stopped_service(
+            &model,
+            options,
+            limits,
+            policy,
+            hook,
+            requests,
+            retain_sources,
+        ),
+        ServiceMode::Requests | ServiceMode::Terminal => {
+            crate::phase_execution::execute_periodic_service(
+                &model,
+                options,
+                limits,
+                policy,
+                hook,
+                requests,
+                retain_sources,
+                matches!(mode, ServiceMode::Terminal),
+            )
+        }
+    })
 }
+
 fn failure(error: &EvalError) -> dive_model::Failure {
     dive_model::Failure {
         error: dive_model::BindError {

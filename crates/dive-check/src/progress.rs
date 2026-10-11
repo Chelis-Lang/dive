@@ -269,12 +269,23 @@ impl Drop for Close {
         self.0.close();
     }
 }
+#[cfg(test)]
 pub(crate) fn with_lane<R>(
     options: Option<Options>,
     callback: impl FnOnce(Option<Arc<Lane>>) -> R,
 ) -> Result<R, String> {
+    let (value, join_error) = with_lane_retained(options, callback)?;
+    join_error.map_or(Ok(value), Err)
+}
+
+/// Retain an actual returned search value even if subsequent timer join fails.
+/// Setup failure still has no search value or invented execution evidence.
+pub(crate) fn with_lane_retained<R>(
+    options: Option<Options>,
+    callback: impl FnOnce(Option<Arc<Lane>>) -> R,
+) -> Result<(R, Option<String>), String> {
     let Some(options) = options else {
-        return Ok(callback(None));
+        return Ok((callback(None), None));
     };
     let lane = Lane::new(options)?;
     std::thread::scope(|scope| {
@@ -286,10 +297,11 @@ pub(crate) fn with_lane<R>(
         let close = Close(lane.clone());
         let result = callback(Some(lane));
         drop(close);
-        handle
+        let error = handle
             .join()
-            .map_err(|_| "native request producer panicked".to_owned())?;
-        Ok(result)
+            .err()
+            .map(|_| "native request producer panicked".to_owned());
+        Ok((result, error))
     })
 }
 

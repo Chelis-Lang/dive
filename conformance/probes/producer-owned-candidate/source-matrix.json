@@ -8,21 +8,21 @@
   "source_sha256": {
     "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090",
     "crates/dive-api/src/lib.rs": "0a210d7ba71183ea9c5910f32e1e4e624738cf0b80515e9fb9e5b3fa068e60f8",
-    "crates/dive-api/src/periodic_candidate.rs": "c72c00e4d05ae8c4f4f63d41af1179738c7586b3861328eceb62f3d59887fe13",
+    "crates/dive-api/src/periodic_candidate.rs": "ae456c3a7ed91cb5e3f541a51bb217774793e71636952209b2905879375ad6c5",
     "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
     "crates/dive-api/tests/periodic_candidate.rs": "3b928e4628dd8817896c1c9c7ed65f6a2e9a74edef0354512cfab7ce65da3b9f",
     "crates/dive-api/examples/periodic_candidate.rs": "c75378585965ad52a8b12dbd47a9b6df219714532c4db06c2954ff81dc0e1ad0",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "ecd1d229c215785fc746f2b9492c01b697da25babc44309dd8ef6b628d9f0a76",
-    "crates/dive-liveness/src/periodic_snapshot.rs": "d1f17ea82c34382028263773e4ea2654682f8dbca90351701faf3092f172a84c",
-    "crates/dive-liveness/src/phase_execution.rs": "09f9f036a8a49412700ec060fb4ddbe46a2e7657babb70f441389abcb2080497",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "8a1ca8bf07dee05d39bee30b8b3d166ed7c7a9f1a4710b8eb4775bd757cee3da",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
+    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
     "crates/dive-liveness/src/phase_l.rs": "d0a8635f992be8c0e4074745d7e668b18616e44b80eca3f62e8629707bbbb4e3",
     "docs/producer-owned-temporal-candidate.md": "53f4b758f1cfba9da016c5054fb08aa9648b2aa485b0ebce9b435623ef0faa6d",
     "docs/decisions/0070-producer-owned-candidate-admission.md": "3f98cee35bb2ccff842f1afe6977dda9b2606a520604f1b23618e0d34c0fc454",
     "scripts/check-producer-owned-candidate.py": "a7af848ec98959f6f99820c1147825cd5eecaf8f3a974a8e3fd57bc9f3613033",
-    "AGENTS.md": "776114479b1142720c51bfec6923d8c932f861c8c224b139889b1186d381c8e2",
-    ".github/workflows/ci.yml": "9e201e7e3eb66e8956276c94f0c0f1bb114ba3ab93967bf0d4aca0461ac451b1",
-    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0"
+    "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
+    ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340",
+    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9"
   },
-  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }
