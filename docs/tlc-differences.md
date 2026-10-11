@@ -112,7 +112,7 @@ The operators choose with TLC's algorithms (which element, which subset); only t
 
 Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order (ADR 0014), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
 
-**Current dive limitation (#178).** A configured VIEW combined with any source-level random operator refuses before binding, output or search in both profiles. The scan includes unused definitions and native aliases: this is a conservative temporary boundary, not a claim that every such definition executes. TLC seeds expansion from the transformed VIEW fingerprint; dive's unfinished path used the raw predecessor. On the minimal `V == n` probe at seed 7/fingerprint 0, both found four states and the same invariant violation, but TLC assigned `x` values `0, 78, 49, 21` while the old native path assigned `0, 80, 94, 100`. Matching counts concealed wrong concrete draws. SYMMETRY/random combinations also remain refused. The preserved [source, clean primary and native outputs](../conformance/probes/view-random-seeding/README.md) keep that defect separate from TLC's own limitations. Both old concrete traces receive an explicit independent-validator refusal; no independent certificate was demonstrated.
+**Current dive limitation (#178).** A configured VIEW combined with any source-level random operator refuses before binding, output or search in both profiles. The scan includes unused definitions, native aliases and cfg-selected native replacement targets: this is a conservative temporary boundary, not a claim that every such definition executes. TLC seeds expansion from the transformed VIEW fingerprint; dive's unfinished path used the raw predecessor. On the minimal `V == n` probe at seed 7/fingerprint 0, both found four states and the same invariant violation, but TLC assigned `x` values `0, 78, 49, 21` while the old native path assigned `0, 80, 94, 100`. Matching counts concealed wrong concrete draws. SYMMETRY/random combinations also remain refused. The preserved [source, clean primary and native outputs](../conformance/probes/view-random-seeding/README.md) keep that defect separate from TLC's own limitations. Both old concrete traces receive an explicit independent-validator refusal; no independent certificate was demonstrated.
 
 **Evidence.**
 - Harness review finding M5, probe P9, ADR 0010 §4.
@@ -1787,3 +1787,15 @@ Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
+### Native limitation: configured-only random replacement stream
+
+A `.cfg` can select `CONSTANT C <- RandomElement` even when the module only
+calls `C(1..100)`. The ordinary native RNG classifier currently scans source
+calls and misses that replacement. Without VIEW, the minimal seed7/fp0 model
+has TLC concrete values `0,80,94,100` and old native values `0,74,75,35`, despite
+matching verdict/counts/depth. This is a dive defect, not an improved default.
+The VIEW admission repair refuses that combination before startup; correcting
+the untransformed configured stream remains a separate obligation. Avoid
+configured-only RNG replacements until that path is proved. [Minimal source,
+clean primary and native raw evidence](../conformance/probes/view-random-seeding/no-view-configured-follow-up/index.json).

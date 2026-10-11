@@ -154,3 +154,69 @@ fn pure_view_and_untransformed_randomness_still_check_concretely() {
         }
     }
 }
+
+#[test]
+fn configured_native_targets_refuse_without_source_calls_or_effects() {
+    let text = source(
+        "CONSTANT C(_)\nASSUME PrintT(\"must not print\")",
+        "C(1..100)",
+    )
+    .replace(", Randomization", "");
+    let plain = lower(&text);
+    let instance = lower(&text.replace("CONSTANT C(_)", "CONSTANT C(_)\nI == INSTANCE TLC"));
+    let custom = lower(&text.replace(
+        "CONSTANT C(_)",
+        "CONSTANT C(_)\nReplacement(S) == CHOOSE a \\in S : TRUE",
+    ));
+    let id = custom
+        .defs()
+        .iter()
+        .position(|d| d.name == "Replacement")
+        .expect("replacement");
+    let mut value = serde_json::to_value(custom.as_ref()).expect("IR JSON");
+    value["defs"][id]["std"] =
+        serde_json::to_value(dive_ir::StdOp::TlcRandomElement).expect("native op");
+    let custom: Arc<Ir> = Arc::new(serde_json::from_value(value).expect("typed native override"));
+    dive_eval::validate_ir(&custom).expect("admitted custom authority");
+    for (ir, target) in [
+        (plain, "RandomElement"),
+        (instance, "I!RandomElement"),
+        (custom, "Replacement"),
+    ] {
+        let mut cfg = config("CONSTANT C <- RandomElement\nVIEW V\n");
+        // Public typed cfg names can designate an instantiated context alias;
+        // the textual cfg parser deliberately retains TLC's token boundaries.
+        let dive_config::ConstantEntry::Substitution { target: rhs, .. } = &mut cfg.constants[0]
+        else {
+            panic!("substitution")
+        };
+        rhs.text = target.into();
+        for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                for width in [1, 4, 8] {
+                    for chaos in [None, Some(19)] {
+                        let mut opts = CheckOptions::tlc(0, 7);
+                        opts.profile = profile;
+                        opts.eval = dive_eval::Options::for_profile(profile);
+                        opts.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
+                        opts.store = store;
+                        opts.workers = width;
+                        opts.chaos = chaos;
+                        let result = dive_check::check(&ir, &cfg, &opts);
+                        assert!(
+                            matches!(&result.verdict, Verdict::Unsupported { feature } if feature == REFUSAL),
+                            "{target}: {result:?}"
+                        );
+                        assert_eq!((result.workers.requested, result.workers.used), (width, 0));
+                        assert!(
+                            result.stats.is_none()
+                                && result.counterexample.is_none()
+                                && result.collision.is_none()
+                        );
+                        assert!(result.output.is_empty() && result.warnings.is_empty());
+                    }
+                }
+            }
+        }
+    }
+}

@@ -13,11 +13,11 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "7830b7cc577f66b540f8d0d24519160954801f366c5c7e84ad60b889e9a2297f",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "c2d993ab172fdd70b7608906ba7ec1be192295682a9f70e2b853f2a42977344f",
-    "docs/divergences.md": "89b44ef85fdeb831eae8ae1c9ea3fc919cd23e507a729aa3ff0923cca71bd3b0",
-    "docs/tlc-differences.md": "1b2a1c2680216a5c3b7630c3c418e7fda054c6abe71e2f350302fbc048011028",
+    "docs/provenance.md": "a9b9cf17e82f4ee7ff6c100387d7738772fe21338b13d40042ac1c17926a409c",
+    "docs/divergences.md": "0317fd84c79d6f69c8945c8426663cad40f66c465cbf1f932dc64281621ce3d7",
+    "docs/tlc-differences.md": "613828ae05c70bdf40e4148d746050095b63e2539a678bf8a0c25715e2958d1e",
     "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
-    "CHANGELOG.md": "8a71213b349d95a9d96bfddc0bcdd24c4c3cdebb08bc660964e309058081b623",
+    "CHANGELOG.md": "9db84717d6d090c21a492ad33dbf25d91eba96c7d6af67777e04273aeb5b615f",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
     "conformance/parity-features.json": "9faeee18bf1288f95f83c56d5d68b955f62612d23f3fdafc2c2d3d1944edb373",
@@ -744,5 +744,10 @@
     "matrix_sha256": "335ef12cf2a2a04bcaa364f5a23651cb884b87010456a283b0063154f78de7e1",
     "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   },
-  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
+  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "1f6aeddc5abd2a1611ef9c7cc4bac31cb5fe37ad9c4edd318fbce23fca8c51a9",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  }
 }

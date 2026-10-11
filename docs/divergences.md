@@ -582,9 +582,18 @@ unsupported; the whole small-model study from the prior IF slice is unchanged.
 
 **D-002 native VIEW limitation (#178):** ordinary safety checking explicitly
 refuses configured VIEW with source-level random operators before binding/output
-or search. Unused definitions and typed native aliases are included in this
-conservative guard. Equal counts previously concealed different concrete draws
+or search. Unused definitions, typed native aliases and cfg-selected native
+replacement targets are included in this conservative guard. Equal counts previously concealed different concrete draws
 at seed 7/fingerprint 0; [the preserved clean/native control](../conformance/probes/view-random-seeding/README.md)
 is a dive defect, not approved reference divergence. Pure VIEW and untransformed
 random checking remain supported; transformed-fingerprint seeding and independent
 replay remain pending in both profiles.
+
+**Configured-only RNG classifier follow-up:** `CONSTANT C(_)` with
+`C <- RandomElement`, even without VIEW, currently misses the ordinary
+source-node RNG classifier. At seed7/fingerprint0/worker1, clean pinned TLC
+produces `x = 0,80,94,100`; preserved old native produces `0,74,75,35` while
+both report four generated/distinct states and depth four. This is a native
+defect awaiting a separate configured-stream repair, not an accepted divergence
+or evidence of untransformed RNG equivalence. The source and outputs remain
+[separately preserved](../conformance/probes/view-random-seeding/no-view-configured-follow-up/index.json).

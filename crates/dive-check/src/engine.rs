@@ -246,24 +246,50 @@ fn search_counters(host: &RunHost) {
 
 /// Whether the specification refers to a random operator, so that expanded
 /// states need their own random stream.
+fn random_op(op: dive_ir::StdOp) -> bool {
+    use dive_ir::StdOp;
+    matches!(
+        op,
+        StdOp::TlcRandomElement
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets
+            | StdOp::RandomizationRandomSubsetSet
+    )
+}
+
 pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
-    use dive_ir::{OpRef, StdOp};
-    let random = |op: StdOp| {
-        matches!(
-            op,
-            StdOp::TlcRandomElement
-                | StdOp::RandomizationRandomSubset
-                | StdOp::RandomizationRandomSetOfSubsets
-                | StdOp::RandomizationRandomSubsetSet
-        )
-    };
+    use dive_ir::OpRef;
     ir.nodes().iter().any(|n| {
         n.expr.op_refs().into_iter().any(|r| match r {
-            OpRef::Std(op) => random(*op),
-            OpRef::Def(d) => ir.def(*d).std.is_some_and(random),
+            OpRef::Std(op) => random_op(*op),
+            OpRef::Def(d) => ir.def(*d).std.is_some_and(random_op),
             _ => false,
         })
     })
+}
+
+// Called only after typed IR admission. Source nodes do not reference a
+// native replacement selected solely by the cfg. Binding resolves RHS names
+// through contexts, then installs source native overrides by definition name
+// (SpecProcessor.processModuleOverrides). Match both authorities without
+// evaluating any body. All matching aliases/modules are conservative here:
+// a malformed or shadowed cfg may be refused before its binding diagnostic.
+pub(crate) fn uses_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
+    uses_random(ir)
+        || cfg.constants.iter().any(|entry| {
+            let dive_config::ConstantEntry::Substitution { target, .. } = entry else {
+                return false;
+            };
+            ir.modules().iter().any(|module| {
+                module.context.iter().any(|(name, symbol)| {
+                    name == &target.text
+                        && matches!(symbol, dive_ir::Symbol::Def(id)
+                            if ir.def(*id).std.is_some_and(random_op))
+                })
+            }) || ir.defs().iter().any(|def| {
+                def.source.is_none() && def.name == target.text && def.std.is_some_and(random_op)
+            })
+        })
 }
 
 /// TLC's level of a state at BFS level `n` (initial states are level 1).

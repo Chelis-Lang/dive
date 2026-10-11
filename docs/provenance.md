@@ -503,3 +503,10 @@ not a port or a change to TLC's random algorithm. Its evidence compares
 [Preserved source and raw outputs](../conformance/probes/view-random-seeding/README.md)
 show equal counts with unequal concrete draws; the guard promises no transformed
 RNG replay until that path is independently proved.
+
+The pre-bind #178 admission scan additionally follows configured substitution
+RHS names through `Module.context` and the source native names installed by
+`SpecProcessor.processModuleOverrides` (`dive-model::bind`). This is conservative
+callback-free admission, not an emulation of successful substitution binding.
+The original node-only guard missed `CONSTANT C(_)` / `C <- RandomElement`;
+its failed no-work controls and interrupted gate are preserved separately.

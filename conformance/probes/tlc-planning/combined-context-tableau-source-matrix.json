@@ -104,7 +104,7 @@
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
+    "crates/dive-check/src/engine.rs": "6d8f8a8ca38593f586a97f1920941644ed62535963bc561b3dc38ef812e4eb6a",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
@@ -142,5 +142,10 @@
     "matrix_sha256": "85ac2acc60949a72e88947bcc0b1f3282cf36a7700a8e54029d70806c06501fd",
     "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   },
-  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
+  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+    "matrix_sha256": "c20212646f2a9d34c2fbe657706f99c7fd22bef78ad96e6e696db005cd53b563",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  }
 }

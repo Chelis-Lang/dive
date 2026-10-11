@@ -277,7 +277,7 @@ pub(crate) fn run_check_with_checkpoint(
     // do not establish equivalent draws or a sound concrete witness (#178).
     // This source-wide guard intentionally includes unused definitions and
     // native aliases, before binding can print or consume a startup stream.
-    if cfg.view.is_some() && engine::uses_random(ir) {
+    if cfg.view.is_some() && engine::uses_configured_random(ir, cfg) {
         return bare(
             Verdict::Unsupported {
                 feature: "randomness under VIEW needs transformed-fingerprint seeding and independent replay".into(),

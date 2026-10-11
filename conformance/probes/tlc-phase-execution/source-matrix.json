@@ -15,7 +15,7 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
+    "crates/dive-check/src/engine.rs": "6d8f8a8ca38593f586a97f1920941644ed62535963bc561b3dc38ef812e4eb6a",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
@@ -34,5 +34,10 @@
     "matrix_sha256": "7f32282f10162cf35f56aaa9396f96089c1ca706037b77a5acb1cf71f025bac6",
     "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   },
-  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
+  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "33c585c781f6db0e281382cf142cb699467a9d224c32569b1a3f46ccf5854050",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  }
 }

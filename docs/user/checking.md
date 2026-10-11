@@ -26,11 +26,15 @@ Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
 VIEW with random operators currently returns `unsupported` before binding,
 output or search, even under `--compat=tlc`. The source-wide guard also detects
-unused definitions and native aliases. The unfinished native seeding path could
+unused definitions and native aliases, including native replacements selected
+only by `CONSTANT C <- RandomElement` or an instantiated context alias. The unfinished native seeding path could
 produce different concrete draws despite equal counts; see the preserved
 [example and evidence](../../conformance/probes/view-random-seeding/README.md).
 Pure VIEW and random checking without VIEW remain available. Random checking
-reports its actual inline width separately from requested workers.
+reports its actual inline width separately from requested workers. Configured-only
+native RNG replacements (`CONSTANT C <- RandomElement`) still have a separate
+stream-classifier defect even without VIEW; avoid them until that repair is
+proved. The preserved clean/native example is linked from the evidence guide.
 
 Ordinary strict temporal model checking remains unsupported; use the explicit
 [final/short mode](temporal.md) for its supported subset. Refused library

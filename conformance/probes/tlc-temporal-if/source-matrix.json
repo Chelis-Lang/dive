@@ -25,5 +25,10 @@
     "matrix_sha256": "65aefb08a06e0f66358a1b4030ba38c34c31764e8c9267586f08cc9b739a6afd",
     "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   },
-  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
+  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-temporal-if/source-matrix.json",
+    "matrix_sha256": "83718cac0f955eb8e9d530ad869ebea2bc9ce6098b768707717947194baa15d2",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  }
 }

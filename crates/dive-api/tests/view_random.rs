@@ -21,34 +21,51 @@ fn public_view_random_refusal_never_claims_workers_output_or_witness() {
         "INIT Init\nNEXT Next\nINVARIANT Inv\nVIEW V\n",
     )
     .expect("config");
-    for compat in [false, true] {
-        for store in [Store::Fingerprint, Store::Exact] {
-            for workers in [1, 4, 8] {
-                for chaos in [None, Some(19)] {
-                    let report = check_file(&CheckRequest {
-                        file: source.clone(),
-                        compat_tlc: compat,
-                        seed: Some(7),
-                        fp: Some(0),
-                        workers: Some(workers),
-                        store,
-                        chaos,
-                        ..CheckRequest::default()
-                    })
-                    .expect("well-formed request");
-                    let json = report.to_json();
-                    assert_eq!(json["verdict"], "unsupported");
-                    assert_eq!(report.exit_code(), 3);
-                    assert_eq!(json["options"]["workers"]["used"], 0);
-                    assert_eq!(json["options"]["workers"]["requested"], workers);
-                    assert!(
-                        json["statistics"].is_null()
-                            && json["counterexample"].is_null()
-                            && json["collision"].is_null()
-                    );
-                    assert_eq!(json["output"], serde_json::json!([]));
-                    assert_eq!(json["warnings"], serde_json::json!([]));
-                    assert!(report.render_human().contains("randomness under VIEW needs transformed-fingerprint seeding and independent replay"));
+    for configured in [false, true] {
+        if configured {
+            let original = std::fs::read_to_string(&source).expect("source");
+            std::fs::write(
+                &source,
+                original
+                    .replace("VARIABLES n,x", "VARIABLES n,x\nCONSTANT C(_)")
+                    .replace("RandomElement(1..100)", "C(1..100)"),
+            )
+            .expect("configured source");
+            std::fs::write(
+                dir.join("RandomView.cfg"),
+                "INIT Init\nNEXT Next\nINVARIANT Inv\nVIEW V\nCONSTANT C <- RandomElement\n",
+            )
+            .expect("configured cfg");
+        }
+        for compat in [false, true] {
+            for store in [Store::Fingerprint, Store::Exact] {
+                for workers in [1, 4, 8] {
+                    for chaos in [None, Some(19)] {
+                        let report = check_file(&CheckRequest {
+                            file: source.clone(),
+                            compat_tlc: compat,
+                            seed: Some(7),
+                            fp: Some(0),
+                            workers: Some(workers),
+                            store,
+                            chaos,
+                            ..CheckRequest::default()
+                        })
+                        .expect("well-formed request");
+                        let json = report.to_json();
+                        assert_eq!(json["verdict"], "unsupported");
+                        assert_eq!(report.exit_code(), 3);
+                        assert_eq!(json["options"]["workers"]["used"], 0);
+                        assert_eq!(json["options"]["workers"]["requested"], workers);
+                        assert!(
+                            json["statistics"].is_null()
+                                && json["counterexample"].is_null()
+                                && json["collision"].is_null()
+                        );
+                        assert_eq!(json["output"], serde_json::json!([]));
+                        assert_eq!(json["warnings"], serde_json::json!([]));
+                        assert!(report.render_human().contains("randomness under VIEW needs transformed-fingerprint seeding and independent replay"));
+                    }
                 }
             }
         }
