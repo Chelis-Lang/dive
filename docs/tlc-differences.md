@@ -2192,7 +2192,8 @@ checks remain separate. See [the full evidence](../conformance/probes/storage-tu
 D-007 now has an additive Rust disk-membership library, described in
 [the user guide](user/disk-seen-library.md). It preserves full fingerprints or
 canonical exact bytes and reports storage failures explicitly. This is not yet
-an ordinary checker flag: seen sets remain resident during `dive check`. Its
+ordinary checker evidence by itself: the default seen sets remain resident.
+The later #212 opt-in inline route has a separate contract below. Its
 physical entry count does not certify a discovery prefix, and bounded collision
 summary refusal cannot be counted as completed safety. Frontier/predecessor
 budgets, recovery and total-memory qualifications remain unchanged.
@@ -2216,3 +2217,15 @@ The [producer-clock Rust diagnostic](producer-progress-requests.md) now has a re
 ### Actual committed request-prefix limitation (#204)
 
 The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+
+### Ordinary disk seen-state safety (#212)
+
+D-007 now has an explicit ordinary safety route: `--seen-disk-entries N` stores
+full fingerprints or canonical exact keys on disk through Result operations.
+The original resident command remains default; admitted complete outcomes and
+concrete witnesses match that reference. Requested parallel widths currently
+use reported inline fallback, not advertised scaling. Entry/probe/summary limits
+and I/O/cleanup errors refuse completion. Configured PROPERTY/SPECIFICATION, graph, temporal, checkpoint/
+recovery and DFID combinations remain unsupported. Separate frontier and
+predecessor budgets can combine, without a total-RAM/crash/import claim.
+[Executable user/API guide](user/disk-seen-safety.md).

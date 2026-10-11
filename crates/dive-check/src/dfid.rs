@@ -695,6 +695,11 @@ fn classify(e: &EvalError, measured: Option<(u32, String)>) -> Outcome {
 }
 
 fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
+    if opts.check.seen_disk.is_some() {
+        return Some(Outcome::Unsupported(
+            "disk seen-state retention with DFID is not implemented".into(),
+        ));
+    }
     if opts.check.predecessor_memory_bytes.is_some() || opts.check.predecessor_directory.is_some() {
         return Some(Outcome::Unsupported(
             "predecessor spill with DFID is not implemented".into(),

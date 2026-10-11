@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Opt-in bounded disk seen-state safety membership uses fallible ordered inline
+  admission, preserving concrete outcomes while reporting actual worker fallback,
+  positioned errors and explicit cleanup. Graph/recovery routing stays refused.
+
 - Add a fallible private-file seen-state library for full fingerprints and canonical exact keys, with bounded disk indexing/rehash, first-error poisoning and explicit audited cleanup. Ordinary checker admission remains pending (ADR 0063).
 - Structural storage format 2 keeps integer-domain tuple functions distinct from
   tuple literals in frontier spill and native recovery. Mathematical keys and

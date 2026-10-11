@@ -369,6 +369,8 @@ pub struct PredecessorUsage {
 /// The result of a check.
 #[derive(Clone, Debug)]
 pub struct CheckResult {
+    /// Opt-in transient disk seen-state operation and explicit cleanup facts.
+    pub seen: Option<crate::SeenUsage>,
     /// Frontier-only encoded/disk retention and cleanup evidence.
     pub frontier: crate::FrontierUsage,
     /// Predecessor storage evidence; not a bound on total search memory.

@@ -107,3 +107,11 @@ canonical exact keys on disk with fallible operations and explicit owned cleanup
 This library is not yet a `dive check` option. Ordinary seen sets still remain
 resident; frontier/predecessor flags do not imply a seen-set or total RAM budget.
 
+
+## Transient disk seen-state membership
+
+[The opt-in safety route](disk-seen-safety.md) now retains full fingerprint or
+exact keys on disk with inline fallback and independent concrete witnesses.
+It can combine existing frontier/predecessor budgets, but is not a total-memory
+budget or checkpoint feature. Recovery, graphs and temporal combinations refuse
+before work; existing native archive contracts remain unchanged.

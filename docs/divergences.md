@@ -755,3 +755,11 @@ Producer request limitation (#201): [the bounded Rust diagnostic](producer-progr
 ### Actual committed request-prefix limitation (#204)
 
 The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+
+D-007 ordinary disk-seen increment (ADR0068): `--seen-disk-entries N` now admits
+bounded inline safety membership for full fingerprint/exact keys. The resident
+reference remains default in both profiles. Typed limits/cleanup and actual
+inline workers are explicit; graphs, recovery and parallel read views remain
+unproved. This is result-preserving completed behavior with explicit limits,
+not a new semantic default or total-memory promise. See the
+[user and Rust guide](user/disk-seen-safety.md).

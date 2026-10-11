@@ -718,3 +718,14 @@ for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
 preserved as an observer limitation, without tableau write-authority credit.
 Worker/controller outcomes and native owned publication remain separately
 measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
+
+## Fallible seen-state ordinary safety admission (ADR0068)
+
+`dive-check/src/seen.rs` and the optional inline `Search` key path preserve the
+existing pinned `Worker.addElement`/`DoInitFunctor.addElement` ordering,
+`ModelChecker.reportSuccess` conditional fingerprint estimates and concrete
+predecessor replay at MIT pin94d0c50. Native disk failures/owned cleanup are
+explicit native policy, not Java I/O-error equivalence. Unchanged canonical
+bytes and fingerprint keyers are borrowed once; no Boolean disk adapter or
+future candidate bulk resolve is introduced. Independent concrete replay does
+not read checker stores. Graph, recovery and parallel read views remain refused.

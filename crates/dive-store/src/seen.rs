@@ -2,7 +2,8 @@
 //!
 //! This additive library does not implement [`crate::StateSet`]: an I/O error
 //! cannot pass through that trait's Boolean membership/insertion interface.
-//! No engine currently admits this storage. Entries are physical library commits,
+//! The checker admits this storage through an explicit fallible inline route.
+//! Entries are physical library commits,
 //! not a model checker's ordered discovery-prefix count.
 //!
 //! Keys and offsets remain on disk. At most two key-sized workspaces, scalar index
@@ -44,6 +45,28 @@ impl Default for Limits {
             probe_steps: 32 * 1024 * 1024,
             summary_pairs: 1_000_000,
         }
+    }
+}
+
+impl Limits {
+    /// Checks policy bounds without allocating, opening files or invoking callbacks.
+    ///
+    /// # Errors
+    /// An invalid key, entry or probe bound. A zero summary budget is valid and
+    /// explicitly refuses a summary requiring pair comparisons.
+    pub fn validate(self) -> Result<(), SeenError> {
+        if self.key_bytes > MAX_KEY_BYTES
+            || self.key_bytes < 8
+            || self.entries == 0
+            || self.entries > u64::from(u32::MAX)
+            || self.probe_steps == 0
+        {
+            return Err(error(
+                Operation::Admission,
+                "invalid disk seen-state limits",
+            ));
+        }
+        Ok(())
     }
 }
 
@@ -181,17 +204,7 @@ impl DiskSeen {
     /// # Errors
     /// Invalid bounds or filesystem creation/write/cleanup failures.
     pub fn create(mode: StoreMode, parent: &Path, limits: Limits) -> Result<Self, SeenError> {
-        if limits.key_bytes > MAX_KEY_BYTES
-            || limits.key_bytes < 8
-            || limits.entries == 0
-            || limits.entries > u64::from(u32::MAX)
-            || limits.probe_steps == 0
-        {
-            return Err(error(
-                Operation::Admission,
-                "invalid disk seen-state limits",
-            ));
-        }
+        limits.validate()?;
         let directory = parent.join(format!(
             "dive-seen-{}-{}",
             std::process::id(),

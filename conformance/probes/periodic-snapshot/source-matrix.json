@@ -7,7 +7,7 @@
   "history_manifest_sha256": "19e43daa6f7b11ddc96ef7217ac1c5b36db97a6308ddce30e6bce30858e64c06",
   "source_sha256": {
     "crates/dive-model/src/periodic.rs": "7f0c20c1b8d4d8d4d04936eb18b194579c2458f193e6061a1899a87dac4df1dd",
-    "crates/dive-model/src/lib.rs": "5b3375547916df8de057372abe036861356624a3fb3fe6903dd2f39a2a0a64d1",
+    "crates/dive-model/src/lib.rs": "d178738a24ce92bd4439edc5d04f28443ff39771f0185f4ce40dd54ea13c4861",
     "crates/dive-model/src/bind.rs": "c776bf58522bc1817a28e05f631372cc172f8b998859ee341833497f899f9c7f",
     "crates/dive-model/src/spec.rs": "7b000e0371510d25cbc718b285bf5ce5d08163c5c6aea2ab7053a4e9c20de6d0",
     "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
@@ -19,9 +19,9 @@
     "docs/configured-periodic-snapshot.md": "79bb84630f176ed4cef3c2707d9f093e470b245b79b4cd7f11e52e0b43ad095b",
     "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
     "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
-    "AGENTS.md": "a7444348bf864c1b7af78a32dfc5262f8a93f339b701a6659b483411cc9ba9e3",
-    ".github/workflows/ci.yml": "94872c8b168bef8b12d9344ea9f332a8bf1a14361593d1efa342035e46311cdf",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1"
+    "AGENTS.md": "9796024aa315a129fdf015a72d93ba173a78de9d336543f0961857d76aa40d3c",
+    ".github/workflows/ci.yml": "90ff4229c7af1cb77bd4f0362d917a6dc85273b4f31a789f02364e7e9245ec58",
+    "conformance/parity-features.json": "6a091503c04b82c168323f1684f96f0097ded2c36160bcbb595d8547ba861e71"
   },
   "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }
