@@ -141,3 +141,5 @@ Issue #197 adds a bounded pure configuration-owned snapshot diagnostic. Startup 
 F-023/#201: producer-owned timer requests now have a real claim barrier/joined mutex pause diagnostic. Next: publish the maximal contiguous completed prefix through the same safety/output/count/graph authority before controller checks, retaining out-of-order scratch. Ordinary CLI scheduling and checkpoints stay refused until the complete queue/clock/stop/witness contracts compose.
 
 F-023/#208: request-owned diagnostic service composes the real appended prefix and configuration-owned hook, including empty requests. Ordinary CLI/schedule/error/count/checkpoint certification remains open; no family-completion credit.
+
+F-023/#213 now has privately reconstructed producer-owned candidate admission with fresh independent memory/JSON replay. No caller graph/trace/Valid flags certify a word. Next: prove actual ordinary timer/queue/stop/count/end/checkpoint composition before enabling ordinary verdicts; partial/no-candidate outcomes never imply Holds.

@@ -1,0 +1,31 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "command": [
+    "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+    "-XX:ActiveProcessorCount=2",
+    "-Xmx512m",
+    "-cp",
+    "/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-fp",
+    "0",
+    "-seed",
+    "0",
+    "-lncheck",
+    "final",
+    "-metadir",
+    "/tmp/dive-candidate-model-atom-primary/states",
+    "Origins"
+  ],
+  "exit": 13,
+  "scope": "Clean configured conjunction/model-atom final baseline, not ordinary schedule equivalence.",
+  "artifact_sha256": {
+    "Origins.cfg": "ac1925d246ef7647ad3d259f39b4750cb027cc8153a67c1ef20e124663102680",
+    "stdout": "e0669b2dd65fbf2ed56e88afe32b71f80ce2b3d6bb79743255e123ca58e2048c",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Origins.tla": "fbe27d3260b6cca37914f872e2e199ebc2f75121d6a34b8f8cd13c4224f7fee0"
+  }
+}

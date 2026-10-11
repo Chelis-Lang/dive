@@ -597,3 +597,7 @@ The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an ac
 D-014 also retains the controlled zero-duration NaN updater/controller observation
 and a failed native diagnostic resource experiment in [the known-issues log](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
 A finite-ratio improvement remains under consideration; no ratio default changes.
+
+### Producer-owned deciding words (#213)
+
+The bounded [candidate Rust API](producer-owned-temporal-candidate.md) reconstructs only actual service/EOF selections from original concrete source identities and independently admits the word twice. Missing/unwritten representatives, fingerprint ambiguity, resource stops and refused replay never produce a witness. This implements a witness-admission prerequisite without changing any default or TLC semantic option; ordinary schedule/count/checkpoint equivalence and F-023 remain missing/audit-required.

@@ -527,3 +527,7 @@ explicitly selected testing mechanism, not a TLC port: it signals only after
 actual expansion output ownership and waits for the real producer timer. It is
 excluded from default production dependencies and supplies no ordinary parity
 authority (ADR 0065).
+
+## Producer-owned temporal candidate admission (ADR0070, #213)
+
+Pinned `LiveWorker` greedy component/postfix selection, `AbstractDiskGraph.getPath` and `LongVec.pack` at94d0c50 preserve product selection before contiguous fingerprint packing. Native source-value retention/audit and privately constructible admission are dive architecture, not Java queue/schedule proof. Only actual successful source callbacks supply original values; raw fingerprints are audited before deduplication and recursive writes. Freshly bound independent `dive-trace` validates lossless rehomed memory and serialized/parsed JSON, including original configured property claims. `conformance/probes/producer-owned-candidate` retains every initial mismatch/refusal and clean primary final controls; no ordinary scheduling/count/model-proof certification.

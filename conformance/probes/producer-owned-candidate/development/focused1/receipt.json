@@ -1,0 +1,69 @@
+{
+  "base_head": "3d99a1b2f6fb7d178062ab6684055b0c428bd302",
+  "uncommitted_source_sha256": {
+    "crates/dive-api/src/periodic_candidate.rs": "48053b1060a3e619336dd17cb954e30096b441918dae39b1ad37da4511cd06f6",
+    "crates/dive-api/src/periodic_candidate_word.rs": "f7fa91df45978eec384a3ed4352efeb42af0371649ee64d6d1b15c5f8a5cf190",
+    "crates/dive-api/tests/periodic_candidate.rs": "c20088a2a8f921fb29ef92606743ce6b1f336666ebba73aee9d2ea8189b1db68",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "f60ded877eb5cd98eb7b9c5186d95557065d01de7640934ae4865a795b68d387",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
+    "crates/dive-liveness/src/phase_execution.rs": "ffc81f32f571eab64de29272816a463cc872cdd77088e0b87dcd707cda1161a3",
+    "crates/dive-liveness/src/periodic_hook.rs": "7f293e375a874ffe05de7880f4043f7f1b6f27074410c66b92d64decd6a8ccbc",
+    "crates/dive-liveness/src/phase_l.rs": "15ef956d91128cfb612fd4766d9feb7d0c6ef8b2f7e6d45fdbbb1ce34fd8f4cd",
+    "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090"
+  },
+  "source_epoch": "development focused1; no clean base-head producer credit",
+  "steps": [
+    {
+      "name": "request-unit",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--lib",
+        "periodic_candidate::tests",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 0,
+      "seconds": 0.39953733400000013,
+      "log_sha256": "8ddfca39948e649d9b58b394c54ed202ada08664521780bc580037181e58b118"
+    },
+    {
+      "name": "public-api",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "periodic_candidate",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 101,
+      "seconds": 3.635446417,
+      "log_sha256": "b795357ae56f06010ddd4141b69703d7a5e1ca0581f5f088cf32b8e861c94823"
+    },
+    {
+      "name": "cargo-guide",
+      "command": [
+        "cargo",
+        "run",
+        "-p",
+        "dive-api",
+        "--example",
+        "periodic_candidate",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 1.3917743749999998,
+      "log_sha256": "bbf97191ce71a1aef43e9602a8e36aa056bc056f854c3c306b9067d4329c5be5"
+    }
+  ],
+  "source_unchanged": true
+}

@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
+  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",

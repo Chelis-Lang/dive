@@ -92,3 +92,5 @@ The [configuration-owned periodic snapshot](../configured-periodic-snapshot.md) 
 [Committed request prefixes](../committed-periodic-prefix.md) use `PeriodicSnapshot::execute_requests` with producer-owned claims and actual source publication. The Cargo example retains completed safety counters and typed nonproof receipts; ordinary temporal checking remains unsupported.
 
 [`Snapshot::execute_service`](../request-owned-periodic-service.md) is an additive request-owned Rust diagnostic with actual post-append counters, optional graph source and separate hook evaluations. TLC evaluator-option consistency is required; this is not an ordinary checker result.
+
+The [producer-owned temporal candidate API](../producer-owned-temporal-candidate.md) adds `dive_api::periodic_candidate::check`. Run `cargo run -p dive-api --example periodic_candidate --locked`. Only an actual privately produced word with fresh memory and JSON Valid replay has a witness; absence is never Holds, and ordinary scheduling/count/model-proof authority remains unavailable.

@@ -1834,3 +1834,7 @@ The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an ac
 ### Request-owned service limitation (#208)
 
 The [Rust diagnostic](request-owned-periodic-service.md) now services one real request after successful source-prefix graph publication and physical frontier append, including an empty request with no invented source. Pin94d0c50 measured empty FALSE2104 and repeated unchanged graph FALSE2104, hook division errors2179/exit2, and written-graph temporal2116 before the hook. Actual candidate words are replayed independently; clock/suspendAll/count/checkpoint parity remains unfinished. Every failed adapter/EOF-race and incorrect native test assumption remains preserved; no new TLC bug/default or ordinary verdict is declared.
+
+### Producer-owned candidate admission: remaining ordinary schedule limitation
+
+The [Rust candidate API](producer-owned-temporal-candidate.md) now privately reconstructs actual request or EOF words and validates them against two freshly bound independent models. It cannot certify ordinary scheduling, TLC stopping counts, temporal absence or model completion. An absent witness means only no admitted candidate, never Holds. Pin94d0c50 final baselines retain `Live == <>(x=1)` with Init x0 and Next x1 as exit13: initial stuttering is legal without fairness. The original mistaken expectation0 remains in the evidence, with a distinct holding `<>(x=0)` exit0 control. This is not a newly declared TLC bug or default change; ordinary CLI scheduling and checkpoint composition stay refused.

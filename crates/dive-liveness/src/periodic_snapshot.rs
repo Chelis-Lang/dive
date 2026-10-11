@@ -50,7 +50,7 @@ impl Snapshot {
         limits: crate::phase_graph::Limits,
         policy: crate::periodic_lifecycle::Options,
     ) -> Result<Run, EvalError> {
-        self.execute_inner(options, limits, policy, None, false)
+        self.execute_inner(options, limits, policy, None, false, false)
     }
     /// Add an internally generated timer/initial-force lane to actual expansion
     /// claims. Requests join claimed work under real dispatch authority, then
@@ -69,7 +69,7 @@ impl Snapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
     ) -> Result<Run, EvalError> {
-        self.execute_inner(options, limits, policy, Some(requests), false)
+        self.execute_inner(options, limits, policy, Some(requests), false, false)
     }
     /// Service each genuine request once after its returned prefix has passed
     /// ordered safety/graph publication and successful frontier append. Source
@@ -91,7 +91,24 @@ impl Snapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
     ) -> Result<Run, EvalError> {
-        self.execute_inner(options, limits, policy, Some(requests), true)
+        self.execute_inner(options, limits, policy, Some(requests), true, false)
+    }
+    /// Run the same request-owned service while retaining bounded original
+    /// concrete source authority for independent candidate admission. This is
+    /// still a diagnostic: no caller may certify its graph or selected word.
+    /// Raw fingerprint collisions and additional provenance retention bounds
+    /// refuse; the existing service entry preserves its prior resource policy.
+    ///
+    /// # Errors
+    /// The same source/profile admission and shared limits as `execute_service`.
+    pub fn execute_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<Run, EvalError> {
+        self.execute_inner(options, limits, policy, Some(requests), true, true)
     }
     fn execute_inner(
         &self,
@@ -100,6 +117,7 @@ impl Snapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: Option<dive_check::progress::Options>,
         service: bool,
+        retain_sources: bool,
     ) -> Result<Run, EvalError> {
         admit_source(&self.bound.model().ir, &self.configuration)?;
         crate::periodic_hook::admit(self.bound.model(), self.bound.predicate())?;
@@ -131,6 +149,7 @@ impl Snapshot {
                 limits,
                 policy,
                 requests,
+                retain_sources,
             )?
         } else if let Some(requests) = requests {
             crate::periodic_hook::execute_requests(

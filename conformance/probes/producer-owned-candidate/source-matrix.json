@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "history_manifest_sha256": "ded099948cf17f1ecb19dc72dd7d435e18e5972f1eb1bc36de14afb6e294b1e5",
+  "scope": "Private source-selected request/EOF candidate admission with original-value fingerprint audit and fresh independent memory/JSON validation. No ordinary clock/queue/count/verdict/family certificate.",
+  "source_sha256": {
+    "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090",
+    "crates/dive-api/src/lib.rs": "0a210d7ba71183ea9c5910f32e1e4e624738cf0b80515e9fb9e5b3fa068e60f8",
+    "crates/dive-api/src/periodic_candidate.rs": "a06cf7284b3c280e5ba38a0965bea40ca20079f5ce47a818827b85518d593204",
+    "crates/dive-api/src/periodic_candidate_word.rs": "f7fa91df45978eec384a3ed4352efeb42af0371649ee64d6d1b15c5f8a5cf190",
+    "crates/dive-api/tests/periodic_candidate.rs": "3b928e4628dd8817896c1c9c7ed65f6a2e9a74edef0354512cfab7ce65da3b9f",
+    "crates/dive-api/examples/periodic_candidate.rs": "c75378585965ad52a8b12dbd47a9b6df219714532c4db06c2954ff81dc0e1ad0",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
+    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
+    "crates/dive-liveness/src/periodic_hook.rs": "7f293e375a874ffe05de7880f4043f7f1b6f27074410c66b92d64decd6a8ccbc",
+    "crates/dive-liveness/src/phase_l.rs": "d0a8635f992be8c0e4074745d7e668b18616e44b80eca3f62e8629707bbbb4e3",
+    "docs/producer-owned-temporal-candidate.md": "31ca25bd824d16a920d47514bd13e73028e221de57ca3ad45f8ad60b92a84131",
+    "docs/decisions/0070-producer-owned-candidate-admission.md": "3f98cee35bb2ccff842f1afe6977dda9b2606a520604f1b23618e0d34c0fc454",
+    "scripts/check-producer-owned-candidate.py": "a7af848ec98959f6f99820c1147825cd5eecaf8f3a974a8e3fd57bc9f3613033",
+    "AGENTS.md": "e2a564cf8b02c62a1f392e08b72413c48017f25b521f1f4696baf906e004d0e1",
+    ".github/workflows/ci.yml": "c7ea826f8e0f0be8cfbc7e34131e0efc5114ad09293924172814a3b26641a288",
+    "conformance/parity-features.json": "6a7ca100f492b5e566426207568816b6da607e63eb37645916fbbddda54d1385"
+  }
+}

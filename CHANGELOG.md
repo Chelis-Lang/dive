@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
+
 - Add a bounded request-owned periodic Rust diagnostic: real prefix append precedes a single configured-hook/controller service, including empty requests. Separate receipts retain actual counters and source identity; no ordinary temporal verdict or default/profile change.
 
 - Producer-owned request pauses publish the maximal returned contiguous source prefix through the shared safety/graph path, retaining later buffers without regeneration. Typed receipts distinguish graph publication from physical frontier append; no ordinary temporal verdict or schedule credit. See `docs/committed-periodic-prefix.md`.

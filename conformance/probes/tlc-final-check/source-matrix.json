@@ -7,11 +7,11 @@
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
-    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
+    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
     "crates/dive-liveness/tests/tlc_scc.rs": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
     "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
     "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
-    "crates/dive-api/src/lib.rs": "7e1e90f04ac38eba01a13c0a26a603f4a7c14090a3383148f01458580fcaa6ed",
+    "crates/dive-api/src/lib.rs": "0a210d7ba71183ea9c5910f32e1e4e624738cf0b80515e9fb9e5b3fa068e60f8",
     "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
     "crates/dive-api/src/tlc_temporal_admission.rs": "3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36",
     "crates/dive-api/tests/tlc_temporal.rs": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
@@ -31,7 +31,7 @@
     "selection.json": "38084924bd532f82d83592f66f719775a6facdcda9782df217504ec8fe5d049f",
     "native-outcomes.json": "96188213fe069fa276f5c1f660553213676079e325eb595a914e5f9a04b7d05b"
   },
-  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
+  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "scoped_final_parent_history": {

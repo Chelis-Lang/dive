@@ -933,7 +933,11 @@ impl Observer<'_> {
         clippy::too_many_lines,
         reason = "preflight aggregate reservations before original concrete collection and per-group graph commit"
     )]
-    fn source_inner(&mut self, source: &CommittedSource<'_>) -> Result<(), Error> {
+    fn source_inner(
+        &mut self,
+        source: &CommittedSource<'_>,
+        lifecycle: Option<&mut crate::periodic_lifecycle::State>,
+    ) -> Result<(), Error> {
         self.last_commit_work = Some(CommitWork {
             source: source.id,
             logical: source.stats,
@@ -941,6 +945,20 @@ impl Observer<'_> {
         });
         if usize::try_from(source.id).ok() != Some(self.sources) {
             return Err(Error::Input("nonconsecutive actual source commits".into()));
+        }
+        if lifecycle.as_ref().is_some_and(|state| {
+            state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original
+        }) {
+            // Reserve the source provenance entry before graph evaluation or
+            // retention. Material inspection remains in the original Session
+            // meter; reconstruction does not introduce an unbounded second
+            // traversal or infer values from fingerprints.
+            self.partial_charge(Some(1))?;
+            bounded(
+                self.sources.checked_add(1),
+                self.limits.capture.states,
+                "concrete source reconstruction entries",
+            )?;
         }
         let incoming_count = source.successors.len().checked_add(1);
         bounded(
@@ -1045,6 +1063,17 @@ impl Observer<'_> {
             });
         }
         self.session.finish_source(&receipt).map_err(Error::Phase)?;
+        if let Some(state) = lifecycle.filter(|state| {
+            state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original
+        }) {
+            state
+                .concrete_sources
+                .push(crate::periodic_lifecycle::ConcreteSource {
+                    identity: source.id,
+                    fingerprint: fp,
+                    values: source.state.clone(),
+                });
+        }
         self.sources += 1;
         Ok(())
     }
@@ -1673,7 +1702,7 @@ impl SourceObserver for Observer<'_> {
         let Some(mut state) = self.lifecycle.take() else {
             return self.source(source);
         };
-        let result = self.source_inner(&source).and_then(|()| {
+        let result = self.source_inner(&source, Some(&mut state)).and_then(|()| {
             state.graph_source = Some(source.id);
             if state.request_service {
                 Ok(())
@@ -1698,7 +1727,7 @@ impl SourceObserver for Observer<'_> {
                 "native lifecycle requires dispatch-pause authority".into(),
             )));
         }
-        let result = self.source_inner(&source).and_then(|()| {
+        let result = self.source_inner(&source, None).and_then(|()| {
             if self.periodic.is_some() {
                 self.periodic_check(source.stats, Some(source.barrier))
             } else {
@@ -1821,7 +1850,7 @@ pub(crate) fn execute_periodic_lifecycle_requests(
     hook: Option<(dive_model::Pred, usize)>,
     requests: Option<dive_check::progress::Options>,
 ) -> crate::periodic_lifecycle::Run {
-    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false)
+    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false, false)
 }
 pub(crate) fn execute_periodic_service(
     model: &Model,
@@ -1830,9 +1859,23 @@ pub(crate) fn execute_periodic_service(
     policy: crate::periodic_lifecycle::Options,
     hook: Option<(dive_model::Pred, usize)>,
     requests: dive_check::progress::Options,
+    retain_sources: bool,
 ) -> crate::periodic_lifecycle::Run {
-    execute_lifecycle_mode(model, options, limits, policy, hook, Some(requests), true)
+    execute_lifecycle_mode(
+        model,
+        options,
+        limits,
+        policy,
+        hook,
+        Some(requests),
+        true,
+        retain_sources,
+    )
 }
+#[allow(
+    clippy::too_many_arguments,
+    reason = "separate existing service mode from opt-in reconstruction authority"
+)]
 fn execute_lifecycle_mode(
     model: &Model,
     options: &CheckOptions,
@@ -1841,6 +1884,7 @@ fn execute_lifecycle_mode(
     hook: Option<(dive_model::Pred, usize)>,
     requests: Option<dive_check::progress::Options>,
     service: bool,
+    retain_sources: bool,
 ) -> crate::periodic_lifecycle::Run {
     let mut failed_state = None;
     let outcome = execute_inner(
@@ -1849,7 +1893,7 @@ fn execute_lifecycle_mode(
         limits,
         true,
         Some(policy.backend),
-        Some((policy, hook, requests, service)),
+        Some((policy, hook, requests, service, retain_sources)),
         Some(&mut failed_state),
     );
     let (backend, mut state) = match outcome {
@@ -1882,12 +1926,13 @@ fn execute_lifecycle_mode(
             failed_state,
         ),
     };
-    let (request_services, service_evaluations) = state.as_mut().map_or_else(
-        || (Vec::new(), Vec::new()),
+    let (request_services, service_evaluations, concrete_sources) = state.as_mut().map_or_else(
+        || (Vec::new(), Vec::new(), Vec::new()),
         |state| {
             (
                 std::mem::take(&mut state.request_services),
                 std::mem::take(&mut state.service_evaluations),
+                std::mem::take(&mut state.concrete_sources),
             )
         },
     );
@@ -1927,6 +1972,7 @@ fn execute_lifecycle_mode(
         },
     );
     crate::periodic_lifecycle::Run {
+        concrete_sources,
         request_services,
         service_evaluations,
         backend,
@@ -1955,6 +2001,7 @@ type LifecycleInput = (
     crate::periodic_lifecycle::Options,
     Option<(dive_model::Pred, usize)>,
     Option<dive_check::progress::Options>,
+    bool,
     bool,
 );
 
@@ -2009,19 +2056,24 @@ fn execute_inner(
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
     let lifecycle = lifecycle
-        .map(|(options, hook, requests, service)| {
+        .map(|(options, hook, requests, service, retain_sources)| {
             if let Some(requests) = requests {
                 requests.validate().map_err(Error::Input)?;
             }
             let mut state = crate::periodic_lifecycle::State::new(options)?;
             state.request_service = service;
+            state.concrete_retention = if retain_sources {
+                crate::periodic_lifecycle::SourceRetention::Original
+            } else {
+                crate::periodic_lifecycle::SourceRetention::Omitted
+            };
             state.hook = hook;
             state.requests = requests;
             Ok(state)
         })
         .transpose()
         .map_err(early)?;
-    let session = Session::new(model, options.fp_index, 1, limits.phase_l)
+    let mut session = Session::new(model, options.fp_index, 1, limits.phase_l)
         .map_err(|error| early(Error::Phase(error)))?;
     if session.orders().is_empty() {
         return Err(early(Error::Phase(Box::new(phase_l::Failure {
@@ -2029,6 +2081,11 @@ fn execute_inner(
             progress: session.progress().clone(),
             partial: None,
         }))));
+    }
+    if lifecycle.as_ref().is_some_and(|state| {
+        state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original
+    }) {
+        session.audit_concrete_sources(limits.capture.states);
     }
     let orders = session.orders().to_vec();
     let tableaux = session.tableaux().to_vec();

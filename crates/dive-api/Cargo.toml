@@ -25,5 +25,10 @@ dive-model = { workspace = true }
 dive-trace = { workspace = true }
 serde_json = { workspace = true }
 
+[dev-dependencies]
+# Only unit controls use the genuine returned-output/request rendezvous. Normal
+# API/CLI/release dependency graphs never enable this testing feature.
+dive-check = { workspace = true, features = ["test-rendezvous"] }
+
 [lints]
 workspace = true

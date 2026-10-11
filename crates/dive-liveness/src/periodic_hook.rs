@@ -99,6 +99,7 @@ pub(crate) fn execute_service(
     limits: crate::phase_graph::Limits,
     policy: crate::periodic_lifecycle::Options,
     requests: dive_check::progress::Options,
+    retain_sources: bool,
 ) -> Result<crate::periodic_lifecycle::Run, EvalError> {
     let work = admit(model, predicate)?;
     Ok(crate::phase_execution::execute_periodic_service(
@@ -108,6 +109,7 @@ pub(crate) fn execute_service(
         policy,
         Some((predicate.clone(), work)),
         requests,
+        retain_sources,
     ))
 }
 
