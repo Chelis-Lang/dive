@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     Code,
-    ast::{Body, Expr, Procedure, Span, StatementKind, StmtId},
+    ast::{Block, Body, Branch, Expr, Procedure, Span, StatementKind, StmtId},
 };
 use std::collections::BTreeMap;
 
@@ -22,6 +22,7 @@ pub(super) struct Assignment {
 }
 pub(super) enum Node {
     Source(StmtId),
+    IfBranch { id: StmtId, index: usize },
     Assign(Vec<Assignment>),
 }
 #[derive(Default)]
@@ -204,6 +205,54 @@ impl Builder<'_> {
         }]));
         Ok(nodes)
     }
+    fn conditional(
+        &mut self,
+        id: StmtId,
+        branches: &[Branch],
+        otherwise: Option<&Block>,
+        next: &str,
+        generated: bool,
+        depth: usize,
+    ) -> Result<bool, TranslationError> {
+        // P elsif is a chain of actual reference If objects. Each Then and
+        // Else owns a distinct shared vector, including the vector containing
+        // the complete remaining chain. Reserve wrappers/flags/entries before
+        // allocation; no repeated arena scan or owned branch-list clone.
+        if depth.saturating_add(branches.len()) > self.depth_limit {
+            return Err(error(
+                TranslationStage::Normalization,
+                Code::Resource,
+                self.parsed.algorithm.span,
+                "PlusCal procedure header nesting limit reached",
+            ));
+        }
+        self.charge(branches.len().saturating_mul(8), 0)?;
+        let other = otherwise
+            .map(|b| self.flatten(&b.statements))
+            .transpose()?
+            .unwrap_or_default();
+        let (mut output_else, mut flag_else) =
+            self.sequence(&other, next, true, generated, depth + branches.len())?;
+        for (index, branch) in branches.iter().enumerate().rev() {
+            let then = self.flatten(&branch.body.statements)?;
+            let (mut output_then, flag_then) =
+                self.sequence(&then, next, true, generated, depth + index + 1)?;
+            let needs = flag_then && flag_else;
+            if !needs && flag_then {
+                output_then.push(self.update(next)?);
+            }
+            if !needs && flag_else {
+                // Append after the entire virtual Else subtree. Appending
+                // independently to its source branches changes the header.
+                output_else.push(self.update(next)?);
+            }
+            self.plan.blocks.insert((id.0, index * 2), output_then);
+            self.plan.blocks.insert((id.0, index * 2 + 1), output_else);
+            output_else = vec![Node::IfBranch { id, index }];
+            flag_else = needs;
+        }
+        Ok(flag_else)
+    }
     #[allow(
         clippy::too_many_lines,
         reason = "ordered pinned CopyAndExplodeLastStmt cases retain their shared-vector decisions together"
@@ -291,7 +340,15 @@ impl Builder<'_> {
                         .get(index)
                         .is_some_and(|span| span.end <= s.span.end)
                     {
-                        return Err(unsupported(s.span, "nested transfer with elsif checksum"));
+                        needs = self.conditional(
+                            id,
+                            branches,
+                            otherwise.as_ref(),
+                            next,
+                            generated,
+                            depth,
+                        )?;
+                        return Ok((nodes, needs));
                     }
                     return Ok((nodes, true));
                 }

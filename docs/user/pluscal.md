@@ -132,3 +132,7 @@ distinguishes exact stored-header bytes, admitted generated modules and finite
 model/trace evidence. Multiline procedure layouts and unproved P `elsif` transfers
 remain named checksum/generation refusals; strict saved-frame replay remains
 separately qualified under #124.
+
+For bounded sequential procedure `elsif` header editing, see
+[Procedure checksums with P elsif](../pluscal-p-elsif-checksums.md), with executable
+C/P and Cargo examples and separate artifact/count/strict-replay qualifications.

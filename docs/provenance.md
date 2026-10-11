@@ -700,3 +700,12 @@ Nested procedure header continuation also matches pinned `PcalTranslate.IsTRUE`
 192 primary rows (original180 plus4+8 token-line/tail controls) retain original
 failed native producer results. Native work reservation/indexing is a bounded
 implementation policy, not ported evaluator complexity or allocation counts.
+
+## P elsif procedure checksum overlay (#209)
+
+`translate/checksum_transfers.rs` virtual branch view and `checksum.rs` branch
+serialization match pinned `pcal.ParseAlgorithm` nested elsif If construction,
+`PcalTranslate.CopyAndExplodeLastStmt` shared Then/Else transfer flags and
+`PCalTLAGen.GenAssign/SortSass` after-generation visit ordering at commit94d0c507.
+No Java runtime is used by native translation. ADR0066 separates original header
+CRC authority from direct Explode xast; the complete32-row study retains both.

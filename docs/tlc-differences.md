@@ -2237,3 +2237,11 @@ continues to name the unsupported multiline procedure expression layout, with no
 replacement/CRC claim. The smallest paired C/P
 controls and original mismatches are in the nested-procedure checksum study;
 these are fidelity repairs, not new result-changing defaults or full parity.
+
+D-008 P elsif procedure-checksum continuation (ADR0066): the native flat source
+branch list now has a typed virtual nested-If header view for the pinned shared
+Else-vector mutation. Before this increment the32 clean C/P controls produced17
+exact pairs and15 named P refusals; focused stored-header bytes/CRC now match all32.
+Public artifact/model evidence is separately source-bound, never inferred from
+CRC equality. General procedure/scoped checksums and strict saved-frame replay
+remain qualified; see [the runnable guide](pluscal-p-elsif-checksums.md).

@@ -426,6 +426,22 @@ impl Writer {
         use super::checksum_transfers::Node;
         self.sequence(nodes, |writer, node| match node {
             Node::Source(id) => writer.statement(parsed, *id),
+            Node::IfBranch { id, index } => {
+                let statement = parsed.statement(*id).ok_or_else(|| {
+                    unsupported(writer.span, "invalid virtual conditional reference")
+                })?;
+                let StatementKind::If {
+                    branches,
+                    otherwise,
+                } = &statement.kind
+                else {
+                    return Err(unsupported(
+                        statement.span,
+                        "invalid virtual conditional owner",
+                    ));
+                };
+                writer.if_branches_from(parsed, *id, branches, otherwise.as_ref(), *index)
+            }
             Node::Assign(assignments) => {
                 writer.push("[type |-> \"assignment\",")?;
                 writer.newline()?;
@@ -826,10 +842,22 @@ impl Writer {
         branches: &[Branch],
         otherwise: Option<&Block>,
     ) -> Result<(), TranslationError> {
-        if branches.is_empty() {
+        self.if_branches_from(parsed, id, branches, otherwise, 0)
+    }
+    fn if_branches_from(
+        &mut self,
+        parsed: &macros::Expanded,
+        id: StmtId,
+        branches: &[Branch],
+        otherwise: Option<&Block>,
+        start: usize,
+    ) -> Result<(), TranslationError> {
+        if start >= branches.len() {
             return Err(unsupported(self.span, "empty conditional AST"));
         }
-        for (index, branch) in branches.iter().enumerate() {
+        let mut opened = 0usize;
+        for (index, branch) in branches.iter().enumerate().skip(start) {
+            opened += 1;
             self.push("[type    |-> \"if\", ")?;
             self.newline()?;
             self.push(" test    |-> ")?;
@@ -837,20 +865,32 @@ impl Writer {
             self.push(",")?;
             self.newline()?;
             self.indent(" then |-> ")?;
-            self.header_block(parsed, &branch.body, (id.0, 0))?;
+            self.header_block(parsed, &branch.body, (id.0, index * 2))?;
             self.push(",")?;
             self.end();
             self.newline()?;
             self.indent(" else |-> ")?;
-            if index + 1 < branches.len() {
+            let else_key = (id.0, index * 2 + 1);
+            if self.header.blocks.contains_key(&else_key) {
+                if index + 1 == branches.len() {
+                    if let Some(block) = otherwise {
+                        self.header_block(parsed, block, else_key)?;
+                    } else {
+                        self.header_empty(parsed, else_key)?;
+                    }
+                } else {
+                    self.header_empty(parsed, else_key)?;
+                }
+                break;
+            } else if index + 1 < branches.len() {
                 self.indent("<<")?;
             } else if let Some(block) = otherwise {
-                self.header_block(parsed, block, (id.0, 1))?;
+                self.header_block(parsed, block, else_key)?;
             } else {
-                self.header_empty(parsed, (id.0, 1))?;
+                self.header_empty(parsed, else_key)?;
             }
         }
-        for index in (0..branches.len()).rev() {
+        for index in (0..opened).rev() {
             self.push("]")?;
             self.end();
             if index > 0 {
