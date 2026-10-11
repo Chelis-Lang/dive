@@ -690,3 +690,7 @@ The lifecycle foundation retains the separately captured controller, runtime-rat
 ## LOCAL and function DEFINE admission
 
 `dive-pluscal` LOCAL and function definition placement matches the pinned MIT `pcal/PcalTLAGen.java` methods `GenVarsAndDefs` and `addExprToTLA`, and `AST.java` `Uniprocess`/`Multiprocess` definition serialization at `94d0c5070852b37b801bb8998c436383ab7ee37b`. Opaque declaration text and order, LOCAL visibility and function-domain positions remain reference-equivalent. Bounded domain/body dependency checks and action/temporal admission are native policy. Stage probes are development tools.
+
+## Configuration-owned periodic snapshot (ADR 0057)
+
+`dive-model::periodic` and the diagnostic flag in the shared binder match pinned `tlc2.tool.impl.SpecProcessor` constructor snapshot timing and `processPeriodic` (1634–1650), with `tlc2.tool.Defns.snapshot`: substitutions precede snapshot, constant caching precedes role validation, selected original body and configured spelling remain distinct. Pin `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT); actual Java reflection reads metadata only. `dive-liveness::periodic_snapshot` prebinding grammar is a conservative native policy, not a port of TLC evaluation. Its structural nonconstant witness follows the shared `dive-model::LevelCx::try_level` cache authority rather than editable node/definition levels. All 38 primary controls and raw captures are retained in `conformance/probes/periodic-snapshot`; startup restrictions and Java-exception refusals earn no error-class parity credit.

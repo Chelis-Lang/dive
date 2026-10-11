@@ -162,7 +162,7 @@ fn constant(model: &Model, c: dive_ir::ConstId, depth: u32, work: &mut usize) ->
         _ => false,
     }
 }
-fn native(op: StdOp) -> bool {
+pub(crate) fn native(op: StdOp) -> bool {
     matches!(
         op,
         StdOp::NaturalsPlus
@@ -186,7 +186,7 @@ fn native(op: StdOp) -> bool {
             | StdOp::IntegersNeg
     )
 }
-fn builtin(op: BuiltinOp) -> bool {
+pub(crate) fn builtin(op: BuiltinOp) -> bool {
     matches!(
         op,
         BuiltinOp::Eq

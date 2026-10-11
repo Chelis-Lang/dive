@@ -20,6 +20,8 @@ All notable changes to this project are documented here. The project will follow
 
 
 
+- Add a bounded configuration-owned periodic snapshot Rust diagnostic with prebinding startup admission, original role/body identities and exact ordinary-check refusal. It grants no ordinary schedule or temporal proof.
+
 - Bounded pure supplied periodic expressions compose at real native pauses, retaining original comparison/evaluation errors. Configured `_PERIODIC` and ordinary temporal CLI remain refused; see `docs/periodic-hook.md`.
 - Native commit-boundary lifecycle diagnostics use real borrowed dispatch authority, internal clock/controller polling and actual EOF final SCCs. No ordinary temporal verdict is enabled; see `docs/native-periodic-lifecycle.md`.
 

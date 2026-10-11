@@ -773,3 +773,4 @@ preserves local export visibility, pre-state helper lookup and function domains.
 Domains and bodies share the action/temporal/cycle guard. Exact raw CRC equality
 is distinct from public enclosing-module admission and model proof; invalid
 reference outputs remain uncredited. Both profiles keep these same semantics.
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).

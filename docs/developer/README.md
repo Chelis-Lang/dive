@@ -24,3 +24,5 @@ to promote coverage. ADR acceptance does not imply implementation completion.
 
 [Ordered temporal execution](../temporal-execution-api.md) documents the staged
 source callback and graph contract, independently of the exposed final/short mode.
+
+- [Configured periodic snapshot](../configured-periodic-snapshot.md): original configured/selected body identities, callback-free prebinding policy and ADR 0057; ordinary schedule authority remains unfinished.

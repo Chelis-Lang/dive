@@ -2210,3 +2210,6 @@ lookup rather than substituting an earlier assignment's new value. The
 CLI/API examples and remaining recursive/action/temporal/name/procedure refusals.
 Reference-invalid artifacts and fixture filename failures stay visible without
 admission or proof credit. Neither profile silently repairs the reference output.
+### Configuration-owned periodic diagnostic limitation (#197)
+
+`_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. [User contract and executable example](configured-periodic-snapshot.md); [ADR 0057](decisions/0057-configured-periodic-snapshot.md). No ordinary-schedule or family certification is granted.
