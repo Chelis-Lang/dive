@@ -1,0 +1,76 @@
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-config)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-store)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-pluscal)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-ir)
+   Compiling dive-compile v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-compile)
+   Compiling dive-lsp v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-lsp)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-eval)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-stdlib)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-trace)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sim)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-conformance)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-cli)
+   Compiling dive-bench v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-bench)
+   Compiling xtask v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/xtask)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4m 25s
+────────────
+ Nextest run ID dd503b5d-3362-4be3-9d03-703b1bec7073 with nextest profile: ci
+    Starting 958 tests across 144 binaries
+        PASS [   0.111s] (  1/958) dive-api check::evidence_controls::capture_stop_report_retains_partial_work_and_stage
+        PASS [   0.111s] (  2/958) dive-api check::evidence_controls::failed_product_report_retains_capture_but_never_a_verdict
+        PASS [   0.043s] (  3/958) dive-api check::evidence_controls::planning_report_proves_no_capture_without_statistics
+        PASS [   0.044s] (  4/958) dive-api check::evidence_controls::safety_json_retains_actual_nondefault_limits_and_incomplete_stops
+        PASS [   0.026s] (  5/958) dive-api config::tests::rejected_config_reports_tlc_equivalent
+        PASS [   0.030s] (  6/958) dive-api config::tests::accepted_config_json
+        PASS [   0.015s] (  7/958) dive-api temporal::evidence_controls::lost_thread_evidence_is_unknown_not_zero
+        PASS [   0.022s] (  8/958) dive-api config::tests::tla_configs_are_unsupported
+        PASS [   0.017s] (  9/958) dive-api tests::file_name_mismatch_is_an_error
+        PASS [   0.020s] ( 10/958) dive-api tests::invalid_utf8_is_read_like_sany
+        PASS [   0.024s] ( 11/958) dive-api tests::json_has_schema_version_and_cst
+        PASS [   0.018s] ( 12/958) dive-api tests::nested_modules_are_listed
+        PASS [   0.062s] ( 13/958) dive-api::constructor_covers constructor_effects_and_binding_budgets_refuse_before_guessing
+        PASS [   0.051s] ( 14/958) dive-api::constructor_covers constructors_do_not_hide_uncovered_successor_reads
+        PASS [   0.081s] ( 15/958) dive-api::constructor_covers finite_constructor_decisions_match_every_concrete_boolean_assignment
+        PASS [   0.375s] ( 16/958) dive-api::config_name_order stable_config_prefix_uses_seed_before_fingerprint_even_in_forged_input
+        PASS [   0.192s] ( 17/958) dive-api::constructor_covers pinned_constructor_fairness_runs_have_independently_valid_counterexamples
+        PASS [   0.030s] ( 18/958) dive-api::constructor_covers pinned_enabled_constructor_identities_cover_every_initial_state
+        PASS [   0.111s] ( 19/958) dive-api::constructor_covers primed_constructor_domains_are_not_bound_from_the_current_empty_state
+        PASS [   0.100s] ( 20/958) dive-api::deferred_domains recursive_local_function_domains_remain_explicitly_refused
+        PASS [   0.080s] ( 21/958) dive-api::dfid completion_certificate_and_zero_exit_are_separate
+        PASS [   0.021s] ( 22/958) dive-api::dfid constrained_initial_property_is_refused_before_uncertifiable_witness
+        PASS [   0.156s] ( 23/958) dive-api::dfid cross_root_witness_is_valid_and_mutant_is_rejected
+        PASS [   0.097s] ( 24/958) dive-api::dfid finite_deadlock_is_independently_certified
+        PASS [   0.016s] ( 25/958) dive-api::dfid load_failure_reports_unknown_statistics
+        PASS [   0.044s] ( 26/958) dive-api::dfid ordered_runtime_names_do_not_bypass_independent_witness_refusal
+        PASS [   0.020s] ( 27/958) dive-api::dfid zero_width_precedes_even_model_loading
+        PASS [   0.039s] ( 28/958) dive-api::frontier_spill a_frontier_directory_without_a_budget_rejects_before_file_access
+        PASS [   0.113s] ( 29/958) dive-api::frontier_spill disk_creation_failure_has_no_success_and_truthful_worker_evidence
+        PASS [   1.864s] ( 30/958) dive-api::deferred_domains deferred_domains_match_final_truth_counts_and_independent_word_controls
+        PASS [   1.065s] ( 31/958) dive-api::lazy_domains lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls
+        PASS [   3.675s] ( 32/958) dive-api::frontier_spill spilled_counterexamples_validate_and_corruptions_are_rejected
+        PASS [  21.573s] ( 33/958) dive-api::native_checkpoint frontier_recovery_action_constraint_no_deadlock
+        PASS [  21.545s] ( 34/958) dive-api::native_checkpoint frontier_recovery_constrained_violation
+  Cancelling due to interrupt: 2 tests still running
+      SIGINT [   5.433s] ( 35/958) dive-api::native_checkpoint frontier_recovery_deadlock_mid_level
+      SIGINT [   3.939s] ( 36/958) dive-api::native_checkpoint frontier_recovery_duplicate_successors
+────────────
+     Summary [  30.602s] 36/958 tests run: 34 passed, 2 failed, 0 skipped
+warning: 922/958 tests were not run due to interrupt
+error: test run failed
