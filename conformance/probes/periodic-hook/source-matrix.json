@@ -16,9 +16,9 @@
     "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
     "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
     "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
-    "AGENTS.md": "9796024aa315a129fdf015a72d93ba173a78de9d336543f0961857d76aa40d3c",
-    ".github/workflows/ci.yml": "90ff4229c7af1cb77bd4f0362d917a6dc85273b4f31a789f02364e7e9245ec58",
-    "conformance/parity-features.json": "86a3a6af8769f7af53519e8a6628f49828f5ff52b9ed732ba3a59661344f16a3"
+    "AGENTS.md": "478da1d5e0bcbfe92dbdbb19fe623b836e22657c47b2c6c7dd17d6196b344520",
+    ".github/workflows/ci.yml": "8765dd2ea930727f18373cebf8fc998262387751ed137464b4005a56d2ba662c",
+    "conformance/parity-features.json": "8675663ee1b294b479afe7bbe11f0dd9815b187f72efd34e26fb02a98ceec449"
   },
   "current_integration_scope": "Current source integrity only; original runtime producers and observations remain historical, no family certification."
 }

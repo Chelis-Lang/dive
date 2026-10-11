@@ -93,17 +93,56 @@ and OS page cache remain outside this policy. You may separately opt into
 this combination nor any one flag is a total-memory budget. Inserts do not fsync
 data and have no crash durability or restart/import guarantee.
 
-Only successful explicit `INIT`/`NEXT` binding is admitted for search. Missing
-or invalid roles preserve ordinary binder ordering and can emit startup output;
-they do not carry a blanket no-effects guarantee. Configured `PROPERTY`
-and `SPECIFICATION` roles refuse before startup effects, including safety-only
-`SPECIFICATION`; callback-free role decomposition remains pending.
+Successful explicit `INIT`/`NEXT` binding retains its original route. Configured
+pure safety `PROPERTY` and `SPECIFICATION` additionally use source-owned,
+callback-free admission through the actual shared binder. Supported forms include
+state properties, `[]` invariants, `[][A]_v` action properties and
+`Init /\ [][Next]_v` specifications, plus proven alias, LET and INSTANCE contexts.
+The real binder still runs afterward in its original order; admission does not
+execute startup definitions, ASSUMEs or Init and is not a safety proof.
+As in TLC, a state-level formula used directly as `PROPERTY` checks only Init
+and emits warning2255. Use `PROPERTY []P` or `INVARIANT P` to check every state;
+disk placement does not change that distinction.
+
+This first role slice refuses temporal assumptions/obligations, effectful or
+checker-reading source paths, opaque/recursive contexts, evaluated quantified
+PROPERTY domains and strict INSTANCE substitutions. Source inspection is bounded
+to 16,384 visits and depth128; it conservatively includes unused user definitions.
+A refusal can therefore precede a later role-name/arity error. Plain native
+startup definitions that the actual binder skips are not treated as executed
+bodies; configured targets are inspected through actual lookup. These are named
+partial-support refusals, not TLC-error agreement. For example, a fairness-only
+SPECIFICATION succeeds in the resident route but remains refused with disk keys.
+A wrapped higher-order specification may already refuse in the resident route.
+
+Missing or invalid explicit INIT/NEXT roles preserve ordinary binder ordering
+and can emit startup output; they do not carry a blanket no-effects guarantee.
 Graph/source capture, temporal checking,
 checkpoint/recovery and DFID with this store remain explicit unsupported
 combinations. Simulation has no disk-seen route. Pure safety VIEW and symmetry
 retain the existing concrete state and independent-witness contracts; their
 unproved random/liveness combinations remain refused. This increment changes no
 Random/VIEW or trace representation admission and grants no family certification.
+
+Run the shipped source-owned role example (four states, completed cleanup):
+
+```sh
+cargo run -p dive-cli --release -- check \
+  crates/dive-api/examples/seen-roles/Counter.tla \
+  --compat=tlc --seed 7 --fp 0 --workers 8 \
+  --store exact --seen-disk-entries 1000 --output json
+cargo run -p dive-api --example disk_seen_roles --locked
+```
+
+The Rust `CheckRequest` above also works with
+`crates/dive-api/examples/seen-roles/Counter.tla`; the adjacent configuration
+contains both `SPECIFICATION Spec` and `PROPERTY Bound`. No new request flag
+selects the role policy: the same disk opt-in invokes admission, and output still
+reports requested8/actual1 workers. Separately add frontier/predecessor budgets
+when needed; their scopes remain independent. [ADR0075](../decisions/0075-source-owned-pure-safety-role-admission.md)
+and [the complete declared selection](../../conformance/probes/disk-safety-roles/declared-selection.json)
+record support and refused rows. Current qualification is in progress; no
+family-certification claim follows from this example.
 
 See [the storage library](disk-seen-library.md),
 [ADR0068](../decisions/0068-fallible-disk-seen-safety.md) and the current
@@ -164,7 +203,7 @@ report 3 generated, 3 distinct and 1 queued. The original failed disk epoch gave
 The positioned implementation, clean probes and current validation status are
 in [ADR0072](../decisions/0072-fallible-invariant-error-replay.md) and
 [the replay study](../../conformance/probes/fallible-invariant-replay/README.md).
-The public PROPERTY/SPECIFICATION and other mode restrictions above remain.
+The bounded role-admission and other mode restrictions above remain.
 Per-action replay successor buffers are outside the disk-key budget.
 
 The [current replay source-bound controls](../../conformance/probes/fallible-invariant-replay/current/)

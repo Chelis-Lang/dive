@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Source-owned pre-startup admission extends opt-in disk seen-state checking to
+  proven pure safety PROPERTY/SPECIFICATION roles through the shared binder.
+  Temporal/effectful/opaque and evaluation-demanding contexts remain explicit
+  refusals; resident binding, actual inline fallback and separate budget scopes
+  stay unchanged.
+
 - Opt-in bounded disk seen-state safety membership uses fallible ordered inline
   admission, preserving concrete outcomes while reporting actual worker fallback,
   positioned errors and explicit cleanup. Graph/recovery and unproved

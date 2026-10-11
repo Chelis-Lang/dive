@@ -1,0 +1,209 @@
+COMMAND python3 scripts/test-validation-import.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.120s
+
+OK
+COMMAND python3 -I scripts/test-frontend-campaign.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 2.462s
+
+OK
+COMMAND python3 -I scripts/check-parity-ledger.py
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+COMMAND python3 -I scripts/test-parity-ledger.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.085s
+
+OK
+COMMAND python3 -I scripts/check-tlc-planning.py
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+COMMAND python3 -I scripts/check-tlc-tableau.py
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+COMMAND python3 -I scripts/check-temporal-action-order.py
+verified all 36 pinned direct controls, compiler failure and native before observations
+COMMAND python3 -I scripts/check-phase-l.py
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+COMMAND python3 -I scripts/check-phase-l-graph.py
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+COMMAND python3 -I scripts/check-phase-execution.py
+verified all26 execution rows:15 completed graph fields,3 no-OOS boundaries,8 retained failures;8 clean TLC precedence controls and preserved producer histories; no strict verdict claim
+COMMAND python3 -I scripts/check-periodic-controller.py
+Verified296 pinned periodic observations,2089 archived artifacts and exact generated controls; no family certification
+COMMAND python3 -I scripts/check-runtime-ratio.py
+Verified196 actual updater rows,3 negative assertion controls and every Rust fixture; no ordinary clock/model-proof credit
+COMMAND python3 -I scripts/check-tlc-final.py
+verified all30 reference rows/120 native outcomes:19 completed final projections,11 failures without error agreement; exact source histories retained; ordinary strict parity remains unclaimed
+verified complete140 historical refusal rows/138 raw subprocesses; no broad corpus credit
+COMMAND python3 -I scripts/check-state-if-planning.py
+verified all24 current and18 historical conditional controls, original capture failure and native regressions
+COMMAND python3 -I scripts/check-predecessor-spill.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-predecessor-spill.py", line 47, in <module>
+    for path, digest in current['source_sha256'].items(): assert sha(ROOT/path) == digest, path
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-native-checkpoint.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-native-checkpoint.py", line 52, in <module>
+    for name,digest in m['source_sha256'].items():assert sha((ROOT/name).read_bytes())==digest,name
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-view-normalization.py
+verified historical failures and current060 gate/144 checks/whole132+396 selection; shape refusals receive no semantic credit
+COMMAND python3 -I scripts/check-view-random-stream.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-view-random-stream.py", line 34, in <module>
+    assert sha(ROOT / path) == expected, f"Current VIEW/random source authority changed: {path}"
+AssertionError: Current VIEW/random source authority changed: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-trace-representation.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-trace-representation.py", line 54, in <module>
+    assert sha(ROOT / name) == expected, name
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-fallible-seen-store.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-store.py", line 210, in <module>
+    print(json.dumps(verify(args.delivery, args.current_root, args.binary_root), sort_keys=True))
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-store.py", line 189, in verify
+    assert digest(read(checked(current_root, name), MAX_SOURCE)) == expected, name
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-native-parity-integration.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-native-parity-integration.py", line 42, in <module>
+    assert sha((ROOT / name).read_bytes()) == digest, name
+AssertionError: CHANGELOG.md
+COMMAND python3 -I scripts/check-tlc-final-safety.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-final-safety.py", line 27, in <module>
+    for source,digest in current['source_sha256'].items():assert sha(ROOT/source)==digest,source
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-tlc-state-if.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-state-if.py", line 44, in <module>
+    for path,digest in current['source_sha256'].items():assert sha(ROOT/path)==digest,path
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-tlc-temporal-if.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-temporal-if.py", line 35, in <module>
+    for path,digest in json.loads((BASE/'source-matrix.json').read_text())['source_sha256'].items():assert sha(ROOT/path)==digest,path
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-tlc-temporal-if-final.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-temporal-if-final.py", line 109, in <module>
+    for path,d in json.loads((BASE/'source-matrix.json').read_text())['source_sha256'].items():assert sha(ROOT/path)==d,path
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-tlc-final-scopes.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-final-scopes.py", line 104, in <module>
+    for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path
+AssertionError: CHANGELOG.md
+COMMAND python3 -I scripts/check-tlc-property-origins.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-property-origins.py", line 74, in <module>
+    for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path
+AssertionError: CHANGELOG.md
+COMMAND python3 -I scripts/check-material-capture.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-material-capture.py", line 93, in <module>
+    for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path
+AssertionError: CHANGELOG.md
+COMMAND python3 -I scripts/check-temporal-operators.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-temporal-operators.py", line 127, in <module>
+    for path,digest in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==digest,path
+AssertionError: CHANGELOG.md
+COMMAND python3 -I scripts/check-native-temporal-operators.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-native-temporal-operators.py", line 83, in <module>
+    for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+AssertionError: CHANGELOG.md
+COMMAND python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
+Verified original 318 source inputs, 26 unchanged build inputs, 28410 evidence files and 412 focused integration inputs; no current runtime or family certification
+COMMAND python3 -I scripts/check-stored-successor-material.py
+Verified80 establishednative rows:60 supported final outcomes,20 unchangedrefusals/rejections; no errorcredit
+Verified14 primary0/13 rows,14 exact projection rows,56 historical refusals and56 current final outcomes; no ordinary/family credit
+COMMAND python3 -I scripts/check-stored-successor-census.py
+Verified complete immutable c811140 census:60 agree/75 unsupported/5 timeout/0 disagree;138 raw invocations; no ordinary/family credit
+COMMAND python3 -I scripts/check-native-sequence-operators.py
+Verified33 clean primary/29 Java projections/132 native observations:32 supported bounded Append outcomes; Tail/SubSeq/error/refusal histories remain uncredited
+COMMAND python3 -I scripts/check-tlc-partial-scc.py
+Verified32 full prefix rows and8 repeated original checks;8 launcher failures retained; no ordinary clock/model-proof credit
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-partial-scc.py", line 44, in <module>
+    for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-periodic-backend.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-periodic-backend.py", line 55, in <module>
+    for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-periodic-lifecycle.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-periodic-lifecycle.py", line 47, in <module>
+    assert sha((ROOT / path).read_bytes()) == digest, path
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-periodic-hook.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-periodic-hook.py", line 114, in <module>
+    assert sha((ROOT / name).read_bytes()) == digest, name
+AssertionError: conformance/parity-features.json
+COMMAND python3 -I scripts/check-periodic-snapshot.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-periodic-snapshot.py", line 91, in <module>
+    for name,digest in current['source_sha256'].items():assert sha((ROOT/name).read_bytes())==digest,name
+AssertionError: crates/dive-model/src/lib.rs
+COMMAND python3 -I scripts/check-progress-queue.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-progress-queue.py", line 60, in <module>
+    for name,digest in record['source_sha256'].items():assert sha((root/name).read_bytes())==digest,name
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-committed-prefix.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-committed-prefix.py", line 66, in <module>
+    for name,digest in d['source_sha256'].items():assert sha((ROOT/name).read_bytes()) == digest,name
+AssertionError: crates/dive-check/src/lib.rs
+COMMAND python3 -I scripts/check-test-partitions.py
+warning: output filename collision at /Users/jeff/code/dive-trace-representation-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-trace-representation-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-conformance)
+   Compiling dive-bench v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-bench)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-cli)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-eval)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 38s
+warning: output filename collision at /Users/jeff/code/dive-trace-representation-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-trace-representation-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s
+Inventory changed in partition 1
+COMMAND python3 -I scripts/test-workspace-gate.py
+125 prerequisite combinations and four malformed argument lists passed
+COMMAND python3 -I scripts/check-fallible-seen-engine.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-engine.py", line 114, in <module>
+    if __name__=='__main__':main()
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-engine.py", line 19, in main
+    for name,digest in manifest['payload_sha256'].items():assert sha(safe(name).read_bytes())==digest,name
+AssertionError: docs/user/disk-seen-safety.md

@@ -749,3 +749,18 @@ capture/sink calls, separately from warnings. The disk error route refuses
 unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr`
 and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
 pre-review native run's single event is retained as failed output evidence.
+
+
+### Source-owned disk safety role admission (#221)
+
+`dive-model::admit_pure_safety_roles` reuses actual `Binder::process_spec` and
+`process_config` tables and decomposition: MIT pin94d0c50
+`tlc2.tool.impl.SpecProcessor.processSpec/processConfig/processConfigSpec/processConfigProps`,
+`SymbolNodeValueLookupProvider.lookup/getLevelBound`, and `ModuleNode.processConstantDefns`.
+The native structural-only mode refuses evaluation-demanding domains/literals/
+strict substitutions and checks actual native dispatch before startup. It does
+not replace levels/predicates with guessed values. Source visit/depth admission,
+conservative unused roots and pre-startup native refusals are original bounded
+policy, not claimed Java error parity. Resident binding is unchanged; no crate
+edge changes. The declared before-selection and current proof scope are in
+`conformance/probes/disk-safety-roles/` and ADR0075.

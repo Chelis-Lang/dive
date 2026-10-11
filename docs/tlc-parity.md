@@ -676,3 +676,13 @@ The bound action-property probe does not lift public configured PROPERTY refusal
 Disk parallel/capture/temporal/recovery and full error-class coverage remain
 pending; F-031 stays partial/audit-required. Current producer/runtime verification
 is pending in [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+
+Source-owned disk safety role admission (#221, ADR0075) adds a bounded shared
+binder pre-startup path for proven pure safety PROPERTY/SPECIFICATION forms.
+Temporal assumptions/obligations, effects, opaque/recursive contexts and
+quantified-domain/strict-substitution evaluation remain refused; the complete
+selection retains resident-success/refused differences without parity credit.
+This extends opt-in inline evidence only: disk parallel/capture/recovery and
+aggregate-memory bounds remain pending. F-031 stays partial/audit-required.
+Current source qualification is in progress.

@@ -88,3 +88,17 @@ hashes separate from the failed b07 epoch. Run
 `python3 -I scripts/check-fallible-seen-engine.py` for portable readback. This
 bounded INIT/NEXT slice grants no F-031 family certification, parallel disk-read
 authority, graph/recovery support, durability or total-memory guarantee.
+
+### Portable original source identity
+
+The receiving readback carries the original producer commit and the tree paths
+needed to verify all 470 selected source blobs. Git object IDs are recomputed
+from the archived object bytes and each selected blob is reached through the
+original commit's tree. The pinned proof index cannot be silently retagged.
+This preserves the original producer identity after a squash merge, without
+requiring an unmerged commit to exist in a fresh checkout's Git history.
+`python3 -I scripts/test-fallible-seen-git-proof.py` checks a copy without `.git`
+and rejects missing/corrupted trees, producer retagging and changed blob claims.
+This is source identity evidence, not a runtime rerun, a hermetic build bundle,
+archive authentication or storage-family certification. The original failed
+and successful execution epochs retain their producers and results.

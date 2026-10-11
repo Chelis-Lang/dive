@@ -10,7 +10,7 @@
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
     "crates/dive-check/src/capture.rs": "c0da499fcba3afeff4e2d9ddec3dee9cc78a3217eb53f5262b9bcd9c16236baa",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
-    "crates/dive-check/src/lib.rs": "2180ed2f47d92bdff33ec544604b4b2d2c7bfc8a2ed66cd617031128a771d153",
+    "crates/dive-check/src/lib.rs": "bead11282e3b776c2f158f1bf9d9dd0999e06631e0992aa084f387d1e2d54cbf",
     "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
     "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
     "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
@@ -20,9 +20,9 @@
     "docs/producer-progress-requests.md": "3c86960fa78819f6c13947abe377fef87a9a31a4c342981cfe32d109b89cd59c",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
     "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
-    "AGENTS.md": "9796024aa315a129fdf015a72d93ba173a78de9d336543f0961857d76aa40d3c",
-    ".github/workflows/ci.yml": "90ff4229c7af1cb77bd4f0362d917a6dc85273b4f31a789f02364e7e9245ec58",
-    "conformance/parity-features.json": "86a3a6af8769f7af53519e8a6628f49828f5ff52b9ed732ba3a59661344f16a3",
+    "AGENTS.md": "478da1d5e0bcbfe92dbdbb19fe623b836e22657c47b2c6c7dd17d6196b344520",
+    ".github/workflows/ci.yml": "8765dd2ea930727f18373cebf8fc998262387751ed137464b4005a56d2ba662c",
+    "conformance/parity-features.json": "8675663ee1b294b479afe7bbe11f0dd9815b187f72efd34e26fb02a98ceec449",
     "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e"
   },
   "current_integration_scope": "Current source integrity only; original runtime producers and observations remain historical, no family certification."
