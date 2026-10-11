@@ -77,3 +77,9 @@ timeouts. The retained failed log and scheduling contract are in the
 [CI matrix record](../conformance/probes/ci-storage-matrices/README.md).
 This scheduling continuation requires its own qualification; the earlier
 `d21ea2c6` gate and `05b3a1ef` runtime receipts retain their producer identities.
+
+The frozen sixteen-partition scheduling producer `3dcabae1` has now passed
+all 72 local gate commands, including all 1,648 tests with zero skips. Its
+[separate receipt](../conformance/probes/ci-storage-matrices/epochs/3dcabae15a7dbfcbd093cc1eb654beeaf693addf/index.json)
+records the complete, disjoint inventory and independent corruption controls.
+The existing native runtime and test-splitting epochs keep their own producers.

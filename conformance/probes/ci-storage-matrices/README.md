@@ -51,3 +51,20 @@ checks the actual workflow matrix and nextest denominator as well as disjoint
 coverage and all nine matrix corruption controls. Job and per-test timeouts,
 case IDs, assertions and original matrix selections are unchanged. This is a
 scheduling change; fresh gate and CI qualification remain required.
+
+## Closed sixteen-partition qualification
+
+Frozen scheduling producer `3dcabae1` passed all 64 literal CI Python commands
+and all eight Rust gate stages. All 1,648 workspace tests passed with zero skips.
+The actual nextest census selects all tests exactly once across sixteen
+partitions and preserves the 336 storage test groups. It rejects nine matrix
+mutations and three corrupted workflow declarations.
+
+The [separate epoch](epochs/3dcabae15a7dbfcbd093cc1eb654beeaf693addf/index.json)
+retains the 857 selected inputs, all 70 literal fixture sites, command logs and
+independent readback. Eight rehashed semantic corruptions are rejected, including
+missing commands, incomplete partitions, skipped tests and runtime retagging.
+Rust/Cargo/toolchain inputs are identical to the earlier test-splitting producer
+`d21ea2c6`. Existing model runtime campaigns keep their `05b3a1ef` producer.
+This is CI scheduling qualification, not a new model run or feature certificate.
+The pre-run declaration's pending text is retained in the frozen source packet.
