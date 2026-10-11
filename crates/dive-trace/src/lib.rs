@@ -74,6 +74,7 @@ mod runtime_order;
 pub mod temporal;
 pub mod tlc;
 mod trace;
+mod tuple_history;
 mod validate;
 pub mod value_json;
 pub mod value_repr;

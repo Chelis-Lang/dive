@@ -163,6 +163,7 @@ workspace suite. Test and job time limits remain unchanged:
 ```sh
 cargo fmt --all --check
 python3 scripts/test-validation-import.py
+python3 -I scripts/check-inductive-tuple-replay.py
 python3 -I scripts/test-frontend-campaign.py
 python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-tlc-state-if.py

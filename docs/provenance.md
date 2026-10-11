@@ -732,3 +732,8 @@ refusals remain separate from semantic replay. Existing 21/16 conformance gates
 and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
 checks all 443 producing workspace Rust/Cargo inputs against archived and Git
 bytes; earlier source and runtime histories are not relabelled.
+
+The independent tuple-history admission (ADR 0067) is a bounded Rust logical
+proof of necessary Init facts and all-branches Next preservation. It ports no
+checker enumeration algorithm and uses neither supplied witness states nor
+TLC's encounter-order side effects as type evidence.

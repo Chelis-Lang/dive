@@ -141,26 +141,148 @@ fn tuple_guard_does_not_trust_pure_native_string_constructors() {
 }
 
 #[test]
-fn trace_supplied_tuple_shapes_do_not_prove_variable_stack_history() {
-    let source = "---- MODULE StackReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s\nInit == x = 0 /\\ s = <<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
-    let analysis =
-        dive_sema::analyze_source("StackReplay.tla", source, &dive_sema::Options::default());
-    assert!(analysis.accepted());
-    let ir = Arc::new(dive_ir::lower(&analysis).expect("stack lowering"));
-    let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\n")
-        .into_config()
-        .expect("stack config");
-    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("stack bind");
-    let doc = TraceDoc::behavior(vec![
-        json!({"x":0,"s":{"seq":[0,1]}}),
-        json!({"x":1,"s":{"seq":[1]}}),
-    ])
-    .expect("actual tuple stack word")
-    .with_ending(Ending::Invariant("Inv".to_owned()));
-    assert_eq!(
-        validate_doc(&model, &doc, &[], None).0.validation,
-        Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
-    );
+fn inductive_tuple_history_admits_actual_steps_but_never_uses_witness_shape_as_proof() {
+    for (init, next, admits) in [
+        ("<<0,1>>", "x'=1 /\\ s'=Tail(s)", true),
+        (
+            "<<0,1>>",
+            "x'=1 /\\ s'=IF x=0 THEN Tail(s) ELSE <<2>>",
+            true,
+        ),
+        (
+            "<<0,1>>",
+            "(x=0 /\\ x'=1 /\\ s'=Tail(s)) \\/ (x#0 /\\ x'=x /\\ UNCHANGED s)",
+            true,
+        ),
+        (
+            "<<0,1>>",
+            "x'=1 /\\ s'=IF x=0 THEN Tail(s) ELSE \"b\"",
+            false,
+        ),
+        (
+            "<<0,1>>",
+            "x'=1 /\\ s'=IF x=0 THEN Tail(s) ELSE <<ToString(x)>>",
+            false,
+        ),
+        ("\"ab\"", "x'=1 /\\ s'=Tail(s)", false),
+        ("<<0,1>>", "x'=1 /\\ Len(Tail(s))=1", false),
+    ] {
+        let source = format!(
+            "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\nInit == x=0 /\\ s = {init}\nNext == {next}\nInv == x=0\n====\n"
+        );
+        for final_x in [1, 99] {
+            let model = tuple_replay_model(&source, "");
+            let doc = TraceDoc::behavior(vec![
+                json!({"x":0,"s":{"seq":[0,1]}}),
+                json!({"x":final_x,"s":{"seq":[1]}}),
+            ])
+            .expect("tuple stack word")
+            .with_ending(Ending::Invariant("Inv".to_owned()));
+            let result = validate_doc(&model, &doc, &[], None).0.validation;
+            if admits && final_x == 1 {
+                assert_eq!(result, Validation::Valid, "{next}");
+            } else if admits {
+                assert!(matches!(result, Validation::Invalid(_)), "{result:?}");
+            } else {
+                assert_eq!(
+                    result,
+                    Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
+                    "{next}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn inductive_history_requires_every_initial_branch_and_retains_public_api_refusal() {
+    for (definitions, init, next, admitted) in [
+        (
+            "Drop(v) == Tail(v)",
+            "x=0 /\\ s = <<0,1>>",
+            "x'=1 /\\ s'=Drop(s)",
+            true,
+        ),
+        (
+            "Drop(v) == LET Pair == v IN Tail(Pair)",
+            "x=0 /\\ s = <<0,1>>",
+            "x'=1 /\\ s'=Drop(s)",
+            true,
+        ),
+        (
+            "",
+            "(x=0 /\\ s = <<0,1>>) \\/ (x=2 /\\ s = \"ab\")",
+            "x'=1 /\\ s'=Tail(s)",
+            false,
+        ),
+        (
+            "",
+            "x=0 /\\ s = <<0,1>>",
+            "(x=0 /\\ x'=1 /\\ s'=Tail(s)) \\/ (x#0 /\\ x'=1)",
+            false,
+        ),
+        (
+            "",
+            "x=0 /\\ s = <<0,1>>",
+            "x'=1 /\\ s'=(IF x=1 THEN s ELSE <<0>>)' /\\ Len(Tail(s))=1",
+            false,
+        ),
+    ] {
+        let source = format!(
+            "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\n{definitions}\nInit == {init}\nNext == {next}\nInv == x=0\n====\n"
+        );
+        let model = tuple_replay_model(&source, "");
+        let doc = TraceDoc::behavior(vec![
+            json!({"x":0,"s":{"seq":[0,1]}}),
+            json!({"x":1,"s":{"seq":[1]}}),
+        ])
+        .expect("stack history")
+        .with_ending(Ending::Invariant("Inv".into()));
+        let result = validate_doc(&model, &doc, &[], None).0.validation;
+        if admitted {
+            assert_eq!(result, Validation::Valid);
+        } else {
+            assert!(matches!(result, Validation::Unsupported(_)), "{result:?}");
+        }
+        let trace = Trace::decode(&model, &doc).expect("decode stack");
+        // This API is allowed to receive any state, without a validated Init
+        // or predecessor chain. A model invariant cannot license that call.
+        assert!(matches!(
+            dive_trace::exists::exists_successor(
+                &model,
+                model.next.as_ref().expect("next"),
+                &trace.states[0],
+                None,
+                dive_trace::exists::Limits::default()
+            ),
+            Err(dive_trace::exists::ExistsError::Unsupported(_))
+        ));
+    }
+}
+
+#[test]
+fn tuple_hypotheses_are_jointly_inductive_and_failed_dependencies_are_removed() {
+    for (next_t, admitted) in [("s", true), ("IF x=0 THEN s ELSE \"ab\"", false)] {
+        let source = format!(
+            "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s,t\nInit == x=0 /\\ s = <<0,1>> /\\ t = <<2,3>>\nNext == x'=1 /\\ s'=Tail(t) /\\ t'={next_t}\nInv == x=0\n====\n"
+        );
+        let model = tuple_replay_model(&source, "");
+        let doc = TraceDoc::behavior(vec![
+            json!({"x":0,"s":{"seq":[0,1]},"t":{"seq":[2,3]}}),
+            json!({"x":1,"s":{"seq":[3]},"t":{"seq":[0,1]}}),
+        ])
+        .expect("joint history")
+        .with_ending(Ending::Invariant("Inv".into()));
+        let result = validate_doc(&model, &doc, &[], None).0.validation;
+        if admitted {
+            assert_eq!(result, Validation::Valid);
+        } else {
+            assert_eq!(
+                result,
+                Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+            );
+        }
+    }
 }
 
 fn model(tlc: bool, source: &str) -> Model {

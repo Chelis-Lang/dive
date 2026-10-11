@@ -16,7 +16,12 @@ pub(crate) fn admitted(model: &Model) -> bool {
     if model.validate_context().is_err() {
         return false;
     }
-    let mut proof = Proof { model, fuel: 8192 };
+    let history = crate::tuple_history::History::prove(model);
+    let mut proof = Proof {
+        model,
+        fuel: 8192,
+        history,
+    };
     for pred in model
         .init
         .iter()
@@ -50,6 +55,7 @@ pub(crate) fn admitted(model: &Model) -> bool {
 struct Proof<'a> {
     model: &'a Model,
     fuel: usize,
+    history: crate::tuple_history::History,
 }
 
 /// A deliberately closed list: purity alone does not prove that an override
@@ -162,8 +168,7 @@ impl Proof<'_> {
             _ => return false,
         };
         if standard.is_some_and(|op| {
-            !known_nonconstructing(op)
-                && !crate::exists::native_tuple_only(self.model, op, args, scope)
+            !known_nonconstructing(op) && !self.history.native(self.model, op, args, scope)
         }) {
             return false;
         }
