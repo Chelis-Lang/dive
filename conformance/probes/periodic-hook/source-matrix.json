@@ -15,7 +15,7 @@
     "crates/dive-api/examples/periodic_hook.rs": "529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574",
     "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
     "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
-    "scripts/check-periodic-hook.py": "372b7cd9f4a565c86c850ffaed6d03b901b674400fd21ef5f3c509184bd8eec3",
+    "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
     "AGENTS.md": "f908104cb6e9d0a923b3625de213dd351f8708f4e24151e46ea30febcf8e3ed0",
     ".github/workflows/ci.yml": "3525db1212d56972ec4e462754a40ade48454f0c3d4a6a484e68c2d9b807a3fa",
     "conformance/parity-features.json": "2ce9a8c29597fbb112db178c8819aa26e0e73db0ffe011bc172175b1252ac9df"

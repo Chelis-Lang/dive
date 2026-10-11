@@ -47,6 +47,8 @@ with tarfile.open(BASE / 'primary.tar.gz', 'r:gz') as archive:
         case = row['case']
         for name, digest in row['files_sha256'].items():
             assert sha(raw[f'case-{index:03}/{name}']) == digest, (index, name)
+        actual_events = [line[6:] for line in raw[f'case-{index:03}/stdout'].decode().splitlines() if line.startswith('EVENT\t')]
+        assert actual_events == row['events'], index
         assert row['timeout'] is False
         events = [] if 'role' in case else ['setup-complete', 'start']
         error = None
@@ -76,6 +78,16 @@ with tarfile.open(BASE / 'primary.tar.gz', 'r:gz') as archive:
         assert row['events'] == events, (case, row['events'], events)
         assert row['exit'] == (2 if error else 0), case
     assert receipt['files_verified'] == 4 * len(selected)
+readback = load(BASE / 'raw-independent-readback.json')
+assert readback['capture_sha256'] == sha((BASE / 'capture.json').read_bytes())
+assert readback['archive_sha256'] == sha((BASE / 'primary.tar.gz').read_bytes())
+assert readback['raw_events_derived'] == 59 and readback['raw_files_verified'] == 236
+assert [r['stdout_marker'] for r in readback['effect_markers']] == [1, 0, 0, 1]
+assert all(r['stderr_marker'] == 1 for r in readback['effect_markers'])
+assert not readback['ordinary_schedule_certified'] and not readback['configured_binding_certified']
+closed_history = BASE / 'history-before-final-readback'
+for name, digest in load(closed_history / 'manifest.json')['source_sha256'].items():
+    assert sha(gzip.decompress((closed_history / (name + '.gz')).read_bytes())) == digest, name
 history = BASE / 'history-before-hook'
 manifest = load(history / 'manifest.json')
 for name, digest in manifest['matrices_sha256'].items():
