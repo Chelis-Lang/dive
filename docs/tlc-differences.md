@@ -2202,3 +2202,11 @@ General recursion, scoped renaming and procedure definitions remain unfinished.
 ## Native periodic hook boundary
 
 The [pure supplied-expression API](periodic-hook.md) now composes a bounded hook at real native dispatch pauses, with original FALSE comparison and evaluation errors. It does not bind configured `_PERIODIC` and does not enable ordinary checking. The complete59 actual-TLC controls retain even setup failures: an `_PERIODIC` constant name throws ClassCastException rather than a stable binding diagnostic. Native configured binding remains a named refusal, so no fabricated error-class agreement is claimed. Checkpoint/host effects, ordinary schedule and stopping-count parity remain pending; no result default changes.
+
+D-008 LOCAL/function DEFINE limitation narrowed: bounded global `LOCAL F == x`
+and `F[a \in 0..x] == a+1` now preserve the reference declaration and pre-state
+lookup rather than substituting an earlier assignment's new value. The
+[LOCAL/function guide](pluscal-definition-forms.md) describes supported scope,
+CLI/API examples and remaining recursive/action/temporal/name/procedure refusals.
+Reference-invalid artifacts and fixture filename failures stay visible without
+admission or proof credit. Neither profile silently repairs the reference output.
