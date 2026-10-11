@@ -1,0 +1,21 @@
+    Checking serde v1.0.229
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-store)
+error: missing `#[must_use]` attribute on a method returning `Self`
+   --> crates/dive-store/src/set.rs:169:5
+    |
+169 | /     pub fn extract_if(&mut self, mut selected: impl FnMut(&P) -> bool) -> Self {
+170 | |         let mut result = Self::new(self.per_shard.len());
+171 | |         for (shard, candidates) in self.per_shard.iter_mut().enumerate() {
+172 | |             let mut retained = Vec::with_capacity(candidates.len());
+...   |
+184 | |         result
+185 | |     }
+    | |_____^
+    |
+    = help: consider adding the `#[must_use]` attribute to the method or directly to the `Self` type
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#return_self_not_must_use
+    = note: `-D clippy::return-self-not-must-use` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::return_self_not_must_use)]`
+
+error: could not compile `dive-store` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

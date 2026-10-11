@@ -3,9 +3,9 @@
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "scope": "Current bounded partial SCC source contract; all reference prefix projections remain explicit diagnostic fields, not ordinary schedule/model proof.",
   "source_sha256": {
-    "conformance/parity-features.json": "507219cb985cee2959c05d908ca5dfa03987853bb3b580a7dd74e79e7fbf49c9",
+    "conformance/parity-features.json": "25bfbdca43c76056a1e82fd2a5630721b4fcf9f6fe22eb6e39d7f005724245af",
     "crates/dive-api/examples/partial_temporal_checks.rs": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
-    "crates/dive-liveness/src/phase_execution.rs": "dfd1574afe1662fabf890d8a5c201f118a2185165ce1fd48b28164d9b1d2ff22",
+    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/tests/partial_execution.rs": "de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1",

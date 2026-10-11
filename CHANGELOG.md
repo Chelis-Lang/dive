@@ -37,6 +37,8 @@ All notable changes to this project are documented here. The project will follow
 
 
 
+- Producer-owned request pauses publish the maximal returned contiguous source prefix through the shared safety/graph path, retaining later buffers without regeneration. Typed receipts distinguish graph publication from physical frontier append; no ordinary temporal verdict or schedule credit. See `docs/committed-periodic-prefix.md`.
+
 - Producer-owned progress requests pause actual expansion claims and join admitted work under real dispatch authority; privately retained receipts keep uncommitted output separate from logical/temporal graph publication. Runnable Rust diagnostics grant no ordinary schedule or model-proof credit.
 
 - Add a bounded configuration-owned periodic snapshot Rust diagnostic with prebinding startup admission, original role/body identities and exact ordinary-check refusal. It grants no ordinary schedule or temporal proof.

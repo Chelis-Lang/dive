@@ -8,22 +8,22 @@
   "source_sha256": {
     "crates/dive-check/src/progress.rs": "4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
-    "crates/dive-check/src/capture.rs": "587037643c465cd8f2606593af224a9d60beb2825b5b3148879e3fc0b38bf042",
-    "crates/dive-check/src/parallel.rs": "c27d441d172837bc368835492d03a8ca9408d6bbd88bec48438fbbcc76db3e53",
+    "crates/dive-check/src/capture.rs": "dd3b901ba54080f6a47d8f0ac0336a12b759374800f07a9812a9cc761ccc9786",
+    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/src/lib.rs": "5f7fab9d94149df30dff7530753fbb14084b2002f6eec35819890b000fc6a053",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "804f6597f986c30b06f23b80149fac4f4bb28a2e678432ba5cdebb307b73fc86",
-    "crates/dive-liveness/src/periodic_snapshot.rs": "e8dc35ed3648263843303d943c64a88efc03bdb43997e1d69e199687bd5ddaa3",
-    "crates/dive-liveness/src/phase_execution.rs": "dfd1574afe1662fabf890d8a5c201f118a2185165ce1fd48b28164d9b1d2ff22",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
+    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
-    "crates/dive-liveness/tests/periodic_snapshot.rs": "1dce5111e5a113a76cc82eece3d6a9caa1fcee727a360d6cc45b44c9b13cd8ea",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
     "crates/dive-api/examples/progress_requests.rs": "8af00b2814388ecd00a57191dfeb771c983c5132ce6357f5be0449ab3a6683b4",
-    "docs/producer-progress-requests.md": "99edbe43e575672f4fc28f9a36a14365ef0c17251b8df9a7125df91a9a28d7a3",
+    "docs/producer-progress-requests.md": "3c86960fa78819f6c13947abe377fef87a9a31a4c342981cfe32d109b89cd59c",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
     "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
-    "AGENTS.md": "9bc0cf431f83ee23e30d87c73a4680e1dbeefd9dea035c6dc36a401c1d30baa0",
-    ".github/workflows/ci.yml": "6c3c9b699ac410733b41a4a6f409e17df22e36e5d1e8397453a2d19f9ab194b2",
-    "conformance/parity-features.json": "507219cb985cee2959c05d908ca5dfa03987853bb3b580a7dd74e79e7fbf49c9",
-    "crates/dive-check/tests/observer_barrier.rs": "c69be24a810b579f42903352f1cb6631d0cbc8e24f3f6bc7a01489405363c566"
+    "AGENTS.md": "c07334e641376c465f25c39314924b9b8cd2f98629642d69d18f6a8a41ab745b",
+    ".github/workflows/ci.yml": "381ad153d199168ac76e921855c9db8b746c92ca6a2dc428cb3275ed3fcb7018",
+    "conformance/parity-features.json": "25bfbdca43c76056a1e82fd2a5630721b4fcf9f6fe22eb6e39d7f005724245af",
+    "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

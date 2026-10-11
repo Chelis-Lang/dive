@@ -1,0 +1,6 @@
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-sim)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `dev` profile [unoptimized] target(s) in 3.33s
+     Running `/Users/jeff/code/dive-periodic-snapshot-target/debug/examples/committed_prefix`
+generated=4234 distinct=65 safety_eof=true model_proof=false

@@ -330,3 +330,156 @@ fn actual_request_observer_error_and_unwind_close_timer_and_pool_without_eof() {
         }
     }
 }
+
+#[test]
+fn source_fault_after_graph_observation_never_certifies_frontier_append_or_eof() {
+    struct Fault {
+        width: usize,
+        observed: usize,
+        eof: bool,
+    }
+    impl SourceObserver for Fault {
+        fn source(&mut self, _source: CommittedSource<'_>) -> Result<(), String> {
+            Err("unpaused fault observer source".into())
+        }
+        fn requires_dispatch_pause(&self) -> bool {
+            true
+        }
+        fn progress_requests(&self) -> Option<dive_check::progress::Options> {
+            Some(dive_check::progress::Options {
+                interval: std::time::Duration::from_millis(1),
+                force: true,
+            })
+        }
+        fn paused_source(
+            &mut self,
+            source: CommittedSource<'_>,
+            pause: &capture::DispatchPause<'_>,
+        ) -> Result<(), String> {
+            assert_eq!(pause.workers(), self.width);
+            assert!(source.barrier.frontier_append_pending());
+            assert!(!source.successors.is_empty());
+            self.observed += 1;
+            Err("fault after actual source observation before physical frontier append".into())
+        }
+        fn exploration_complete(&mut self, _end: &capture::ExplorationEnd) -> Result<(), String> {
+            self.eof = true;
+            Ok(())
+        }
+    }
+    for width in [1, 3, 4, 8] {
+        let opts = CheckOptions {
+            workers: width,
+            chaos: Some(19),
+            ..CheckOptions::tlc(0, 0)
+        };
+        let m = model(
+            "---- MODULE Barrier ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x' \\in 1..128\nInv == TRUE\n====\n",
+            &opts,
+        );
+        let mut observer = Fault {
+            width,
+            observed: 0,
+            eof: false,
+        };
+        let Exploration::Stopped(stop) = capture::explore_observed_with_evidence(
+            &m,
+            &opts,
+            capture::Limits::default(),
+            &mut observer,
+        )
+        .expect("admitted") else {
+            panic!("must stop at observer fault")
+        };
+        assert_eq!(observer.observed, 1);
+        assert!(!observer.eof);
+        assert!(matches!(
+            stop.verdict,
+            dive_check::Verdict::Unsupported { .. }
+        ));
+        assert_eq!(stop.workers.used, width);
+        assert_eq!(stop.stats.expect("actual projected prefix").generated, 129);
+    }
+}
+
+#[test]
+fn observer_failure_after_prefix_append_retains_actual_queue_and_counters() {
+    struct ReceiptFault {
+        published: Option<capture::ExpansionQuiescence>,
+        sources: usize,
+        eof: bool,
+    }
+    impl SourceObserver for ReceiptFault {
+        fn progress_requests(&self) -> Option<dive_check::progress::Options> {
+            Some(dive_check::progress::Options {
+                interval: std::time::Duration::from_millis(1),
+                force: true,
+            })
+        }
+        fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String> {
+            assert!(source.barrier.frontier_append_pending());
+            if source.barrier.published_prefix().is_some() {
+                assert_eq!(
+                    source.barrier.publication(),
+                    capture::PublicationKind::RequestPrefix
+                );
+            }
+            self.sources += 1;
+            Ok(())
+        }
+        fn expansion_quiescent(
+            &mut self,
+            receipt: capture::ExpansionQuiescence,
+            _pause: &capture::DispatchPause<'_>,
+        ) -> Result<(), String> {
+            if receipt.committed().is_empty() {
+                return Ok(());
+            }
+            assert_eq!(receipt.frontier_appended(), receipt.committed());
+            self.published = Some(receipt);
+            Err("fault after completed prefix physical frontier append".into())
+        }
+        fn exploration_complete(&mut self, _end: &capture::ExplorationEnd) -> Result<(), String> {
+            self.eof = true;
+            Ok(())
+        }
+    }
+    for width in [1, 3, 4, 8] {
+        let opts = CheckOptions {
+            workers: width,
+            chaos: Some(19),
+            ..CheckOptions::tlc(0, 0)
+        };
+        let m = model(
+            "---- MODULE Barrier ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..8\nNext == x' \\in 0..4096\nInv == TRUE\n====\n",
+            &opts,
+        );
+        let mut observer = ReceiptFault {
+            published: None,
+            sources: 0,
+            eof: false,
+        };
+        let Exploration::Stopped(stop) = capture::explore_observed_with_evidence(
+            &m,
+            &opts,
+            capture::Limits::default(),
+            &mut observer,
+        )
+        .expect("capture") else {
+            panic!("must stop at real prefix receipt")
+        };
+        let receipt = observer.published.expect("actual appended prefix");
+        let stats = stop.stats.expect("actual stopping stats");
+        assert_eq!(stats, receipt.committed_stats());
+        assert_eq!(stats.distinct, 4097);
+        let committed = usize::try_from(receipt.committed().end).expect("bounded source count");
+        assert_eq!(observer.sources, committed);
+        assert_eq!(stats.generated, 9 + 4097 * committed as u64);
+        assert_eq!(stats.left_on_queue, (4097 - committed) as u64);
+        assert!(!observer.eof);
+        assert!(matches!(
+            stop.verdict,
+            dive_check::Verdict::Unsupported { .. }
+        ));
+    }
+}

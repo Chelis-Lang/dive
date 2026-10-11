@@ -54,8 +54,10 @@ impl Snapshot {
     }
     /// Add an internally generated timer/initial-force lane to actual expansion
     /// claims. Requests join claimed work under real dispatch authority, then
-    /// resume unclaimed work. Current-wave outputs remain uncommitted: only the
-    /// existing source-commit path evaluates the configured hook and temporal graph.
+    /// publish the maximal returned contiguous prefix through the shared ordered
+    /// safety/source path, then resume retained unclaimed or later work. The
+    /// configured hook and temporal graph inspect only actual source publication;
+    /// returned output outside that prefix remains uncommitted.
     /// This diagnostic is not ordinary TLC queue/schedule or model-proof evidence.
     ///
     /// # Errors
