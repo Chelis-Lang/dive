@@ -16,7 +16,7 @@ fn directory() -> std::path::PathBuf {
 }
 fn write(path: &std::path::Path, value: &serde_json::Value) {
     let payload = serde_json::to_vec(value).expect("payload");
-    let mut bytes = b"DIVECP01".to_vec();
+    let mut bytes = b"DIVECP02".to_vec();
     bytes.extend((payload.len() as u64).to_le_bytes());
     bytes.extend(Sha256::digest(&payload));
     bytes.extend(payload);

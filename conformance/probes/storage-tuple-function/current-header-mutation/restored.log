@@ -1,0 +1,9 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.38s
+     Running tests/native_checkpoint.rs (/Users/jeff/code/dive-trace-representation-target/debug/deps/native_checkpoint-a9a21e1a8e28bb3c)
+
+running 1 test
+test coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.69s
+

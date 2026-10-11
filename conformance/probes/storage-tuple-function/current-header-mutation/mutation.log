@@ -1,0 +1,19 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.50s
+     Running tests/native_checkpoint.rs (/Users/jeff/code/dive-trace-representation-target/debug/deps/native_checkpoint-a9a21e1a8e28bb3c)
+
+running 1 test
+
+thread 'coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt' (125153643) panicked at crates/dive-check/tests/native_checkpoint.rs:260:9:
+0: coherent current-format corruption must reach payload admission
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt ... FAILED
+
+failures:
+
+failures:
+    coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.52s
+
+error: test failed, to rerun pass `-p dive-check --test native_checkpoint`

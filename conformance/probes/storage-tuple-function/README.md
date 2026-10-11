@@ -41,3 +41,12 @@ Native application error metadata remains `verified:false`. Queue/log budgets
 remain independent scoped limits, not total RAM or reconstruction limits.
 Historical/current source and runtime receipts will be recorded separately when
 the corrected full gate and release consumers close.
+
+The first dc0f full gate is retained under
+`before-current-format-fixtures-gate/`:1160/1167 tests passed, seven existing
+current-payload rewriters failed at the old CP01 header; all other stages passed.
+The corrected epoch migrates their headers without changing the existing
+assertions/case selection and strengthens the generic corruption check.
+`current-header-mutation/` retains the deliberate CP01 mutation failure and
+restored CP02 pass, proving that generic refusal reaches payload admission.
+Explicit actual old-format migration refusals remain independent controls.
