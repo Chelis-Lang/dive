@@ -806,6 +806,7 @@ unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr
 and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
 pre-review native run's single event is retained as failed output evidence.
 
+
 ## Acyclic procedure-body checksum calls (#219)
 
 `checksum_transfers.rs` discovers source-owned procedure call vectors separately

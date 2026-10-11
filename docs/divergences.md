@@ -812,6 +812,42 @@ retain the pinned header behavior, unchanged global quotas and D-020 weakness.
 Invalid `-fair` commands are command-stage uncredited controls, not language
 rejection or exit-equivalence credit. Artifact and strict saved-frame replay
 remain separately qualified. See [the runnable guide](pluscal-multiple-procedure-checksums.md).
+## Supplied pure periodic expressions (bounded diagnostic limitation)
+
+ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).
+
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).
+
+Producer request limitation (#201): [the bounded Rust diagnostic](producer-progress-requests.md) stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
+
+### Actual committed request-prefix limitation (#204)
+
+The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+
+D-007 ordinary disk-seen increment (ADR0068): `--seen-disk-entries N` now admits
+bounded inline safety membership for full fingerprint/exact keys. The resident
+reference remains default in both profiles. Typed limits/cleanup and actual
+inline workers are explicit; graphs, recovery and parallel read views remain
+unproved. This is result-preserving completed behavior with explicit limits,
+not a new semantic default or total-memory promise. See the
+[user and Rust guide](user/disk-seen-safety.md).
+
+
+D-007 storage implementation note (#217, ADR0072): the existing opt-in inline
+INIT/NEXT disk engine now has a positioned fallible invariant-error replay path.
+Clean ReplayNew reports 2 generated/4 distinct/2 queued while the generated
+counter remains frozen. First query/insertion/bound/cleanup failures retain the
+original error and ordered prefix and refuse completion. This adds no new
+result-changing default, disk parallel/capture/recovery support or family credit.
+Original guarded and incorrect-count epochs remain separately linked in
+[the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+ADR0072's D-007 disk continuation retains an explicit actual-Print/PrintT
+error-reconstruction refusal. Clean `ReplayPrint` has three output events,
+pre-review native one; equal counts do not grant class/output or certificate
+credit. Pure key/count replay, original errors and positioned failure evidence
+remain separately qualified. This adds no result-changing default.
+
 
 D-008 acyclic sequential procedure Full checksum continuation (ADR0073) separates
 actual body edges from the reference LAST-header main-call alias. The clean
