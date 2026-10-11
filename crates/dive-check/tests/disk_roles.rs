@@ -306,3 +306,41 @@ fn shared_paths_cannot_bypass_source_depth_admission() {
         assert!(result.seen.is_none());
     }
 }
+
+#[test]
+fn strict_subscript_only_substitution_is_not_admitted_by_warning() {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(
+        "../../conformance/probes/disk-safety-roles/strict-subscript/StrictRoleSubscript.tla",
+    );
+    let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    assert!(ir.nodes().iter().any(|node| matches!(
+        &node.expr,
+        dive_ir::Expr::Subst { bindings, .. } if bindings.iter().any(|binding| matches!(
+            binding.value,
+            dive_ir::Arg::Expr { pass: dive_ir::Pass::Strict, .. }
+        ))
+    )));
+    let cfg =
+        dive_config::parse(&std::fs::read_to_string(file.with_extension("cfg")).expect("cfg"))
+            .into_config()
+            .expect("configuration");
+    for mut opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+        let resident = check(&ir, &cfg, &opts);
+        assert_eq!(resident.verdict, Verdict::Success);
+        assert_eq!(resident.stats.expect("stats").distinct, 3);
+        assert!(resident.warnings.iter().any(|(code, _)| *code == 2140));
+        opts.seen_disk = Some(SeenOptions::default());
+        let disk = check(&ir, &cfg, &opts);
+        assert!(
+            matches!(disk.verdict, Verdict::Unsupported { ref feature } if feature.contains("strict instance-substitution")),
+            "{:?}",
+            disk.verdict
+        );
+        assert!(disk.stats.is_none());
+        assert!(disk.seen.is_none());
+        assert_eq!(disk.workers.used, 0);
+        assert_eq!(disk.output, Vec::<String>::new());
+    }
+}

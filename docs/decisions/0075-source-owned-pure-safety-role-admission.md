@@ -50,3 +50,15 @@ mutant controls. Print-dependent invariant-error replay retains ADR0072's
 explicit refusal. Capture, temporal checking, checkpoint/recovery and unproved
 decomposition routes remain separate; this is no total-memory, scaling,
 archive-certificate or full F-031 certification claim. Crate layering is unchanged.
+
+## Pre-freeze strict-subscript control
+
+The separately selected strict INSTANCE subscript shows a structural scope
+refusal can become warning2140 in the real subscript collector. Preliminary4f
+admitted it on disk; the primary and resident checker succeed with three
+states. Therefore the source walk itself rejects strict expression arguments
+before warning-only subscript traversal. This preserves resident ordering and
+warnings and makes an unproved disk admission explicit, without claiming a
+reference bug or changing the declared29-model comparison selection. The old
+source, five raw outcomes and failing-before/passing-after regression remain
+in the probe history.

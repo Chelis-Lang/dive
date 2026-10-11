@@ -81,8 +81,42 @@
     {
       "name": "dive-role-second-offline.json",
       "sha256": "a9bff5c34838155751d0c2ce376a9dbcde395c4b065c03c47aa543dccfc93677"
+    },
+    {
+      "name": "dive-role-strict-baseline-build.log",
+      "sha256": "e329410f4af62d24a3089345bdaa985dfa1f7271505a1f2c23b2696f86b4dfe2"
+    },
+    {
+      "name": "dive-role-strict-before.log",
+      "sha256": "76a9464bdc9f25ce84213926883bee0f599619a0c0c519f8ba506e07b4905ff2"
+    },
+    {
+      "name": "dive-role-strict-subscript-before-test.log",
+      "sha256": "df4ef1e0e42bbaaaeedf9fd0d3f041a136f05e0d283765e9cee7ea797af3255a"
+    },
+    {
+      "name": "dive-role-strict-corrected-focused.log",
+      "sha256": "2f427f204f1e52c3d4f3c0da35a6a871beb898826643396a7b28fb8e6e6c503c"
+    },
+    {
+      "name": "dive-role-final-focused.log",
+      "sha256": "3ff277c0b2c7cae651407ec6e17dc8960a3d83fa18724a3ed8393802f6f4b796"
+    },
+    {
+      "name": "dive-role-final-focused.json",
+      "sha256": "1d4895fc579c2c6ef8619ee3d57ce8bb87c34caa25039763fb3449a112f2f496"
+    },
+    {
+      "name": "dive-role-final-prefreeze-offline.log",
+      "sha256": "384cb2f631b161df6f3b34017864b992f86e24d8d6e203b497b5a73ed2d7fd08"
+    },
+    {
+      "name": "dive-role-final-prefreeze-offline.json",
+      "sha256": "0cddf0bab02e5ca6070e44ef03502c91b1a59850a7c2f1bd769ed23cfca8bdbc"
     }
   ],
   "original_gate_failures_unchanged": true,
-  "family_certified": false
+  "family_certified": false,
+  "strict_subscript_history": "Frozen preliminary4f source/primary/native success retained separately; the meaningful new regression failed before the narrowed callback-free strict-context refusal, then all36 focused controls passed. This is an unproved disk admission boundary, not a claimed wrong TLC verdict.",
+  "corrected_prefreeze": "All45 actual CI Python commands plus fmt passed on the corrected stable worktree. Actual inventory1326/0ignored, eight disjoint partitions; this is preparation, not the upcoming full gate or a retagged runtime."
 }

@@ -2268,7 +2268,12 @@ binder, admitting proven pure safety PROPERTY/SPECIFICATION forms. It does not
 use syntax-level temporal filtering: `Init /\ [][Next]_x` decomposes into safety
 roles, while actual temporal assumptions or obligations refuse. The declared
 29-model before-selection keeps clean pinned output, resident results and the old
-blanket disk refusal separately. LET/INSTANCE/configured aliases are selected,
+blanket disk refusal separately. A strict INSTANCE expression occurring only
+in the SPECIFICATION subscript remains refused before startup: the selected
+primary and resident control succeed with three states and warning2140, while
+warning-only subscript inspection does not prove structural disk admission.
+The preliminary4f disk Success and failed admission regression are preserved.
+This is a scoped native restriction, not a wrong TLC verdict. LET/INSTANCE/configured aliases are selected,
 not granted support merely by name. Current qualification remains in progress.
 
 The policy is deliberately partial. A fairness-only specification that succeeds

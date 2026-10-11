@@ -108,6 +108,12 @@ This first role slice refuses temporal assumptions/obligations, effectful or
 checker-reading source paths, opaque/recursive contexts, evaluated quantified
 PROPERTY domains and strict INSTANCE substitutions. Source inspection is bounded
 to 16,384 visits and depth128; it conservatively includes unused user definitions.
+A strict INSTANCE expression used only in a SPECIFICATION subscript is also
+refused: the normal subscript collector can turn an unproved scope into a
+warning, which is insufficient for disk admission. The minimal selected
+`R == INSTANCE StrictRolePart WITH c <- 1` / `[][Next]_R!Sub` control still
+succeeds with three states and warning2140 in TLC and resident checking. This
+is a disk support restriction, not a changed resident verdict.
 A refusal can therefore precede a later role-name/arity error. Plain native
 startup definitions that the actual binder skips are not treated as executed
 bodies; configured targets are inspected through actual lookup. These are named

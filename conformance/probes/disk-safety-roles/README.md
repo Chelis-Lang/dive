@@ -28,3 +28,15 @@ checkout. Its current source map is separate from frozen execution evidence.
 Neither that proof nor this new role admission authenticates an archive or
 certifies a model. The user contract and executable example are in
 [the disk safety guide](../../../docs/user/disk-seen-safety.md).
+
+The strict-subscript control is separate from the original29 selection. In
+`strict-subscript/StrictRoleSubscript.tla`, `R == INSTANCE StrictRolePart WITH
+c <- 1` and `Spec == Init /\ [][Next]_R!Sub` require a strict substitution
+while inspecting the subscript. The clean primary and preliminary4f resident
+and disk checker succeed with three states and warning2140 (the subscript does
+not appear to contain `x`). `strict-subscript/before/` preserves those five
+observations and the selected original source. The new regression first failed
+on that disk Success. The corrected source refuses this unproved disk context
+before startup; resident success and warning are unchanged. Warning-only
+subscript inspection cannot establish structural admission. No wrong TLC
+verdict, error equivalence or safety certificate is claimed for this refusal.

@@ -205,6 +205,23 @@ impl<'a, 'b> SourceWalk<'a, 'b> {
 
     fn expression_inner(&mut self, id: ExprId, depth: usize) -> Result<(), BindError> {
         let expression = self.binder.ir().expr(id);
+        // Subscript inspection turns scope errors into warnings. Reject the
+        // unproved strict context here, before that warning-only traversal.
+        if let Expr::Subst { bindings, .. } = expression
+            && bindings.iter().any(|binding| {
+                matches!(
+                    binding.value,
+                    dive_ir::Arg::Expr {
+                        pass: dive_ir::Pass::Strict,
+                        ..
+                    }
+                )
+            })
+        {
+            return Err(BindError::unsupported(
+                "pure safety role admission needs strict instance-substitution evaluation",
+            ));
+        }
         if let Expr::Def(def) = expression {
             self.definition(*def, depth + 1)?;
         }
