@@ -729,3 +729,16 @@ explicit native policy, not Java I/O-error equivalence. Unchanged canonical
 bytes and fingerprint keyers are borrowed once; no Boolean disk adapter or
 future candidate bulk resolve is introduced. Independent concrete replay does
 not read checker stores. Graph, recovery and parallel read views remain refused.
+
+### Positioned disk invariant-error replay (#217)
+
+`dive-check::Search::replay_after_disk/replay_disk_states` matches MIT pinned
+94d0c50 `tlc2.tool.ModelChecker.doNext`, `doNextSetErr` and invariant/action
+continuation ordering. Full disk keys and Result operations use the existing
+ADR0063 library; no Boolean StateSet adapter or resident key mirror exists.
+Fresh clean six-fixture stdout/exit evidence is in
+`conformance/probes/fallible-invariant-replay/primary/`. Original wrong-count and
+refusal epochs are unchanged. Class parity is limited to actual known verified
+sites, and the private bound action-property control does not lift public
+PROPERTY admission. Inline fallback, logical versus physical replay counts,
+first cause/cleanup retention and non-certificate limits are ADR0072.

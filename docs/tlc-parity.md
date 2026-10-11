@@ -664,5 +664,15 @@ decomposition, parallel read views, capture/temporal routing and disk seen-state
 recovery remain pending. Candidate/graph/reconstruction retention and OS page
 cache remain outside these bounds; F-031 remains partial/audit-required.
 
-Disk invariant-error call-stack replay remains a named refusal; its retained error
-word and initial counts do not receive completed replay or certificate credit.
+The first disk engine epoch refused invariant-error call-stack replay; its
+original refusal/error/count evidence remains historical and receives no replay credit.
+
+
+Positioned invariant-error replay (#217, ADR0072) adds actual fallible membership
+and insertion to the existing inline disk INIT/NEXT safety route. Clean
+ReplayNew gives 2 generated/4 distinct/2 logically queued; later storage failures
+retain the original error and ordered prefix but confer no completion credit.
+The bound action-property probe does not lift public configured PROPERTY refusal.
+Disk parallel/capture/temporal/recovery and full error-class coverage remain
+pending; F-031 stays partial/audit-required. Current producer/runtime verification
+is pending in [the replay study](../conformance/probes/fallible-invariant-replay/README.md).

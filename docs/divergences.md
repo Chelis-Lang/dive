@@ -763,3 +763,13 @@ inline workers are explicit; graphs, recovery and parallel read views remain
 unproved. This is result-preserving completed behavior with explicit limits,
 not a new semantic default or total-memory promise. See the
 [user and Rust guide](user/disk-seen-safety.md).
+
+
+D-007 storage implementation note (#217, ADR0072): the existing opt-in inline
+INIT/NEXT disk engine now has a positioned fallible invariant-error replay path.
+Clean ReplayNew reports 2 generated/4 distinct/2 queued while the generated
+counter remains frozen. First query/insertion/bound/cleanup failures retain the
+original error and ordered prefix and refuse completion. This adds no new
+result-changing default, disk parallel/capture/recovery support or family credit.
+Original guarded and incorrect-count epochs remain separately linked in
+[the replay study](../conformance/probes/fallible-invariant-replay/README.md).

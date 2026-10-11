@@ -1,0 +1,421 @@
+{
+  "scope": "Uncommitted development logs, including initial old-refusal and public JSON-field assertion failures; no immutable compiled-source or full-gate qualification is claimed for these attempts. Final producer/gate must remain separately qualified.",
+  "files": {
+    "final-targeted/clippy.stderr": {
+      "sha256": "76994107bdc3af1fc3e62522c5690bdf34cd30e3977d6a62899fd38c9df9ed97",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/clippy.stderr.gz"
+    },
+    "final-targeted/clippy.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/clippy.stdout.gz"
+    },
+    "final-targeted/guide.stderr": {
+      "sha256": "bd30a2c1679b89811aa65219cd4f81a4bee69938868042e435fa9892f84549e1",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/guide.stderr.gz"
+    },
+    "final-targeted/guide.stdout": {
+      "sha256": "6a27e8b8714e99e0fdca428d2d12e6ee52e7d5604027be98c770b459dfe06a24",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/guide.stdout.gz"
+    },
+    "final-targeted/integration.stderr": {
+      "sha256": "dbad6ddf25614f2db1fa289c10bca3954714b5b2854382944b1870da52fe0919",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/integration.stderr.gz"
+    },
+    "final-targeted/integration.stdout": {
+      "sha256": "48fe0cf34dc2384d30498d3f9e0a43dfef9f2daf939b24bd09b69eb639e3866e",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/integration.stdout.gz"
+    },
+    "final-targeted/public.stderr": {
+      "sha256": "d4dd3e0328fa6c47e52285969d6bea3f565540a2a1346ae053f0f25072584e02",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/public.stderr.gz"
+    },
+    "final-targeted/public.stdout": {
+      "sha256": "9a6969cf192f7178c4c7cd634139d47d114671c542136def052175e782c80876",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/public.stdout.gz"
+    },
+    "final-targeted/receipt.json": {
+      "sha256": "1555fc78066e468e34e4c39965c79766f9c9f73a50e5e3fe63df347b0c5e7d19",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/receipt.json.gz"
+    },
+    "final-targeted/units.stderr": {
+      "sha256": "26dacae40ca32737a1140c1ea13c84dfbb9afb13a494a265dbd66a0e89b2b211",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/units.stderr.gz"
+    },
+    "final-targeted/units.stdout": {
+      "sha256": "d14628417787fe2aaa5b43be7565efb158d2ae3ed78149263f6b0f884c03a642",
+      "archive": "conformance/probes/fallible-invariant-replay/development/final-targeted/units.stdout.gz"
+    },
+    "initial-unit.log": {
+      "sha256": "07a078a59f05a34e56d19a745a925b970f6f750ced698206cff2409d035ae826",
+      "archive": "conformance/probes/fallible-invariant-replay/development/initial-unit.log.gz"
+    },
+    "metadata-before-current-refresh/00.log": {
+      "sha256": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/00.log.gz"
+    },
+    "metadata-before-current-refresh/01.log": {
+      "sha256": "48924ac6313a8e92c10afea75933b2ebd7b0b52d4e714a5a372e5c0d3ee72403",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/01.log.gz"
+    },
+    "metadata-before-current-refresh/02.log": {
+      "sha256": "72e78ed9a840b460b77f17b38f11d90e331bf82efe19b6fcf9ecc3cb6daddbb6",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/02.log.gz"
+    },
+    "metadata-before-current-refresh/03.log": {
+      "sha256": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/03.log.gz"
+    },
+    "metadata-before-current-refresh/04.log": {
+      "sha256": "76044a685242ba2c58db18ed07812bf17906ec394556d12a0bd742db06c47b3e",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/04.log.gz"
+    },
+    "metadata-before-current-refresh/05.log": {
+      "sha256": "f23079b0a1f2d6a3a5da0922e392b424fabcbd84688d413cf63fbd0041b62ea3",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/05.log.gz"
+    },
+    "metadata-before-current-refresh/06.log": {
+      "sha256": "220fa83e446e4887391adaa82e11e236303df2692eebcabc60452c39884d2571",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/06.log.gz"
+    },
+    "metadata-before-current-refresh/07.log": {
+      "sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/07.log.gz"
+    },
+    "metadata-before-current-refresh/08.log": {
+      "sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/08.log.gz"
+    },
+    "metadata-before-current-refresh/09.log": {
+      "sha256": "4c0b361af307b67e491b29371f45c14e5d3665d56276ab43a364b147ae42218a",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/09.log.gz"
+    },
+    "metadata-before-current-refresh/10.log": {
+      "sha256": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/10.log.gz"
+    },
+    "metadata-before-current-refresh/11.log": {
+      "sha256": "7b2dc9232bf65be3f7dc1fb2c9ad96da0bf68f4925e7a079bcdaf70470c3e153",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/11.log.gz"
+    },
+    "metadata-before-current-refresh/12.log": {
+      "sha256": "281495f94f84f92d91134db0bdb64fef9d4f3a3e0db0a6316b6b41bd01c77989",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/12.log.gz"
+    },
+    "metadata-before-current-refresh/13.log": {
+      "sha256": "8005e4d37f7d463c4167c1c8ad195d5c947d95d11f19d7a750567959ccd360a0",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/13.log.gz"
+    },
+    "metadata-before-current-refresh/14.log": {
+      "sha256": "03ed8d432e86f054905157f6122329d72bd3f111284da47487908bf47c4df9ec",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/14.log.gz"
+    },
+    "metadata-before-current-refresh/15.log": {
+      "sha256": "4956a64a5b3ccf3ba4aa073c55888f33e389335dd8bacc8e8184e35db9788deb",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/15.log.gz"
+    },
+    "metadata-before-current-refresh/16.log": {
+      "sha256": "87809a8312a0e36e7489b486ba8a8262c4cf165481fe5b837ea1597a5e9f91ab",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/16.log.gz"
+    },
+    "metadata-before-current-refresh/17.log": {
+      "sha256": "2a4152f12c78af46f404017d8485ebc98ae00a6d31680955d208609123e3f5f7",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/17.log.gz"
+    },
+    "metadata-before-current-refresh/18.log": {
+      "sha256": "4c0b361af307b67e491b29371f45c14e5d3665d56276ab43a364b147ae42218a",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/18.log.gz"
+    },
+    "metadata-before-current-refresh/19.log": {
+      "sha256": "dd4d213256989ba3528644d821a7846cb157c2d4cd63f04259ad4b782d51050d",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/19.log.gz"
+    },
+    "metadata-before-current-refresh/20.log": {
+      "sha256": "f130381e8a17e0e0cdb15632df2c5871f80ddeeef9364f0970c3d5bc3880e812",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/20.log.gz"
+    },
+    "metadata-before-current-refresh/21.log": {
+      "sha256": "0e0806f1b23e2ab26689a735c281dd118e52f1ef3774e4cfdc208d09321c3d67",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/21.log.gz"
+    },
+    "metadata-before-current-refresh/22.log": {
+      "sha256": "b0f203ffbd1384a7424ee8d858c506687dc6841e2a50d8d30ecb5274c420c353",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/22.log.gz"
+    },
+    "metadata-before-current-refresh/23.log": {
+      "sha256": "739447d7b17a1a933711ec6afc1bb91e8790e32ba2d4ad033fc55d4e8e3aac32",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/23.log.gz"
+    },
+    "metadata-before-current-refresh/24.log": {
+      "sha256": "badc133d93c4a6004daa752e0de30b9ab6e569f3c4f63158b39a4809b819ca05",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/24.log.gz"
+    },
+    "metadata-before-current-refresh/25.log": {
+      "sha256": "d5e84d08d7cdaff2646d37b34a2444f57865ac146dcc6838c958f38412b604bd",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/25.log.gz"
+    },
+    "metadata-before-current-refresh/26.log": {
+      "sha256": "39b944bf5fb1e75a60f9e545a951e21ce14213bc1fad29d5e68ab9b246fdfd57",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/26.log.gz"
+    },
+    "metadata-before-current-refresh/27.log": {
+      "sha256": "0e8e1270fc98a8addc8a6c258c56e680290ed6fdd07ac4be9eb460e8c5a1b098",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/27.log.gz"
+    },
+    "metadata-before-current-refresh/28.log": {
+      "sha256": "c8670b336f016f82d7372e8334ea5e141e28bc6eda9597bbd9147e332d13dcda",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/28.log.gz"
+    },
+    "metadata-before-current-refresh/29.log": {
+      "sha256": "421b9b40aeddd9efc6776008b05b14c1efe65eec8c5f2ee74380cd3ebad7d662",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/29.log.gz"
+    },
+    "metadata-before-current-refresh/30.log": {
+      "sha256": "c98c2725c762f17af07ecbfb02f603ee7cbac8081366dda907ad3126c9591e39",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/30.log.gz"
+    },
+    "metadata-before-current-refresh/31.log": {
+      "sha256": "cc98199c7cb15839e728968ec4144e62aa90bb6a8f3cfc8895e22d15a3abaddc",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/31.log.gz"
+    },
+    "metadata-before-current-refresh/32.log": {
+      "sha256": "bde6d67c0d6d7698db880776beb182333113c84f1e1076fe2c5d12dce18c2ccd",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/32.log.gz"
+    },
+    "metadata-before-current-refresh/33.log": {
+      "sha256": "f09f14e9c3678248cf7d49f5b0b1a847c1f6718de9cf0af19d0e7105b7d107f5",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/33.log.gz"
+    },
+    "metadata-before-current-refresh/34.log": {
+      "sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/34.log.gz"
+    },
+    "metadata-before-current-refresh/35.log": {
+      "sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/35.log.gz"
+    },
+    "metadata-before-current-refresh/36.log": {
+      "sha256": "1da2b97e748b764c121485f26ecdbb3d9ab0def2d06037c818f3eef422575e06",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/36.log.gz"
+    },
+    "metadata-before-current-refresh/37.log": {
+      "sha256": "ab50ee42c4f514bbb2d3488bb84e8109e408f5e99fa5f28c4ff3ebe837b1d685",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/37.log.gz"
+    },
+    "metadata-before-current-refresh/38.log": {
+      "sha256": "5d8a0a50cb1a9816141de56212e18758405ffe07405a7109d003c758009c7538",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/38.log.gz"
+    },
+    "metadata-before-current-refresh/39.log": {
+      "sha256": "993ac2f1c50365095cd71b3803b6ab20b402da64d4d2ccf1e21c8ca8495d731a",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/39.log.gz"
+    },
+    "metadata-before-current-refresh/40.log": {
+      "sha256": "2743c599b0451ca9bb89aa8ba919a7b3fb1824442379ba42228cf5b2e28c7705",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/40.log.gz"
+    },
+    "metadata-before-current-refresh/41.log": {
+      "sha256": "7138f76887b4cf3a87c1be62c0c7fcdf6ad1d5b6f38a9507251e8708aaf7944d",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/41.log.gz"
+    },
+    "metadata-before-current-refresh/receipt.json": {
+      "sha256": "4fed644c949e5a4f7d86283f21a55f14e1b1a7d270244177e42642ac60061bc2",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-before-current-refresh/receipt.json.gz"
+    },
+    "metadata-current-refreshed/00.log": {
+      "sha256": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/00.log.gz"
+    },
+    "metadata-current-refreshed/01.log": {
+      "sha256": "45ed7acf1403a7088c901e166377c2f3f6f5f5206f4a1db0281fcee1613282d0",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/01.log.gz"
+    },
+    "metadata-current-refreshed/02.log": {
+      "sha256": "38e9b3082a2513ee7cd2f332e2b5bb2f047983e3cdcf9ca7f3fb6b468940e3d6",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/02.log.gz"
+    },
+    "metadata-current-refreshed/03.log": {
+      "sha256": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/03.log.gz"
+    },
+    "metadata-current-refreshed/04.log": {
+      "sha256": "223f270f665f0f493efc50396debfd091f5c86363caeb497c5ef9380675289fd",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/04.log.gz"
+    },
+    "metadata-current-refreshed/05.log": {
+      "sha256": "bc12843c5295b3585808f521be63b39df1493379d0405d6eaa79d49925ef2ea3",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/05.log.gz"
+    },
+    "metadata-current-refreshed/06.log": {
+      "sha256": "1bd2ccddffd138892fa11f45a2d2a629a5e5ebd3dd47eacf0888cec35c2cdd6f",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/06.log.gz"
+    },
+    "metadata-current-refreshed/07.log": {
+      "sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/07.log.gz"
+    },
+    "metadata-current-refreshed/08.log": {
+      "sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/08.log.gz"
+    },
+    "metadata-current-refreshed/09.log": {
+      "sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/09.log.gz"
+    },
+    "metadata-current-refreshed/10.log": {
+      "sha256": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/10.log.gz"
+    },
+    "metadata-current-refreshed/11.log": {
+      "sha256": "ee736a7259a65e8ad0d492c9862671fa464cef3fe4ec7c9dd7f170bc726e32ed",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/11.log.gz"
+    },
+    "metadata-current-refreshed/12.log": {
+      "sha256": "0543c1c6a230798d4642392e1387501de782bd568eee6b8053b78f4dd3d9e8f1",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/12.log.gz"
+    },
+    "metadata-current-refreshed/13.log": {
+      "sha256": "8005e4d37f7d463c4167c1c8ad195d5c947d95d11f19d7a750567959ccd360a0",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/13.log.gz"
+    },
+    "metadata-current-refreshed/14.log": {
+      "sha256": "25862df3d2f55666b67243dcaf8d53280bf822fc7eee408de80f21f4fd262089",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/14.log.gz"
+    },
+    "metadata-current-refreshed/15.log": {
+      "sha256": "bce3d3c14a1aba1b954864fbb451319b702ef6ab3a194cf9c6811cfb2df6d1cb",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/15.log.gz"
+    },
+    "metadata-current-refreshed/16.log": {
+      "sha256": "5b449d12cae9986b209d1e70c12dc9942f85a6fb388ffd7975db78ff0edceb8a",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/16.log.gz"
+    },
+    "metadata-current-refreshed/17.log": {
+      "sha256": "1b87b93c0956515e80cf3bd68eab3c224329af4578b373a191234e52cefabc01",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/17.log.gz"
+    },
+    "metadata-current-refreshed/18.log": {
+      "sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/18.log.gz"
+    },
+    "metadata-current-refreshed/19.log": {
+      "sha256": "ae3238c455225f84957e96f89fd80a5e05b67e255e8a6ac4126f4daf44755406",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/19.log.gz"
+    },
+    "metadata-current-refreshed/20.log": {
+      "sha256": "5beb88844459a1f54ad70a0a4e37a5a62e0add877f72f425224983171a4bc7fe",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/20.log.gz"
+    },
+    "metadata-current-refreshed/21.log": {
+      "sha256": "1137f8ddc0ffa3700abaae37d845680dfe412015ee048b9207517f6d89dd07d6",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/21.log.gz"
+    },
+    "metadata-current-refreshed/22.log": {
+      "sha256": "cad44c573c40ba14799244a5ac73aaa01019924eb602e265b9f6b3854e5c7f7e",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/22.log.gz"
+    },
+    "metadata-current-refreshed/23.log": {
+      "sha256": "1299e7b3bbfde60bb74a1b90a91273d1ca263d1226f86758d547b9c59bbe0bc7",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/23.log.gz"
+    },
+    "metadata-current-refreshed/24.log": {
+      "sha256": "3d179a815cd5b45ec0cf865eb404ce6ef24bb97da8196197efb2d8276d1d3c19",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/24.log.gz"
+    },
+    "metadata-current-refreshed/25.log": {
+      "sha256": "bbd248ae76566b62fc2d2fb91ee2242e67c7d505e292f142dfc10849878e2f0a",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/25.log.gz"
+    },
+    "metadata-current-refreshed/26.log": {
+      "sha256": "ce5a7808c69505b899c61135ed918627bf577ce4d9cb51d4df04489dd322b5a3",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/26.log.gz"
+    },
+    "metadata-current-refreshed/27.log": {
+      "sha256": "2b360275230677a1b5877c14230be9d9bd2ede7417039dd4f5db1525a3aca315",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/27.log.gz"
+    },
+    "metadata-current-refreshed/28.log": {
+      "sha256": "c8670b336f016f82d7372e8334ea5e141e28bc6eda9597bbd9147e332d13dcda",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/28.log.gz"
+    },
+    "metadata-current-refreshed/29.log": {
+      "sha256": "421b9b40aeddd9efc6776008b05b14c1efe65eec8c5f2ee74380cd3ebad7d662",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/29.log.gz"
+    },
+    "metadata-current-refreshed/30.log": {
+      "sha256": "c98c2725c762f17af07ecbfb02f603ee7cbac8081366dda907ad3126c9591e39",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/30.log.gz"
+    },
+    "metadata-current-refreshed/31.log": {
+      "sha256": "cc98199c7cb15839e728968ec4144e62aa90bb6a8f3cfc8895e22d15a3abaddc",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/31.log.gz"
+    },
+    "metadata-current-refreshed/32.log": {
+      "sha256": "e34b9b02b5cac4dfa28467e7f4a5008ffe2da50222fe8b12902a1dac1d26efd8",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/32.log.gz"
+    },
+    "metadata-current-refreshed/33.log": {
+      "sha256": "b00fca9fb83c1c15b3a868b70c0e1f04afa614582d648b27e2328412f36b0520",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/33.log.gz"
+    },
+    "metadata-current-refreshed/34.log": {
+      "sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/34.log.gz"
+    },
+    "metadata-current-refreshed/35.log": {
+      "sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/35.log.gz"
+    },
+    "metadata-current-refreshed/36.log": {
+      "sha256": "7873a88afaacc1db96f3989269d4d6893ac5098d72e4c6592b9d3a25b46314ae",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/36.log.gz"
+    },
+    "metadata-current-refreshed/37.log": {
+      "sha256": "b0ecb5319c42f6a612a5fb9faa1e6e53fd177b04b9f4b6f8074fa013f5987da0",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/37.log.gz"
+    },
+    "metadata-current-refreshed/38.log": {
+      "sha256": "24d96cdd23eedb14202dd8ca8169d5e90ae80f55d400bfd939ca487f02ee0939",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/38.log.gz"
+    },
+    "metadata-current-refreshed/39.log": {
+      "sha256": "8d8677cc057922e8acf88ac4c39253002ad37dd48aedce941a6ac4cb0434b982",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/39.log.gz"
+    },
+    "metadata-current-refreshed/40.log": {
+      "sha256": "26a7c52cc32a99346269ee76d2ecd32675e8f0c46e44caf74a456761f098300c",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/40.log.gz"
+    },
+    "metadata-current-refreshed/41.log": {
+      "sha256": "e839b03aff09a3d0123dbc41cde797d82ece451a3c05e0fb4e1c587e6b5510bd",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/41.log.gz"
+    },
+    "metadata-current-refreshed/receipt.json": {
+      "sha256": "aa6d2782421f3d609fea248bbdd74d77ebbbc22085236f8d548903c599daa037",
+      "archive": "conformance/probes/fallible-invariant-replay/development/metadata-current-refreshed/receipt.json.gz"
+    },
+    "positioned-integration.log": {
+      "sha256": "8b385f7efbc8b1ce9d6b12c24af8dad06b8cdab0d9ced355ef63295052bc2908",
+      "archive": "conformance/probes/fallible-invariant-replay/development/positioned-integration.log.gz"
+    },
+    "positioned-unit.log": {
+      "sha256": "897f2876d3d044e4e884f1516cdd9104eef2cebf22322d84a17ee0cedbe704a2",
+      "archive": "conformance/probes/fallible-invariant-replay/development/positioned-unit.log.gz"
+    },
+    "public-replay-corrected.log": {
+      "sha256": "aded11f88da87bee67f7a6ed41a7df72d93bb97923eea237e86af21e21d785cc",
+      "archive": "conformance/probes/fallible-invariant-replay/development/public-replay-corrected.log.gz"
+    },
+    "public-replay.log": {
+      "sha256": "2a3df38d60e1acaf80395bff7a6785cea8f5b64578f5594456ee3c647175f259",
+      "archive": "conformance/probes/fallible-invariant-replay/development/public-replay.log.gz"
+    },
+    "targeted-clippy-corrected.log": {
+      "sha256": "8c7eb390eb3b9b6bb3c76510df34f3c7bdd610c213ea536744f6f1db9046e805",
+      "archive": "conformance/probes/fallible-invariant-replay/development/targeted-clippy-corrected.log.gz"
+    },
+    "targeted-clippy.log": {
+      "sha256": "6bbc8ad317693086015de4a8196ed96f7a38b0ee83c7bdd7efea4d9f4c5fde87",
+      "archive": "conformance/probes/fallible-invariant-replay/development/targeted-clippy.log.gz"
+    }
+  }
+}

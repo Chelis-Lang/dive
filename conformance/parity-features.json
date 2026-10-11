@@ -930,7 +930,8 @@
         128,
         144,
         205,
-        212
+        212,
+        217
       ],
       "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence. Delivered safety frontier and separately budgeted predecessor log: both profiles/stores, ordered witnesses, tiny budgets and explicit filesystem failure; parallel seen/candidate/graph/SCC spill and broader recovery remain pending; reconstructed paths are outside the retained-record budget.",
       "interactions": [
@@ -957,9 +958,12 @@
         "crates/dive-check/tests/disk_seen.rs",
         "crates/dive-api/tests/disk_seen.rs",
         "docs/decisions/0068-fallible-disk-seen-safety.md",
-        "docs/user/disk-seen-safety.md"
+        "docs/user/disk-seen-safety.md",
+        "docs/decisions/0072-fallible-invariant-error-replay.md",
+        "conformance/probes/fallible-invariant-replay/README.md",
+        "crates/dive-api/examples/disk_seen_replay.rs"
       ],
-      "implementation_notes": "Separately budgeted fixed-record predecessor spill preserves concrete safety replay; default seen sets, candidate vectors, reconstructed paths and graph/SCC retention remain resident. No checkpoint or total-memory claim. Structural storage2 preserves tuple-function identity across value-bearing spill/recovery and explicitly rejects ambiguous version1. Canonical keys/FP and predecessor-only format unchanged; this additional evidence does not certify the whole family. Additive fallible DiskSeen retains keys/offsets on disk and refuses poisoned I/O, bounds or summary failures; the library-only receipt precedes the separately scoped ordinary engine opt-in; parallel disk seen-set admission remains pending. Library physical entries are not semantic committed-prefix counts; no total-memory or checkpoint claim. Explicit INIT/NEXT ordinary safety opt-in now inserts full fingerprint/exact keys through Result at original inline deciding positions, with actual inline width, first positioned failure and audited cleanup facts. Both separately scoped frontier/predecessor budgets may be combined. This is not total-memory, parallel read-view, temporal/capture, checkpoint/recovery or whole-family certification; PROPERTY/SPECIFICATION role decomposition remains pending. Disk invariant-error call-stack replay refuses by name, retaining initial error/counters and diagnostic word only; no completed replay/certificate credit."
+      "implementation_notes": "Separately budgeted fixed-record predecessor spill preserves concrete safety replay; default seen sets, candidate vectors, reconstructed paths and graph/SCC retention remain resident. No checkpoint or total-memory claim. Structural storage2 preserves tuple-function identity across value-bearing spill/recovery and explicitly rejects ambiguous version1. Canonical keys/FP and predecessor-only format unchanged; this additional evidence does not certify the whole family. Additive fallible DiskSeen retains keys/offsets on disk and refuses poisoned I/O, bounds or summary failures; the library-only receipt precedes the separately scoped ordinary engine opt-in; parallel disk seen-set admission remains pending. Library physical entries are not semantic committed-prefix counts; no total-memory or checkpoint claim. Explicit INIT/NEXT ordinary safety opt-in now inserts full fingerprint/exact keys through Result at original inline deciding positions, with actual inline width, first positioned failure and audited cleanup facts. Both separately scoped frontier/predecessor budgets may be combined. This is not total-memory, parallel read-view, temporal/capture, checkpoint/recovery or whole-family certification; PROPERTY/SPECIFICATION role decomposition remains pending. Positioned invariant-error replay now uses typed fallible membership/insertion and retains original error, frozen generated count, logical queue contribution and first positioned storage cause. Storage/bound/cleanup failure refuses completion; unknown error classes stay unverified. No new parallel/capture/recovery or family certification."
     },
     {
       "id": "F-032",

@@ -2231,12 +2231,19 @@ predecessor budgets can combine, without a total-RAM/crash/import claim.
 [Executable user/API guide](user/disk-seen-safety.md).
 
 
-This disk slice also refuses invariant-evaluation error call-stack replay.
-For `ReplayMembership` (initial `x=0` or `x=2`, successors `x=1` then `x=2`,
-invariant divides by zero only at `x=1`), clean TLC and resident checking report
-3 generated/3 distinct/1 queued. The preserved first disk attempt incorrectly
-reported 4 distinct/2 queued by inspecting an empty resident reference during
-replay. Current disk mode returns named `unsupported`, with the initial error
-and stopping-prefix evidence retained. Remove disk flags to use the existing
-resident replay. This is dive's temporary limitation, not a TLC defect or a
-completed violation agreement. [Original paired observations](../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+The first disk slice refused invariant-evaluation error call-stack replay.
+That guard followed a real bug: `ReplayMembership` starts at `x=0` or `x=2`,
+visits `x=1` then the already-seen `x=2`, and divides by zero at `x=1`.
+Clean TLC and resident checking report 3 generated/3 distinct/1 queued; the
+failed disk attempt incorrectly reported 4 distinct/2 queued by reading an
+empty resident reference. Those [original observations](../conformance/probes/fallible-seen-engine/invariant-replay-before/)
+remain separate from the positioned implementation.
+
+The next increment queries and inserts actual disk keys through fallible
+operations in source/ordinal order. `ReplayNew` proves that successful replay
+can add distinct/queued states while generated stays frozen: clean TLC gives
+2 generated/4 distinct/2 queued, depth 2, exit 76. Storage/bound/cleanup failures
+retain the original error and diagnostic prefix while refusing completion;
+unknown error classes remain unverified. Public PROPERTY/SPECIFICATION,
+parallel disk/capture/temporal and recovery restrictions remain. See
+[the user guide](user/disk-seen-safety.md) and [source-bound replay study](../conformance/probes/fallible-invariant-replay/README.md).

@@ -625,6 +625,9 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Positioned fallible disk membership and insertion for invariant-error replay,
+  with frozen generated counters, typed source/ordinal failure evidence and
+  original-error retention. Public disk role/mode restrictions remain (ADR0072).
 - Native bounded C/P PlusCal macro expansion, simultaneous argument/assignment-selector substitution, nested prior declarations, original macro call/definition locations, and finite process/fairness interactions. Enclosing-module admission rejects invalid reference outputs; expansion budgets return named resource results. Full procedure/name/options/rewrite/map parity remains pending.
 
 - Opt-in `dive check --lncheck final --lasso short`, using the bounded final

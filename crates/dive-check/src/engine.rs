@@ -1510,10 +1510,12 @@ impl<S: Keyed> Search<'_, '_, S> {
                 if let Some(mut s) = stop {
                     let left = (count - i - 1) + next.len();
                     let mut stats = self.stats(left as u64);
-                    if let Some(ordinal) = resume
-                        && self.disk.is_none()
-                    {
-                        let r = self.replay_after(&self.set, s0, ordinal, level, &BTreeSet::new());
+                    if let Some(ordinal) = resume {
+                        let r = if self.disk.is_some() {
+                            self.replay_after_disk(s0, id, ordinal, level, &s.verdict)
+                        } else {
+                            self.replay_after(&self.set, s0, ordinal, level, &BTreeSet::new())
+                        };
                         stats.distinct += r.distinct;
                         stats.left_on_queue += r.queued;
                         s.verdict = r.apply(s.verdict);
@@ -1701,6 +1703,176 @@ impl<S: Keyed> Search<'_, '_, S> {
                     if new {
                         added.insert(key);
                         out.distinct += 1;
+                    }
+                }
+                if new && let Some(v) = check_invariants(m, &st1, false) {
+                    record_error(v, &mut out);
+                    return out;
+                }
+                levels.from();
+                if let Some(v) = check_implied_actions(m, &step) {
+                    record_error(v, &mut out);
+                    return out;
+                }
+                if inside && new {
+                    out.queued += 1;
+                }
+            }
+        }
+        out
+    }
+
+    /// Separate fallible counterpart: the original source/ordinal and generated
+    /// count stay fixed, while actual disk keys are admitted in replay order.
+    fn replay_after_disk(
+        &mut self,
+        s0: &StateVals,
+        source: StateId,
+        ordinal: u64,
+        level: u64,
+        original: &Verdict,
+    ) -> Replayed {
+        let Some(mut disk) = self.disk.take() else {
+            return Replayed {
+                error: Some(Verdict::InternalError {
+                    message: "disk replay without owned storage".into(),
+                }),
+                ..Replayed::default()
+            };
+        };
+        disk.start_replay(crate::seen::SeenReplay {
+            original_error: original.clone(),
+            predecessor: source,
+            stopped_successor_ordinal: ordinal,
+            generated: self.generated,
+            admitted_keys: 0,
+            queued: 0,
+            halted_by: None,
+        });
+        let replay = self.replay_disk_states(&mut disk, s0, source, ordinal, level);
+        disk.finish_replay(replay.distinct, replay.queued, replay.error.clone());
+        self.disk = Some(disk);
+        replay
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "keep fallible key admission and TLC replay check ordering in one transaction"
+    )]
+    fn replay_disk_states(
+        &self,
+        disk: &mut crate::seen::Run,
+        s0: &StateVals,
+        source: StateId,
+        ordinal: u64,
+        level: u64,
+    ) -> Replayed {
+        let m = self.m;
+        let ev = &m.evaluator;
+        // TLC prints the replay's `Print` output again; dive does not.
+        let _quiet = dive_eval::capture::PrintCapture::start();
+        let mut out = Replayed::default();
+        if let Err(verdict) = self.seed_state(s0) {
+            out.error = Some(verdict);
+            return out;
+        }
+        let host = self.host;
+        let set_level = |l: i64| host.set_level(l);
+        let levels = Levels {
+            set: &set_level,
+            here: level_of(level + 1),
+            from: level_of(level),
+        };
+        let mut base = 0u64;
+        let record_error = |v: Verdict, out: &mut Replayed| {
+            if !matches!(
+                v,
+                Verdict::InvariantViolated { .. } | Verdict::ActionPropertyViolated { .. }
+            ) {
+                out.error = Some(v);
+            }
+        };
+        for a in &m.actions {
+            host.set_level(level_of(level));
+            let mut succs: Vec<(u64, Option<StateVals>)> = Vec::new();
+            let r = ev.next_states(a, s0, base, &mut |succ: &Successor<'_>| {
+                succs.push((succ.ordinal, succ.complete().then(|| succ.state.into())));
+                Flow::Continue
+            });
+            match r {
+                Ok(o) => {
+                    let Some(next) = base.checked_add(o.emitted) else {
+                        out.error = Some(Verdict::ResourceLimit {
+                            message: "disk replay successor ordinal overflow".into(),
+                        });
+                        return out;
+                    };
+                    base = next;
+                }
+                Err(e) => {
+                    // The search reached `t` without this error, so it lies
+                    // in `t`'s action or a later one.
+                    out.error = Some(error_verdict(&e.error, ErrorSite::Next));
+                    return out;
+                }
+            }
+            for (o, state) in succs {
+                if o < ordinal {
+                    continue;
+                }
+                let Some(t) = state else {
+                    // `doNextSetErr`: an incomplete state ends it quietly.
+                    return out;
+                };
+                let st1 = St::state(t.clone());
+                let step = St::action(s0.clone(), t.clone());
+                if o == ordinal {
+                    levels.from();
+                    if let Some(v) = check_implied_actions(m, &step) {
+                        record_error(v, &mut out);
+                        return out;
+                    }
+                    continue;
+                }
+                let inside = match in_model(m, &st1, Some(&step), &levels) {
+                    Ok(b) => b,
+                    Err(v) => {
+                        out.error = Some(v);
+                        return out;
+                    }
+                };
+                let mut new = true;
+                if inside {
+                    let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1) {
+                        Ok(k) => k,
+                        Err(v) => {
+                            out.error = Some(v);
+                            return out;
+                        }
+                    };
+                    let present =
+                        match disk.replay_contains(S::disk_key(&key), self.generated, source, o) {
+                            Ok(present) => present,
+                            Err(error) => {
+                                out.error = Some(crate::seen::verdict(&error));
+                                return out;
+                            }
+                        };
+                    new = !present;
+                    if new {
+                        match disk.replay_insert(S::disk_key(&key), self.generated, source, o) {
+                            Ok(dive_store::seen::InsertOutcome::Inserted) => out.distinct += 1,
+                            Ok(dive_store::seen::InsertOutcome::Present) => {
+                                out.error = Some(Verdict::InternalError {
+                                    message: "disk replay identity changed between positioned query and insertion".into(),
+                                });
+                                return out;
+                            }
+                            Err(error) => {
+                                out.error = Some(crate::seen::verdict(&error));
+                                return out;
+                            }
+                        }
                     }
                 }
                 if new && let Some(v) = check_invariants(m, &st1, false) {
@@ -2286,32 +2458,19 @@ fn search_in<S: Keyed>(
         s.counterexample(&stop)
     };
     let _ = m.take_output();
+    if let Some(replay) = s.disk.as_ref().and_then(crate::seen::Run::replay_evidence)
+        && replay
+            .halted_by
+            .as_ref()
+            .is_some_and(|halt| !halt.is_verdict())
+    {
+        notes.push(format!(
+            "The search reached {:?}; positioned disk replay stopped at {:?}. Retained counters/word are diagnostic evidence, not completed error replay or a certificate.",
+            replay.original_error, replay.halted_by
+        ));
+    }
     let deciding_event = format!("{:?}", stop.verdict);
     let (verdict, counterexample) = match cx {
-        result if s.disk.is_some() && resumes(&stop.verdict) => {
-            // TLC call-stack replay can inspect/enqueue later successors. The
-            // resident reference set is empty on disk runs, and neither its
-            // Boolean membership nor a fresh scan is a disk replay authority.
-            notes.push(format!(
-                "The search reached {:?}; disk invariant-error call-stack replay is not implemented. Counts and any retained trace describe the original stopping prefix only, not TLC's completed error replay or a certificate.",
-                stop.verdict
-            ));
-            let diagnostic = match result {
-                Ok(trace) => trace,
-                Err(message) => {
-                    notes.push(format!(
-                        "The diagnostic error trace could not be reconstructed: {message}"
-                    ));
-                    None
-                }
-            };
-            (
-                Verdict::Unsupported {
-                    feature: "disk seen-state invariant-error call-stack replay".into(),
-                },
-                diagnostic,
-            )
-        }
         _ if unproved_initial_replay => {
             notes.push(format!("The search reached {:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification.", stop.verdict));
             (

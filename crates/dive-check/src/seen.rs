@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use dive_store::{
     StoreMode, collision,
-    seen::{DiskSeen, InsertOutcome, Key, Limits, SeenError},
+    seen::{DiskSeen, InsertOutcome, Key, Limits, Operation, SeenError},
 };
 
 use crate::{Collision, Verdict, engine::Outcome};
@@ -29,6 +29,10 @@ pub enum SeenPhase {
     Creation,
     /// At one generated state's original key insertion position.
     Insertion,
+    /// A replay membership query at the original source/successor ordinal.
+    ReplayMembership,
+    /// A new key inserted after the original invariant-evaluation stop.
+    ReplayInsertion,
     /// After safety EOF, before postconditions; required collision metadata failed.
     Summary,
     /// Explicit audit/removal after search and witness reconstruction.
@@ -40,7 +44,7 @@ pub enum SeenPhase {
 pub struct SeenFailure {
     /// Ordered engine phase.
     pub phase: SeenPhase,
-    /// First typed library cause, including any later cleanup failure.
+    /// First typed library or engine protocol cause, including later cleanup failure.
     pub error: SeenError,
     /// Generated-state counter at insertion; not a physical record count.
     pub generated: Option<u64>,
@@ -68,6 +72,28 @@ pub struct SeenUsage {
     /// Outcome before a later audit/cleanup failure prevented completion. This
     /// is diagnostic evidence, not the final model verdict.
     pub deciding_event_before_failure: Option<Verdict>,
+    /// Original stop and ordered replay facts; no generated-counter advance,
+    /// frontier publication or completed witness is implied by key admission.
+    pub replay: Option<SeenReplay>,
+}
+
+/// Positioned invariant-error replay evidence for an inline disk search.
+#[derive(Clone, Debug)]
+pub struct SeenReplay {
+    /// Original invariant evaluation error, retained even after a storage error.
+    pub original_error: Verdict,
+    /// Original concrete predecessor identifier.
+    pub predecessor: u64,
+    /// Original stopping successor ordinal.
+    pub stopped_successor_ordinal: u64,
+    /// Frozen generated count; replay does not count generated successors.
+    pub generated: u64,
+    /// Keys admitted during replay, separate from predecessor/frontier writes.
+    pub admitted_keys: u64,
+    /// TLC's logical replay queue contribution; no native queue is published.
+    pub queued: u64,
+    /// Further error/refusal, when replay did not finish normally.
+    pub halted_by: Option<Verdict>,
 }
 
 impl SeenUsage {
@@ -85,6 +111,7 @@ impl SeenUsage {
                 successor_ordinal: None,
             }),
             deciding_event_before_failure: None,
+            replay: None,
         }
     }
 }
@@ -117,12 +144,92 @@ impl Run {
                 after_cleanup: None,
                 first_failure: None,
                 deciding_event_before_failure: None,
+                replay: None,
             },
         })
     }
 
     pub(crate) fn semantic_entries(&self) -> u64 {
         self.usage.admitted_keys
+    }
+
+    pub(crate) fn replay_evidence(&self) -> Option<&SeenReplay> {
+        self.usage.replay.as_ref()
+    }
+
+    pub(crate) fn start_replay(&mut self, evidence: SeenReplay) {
+        self.usage.replay = Some(evidence);
+    }
+
+    pub(crate) fn finish_replay(&mut self, admitted: u64, queued: u64, error: Option<Verdict>) {
+        if let Some(replay) = &mut self.usage.replay {
+            replay.admitted_keys = admitted;
+            replay.queued = queued;
+            replay.halted_by = error;
+        }
+    }
+
+    pub(crate) fn replay_contains(
+        &mut self,
+        key: Key<'_>,
+        generated: u64,
+        predecessor: u64,
+        ordinal: u64,
+    ) -> Result<bool, SeenError> {
+        #[cfg(test)]
+        tests::before_replay(&self.test_parent, ordinal, false);
+        self.set.contains(key).inspect_err(|error| {
+            self.usage.first_failure.get_or_insert(SeenFailure {
+                phase: SeenPhase::ReplayMembership,
+                error: error.clone(),
+                generated: Some(generated),
+                predecessor: Some(predecessor),
+                successor_ordinal: Some(ordinal),
+            });
+        })
+    }
+
+    pub(crate) fn replay_insert(
+        &mut self,
+        key: Key<'_>,
+        generated: u64,
+        predecessor: u64,
+        ordinal: u64,
+    ) -> Result<InsertOutcome, SeenError> {
+        #[cfg(test)]
+        tests::before_replay(&self.test_parent, ordinal, true);
+        match self.set.insert(key) {
+            Ok(InsertOutcome::Inserted) => {
+                self.usage.admitted_keys += 1;
+                Ok(InsertOutcome::Inserted)
+            }
+            Ok(InsertOutcome::Present) => {
+                let error = SeenError {
+                    operation: Operation::Corruption,
+                    message: "disk replay identity changed between positioned query and insertion"
+                        .into(),
+                    cleanup_failure: None,
+                };
+                self.usage.first_failure.get_or_insert(SeenFailure {
+                    phase: SeenPhase::ReplayInsertion,
+                    error: error.clone(),
+                    generated: Some(generated),
+                    predecessor: Some(predecessor),
+                    successor_ordinal: Some(ordinal),
+                });
+                Err(error)
+            }
+            Err(error) => {
+                self.usage.first_failure.get_or_insert(SeenFailure {
+                    phase: SeenPhase::ReplayInsertion,
+                    error: error.clone(),
+                    generated: Some(generated),
+                    predecessor: Some(predecessor),
+                    successor_ordinal: Some(ordinal),
+                });
+                Err(error)
+            }
+        }
     }
 
     pub(crate) fn insert(
@@ -205,8 +312,15 @@ impl Run {
                     successor_ordinal: None,
                 }
             });
-            failure.error = error.clone();
-            outcome.verdict = verdict(&error);
+            // A synthetic engine identity failure does not poison DiskSeen.
+            // Its later audit/cleanup error must still retain that first cause.
+            if failure.error.operation == error.operation && failure.error.message == error.message
+            {
+                failure.error = error;
+            } else {
+                failure.error.cleanup_failure = Some(error.to_string());
+            }
+            outcome.verdict = verdict(&failure.error);
             outcome.collision = None;
             // Preserve the original concrete trace as diagnostic evidence; this
             // resource-limit result must never become full conformance agreement.
