@@ -9676,7 +9676,7 @@
     "scripts/check-fallible-seen-engine.py": "845fab39b8a5adc76b86233d67ef57eda578819108bb71947e6b7cc93bd7c18d",
     "scripts/check-fallible-seen-store.py": "280d9c0c3f7311409e623c98b228d61d787f0824f81a9b2ccb290459c2ed08fc",
     "scripts/check-fixed-tuple-projection.py": "c68b6778fb4ed6d4b0cff2add8e6647b0eabfa2798604f2fa3a4439be7a47a2c",
-    "scripts/check-indexed-stack-replay.py": "3002fffd9025116e214c95003ed733159f4ea6f068c3e2e336edc38408398241",
+    "scripts/check-indexed-stack-replay.py": "8697df379ff94765235c14363390b3ebe5042a04fccb5eefef579e71d9cf809d",
     "scripts/check-inductive-tuple-replay.py": "ad455c789086523f5a8d0dcf79fb5c41fc2789f929688277a2a176a271d253e6",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd",

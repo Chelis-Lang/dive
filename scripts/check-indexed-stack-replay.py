@@ -257,9 +257,13 @@ for row in rows:
     for kind, result in [('original', 'valid'), ('mutant', 'invalid')]:
         observed = data(stem + '.' + kind + '.stdout')
         assert observed == row[kind]['result'] and observed['result'] == result
+        assert row[kind]['exit'] == {'valid': 0, 'invalid': 1}[result]
         if result == 'invalid': assert observed['failure']['check'] in ['init', 'next', 'ending']
 primary = data('native/primary-process/receipt.json')
 assert primary['clean_primary'] and not primary['dump_trace']
+assert primary['workers'] == 1 and primary['seed'] == primary['fp'] == 0
+assert primary['jar_sha256'] == '7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
+assert primary['java_binary_sha256'] == 'af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0'
 assert len(primary['rows']) == 8 and {r['case'] for r in primary['rows']} == process
 for row in primary['rows']:
     assert row['exit'] == 12
@@ -287,13 +291,14 @@ for row in rows:
     for kind, result in [('original', 'valid'), ('mutant', 'invalid')]:
         observed = data(stem + '.' + kind + '.stdout')
         assert observed == row['replays'][kind]['result'] and observed['result'] == result
+        assert row['replays'][kind]['exit'] == {'valid': 0, 'invalid': 1}[result]
         if result == 'invalid': assert observed['failure']['check'] in ['init', 'next', 'ending']
 rows = data('native/process-semantic-mutants/receipt.json')['rows']
 assert len(rows) == 80 and {(r['case'], r['profile'], r['mutant']) for r in rows} == set(itertools.product(process, ['tlc', 'dive'], ['initial', 'indexed-update', 'return-frame', 'final', 'ending']))
 for row in rows:
     stem = 'native/process-semantic-mutants/' + f"process-{row['case']}-{row['profile']}.{row['mutant']}"
     assert data(stem + '.stdout') == row['result']
-    assert row['result']['result'] == 'invalid' and row['result']['failure']['check'] in ['init', 'next', 'ending']
+    assert row['exit'] == 1 and row['result']['result'] == 'invalid' and row['result']['failure']['check'] in ['init', 'next', 'ending']
 guide = data('native/guide-primary-cli/receipt.json')
 assert guide['clean_no_dump_trace'] and len(guide['rows']) == 5
 assert guide['rows'][0]['exit'] == 12 and guide['rows'][0]['counts'] == [3, 3, 0, 3]
