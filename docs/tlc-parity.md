@@ -639,3 +639,9 @@ contexts and old-block context masking refuse explicitly. Native AST/CRC/CST,
 public admission, Validator and finite-model evidence remain separate. See
 [the runnable source options guide](pluscal-source-options.md). F-034/F-035 remain
 partial and audit-required; no certification or denominator change.
+
+Pure VIEW normalization repair (#188) keeps F-016 partial: every concrete
+variable is normalized before projection, while unproved mixed-value errors
+refuse explicitly. The [retained study](../conformance/probes/view-concrete-normalization/README.md)
+separates original incorrect native verdicts, current recovery/witness controls
+and incomplete-state diagnostic limits. This adds evidence, not certification.
