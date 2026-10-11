@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "selected": 8,
+  "selected_before_supplement_execution": true,
+  "native_changes_already_drafted": true,
+  "purpose": "additional explicit locals/simultaneous self/cross-owner CallReturn controls; original162 unchanged",
+  "rows": [
+    {
+      "id": "RecursiveTail_C_self_tail_local",
+      "flags": [],
+      "input_sha256": "e07ceeccec20ce4fb1a8495d9146a4977d6af0774beedf74ddcbbad06e0464ae"
+    },
+    {
+      "id": "RecursiveTail_C_self_tail_two_args",
+      "flags": [],
+      "input_sha256": "feb9bf9ba335db8b3defb9c5764d54d3d15fcd5c14b7ecc09a86cfe1b431fe98"
+    },
+    {
+      "id": "RecursiveTail_C_mutual_tail_local",
+      "flags": [],
+      "input_sha256": "24d04bab9266707fb4c97ddbfce22c25d1167be62335061cb7db9489a09dc6e8"
+    },
+    {
+      "id": "RecursiveTail_C_mutual_tail_reverse",
+      "flags": [],
+      "input_sha256": "5ab450a88612a3e09da806cd1c4b30bff2bb4f734a464a6163e0bb68e12f066a"
+    },
+    {
+      "id": "RecursiveTail_P_self_tail_local",
+      "flags": [],
+      "input_sha256": "a34fb734d79c6dcf0770b63d742ff4087929c9605eb5be34c414dc24f6d5681e"
+    },
+    {
+      "id": "RecursiveTail_P_self_tail_two_args",
+      "flags": [],
+      "input_sha256": "b33d6f099703b280a0c0c40363e585d32a302e3171e05b0ed21e17818aebd552"
+    },
+    {
+      "id": "RecursiveTail_P_mutual_tail_local",
+      "flags": [],
+      "input_sha256": "5dd2a6df4f4c0a42750227c0e0c5ee64097bf9364a08eaed17c818178991677e"
+    },
+    {
+      "id": "RecursiveTail_P_mutual_tail_reverse",
+      "flags": [],
+      "input_sha256": "ba4a1b039dca3c51d1aeddfb48ccfe5766ad8b7e54e0ccd6a39af466a825299c"
+    }
+  ],
+  "prior_primary_errors_retained": "tail-ownership-first",
+  "correction": "C local declarations precede procedure opening brace, matching original C grammar"
+}

@@ -17,9 +17,9 @@ for row in json.loads((a.base/'guide/primary/manifest.json').read_text())['rows'
    q=run([a.binaries/'dive','translate',file,'--rewrite','--output','json',*flags],row['id']+'.'+profile+'.generate');doc=json.loads(q.stdout);assert q.returncode==0 and doc['accepted']and doc['model_proved']is False;native=doc['replacement']['module_source']
    for kind in ['unchanged','source','algorithm-header','body','body-header','both']:
     modified=native
-    if kind=='source':modified=modified.replace('Outer(1)','Outer(2)')
+    if kind=='source':modified=modified.replace('Recur(2)','Recur(3)')
     if kind in ['algorithm-header','both']:modified=re.sub(r'(chksum\(pcal\) = ")[0-9a-f]+',r'\g<1>00000000',modified,count=1)
-    if kind=='body':modified=modified.replace("x' = q","x' = q + 1")
+    if kind=='body':modified=modified.replace("x' = x + 1","x' = x + 2")
     if kind in ['body-header','both']:modified=re.sub(r'(chksum\(tla\) = ")[0-9a-f]+',r'\g<1>00000000',modified,count=1)
     if kind!='unchanged':assert modified!=native
     file.write_text(modified);ident=row['id']+'.'+profile+'.'+kind

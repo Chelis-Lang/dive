@@ -1,5 +1,12 @@
 # Sequential procedure checksums
 
+
+Scope update: the later [recursive sequential header contract](pluscal-recursive-procedure-checksums.md)
+adds proved bounded self/mutual procedure graphs and tail ownership. Recursive
+refusals and counts below describe this guide's original frozen producer; they
+are retained history, not the current recursive support boundary. Broader
+process/scoped Full contexts and strict #124 saved-frame replay remain pending.
+
 `dive translate FILE --rewrite --output json` can now produce a bounded Full
 checksum replacement for one disjoint, explicitly labelled sequential
 procedure. Both C and P syntax are supported. The command returns the edited

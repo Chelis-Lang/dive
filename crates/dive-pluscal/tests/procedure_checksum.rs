@@ -72,7 +72,7 @@ fn all_declared_procedure_rows_preserve_exact_bytes_or_named_boundaries()
         }
     }
     assert_eq!(rows.len(), 132);
-    assert_eq!(census, [90, 2, 24, 16]);
+    assert_eq!(census, [94, 4, 18, 16]);
     Ok(())
 }
 #[test]

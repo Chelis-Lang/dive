@@ -379,6 +379,35 @@ impl Writer {
         self.end();
         Ok(())
     }
+    fn call_return(
+        &mut self,
+        parsed: &macros::Expanded,
+        name: &str,
+        arguments: &[Expr],
+    ) -> Result<(), TranslationError> {
+        let owner = self
+            .procedure_owner
+            .clone()
+            .ok_or_else(|| unsupported(self.span, "call-return without procedure owner"))?;
+        self.indent("")?;
+        self.push("[type     |-> \"callReturn\",")?;
+        self.newline()?;
+        self.push(" from     |-> \"")?;
+        self.push(&owner)?;
+        self.push("\",")?;
+        self.newline()?;
+        self.push(" to       |-> \"")?;
+        self.push(name)?;
+        self.push("\",")?;
+        self.newline()?;
+        self.indent("args     |-> ")?;
+        self.sequence(arguments, |w, arg| w.expression(parsed, Some(*arg)))?;
+        self.push("]")?;
+        self.newline()?;
+        self.end();
+        self.end();
+        Ok(())
+    }
     fn statements(
         &mut self,
         parsed: &macros::Expanded,
@@ -403,7 +432,9 @@ impl Writer {
                         continue;
                     }
                     if matches!(next.kind, StatementKind::Return) {
-                        return Err(unsupported(statement.span, "adjacent call-return AST"));
+                        self.call_return(parsed, &name.text, arguments)?;
+                        i += 2;
+                        continue;
                     }
                 }
             }
@@ -525,6 +556,25 @@ impl Writer {
                 self.push(" >>")
             }
             Rhs::Tail => self.push("<< \"Tail\", \"(\", \"stack\", \")\" >>"),
+            Rhs::ReplacedFrame { owner } => {
+                let procedure = parsed
+                    .algorithm
+                    .procedures
+                    .get(*owner)
+                    .ok_or_else(|| unsupported(self.span, "missing replacement frame owner"))?;
+                self.push("<< \"<<\", \"[\", \"procedure\", \"|->\", ")?;
+                self.header_token(&procedure.name.text, true)?;
+                self.push(
+                    ", \",\"\n, \"pc\", \"|->\", \"Head\", \"(\", \"stack\", \")\", \".\", \"pc\"",
+                )?;
+                for slot in procedure.variables.iter().chain(&procedure.parameters) {
+                    self.push(", \",\"\n, ")?;
+                    self.header_token(&slot.name.text, false)?;
+                    self.push(", \"|->\", ")?;
+                    self.header_token(&slot.name.text, false)?;
+                }
+                self.push(", \"]\", \">>\"\n, \"\\\\o\", \"Tail\", \"(\", \"stack\", \")\" >>")
+            }
             Rhs::Frame { owner, next } => {
                 let procedure = parsed
                     .algorithm
@@ -1012,11 +1062,12 @@ impl Writer {
 /// Serialize proved bounded sequential and finite-process checksum shapes.
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// recursive/process-owned procedures and branch-internal labels are refused.
-/// Explicitly labelled disjoint sequential procedures support main and acyclic
+/// process-owned procedures and branch-internal labels are refused.
+/// Explicitly labelled disjoint sequential procedures support main and source-finite recursive
 /// procedure-body calls, returns and adjacent call-goto, including proved nested
 /// If/With/Either and While shared
-/// vectors, with exact original/header AST ownership.
+/// vectors, with exact original/header AST ownership. Serialization does not
+/// unroll calls or establish execution termination.
 /// Pure bounded nonrecursive
 /// macros use single-line substitutions; multiline arguments and substituted
 /// junction columns remain refused. Admitted process

@@ -6,7 +6,7 @@ for key in ['base','binary','out']:p.add_argument('--'+key,type=Path,required=Tr
 a=p.parse_args();BASE=a.base;BIN=a.binary;OUT=a.out;OUT.mkdir(exist_ok=False)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 rows=[]
-for folder in ['']:
+for folder in ['', 'tail-ownership']:
  current=BASE/folder;manifest=json.loads((current/'primary/manifest.json').read_text())
  for original in manifest['rows']:
   r=dict(original); r['output_id']=(folder.replace('../','').replace('/','_')+'_'+r['id']).strip('_')
@@ -35,7 +35,7 @@ for folder in ['']:
      else:detail=str(error)
   except Exception as e:detail=str(e)
   rows.append({'id':r['output_id'],'outcome':outcome,'detail':detail,'document':doc})
-summary=dict(collections.Counter(r['outcome']for r in rows));report={'schema_version':1,'selected':len(rows),'native_binary_sha256':sha(BIN),'primary_manifest_sha256':{f:sha(BASE/f/'primary/manifest.json')for f in ['']},'executed_script_sha256':sha(Path(__file__)),'family_certified':False,'summary':summary,'rows':rows}
+summary=dict(collections.Counter(r['outcome']for r in rows));report={'schema_version':1,'selected':len(rows),'native_binary_sha256':sha(BIN),'primary_manifest_sha256':{f:sha(BASE/f/'primary/manifest.json')for f in ['', 'tail-ownership']},'executed_script_sha256':sha(Path(__file__)),'family_certified':False,'summary':summary,'rows':rows}
 (OUT/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(summary)
 for r in rows:
  if r['outcome']=='disagree':print(r['id'],r['detail'])

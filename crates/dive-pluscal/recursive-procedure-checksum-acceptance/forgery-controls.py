@@ -3,11 +3,11 @@ import json,subprocess,gzip,hashlib
 import argparse
 p=argparse.ArgumentParser()
 for key in ['base','runtime','java','jar','adapter','library','out']:p.add_argument('--'+key,type=Path,required=True)
-a=p.parse_args();b=a.runtime;out=a.out;out.mkdir(exist_ok=False);script=a.base/'public-controls.py';runner=out/'compare.py';runner.write_bytes(script.read_bytes());guide=a.base/'guide';rows=[];java=a.java;jar=a.jar
+a=p.parse_args();b=a.runtime;out=a.out;out.mkdir(exist_ok=False);script=a.base/'public-controls.py';runner=out/'compare.py';runner.write_text(script.read_text().replace("for folder in ['', 'tail-ownership']:","for folder in ['']:"));guide=a.base/'guide';rows=[];java=a.java;jar=a.jar
 for field,value in [('baseline',None),('model_proved',True),('exhaustive',True),('result','internal-error'),('profile','invented'),('algorithm_checksum_verified',False),('exit_code',3)]:
  folder=out/field;folder.mkdir();documents={}
  for syntax in ['C','P']:
-  name=f'AcyclicProcedureChecksum_{syntax}'
+  name=f'RecursiveHeader_{syntax}_self_base'
   for profile in ['dive','tlc']:
    raw=gzip.decompress((b/'guides-final'/f'{name}.{profile}.cli-full.stdout.gz').read_bytes());doc=json.loads(raw)
    if field!='baseline':doc[field]=value

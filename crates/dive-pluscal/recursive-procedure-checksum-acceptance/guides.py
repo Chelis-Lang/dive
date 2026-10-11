@@ -12,7 +12,7 @@ for row in json.loads((a.base/'guide/primary/manifest.json').read_text())['rows'
   for mode in ['cli-full','rust-full','cli-body','rust-body','cargo-full']:
    name=row['id']+'.'+profile+'.'+mode;flags=['--compat=tlc']if profile=='tlc'else[]
    if mode.startswith('cli'):command=[a.binaries/'dive','translate',source,'--rewrite','--output','json',*(['--checksums','tla']if mode=='cli-body'else[]),*flags]
-   elif mode=='cargo-full':command=['cargo','run','--locked','--release','-p','dive-api','--example','pluscal_acyclic_procedure_checksum','--',source,*flags]
+   elif mode=='cargo-full':command=['cargo','run','--locked','--release','-p','dive-api','--example','pluscal_recursive_procedure_checksum','--',source,*flags]
    else:command=[a.binaries/'multiple-guide',source,*(['--body-only']if mode=='rust-body'else[]),*flags]
    import os
    env=os.environ.copy();env.update(CARGO_BUILD_JOBS='2',CARGO_TARGET_DIR=str(a.target))

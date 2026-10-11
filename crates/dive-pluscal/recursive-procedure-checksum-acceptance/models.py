@@ -11,7 +11,9 @@ def run(argv,work,name):
   raw=getattr(q,s);path=name+'.'+s+'.gz';(a.out/path).write_bytes(gzip.compress(raw,mtime=0));m[s]={'path':path,'sha256':sha(raw)}
  return q,m
 assert sha(a.jar.read_bytes())=='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
-manifest=json.loads((a.base/'primary/manifest.json').read_text())
+manifests={folder:json.loads((a.base/folder/'primary/manifest.json').read_text()) for folder in ['', 'tail-ownership']}
+manifest={'rows':[r for m in manifests.values() for r in m['rows']]}
+owners={r['id']:a.base/folder for folder,m in manifests.items() for r in m['rows']}
 selection_path=a.base/'model-selection.json'
 selection=json.loads(selection_path.read_text())
 assert selection['selected_before_execution']is True and len(selection['source_ids'])==len(set(selection['source_ids']))
@@ -19,7 +21,7 @@ by_id={r['id']:r for r in manifest['rows']}
 assert all(ident in by_id and by_id[ident]['translated']and not by_id[ident]['reference_errors']and by_id[ident]['sany']['accepted']for ident in selection['source_ids'])
 rows=[]
 for entry in [by_id[ident]for ident in selection['source_ids']]:
-  name=entry['id'];source=(a.base/'cases'/(name+'.tla')).read_text();primary=(a.base/'primary'/(name+'.translated.tla')).read_text()
+  name=entry['id'];owner=owners[name];source=(owner/'cases'/(name+'.tla')).read_text();primary=(owner/'primary'/(name+'.translated.tla')).read_text()
   with tempfile.TemporaryDirectory(prefix='dive-macro-model-generation-')as tmp:
    work=Path(tmp);file=work/(name+'.tla');file.write_text(source);q,generated=run([a.native,'translate',file.name,'--rewrite','--compat=tlc','--output','json'],work,name+'.generation');doc=json.loads(q.stdout);assert q.returncode==0 and doc['accepted']and doc['algorithm_checksum_verified']is True and doc['model_proved']is False;native=doc['replacement']['module_source']
   for violation in [False,True]:

@@ -1,5 +1,12 @@
 # Full checksums for acyclic procedure calls
 
+
+Scope update: the later [recursive sequential header contract](pluscal-recursive-procedure-checksums.md)
+adds proved bounded self/mutual procedure graphs and tail ownership. Recursive
+refusals and counts below describe this guide's original frozen producer; they
+are retained history, not the current recursive support boundary. Broader
+process/scoped Full contexts and strict #124 saved-frame replay remain pending.
+
 The bounded Full editor derives TLC's original-header CRC for globally disjoint,
 explicitly labelled sequential procedures that call other procedures without
 recursion. Forward and backward declarations, target parameters/locals, ordinary

@@ -1,5 +1,12 @@
 # Full checksums for disjoint sequential procedures
 
+
+Scope update: the later [recursive sequential header contract](pluscal-recursive-procedure-checksums.md)
+adds proved bounded self/mutual procedure graphs and tail ownership. Recursive
+refusals and counts below describe this guide's original frozen producer; they
+are retained history, not the current recursive support boundary. Broader
+process/scoped Full contexts and strict #124 saved-frame replay remain pending.
+
 The bounded Full editor can derive the pinned algorithm CRC for multiple explicitly labelled sequential procedures called from main, with disjoint names and parameter/local slots. Calls save the target procedure's slots; returns restore the current procedure's slots. This extends [procedure checksums](pluscal-procedure-checksums.md) and [nested/elsif headers](pluscal-p-elsif-checksums.md). Editing returns replacement text in memory; it does not write a file or prove the generated model.
 
 Save this P-syntax example as `MultipleProcedureChecksum_P.tla`:

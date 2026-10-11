@@ -12,7 +12,7 @@ def save(ident,stem,q):
  return {'exit_code':q.returncode,'stdout_sha256':sha(q.stdout),'stderr_sha256':sha(q.stderr)}
 assert sha(a.jar.read_bytes())=='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 rows=[]
-for folder in ['']:
+for folder in ['', 'tail-ownership']:
  b=a.base/folder;manifest=json.loads((b/'primary/manifest.json').read_text())
  for r in manifest['rows']:
   source=b/'cases'/(r['id']+'.tla');module=re.search(rb'MODULE\s+([A-Za-z][A-Za-z0-9_]*)',source.read_bytes()).group(1).decode()

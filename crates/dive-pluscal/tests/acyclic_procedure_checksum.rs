@@ -49,23 +49,22 @@ fn all_new_acyclic_rows_match_original_header_bytes_and_crc()
 }
 
 #[test]
-fn real_cycles_refuse_before_serialization() -> Result<(), Box<dyn std::error::Error>> {
+fn former_recursive_boundary_now_matches_exact_primary_header()
+-> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("acyclic-procedure-checksum-acceptance");
     for syntax in ["C", "P"] {
         for shape in ["self_recursion", "mutual_recursion"] {
-            let source = std::fs::read_to_string(
-                base.join(format!("cases/MultipleOwner_{syntax}_{shape}.tla")),
-            )?;
+            let id = format!("MultipleOwner_{syntax}_{shape}");
+            let source = std::fs::read_to_string(base.join(format!("cases/{id}.tla")))?;
             let selected = select_rewrite(&source, &RewriteOptions::default())?;
-            let error = algorithm_checksum_at(
+            let actual = algorithm_checksum_at(
                 &source,
                 selected.algorithm.start..selected.algorithm.end,
                 &TranslationOptions::default(),
-            )
-            .err()
-            .ok_or("recursive graph incorrectly admitted")?;
-            assert_eq!(error.diagnostic.code, Code::Unsupported);
-            assert!(error.diagnostic.message.contains("recursive"));
+            )?;
+            let expected =
+                std::fs::read_to_string(base.join(format!("primary/{id}.translated.ast")))?;
+            assert_eq!(actual.serialized_ast, expected, "{id}");
         }
     }
     Ok(())

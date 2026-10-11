@@ -2280,3 +2280,23 @@ process-owned and scoped checksum contexts remain named unsupported results.
 Both profiles retain reference CRC behavior, including fair-header-only weak
 detection. [Runnable C/P and Rust examples](pluscal-acyclic-procedure-checksums.md)
 explain artifact/model boundaries and the unchanged strict saved-frame #124 gap.
+
+
+## D-008: Recursive procedure headers without a termination claim
+
+The bounded editor now derives pinned Full headers for proved disjoint
+sequential recursive source programs. `Recur(n)` with a decreasing base case
+has paired C/P header CRC `72442bcc`; an unused recursive owner still serializes.
+Source call vectors and the LAST main alias stay distinct. Self tail calls keep
+the existing frame; cross-owner tail calls restore caller locals and replace
+its head before entering the target. Both profiles match the same checksum
+behavior; execution is never unrolled to compute a header.
+
+The zero-parameter `R1:call Recur(); return;` control has paired header CRC
+`3db87d9a` but TLC's generated TLA is rejected by SANY. Native raw equality is
+diagnostic-only: public editing emits no admitted replacement. Nonterminating
+recursion also earns no completion claim. Strict saved-frame replay stays
+pending under #124; canonical-only evidence is not strict TLC validation.
+Read [the C/P and Cargo guide](pluscal-recursive-procedure-checksums.md).
+Broader process/scoped/automatic-label/multiline procedure checksum contexts
+remain named refusals, not conformance successes.

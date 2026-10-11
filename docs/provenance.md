@@ -744,3 +744,18 @@ acyclic admission and conservative pre-allocation reservations are dive's own
 controls, not Java algorithms or exact instruction counts. No runtime Java
 is delegated to. ADR0073 and the complete130-row declared study retain all old
 errors/refusals and the first ENOSPC capture separately.
+
+
+## Recursive sequential procedure Full checksum graphs (#223)
+
+`checksum_transfers.rs` retains bounded source-owned call vectors separately
+from `ParseAlgorithm.GetProcedure/GetCall` LAST-main alias. `PcalTranslate`
+`CopyAndExplodeLastStmt` and `ExplodeCallReturn` (1284–1490) provide self/cross-owner
+tail assignment/frame/local/entry order; `PcalTLAGen.GenAssign` supplies
+visited-assignment sorting. `AST.CallReturn.toString` supplies unmodified
+original header formatting. All source references use pinned commit `94d0c50`
+(MIT). Iterative finite graph admission/shared reservations are dive's design,
+not runtime unrolling or termination analysis. The 162 primary and separate
+exploded rows retain two generated/SANY-invalid artifacts without public credit.
+See [ADR0077](decisions/0077-recursive-procedure-header-checksums.md) and
+[the executable contract](pluscal-recursive-procedure-checksums.md).

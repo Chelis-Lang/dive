@@ -667,3 +667,15 @@ global helpers and exact post-translation defs serialization. Declaration scope,
 AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
+
+
+## Bounded recursive procedure header serialization
+
+Issue #223 / ADR0077 adds typed source-finite self/mutual call graphs and pinned
+shared nested CallReturn mutations. Exact original-header CRC, public enclosing
+CST/SANY/Validator, finite execution and independent replay remain separate.
+All 162 inputs preserve the prior130, reference errors and two primary-invalid
+artifacts without positive artifact credit. Source recursion is not runtime
+unrolling/termination proof. F-034/F-035 remain partial and audit-required;
+strict saved-frame replay #124 is unchanged. See
+[the maintained guide](pluscal-recursive-procedure-checksums.md).

@@ -795,3 +795,15 @@ shapes remain named refusals with no Full replacement. Shared quotas and
 D-020 fair-header weakness are unchanged. See
 [the executable guide](pluscal-acyclic-procedure-checksums.md); F-034/F-035 remain
 partial and strict saved-frame replay stays qualified under #124.
+
+
+## D-008 recursive sequential procedure checksum continuation
+
+The bounded Full editor now serializes proved source-finite self/mutual call
+vectors without unrolling execution. Pinned ordinary/tail ownership and LAST
+header alias remain distinct in both profiles; quotas and D-020 CRC weakness do
+not change. The 162-case selection keeps all 130 predecessors and two new
+primary-generated/SANY-invalid zero-parameter self-tail artifacts uncredited.
+Process/scoped checksum and strict #124 saved-frame replay remain qualified;
+CRC equality is neither artifact admission nor a model proof. See
+[the executable guide](pluscal-recursive-procedure-checksums.md).

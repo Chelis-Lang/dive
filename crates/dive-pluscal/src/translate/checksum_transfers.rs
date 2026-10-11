@@ -12,6 +12,7 @@ use std::collections::BTreeMap;
 pub(super) enum Rhs {
     Source(Option<Expr>),
     Frame { owner: usize, next: String },
+    ReplacedFrame { owner: usize },
     Quoted(String),
     Head(String),
     Tail,
@@ -194,6 +195,105 @@ impl Builder<'_> {
         nodes.push(self.update(&entry)?);
         Ok(nodes)
     }
+    fn call_return(
+        &mut self,
+        name: &str,
+        args: &[Expr],
+        generated: bool,
+    ) -> Result<Vec<Node>, TranslationError> {
+        self.charge(self.parsed.algorithm.procedures.len(), 0)?;
+        let from = self.procedure_owner.ok_or_else(|| {
+            unsupported(
+                self.parsed.algorithm.span,
+                "call-return without procedure owner",
+            )
+        })?;
+        let to = self
+            .parsed
+            .algorithm
+            .procedures
+            .iter()
+            .position(|p| p.name.text == name)
+            .ok_or_else(|| {
+                unsupported(self.parsed.algorithm.span, "missing tail call frame owner")
+            })?;
+        let caller = &self.parsed.algorithm.procedures[from];
+        let target = &self.parsed.algorithm.procedures[to];
+        if args.len() != target.parameters.len() {
+            return Err(unsupported(target.span, "procedure argument count"));
+        }
+        // ExplodeCallReturn restores caller locals and replaces the frame only
+        // for distinct owners. Reserve all slots/wrappers before owned expansion.
+        let slots = caller
+            .variables
+            .len()
+            .saturating_add(target.parameters.len())
+            .saturating_add(target.variables.len());
+        let names = caller
+            .variables
+            .iter()
+            .chain(&target.parameters)
+            .chain(&target.variables)
+            .map(|d| d.name.text.len())
+            .sum::<usize>();
+        let assignments = caller
+            .variables
+            .len()
+            .saturating_add(args.len())
+            .saturating_add(1);
+        let sorting = if generated {
+            assignments
+                .saturating_mul(usize::try_from(assignments.bit_width()).unwrap_or(usize::MAX))
+        } else {
+            0
+        };
+        self.charge(
+            slots
+                .saturating_mul(3)
+                .saturating_add(8)
+                .saturating_add(sorting),
+            names.saturating_mul(4).saturating_add(128),
+        )?;
+        let mut assignments = Vec::with_capacity(assignments);
+        if from != to {
+            for local in &caller.variables {
+                assignments.push(Assignment {
+                    variable: local.name.text.clone(),
+                    rhs: Rhs::Head(local.name.text.clone()),
+                });
+            }
+            assignments.push(Assignment {
+                variable: "stack".into(),
+                rhs: Rhs::ReplacedFrame { owner: to },
+            });
+        }
+        for (param, arg) in target.parameters.iter().zip(args) {
+            assignments.push(Assignment {
+                variable: param.name.text.clone(),
+                rhs: Rhs::Source(Some(*arg)),
+            });
+        }
+        if generated {
+            // Names are disjoint by admission, so an allocation-free unstable
+            // sort has the same total order as pinned GenAssign.
+            assignments.sort_unstable_by(|a, b| a.variable.cmp(&b.variable));
+        }
+        let mut nodes = vec![Node::Assign(assignments)];
+        for local in &target.variables {
+            nodes.push(Node::Assign(vec![Assignment {
+                variable: local.name.text.clone(),
+                rhs: Rhs::Source(local.initial.as_ref().map(|b| b.expression)),
+            }]));
+        }
+        let entry = self
+            .procedure_entries
+            .get(to)
+            .ok_or_else(|| unsupported(target.span, "missing tail call entry"))?;
+        self.charge(1, entry.len())?;
+        let entry = self.procedure_entries[to].clone();
+        nodes.push(self.update(&entry)?);
+        Ok(nodes)
+    }
     fn collect_calls(&mut self) -> Result<(), TranslationError> {
         let parsed = self.parsed;
         // GetProcedure resets a static vector but stores it by reference. Keep
@@ -267,12 +367,14 @@ impl Builder<'_> {
         }
         Ok(())
     }
-    fn check_cycles(&mut self) -> Result<(), TranslationError> {
+    fn check_call_graph(&mut self) -> Result<(), TranslationError> {
         let owners = self.plan.body_called.len();
         self.charge(owners, 0)?;
         let edges = self.plan.body_called.iter().map(Vec::len).sum::<usize>();
         // Reserve adjacency visits, indegrees and the entire bounded work queue
-        // before allocation. This proves static acyclicity; it never unrolls calls.
+        // before allocation. The finite source graph is not an execution tree.
+        // The bounded walk visits only its acyclic prefix; cyclic edges retain
+        // their source-owned header entries without following calls or unrolling.
         self.charge(
             owners
                 .saturating_mul(3)
@@ -308,12 +410,6 @@ impl Builder<'_> {
                     pending.push(target);
                 }
             }
-        }
-        if visited != owners {
-            return Err(unsupported(
-                self.parsed.algorithm.span,
-                "recursive sequential procedure checksum call graph",
-            ));
         }
         // Writer emits source-owned vectors, then distinct main targets only
         // on LAST. Reserve those comparisons without confusing them with edges.
@@ -449,7 +545,20 @@ impl Builder<'_> {
                 needs = false;
                 if shared {
                     nodes.pop();
-                    nodes.extend(self.returning()?);
+                    let previous = ids
+                        .get(ids.len().saturating_sub(2))
+                        .filter(|_| ids.len() > 1)
+                        .and_then(|id| self.parsed.statement(*id));
+                    if let Some(crate::ast::Statement {
+                        kind: StatementKind::Call { name, arguments },
+                        ..
+                    }) = previous
+                    {
+                        nodes.pop();
+                        nodes.extend(self.call_return(&name.text, arguments, generated)?);
+                    } else {
+                        nodes.extend(self.returning()?);
+                    }
                 }
             }
             StatementKind::Goto(label) => {
@@ -622,7 +731,7 @@ pub(super) fn build(
         transfer_spans: Vec::new(),
     };
     builder.collect_calls()?;
-    builder.check_cycles()?;
+    builder.check_call_graph()?;
     // Reserve the complete scan, owned spans and comparison-sort work before
     // allocating the index. Work units are a conservative translation policy,
     // not a count of machine instructions or exact Rust allocator calls.

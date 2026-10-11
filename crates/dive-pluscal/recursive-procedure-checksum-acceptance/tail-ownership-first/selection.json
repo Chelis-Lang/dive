@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "selected": 8,
+  "selected_before_supplement_execution": true,
+  "native_changes_already_drafted": true,
+  "purpose": "additional explicit locals/simultaneous self/cross-owner CallReturn controls; original162 unchanged",
+  "rows": [
+    {
+      "id": "RecursiveTail_C_self_tail_local",
+      "flags": [],
+      "input_sha256": "6a2cd3e4955221bdc24581bc4d460b44b12e3cc3f330aaa7f828bb51df37d902"
+    },
+    {
+      "id": "RecursiveTail_C_self_tail_two_args",
+      "flags": [],
+      "input_sha256": "feb9bf9ba335db8b3defb9c5764d54d3d15fcd5c14b7ecc09a86cfe1b431fe98"
+    },
+    {
+      "id": "RecursiveTail_C_mutual_tail_local",
+      "flags": [],
+      "input_sha256": "38bf6dcafe9c0a1159e5d63cfefb218e737003b7c1602d604b361215495b3da2"
+    },
+    {
+      "id": "RecursiveTail_C_mutual_tail_reverse",
+      "flags": [],
+      "input_sha256": "73133c99f747b8e35aa62e4be39162bad120c9cf9ed74d1aae873eb36546b920"
+    },
+    {
+      "id": "RecursiveTail_P_self_tail_local",
+      "flags": [],
+      "input_sha256": "a34fb734d79c6dcf0770b63d742ff4087929c9605eb5be34c414dc24f6d5681e"
+    },
+    {
+      "id": "RecursiveTail_P_self_tail_two_args",
+      "flags": [],
+      "input_sha256": "b33d6f099703b280a0c0c40363e585d32a302e3171e05b0ed21e17818aebd552"
+    },
+    {
+      "id": "RecursiveTail_P_mutual_tail_local",
+      "flags": [],
+      "input_sha256": "5dd2a6df4f4c0a42750227c0e0c5ee64097bf9364a08eaed17c818178991677e"
+    },
+    {
+      "id": "RecursiveTail_P_mutual_tail_reverse",
+      "flags": [],
+      "input_sha256": "ba4a1b039dca3c51d1aeddfb48ccfe5766ad8b7e54e0ccd6a39af466a825299c"
+    }
+  ]
+}
