@@ -298,3 +298,16 @@ development-only reference evidence; runtime translation remains native.
 | Native component | Pinned reference | License | Adaptation and evidence boundary |
 | --- | --- | --- | --- |
 | `dive-pluscal::algorithm_checksum_at` (`translate/checksum.rs`) and Full rewrite policy | `pcal.AST.toString`, `TLAExpr.toString`, AST indentation helpers; `ParseAlgorithm` default declarations; `PcalTranslate.removeNameConflicts`, `translate`, `Explode`; `trans.performTranslation` and `Validator` AST CRC expression; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded sequential reference templates/token encoding and proved transparent C block flattening; native serialized bytes compared to each primary post-translation capture. Name-fix/unproved AST contexts refuse; Java probes are development-only. Full CRC derivation and body/source replacement remain separate from TLA admission/model proof. Fair-only CRC weakness reproduced and flagged, not corrected (D-020). |
+
+The separate checksum-expression increment additionally ports
+`ParseAlgorithm.GetIf` / `InnerGetWith` nesting and optional C trailing
+separator behavior, `TLAExpr.normalize` first-token minimum columns and
+`TLAExpr.toString` line/token grouping, and `trans.removeTabs` eight-column
+expansion (Java UTF-16 columns), all at the same `94d0c50` pin. Native flat
+branch/binder serialization and source position indexing are iterative bounded
+adaptations. The complete original/corrected/layout/separator selections, initial
+parser disagreements and separate SANY-invalid artifacts are retained in
+`crates/dive-pluscal/checksum-expression-acceptance/`. No Java delegation,
+name-fix/process/procedure serialization or stronger checksum default is added.
+
+| `dive-pluscal` empty-Else generation (`translate/emit.rs`) | `pcal.PcalTLAGen.GenIf` empty Else TRUE before identity updates; `ParseAlgorithm.GetIf`/`GetStmtSeq` P empty branches and C nonempty bodies; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Retained original operator-CST mismatch and complete paired empty/explicit-Skip/elsif controls. Empty Then generation remains explicitly unsupported. |

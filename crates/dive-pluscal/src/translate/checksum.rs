@@ -2,7 +2,9 @@
 use super::{TranslationError, TranslationOptions, TranslationStage, error, labels, lower, macros};
 use crate::{
     Code,
-    ast::{BindingKind, Block, Body, Expr, Fairness, Span, StatementKind, StmtId},
+    ast::{
+        BindingKind, Block, Body, Branch, Expr, Fairness, Span, StatementKind, StmtId, WithBinding,
+    },
 };
 use serde::{Deserialize, Serialize};
 
@@ -74,7 +76,46 @@ fn groups(
     }
     Ok((unlabelled, groups))
 }
+type TokenPositions = Vec<(usize, (usize, usize))>;
+fn token_positions(parsed: &macros::Expanded) -> Result<TokenPositions, TranslationError> {
+    let mut positions = Vec::with_capacity(parsed.tokens.len());
+    let mut tokens = parsed.tokens.iter().peekable();
+    let mut line = 0;
+    let mut column = 0;
+    for (offset, character) in parsed.source.char_indices() {
+        if tokens
+            .peek()
+            .is_some_and(|token| token.span.start == offset)
+        {
+            positions.push((offset, (line, column)));
+            tokens.next();
+        }
+        match character {
+            '\n' => {
+                line += 1;
+                column = 0;
+            }
+            '\t' => column += 8 - column % 8,
+            '\r' if parsed.source.as_bytes().get(offset + 1) == Some(&b'\n') => {}
+            '\r' => {
+                return Err(unsupported(
+                    parsed.algorithm.span,
+                    "bare carriage-return line semantics",
+                ));
+            }
+            _ => column += character.len_utf16(),
+        }
+    }
+    if tokens.next().is_some() {
+        return Err(unsupported(
+            parsed.algorithm.span,
+            "unknown expression token location",
+        ));
+    }
+    Ok(positions)
+}
 struct Writer {
+    positions: TokenPositions,
     text: String,
     indents: Vec<usize>,
     limit: usize,
@@ -140,9 +181,6 @@ impl Writer {
         self.push("<< ")?;
         if let Some(expr) = expr {
             let text = parsed.text(expr.span).unwrap_or_default();
-            if text.contains(['\r', '\n']) {
-                return Err(unsupported(expr.span, "multiline expression tokens"));
-            }
             // The shared SANY lexer recognizes proof-step tokens; pinned
             // PlusCal Tokenize does not. Never invent a reference AST from
             // that broader lexical surface until its split contract is ported.
@@ -163,12 +201,42 @@ impl Writer {
                     "proof-step-shaped expression lexer tokens",
                 ));
             }
-            for (i, token) in parsed.tokens(expr).iter().enumerate() {
-                if token.text == "/\\" || token.text == "\\/" {
-                    return Err(unsupported(expr.span, "column-sensitive junction tokens"));
+            let tokens = parsed.tokens(expr);
+            let mut located = Vec::with_capacity(tokens.len());
+            let mut previous = None;
+            let mut minimum = usize::MAX;
+            for token in tokens {
+                let index = self
+                    .positions
+                    .binary_search_by_key(&token.span.start, |(offset, _)| *offset)
+                    .map_err(|_| {
+                        unsupported(expr.span, "unknown substituted expression token location")
+                    })?;
+                let (line, column) = self.positions[index].1;
+                if previous != Some(line) {
+                    minimum = minimum.min(column);
                 }
+                previous = Some(line);
+                located.push((line, column));
+            }
+            let mut previous = None;
+            for (i, (token, &(line, column))) in tokens.iter().zip(&located).enumerate() {
+                if let Some(before) = previous {
+                    for _ in before..line {
+                        self.push("\n")?;
+                    }
+                }
+                previous = Some(line);
                 if i > 0 {
                     self.push(", ")?;
+                }
+                if token.text == "/\\" || token.text == "\\/" {
+                    let column = column.saturating_sub(minimum);
+                    self.push(&format!(
+                        "\"(col{column}) {}\"",
+                        token.text.replace('\\', "\\\\")
+                    ))?;
+                    continue;
                 }
                 if let Some(string) = token
                     .text
@@ -241,31 +309,7 @@ impl Writer {
             StatementKind::If {
                 branches,
                 otherwise,
-            } => {
-                let [branch] = branches.as_slice() else {
-                    return Err(unsupported(statement.span, "elsif AST nesting"));
-                };
-                self.push("[type    |-> \"if\", ")?;
-                self.newline()?;
-                self.push(" test    |-> ")?;
-                self.expression(parsed, Some(branch.test))?;
-                self.push(",")?;
-                self.newline()?;
-                self.indent(" then |-> ")?;
-                self.plain_block(parsed, &branch.body)?;
-                self.push(",")?;
-                self.end();
-                self.newline()?;
-                self.indent(" else |-> ")?;
-                if let Some(block) = otherwise {
-                    self.plain_block(parsed, block)?;
-                } else {
-                    self.sequence::<StmtId>(&[], |_, _| Ok(()))?;
-                }
-                self.push("]")?;
-                self.end();
-                Ok(())
-            }
+            } => self.if_branches(parsed, branches, otherwise.as_ref()),
             StatementKind::Either(blocks) => {
                 self.push("[type |-> \"either\", ")?;
                 self.newline()?;
@@ -284,37 +328,7 @@ impl Writer {
                 self.end();
                 Ok(())
             }
-            StatementKind::With { bindings, body } => {
-                let [binding] = bindings.as_slice() else {
-                    return Err(unsupported(
-                        statement.span,
-                        "multiple With binder AST nesting",
-                    ));
-                };
-                self.push("[type   |-> \"with\", ")?;
-                self.newline()?;
-                self.push(" var    |-> \"")?;
-                self.push(&binding.name.text)?;
-                self.push("\",")?;
-                self.newline()?;
-                self.push(" eqOrIn |-> ")?;
-                self.push(if binding.binding.kind == BindingKind::Equal {
-                    "\"=\""
-                } else {
-                    "\"\\\\in\""
-                })?;
-                self.push(",")?;
-                self.newline()?;
-                self.push(" exp    |-> ")?;
-                self.expression(parsed, Some(binding.binding.expression))?;
-                self.push(",")?;
-                self.newline()?;
-                self.indent(" do     |-> ")?;
-                self.plain_block(parsed, body)?;
-                self.push("]")?;
-                self.end();
-                Ok(())
-            }
+            StatementKind::With { bindings, body } => self.with_bindings(parsed, bindings, body),
             StatementKind::While { test, body } => {
                 let (unlabelled, labelled) = groups(parsed, body)?;
                 self.push("[type    |-> \"while\", ")?;
@@ -339,6 +353,91 @@ impl Writer {
                 "calls or nested statement blocks",
             )),
         }
+    }
+    fn if_branches(
+        &mut self,
+        parsed: &macros::Expanded,
+        branches: &[Branch],
+        otherwise: Option<&Block>,
+    ) -> Result<(), TranslationError> {
+        if branches.is_empty() {
+            return Err(unsupported(self.span, "empty conditional AST"));
+        }
+        for (index, branch) in branches.iter().enumerate() {
+            self.push("[type    |-> \"if\", ")?;
+            self.newline()?;
+            self.push(" test    |-> ")?;
+            self.expression(parsed, Some(branch.test))?;
+            self.push(",")?;
+            self.newline()?;
+            self.indent(" then |-> ")?;
+            self.plain_block(parsed, &branch.body)?;
+            self.push(",")?;
+            self.end();
+            self.newline()?;
+            self.indent(" else |-> ")?;
+            if index + 1 < branches.len() {
+                self.indent("<<")?;
+            } else if let Some(block) = otherwise {
+                self.plain_block(parsed, block)?;
+            } else {
+                self.sequence::<StmtId>(&[], |_, _| Ok(()))?;
+            }
+        }
+        for index in (0..branches.len()).rev() {
+            self.push("]")?;
+            self.end();
+            if index > 0 {
+                self.push(">>")?;
+                self.end();
+            }
+        }
+        Ok(())
+    }
+    fn with_bindings(
+        &mut self,
+        parsed: &macros::Expanded,
+        bindings: &[WithBinding],
+        body: &Block,
+    ) -> Result<(), TranslationError> {
+        if bindings.is_empty() {
+            return Err(unsupported(body.span, "empty With binder AST"));
+        }
+        for (index, binding) in bindings.iter().enumerate() {
+            self.push("[type   |-> \"with\", ")?;
+            self.newline()?;
+            self.push(" var    |-> \"")?;
+            self.push(&binding.name.text)?;
+            self.push("\",")?;
+            self.newline()?;
+            self.push(" eqOrIn |-> ")?;
+            self.push(if binding.binding.kind == BindingKind::Equal {
+                "\"=\""
+            } else {
+                "\"\\\\in\""
+            })?;
+            self.push(",")?;
+            self.newline()?;
+            self.push(" exp    |-> ")?;
+            self.expression(parsed, Some(binding.binding.expression))?;
+            self.push(",")?;
+            self.newline()?;
+            self.indent(" do     |-> ")?;
+            if index + 1 < bindings.len() {
+                self.indent("<<")?;
+            } else {
+                self.plain_block(parsed, body)?;
+            }
+        }
+        for index in (0..bindings.len()).rev() {
+            self.push("]")?;
+            self.end();
+            if index > 0 {
+                self.push(">>")?;
+                self.end();
+            }
+        }
+        Ok(())
     }
     fn plain_block(
         &mut self,
@@ -374,9 +473,9 @@ impl Writer {
 }
 
 /// Serialize the proved bounded sequential checksum subset.
-/// Expressions must occupy one line and contain no junction tokens. Scoped
-/// renaming, definitions, macros, processes, procedures, multiple `with` binders,
-/// `elsif` and branch-internal labels are refused. Native generation/admission
+/// Expression line grouping, normalized junction columns, `elsif` and nested
+/// `with` binders follow the pinned serializer. Scoped renaming, definitions,
+/// macros, processes, procedures and branch-internal labels are refused. Native generation/admission
 /// remains separate. A scoped worker provides a 16 MiB stack.
 ///
 /// # Errors
@@ -451,6 +550,7 @@ fn checksum_inline(
         return Err(unsupported(block.span, "missing initial normalized label"));
     }
     let mut w = Writer {
+        positions: token_positions(&parsed)?,
         text: String::new(),
         indents: vec![0],
         limit: options.max_output_bytes.min(4_194_304),

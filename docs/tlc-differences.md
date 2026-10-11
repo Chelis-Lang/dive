@@ -1328,3 +1328,15 @@ All six primary sources/artifacts and four unchanged-body source-edit controls
 remain in `crates/dive-pluscal/rewrite-acceptance/fair-checksum/`. Body CRC and
 usable artifact admission are separate contracts (D-008). See
 [block rewriting](pluscal-rewriting.md) for executable CLI/Rust usage and limits.
+
+**D-008 checksum continuation:** nested `elsif` and multiple `with` binders now
+have bounded reference AST serialization. Strict operator-tree comparisons
+caught dive omitting the pinned empty-`else` TRUE conjunct; the original mismatch
+and paired empty/explicit-Skip controls remain visible. Native now preserves
+that conjunct. Raw multiline checksum matching remains separate from public
+translation, which explicitly refuses unproved multiline layout and empty
+`then` generation. CRC agreement never means the model was proved or that an
+invalid generated artifact is admitted. See
+[the scope and executable examples](pluscal-checksum-expressions.md). D-020
+continues to expose the fair-header-only checksum weakness without correcting
+it by default.

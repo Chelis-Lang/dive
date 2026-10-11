@@ -5,6 +5,14 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
+  multiple `with` binders and LF/CRLF expression line grouping with normalized
+  ASCII junction columns. C `with` trailing separators match the reference;
+  empty/missing binders still reject. CRC derivation is separate from artifact
+  admission and proof; multiline generation and empty-Then layout remain named
+  refusals. Empty-Else TRUE fidelity is restored, with fair-only CRC weakness
+  unchanged.
+
 - Full reference AST/body CRC derivation for a proved bounded sequential PlusCal
   subset. Default rewrite requests expose exact serialized AST evidence; unproved
   shapes refuse by name. Fair-header CRCs retain the upstream weakness explicitly

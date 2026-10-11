@@ -357,3 +357,14 @@ and never treated as source identity. Unproved AST shapes/name fixes, exact
 generator formatting/file writes/maps and full F-034/F-035 certification remain
 pending; both families stay partial/audit-required. The complete study is in
 `crates/dive-pluscal/ast-checksum-acceptance/`, including initial failed controls.
+
+### Nesting and expression-layout checksum continuation
+
+The raw serializer accounts for all 320 retained sources: 224 exact pinned
+post-translation AST matches, 14 named refusals and 82 primary rejections.
+`elsif` and multiple-With generation admission is separate from multiline AST
+derivation, whose native generator still refuses by name. Empty-Else TRUE
+fidelity retains the original operator-CST failure and paired controls.
+See [the runnable scope guide](pluscal-checksum-expressions.md) and
+`crates/dive-pluscal/checksum-expression-acceptance/`. The family remains
+partial/audit-required; no source-integrity or complete translator certification.

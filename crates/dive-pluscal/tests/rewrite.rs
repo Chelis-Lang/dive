@@ -42,15 +42,46 @@ fn exact_line_checksum_and_prefix_suffix_replacement() -> Result<(), Box<dyn std
     Ok(())
 }
 #[test]
-fn modified_missing_full_and_ambiguous_contracts_refuse() {
+fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn std::error::Error>>
+{
     let source = source();
-    let unsupported = source.replace(
+    let supported = source.replace(
         "L:x:=1;",
         "L:if x=0 then x:=1; elsif x=1 then x:=2; else skip; end if;",
     );
+    let plan = rewrite_document(&supported, "x == 1", &RewriteOptions::default())
+        .map_err(|error| error.message)?;
+    assert!(plan.algorithm_checksum_verified);
+    let checksum = plan.algorithm_checksum.as_ref().ok_or("missing AST CRC")?;
+    assert_eq!(
+        checksum.serialized_ast,
+        include_str!(
+            "../checksum-expression-acceptance/rewrite-boundary-controls/P_elsif-stale.translated.ast"
+        )
+    );
+    let manifest: serde_json::Value = serde_json::from_str(include_str!(
+        "../checksum-expression-acceptance/rewrite-boundary-controls/manifest.json"
+    ))?;
+    assert_eq!(checksum.checksum, manifest["rows"][0]["primary_crc"]);
+    let start = supported.find("--algorithm").ok_or("missing algorithm")?;
+    let end = supported.find("*)").ok_or("missing comment close")?;
+    let artifact = dive_pluscal::translate_at(
+        &supported,
+        start..end,
+        &dive_pluscal::TranslationOptions::default(),
+    )?;
+    let generated = rewrite_document(&supported, &artifact.tla, &RewriteOptions::default())
+        .map_err(|error| error.message)?;
+    let native = dive_syntax::parse_module(&generated.module_source);
+    let primary = dive_syntax::parse_module(include_str!(
+        "../checksum-expression-acceptance/rewrite-boundary-controls/P_elsif-stale.translated.tla"
+    ));
+    assert!(native.is_ok() && primary.is_ok());
+    assert_eq!(structure(&native.syntax()), structure(&primary.syntax()));
+    let unsupported = source.replace("begin L:", "macro M() begin skip; end macro; begin L:");
     assert!(
         rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())
-            .is_err_and(|e| e.code == Code::Unsupported)
+            .is_err_and(|error| error.code == Code::Unsupported)
     );
     let initial = rewrite_document(&source, "x == 1", &options());
     assert!(initial.is_ok());
@@ -75,6 +106,7 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() {
     assert!(select_rewrite(&misleading, &options()).is_err_and(|e| e.code == Code::Unsupported));
     let invalid = source.replace(" *) ", " *) Z == 1 ");
     assert!(select_rewrite(&invalid, &options()).is_err());
+    Ok(())
 }
 #[test]
 fn source_body_normalization_and_output_limits_are_explicit() {
@@ -106,4 +138,21 @@ fn source_body_normalization_and_output_limits_are_explicit() {
             );
         }
     }
+}
+
+fn structure(node: &dive_syntax::SyntaxNode) -> serde_json::Value {
+    let children: Vec<_> = node
+        .children_with_tokens()
+        .filter_map(|child| {
+            if let Some(node) = child.clone().into_node() {
+                Some(structure(&node))
+            } else {
+                child
+                    .into_token()
+                    .filter(|token| !token.kind().is_trivia())
+                    .map(|token| serde_json::json!([format!("{:?}", token.kind()), token.text()]))
+            }
+        })
+        .collect();
+    serde_json::json!([format!("{:?}", node.kind()), children])
 }

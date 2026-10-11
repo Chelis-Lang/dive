@@ -72,3 +72,49 @@ with SANY and the pinned Validator, including corrupted header/body/source cases
 The supplied-primary-body editor comparison earns exact editing-byte evidence
 only. Broader AST shapes, exact generator formatting, file writes and mapping
 format remain pending; no feature-family certification is inferred.
+
+## Addendum: nesting and expression-layout serialization
+
+The next bounded increment follows `ParseAlgorithm.GetIf` and
+`InnerGetWith`: `elsif` becomes nested else-if records and multiple `with`
+binders become nested records in source order. Native serialization opens and
+closes those records iteratively, so long flat binder/branch vectors do not add
+serializer recursion. Parsed nesting, node and output quotas still apply.
+
+`TLAExpr.normalize` and `toString` retain significant-token line vectors,
+intervening empty/comment lines and normalized ASCII junction columns. A single
+source pass records UTF-16 columns with eight-column tab stops; expression
+lookup does not repeatedly rescan the whole source. LF/CRLF are proved in the
+retained controls, including supplementary Unicode in comments. Bare CR,
+unproved substituted token positions and proof-step-shaped lexical tokens
+remain named refusals. Source-level name fixes, macros, processes, procedures,
+definitions and branch-internal labels are not broadened by this increment.
+
+The clean reference accepts a trailing separator before a C `with` close
+parenthesis. Native parsing now accepts that bounded case while retaining
+empty/missing-first/doubled-separator rejection controls. Both original
+disagreements and the complete initial C separator failures are preserved in
+the study; no raw selection or primary invalid artifacts are removed.
+
+Serialization credit requires native post-translation bytes equal to each
+primary capture. Full rewrite admission additionally requires enclosing SANY,
+operator-CST equality and independently invoked Validator checks. Finite model
+and strict witness controls remain separate. The fair-header CRC weakness and
+nonproof/integrity qualifications are unchanged; no default correction or
+crate dependency change is adopted.
+
+The retained empty-Else CST failure exposed a generator fidelity gap: reference
+`PcalTLAGen.GenIf` emits `TRUE` before branch-identity updates. The narrow fix
+retains that conjunct and admits explicit P empty Else after a nonempty Then.
+Empty Then parses but generation remains a named refusal; C empty bodies and P
+both-empty conditionals retain measured rejection outcomes without crash
+emulation. Multiline AST derivation is proved separately, while native multiline
+layout/substitution generation remains unsupported. No raw checksum match grants
+translation admission.
+
+A separate terminal-empty-elsif capture demonstrates four initially admitted
+raw ASTs that the pinned parser rejects: `GetIf` resolves its final statement
+from the innermost Then/Else pair, not from any earlier branch. Native P parsing
+now rejects that empty terminal pair. All 16 supplemental sources and four
+original disagreements remain retained; the active old gate was interrupted
+and the old 304-row campaign completed before creating the corrected producer.

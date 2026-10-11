@@ -324,3 +324,10 @@ refusals; `--rewrite --checksums tla` explicitly disables algorithm CRC. See D-0
 [user log](tlc-differences.md), D-008 for separate artifact admission, and
 `crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
 source-edit controls.
+
+D-008 checksum continuation retains strict generated-operator CST comparison,
+including an initially missing empty-Else TRUE conjunct now reproduced exactly.
+Multiline CRC derivation does not lift the named multiline-generation refusal;
+empty-Then layout also refuses explicitly. All 320 primary controls and original
+failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
+remains compatibility reproduction only; no stronger checksum default.
