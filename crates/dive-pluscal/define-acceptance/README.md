@@ -1,59 +1,23 @@
-# Bounded DEFINE evidence
+# Bounded global DEFINE evidence
 
-This increment retains 138 primary observations: 136 selection rows plus two
-executable guides. Both syntaxes, LF/CRLF, tabs, comments, process scopes,
-ordinary helpers, invalid declarations and four former blanket-refusal cases
-remain in the selection. No generated golden was edited.
+The [user guide](../../../docs/pluscal-definitions.md) describes implemented helper declarations, their limits, complete Cargo examples and Full-checksum behavior. This directory retains the pinned translator selection and observations separately from native delivery and later integration sources.
 
-The source-bound native checksum run has 80 exact raw AST/CRC matches, 18
-primary-invalid outputs kept uncredited, 36 named refusals and two accounted
-rejections. Raw generation is not enclosing-module admission or model proof.
+Run the always-on evidence check from the repository root:
 
-The public campaign runs every selection row in both profiles (272 rows):
-160 admitted exact whole-module CST/SANY/AST/CRC/Validator outputs, 88
-primary-invalid uncredited outputs, 20 named refusals, four accounted
-rejections, and zero disagreements. Some reference-invalid rows are rejected
-before raw generation, which explains the distinct raw/public censuses.
-Configured and unconfigured reference Validator results are compared separately.
+```sh
+python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
+```
 
-The finite controls cover 24 generated models and 288 width/store/profile
-settings. All 12 original strict-profile witnesses validate independently;
-48 initial/Next/final-state/closing mutants are refused or invalid. Ten
-CLI/Cargo-owned Rust guide controls, 12 unchanged/corrupt checksum controls
-and six forged public reports in both profiles pass fail-closed checks.
-None of these selections certifies the complete PlusCal feature family.
+It verifies the original scoped source archive, closed gate logs, all 4,524 portable runtime records, and actual results from 288 model settings plus 12 valid and 48 invalid independent replay controls. The records preserve original file content; they do not reproduce the producer's filesystem or symlink layout. Original executable hashes stay in the delivery record, with executable verification available separately through `--artifacts`.
 
-The four newly admitted historical IDs are P_define, P_fair_define,
-DefineBlockRewrite and DefineBlockApiRewrite. Their old failures and every
-other exact comparison assertion are retained. The first promoted capture
-used an incorrect temporary module filename: its complete primary errors
-and failed census are preserved separately; corrected captures change only
-that filename and all four pass reference SANY.
+## Source qualifications
 
-Reports are under reports/. Runtime source was frozen uncommitted against
-parent b7cf814b8265800ad11b46b5285f2f73bbe77cec. The external frozen producer
-records 185 directly relevant archived source pairs and six binary hashes,
-not a complete Git archive. A later gate-only test lint correction changes
-no production library, Cargo input, executable guide or runtime executable.
-The runtime is never retagged as a later delivery/integration.
+The original runtime was uncommitted, with its parent and 185 directly relevant files identified in `delivery.json` and `runtime-source/manifest.json`. It is never retagged as a later delivery or integration. The two listed gate-only repairs describe runtime-to-final-gate test changes, rather than every test changed from the parent.
 
-The first full gate failed clippy::format_push_string in a new graph-budget
-test. That test source and gate logs are preserved; its builder now uses
-fmt::Write. The final complete gate has its own source-qualified receipt.
+The previously existing algorithm, macro and public rewrite controls were promoted when bounded DEFINE became supported. The original scoped runtime archive omitted the macro test source; its original current gate map omitted that source too. This is a retained historical source-qualification gap. `root-readback/readback.json` states it explicitly. `root-readback/test-source.json` and its archives record five exact committed promotion and gate-repair test inputs as post-delivery evidence. They cannot retroactively establish historical runtime source authority. The combined source receives a fresh gate before publication.
 
-Run verify.py for all 138 primary observations and 1,096 raw streams;
-compare.py for raw AST checks, public-controls.py for the complete public
-selection, models.py for clean pinned TLC model counts and independent
-witnesses, guides.py and checksum-controls.py for the executable guide and
-CRC controls. See docs/pluscal-definitions.md for user-facing commands,
-limits and the admitted/refused contract.
+The archived publication-consumer controls reject corrupted raw records and an invented original source-map attribution, and pass after exact originals are restored. No primary observations, oracle goldens, quotas, assertions or feature-family statuses were changed to obtain those results.
 
-The second gate correctly caught a stale live source digest for that test-only
-lint fix. Its old authority and failure are retained. Only the current test
-digest was refreshed; historical runtime/source authorities remain unchanged.
+## Accounting
 
-The third complete nextest inventory ran 1,097 tests: 1,096 passed, one
-stale low-level DEFINE refusal failed. Its exact source already appears as
-DefineBlockRewrite in the four promoted cases; no new selection was invented.
-The repaired test requires captured AST/CRC equality and generated whole-module
-CST equality, plus a separate action-helper refusal. Original source/logs remain.
+The original raw selection retains all 136 cases: 80 exact outputs, 18 invalid primary artifacts without admission credit, 36 named refusals and two reference rejections. Public API controls retain all 272 outcomes. AST/CRC equality and generated artifact admission do not prove model correctness. Finite model and independent witness controls are separate evidence; the whole PlusCal semantic family remains uncertified.

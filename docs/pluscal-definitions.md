@@ -104,3 +104,5 @@ Existing checksum-less headers, fair-marker CRC weakness (D-020), exact pretty
 bytes, filesystem writes and translator maps remain separately qualified in
 [rewriting](pluscal-rewriting.md). An admitted checksum is not an integrity or
 model certificate; strict independent witness gaps under #124 remain explicit.
+
+The [developer evidence record](../crates/dive-pluscal/define-acceptance/README.md) explains the original scoped runtime source, retained qualification gaps, portable raw records and the separate fresh integration gate. These records establish the stated bounded behavior, not whole-language certification.

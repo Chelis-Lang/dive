@@ -1,0 +1,366 @@
+{
+  "accepted": true,
+  "algorithm_checksum_verified": false,
+  "analysis": {
+    "accepted": true,
+    "command": "analyze",
+    "definitions": [
+      {
+        "arity": 0,
+        "level": "constant",
+        "name": "Z"
+      },
+      {
+        "arity": 0,
+        "level": "state",
+        "name": "vars"
+      },
+      {
+        "arity": 0,
+        "level": "state",
+        "name": "Init"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "L"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "Terminating"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "Next"
+      },
+      {
+        "arity": 0,
+        "level": "temporal",
+        "name": "Spec"
+      },
+      {
+        "arity": 0,
+        "level": "temporal",
+        "name": "Termination"
+      }
+    ],
+    "diagnostics": [],
+    "file": "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-macro-full-public-pxfsfltt/P_define.tla",
+    "files": [
+      {
+        "id": 0,
+        "origin": "text",
+        "path": "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-macro-full-public-pxfsfltt/P_define.tla"
+      },
+      {
+        "id": 1,
+        "origin": "standard",
+        "path": "<standard>/Integers.tla"
+      },
+      {
+        "id": 2,
+        "origin": "standard",
+        "path": "<standard>/TLC.tla"
+      },
+      {
+        "id": 3,
+        "origin": "standard",
+        "path": "<standard>/Sequences.tla"
+      },
+      {
+        "id": 4,
+        "origin": "standard",
+        "path": "<standard>/Naturals.tla"
+      },
+      {
+        "id": 5,
+        "origin": "file",
+        "path": "/Users/jeff/code/dive-pluscal-definitions-artifacts/reference-library/FiniteSets.tla"
+      }
+    ],
+    "module": "P_define",
+    "modules": [
+      "Naturals",
+      "Integers",
+      "Sequences",
+      "FiniteSets",
+      "TLC",
+      "P_define"
+    ],
+    "schema_version": 1
+  },
+  "artifact": {
+    "actions": [
+      "L"
+    ],
+    "configuration": "",
+    "inserted_labels": [],
+    "mappings": [
+      {
+        "generated": {
+          "end": 17,
+          "start": 0
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      },
+      {
+        "generated": {
+          "end": 46,
+          "start": 17
+        },
+        "original": {
+          "end": 102,
+          "start": 98
+        }
+      },
+      {
+        "generated": {
+          "end": 67,
+          "start": 46
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      },
+      {
+        "generated": {
+          "end": 105,
+          "start": 67
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      },
+      {
+        "generated": {
+          "end": 159,
+          "start": 105
+        },
+        "original": {
+          "end": 128,
+          "start": 121
+        }
+      },
+      {
+        "generated": {
+          "end": 205,
+          "start": 159
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      },
+      {
+        "generated": {
+          "end": 231,
+          "start": 205
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      },
+      {
+        "generated": {
+          "end": 262,
+          "start": 231
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      },
+      {
+        "generated": {
+          "end": 293,
+          "start": 262
+        },
+        "original": {
+          "end": 143,
+          "start": 62
+        }
+      }
+    ],
+    "option_context": {
+      "effective": {
+        "fairness": "Declared",
+        "insert_missing_labels": false,
+        "label_root": "Lbl_",
+        "max_actions": 10000,
+        "max_output_bytes": 4194304,
+        "parser": {
+          "max_bytes": 1048576,
+          "max_depth": 128,
+          "max_nodes": 50000,
+          "max_tokens": 100000
+        }
+      },
+      "requested": {
+        "fairness": "Declared",
+        "insert_missing_labels": false,
+        "label_root": "Lbl_",
+        "max_actions": 10000,
+        "max_output_bytes": 4194304,
+        "parser": {
+          "max_bytes": 1048576,
+          "max_depth": 128,
+          "max_nodes": 50000,
+          "max_tokens": 100000
+        }
+      },
+      "source_declaration": null
+    },
+    "processes": [],
+    "program_counter": true,
+    "tla": "VARIABLES pc, x\n\n(* define statement *)\nZ==1\n\nvars == << pc, x >>\n\nInit == /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = Z\n     /\\ pc' = \"Done\"\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+    "warnings": []
+  },
+  "body_checksum_verified": true,
+  "command": "translate-rewrite",
+  "editing": {
+    "checksums": "Full",
+    "max_bytes": 4194304,
+    "normalize_newlines": false,
+    "replace_modified": true
+  },
+  "exact_primary_generated_bytes": false,
+  "exhaustive": false,
+  "exit_code": 0,
+  "file": "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-macro-full-public-pxfsfltt/P_define.tla",
+  "model_proved": false,
+  "option_context": {
+    "effective": {
+      "fairness": "Declared",
+      "insert_missing_labels": false,
+      "label_root": "Lbl_",
+      "max_actions": 10000,
+      "max_output_bytes": 4194304,
+      "parser": {
+        "max_bytes": 1048576,
+        "max_depth": 128,
+        "max_nodes": 50000,
+        "max_tokens": 100000
+      }
+    },
+    "requested": {
+      "fairness": "Declared",
+      "insert_missing_labels": false,
+      "label_root": "Lbl_",
+      "max_actions": 10000,
+      "max_output_bytes": 4194304,
+      "parser": {
+        "max_bytes": 1048576,
+        "max_depth": 128,
+        "max_nodes": 50000,
+        "max_tokens": 100000
+      }
+    },
+    "source_declaration": null
+  },
+  "overrides": [],
+  "pending": [
+    "unproved-post-translation-ast-checksum-shapes",
+    "exact-primary-generator-pretty-bytes",
+    "file-writing",
+    "mapping-format",
+    "full-pluscal-translation"
+  ],
+  "profile": "dive",
+  "replacement": {
+    "algorithm_checksum": {
+      "checksum": "dc306b0a",
+      "fair_header_crc_only": false,
+      "option_context": {
+        "effective": {
+          "fairness": "Declared",
+          "insert_missing_labels": false,
+          "label_root": "Lbl_",
+          "max_actions": 10000,
+          "max_output_bytes": 4194304,
+          "parser": {
+            "max_bytes": 1048576,
+            "max_depth": 128,
+            "max_nodes": 50000,
+            "max_tokens": 100000
+          }
+        },
+        "requested": {
+          "fairness": "Declared",
+          "insert_missing_labels": false,
+          "label_root": "Lbl_",
+          "max_actions": 10000,
+          "max_output_bytes": 4194304,
+          "parser": {
+            "max_bytes": 1048576,
+            "max_depth": 128,
+            "max_nodes": 50000,
+            "max_tokens": 100000
+          }
+        },
+        "source_declaration": null
+      },
+      "serialized_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> << \"Z\", \"==\", \"1\" >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"Z\" >>]>>]>>]>>]"
+    },
+    "algorithm_checksum_verified": true,
+    "module_source": "---- MODULE P_define ----\nEXTENDS Integers, TLC, Sequences\n(* --algorithm A variables x=0; define Z==1 end define;\nbegin L:x:=Z; end algorithm; *)\n\\* BEGIN TRANSLATION (chksum(pcal) = \"dc306b0a\" /\\ chksum(tla) = \"bc41d375\")\nVARIABLES pc, x\n\n(* define statement *)\nZ==1\n\nvars == << pc, x >>\n\nInit == /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = Z\n     /\\ pc' = \"Done\"\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\\* END TRANSLATION \n====\n",
+    "newlines_normalized": false,
+    "replacement": "\\* BEGIN TRANSLATION (chksum(pcal) = \"dc306b0a\" /\\ chksum(tla) = \"bc41d375\")\nVARIABLES pc, x\n\n(* define statement *)\nZ==1\n\nvars == << pc, x >>\n\nInit == /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = Z\n     /\\ pc' = \"Done\"\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\\* END TRANSLATION \n",
+    "selection": {
+      "algorithm": {
+        "end": 143,
+        "start": 62
+      },
+      "checksum": null,
+      "comment": {
+        "end": 146,
+        "start": 59
+      },
+      "insertion": 147,
+      "previous": null,
+      "previous_body": null
+    },
+    "span": {
+      "end": 147,
+      "start": 147
+    },
+    "translation_checksum": "bc41d375"
+  },
+  "requested_profile": "dive",
+  "requested_translation_options": {
+    "fairness": "Declared",
+    "insert_missing_labels": false,
+    "label_root": "Lbl_",
+    "max_actions": 10000,
+    "max_output_bytes": 4194304,
+    "parser": {
+      "max_bytes": 1048576,
+      "max_depth": 128,
+      "max_nodes": 50000,
+      "max_tokens": 100000
+    }
+  },
+  "result": "replacement",
+  "schema_version": 1,
+  "stage": "replacement-analysis",
+  "translation_options": {
+    "fairness": "Declared",
+    "insert_missing_labels": false,
+    "label_root": "Lbl_",
+    "max_actions": 10000,
+    "max_output_bytes": 4194304,
+    "parser": {
+      "max_bytes": 1048576,
+      "max_depth": 128,
+      "max_nodes": 50000,
+      "max_tokens": 100000
+    }
+  }
+}

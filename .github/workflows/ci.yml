@@ -117,6 +117,8 @@ jobs:
           python3 -I scripts/check-runtime-ratio.py
           python3 -I scripts/check-periodic-lifecycle.py
           python3 -I scripts/check-periodic-hook.py
+          python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
+          python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Verify complete test partitions

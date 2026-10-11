@@ -201,6 +201,7 @@ python3 -I scripts/check-native-parity-integration.py
 python3 -I scripts/check-view-normalization.py
 python3 -I scripts/check-view-random-stream.py
 python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
+python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
