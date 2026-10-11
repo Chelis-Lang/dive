@@ -1,0 +1,20 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "python3",
+    "-I",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/procedure-fairness-acceptance/timeout-followup/compare.py",
+    "--manifest",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/procedure-fairness-acceptance/timeout-followup/primary/manifest.json",
+    "--inputs",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/procedure-fairness-acceptance/timeout-followup/cases",
+    "--native",
+    "/Users/jeff/code/dive-process-fairness-current-artifacts/translate",
+    "--output",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/timeout-followup/comparison.json"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 1.3147220611572266,
+  "log_sha256": "56b244ca5ce83e96b385826fe4a3e1fe6a4f6591f68de327de30d7b2fc83be53"
+}

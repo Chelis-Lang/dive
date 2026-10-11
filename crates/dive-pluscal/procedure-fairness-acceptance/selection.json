@@ -1,0 +1,1454 @@
+{
+  "schema_version": 1,
+  "selected": 328,
+  "rows": [
+    {
+      "id": "FairProcedure_C_constant_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_member_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_proc_mixed",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_proc_mixed",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_proc_mixed",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_process_call_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_process_call_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_process_call_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_process_call_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_process_call_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_process_call_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_process_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_process_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_process_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constant_process_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_member_process_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_process_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_disjoint",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_unused",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_unused",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_unused_first",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_unused_first",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_two_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_two_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested_modifiers",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested_modifiers",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_false_branch",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_self_recursion",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_tail",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_self_tail",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_call_goto",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_call_goto",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_no_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_fair_domain_empty",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_fair_domain_reverse",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_fair_domain_strings",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_fair_domain_multi_line",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_fair_domain_comment",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_duplicate_label",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_cross_local",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_overlap",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_unbounded",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_invalid_constant_self",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_invalid_local_self",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_invalid_no_param_tail",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_wrong_arity",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_unknown_call",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_missing_return",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_alias_parameter",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_C_invalid_modifier",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_member_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_option_wfNext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_algorithm_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_algorithm_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_algorithm_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_Fplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_Fplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_Fplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_Fminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_Fminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_Fminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_F_rplus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_F_rplus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_F_rplus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_F_rminus_unfair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_F_rminus_weak",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_F_rminus_strong",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_proc_mixed",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_proc_mixed",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_proc_mixed",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_process_call_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_process_call_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_process_call_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_process_call_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_process_call_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_process_call_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_process_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_process_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_process_two_plus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constant_process_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_member_process_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_process_two_minus",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair_option_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair_option_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair_option_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair_algorithm",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_disjoint",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_unused",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_unused",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_unused_first",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_unused_first",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_two_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_two_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested_modifiers",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested_modifiers",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_false_branch",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_self_recursion",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_tail",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_self_tail",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_call_goto",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_call_goto",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_no_calls",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_fair_domain_empty",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_fair_domain_reverse",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_fair_domain_strings",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_fair_domain_multi_line",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_fair_domain_comment",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_duplicate_label",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_cross_local",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_overlap",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_unbounded",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_invalid_constant_self",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_invalid_local_self",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_invalid_no_param_tail",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_wrong_arity",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_unknown_call",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_missing_return",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_alias_parameter",
+      "options": []
+    },
+    {
+      "id": "FairProcedure_P_invalid_modifier",
+      "options": []
+    }
+  ]
+}

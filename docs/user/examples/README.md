@@ -46,3 +46,10 @@ original capture-first campaign checks four CLI translations and two compiled
 Rust calls. The [current integration receipt](../../../conformance/probes/native-parity-integration/current-controls/recursive-final-integration/verification.json)
 also reruns all six guide calls on the integrated source. Translation acceptance
 remains an artifact claim, and strict stack witness replay is pending.
+
+Process procedure examples (`ProcessCallExample`, `MultipleCallExample`,
+`FairCall`, with C-style counterparts) come from the corresponding current
+procedure guides. They exercise recursive/per-ID/shared stacks and generated
+fairness, separately from finite safety and liveness proof. Current root
+verification must use its own built executable and preserve the ancestor
+campaigns separately.

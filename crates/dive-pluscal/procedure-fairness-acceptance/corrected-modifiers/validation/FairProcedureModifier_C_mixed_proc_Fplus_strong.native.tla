@@ -1,0 +1,76 @@
+---- MODULE FairProcedureModifier_C_mixed_proc_Fplus_strong ----
+EXTENDS Integers, Sequences, TLC
+(* --algorithm A {
+variable x=0;
+procedure First(a=0)
+
+{ F: + x:=x+a; R:return; };
+fair + process (One = 1)
+
+{ L:call First(1); E:skip; }
+process (Two \in {2,3})
+
+{ M:call First(2); N:skip; }
+} *)
+
+VARIABLES pc, x, stack, a
+
+vars == << pc, x, stack, a >>
+
+ProcSet == {1} \cup ({ 2 , 3 })
+
+Init == /\ x = 0
+        /\ a = [self \in ProcSet |-> 0]
+        /\ stack = [self \in ProcSet |-> << >>]
+        /\ pc = [self \in ProcSet |-> CASE self = 1 -> "L" [] self \in { 2 , 3 } -> "M"]
+
+F(self) == /\ pc[self] = "F"
+           /\ x' = x + a[self]
+           /\ pc' = [pc EXCEPT ![self] = "R"]
+           /\ UNCHANGED << stack, a >>
+
+R(self) == /\ pc[self] = "R"
+           /\ pc' = [pc EXCEPT ![self] = Head(stack[self]).pc]
+           /\ a' = [a EXCEPT ![self] = Head(stack[self]).a]
+           /\ stack' = [stack EXCEPT ![self] = Tail(stack[self])]
+           /\ x' = x
+
+First(self) == F(self) \/ R(self)
+
+L == /\ pc[1] = "L"
+     /\ /\ a' = [a EXCEPT ![1] = 1]
+        /\ stack' = [stack EXCEPT ![1] = << [ procedure |-> "First", pc |-> "E", a |-> a[1] ] >> \o stack[1]]
+     /\ pc' = [pc EXCEPT ![1] = "F"]
+     /\ x' = x
+
+E == /\ pc[1] = "E"
+     /\ TRUE
+     /\ pc' = [pc EXCEPT ![1] = "Done"]
+     /\ UNCHANGED << x, stack, a >>
+
+One == L \/ E
+
+M(self) == /\ pc[self] = "M"
+           /\ /\ a' = [a EXCEPT ![self] = 2]
+              /\ stack' = [stack EXCEPT ![self] = << [ procedure |-> "First", pc |-> "N", a |-> a[self] ] >> \o stack[self]]
+           /\ pc' = [pc EXCEPT ![self] = "F"]
+           /\ x' = x
+
+N(self) == /\ pc[self] = "N"
+           /\ TRUE
+           /\ pc' = [pc EXCEPT ![self] = "Done"]
+           /\ UNCHANGED << x, stack, a >>
+
+Two(self) == M(self) \/ N(self)
+
+Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
+               /\ UNCHANGED vars
+
+Next == One \/ (\E self \in ProcSet: First(self)) \/ (\E self \in { 2 , 3 }: Two(self)) \/ Terminating
+
+Spec == /\ Init /\ [][Next]_vars
+        /\ SF_vars(One) /\ SF_vars(First(1))
+
+Termination == <>(\A self \in ProcSet: pc[self] = "Done")
+
+====

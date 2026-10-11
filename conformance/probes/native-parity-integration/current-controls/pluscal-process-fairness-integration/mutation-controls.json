@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "comparator_sha256": "c392c74f6c7c1e69e5ad8c36d05add32dc99de5329574a4c25b95800ff958b20",
+  "manifest_sha256": "a66949f5e1feb4ef0f449981c9caee97288add11052062ef49cbb076fee78662",
+  "native_sha256": "49650864d1d142fac39fbaabc094ed48a8643bde8732ea887e1708a1ce06c772",
+  "control_count": 39,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "missing-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "wrong-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair",
+      "mutation": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "missing-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "wrong-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak",
+      "mutation": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "missing-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "wrong-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested",
+      "mutation": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    }
+  ]
+}

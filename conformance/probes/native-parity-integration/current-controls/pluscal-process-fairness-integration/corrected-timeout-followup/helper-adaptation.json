@@ -1,0 +1,6 @@
+{
+  "original": "crates/dive-pluscal/procedure-fairness-acceptance/corrected-timeout-followup/qualified-replay.py",
+  "original_sha256": "b3d9d460a8f4b9fcc013df7203caebeb435ea40584dd0d57300847183e4af0e3",
+  "adapted_sha256": "5df60fdef7e9aa8aa99d4619d7723c6bafc82b14684a43b40eb66d0a80fc7fe1",
+  "change": "Only validation directory is redirected to this fresh combined-source run; decisions/assertions remain unchanged."
+}

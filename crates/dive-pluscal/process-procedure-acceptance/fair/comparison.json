@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "stage": "single-process-procedure-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "447006e83df90885af032c08d1d0d23f2098276f4727a1b92760b6cebb72a74c",
+  "comparator_sha256": "76606413a055898ffc39afed090a217dc67081aec4fb8a1290ce29c62751e325",
+  "native_sha256": "dbf8240c1656279bcd122809785891d9665155918607d43a8f473689ee3c0dd8",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "multiple-process-procedure-storage-and-scoped-renaming",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 2,
+  "summary": {
+    "token-artifact-match": 2
+  },
+  "rows": [
+    {
+      "id": "ProcessProcedureFair_C_global",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "6b95a7b252b19644edef4e8db0c2aae25866b2908eae79946dc5a53f8c556b7e",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedureFair_P_global",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "6b95a7b252b19644edef4e8db0c2aae25866b2908eae79946dc5a53f8c556b7e",
+      "action_count": 4,
+      "program_counter": true
+    }
+  ]
+}

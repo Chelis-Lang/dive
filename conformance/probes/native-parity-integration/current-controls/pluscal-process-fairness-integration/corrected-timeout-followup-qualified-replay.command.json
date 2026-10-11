@@ -1,0 +1,16 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "python3",
+    "-I",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/corrected-timeout-followup/qualified-replay-fresh.py",
+    "--native",
+    "/Users/jeff/code/dive-process-fairness-current-artifacts/dive",
+    "--output",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/corrected-timeout-followup/qualified-replay"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 1.4676239490509033,
+  "log_sha256": "38700218e3cc92ed97bb5ca095bfa612e2fe0f759efdfdcc486058847e779700"
+}

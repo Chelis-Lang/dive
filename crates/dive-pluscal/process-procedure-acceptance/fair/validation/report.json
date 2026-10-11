@@ -1,0 +1,618 @@
+{
+  "schema_version": 1,
+  "stage": "native-generated-artifact-controls",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_report_sha256": "9d611841cabfd4e383ac72a6231acec6eaf8b9dcdd1c051c1198d0ca249e1a61",
+  "script_sha256": "825bb78e01104ad47a6e11913f3f5007ccf8d534b1f36aa6a9dab1bab86882a4",
+  "native_sha256": "23466627a82d6cae363602d73f642f712b12a583e04cbbdd8013d3df943cfaf6",
+  "cst_dumper_sha256": "dbf8240c1656279bcd122809785891d9665155918607d43a8f473689ee3c0dd8",
+  "selected_artifacts": 2,
+  "artifact_summary": {
+    "native-sany-match": 2
+  },
+  "model_summary": {
+    "finite-model-match": 2,
+    "disagree": 2
+  },
+  "family_certified": false,
+  "artifact_rows": [
+    {
+      "id": "ProcessProcedureFair_C_global",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "cd8c16dff161948024509cf3f4360284129d98b13d6ecc3a79278ac4efcc1000",
+      "artifact": "ProcessProcedureFair_C_global.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_C_global.native.stdout.gz",
+        "stdout_sha256": "d72ae04eaa1f4f974a86898af6de5012786036095ee075053f39c69b31c2e9d4",
+        "stderr": "ProcessProcedureFair_C_global.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_C_global.native-sany.stdout.gz",
+        "stdout_sha256": "8ab470854610acb37b5532be52456aa78bc04bd4c170f0cd95b915a31e1782f1",
+        "stderr": "ProcessProcedureFair_C_global.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "edcac205c185d481495640c5260784d7e2d0f46974f04470cfd45a097d7f43dc"
+    },
+    {
+      "id": "ProcessProcedureFair_P_global",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "e4f25a53482264d40e0320002dac207598aa8844463eb69c288a775da0b75f6d",
+      "artifact": "ProcessProcedureFair_P_global.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_P_global.native.stdout.gz",
+        "stdout_sha256": "68d6de29d21fcd4a5fb4d7fe24411a3bddbd447774d67b77ac65c9f9d0c42753",
+        "stderr": "ProcessProcedureFair_P_global.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_P_global.native-sany.stdout.gz",
+        "stdout_sha256": "dc9b6c3b96c60deb2061895d79ee3f251df59433f4666e0fc2e256c25e14fbce",
+        "stderr": "ProcessProcedureFair_P_global.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "d258d19b716c5bc39ad1b67bedb1654274e109d86217a9da1ab7e2b06e4a08b3"
+    }
+  ],
+  "model_rows": [
+    {
+      "id": "ProcessProcedureFair_C_global.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_C_global.complete.tlc.stdout.gz",
+        "stdout_sha256": "81ed1b58723721cd62dad169291c042776992cbdb18d2e0ef3430dc8c391986c",
+        "stderr": "ProcessProcedureFair_C_global.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_C_global.complete.check.stdout.gz",
+        "stdout_sha256": "a2403cb2fc70f50692534f85464d9ebe3d838a238afdf64125425f13dba132bb",
+        "stderr": "ProcessProcedureFair_C_global.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 6,
+        "distinct": 5,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_C_global.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "e4b590242e6c577b3054875f7ae7bcd451ed0d30d6a1f0010ecc495825194a27",
+            "stderr": "ProcessProcedureFair_C_global.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_C_global.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "625951d30dc92aad6f8997096155444daf504e068764e17577f1df07927b2bd5",
+            "stderr": "ProcessProcedureFair_C_global.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_C_global.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "d03a9f10f539f15b0d36f6405b08c2bffdd3ed0e1948f788fdf73448e1f815ad",
+            "stderr": "ProcessProcedureFair_C_global.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_C_global.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "a9a7ab1df693185c6d59bb283bc37b17e2812ae73ea2310a92ff897559411a5b",
+            "stderr": "ProcessProcedureFair_C_global.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_C_global.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "9fffa9adf4ca76132d7e8d10e2dc271dbdd06102f371ab704e2b5ae2077fa52e",
+            "stderr": "ProcessProcedureFair_C_global.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_C_global.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "d909e51203ba04838eeb18d88dc4daf0aa3526e8824b742a577c96916b533dbf",
+            "stderr": "ProcessProcedureFair_C_global.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcessProcedureFair_C_global.complete.model.tla",
+      "source_sha256": "cd8c16dff161948024509cf3f4360284129d98b13d6ecc3a79278ac4efcc1000",
+      "config": "ProcessProcedureFair_C_global.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "ProcessProcedureFair_C_global.violation.tlc.stdout.gz",
+        "stdout_sha256": "d7628508097ce9a673fad6e4db13bf1de68ea89eda1efd1a61b0d4e0f836461d",
+        "stderr": "ProcessProcedureFair_C_global.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "ProcessProcedureFair_C_global.violation.check.stdout.gz",
+        "stdout_sha256": "e95de0d717f559ce2742f61578f09d06a664a1bfe98f6ba7dd0e00d433b3c73f",
+        "stderr": "ProcessProcedureFair_C_global.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 4,
+        "left_on_queue": 0,
+        "depth": 4
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "ProcessProcedureFair_C_global.violation.original.stdout.gz",
+            "stdout_sha256": "bb0de2604c0c201aef076becd1e8efab1acff0492d12e1c5d5b836f2fd46c9b3",
+            "stderr": "ProcessProcedureFair_C_global.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcessProcedureFair_C_global.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5",
+            "stderr": "ProcessProcedureFair_C_global.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcessProcedureFair_C_global.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d",
+            "stderr": "ProcessProcedureFair_C_global.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcessProcedureFair_C_global.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42",
+            "stderr": "ProcessProcedureFair_C_global.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "ProcessProcedureFair_C_global.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "5d9437d70b2a92ea75f57b6b7ecc259fb7c38d838faec4d9b70865f14c7dae1a",
+            "stderr": "ProcessProcedureFair_C_global.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_C_global.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "e95de0d717f559ce2742f61578f09d06a664a1bfe98f6ba7dd0e00d433b3c73f",
+            "stderr": "ProcessProcedureFair_C_global.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_C_global.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "2c0c2bb75bba7d1647299b0b5c4e43a391e8cb59be46ed2841e9cf42b7c4960e",
+            "stderr": "ProcessProcedureFair_C_global.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_C_global.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "65e0c19cfe5d5ab2b79d8b3b055454a7cdf64862c6036372ac333477f286ffb5",
+            "stderr": "ProcessProcedureFair_C_global.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_C_global.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "a58c9f6d9d1ed1e7919a0d502b6e1224e6991e66915458e44efaceb08cb19388",
+            "stderr": "ProcessProcedureFair_C_global.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_C_global.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "a1cb977086e224a649082a457f3b48dc186ac87daafdad0e32d83723694dcddc",
+            "stderr": "ProcessProcedureFair_C_global.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_C_global.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "c5f95f80535cf4343e4c4c7e6fc73c1548a60706b0ab6277846e4619e646a109",
+            "stderr": "ProcessProcedureFair_C_global.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcessProcedureFair_C_global.violation.model.tla",
+      "source_sha256": "5c1e52652b70de1257aa57abf9b3e3f9cc5e0c02f757048e68411c512521719e",
+      "config": "ProcessProcedureFair_C_global.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_P_global.complete.tlc.stdout.gz",
+        "stdout_sha256": "4425671dbc4568b0cf17cd828eb4e1209e9849410110c820ab772f9cd52a8362",
+        "stderr": "ProcessProcedureFair_P_global.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureFair_P_global.complete.check.stdout.gz",
+        "stdout_sha256": "81392380821caa902b5e4f195f30193e2b4e560dc0780bca5a7cad3e96663347",
+        "stderr": "ProcessProcedureFair_P_global.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 6,
+        "distinct": 5,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_P_global.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "81392380821caa902b5e4f195f30193e2b4e560dc0780bca5a7cad3e96663347",
+            "stderr": "ProcessProcedureFair_P_global.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_P_global.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "bfebb2561f99927a05203525aaece63ad56c9cf394b256a6eeb9172a3f975a07",
+            "stderr": "ProcessProcedureFair_P_global.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_P_global.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "5d1e2563a3a95ac751d9ae2cf8887a2ce5e70ba4b0a5be127f70992bfbbe8042",
+            "stderr": "ProcessProcedureFair_P_global.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_P_global.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "843adc17edc88bc29264b25b0499edc965aadb3f0161552aef66223618dd1260",
+            "stderr": "ProcessProcedureFair_P_global.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_P_global.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "7fb7023bc929acf8ba0fd27a84dc2196e03fa46a966d200d9017eb6a6277d093",
+            "stderr": "ProcessProcedureFair_P_global.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcessProcedureFair_P_global.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "2921f2fef462a0384bc15e9e1b93bb0ac6673f3248f0999b80ca63211114cf7f",
+            "stderr": "ProcessProcedureFair_P_global.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcessProcedureFair_P_global.complete.model.tla",
+      "source_sha256": "e4f25a53482264d40e0320002dac207598aa8844463eb69c288a775da0b75f6d",
+      "config": "ProcessProcedureFair_P_global.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "ProcessProcedureFair_P_global.violation.tlc.stdout.gz",
+        "stdout_sha256": "aee962ede25750abba8d59bbcf3b9a898569fd1c0a0d53aade95dfd82e29e87d",
+        "stderr": "ProcessProcedureFair_P_global.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "ProcessProcedureFair_P_global.violation.check.stdout.gz",
+        "stdout_sha256": "f004f679acd022aa0a960c837e1ca49657b10e1b23bf3d20459428dde3719d09",
+        "stderr": "ProcessProcedureFair_P_global.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 4,
+        "left_on_queue": 0,
+        "depth": 4
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "ProcessProcedureFair_P_global.violation.original.stdout.gz",
+            "stdout_sha256": "bb0de2604c0c201aef076becd1e8efab1acff0492d12e1c5d5b836f2fd46c9b3",
+            "stderr": "ProcessProcedureFair_P_global.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcessProcedureFair_P_global.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5",
+            "stderr": "ProcessProcedureFair_P_global.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcessProcedureFair_P_global.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d",
+            "stderr": "ProcessProcedureFair_P_global.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcessProcedureFair_P_global.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42",
+            "stderr": "ProcessProcedureFair_P_global.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "ProcessProcedureFair_P_global.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "5d9437d70b2a92ea75f57b6b7ecc259fb7c38d838faec4d9b70865f14c7dae1a",
+            "stderr": "ProcessProcedureFair_P_global.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_P_global.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "717aa5b32e4dea4c659f9f8c2871497fb86e2ce93f024f209a65784dbf08718c",
+            "stderr": "ProcessProcedureFair_P_global.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_P_global.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "5c35f55f17b8b8af6c921cf4026c39037882ea6b333d0f993dea0cc45b13d83e",
+            "stderr": "ProcessProcedureFair_P_global.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_P_global.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "008c75d999fca882db752823ba99f4f45eda14e55af82de5d4301ea4a281eb29",
+            "stderr": "ProcessProcedureFair_P_global.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_P_global.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "a72dea1575299981a53d8bed91d383bb528e2ef22f724ed0589d9c1caab52e5a",
+            "stderr": "ProcessProcedureFair_P_global.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_P_global.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "24c49277c961f40f8bc593734e87cf3104033e88e1145c3e4e139071f7c250b0",
+            "stderr": "ProcessProcedureFair_P_global.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcessProcedureFair_P_global.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "fc1657f798c93b12de90bd07c7707cca90544f53b4cbbfbdb3a2513be427e3e8",
+            "stderr": "ProcessProcedureFair_P_global.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcessProcedureFair_P_global.violation.model.tla",
+      "source_sha256": "3a03135a8ce5cc4a57f29e852b6b3491193cc63c38212c9425f7003c8cdc048d",
+      "config": "ProcessProcedureFair_P_global.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "original": "crates/dive-pluscal/procedure-fairness-acceptance/corrected-modifiers/qualified-replay.py",
+  "original_sha256": "b3d9d460a8f4b9fcc013df7203caebeb435ea40584dd0d57300847183e4af0e3",
+  "adapted_sha256": "94fd964cad902c40e03dc3f194e0a17fb098076c6bd3406341c8f040b2d6da5b",
+  "change": "Only validation directory is redirected to this fresh combined-source run; decisions/assertions remain unchanged."
+}

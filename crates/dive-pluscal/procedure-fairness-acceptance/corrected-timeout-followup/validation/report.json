@@ -1,0 +1,1512 @@
+{
+  "schema_version": 1,
+  "stage": "native-generated-artifact-controls",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_report_sha256": "f4a586dda313943e26c06db206ebe237060dee2fda8b9e4ae48d533023fcabb0",
+  "script_sha256": "3e246fea009eb25bbbbe72e0383640331ae86d4749add150834cb160c722dcb1",
+  "native_sha256": "8e7be53f64ce2cc0d6864d3a4e261563a59bc4b6f5880592a79a7e9df90c48cf",
+  "cst_dumper_sha256": "3b274e19822b7f48a30e3a807bbecdc65fb0bc2fd51b4793070481ebc29933da",
+  "selected_artifacts": 5,
+  "artifact_summary": {
+    "native-sany-match": 5
+  },
+  "model_summary": {
+    "finite-model-match": 5,
+    "disagree": 5
+  },
+  "family_certified": false,
+  "artifact_rows": [
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_minus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "6d4b813023ceaea06996829f3d7b15f24bb12c59a40b2398cfc25b41994b1d95",
+      "artifact": "FairProcedureModifier_P_mixed_process_call_minus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_minus.native.stdout.gz",
+        "stdout_sha256": "81bfacb3432c9629fde74cf9c26d8012819f991285dfefbdd3b0fff977315ade",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_minus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_minus.native-sany.stdout.gz",
+        "stdout_sha256": "02780f79308fb45aeda82a8c05a16a971a2024c42aee3708c89d77bc0489ac8a",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_minus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "b37ea54d03e4f9a137aaa9369353e21f018daf19012bbaf0d5d14e3092ac4af8"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_plus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "87f7cc9e907363f0f95ebfb012a4bbb55f28b5fd07641de3ab88cfeaada914ae",
+      "artifact": "FairProcedureModifier_P_mixed_process_call_plus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_plus.native.stdout.gz",
+        "stdout_sha256": "b2e3ec31b4448bf75f2e856f4aafdcd44fdf3be3f76000ab259d67841300b517",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_plus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_plus.native-sany.stdout.gz",
+        "stdout_sha256": "41b3b341cff870a41a05810d25f94f194d2e17a78ba6fd651b4bfd3e1332350b",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_plus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "63f200eddd3fa3d00a6fa7a6590d7feaa5459667b693b02aaae09bbe37a1637b"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_minus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "83992ffe3ebad19469e6406f2cf77a2dd608e5d67e051e6980c423737f90799b",
+      "artifact": "FairProcedureModifier_P_mixed_process_two_minus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_minus.native.stdout.gz",
+        "stdout_sha256": "6382f22a0a9ae1d26e227fdef47aecb6014ecb13d7f8952ad0b225e363a73ae9",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_minus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_minus.native-sany.stdout.gz",
+        "stdout_sha256": "35838c5c3d375b3f45e92a2cc9ab389b44b736e38997d2deb4fdccaa341da388",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_minus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "2b21c0a4afc8ebfd3047661414b3ca2d06e24f330ea22950164071d47ef1d994"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_plus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "c53a0e26845b840f7421f3f41458a49a6c08fdc0bb86a6743a47ae69fac8fc05",
+      "artifact": "FairProcedureModifier_P_mixed_process_two_plus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_plus.native.stdout.gz",
+        "stdout_sha256": "7f18e8e10fa19f8611491a361c015a2502fd23f439371c1fb85b0a608c02d74d",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_plus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_plus.native-sany.stdout.gz",
+        "stdout_sha256": "a9bb62aa8c39dc66178ced641b2ece909e1bf89a6e4e79d21b7923f3a171f872",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_plus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "111d51e6da853cc8f133d7bfc1bf59c6dca7fd068576bf8fe9748a682f94c5f7"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_reach_nested_modifiers",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "f5343520e6534c280cf34d82dce9f4da1fb19a5c9acdcd47ef10cda5dd2d396a",
+      "artifact": "FairProcedureModifier_P_mixed_reach_nested_modifiers.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.native.stdout.gz",
+        "stdout_sha256": "3500d4c944291322ee7615aa56bf70f38469f0d7a58c1a68934c2c3e96a3b575",
+        "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.native-sany.stdout.gz",
+        "stdout_sha256": "e68252964a33873194dd845254f46396d5ef5f173d75be9e0ab6b51f8d317e17",
+        "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "43a4456afda3693152b73443ce6e4c07779cde480e47e30eeec51a6cb3471351"
+    }
+  ],
+  "model_rows": [
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_minus.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.tlc.stdout.gz",
+        "stdout_sha256": "ca352c0591670b81d6603adcafedaff6d677fb3dc1be2e4dd8f4764023c042e1",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.check.stdout.gz",
+        "stdout_sha256": "75004d98b04fb1b8490a721209c02f39b7751373d720d49bca94bd1ec10bb259",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 302,
+        "distinct": 125,
+        "left_on_queue": 0,
+        "depth": 13
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "078cecef929a4b09449d92a332a1cadc482d79af61b02c4573eb278bc2cb5599",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "5a71d0c85b8782202e90631ae9f76e89fc8cc26e9baeb1b19c3ec566f84bd768",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "fa527cffffcaf24b7122943a6007ae54682de2c78aa1c1a1263d0118024be0f3",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "14cd3fac8e15843abf56962535c2c9c4d8c8b4b8a209c5964f51c59a078140ce",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "647d88de481ff763ad59ca36bef12c20a7067f5993b874c720cfd4fa0b92bd19",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "51f2622a1c4df8b9029188d102cf1bfe568328b8c3aa04e803983b988aa5115b",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_call_minus.complete.model.tla",
+      "source_sha256": "6d4b813023ceaea06996829f3d7b15f24bb12c59a40b2398cfc25b41994b1d95",
+      "config": "FairProcedureModifier_P_mixed_process_call_minus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_minus.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.tlc.stdout.gz",
+        "stdout_sha256": "53fb5e4dcdecdcbfaecf0ed834c883c2a507df2e2afc86d8d23271fb5f98f50d",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.check.stdout.gz",
+        "stdout_sha256": "c51b69e5832710451699c3f0f1964ccbf1b1f79996a83f5017b685c5efabf33f",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 11,
+        "left_on_queue": 5,
+        "depth": 4
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.original.stdout.gz",
+            "stdout_sha256": "bb0de2604c0c201aef076becd1e8efab1acff0492d12e1c5d5b836f2fd46c9b3",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "5d9437d70b2a92ea75f57b6b7ecc259fb7c38d838faec4d9b70865f14c7dae1a",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "c6773c1b2de75b9f5fa92c324c62b851469654d74facbc1c1e89253ff36943ba",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "4bbaf232657202d307356e97b995f1ed86ac51d380ff4b254ecc89cb9ce8619b",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "2793459470a7ca3f4a2240924b3e2cf048b6ebac0853be2f84f489c29152a545",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "fe0efaa1a288f4e920d5e930da600f358fc8edf8771b54c0589a06337b20c2c6",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "7ff2388bae46569c68ac2d305485e58c9c0d67d04da1a241c1a4fbb2b8e31dc7",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_minus.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "3550fb9c891299d938d2e692307129884252d807fd1fe434bbf59a7c1995d3f6",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_minus.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_call_minus.violation.model.tla",
+      "source_sha256": "afe2314c2a841ac5d9120845ee6e7855c34be34b91b7fdd6fecd2bb76280c205",
+      "config": "FairProcedureModifier_P_mixed_process_call_minus.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_plus.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.tlc.stdout.gz",
+        "stdout_sha256": "00340833421abd31c7ad76c67e562d297275b336948aef7ff1f105fc58550684",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.check.stdout.gz",
+        "stdout_sha256": "08913221355ac452afb2c0f3367831b046352f41bf02fd53588476b4a07124d4",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 302,
+        "distinct": 125,
+        "left_on_queue": 0,
+        "depth": 13
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "262446805af1f5ff7f921f4a3917bee5840678c961ca26960c5f566df04a29bd",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "3b31145f95f5febda555770dd9c111915e1f3f7c6785663b2a0cabe01eff909d",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "d9a8a6649f099b78dcf6ff2d405d1f3904864d1250ed7c55791e2f7c87e6f20a",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "c2235e953f1731c6e71929e67e36ac2659fc8a4c740c6c066a6d614237eeb1d1",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "3baa320ff7dcdf0c5cac1f52fdaa376e208a0c56f333db469a6413cebdc56dfc",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "21f9a029ce47d9a4e5e00a1fb181eecd9a1aeab653730bbb9a3c2bb9a4c8600d",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_call_plus.complete.model.tla",
+      "source_sha256": "87f7cc9e907363f0f95ebfb012a4bbb55f28b5fd07641de3ab88cfeaada914ae",
+      "config": "FairProcedureModifier_P_mixed_process_call_plus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_plus.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.tlc.stdout.gz",
+        "stdout_sha256": "14a9df590397265be9632b442a38a2ef4b93378d1644b60f072c9c3348bf30ba",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.check.stdout.gz",
+        "stdout_sha256": "ef0f557dc2ad85067bd149ee8d274f62957cbe106670bf56001d94f6fdbb40c0",
+        "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 11,
+        "left_on_queue": 5,
+        "depth": 4
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.original.stdout.gz",
+            "stdout_sha256": "bb0de2604c0c201aef076becd1e8efab1acff0492d12e1c5d5b836f2fd46c9b3",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "5d9437d70b2a92ea75f57b6b7ecc259fb7c38d838faec4d9b70865f14c7dae1a",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "ef0f557dc2ad85067bd149ee8d274f62957cbe106670bf56001d94f6fdbb40c0",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "266b8efcba044e72d181bca7b93c9fb7f4725f29f7e9dfb164b8fcd5f6d521ab",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "2c215b8097ecc3de4dd3b2d62eb1be47ca6e6ba518ee9ad4002cde09484eb59f",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "f48738f6c2c580a57597ce8bb3c030ca9b48e123bd52747955f496342e4835f9",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "9668e063d85a58e1face34deab1afa2a6a86e405f08501ab00f11bd9d7d071a1",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_call_plus.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "638752dba5952f2011aa42d15128e6433aaaf2bc12ac3a5cbf21b49429cec539",
+            "stderr": "FairProcedureModifier_P_mixed_process_call_plus.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_call_plus.violation.model.tla",
+      "source_sha256": "a95b2abd063f45911814635f905d2ec7ac8824814b42144d07bdb695ce81822b",
+      "config": "FairProcedureModifier_P_mixed_process_call_plus.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_minus.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.tlc.stdout.gz",
+        "stdout_sha256": "daf34a4a5e7f475bcd0d061f15d0d95b84510c5a32b54db34d4f47ecbaa8d976",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.check.stdout.gz",
+        "stdout_sha256": "52fae48d28884f77945f5ad30b9b43dd4e5153e89cc6b2c0bca0650bdcbedb70",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 302,
+        "distinct": 125,
+        "left_on_queue": 0,
+        "depth": 13
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "52fae48d28884f77945f5ad30b9b43dd4e5153e89cc6b2c0bca0650bdcbedb70",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "745771247053310d82441669a39b3124f8d76ddcf54bad2da9227a121aa608ec",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "df3979e67bb4f3db9ac4c749d5e97ce8e5c050767a737832d9856b59c3b925ad",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "c26f2f92c54bbfef244ae5e7ad885047626835d82a9103172763fd46f4d85f40",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "84138b21706be2629ee8eb7e9e6dd9f27f5e2c38e86ce52b1ac350b476ac1e70",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "e447d74ad1602e7c4fe2c18481fd674c495fb74187b09a4fb271b5251d060cea",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_two_minus.complete.model.tla",
+      "source_sha256": "83992ffe3ebad19469e6406f2cf77a2dd608e5d67e051e6980c423737f90799b",
+      "config": "FairProcedureModifier_P_mixed_process_two_minus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_minus.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.tlc.stdout.gz",
+        "stdout_sha256": "cba7d8cd45774c44e8bb41fdbc35e0018e2b0ab8cbb6fc2c6acae6ab97d6b44e",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.check.stdout.gz",
+        "stdout_sha256": "9b118cdc91ca3d3e7d0c1b26f91aa83e6bbd3542cb5e074468f7330da5e8b149",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 11,
+        "left_on_queue": 5,
+        "depth": 4
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.original.stdout.gz",
+            "stdout_sha256": "bb0de2604c0c201aef076becd1e8efab1acff0492d12e1c5d5b836f2fd46c9b3",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "5d9437d70b2a92ea75f57b6b7ecc259fb7c38d838faec4d9b70865f14c7dae1a",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "0bc47548b85f6a7cf34643c70c6bc77baadd2a156943c3a5a86c76c8e85f7b2e",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "78cf0efb7193427746a214d2212bbb9bb864dc2d0f07940f021a70c7b5e983cb",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "bfaf127649c422916e6df4ff85678e9e8dc14134301607cb40d3507ce7fae72f",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "f08af9a24bfdc704302293a81c0dd2e1d34baaed7b799689474a34db23847be8",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "85205c46d58fe542c53bf0615e78965692ef207265cda3b95bab760a83b01ebc",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_minus.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "12f6a207d9e15392b75d5650af7c01eddeb13b2578767281090e831c2d3b75cb",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_minus.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_two_minus.violation.model.tla",
+      "source_sha256": "3a6ef431d80eeffd84c8c2ad1df9c06c0a7580911d42c61f30f1a066bc9de3d8",
+      "config": "FairProcedureModifier_P_mixed_process_two_minus.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_plus.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.tlc.stdout.gz",
+        "stdout_sha256": "708b60ac117ed51e6754938c7ed4d9fd80c2287ed878236fc78c091a52b7c157",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.check.stdout.gz",
+        "stdout_sha256": "e46ab56ea6eea24a1a58d98913468c2912571aa63f7973ac4254f67b6fc95496",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 302,
+        "distinct": 125,
+        "left_on_queue": 0,
+        "depth": 13
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "8753dbe69c03d3dc7034b3cf7b4d5341e7e074d4c9cb8cf01587ff93ba2ec4ca",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "dc244a4fec71e395a0b166a8b0584b2af4a4130eee0429b6275ed1a7a86db2cd",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "ab0368005144fd44d2c5dd5214a6d3764eea0e39b9dd889a099eadc4f6750ac0",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "9eaced0a056f3821d140228c35a5839828126124646766f6c5ec148654c920f8",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "0e6c97f86b9028f5351675bd9b87eadce9fa0b72fcf12fe944f86ae11b97ae97",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "fef6ee4e5ccd8780af4eeeb2f081eb545382e0d017a41314a96c9dee1f708a34",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_two_plus.complete.model.tla",
+      "source_sha256": "c53a0e26845b840f7421f3f41458a49a6c08fdc0bb86a6743a47ae69fac8fc05",
+      "config": "FairProcedureModifier_P_mixed_process_two_plus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_plus.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.tlc.stdout.gz",
+        "stdout_sha256": "4fe00e1757cb14cb063d7dde6540d25e8a92913b500da525ac488e8f78552ce5",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.check.stdout.gz",
+        "stdout_sha256": "6c60112aee0283c7e5dbca2a7db02cc74231a4d4efcd0c8b6f6bcae3e74b8fc2",
+        "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 11,
+        "left_on_queue": 5,
+        "depth": 4
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.original.stdout.gz",
+            "stdout_sha256": "bb0de2604c0c201aef076becd1e8efab1acff0492d12e1c5d5b836f2fd46c9b3",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "5d9437d70b2a92ea75f57b6b7ecc259fb7c38d838faec4d9b70865f14c7dae1a",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "6c60112aee0283c7e5dbca2a7db02cc74231a4d4efcd0c8b6f6bcae3e74b8fc2",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "330e5cb14e4d61eaf9f09363c6464bf1c7022ddc5f5fbc7864d9e75b7415f2a9",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "149c70fab020145127910fd50c5dd0444627bf1e3181696d52845f54f7ac23a0",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "4751eeee5233bb233d53540ae9c2d4524fa1b0545aa72264cc4b032b7bef0e8d",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "ff59045c9f4c34698c007e6766ea05c36cf7f868b9346e741fea876af56b1c4c",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_process_two_plus.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "9997e698a439492d2d157d0712054b00c1930734bf4122f92e163aa0820c2535",
+            "stderr": "FairProcedureModifier_P_mixed_process_two_plus.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_process_two_plus.violation.model.tla",
+      "source_sha256": "e1a6d064545b53c1909d9ca21b460c793b8639e229d679d8884c41256e6a2bc9",
+      "config": "FairProcedureModifier_P_mixed_process_two_plus.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete",
+      "expected_verdict": "success",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.tlc.stdout.gz",
+        "stdout_sha256": "334492145525ab552ea3a636f033485d5fdccd8004e5b3e6cafaa79bfe61788e",
+        "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.check.stdout.gz",
+        "stdout_sha256": "770b4d5488ee67c102c212be73658fa37defbffbb8182280b712be9268b7c5ad",
+        "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 432,
+        "distinct": 175,
+        "left_on_queue": 0,
+        "depth": 15
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "0b4dd5a219637b51c8be0d0f4dc98759c0c05dd9f29ef381b5baa531f78c4ca3",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "f0e54a6b37e1549642b543ebf97db0b83b33d0b88a101114c6deb610026f0e80",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "0e6325d53620d796002ce72d204c952bf3e084fcc212f043582e19f16dc7b449",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "ff78fd59d0da34914bf4a8b01c174d3f2a84746084f420ad221e47e7144a3693",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "7d46941d4da24f4e4a8688efc7b49f0e1ff383112438409cd33c08bfa8b8e39d",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "1a1b3f9b1f02142dc9899ccd9b278c2285691d065fa6dcde4dadc77fa2f582b2",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.model.tla",
+      "source_sha256": "f5343520e6534c280cf34d82dce9f4da1fb19a5c9acdcd47ef10cda5dd2d396a",
+      "config": "FairProcedureModifier_P_mixed_reach_nested_modifiers.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation",
+      "expected_verdict": "invariant-violation",
+      "outcome": "disagree",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.tlc.stdout.gz",
+        "stdout_sha256": "8fab2435e3d781cb57241f27f9b3fd43660bca6c5c93fff38eb358b499f319fa",
+        "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.check.stdout.gz",
+        "stdout_sha256": "c458a6a42e3ec89111ab54e7d8b96fa409b536aeac44ba5e2cb65619af31529d",
+        "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 62,
+        "distinct": 36,
+        "left_on_queue": 14,
+        "depth": 6
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": false,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.original.stdout.gz",
+            "stdout_sha256": "5bbb258a1a6cd394d858e37d0201aae1c759338e6865d588851eb7828ce567c8",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 3,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fa3231f8e8199163f316eae1c790be26da3fa109c7ebb47904a67c3278d7be0e",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "0453d4ab38f733f77dd5cc3d3c31dc13e58d4e8a32023f6c06e02ff725114e84",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "8ab78d8923966f52584f36ec43124f3633052bd514ef82ff613011588c33a488",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "baf02f16db580e687ed634df3c13e7714c0890d3c9f64bcfce828620971d2a0d",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "179b94b3be51d8c98af1f94868dd11445a7cbab51c61059cd320fd6cda8afabe",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "7dd884e8c7ffcda80fe216f8e7cbcde013c759850b8cf9c53bbc68c55798193c",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "807f4ff793d8b24368044bfa047fecd59b293e9e8fe0ac3e32117e930aeef428",
+            "stderr": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.model.tla",
+      "source_sha256": "5efb1b570088658de31e057e8481742790ad5f13e23b357a012d90679f6dfd4b",
+      "config": "FairProcedureModifier_P_mixed_reach_nested_modifiers.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    }
+  ]
+}

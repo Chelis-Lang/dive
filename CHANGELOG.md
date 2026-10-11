@@ -18,6 +18,27 @@ All notable changes to this project are documented here. The project will follow
   failures, typed TLC errors and source-order fallback before graph work.
 
 
+- Native process-owned procedure fairness for bounded finite callers: reachable
+  WF/SF clauses, process/procedure label modifiers and pinned option precedence,
+  with formula/closure quotas. Scoped renaming and strict namespace witnesses
+  remain separately pending. See `docs/pluscal-procedure-fairness.md`.
+
+- Multiple disjoint finite PlusCal process blocks can call shared ordinary,
+  recursive and self-tail procedures in both syntaxes. Owned slots/stack
+  initialize over union ProcSet; procedure actions are generated once and
+  global quotas span every body. Scoped rewriting/process fairness and strict
+  namespace witnesses remain pending; invalid upstream artifacts are rejected.
+  See `docs/pluscal-multiple-procedures.md`.
+
+- Native PlusCal procedure calls from one finite process block: owned indexed
+  parameter/local slots, stack/pc transitions, recursive and self-tail calls,
+  both source syntaxes and explicit global limits. Algorithm-level fair syntax
+  retains global WF_vars(Next) artifact generation; process-declared fairness
+  and liveness execution are separate pending contracts. Process/scoped renaming and
+  strict runtime-namespace witnesses remain pending; invalid reference artifacts
+  are rejected. See `docs/pluscal-process-procedures.md`.
+
+
 - Native recursive sequential PlusCal procedures: self/mutual call stacks,
   frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
   retain pinned artifacts/errors without unrolling. Invalid upstream output is
