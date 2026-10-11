@@ -83,7 +83,9 @@ fn groups(
     Ok((unlabelled, groups))
 }
 type TokenPositions = Vec<(usize, (usize, usize))>;
-fn token_positions(parsed: &macros::Expanded) -> Result<TokenPositions, TranslationError> {
+pub(super) fn token_positions(
+    parsed: &macros::Expanded,
+) -> Result<TokenPositions, TranslationError> {
     let mut positions = Vec::with_capacity(parsed.tokens.len());
     let mut tokens = parsed.tokens.iter().peekable();
     let mut line = 0;
@@ -692,8 +694,8 @@ fn checksum_inline(
     let context = super::resolve_translation_options(source, options)?;
     let options = &context.effective;
     let algorithm = &parsed.algorithm;
-    if !algorithm.procedures.is_empty() || algorithm.definitions.is_some() {
-        return Err(unsupported(algorithm.span, "procedures or definitions"));
+    if !algorithm.procedures.is_empty() {
+        return Err(unsupported(algorithm.span, "procedures"));
     }
     for statement in &parsed.statements {
         if let StatementKind::MacroCall { arguments, .. } = &statement.kind {
@@ -742,10 +744,12 @@ fn checksum_inline(
     w.end();
     w.newline()?;
     w.push(if sequential {
-        " defs   |-> <<  >>,"
+        " defs   |-> "
     } else {
-        " defs  |-> <<  >>,"
+        " defs  |-> "
     })?;
+    w.expression(&parsed, parsed.algorithm.definitions)?;
+    w.push(",")?;
     w.newline()?;
     w.push(if sequential {
         " prcds  |-> <<>>,"

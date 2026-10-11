@@ -125,7 +125,7 @@ assert!(translate(source, &options)
 Existing source/token/node limits remain in force. Serialized output honors
 lower caller output budgets and has a 4 MiB hard ceiling. Unknown locations,
 proof-step-shaped tokens, unproved scoped name fixes, macros, processes,
-procedures, definitions and branch-internal labels receive named refusals.
+procedures, unproved definition scopes and branch-internal labels receive named refusals. Ordinary bounded DEFINE helpers now have a separate [proved path](pluscal-definitions.md).
 Use explicit `--checksums tla` only when broader generation is supported: it
 disables the algorithm CRC instead of inventing one.
 
