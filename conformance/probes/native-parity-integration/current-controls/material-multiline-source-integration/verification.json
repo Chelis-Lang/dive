@@ -3,7 +3,7 @@
   "base_commit": "ea79ed83d1a39a184a649deb2bf6845bd1be1315",
   "scope": "Current combined source integrity only: material captures, property origins, multiline generation and finite-process Full checksum derivation. Runtime and full-gate qualification remain pending.",
   "source_controls": 23,
-  "source_controls_passed": true,
+  "source_controls_passed": 23,
   "family_certified": false,
   "full_gate_passed": false,
   "source_sha256": {
@@ -22,5 +22,6 @@
   },
   "process_checksum_producer": "89822a1c4dd35191c80855fec9cb2e513ad9d6b3",
   "process_delivery_readback_sha256": "ed403681888a8096b8aef68d5a0ac87acab571c26c38a9a9d2d83fc7917efb55",
-  "combined_execution_passed": false
+  "combined_execution_passed": false,
+  "source_controls_sha256": "0a85483372ef56ef295c6849ff11a88ea445d44e3a0d9210b4e974f3664c2408"
 }

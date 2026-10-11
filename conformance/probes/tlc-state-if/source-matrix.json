@@ -1,6 +1,6 @@
 {
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Combined source integrity for material captures, property origins, multiline generation and bounded finite-process Full checksum serialization. Frozen producer results remain separate; fresh combined runtime and full-gate checks pending. No family certification.",
+  "current_integration_scope": "Current combined source integrity for material captures, property origins, multiline generation, finite-process Full checksum derivation and corrected recovery scheduling. Frozen producer evidence remains separate; combined full-gate and runtime controls pending. No family certification.",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "history_sha256": {
     "current-integration-before-admission/conformance/probes/native-checkpoint/current-integration-source.json": "ee158aed604043a2f9395ae8ed49f2fffedba871844832c5f8f2b691e3c49ec0",

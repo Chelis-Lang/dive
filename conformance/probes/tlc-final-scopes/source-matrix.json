@@ -1,10 +1,10 @@
 {
   "base_commit": "92beded1ac83f1114e34a02cdbc384cf5ab94bc3",
-  "current_integration_scope": "Combined source integrity for material captures, property origins, multiline generation and bounded finite-process Full checksum serialization. Frozen producer results remain separate; fresh combined runtime and full-gate checks pending. No family certification.",
+  "current_integration_scope": "Current combined source integrity for material captures, property origins, multiline generation, finite-process Full checksum derivation and corrected recovery scheduling. Frozen producer evidence remains separate; combined full-gate and runtime controls pending. No family certification.",
   "schema_version": 1,
   "scope": "Bounded final-only scoped LET attribution, singleton DNF and direct negated ENABLED fidelity; ordinary periodic/family and expanded original action vector unclaimed; post-consumer guide/receipt metadata only, Rust gate source identity retained separately; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    ".github/workflows/ci.yml": "6939b08fb58706678039c2c8f222fbe081945267460bc5075daa52fa0d248ea5",
+    ".github/workflows/ci.yml": "a7230ce13028942fbab8f9d3bb92ff36c321a1fee53673d3e927026167e36932",
     "AGENTS.md": "cc45fff00e734b7dcb330099eda393da1a0c384d597da203a31869a9b0242b3e",
     "CHANGELOG.md": "fc8f2ed785dc65779749b4d806cbf782dfefb433c84b351e139032349a3ae769",
     "conformance/parity-features.json": "398edd3079395620b649eaaaad9ff1f63c983625f2645921f603cb1d2d5f04af",

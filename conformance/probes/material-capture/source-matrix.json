@@ -16,7 +16,7 @@
     "conformance/parity-features.json": "398edd3079395620b649eaaaad9ff1f63c983625f2645921f603cb1d2d5f04af",
     "CHANGELOG.md": "fc8f2ed785dc65779749b4d806cbf782dfefb433c84b351e139032349a3ae769",
     "AGENTS.md": "cc45fff00e734b7dcb330099eda393da1a0c384d597da203a31869a9b0242b3e",
-    ".github/workflows/ci.yml": "6939b08fb58706678039c2c8f222fbe081945267460bc5075daa52fa0d248ea5",
+    ".github/workflows/ci.yml": "a7230ce13028942fbab8f9d3bb92ff36c321a1fee53673d3e927026167e36932",
     "conformance/probes/material-capture/make-general.py": "1053910425d010d8499d8cda673709aca1ac46bd28ab2fd069ca06246602d79e",
     "conformance/probes/material-capture/selection-general.json": "34a9d409c9092ba1efd72140b5310597ee532aa18e44950829a215580de249c7",
     "conformance/probes/material-capture/make-cases.py": "4572987cf6b23072fdb1596f2f56bbfe07c336065024a645ace1d12e1838ce7c",
@@ -3058,5 +3058,5 @@
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatNestedFails-1/stdout": "001f3729c7144bd8b836cfebc2c18858f0d85612edc0a97fe752972a13ca9f63",
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatNestedFails-1/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
-  "current_integration_scope": "Combined source integrity for material captures, property origins, multiline generation and bounded finite-process Full checksum serialization. Frozen producer results remain separate; fresh combined runtime and full-gate checks pending. No family certification."
+  "current_integration_scope": "Current combined source integrity for material captures, property origins, multiline generation, finite-process Full checksum derivation and corrected recovery scheduling. Frozen producer evidence remains separate; combined full-gate and runtime controls pending. No family certification."
 }
