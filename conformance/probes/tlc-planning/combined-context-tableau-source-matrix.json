@@ -141,7 +141,7 @@
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "c8ffc3c203340d463808ef5c449950c8fd941827b78e03a84b03eb3a12b0bbb3",
+    "crates/dive-check/src/engine.rs": "5424ae75ba41ce8b0e112c68fcfd8a821824289222b5e836eade3b28abb6e836",
     "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",

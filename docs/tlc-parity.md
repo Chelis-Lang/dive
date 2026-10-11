@@ -678,5 +678,6 @@ ReplayNew gives 2 generated/4 distinct/2 logically queued; later storage failure
 retain the original error and ordered prefix but confer no completion credit.
 The bound action-property probe does not lift public configured PROPERTY refusal.
 Disk parallel/capture/temporal/recovery and full error-class coverage remain
-pending; F-031 stays partial/audit-required. Current producer/runtime verification
-is pending in [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+pending; F-031 stays partial/audit-required. The original `881b75992d0ef5dc11539018da526e5e55066027` producer
+passed independent source, full-gate and runtime readback; the combined receiving
+branch still requires its own qualification. See [the replay study](../conformance/probes/fallible-invariant-replay/README.md).

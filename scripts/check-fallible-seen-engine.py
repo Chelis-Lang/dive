@@ -11,6 +11,31 @@ def safe(name):
  assert not p.is_absolute() and '..' not in p.parts
  resolved=(ROOT/p).resolve();assert resolved.is_relative_to(ROOT.resolve())
  return resolved
+def original_git_blobs(producer):
+ proofpath=PROBE/'producer-git-objects/index.json'
+ assert sha(proofpath.read_bytes())=='b2f43d36d77c9fd531b51fc5f8cb497eaff573ffde413788206a890eb7fe0e8c'
+ proof=load(proofpath);assert producer==proof['producer']=='da0f857161c57b52e8cb1d6c18ef0cebb0021ea4'
+ objects={}
+ for oid,row in proof['objects'].items():
+  path=PROBE/'producer-git-objects/objects'/(oid+'.gz');packed=path.read_bytes();assert sha(packed)==row['sha256']
+  data=gzip.decompress(packed);kind=row['kind'];assert kind in ['commit','tree']
+  assert hashlib.sha1((kind+' '+str(len(data))+'\0').encode()+data).hexdigest()==oid
+  objects[oid]=(kind,data)
+ kind,commit=objects[producer];assert kind=='commit'
+ tree=commit.splitlines()[0].removeprefix(b'tree ').decode();assert tree==proof['tree']
+ def entries(oid):
+  kind,data=objects[oid];assert kind=='tree';result={};i=0
+  while i<len(data):
+   split=data.index(b' ',i);end=data.index(b'\0',split);mode=data[i:split].decode();name=data[split+1:end].decode();child=data[end+1:end+21].hex()
+   assert len(child)==40 and name not in result
+   result[name]=(mode,child);i=end+21
+  assert i==len(data);return result
+ for name,blob in proof['blob_oid'].items():
+  parts=Path(name).parts;assert not Path(name).is_absolute() and '..'not in parts;oid=tree
+  for part in parts[:-1]:
+   mode,oid=entries(oid)[part];assert mode=='40000'
+  mode,actual=entries(oid)[parts[-1]];assert mode in ['100644','100755'] and actual==blob,name
+ return proof['blob_oid']
 def main():
  manifest=load(PROBE/'delivery-index.json');assert manifest['schema_version']==1 and manifest['family_certified'] is False
  expected_payload={p.relative_to(ROOT).as_posix() for p in PROBE.rglob('*') if p.is_file() and p.name!='delivery-index.json'}
@@ -18,9 +43,10 @@ def main():
  assert set(manifest['payload_sha256'])==expected_payload
  for name,digest in manifest['payload_sha256'].items():assert sha(safe(name).read_bytes())==digest,name
  source=load(safe(manifest['runtime_source_index']));producer=manifest['runtime_commit'];assert source['producer_commit']==producer
+ git_blobs=original_git_blobs(producer);assert set(git_blobs)==set(source['inputs'])
  for name,row in source['inputs'].items():
   data=gzip.decompress(safe(row['archive']).read_bytes());assert sha(data)==row['sha256'],name
-  frozen=subprocess.check_output(['git','show',producer+':'+name],cwd=ROOT);assert data==frozen,name
+  assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==git_blobs[name],name
  current=load(safe(manifest['current_source_index']));assert set(current['current_sha256'])==set(source['inputs'])
  for name,digest in current['current_sha256'].items():assert sha(safe(name).read_bytes())==digest,name
  assert current['current_rust_cargo_equals_runtime']==all(current['current_sha256'][n]==r['sha256'] for n,r in source['inputs'].items())

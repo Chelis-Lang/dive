@@ -12,7 +12,7 @@
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
     "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
     "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
-    "crates/dive-check/src/lib.rs": "340de9c403f8555c2da938f2dbc8d5c7d8d2c43deb6b9f91bc2e760e26fb349e",
+    "crates/dive-check/src/lib.rs": "2180ed2f47d92bdff33ec544604b4b2d2c7bfc8a2ed66cd617031128a771d153",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
     "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
     "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
@@ -23,9 +23,9 @@
     "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "554405ad999e5f5dd2e0a1b46150fa3bab5a94fab8620986bbeec617cfc96e11",
-    ".github/workflows/ci.yml": "74d178605024702b552bf5bc4f59c940430dd31ebdc94bef6e431565a7a6e9bf",
-    "conformance/parity-features.json": "8574020481fd3987636f5f5dbd3e80d03bf0f8833d31037f2c64ce7cdbe2cb92"
+    "AGENTS.md": "6d5ea601172c0a634679bb19aca35a3aab9696e7217a967e355c872ec2f1049d",
+    ".github/workflows/ci.yml": "56f3dc27d6b7377daf9057d5b4db2c12d9b27fd4d8ef848501c763ab14f0bcd0",
+    "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

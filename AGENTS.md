@@ -197,6 +197,8 @@ python3 -I scripts/check-committed-prefix.py
 python3 -I scripts/check-request-owned-service.py
 python3 -I scripts/check-producer-owned-candidate.py
 python3 -I scripts/check-fallible-seen-engine.py
+python3 -I scripts/test-fallible-seen-git-proof.py
+python3 -I scripts/check-fallible-invariant-replay.py
 python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py
 python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
 python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py

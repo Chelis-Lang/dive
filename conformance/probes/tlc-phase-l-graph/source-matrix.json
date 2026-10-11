@@ -50,10 +50,10 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "c8ffc3c203340d463808ef5c449950c8fd941827b78e03a84b03eb3a12b0bbb3",
+    "crates/dive-check/src/engine.rs": "5424ae75ba41ce8b0e112c68fcfd8a821824289222b5e836eade3b28abb6e836",
     "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
-    "crates/dive-eval/src/lib.rs": "e3c1c11b05b42de9cccb3677816bdf540f00434eb56bdab8bcfc9651b77915da",
+    "crates/dive-eval/src/lib.rs": "8c989808b6b5362c65f89a98570075b11fc08aef0ed3edc31302ddcd835fec1d",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
     "crates/dive-liveness/src/lib.rs": "8bc4dfd0daee87e938e55dedb92660c8b5ed099982cbba3334186e38057a6c53",

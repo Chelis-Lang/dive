@@ -123,3 +123,17 @@ Resource/bound/cleanup failures retain the first positioned cause and diagnostic
 original error without completion credit. Public configured role/mode and
 parallel disk restrictions above remain; original da0 verification and wrong
 b07/refusal observations are not retagged as this new producer.
+
+### Portable original source identity
+
+The receiving readback carries the original producer commit and the tree paths
+needed to verify all 470 selected source blobs. Git object IDs are recomputed
+from the archived object bytes and each selected blob is reached through the
+original commit's tree. The pinned proof index cannot be silently retagged.
+This preserves the original producer identity after a squash merge, without
+requiring an unmerged commit to exist in a fresh checkout's Git history.
+`python3 -I scripts/test-fallible-seen-git-proof.py` checks a copy without `.git`
+and rejects missing/corrupted trees, producer retagging and changed blob claims.
+This is source identity evidence, not a runtime rerun, a hermetic build bundle,
+archive authentication or storage-family certification. The original failed
+and successful execution epochs retain their producers and results.

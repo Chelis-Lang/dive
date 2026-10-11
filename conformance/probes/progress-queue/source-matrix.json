@@ -10,7 +10,7 @@
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
     "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
     "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
-    "crates/dive-check/src/lib.rs": "340de9c403f8555c2da938f2dbc8d5c7d8d2c43deb6b9f91bc2e760e26fb349e",
+    "crates/dive-check/src/lib.rs": "2180ed2f47d92bdff33ec544604b4b2d2c7bfc8a2ed66cd617031128a771d153",
     "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
     "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
     "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
@@ -20,9 +20,9 @@
     "docs/producer-progress-requests.md": "3c86960fa78819f6c13947abe377fef87a9a31a4c342981cfe32d109b89cd59c",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
     "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
-    "AGENTS.md": "554405ad999e5f5dd2e0a1b46150fa3bab5a94fab8620986bbeec617cfc96e11",
-    ".github/workflows/ci.yml": "74d178605024702b552bf5bc4f59c940430dd31ebdc94bef6e431565a7a6e9bf",
-    "conformance/parity-features.json": "8574020481fd3987636f5f5dbd3e80d03bf0f8833d31037f2c64ce7cdbe2cb92",
+    "AGENTS.md": "6d5ea601172c0a634679bb19aca35a3aab9696e7217a967e355c872ec2f1049d",
+    ".github/workflows/ci.yml": "56f3dc27d6b7377daf9057d5b4db2c12d9b27fd4d8ef848501c763ab14f0bcd0",
+    "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
