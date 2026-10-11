@@ -190,3 +190,7 @@ for verifier in ("verify.py", "verify-delivery.py"):
 # New bounded procedure ownership has its own complete clean primary authority;
 # this readback grants no runtime or family certification.
 subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify.py")], check=True)
+
+# Disjoint sequential-procedure checksum observations retain their frozen producer.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-procedure-checksum-acceptance" / verifier)], check=True)

@@ -59,8 +59,18 @@ grammar errors, plus exact corrected declarations. The shared budget test fits48
 alternating calls into two owners in source grammar, then requires a named
 Normalization resource error before CRC emission. Serialized output limits
 reject zero/tiny/one-byte-short budgets and accept the exact byte boundary.
-Full final source gates and runtime campaigns remain required before delivery;
-the first uncommitted producer and invalid-command driver failures retain their
-own identities. The invalid `-fair` spelling is not a supported option: clean
+The frozen final source passed all 52 gate stages, including 1,192 tests with zero
+skips. The complete 98 raw/196 public campaign retained 68 exact raw header pairs,
+136 admitted whole-CST/SANY/Validator artifacts, named refusals and uncredited
+command errors. The selected 64 complete/violation models matched across 768
+profile/width/store settings. Of 320 independent trace controls, 32 canonical
+originals validated, 128 canonical mutants were invalid, and strict replay
+retained 96 Unsupported / 64 Invalid with zero strict saved-frame Valid.
+Two separate 20-control one-line and exact-Markdown CLI/compiled Rust guide
+epochs passed, alongside 24 CRC and 28 report-forgery controls.
+The first uncommitted producer, seven final command-driver failures and first
+ENOSPC gate keep their own identities; explicit same-binary repairs and the
+passed same-source retry are separate. Portable verification checks every
+record and rejects 26 semantic corruptions after recomputing archive hashes. The invalid `-fair` spelling is not a supported option: clean
 pinned CLI exit255 and native exit2 earn no language-checksum or exit-equivalence
 credit. Use the documented typed fairness options instead.
