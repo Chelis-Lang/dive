@@ -77,3 +77,24 @@ The ordinary no-VIEW RNG classifier has a separate audit obligation: hidden
 configured native replacements can also bypass its node-only stream selection.
 No algorithm change or seeding-equivalence claim is included in this repair;
 source-natural clean-primary controls are tracked separately before that work.
+
+## Frozen repair verification (2026-10-11)
+
+[Current receipt](current/receipt.json) identifies the exact corrected producer
+`4ecaa79d33a47e54126feaf171a854a2c77b641b`, full 961/961 gate,
+96 checker CLI controls, 96 independent positive/invalid-Init witness controls,
+24 compiled public Rust controls, and CM1 21/21 plus ValidationTestSuite 16/16 at
+1/4/8 workers. The configured VIEW old wrong trace remains independently
+`unsupported`; no false certificate is treated as valid. Concrete direct-RNG
+compat positives reproduce the pinned `0,80,94,100` values. The earlier capture
+script used the wrong JSON variant spelling; its failure/raw bytes remain in
+`development/current-cli-protocol-before/`, and the final controls assert the
+published `invariant-violation` field without changing implementation or oracle.
+
+The separate [configured RNG defect #180](https://github.com/Chelis-Lang/dive/issues/180)
+is now stronger than trace disagreement: [false-violation](no-view-configured-follow-up/false-violation/index.json)
+has TLC success/native violation; [missed-violation](no-view-configured-follow-up/missed-violation/index.json)
+has TLC violation/native success. Both immutable old `d110` and independently
+reproduced current `b8fb13cdab443e7ad0206a467d9a392075f31397` outputs keep their
+own producer identities. That soundness repair takes priority before broader
+seeded recovery work. This VIEW-only delivery does not claim to fix it.
