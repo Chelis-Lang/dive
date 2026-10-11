@@ -133,7 +133,7 @@ enum Phase {
     /// The specification could not be lowered (a refusal).
     Unlowered(String),
     /// The checker ran.
-    Checked(Box<CheckResult>),
+    Checked(Box<CheckResult>, Option<Box<crate::tlc_temporal::Safety>>),
     /// Independently validated bounded final temporal analysis.
     Temporal(Box<crate::temporal::Report>),
     /// No temporal verdict: a refusal, limit or internal failure.
@@ -347,7 +347,7 @@ fn check_file_in(
         ));
         let native = dive_check::checkpoint::check(&ir, &model, &report.opts, &request);
         report.checkpoint_receipt = native.receipt;
-        Phase::Checked(Box::new(native.check))
+        Phase::Checked(Box::new(native.check), None)
     } else {
         check_backend(&ir, &model, &report.opts, req.temporal)
     };
@@ -367,13 +367,18 @@ fn check_backend(
             options,
             dive_liveness::phase_graph::Limits::default(),
         ) {
-            Ok(r) => Phase::TlcTemporal(Box::new(r)),
+            Ok(r) => match r.outcome() {
+                crate::tlc_temporal::Outcome::Safety(s) => {
+                    Phase::Checked(Box::new(s.result().clone()), Some(s.clone()))
+                }
+                _ => Phase::TlcTemporal(Box::new(r)),
+            },
             Err(e) => {
                 if let crate::tlc_temporal::Error::Analysis(a) = &e.error
                     && let dive_liveness::tlc_final::Error::Execution(f) = &a.error
                     && let dive_liveness::phase_graph::Error::Capture(stop) = &f.error
                 {
-                    return Phase::Checked(stop.clone());
+                    return Phase::Checked(stop.clone(), None);
                 }
                 Phase::TlcTemporalError(e)
             }
@@ -387,13 +392,13 @@ fn check_backend(
             dive_liveness::analyze::Limits::default(),
         ) {
             Ok(r) => match r.outcome() {
-                crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),
+                crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone(), None),
                 _ => Phase::Temporal(Box::new(r)),
             },
             Err(e) => Phase::TemporalError(Box::new(e)),
         };
     }
-    Phase::Checked(Box::new(dive_check::check(ir, config, options)))
+    Phase::Checked(Box::new(dive_check::check(ir, config, options)), None)
 }
 
 impl CheckReport {
@@ -402,7 +407,7 @@ impl CheckReport {
     #[must_use]
     pub fn result(&self) -> Option<&CheckResult> {
         match &self.phase {
-            Phase::Checked(r) => Some(r),
+            Phase::Checked(r, _) => Some(r),
             _ => None,
         }
     }
@@ -444,7 +449,7 @@ impl CheckReport {
         match &self.phase {
             Phase::SpecRejected(_) | Phase::ConfigRejected(_) => "rejected",
             Phase::Unlowered(_) => "unsupported",
-            Phase::Checked(r) => r.verdict.kind(),
+            Phase::Checked(r, _) => r.verdict.kind(),
             Phase::Temporal(r) => match r.outcome() {
                 crate::temporal::Outcome::Holds(_) => "success",
                 crate::temporal::Outcome::Violation(_) => "liveness-violation",
@@ -452,6 +457,7 @@ impl CheckReport {
             },
             Phase::TemporalError(e) => temporal_failure_kind(e.error()),
             Phase::TlcTemporal(r) => match r.outcome() {
+                crate::tlc_temporal::Outcome::Safety(s) => s.result().verdict.kind(),
                 crate::tlc_temporal::Outcome::Holds(_) => "success",
                 crate::tlc_temporal::Outcome::Violation(_) => "liveness-violation",
             },
@@ -496,6 +502,7 @@ impl CheckReport {
                 _ => exit::UNSUPPORTED,
             },
             Phase::TlcTemporal(r) => match r.outcome() {
+                crate::tlc_temporal::Outcome::Safety(_) => exit::INTERNAL,
                 crate::tlc_temporal::Outcome::Holds(_) => exit::SUCCESS,
                 crate::tlc_temporal::Outcome::Violation(_) => {
                     if tlc {
@@ -510,7 +517,7 @@ impl CheckReport {
                 "model-error" => exit::REJECTED,
                 _ => exit::UNSUPPORTED,
             },
-            Phase::Checked(r) => {
+            Phase::Checked(r, _) => {
                 let v = &r.verdict;
                 match v {
                     Verdict::Unsupported { .. } | Verdict::ResourceLimit { .. } => {
@@ -626,7 +633,16 @@ impl CheckReport {
             options["lasso"] = json!("tlc");
             options["temporal_scope"] = json!("bounded-final-only");
             options["ordinary_temporal_schedule_supported"] = json!(false);
-            options["temporal_bounds"] = tlc_report::limits_json();
+            options["temporal_bounds"] = match &self.phase {
+                Phase::Checked(_, Some(safety)) => tlc_report::limits_json_for(safety.limits()),
+                Phase::TlcTemporalError(failure) => match &failure.error {
+                    crate::tlc_temporal::Error::SafetyValidation { limits, .. } => {
+                        tlc_report::limits_json_for(limits)
+                    }
+                    _ => tlc_report::limits_json(),
+                },
+                _ => tlc_report::limits_json(),
+            };
         }
         options
     }
@@ -668,7 +684,7 @@ impl CheckReport {
                     .map(|c| &c.workers)
             })
             .or_else(|| match &self.phase {
-                Phase::TlcTemporal(r) => Some(&tlc_report::complete(r).workers),
+                Phase::TlcTemporal(r) => tlc_report::complete(r).map(|c| &c.workers),
                 _ => None,
             })
             .cloned()
@@ -690,14 +706,16 @@ impl CheckReport {
     /// The workers used, for the human header.
     fn workers_used(&self) -> String {
         match &self.phase {
-            Phase::Checked(r) => r.workers.used.to_string(),
+            Phase::Checked(r, _) => r.workers.used.to_string(),
             Phase::Temporal(r) => temporal_complete(r)
                 .map_or(0, |c| c.workers.used)
                 .to_string(),
             Phase::TemporalError(failure) => failure
                 .workers(self.workers_requested)
                 .map_or_else(|| "unknown".into(), |w| w.used.to_string()),
-            Phase::TlcTemporal(r) => tlc_report::complete(r).workers.used.to_string(),
+            Phase::TlcTemporal(r) => tlc_report::complete(r)
+                .map_or(0, |c| c.workers.used)
+                .to_string(),
             Phase::TlcTemporalError(e) => e
                 .workers
                 .as_ref()
@@ -829,7 +847,7 @@ impl CheckReport {
                     );
                 }
             }
-            Phase::Checked(r) => {
+            Phase::Checked(r, _) => {
                 doc["frontier_storage"] = json!({
                     "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
                     "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",
@@ -952,6 +970,23 @@ impl CheckReport {
                 doc["elapsed_ms"] = json!(u64::try_from(r.elapsed.as_millis()).unwrap_or(u64::MAX));
             }
         }
+        if let Phase::Checked(r, Some(safety)) = &self.phase {
+            let complete = r.verdict == Verdict::Success;
+            doc["execution"] = json!({"stage":"safety", "route":"bounded-safety-only",
+                "capture_completed":complete, "temporal_obligations":0,
+                "temporal_certificate":false, "product_constructed":false});
+            if let Some(validation) = safety.validation() {
+                doc["counterexample"]["validation"] = json!(validation.validation.kind());
+            }
+            if let Some(document) = safety.document() {
+                doc["counterexample"]["trace"] = document.to_json();
+                if let Some(states) = doc["counterexample"]["states"].as_array_mut() {
+                    for (row, values) in states.iter_mut().zip(&document.states) {
+                        row["values"] = json!(values);
+                    }
+                }
+            }
+        }
         if self.checkpoint_request.is_some() {
             doc["checkpoint"] = json!(self.checkpoint_receipt);
         }
@@ -980,7 +1015,7 @@ impl CheckReport {
             self.workers_requested,
             self.workers_used()
         );
-        if let Phase::Checked(r) = &self.phase
+        if let Phase::Checked(r, _) = &self.phase
             && let Some(why) = &r.workers.reason
         {
             let _ = writeln!(out, "{why}");
@@ -1036,7 +1071,10 @@ impl CheckReport {
                     );
                 }
             }
-            Phase::Checked(r) => {
+            Phase::Checked(r, safety) => {
+                if safety.is_some() {
+                    out.push_str("Bounded safety-only route: no implied temporal obligations; no temporal product certificate.\n");
+                }
                 for (_, w) in &r.warnings {
                     let _ = writeln!(out, "Warning: {w}");
                 }
@@ -1336,7 +1374,7 @@ mod evidence_controls {
         let phase = match crate::temporal::check_final_with_evidence(&ir, &cfg, &opts, limits) {
             Err(failure) => Phase::TemporalError(Box::new(failure)),
             Ok(report) => match report.outcome() {
-                crate::temporal::Outcome::Safety(stop) => Phase::Checked(stop.clone()),
+                crate::temporal::Outcome::Safety(stop) => Phase::Checked(stop.clone(), None),
                 _ => panic!("a resource bound cannot produce a temporal verdict"),
             },
         };
@@ -1352,6 +1390,91 @@ mod evidence_controls {
             workers_requested: 4,
             temporal: TemporalMode::FinalShort,
             phase,
+        }
+    }
+
+    #[test]
+    fn safety_json_retains_actual_nondefault_limits_and_incomplete_stops() {
+        for infinite in [false, true] {
+            let next = if infinite {
+                "x'=x+1"
+            } else {
+                "x'=IF x<2 THEN x+1 ELSE x"
+            };
+            let source = format!(
+                "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == {next}\n====\n"
+            );
+            let analysis = dive_sema::analyze_source("Bounded.tla", &source, &Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+                .into_config()
+                .expect("configuration");
+            let opts = CheckOptions {
+                workers: 4,
+                ..CheckOptions::tlc(0, 0)
+            };
+            let limits = dive_liveness::phase_graph::Limits {
+                capture: dive_check::capture::Limits {
+                    states: 3,
+                    edges: 13,
+                    generated: 9,
+                    successors_per_unit: 7,
+                },
+                workers: 4,
+                graph: dive_liveness::product::Limits {
+                    vertices: 127,
+                    acceptance_cells: 0,
+                    ..dive_liveness::product::Limits::default()
+                },
+                phase_l: dive_liveness::phase_l::Limits {
+                    work: 0,
+                    ..dive_liveness::phase_l::Limits::default()
+                },
+            };
+            let produced = crate::tlc_temporal::check_final(&ir, &cfg, &opts, limits)
+                .expect("actual bounded receipt");
+            let crate::tlc_temporal::Outcome::Safety(safety) = produced.outcome() else {
+                panic!("safety route")
+            };
+            assert_eq!(safety.limits().capture, limits.capture);
+            let report = CheckReport {
+                checkpoint_request: None,
+                checkpoint_receipt: None,
+                file: "Bounded.tla".into(),
+                config: "Bounded.cfg".into(),
+                profile: Profile::Tlc,
+                opts,
+                seed_given: true,
+                fp_given: true,
+                workers_requested: 4,
+                temporal: TemporalMode::FinalTlc,
+                phase: Phase::Checked(Box::new(safety.result().clone()), Some(safety.clone())),
+            };
+            let json = report.to_json();
+            let bounds = &json["options"]["temporal_bounds"];
+            assert_eq!(bounds["capture"]["states"], 3);
+            assert_eq!(bounds["capture"]["edges"], 13);
+            assert_eq!(bounds["capture"]["generated"], 9);
+            assert_eq!(bounds["capture"]["successors_per_unit"], 7);
+            assert_eq!(bounds["maximum_workers"], 4);
+            assert_eq!(bounds["phase_l"]["work"], 0);
+            assert_eq!(bounds["product"]["acceptance_cells"], 0);
+            assert_eq!(bounds["product"]["vertices"], 127);
+            assert_eq!(bounds["aggregate_byte_budget"], false);
+            assert_eq!(json["execution"]["capture_completed"], !infinite);
+            assert_eq!(json["execution"]["temporal_certificate"], false);
+            assert_eq!(json["execution"]["product_constructed"], false);
+            assert_eq!(json["options"]["workers"]["used"], 4);
+            if infinite {
+                assert_eq!(json["verdict"], "resource-limit");
+                assert_eq!(json["statistics"]["distinct"], 4);
+                assert!(json["counterexample"]["trace"].is_null());
+                assert_eq!(report.exit_code(), exit::UNSUPPORTED);
+            } else {
+                assert_eq!(json["verdict"], "success");
+                assert_eq!(json["statistics"]["distinct"], 3);
+                assert_eq!(report.exit_code(), 0);
+            }
         }
     }
 

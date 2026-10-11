@@ -1498,8 +1498,10 @@ preserves that error and the reference's distinct user-call/boolean fallbacks.
 No alternate default is adopted: independent formula evaluation keeps its
 existing semantics, and strict integrated liveness remains unsupported. Complete
 24 current controls, original18 and the native false completion are retained in
-`conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
-conservative. This is a native limitation repair, not family certification.
+`conformance/probes/state-if-planning/`. That capture predates the bounded
+[pure state-IF admission](tlc-state-if.md) in explicit final TLC mode (#168);
+ordinary periodic scheduling and upstream-refused temporal-argument IF forwarding remain refused.
+This is a native limitation repair, not family certification.
 
 The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
 declarations, label guards and explicit pinned fairness options. Translation
@@ -1649,6 +1651,53 @@ replay; ordinary schema-1 results and earlier studies are unchanged. Configurati
 alias targets are admitted through actual module contexts before any startup
 binding effect. See [the user guide](tlc-final-api.md).
 
+### D-013 progress: explicit final-mode safety-only routing
+
+A freshly bound model with no implied temporal obligations now routes through
+bounded ordinary safety checking in explicit final/TLC mode. This checks real
+invariants, initial/action properties, constraints and supported deadlocks;
+absence of a temporal obligation is not a fabricated NoOOS/product result.
+Finite witnesses require fresh independent in-memory and JSON replay. Reports
+name `bounded-safety-only`, preserve actual stopping counts and worker facts,
+and state `temporal_certificate: false` and `product_constructed: false`.
+
+The same entry/work ceilings stay active. They bound retained graph data, not
+aggregate memory: a graph-state limit of three on `x'=x+1` refuses while the
+engine truthfully records the deciding fourth inserted state. It never reports
+success or completed capture. Constraint/property combinations whose stopping
+order the independent validator has not proven remain explicitly refused before
+pool work. No ordinary schedule, liveness-family or broad corpus credit follows.
+Original all-refusal studies and the constant `Next == FALSE` binding rejection
+are preserved. See [the safety-only user contract](tlc-final-api.md#safety-only-route)
+and `conformance/probes/tlc-final-safety` for clean paired evidence.
+
+D-013 conditional-admission progress (#168): pure state IF atoms are admitted
+through the corrected shared planner and independent final-word replay. This
+removes the older duplicate syntax refusal without changing conversion/error
+order, resource defaults or ordinary periodic scheduling. All original refusal
+and failed-capture histories remain available. Effects, opaque bindings and
+unverified errors remain explicit; no whole-family certification is claimed.
+See [conditional user guide](tlc-state-if.md), ADR 0036 and
+`conformance/probes/tlc-state-if/`.
+
+### Temporal IF identity repair (dive limitation, #170)
+
+Pure state conditionals are available in the bounded final-only path. Temporal
+conditionals still refuse there: the source-level shared-guard tag repair now
+matches selected exact normalized/tableau fields, but execution and witness
+admission remain staged. See [the maintained repair note](tlc-temporal-if.md).
+No new result-changing default or ordinary periodic parity is claimed.
+
+The proven direct temporal-IF subset now runs in explicit final/TLC mode after
+shared-object tag repair, exact particle/edge checks and fresh independent
+in-memory/JSON witness replay. The unchanged full selected controls retain
+upstream 2213/2214 errors and source-prefix 2116/exit-12 cases as named refusals,
+without matching-error credit. Compound guards and INSTANCE claim/role identity
+are separately checked. Existing arena/work ceilings and whole-arena forwarding
+admission remain; no aggregate memory bound or periodic-family claim is added.
+See [the user guide](tlc-temporal-if.md) and
+`conformance/probes/tlc-temporal-if-final/`.
+
 **PlusCal process procedure status (D-008):** one unfair finite process block
 can now call disjoint procedures in both syntaxes, including recursive and
 self-tail transfers. Slots and stack are owned by the process ID, while explicit
@@ -1729,3 +1778,10 @@ failure rather than silently dropping a clause. Generation does not prove
 liveness or remove strict #124 namespace replay restrictions. See
 [fair procedure use](pluscal-procedure-fairness.md) for runnable C/P and Rust
 examples and the complete supported/refused contract.
+
+Bounded final scope evidence (#134) now distinguishes configured names from
+local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
+Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
+refusals. Original expanded-action attribution is still a missing native field,
+not an approved result-changing default. Ordinary periodic scheduling remains
+unsupported; the whole small-model study from the prior IF slice is unchanged.

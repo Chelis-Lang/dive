@@ -40,5 +40,25 @@ certificate followed by fresh independent replay. It does not enable ordinary
 periodic TLC scheduling. Only the separately named `dive-final-tlc` harness
 mode evaluates that contract. Its first full small-model census refused every
 selected model; focused-control success must not be presented as broad parity.
-Read `docs/tlc-final-api.md` for complete flags, bounds, workers, refusal classes,
+Read [the final TLC API/CLI contract](../tlc-final-api.md) for complete flags, bounds, workers, refusal classes,
 property identities and stuttering/loop report obligations.
+
+Models with no implied temporal obligations use the actual ordinary safety engine
+inside the final mode's unchanged capture ceilings. The report names the
+`bounded-safety-only` route, keeps the real stopping/completion and worker facts,
+and explicitly states that no temporal product or certificate was constructed.
+A finite counterexample must pass fresh independent replay before earning
+violation credit. A resource stop is never a safety success. See the
+[safety-only route contract](../tlc-final-api.md#safety-only-route).
+
+[Pure conditional final checks](../tlc-state-if.md) documents the admitted
+state-IF subset, executable CLI/Rust examples, replay and remaining refusals.
+
+The proven direct temporal-IF subset now runs through bounded explicit final/TLC
+checking with fresh independent witness replay. Read the
+[temporal conditional guide](../tlc-temporal-if.md) for executable CLI/Rust
+examples, unchanged bounds and refused forwarding/early-witness combinations.
+Ordinary periodic scheduling remains unavailable.
+
+For caller-context forwarding and property names, see the
+[scoped final guide](../tlc-final-scopes.md).

@@ -13,7 +13,8 @@ TLC coverage.
 | Structural comparisons | Approved TLA+ comparisons | TLC's comparison/error behavior |
 | Safety workers | Automatic parallel width | One by default; an explicit width is reported |
 | Fingerprints | Native combination | TLC polynomial scheme, selectable with `--fp` |
-| Explicit final temporal mode | Deterministic short selection | TLC-exact selection remains a separate unfinished path |
+| Explicit bounded final temporal mode | Deterministic short selection | Pinned TLC selection with `--lncheck final --lasso tlc`; source/effect/size refusals remain |
+| Ordinary periodic temporal scheduling | Pending | Pending; final mode does not implement periodic scheduling |
 
 Named opt-ins can produce `tlc+overrides`. For example, final/short temporal
 checking and retained checkpoint counters must not claim pure TLC semantics.
@@ -39,5 +40,5 @@ TLC mode; ordinary `--compat=tlc` temporal scheduling remains refused. The
 separate `dive-final-tlc` harness requires a clean final-schedule golden and
 fresh independent witness replay. It preserves configured property identities
 and checks that scalar/array names, state rows and ending markers agree with
-the actual replay document. See `docs/tlc-final-api.md`; the first unchanged
+the actual replay document. See [the final TLC API/CLI contract](../tlc-final-api.md); the first unchanged
 full small selection has 140 named refusals and no general corpus credit.

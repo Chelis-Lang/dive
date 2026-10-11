@@ -23,7 +23,10 @@ pub const MAX_EXPANSION_UNITS: usize = 8;
 /// Explicit entry-count bounds for retained graph data.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Limits {
-    /// Maximum distinct stored states.
+    /// Maximum retained graph representatives. The ordinary engine may insert
+    /// the deciding state before collector admission fails; stopping distinct
+    /// counts can therefore exceed this bound by that state. This is not a
+    /// complete seen-set or aggregate heap budget.
     pub states: usize,
     /// Maximum generated and implicit-stutter edges combined.
     pub edges: usize,
@@ -139,6 +142,7 @@ pub struct BehaviorGraph {
 /// predicates, but this evidence never certifies temporal acceptance.
 #[derive(Clone, Debug)]
 pub struct Complete {
+    safety_result: Box<CheckResult>,
     /// Run settings, including the reported seed, profile and store mode.
     pub options: CheckOptions,
     /// The complete graph, including seen-state edges and implicit stutters.
@@ -154,6 +158,23 @@ pub struct Complete {
     pub output: Vec<String>,
     /// Binding warnings, retaining their TLC message codes.
     pub warnings: Vec<(u32, String)>,
+}
+
+impl Complete {
+    /// Actual ordinary safety-engine outcome, retained without reconstructing
+    /// counts, diagnostics, stopping facts or worker metadata from the graph.
+    /// This receipt does not certify any temporal obligation.
+    #[must_use]
+    pub fn safety_result(&self) -> &CheckResult {
+        &self.safety_result
+    }
+}
+
+fn elapsed(result: &mut Exploration, duration: std::time::Duration) {
+    match result {
+        Exploration::Stopped(stop) => stop.elapsed = duration,
+        Exploration::Complete(complete) => complete.safety_result.elapsed = duration,
+    }
 }
 
 /// Graph capture cannot turn an incomplete or unsupported search into success.
@@ -419,9 +440,7 @@ pub fn explore_with_evidence(
     }
     let run = || explore_inner(model, opts, limits, false, None);
     let mut result = run_on_thread(run)?;
-    if let Exploration::Stopped(stop) = &mut result {
-        stop.elapsed = started.elapsed();
-    }
+    elapsed(&mut result, started.elapsed());
     Ok(result)
 }
 
@@ -486,9 +505,7 @@ pub fn explore_concrete_parallel_with_evidence(
     }
     let started = std::time::Instant::now();
     let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None))?;
-    if let Exploration::Stopped(stop) = &mut result {
-        stop.elapsed = started.elapsed();
-    }
+    elapsed(&mut result, started.elapsed());
     Ok(result)
 }
 
@@ -519,9 +536,7 @@ pub fn explore_observed_with_evidence(
     }
     let started = std::time::Instant::now();
     let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, Some(observer)))?;
-    if let Exploration::Stopped(stop) = &mut result {
-        stop.elapsed = started.elapsed();
-    }
+    elapsed(&mut result, started.elapsed());
     Ok(result)
 }
 
@@ -667,6 +682,7 @@ fn explore_inner(
     }
     match (outcome.graph, result.stats) {
         (Some(graph), Some(stats)) => Exploration::Complete(Box::new(Complete {
+            safety_result: Box::new(result.clone()),
             options: opts.clone(),
             graph,
             stats,
