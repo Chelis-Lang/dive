@@ -120,14 +120,14 @@ jobs:
         run: cargo deny --locked check
 
   workspace-tests:
-    name: Workspace tests (${{ matrix.partition }}/4)
+    name: Workspace tests (${{ matrix.partition }}/8)
     needs: no-ai-authorship
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -141,8 +141,8 @@ jobs:
       - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-nextest
-      - name: All workspace tests, partition ${{ matrix.partition }} of 4
-        run: cargo nextest run --workspace --locked --profile ci --partition hash:${{ matrix.partition }}/4
+      - name: All workspace tests, partition ${{ matrix.partition }} of 8
+        run: cargo nextest run --workspace --locked --profile ci --partition hash:${{ matrix.partition }}/8
 
   workspace-gate:
     # Required check name; must match `cargo xtask protect-main`.

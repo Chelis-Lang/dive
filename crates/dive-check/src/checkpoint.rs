@@ -139,8 +139,11 @@ type Fallible<T> = std::result::Result<T, String>;
 /// Pure admitted models use the deterministic level engine at the requested
 /// worker width, unless explicit inline mode is selected. Boundary-zero pauses
 /// stop before the pool starts and report one actual worker. Runtime effects,
-/// name creation, evaluator-driven deferred state values and temporal properties
-/// refuse by name. Frontier and predecessor budgets apply
+/// checker/register reads, evaluator-driven deferred state values and temporal
+/// properties refuse by name. Pure runtime name constructors are admitted; TLC
+/// encounter order uses the reported inline fallback, while canonical order may
+/// use the worker pool. Independent TLC witness replay may still refuse names.
+/// Frontier and predecessor budgets apply
 /// only to their transient queue/log records, not the resident native archive. Pure supported
 /// VIEW and safety symmetry use the configured live-search key path during restore.
 /// Identity and archive structure are validated before evaluation. Recovery
@@ -399,7 +402,6 @@ fn admit_source(ir: &Ir, cfg: &ModelConfig) -> std::result::Result<(), Verdict> 
 
 fn admit_native(op: dive_ir::StdOp) -> std::result::Result<(), Verdict> {
     if op.impure()
-        || op.creates_runtime_names()
         || matches!(
             op,
             dive_ir::StdOp::TlcTLCGet
@@ -408,7 +410,7 @@ fn admit_native(op: dive_ir::StdOp) -> std::result::Result<(), Verdict> {
         )
     {
         Err(unsupported(format!(
-            "runtime effects, name constructors or checker/register reads in {} are not recoverable in this slice",
+            "runtime effects or checker/register reads in {} are not recoverable in this slice",
             op.name()
         )))
     } else {
@@ -530,12 +532,13 @@ impl Session {
         self.imported.as_ref().map(|s| s.names.as_slice())
     }
     pub(crate) fn admit_model(&mut self, m: &Model) -> std::result::Result<(), Verdict> {
-        if !m.sequential.is_empty()
-            || m.runtime_name_order
+        if (!m.sequential.is_empty() || m.runtime_name_order) && !m.sequential_names_only
             || !m.temporals.is_empty()
             || !m.implied_temporals.is_empty()
         {
-            return Err(unsupported("runtime effects/names or temporal state"));
+            return Err(unsupported(
+                "runtime effects/checker state or temporal state",
+            ));
         }
         let names = names(&m.names).map_err(failure)?;
         self.encoded_bytes = names.iter().map(|name| name.len() + 8).sum();

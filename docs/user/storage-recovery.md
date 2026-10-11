@@ -38,7 +38,7 @@ Current archives are trusted-local native files, not Java-interoperable archives
 or independently checked model certificates. Source/configuration/profile/model
 identity and structural bounds are checked. Pure supported VIEW and safety symmetry
 are admitted: recovery recomputes the configured reduced keys while preserving
-original concrete discoveries and witnesses. Liveness, runtime effects/names or
+original concrete discoveries and witnesses. Liveness, runtime effects or
 checker reads and unsupported deferred values remain explicit refusals. Frontier and
 predecessor budgets can be used independently or together for pause/recovery;
 recovery may change budgets or worker width. Native archive work remains outside
@@ -77,3 +77,17 @@ records worker-width, counter-prefix and independently checked concrete-witness
 controls on the shipped feature combination. These controls certify their
 declared fields; they do not certify temporal recovery or a complete archive
 feature family.
+
+
+Pure string constructors also support native pause/recovery. The
+[string example and exact worker/counter contract](../native-checkpoint.md#pure-strings-and-recovery-encounter-order)
+include a runnable `ToString` case with both zero-byte transient budgets. TLC
+encounter order uses an explicit one-worker inline fallback; canonical default
+order may use the pool. The saved ordered name table restores execution context,
+not independent proof: TLC witness validation still explicitly refuses runtime
+name history. Keep that separate from the archive checksum and recovery result.
+
+The [current pure-name publication checks](../native-checkpoint.md#current-pure-name-recovery-publication)
+rerun pause/recovery, counter choices, spill cleanup and the executable Rust
+example on the combined runtime. They preserve the TLC runtime-name validator's
+explicit refusal and do not turn a native archive into an independent proof.

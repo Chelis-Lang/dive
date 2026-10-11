@@ -256,6 +256,7 @@ impl Emitter<'_> {
                             | ">"
                             | "<="
                             | ">="
+                            | "->"
                             | "=>"
                             | "<=>"
                             | "|-"
@@ -742,9 +743,21 @@ impl Emitter<'_> {
                 }
                 Kind::Skip => clauses.push("TRUE".into()),
                 Kind::If { test, yes, no } => {
+                    if yes.is_empty() {
+                        return Err(failure(
+                            node.span,
+                            Code::Unsupported,
+                            "unsupported PlusCal translation: empty THEN branch layout",
+                        ));
+                    }
                     let test = self.expression(*test, changed)?;
-                    let (branches, union) =
+                    let (mut branches, union) =
                         self.branches(&[yes.as_slice(), no.as_slice()], changed)?;
+                    // PcalTLAGen.GenIf retains TRUE for an empty Else before
+                    // adding the branch identity updates. Preserve its AST.
+                    if no.is_empty() {
+                        branches[1].insert(0, "TRUE".into());
+                    }
                     let yes = conjunction(&branches[0], true);
                     let no = conjunction(&branches[1], true);
                     clauses.push(format!(
