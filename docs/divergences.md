@@ -563,3 +563,8 @@ Session bounds and separate50k/128 context bounds are unchanged. Pinned
 [stored-state guide](stored-successor-material.md) and
 [paired source/evidence](../conformance/probes/stored-successor-material/README.md).
 Ordinary schedules and whole-family parity remain partial.
+
+Bounded final native forwarding additionally admits `Append` with exactly two
+constant/state expression operands. Tail/SubSeq runtime-name admission remains
+refused, not a default change; see `docs/native-sequence-operators.md` and the
+complete source-bound controls. No new D-ID or family certification applies.

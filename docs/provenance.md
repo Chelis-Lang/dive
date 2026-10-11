@@ -494,3 +494,5 @@ Session bounds and separate50k/128 context bounds are unchanged. Pinned
 [stored-state guide](stored-successor-material.md) and
 [paired source/evidence](../conformance/probes/stored-successor-material/README.md).
 Ordinary schedules and whole-family parity remain partial.
+
+| Pure native `Append` temporal operator actual admission | `tlc2.module.Sequences.Append`, pinned `94d0c50`; actual arity and processLiveness projections under `conformance/probes/native-sequence-operators` | MIT | Existing native evaluator unchanged; bounded operand/context proof retains original calls and independent word/witness replay; Tail/SubSeq remain refused |

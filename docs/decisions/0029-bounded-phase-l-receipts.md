@@ -151,3 +151,12 @@ comparison. Cached Deferred providers remain refused; no extra 50k global state
 walk is added. Context/native 50k/128 stays separate. See the stored-state user
 guide and complete paired before/after evidence; no ordinary schedule or family
 certification follows from this bounded representation change.
+
+## Addendum 2026-10-11: fixed-arity native Append forwarding
+
+Admit only authoritative `Append` in addition to the prior three unary native
+actuals, preserving the existing argument list and exact Java arity (two). Both
+operands retain independent scoped purity, owner/order/representation and finite
+bounds before evaluation. Tail/SubSeq keep their runtime-name flags and pre-bind
+refusals until callback-free tuple authority is proved before all affected
+evaluation. No default, schedule, integer, namespace or resource ceiling changes.
