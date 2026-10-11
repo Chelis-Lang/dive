@@ -44,3 +44,38 @@ These are56 additional settings and zero additional unique sources; the original
 NEW_DIRECTORY` materializes this setting selection for fresh raw/public controls.
 No focused or reference capture alone credits public native admission or model
 proof. The reference verifier checks this separate pack on every invocation.
+
+
+## Closed source-bound qualification
+
+Native producer `0064beb1f1ec4edc246e3b20e017cecad9a626b3` is immutable:
+6,542 selected committed inputs, 65 literal include targets and separately
+archived 5,058 external driver/reference inputs. Two additional external JRE/jar
+identities are recorded, without claiming a hermetic environment. The full
+55-command gate passed 1,211 tests with zero skipped; both release commands and
+all twelve declared runtime commands closed successfully.
+
+The main raw242 census is 202 exact AST/CRC, 26 named refusals, ten accounted
+rejections, two invalid CLI commands and two primary-invalid raw artifacts.
+Public484 is 404 exact CST/SANY/Validator admissions, 48 named refusals, twenty
+accounted rejections, four invalid CLI routes and eight primary-invalid routes.
+The distinct NoF settings are raw56/public112 matches on unchanged source bytes.
+Finite308 configurations/3,696 settings match primary verdicts/counts. Replay1540
+is canonical154Valid/616Invalid, strict462Unsupported/308Invalid, **zero strict
+saved-frame Valid**. Fixture and actual-Markdown guides each20 routes, CRC24,
+forgery28 and explicit native CM121/VTS16 at widths1/4/8 all passed.
+
+The committed assembler originally contained `else242`, a Python syntax error.
+The original bytes/error, external repair used before runtime, and post-consumer
+actual committed helper repair (`else 242`) are all retained separately. Its
+fresh56 materialization reads back all953 materialized case/primary files.
+Documentation, current maps and verification-only packaging changes do not
+retag any native producer or prior gate. Prototype binaries have explicitly null
+source identity and incomplete archive qualification; no final-source credit.
+
+`delivery.json` indexes the portable source/raw/driver/stage archive.
+`python3 -I crates/dive-pluscal/process-procedure-checksum-acceptance/verify-delivery.py`
+checks exact bytes and meaningful dispositions without Java or a build;
+`--binaries <immutable-directory>` additionally reads back all five clients.
+`test-delivery.py` rehashes corrupted semantic claims to test fail-closed reading.
+Historical capture packs and their selection authority remain unchanged.

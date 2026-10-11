@@ -8,4 +8,4 @@ for prefix in (['cases','primary']if a.epoch=='nof'else['cases','primary','explo
  for name,data in records.items():
   if name.startswith(original+'/'):
    dest=a.out/prefix/name[len(original)+1:];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(data)
-print('Materialized immutable reference settings without native credit:',56 if a.epoch=='nof'else242)
+print('Materialized immutable reference settings without native credit:',56 if a.epoch=='nof'else 242)

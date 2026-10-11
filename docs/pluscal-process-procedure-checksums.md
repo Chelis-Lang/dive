@@ -98,9 +98,32 @@ capture exposed 15 C separator errors; every original input/output remains, with
 only those exact semicolons corrected in a separate complete 242-row capture.
 The corrected new census is 66 generated, 64 SANY-valid, six primary errors and
 two generated/SANY-invalid artifacts. Before changes, all 72 new headers were
-refused. The focused extension matches all 56 candidate headers exactly and
-retains every boundary. Full public/runtime qualification is recorded separately
-after its immutable producer closes; focused bytes are not public admission.
+refused. The frozen implementation matches all 56 candidate headers exactly and retains
+every boundary. The complete 242-row raw campaign reports 202 exact header AST/CRC
+matches, 26 named refusals, ten accounted rejections, two invalid CLI inputs and
+two primary-invalid raw artifacts kept uncredited. Across both profiles, the
+484 public routes report 404 exact whole-module CST/SANY/Validator admissions,
+48 named refusals, twenty accounted rejections, four invalid CLI routes and
+eight primary-invalid routes kept uncredited. The separate `-nof` context adds
+56 exact header checks and 112 public admissions on unchanged source bytes.
+
+Finite checking is a different obligation: 154 sources, two configurations each,
+and 3,696 profile/worker/store settings match the pinned verdicts and counts.
+The 1,540 separate replay controls report 154 canonical-only Valid and 616
+canonical Invalid, alongside 462 strict Unsupported and 308 strict Invalid.
+**Zero strict saved-frame witnesses receive Valid credit.** These results do
+not certify every procedure/process form or imply proof from a translation.
+
+All twelve runtime stages closed successfully, including 20 fixture guide routes,
+20 routes using the exact Markdown C/P source blocks, 24 CRC/Validator controls,
+28 public-document forgery controls and the required 21 CM1 and 16 VTS models
+at widths 1, 4 and 8. The full local gate ran 55 commands, including 1,211 tests
+with zero skipped. Runtime and gate retain committed producer `0064beb1`; the
+later Python assembler syntax repair and portable packaging carry separate
+metadata authority. The original assembler failure remains archived, and the
+actual repaired helper materializes all 56 `-nof` settings with exact readback.
+Selected source/driver archives are explicit rather than a hermetic environment
+or dependency closure.
 
 See [ADR 0079](decisions/0079-process-procedure-header-checksums.md),
 [the retained acceptance selection](../crates/dive-pluscal/process-procedure-checksum-acceptance/README.md),

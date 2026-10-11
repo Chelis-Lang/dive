@@ -1,0 +1,132 @@
+{
+  "runtime_source_commit": "0064beb1f1ec4edc246e3b20e017cecad9a626b3",
+  "all_native_consumers_closed_before_changes": true,
+  "packaging_only": true,
+  "qualification": "Exact assembler syntax repair, final user/developer/ledger census and mandatory portable reader/semantic controls; no Rust/Cargo/example/runtime retag. Current source map updates remain separate from original selected source and raw evidence. First mutation-driver refinement during execution is retained without positive credit; immutable final rerun is separate.",
+  "changed_existing_inputs": [
+    {
+      "path": "conformance/parity-features.json",
+      "before_sha256": "2830ed8795e51583a4c903c9c7538e3fc7214548265affeccd8163e9752804cd",
+      "after_sha256": "4b4997688d8227d6bb53e697d37077e3dd5643defdd3e6d833efee062b8ed2f8",
+      "Rust_Cargo_changed": false
+    },
+    {
+      "path": "crates/dive-pluscal/process-procedure-checksum-acceptance/README.md",
+      "before_sha256": "abe901a9df9e2a33bd95e2697811ebeb7b577d072334bb9d2a52e3b292c8cfd1",
+      "after_sha256": "946d1a58462755c4aee9af40711973528c40f593cbac01c9118ce764f288ea57",
+      "Rust_Cargo_changed": false
+    },
+    {
+      "path": "crates/dive-pluscal/process-procedure-checksum-acceptance/assemble-reference.py",
+      "before_sha256": "7b6a4350980eab54f4fdcc9df6f4ec50ce21db022a5a6e63fd0121b8c0056766",
+      "after_sha256": "1d19f5a223f4c91264ab7aa45c9c7757d8897ce4e48844a664ed3f8ac240ed2e",
+      "Rust_Cargo_changed": false
+    },
+    {
+      "path": "docs/decisions/0079-process-procedure-header-checksums.md",
+      "before_sha256": "82256d51a93ce1372406f214db52af478867c64967c6c866e8967a7b95a87d0f",
+      "after_sha256": "f11665b803a3a0e173cbdcab1ae1a4d24994eadfca51fc67fe96b2758a3928ec",
+      "Rust_Cargo_changed": false
+    },
+    {
+      "path": "docs/pluscal-process-procedure-checksums.md",
+      "before_sha256": "b69bd84655a0998768608abbe0c5fcb049e5464a616f68cc0ee212895629c946",
+      "after_sha256": "cdb648b3336c978192933792cb442360b815209c07b815bc296a5f565cedabb7",
+      "Rust_Cargo_changed": false
+    },
+    {
+      "path": "scripts/check-native-parity-integration.py",
+      "before_sha256": "c05b3b94138a99656ace5859897ebb0a3c560c26f42f40a84aae8949fcef3c0c",
+      "after_sha256": "ac92a35d91c2478c7f364ac61e30e3c74ec491572098dafeda75c07c1860fa82",
+      "Rust_Cargo_changed": false
+    }
+  ],
+  "new_inputs": [
+    "verify-delivery.py",
+    "test-delivery.py",
+    "delivery.json",
+    "delivery-records.json.gz",
+    "packaging/changes.json",
+    "packaging/semantic-mutations.json",
+    "packaging/unchanged-rust-cargo.json"
+  ],
+  "post_runtime_external_alias_changes": [
+    {
+      "path": "refresh-current.py",
+      "before_sha256": "78f4abf13be102c626cc5a688fc0273c8660dd2ac430fabddf6baf1ba5b1a8e8",
+      "after_sha256": "8573834ef4638f476f9e06f02ae7e3f77a15fe958cf8e215fa15e8f97386e7df",
+      "before_retained": "packaging-refresh-before.py",
+      "qualification": "Current source-integrity map refresher gained portable verifier paths after native runtime closure. Original declared external input remains archived unchanged in runtime-inputs-source/refresh-current.py.gz. Current alias is a separate packaging-only driver, not frozen runtime input."
+    }
+  ],
+  "generated_current_authorities": [
+    {
+      "path": "conformance/probes/material-capture/source-matrix.json",
+      "before_sha256": "c3eaeb162412913bbfacac79672c2dc695bc35411622bfddf3f3b6491d099364",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/native-parity-integration/current-source.json",
+      "before_sha256": "bc1e41616d60c1cefd03c084c484ca7599af421f4c68480b006a96ff081fda76",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/native-periodic-lifecycle/source-matrix.json",
+      "before_sha256": "4b81c01bb05317dfea64a9779ac5e51769b1b304ce68d124b97e48df0f225f24",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/native-temporal-operators/source-matrix.json",
+      "before_sha256": "e934a6a13fb7bf7baae755b18af9162fe62082a35e8c46e1af48617c2594579e",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/periodic-backend/source-matrix.json",
+      "before_sha256": "4cd01a3c0d9866cc50ad88955a4d0faac7abe850eac0943c013a897eb0c1e5d6",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/periodic-hook/source-matrix.json",
+      "before_sha256": "07439af2c7eb04d3c348e686be1197b1da14fa457ab805b9ccfb46939ce2ef6b",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/temporal-operators/source-matrix.json",
+      "before_sha256": "99565264bf091d1055ec88d22aacef7e9e58e666dd4d6f7c8cfa8e53abf664c7",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/tlc-final-property-origins/source-matrix.json",
+      "before_sha256": "e61da368dbfe92dff44c8fbc63222a827cc8a454e06a548f74809929268fb08d",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/tlc-final-scopes/source-matrix.json",
+      "before_sha256": "ecaab93134e92fe5ffc23b46b6ed043c9b3e648dd3c183b4ab5db89a7475305a",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/tlc-partial-scc/source-matrix.json",
+      "before_sha256": "4bf5ce8b1beb69dc9f15eb3ff297249f49e940c1ef99771f9bbadb73ea6f7800",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/tlc-state-if/source-matrix.json",
+      "before_sha256": "99a7e8e4a0d322723127be475aa0506858d313b2ee94510d185c9ed7371668aa",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/tlc-temporal-if-final/source-matrix.json",
+      "before_sha256": "f92c4a0321c747bd5841c6bb1d3f2fb46ee99f08b314dd99853b30df66c8a8ab",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    },
+    {
+      "path": "conformance/probes/tlc-temporal-if/source-matrix.json",
+      "before_sha256": "d8df7ef8bf1ec921579425c286c6565b883e9b024e15ceb2e09ef307b6351be5",
+      "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
+    }
+  ],
+  "closed_semantic_controls": 30,
+  "rehashed_semantic_mutations_rejected": 29,
+  "SANY_reader_extension": "Post-review reader verifies primary manifest acceptance and actual admitted native/primary SANY logs; both rehashed semantic-error stream mutations reject. Prior27-reader epoch remains archived with its narrower qualification."
+}

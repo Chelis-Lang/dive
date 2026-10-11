@@ -45,3 +45,14 @@ canonical-only validation never becomes strict agreement. Reference-invalid
 scoped artifacts and original failures remain in the declared census. F-034 and
 F-035 stay partial. The same increment includes executable CLI/Cargo user docs,
 source-qualified captures and complete gate/runtime receipts once closed.
+
+
+## Closed qualification
+
+Frozen committed0064 passed all55 gate commands (1211tests/zero skipped) and
+all12 runtime commands. The exact main242/public484 and NoF56/public112
+censuses, selected6542source/5058external archive scope, finite3696 settings,
+replay1540 with zero strict saved-frame Valid and executable Markdown controls
+are retained in the acceptance delivery. A post-consumer Python assembler repair
+and portable verification are packaging-only, separately archived authorities.
+No runtime is retagged or whole family certified.

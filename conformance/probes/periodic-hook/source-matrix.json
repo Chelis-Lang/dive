@@ -18,7 +18,7 @@
     "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
     "AGENTS.md": "cefc48524084ba9f06044cde939da15cfc57051212efa8f5fc5adf09392a2d4f",
     ".github/workflows/ci.yml": "4d70034aa97a6378e5a016fea704c9ff575fc4b8a69ce4a1258f5064f884d689",
-    "conformance/parity-features.json": "2830ed8795e51583a4c903c9c7538e3fc7214548265affeccd8163e9752804cd"
+    "conformance/parity-features.json": "4b4997688d8227d6bb53e697d37077e3dd5643defdd3e6d833efee062b8ed2f8"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }
