@@ -1,0 +1,19 @@
+{
+  "source_production_commit": "4d77745074a12e2b34af0f42a6f51de45ec6fffa",
+  "source_sha256": "4e5be4e88e407cc23a383d438328c016c60ab9fd9c5a5685fb65e5a22a5f92d1",
+  "binary_sha256": "0dae56e1460ec24cdd9f742b6edff711d08428e3083cb066d44f3b94a9a601c3",
+  "linked_rlib_sha256": {
+    "libdive_sema-150e054bc512c651.rlib": "4922222e2a3986b6d8148cb97b339a78503785429ca79b20335cb69b2942ae71",
+    "libdive_ir-f0e19039e0ed7723.rlib": "6ef4b874c089b2d69c1218902809bf52e3eb762669968769fd3dd7b98ac45929",
+    "libdive_config-ea5fde08baf67946.rlib": "1e246dbf16762d17693711bbae6b6dbd3a34ed2de5862b4869584ae556d8f7e6",
+    "libdive_model-2e781acfe8f6824c.rlib": "64731288ca0575c3b9d21882a88af1fa6a5890a5ce7cd72e02d073a248d4950b",
+    "libdive_eval-2313ab62c3c61143.rlib": "bd065b7b31969ff446394546178f537c42cb8784aa10b26413963dbf23087149",
+    "libdive_check-9abebb7c71129a52.rlib": "dc8c650e7474680989c748be15bd688927607155a40211597606eabd93ef264d"
+  },
+  "exit": 0,
+  "production_sources_sha256": {
+    "crates/dive-check/src/lib.rs": "3a924b12f02585c61f6c57739f0e473fb1adf5b6a9a6a116c37c0469b68c206f",
+    "crates/dive-check/src/engine.rs": "0f9d832edf11573a7e486ef1472bb02c2dabaa16e7467b18e6a45309d1b27542",
+    "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522"
+  }
+}

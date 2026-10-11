@@ -1,0 +1,53 @@
+{
+  "producer_commit": "4ecaa79d33a47e54126feaf171a854a2c77b641b",
+  "binary_sha256": "4120ada7c18bccd7c9f4c582b5da8f72b87261a480cb9adcdcad47e561a62bb8",
+  "runs": {
+    "property-final-dive": {
+      "args": [
+        "check",
+        "FinalConfigured.tla",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "exit": 3
+    },
+    "property-final-tlc": {
+      "args": [
+        "check",
+        "FinalConfigured.tla",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "exit": 12
+    }
+  },
+  "files": {
+    "FinalConfigured.tla": "656e4262147d10173fcdcf2e35b70cfbf1aafeaa3d52a70650657d5c7b9a8cf1",
+    "property-final-dive.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "property-final-dive.stdout": "57af28bfcf1ebbb41af041e3c44d89b22f09ff1b43338d465306d6b9fb853f52",
+    "property-final-tlc.stdout": "c88456c2fad4fc15818e3a06149974d5cbf9458053b77e07e2c9c5339c441878",
+    "FinalConfigured.cfg": "747d10658cc2256f404b344201f269deb665623ac09db32407cf9a144c1c2763",
+    "property-final-tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "source_commit": "2506b7d31d3cee2b27e43817c383ccd9b8aed597",
+  "reason": "Two assert_is_empty Clippy style errors in malformed-context no-output controls; strict zero-output assertion retained with assert_eq. No production/oracle change.",
+  "files": {
+    "configured_random.rs": "5f6336d45529f3eb25542ed73e2c385071479b238f06faf9bd033be8b6711615",
+    "gate.log": "6e82edd04af19d84d91335f4400e2667bb817e33235c6fde86d6bcb7824b4515"
+  }
+}

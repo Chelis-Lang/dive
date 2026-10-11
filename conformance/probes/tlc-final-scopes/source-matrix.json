@@ -1,6 +1,30 @@
 {
   "base_commit": "92beded1ac83f1114e34a02cdbc384cf5ab94bc3",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "ab72819f10bd797f45c245b05f6efab3b406ade84b3644032cbe65e865b722e3",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "70d97009a5474a051cad3b148456b004751a6d4163e74b8833024a49aec5d441",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "1f6aeddc5abd2a1611ef9c7cc4bac31cb5fe37ad9c4edd318fbce23fca8c51a9",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "f2c2c126224e281ae9036d39783da46090014c9b4167106d48c524fc8bc618d3",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
   "schema_version": 1,
   "scope": "Bounded final-only scoped LET attribution, singleton DNF and direct negated ENABLED fidelity; ordinary periodic/family and expanded original action vector unclaimed; post-consumer guide/receipt metadata only, Rust gate source identity retained separately; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
@@ -738,5 +762,10 @@
     "docs/user/temporal.md": "7cfc3a164171042f58808807c7b7cbd166d6ef70d0572e3d58d68257894fe925",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1"
+  },
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "335ef12cf2a2a04bcaa364f5a23651cb884b87010456a283b0063154f78de7e1",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   }
 }

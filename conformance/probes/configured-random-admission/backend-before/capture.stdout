@@ -1,0 +1,458 @@
+profile Dive pooledfalse reasons[]
+Complete(
+    Complete {
+        safety_result: CheckResult {
+            frontier: FrontierUsage {
+                memory_bytes_per_queue: None,
+                max_record_bytes: None,
+                peak_retained_bytes: 0,
+                retained_bytes: 0,
+                spilled_bytes: 0,
+                deciding_event_before_failure: None,
+                failures: [],
+            },
+            predecessor: PredecessorUsage {
+                storage: Usage {
+                    retained_bytes: 0,
+                    peak_retained_bytes: 0,
+                    written_bytes: 0,
+                    records: 0,
+                    spilled: false,
+                },
+                failures: [],
+                deciding_event_before_failure: None,
+                cleanup_completed: false,
+            },
+            verdict: Success,
+            stats: Some(
+                Stats {
+                    generated: 4,
+                    distinct: 4,
+                    left_on_queue: 0,
+                    depth: 4,
+                    initial_generated: 1,
+                },
+            ),
+            tlc_prints_stats: true,
+            counterexample: None,
+            collision: Some(
+                Collision {
+                    optimistic: "0.0",
+                    actual: None,
+                },
+            ),
+            store: Fingerprint,
+            fp_index: Some(
+                0,
+            ),
+            tlc_fingerprints: false,
+            var_names: [
+                "n",
+                "x",
+            ],
+            tlc_var_order: [
+                0,
+                1,
+            ],
+            output: [],
+            warnings: [],
+            notes: [],
+            workers: Workers {
+                requested: 1,
+                used: 1,
+                sequential: false,
+                reason: None,
+            },
+            elapsed: 4.37575ms,
+        },
+        options: CheckOptions {
+            frontier_memory_bytes: None,
+            frontier_directory: None,
+            predecessor_memory_bytes: None,
+            predecessor_directory: None,
+            profile: Dive,
+            eval: Options {
+                ctx: Ctx {
+                    int_mode: Big,
+                    order: Canonical,
+                },
+                exploration: Value,
+                comparisons: Tla,
+                max_depth: 400,
+                warnings: true,
+            },
+            store: Fingerprint,
+            fp_index: 0,
+            tlc_fingerprints: false,
+            seed: 7,
+            no_deadlock: false,
+            workers: 1,
+            sequential: false,
+            chaos: None,
+        },
+        graph: BehaviorGraph {
+            states: [
+                [
+                    Some(
+                        0,
+                    ),
+                    Some(
+                        0,
+                    ),
+                ],
+                [
+                    Some(
+                        1,
+                    ),
+                    Some(
+                        21,
+                    ),
+                ],
+                [
+                    Some(
+                        2,
+                    ),
+                    Some(
+                        82,
+                    ),
+                ],
+                [
+                    Some(
+                        3,
+                    ),
+                    Some(
+                        81,
+                    ),
+                ],
+            ],
+            edges: [
+                [
+                    Edge {
+                        to: 1,
+                        ordinal: Some(
+                            0,
+                        ),
+                        label: Some(
+                            "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                        ),
+                    },
+                    Edge {
+                        to: 0,
+                        ordinal: None,
+                        label: None,
+                    },
+                ],
+                [
+                    Edge {
+                        to: 2,
+                        ordinal: Some(
+                            0,
+                        ),
+                        label: Some(
+                            "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                        ),
+                    },
+                    Edge {
+                        to: 1,
+                        ordinal: None,
+                        label: None,
+                    },
+                ],
+                [
+                    Edge {
+                        to: 3,
+                        ordinal: Some(
+                            0,
+                        ),
+                        label: Some(
+                            "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                        ),
+                    },
+                    Edge {
+                        to: 2,
+                        ordinal: None,
+                        label: None,
+                    },
+                ],
+                [
+                    Edge {
+                        to: 3,
+                        ordinal: None,
+                        label: None,
+                    },
+                ],
+            ],
+            concrete: [
+                [
+                    ConcreteSuccessor {
+                        state: [
+                            Some(
+                                1,
+                            ),
+                            Some(
+                                21,
+                            ),
+                        ],
+                        ordinal: 0,
+                        label: "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                    },
+                ],
+                [
+                    ConcreteSuccessor {
+                        state: [
+                            Some(
+                                2,
+                            ),
+                            Some(
+                                82,
+                            ),
+                        ],
+                        ordinal: 0,
+                        label: "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                    },
+                ],
+                [
+                    ConcreteSuccessor {
+                        state: [
+                            Some(
+                                3,
+                            ),
+                            Some(
+                                81,
+                            ),
+                        ],
+                        ordinal: 0,
+                        label: "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                    },
+                ],
+                [],
+            ],
+            roots: [
+                0,
+            ],
+        },
+        stats: Stats {
+            generated: 4,
+            distinct: 4,
+            left_on_queue: 0,
+            depth: 4,
+            initial_generated: 1,
+        },
+        collision: Some(
+            Collision {
+                optimistic: "0.0",
+                actual: None,
+            },
+        ),
+        workers: Workers {
+            requested: 1,
+            used: 1,
+            sequential: false,
+            reason: None,
+        },
+        output: [],
+        warnings: [],
+    },
+)
+profile Dive pooledtrue reasons[]
+Stopped(
+    CheckResult {
+        frontier: FrontierUsage {
+            memory_bytes_per_queue: None,
+            max_record_bytes: None,
+            peak_retained_bytes: 0,
+            retained_bytes: 0,
+            spilled_bytes: 0,
+            deciding_event_before_failure: None,
+            failures: [],
+        },
+        predecessor: PredecessorUsage {
+            storage: Usage {
+                retained_bytes: 0,
+                peak_retained_bytes: 0,
+                written_bytes: 0,
+                records: 0,
+                spilled: false,
+            },
+            failures: [],
+            deciding_event_before_failure: None,
+            cleanup_completed: false,
+        },
+        verdict: Unsupported {
+            feature: "concrete pool capture effects, runtime names, opaque captures or invalid context",
+        },
+        stats: None,
+        tlc_prints_stats: false,
+        counterexample: None,
+        collision: None,
+        store: Fingerprint,
+        fp_index: Some(
+            0,
+        ),
+        tlc_fingerprints: false,
+        var_names: [
+            "n",
+            "x",
+        ],
+        tlc_var_order: [
+            0,
+            1,
+        ],
+        output: [],
+        warnings: [],
+        notes: [],
+        workers: Workers {
+            requested: 1,
+            used: 0,
+            sequential: false,
+            reason: None,
+        },
+        elapsed: 3.119666ms,
+    },
+)
+profile Tlc pooledfalse reasons[]
+Stopped(
+    CheckResult {
+        frontier: FrontierUsage {
+            memory_bytes_per_queue: None,
+            max_record_bytes: None,
+            peak_retained_bytes: 0,
+            retained_bytes: 0,
+            spilled_bytes: 0,
+            deciding_event_before_failure: None,
+            failures: [],
+        },
+        predecessor: PredecessorUsage {
+            storage: Usage {
+                retained_bytes: 0,
+                peak_retained_bytes: 0,
+                written_bytes: 0,
+                records: 0,
+                spilled: false,
+            },
+            failures: [],
+            deciding_event_before_failure: None,
+            cleanup_completed: false,
+        },
+        verdict: InvariantViolated {
+            property: "Inv",
+            initial: false,
+        },
+        stats: Some(
+            Stats {
+                generated: 2,
+                distinct: 2,
+                left_on_queue: 0,
+                depth: 2,
+                initial_generated: 1,
+            },
+        ),
+        tlc_prints_stats: true,
+        counterexample: Some(
+            Counterexample {
+                states: [
+                    TraceState {
+                        label: "<Initial predicate>",
+                        action: None,
+                        values: [
+                            0,
+                            0,
+                        ],
+                        text: None,
+                    },
+                    TraceState {
+                        label: "<Next line 6, col 9 to line 6, col 40 of module WrongVerdict>",
+                        action: Some(
+                            "Next",
+                        ),
+                        values: [
+                            1,
+                            74,
+                        ],
+                        text: None,
+                    },
+                ],
+            },
+        ),
+        collision: None,
+        store: Fingerprint,
+        fp_index: Some(
+            0,
+        ),
+        tlc_fingerprints: true,
+        var_names: [
+            "n",
+            "x",
+        ],
+        tlc_var_order: [
+            0,
+            1,
+        ],
+        output: [],
+        warnings: [],
+        notes: [],
+        workers: Workers {
+            requested: 1,
+            used: 1,
+            sequential: false,
+            reason: None,
+        },
+        elapsed: 1.464458ms,
+    },
+)
+profile Tlc pooledtrue reasons[]
+Stopped(
+    CheckResult {
+        frontier: FrontierUsage {
+            memory_bytes_per_queue: None,
+            max_record_bytes: None,
+            peak_retained_bytes: 0,
+            retained_bytes: 0,
+            spilled_bytes: 0,
+            deciding_event_before_failure: None,
+            failures: [],
+        },
+        predecessor: PredecessorUsage {
+            storage: Usage {
+                retained_bytes: 0,
+                peak_retained_bytes: 0,
+                written_bytes: 0,
+                records: 0,
+                spilled: false,
+            },
+            failures: [],
+            deciding_event_before_failure: None,
+            cleanup_completed: false,
+        },
+        verdict: Unsupported {
+            feature: "concrete pool capture effects, runtime names, opaque captures or invalid context",
+        },
+        stats: None,
+        tlc_prints_stats: false,
+        counterexample: None,
+        collision: None,
+        store: Fingerprint,
+        fp_index: Some(
+            0,
+        ),
+        tlc_fingerprints: true,
+        var_names: [
+            "n",
+            "x",
+        ],
+        tlc_var_order: [
+            0,
+            1,
+        ],
+        output: [],
+        warnings: [],
+        notes: [],
+        workers: Workers {
+            requested: 1,
+            used: 0,
+            sequential: false,
+            reason: None,
+        },
+        elapsed: 313.709µs,
+    },
+)

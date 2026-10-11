@@ -5,8 +5,31 @@
     "native-outcomes.json": "96188213fe069fa276f5c1f660553213676079e325eb595a914e5f9a04b7d05b"
   },
   "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "c512a423dc1aa54821e06b472d8e7e03aff899a8adf706f9f890ed9b9b82de9c",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "bb64ddbca71393b9c1e5ec2530db0b1fa52dfca9632f57bd3fdc218ef94cc82c",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "95490d3f77ece590849c9dcf2171085d99b45476ff1dc48ff2e01a9b2f6a2368",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  },
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "177d3aa28c7c3d99ab6f6d50e5ccfb6a636722d99f8c416d52435bc2cf3e5875",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
   "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged.",
   "current_source_qualification": "Current combined-source integrity after temporal IF, transient native recovery, process procedure fairness and opt-in translation-body editing. Archived producer outcomes retain their exact source identities; no new runtime or full-family credit.",
   "runtime_name_recovery_previous_authority": {
@@ -50,5 +73,10 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
+  },
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "c74b045eb371ad93569d1202d0760f8d4eace6cc2a1fcab1a9c5619e60757371",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   }
 }

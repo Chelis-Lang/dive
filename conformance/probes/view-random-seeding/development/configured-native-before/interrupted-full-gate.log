@@ -1,0 +1,96 @@
+Sun Oct 11 02:20:22 UTC 2026
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.344s
+
+OK
+........
+----------------------------------------------------------------------
+Ran 8 tests in 3.363s
+
+OK
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.122s
+
+OK
+Verified all nine clean safety-route captures and seven exact pre-route source matrices; resource stops and empty temporal obligations do not certify a temporal product
+Verified complete successful before-limits source/gate receipt; new limits controls are separate producer evidence
+Verified complete15 conditional controls:11 complete projections/4 reference errors; all histories retained; no periodic or family certification
+Verified complete15 clean final TLC controls, including all four deciding reference errors
+Verified all60 historical native rows:40 supported final-only outcomes/20 named refusals; no reference-error or periodic credit
+Verified executable user API example and retained first compilation failure
+Verified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained
+Verified25 complete tag/tableau controls:20 projections/5 preserved failures;25 clean outcomes and15/10 diagnostic final rows, no new verdict or periodic credit
+Verified all30 primary selections/120 native outcomes:80 supported final outcomes,40 named refusals; independent replay and all source histories retained, no periodic/family credit
+Complete unchanged140 census retained:6 agree/134 unsupported; earlier138 zero-native launcher failures remain separate history
+Verified fresh current Rust guide execution and916-test frozen Rust/Cargo gate identity; no periodic/family claim
+Verified complete18 primary/72 native scoped final outcomes and retained name/shape failures;56 temporal,8 safety,8refused; expanded-action and ordinary scheduling remain unclaimed
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+verified all 36 pinned direct controls, compiler failure and native before observations
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+verified all26 execution rows:15 completed graph fields,3 no-OOS boundaries,8 retained failures;8 clean TLC precedence controls and preserved producer histories; no strict verdict claim
+verified all30 reference rows/120 native outcomes:19 completed final projections,11 failures without error agreement; exact source histories retained; ordinary strict parity remains unclaimed
+verified complete140 historical refusal rows/138 raw subprocesses; no broad corpus credit
+verified all24 current and18 historical conditional controls, original capture failure and native regressions
+verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes
+verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration
+verified 26 immutable slice source histories and distinct combined source hashes; no family certification
+verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants
+125 prerequisite combinations and four malformed argument lists passed
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-syntax)
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-value)
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sema)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-config)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-store)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-pluscal)
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-ir)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-eval)
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-trace)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sim)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-api)
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-conformance)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-cli)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-bench)
+    Checking xtask v0.0.0 (/Users/jeff/code/dive-view-random-work/xtask)
+    Checking dive-lsp v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-lsp)
+    Checking dive-compile v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-compile)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 52.38s
+warning: output filename collision at /Users/jeff/code/dive-view-random-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-ir)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-pluscal)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-eval)
+   Compiling dive-lsp v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-lsp)
+   Compiling dive-compile v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-compile)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-store)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-stdlib)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-conformance)
+   Compiling dive-bench v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-bench)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-cli)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-value)
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-syntax)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-config)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sema)
+   Compiling xtask v0.0.0 (/Users/jeff/code/dive-view-random-work/xtask)

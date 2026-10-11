@@ -1,0 +1,32 @@
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-syntax)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-sema)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-config)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-ir)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-eval)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-store)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-view-random-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 27.92s
+     Running tests/view_random.rs (/Users/jeff/code/dive-view-random-target/debug/deps/view_random-95e2f64ce81dad82)
+
+running 2 tests
+test pure_view_and_untransformed_randomness_still_check_concretely ... FAILED
+test transformed_randomness_refuses_before_any_binding_or_search ... ok
+
+failures:
+
+---- pure_view_and_untransformed_randomness_still_check_concretely stdout ----
+
+thread 'pure_view_and_untransformed_randomness_still_check_concretely' (115208378) panicked at crates/dive-check/tests/view_random.rs:133:25:
+CheckResult { frontier: FrontierUsage { memory_bytes_per_queue: None, max_record_bytes: None, peak_retained_bytes: 0, retained_bytes: 0, spilled_bytes: 0, deciding_event_before_failure: None, failures: [] }, predecessor: PredecessorUsage { storage: Usage { retained_bytes: 0, peak_retained_bytes: 0, written_bytes: 0, records: 0, spilled: false }, failures: [], deciding_event_before_failure: None, cleanup_completed: false }, verdict: Unsupported { feature: "randomness under VIEW needs transformed-fingerprint seeding and independent replay" }, stats: None, tlc_prints_stats: false, counterexample: None, collision: None, store: Fingerprint, fp_index: Some(0), tlc_fingerprints: false, var_names: ["n", "x"], tlc_var_order: [0, 1], output: [], warnings: [], notes: [], workers: Workers { requested: 1, used: 0, sequential: false, reason: None }, elapsed: 4.609584ms }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pure_view_and_untransformed_randomness_still_check_concretely
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.45s
+
+error: test failed, to rerun pass `-p dive-check --test view_random`

@@ -1,0 +1,16 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-configured-random-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-configured-random-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-configured-random-work/crates/dive-api)
+error[E0616]: field `safety_result` of struct `dive_check::capture::Complete` is private
+   --> crates/dive-check/tests/configured_random.rs:297:22
+    |
+297 |         assert_eq!(c.safety_result.stats.expect("stats").generated, 4);
+    |                      ^^^^^^^^^^^^^ private field
+    |
+help: a method `safety_result` also exists, call it with parentheses
+    |
+297 |         assert_eq!(c.safety_result().stats.expect("stats").generated, 4);
+    |                                   ++
+
+For more information about this error, try `rustc --explain E0616`.
+error: could not compile `dive-check` (test "configured_random") due to 1 previous error

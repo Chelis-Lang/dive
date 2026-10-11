@@ -599,6 +599,7 @@ not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
 
 
+
 D-007 native recovery admits pure runtime string/name constructors, preserving
 saved encounter order and the typed actual inline fallback under TLC value or
 exploration order. Canonical order may use the deterministic pool. Effects,

@@ -1,0 +1,62 @@
+{
+  "old_native_source_commit": "d1102e5d6eb66898259f061949ab031ab6cfa334",
+  "binary_sha256": "bcbd0c2fd63008f142929f00bb93fb2006a79cacd574bc5ba25dce0931277b2b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "commands": {
+    "tlc": {
+      "exit": 12,
+      "args": [
+        "/Users/jeff/code/dive-view-random-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/Users/jeff/code/dive-view-random-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "tlc2.TLC",
+        "-tool",
+        "-seed",
+        "7",
+        "-fp",
+        "0",
+        "-workers",
+        "1",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-configured-rng-missed-before/meta",
+        "-config",
+        "MissedViolation.cfg",
+        "MissedViolation.tla"
+      ]
+    },
+    "old-native": {
+      "exit": 0,
+      "args": [
+        "/Users/jeff/code/dive-cleanup-evidence-20261010/checkpoint-runtime-names/dive",
+        "check",
+        "MissedViolation.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ]
+    }
+  },
+  "files": {
+    "root-b8.stdout": "adce3ffa5e47b58b4e8f3d7b8939bdd317cefa8de243212481637a177fa88fa7",
+    "root-producer.json": "3a17f579b1bebd66cfc7b27b8f01d8e6cb938d5e9caeaf69f7eeefa56510953e",
+    "tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "old-native.stdout": "48921f0eb8524ed74b2dbeb9747bc54a85c29739ed9d2610f07c45f2317c1f3e",
+    "MissedViolation.cfg": "f696f84e8ddedd6132f41b03c7d84b842f271013c50ad54db7d94589077f55ed",
+    "old-native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc.stdout": "eeff888b0097644ea4514649c115ef510540c02ede8dd6b5c1373a485aa3e3ca",
+    "root-b8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "MissedViolation.tla": "9911278e68b049d1fc52644d165aea283e39f67158de4d03cc68fc21e99e4454"
+  },
+  "root_producer": {
+    "source_commit": "b8fb13cdab443e7ad0206a467d9a392075f31397",
+    "executable_sha256": "e779ccf8f9ed5e3c293fe7c143a29b838b48b791b97d568283c0f41f32ae682a",
+    "scope": "Independent root current-executable reproduction; root-b8 outputs never attributed to d110."
+  }
+}

@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The project will follow
   Source option comments remain named refusals; duplicate CLI fairness flags
   are rejected before loading. Pinned Validator context limitations are documented.
 
+
 - Preserve pinned PlusCal CASE assignment parentheses and empty-Else TRUE
   conjuncts, with complete generated-module syntax-tree regressions.
 
@@ -963,3 +964,4 @@ All notable changes to this project are documented here. The project will follow
   final temporal-IF refusal or certify ordinary periodic scheduling (#170).
 
 - Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.
+

@@ -1,0 +1,55 @@
+{
+  "scope": "Follow-up evidence for source-hidden configured native RNG without VIEW; algorithm is unchanged in #178 repair.",
+  "old_native_source_commit": "d1102e5d6eb66898259f061949ab031ab6cfa334",
+  "old_native_binary_sha256": "bcbd0c2fd63008f142929f00bb93fb2006a79cacd574bc5ba25dce0931277b2b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "commands": {
+    "tlc": {
+      "args": [
+        "<private-cache>/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "<private-cache>/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "tlc2.TLC",
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "7",
+        "-fp",
+        "0",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-configured-rng-tlc-meta",
+        "-config",
+        "<repo>/conformance/probes/view-random-seeding/no-view-configured-follow-up/ConfiguredRandom.cfg",
+        "<repo>/conformance/probes/view-random-seeding/no-view-configured-follow-up/ConfiguredRandom.tla"
+      ],
+      "exit_code": 12
+    },
+    "old-native": {
+      "args": [
+        "<immutable-old-native>",
+        "check",
+        "<repo>/conformance/probes/view-random-seeding/no-view-configured-follow-up/ConfiguredRandom.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "exit_code": 12
+    }
+  },
+  "files": {
+    "tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "old-native.stdout": "ebd295a944f2b63000a261ec280e746b869785a1878d9e4d811458f59ca78a81",
+    "ConfiguredRandom.cfg": "649e6ad462fb4de5616d974f581718177a3e32a5707718c19675d7cd57dfd6a6",
+    "old-native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc.stdout": "db9e0fda8394cd7f32271b1c1e176e3f5f9f6ab215ae1279841fffc1b536d617",
+    "ConfiguredRandom.tla": "358015221f9dbc8ea408539c2e9d77488bbe17a126b4d5f2d74d97e018b4395d"
+  }
+}
