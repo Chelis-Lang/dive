@@ -217,6 +217,7 @@ struct Expand<'env, S: Keyed> {
     native_counter_remaining: Option<u64>,
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
+    progress: Option<Arc<crate::progress::Lane>>,
     chaos: Option<u64>,
 }
 
@@ -257,7 +258,14 @@ impl<S: Keyed> Expand<'_, S> {
             .map(|c| Rng(c ^ (w as u64).wrapping_mul(0x2545_f491_4f6c_dd1d) ^ self.level));
         loop {
             Rng::maybe_yield(&mut rng);
-            let k = self.claim.fetch_add(1, Ordering::Relaxed);
+            let k = if let Some(progress) = &self.progress {
+                let Some(claim) = progress.claim(&self.claim, self.order.len()) else {
+                    break;
+                };
+                claim
+            } else {
+                self.claim.fetch_add(1, Ordering::Relaxed)
+            };
             let Some(&b) = self.order.get(k) else { break };
             let range = self.blocks[b].clone();
             if range.start as u64 > self.cut.load(Ordering::Relaxed) {
@@ -782,8 +790,22 @@ pub(crate) fn levels_from<S: Keyed>(
 ) -> (Option<Stop>, Stats, usize) {
     let set = RwLock::new(std::mem::replace(&mut search.set, S::fresh(0)));
     let (stop, stats, used) = with_pool(workers, dive_eval::RECOMMENDED_STACK, |pool| {
-        let (stop, stats) = run_levels(search, &set, next, opts, pool, level);
-        (stop, stats, pool.threads())
+        let request_options = search.observer.as_ref().and_then(|o| o.progress_requests());
+        match crate::progress::with_lane(request_options, |progress| {
+            run_levels(search, &set, next, opts, pool, level, progress.as_ref())
+        }) {
+            Ok((stop, stats)) => (stop, stats, pool.threads()),
+            Err(feature) => (
+                Some(Stop {
+                    verdict: Verdict::Unsupported { feature },
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                search.stats(0),
+                pool.threads(),
+            ),
+        }
     });
     search.set = set.into_inner().unwrap_or_else(PoisonError::into_inner);
     // Statistics computed with the set outside the search report its size.
@@ -881,6 +903,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     opts: &CheckOptions,
     pool: &Pool<'env>,
     mut level: u64,
+    progress: Option<&Arc<crate::progress::Lane>>,
 ) -> (Option<Stop>, Stats) {
     let m: &'env Model = search.m;
     let keyer: &'env S::Keyer = search.keyer;
@@ -1021,14 +1044,100 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 claim: AtomicUsize::new(0),
                 cut: AtomicU64::new(u64::MAX),
                 buffers: Mutex::new(Vec::new()),
+                progress: progress.cloned(),
                 chaos: opts.chaos,
             });
             let job: Job<'env> = {
                 let e = expand.clone();
                 Arc::new(move |w| e.work(w))
             };
-            if let Err(message) = run(pool, &job, inline) {
-                return internal(message, stats_now(search, 0));
+            loop {
+                if let Err(message) = run(pool, &job, inline) {
+                    return internal(message, stats_now(search, 0));
+                }
+                if let Some(progress) = &progress {
+                    let request = if expand.cut.load(Ordering::Relaxed) == u64::MAX {
+                        match progress.take() {
+                            Ok(request) => request,
+                            Err(message) => return internal(message, stats_now(search, 0)),
+                        }
+                    } else {
+                        let (fresh, pending) = progress.cancel_requests();
+                        if fresh && let Some(observer) = &mut search.observer {
+                            observer.expansion_requests_cancelled(pending);
+                        }
+                        None
+                    };
+                    if let Some(request) = request {
+                        let completed = expand
+                            .outs
+                            .iter()
+                            .enumerate()
+                            .filter_map(|(b, out)| {
+                                out.lock()
+                                    .unwrap_or_else(PoisonError::into_inner)
+                                    .as_ref()
+                                    .map(|_| first_id + expand.blocks[b].start as u64)
+                            })
+                            .collect();
+                        let claimed = expand
+                            .order
+                            .iter()
+                            .take(expand.claim.load(Ordering::Relaxed))
+                            .map(|b| first_id + expand.blocks[*b].start as u64)
+                            .collect();
+                        let mut failed = Vec::new();
+                        let mut expanded_generated = 0u64;
+                        for (b, output) in expand.outs.iter().enumerate() {
+                            let guard = output.lock().unwrap_or_else(PoisonError::into_inner);
+                            if let Some(output) = guard.as_ref() {
+                                if output.event.is_some() {
+                                    failed.push(first_id + expand.blocks[b].start as u64);
+                                }
+                                for generated in &output.gens {
+                                    let Some(total) = expanded_generated.checked_add(*generated)
+                                    else {
+                                        return internal(
+                                            "request scratch generation counter overflow".into(),
+                                            stats_now(search, len as u64),
+                                        );
+                                    };
+                                    expanded_generated = total;
+                                }
+                            }
+                        }
+                        let receipt = crate::capture::ExpansionQuiescence {
+                            request,
+                            submitted: first_id + wave_start as u64..first_id + wave_end as u64,
+                            completed,
+                            claimed,
+                            failed,
+                            expanded_generated,
+                            logical: stats_now(search, len as u64),
+                        };
+                        let result = pool
+                            .with_pause(|pause| {
+                                search.observer.as_mut().map_or(Ok(()), |observer| {
+                                    observer.expansion_quiescent(receipt, pause)
+                                })
+                            })
+                            .and_then(std::convert::identity);
+                        if let Err(feature) = result {
+                            return (
+                                Some(Stop {
+                                    verdict: Verdict::Unsupported { feature },
+                                    in_init: false,
+                                    path: None,
+                                    then: None,
+                                }),
+                                stats_now(search, len as u64),
+                            );
+                        }
+                    }
+                }
+                if expand.claim.load(Ordering::Relaxed) >= expand.order.len() {
+                    break;
+                }
             }
             drop(job);
             let mut gens = vec![0u64; n_units];

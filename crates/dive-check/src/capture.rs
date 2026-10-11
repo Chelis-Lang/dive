@@ -180,6 +180,27 @@ pub struct CommittedSource<'a> {
 /// unsupported result, and successful callbacks certify only execution order.
 /// Consumers must meter their own work and retain any deciding typed error.
 pub trait SourceObserver: Send {
+    /// Opt in to producer-clock requests between actual expansion claims.
+    /// These do not publish completed expansions into the temporal graph.
+    fn progress_requests(&self) -> Option<crate::progress::Options> {
+        None
+    }
+    /// An actual expansion cut cancels producer requests before metadata service.
+    /// This notification cannot fail or replace the existing ordered safety error.
+    /// Claims stay open to drain earlier unclaimed sources; this is not lane closure.
+    fn expansion_requests_cancelled(&mut self, _pending: Option<crate::progress::Request>) {}
+    /// Actual joined expansion pause before this wave's ordered safety/graph
+    /// publication. Success resumes unclaimed expansion work, not a Java queue.
+    ///
+    /// # Errors
+    /// A named diagnostic stop; no completed graph or temporal proof is exposed.
+    fn expansion_quiescent(
+        &mut self,
+        _receipt: ExpansionQuiescence,
+        _pause: &DispatchPause<'_>,
+    ) -> Result<(), String> {
+        Ok(())
+    }
     /// A newly enqueued initial state, before its initial invariants/implied checks.
     /// The counters describe the observed prefix; TLC's later error replay is
     /// separate and is not inferred by this interface.
@@ -233,6 +254,64 @@ pub trait SourceObserver: Send {
     /// # Errors
     /// Return the deciding consumer diagnostic; no completed graph is exposed.
     fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String>;
+}
+
+/// Real expansion-claim barrier and joined pool evidence, before publication.
+/// Completed IDs can be noncontiguous; no completed ID implies a written graph.
+#[derive(Clone, Debug)]
+pub struct ExpansionQuiescence {
+    pub(crate) request: crate::progress::Request,
+    pub(crate) submitted: std::ops::Range<u64>,
+    pub(crate) completed: Vec<u64>,
+    pub(crate) claimed: Vec<u64>,
+    pub(crate) failed: Vec<u64>,
+    pub(crate) expanded_generated: u64,
+    pub(crate) logical: Stats,
+}
+impl ExpansionQuiescence {
+    /// Producer-owned timer/initial-force request serviced under actual authority.
+    #[must_use]
+    pub fn request(&self) -> crate::progress::Request {
+        self.request
+    }
+    /// Source wave identities, including work not yet claimed.
+    #[must_use]
+    pub fn submitted(&self) -> std::ops::Range<u64> {
+        self.submitted.clone()
+    }
+    /// Source expansions with retained completed output; these remain uncommitted.
+    #[must_use]
+    pub fn completed(&self) -> &[u64] {
+        &self.completed
+    }
+    /// Actual source claims, including a skipped later source after a safety cut.
+    /// Claims and successful completed output are separate observations.
+    #[must_use]
+    pub fn claimed(&self) -> &[u64] {
+        &self.claimed
+    }
+    /// Completed expansion outputs that contain an actual deciding safety error.
+    /// Other completed outputs may still await invariant checks/publication.
+    #[must_use]
+    pub fn failed(&self) -> &[u64] {
+        &self.failed
+    }
+    /// Generated successors in retained expansion outputs, including speculative
+    /// later sources. This is not the logical stopping counter.
+    #[must_use]
+    pub fn expanded_generated(&self) -> u64 {
+        self.expanded_generated
+    }
+    /// Actual logical statistics preceding publication of this wave.
+    #[must_use]
+    pub fn logical_stats(&self) -> Stats {
+        self.logical
+    }
+    /// No record in this receipt grants Phase-L write or ordinary verdict credit.
+    #[must_use]
+    pub fn model_proof(&self) -> bool {
+        false
+    }
 }
 
 /// A fully explored behavior graph in the engine's discovery order.

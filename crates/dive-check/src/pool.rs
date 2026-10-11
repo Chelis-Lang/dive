@@ -55,6 +55,13 @@ fn panic_message(p: &(dyn std::any::Any + Send)) -> String {
         .unwrap_or_else(|| "a worker panicked".to_owned())
 }
 
+struct Shutdown<'a, 'env>(&'a Pool<'env>);
+impl Drop for Shutdown<'_, '_> {
+    fn drop(&mut self) {
+        self.0.shutdown();
+    }
+}
+
 impl<'env> Pool<'env> {
     fn new(threads: usize) -> Self {
         Self {
@@ -201,8 +208,11 @@ pub(crate) fn with_pool<'env, R>(
             started += 1;
         }
         pool.lock().workers = started - 1;
+        // Coordinator/observer unwind must wake real waiting workers before
+        // thread::scope attempts to join them; timer closure alone is insufficient.
+        let shutdown = Shutdown(pool_ref);
         let r = f(pool_ref);
-        pool.shutdown();
+        drop(shutdown);
         r
     })
 }
@@ -215,6 +225,18 @@ pub(crate) fn with_pool<'env, R>(
 )]
 mod pause_tests {
     use super::*;
+    #[test]
+    fn uncaught_coordinator_pause_unwind_shuts_down_and_joins_waiting_workers() {
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            with_pool(4, dive_eval::RECOMMENDED_STACK, |pool| {
+                let job: Job<'_> = Arc::new(|_| {});
+                pool.run(&job).expect("actual joined job");
+                pool.with_pause(|_| panic!("uncaught coordinator pause"))
+                    .expect("actual pause");
+            });
+        }));
+        assert!(result.is_err());
+    }
     #[test]
     fn pause_owns_mutex_reentry_refuses_and_future_jobs_resume() {
         for width in [1, 3, 4, 8] {

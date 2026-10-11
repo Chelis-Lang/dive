@@ -732,3 +732,5 @@ refusals remain separate from semantic replay. Existing 21/16 conformance gates
 and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
 checks all 443 producing workspace Rust/Cargo inputs against archived and Git
 bytes; earlier source and runtime histories are not relabelled.
+
+| Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |

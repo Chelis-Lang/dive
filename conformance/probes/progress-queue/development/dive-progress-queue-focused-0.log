@@ -1,0 +1,68 @@
+   Compiling text-size v1.1.1
+   Compiling rustc-hash v1.1.0
+   Compiling hashbrown v0.14.5
+   Compiling countme v3.0.1
+   Compiling num-traits v0.2.19
+   Compiling rowan v0.16.1
+   Compiling num-integer v0.1.47
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-syntax)
+   Compiling serde_core v1.0.229
+   Compiling num-bigint v0.5.1
+   Compiling serde v1.0.229
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-sema)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-value)
+   Compiling typenum v1.20.1
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-ir)
+   Compiling hybrid-array v0.4.15
+   Compiling libc v0.2.190
+   Compiling zmij v1.0.23
+   Compiling crypto-common v0.2.2
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-eval)
+   Compiling block-buffer v0.12.1
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-config)
+   Compiling const-oid v0.10.2
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling serde_json v1.0.151
+   Compiling digest v0.11.3
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-model)
+   Compiling cpufeatures v0.3.1
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.11.0
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-store)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error[E0282]: type annotations needed
+   --> crates/dive-liveness/tests/periodic_snapshot.rs:405:9
+    |
+405 |         assert_eq!(pause.receipt().claimed(), []);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+
+error[E0283]: type annotations needed
+   --> crates/dive-liveness/tests/periodic_snapshot.rs:405:9
+    |
+405 |         assert_eq!(pause.receipt().claimed(), []);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+    |
+    = note: multiple `impl`s satisfying `u64: PartialEq<_>` found in the following crates: `core`, `serde_json`:
+            - impl PartialEq for u64;
+            - impl PartialEq<serde_json::Value> for u64;
+    = note: required for `&[u64]` to implement `PartialEq<[_; 0]>`
+
+error[E0283]: type annotations needed
+   --> crates/dive-liveness/tests/periodic_snapshot.rs:406:9
+    |
+406 |         assert_eq!(pause.receipt().completed(), []);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+    |
+    = note: multiple `impl`s satisfying `u64: PartialEq<_>` found in the following crates: `core`, `serde_json`:
+            - impl PartialEq for u64;
+            - impl PartialEq<serde_json::Value> for u64;
+    = note: required for `&[u64]` to implement `PartialEq<[_; 0]>`
+
+Some errors have detailed explanations: E0282, E0283.
+For more information about an error, try `rustc --explain E0282`.
+error: could not compile `dive-liveness` (test "periodic_snapshot") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

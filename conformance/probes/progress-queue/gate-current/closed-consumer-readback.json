@@ -1,0 +1,30 @@
+{
+  "production_commit": "ce0007152798eb46481845557a85d49e40dee4eb",
+  "closed_consumers": true,
+  "rust_cargo_git_live_gzip_pairs": 420,
+  "workspace_stages": 42,
+  "workspace_tests": 1017,
+  "zero_skip": true,
+  "reference_method_rows": 33,
+  "reference_scope": "Real method/model controls with explicitly controlled injections; not ordinary native parity",
+  "native_request_rows_per_epoch": 40,
+  "isolated_timer_request_replays": 8,
+  "fresh_eof_replays_per_epoch": 8,
+  "request_replay_scope": "new-request4+EOF8 fresh Valid memory/JSON and48 Invalid mutants; old-timer4 retained separately; per-epoch data are not summed as distinct model coverage",
+  "required_models": {
+    "examples": 21,
+    "validation-smoke": 16,
+    "workers": [
+      1,
+      4,
+      8
+    ]
+  },
+  "immutable_binary_sha256": {
+    "dive": "d72c0b903602f90d0cac7bccf810834a87a8a6c6000553bed2d820ac1cdb86ec",
+    "dive-conformance": "3c9ecf5a8ee58a29ae3d56fc05eab54b352786a99256c85917d7e2ee25231ef1",
+    "progress-requests-guide": "267aae673751ff12cbe2d9871581f119ce39dce494adb30fcc9095bf65c1450a"
+  },
+  "ordinary_schedule_certified": false,
+  "model_proof": false
+}

@@ -1,0 +1,20 @@
+{
+  "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
+  "source_sha256": {
+    "crates/dive-check/src/capture.rs": "d37e585e14ee0c606de70d7412fff0709bcb4dc161fc01b15dc3a9070426039a",
+    "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
+    "crates/dive-check/src/parallel.rs": "0c1a7453751c5423ee1e04fe5a25dd14f4699a3907413eb8635a21d09536a5b8",
+    "crates/dive-check/tests/observer_barrier.rs": "f5d399607add125595624b0cadead6e0fa71eb770f2986a12c1f04f3cad1dac7",
+    "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
+    "crates/dive-liveness/src/phase_execution.rs": "203795e697118e6a57e1570bdfa1854419822552dcd70a42b913afb6354c561b",
+    "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
+    "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
+    "crates/dive-liveness/tests/periodic_backend.rs": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
+    "crates/dive-api/examples/periodic_backend.rs": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
+    "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
+    "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
+    "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
+    "conformance/parity-features.json": "51aba76eff5080f9706729dbff37e8a5cba73e5ab0cdb0f1ff501a1f54a5e59c"
+  },
+  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification."
+}

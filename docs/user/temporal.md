@@ -115,3 +115,5 @@ The [native lifecycle diagnostic](../native-periodic-lifecycle.md) connects inte
 [Pure supplied periodic expressions](../periodic-hook.md) can be composed diagnostically at real native pauses. Ordinary configured hook binding, checkpoints and scheduler verdicts remain refused; no TRUE hook result means temporal Holds.
 
 The [configuration-owned snapshot diagnostic](../configured-periodic-snapshot.md) selects the actual pure `_PERIODIC` body before constant caching and preserves its configured name and original definition. This separate Rust API does not enable ordinary CLI scheduling or temporal proof.
+
+The [producer-owned request diagnostic](../producer-progress-requests.md) adds real expansion claim/pause receipts to the configured snapshot. Completed uncommitted output is not a temporal graph write; ordinary periodic checking remains unsupported. Its runnable Cargo example documents the separate request/controller force policies.

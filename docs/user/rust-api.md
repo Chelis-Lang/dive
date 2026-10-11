@@ -98,3 +98,5 @@ The [native clock/dispatch lifecycle](../native-periodic-lifecycle.md) adds `div
 The [pure supplied periodic-expression diagnostic](../periodic-hook.md) adds `dive_liveness::periodic_hook::execute`. It holds real native dispatch authority, but does not bind configured `_PERIODIC` or certify an ordinary verdict. Its Cargo-owned example documents original typed errors and bounds.
 
 The [configuration-owned periodic snapshot](../configured-periodic-snapshot.md) adds `dive_liveness::periodic_snapshot::bind` and private `Snapshot::execute`. Run `cargo run -p dive-api --example periodic_snapshot --locked`; source/startup admission precedes binding. The exposed Model retains ordinary-check refusal, and the diagnostic result never certifies a model.
+
+`PeriodicSnapshot::execute_requests` exposes producer-clock expansion request diagnostics; [Cargo example and receipt contract](../producer-progress-requests.md). It adds no ordinary model verdict or schedule proof.

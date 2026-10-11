@@ -245,3 +245,88 @@ fn actual_dispatch_pause_and_eof_are_not_prefix_inferences() {
         assert_eq!(observer.eof, 0);
     }
 }
+
+struct RequestFailure {
+    unwind: bool,
+    calls: usize,
+    eof: usize,
+    width: usize,
+}
+impl SourceObserver for RequestFailure {
+    fn source(&mut self, _: CommittedSource<'_>) -> Result<(), String> {
+        panic!("failed prepublication request must not commit a source");
+    }
+    fn progress_requests(&self) -> Option<dive_check::progress::Options> {
+        Some(dive_check::progress::Options {
+            interval: std::time::Duration::from_millis(1),
+            force: true,
+        })
+    }
+    fn expansion_quiescent(
+        &mut self,
+        receipt: capture::ExpansionQuiescence,
+        pause: &capture::DispatchPause<'_>,
+    ) -> Result<(), String> {
+        self.calls += 1;
+        assert_eq!(pause.workers(), self.width);
+        assert_eq!(receipt.claimed(), &[] as &[u64]);
+        assert_eq!(receipt.completed(), &[] as &[u64]);
+        assert!(!receipt.model_proof());
+        assert!(!self.unwind, "controlled actual request observer unwind");
+        Err("controlled actual request observer error".into())
+    }
+    fn exploration_complete(&mut self, _: &capture::ExplorationEnd) -> Result<(), String> {
+        self.eof += 1;
+        Ok(())
+    }
+}
+#[test]
+fn actual_request_observer_error_and_unwind_close_timer_and_pool_without_eof() {
+    for width in [1, 4, 8] {
+        for unwind in [false, true] {
+            let options = CheckOptions {
+                workers: width,
+                ..CheckOptions::tlc(0, 0)
+            };
+            let bound = model(
+                "---- MODULE Barrier ----\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nInv == TRUE\n====\n",
+                &options,
+            );
+            let mut observer = RequestFailure {
+                unwind,
+                calls: 0,
+                eof: 0,
+                width,
+            };
+            let result = capture::explore_observed_with_evidence(
+                &bound,
+                &options,
+                capture::Limits::default(),
+                &mut observer,
+            );
+            assert_eq!(observer.calls, 1);
+            assert_eq!(observer.eof, 0);
+            if unwind {
+                assert_eq!(result.err().as_deref(), Some("exploration thread panicked"));
+            } else {
+                let Exploration::Stopped(stop) = result.expect("typed stop") else {
+                    panic!("observer error cannot complete");
+                };
+                assert!(
+                    matches!(stop.verdict, dive_check::Verdict::Unsupported { ref feature } if feature == "controlled actual request observer error")
+                );
+                assert_eq!(stop.workers.used, width);
+            }
+            // A fresh real exploration proves no waiting worker/timer prevents
+            // normal dispatch after either control. No failed graph is reused.
+            assert!(matches!(
+                capture::explore_concrete_parallel_with_evidence(
+                    &bound,
+                    &options,
+                    capture::Limits::default()
+                ),
+                Ok(Exploration::Complete(_))
+            ));
+        }
+    }
+}

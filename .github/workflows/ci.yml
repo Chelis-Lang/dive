@@ -121,6 +121,7 @@ jobs:
           python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
           python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
           python3 -I scripts/check-periodic-snapshot.py
+          python3 -I scripts/check-progress-queue.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Verify complete test partitions

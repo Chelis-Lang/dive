@@ -1490,6 +1490,40 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
 }
 
 impl SourceObserver for Observer<'_> {
+    fn progress_requests(&self) -> Option<dive_check::progress::Options> {
+        self.lifecycle.as_ref().and_then(|state| state.requests)
+    }
+    fn expansion_requests_cancelled(&mut self, pending: Option<dive_check::progress::Request>) {
+        if let Some(state) = &mut self.lifecycle {
+            state.requests_cancelled = true;
+            state.aborted_request = pending;
+        }
+    }
+    fn expansion_quiescent(
+        &mut self,
+        receipt: capture::ExpansionQuiescence,
+        pause: &capture::DispatchPause<'_>,
+    ) -> Result<(), String> {
+        // Charge before retaining each bounded at-most-eight-source receipt.
+        let cost = 1usize
+            .checked_add(receipt.claimed().len())
+            .and_then(|c| c.checked_add(receipt.completed().len()))
+            .and_then(|c| c.checked_add(receipt.failed().len()));
+        let result = self.partial_charge(cost).and_then(|()| {
+            let Some(state) = &mut self.lifecycle else {
+                return Err(Error::Input("request pause without owned lifecycle".into()));
+            };
+            state
+                .expansion_pauses
+                .push(crate::periodic_lifecycle::ExpansionPause {
+                    receipt,
+                    workers: pause.workers(),
+                    generation: pause.generation(),
+                });
+            Ok(())
+        });
+        self.retain(result)
+    }
     fn initial(
         &mut self,
         _id: u64,
@@ -1657,6 +1691,17 @@ pub(crate) fn execute_periodic_lifecycle_hook(
     policy: crate::periodic_lifecycle::Options,
     hook: Option<(dive_model::Pred, usize)>,
 ) -> crate::periodic_lifecycle::Run {
+    execute_periodic_lifecycle_requests(model, options, limits, policy, hook, None)
+}
+
+pub(crate) fn execute_periodic_lifecycle_requests(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+    requests: Option<dive_check::progress::Options>,
+) -> crate::periodic_lifecycle::Run {
     let mut failed_state = None;
     let outcome = execute_inner(
         model,
@@ -1664,7 +1709,7 @@ pub(crate) fn execute_periodic_lifecycle_hook(
         limits,
         true,
         Some(policy.backend),
-        Some((policy, hook)),
+        Some((policy, hook, requests)),
         Some(&mut failed_state),
     );
     let (backend, state) = match outcome {
@@ -1697,9 +1742,40 @@ pub(crate) fn execute_periodic_lifecycle_hook(
             failed_state,
         ),
     };
-    let (invocations, final_checks, eof, hook_evaluations) = state.map_or_else(
-        || (Vec::new(), Vec::new(), None, Vec::new()),
-        |s| (s.invocations, s.final_checks, s.eof, s.hook_evaluations),
+    let (
+        invocations,
+        final_checks,
+        eof,
+        hook_evaluations,
+        expansion_pauses,
+        request_options,
+        requests_cancelled,
+        aborted_request,
+    ) = state.map_or_else(
+        || {
+            (
+                Vec::new(),
+                Vec::new(),
+                None,
+                Vec::new(),
+                Vec::new(),
+                requests,
+                false,
+                None,
+            )
+        },
+        |s| {
+            (
+                s.invocations,
+                s.final_checks,
+                s.eof,
+                s.hook_evaluations,
+                s.expansion_pauses,
+                s.requests,
+                s.requests_cancelled,
+                s.aborted_request,
+            )
+        },
     );
     crate::periodic_lifecycle::Run {
         backend,
@@ -1708,6 +1784,10 @@ pub(crate) fn execute_periodic_lifecycle_hook(
         final_checks,
         eof,
         hook_evaluations,
+        expansion_pauses,
+        request_options,
+        requests_cancelled,
+        aborted_request,
     }
 }
 
@@ -1720,6 +1800,12 @@ type ExecutionParts = (
     Option<crate::periodic_lifecycle::State>,
 );
 
+type LifecycleInput = (
+    crate::periodic_lifecycle::Options,
+    Option<(dive_model::Pred, usize)>,
+    Option<dive_check::progress::Options>,
+);
+
 #[allow(
     clippy::too_many_lines,
     reason = "preserve original execution error/prefix facts with optional partial checks"
@@ -1730,10 +1816,7 @@ fn execute_inner(
     limits: Limits,
     partial: bool,
     periodic: Option<Policy>,
-    lifecycle: Option<(
-        crate::periodic_lifecycle::Options,
-        Option<(dive_model::Pred, usize)>,
-    )>,
+    lifecycle: Option<LifecycleInput>,
     lifecycle_failure: Option<&mut Option<crate::periodic_lifecycle::State>>,
 ) -> Result<ExecutionParts, Box<PartialFailure>> {
     let early = |error| {
@@ -1774,9 +1857,13 @@ fn execute_inner(
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
     let lifecycle = lifecycle
-        .map(|(options, hook)| {
+        .map(|(options, hook, requests)| {
+            if let Some(requests) = requests {
+                requests.validate().map_err(Error::Input)?;
+            }
             let mut state = crate::periodic_lifecycle::State::new(options)?;
             state.hook = hook;
+            state.requests = requests;
             Ok(state)
         })
         .transpose()

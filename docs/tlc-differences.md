@@ -2243,3 +2243,7 @@ retained local_update controls are primary missing-label errors while raw native
 lowering admits them; neither receives compatible artifact credit here. Read
 [the procedure checksum guide](pluscal-procedure-checksums.md) for exact scope,
 D-020 fair-header CRC limits and strict #124 pending replay.
+
+### Progress-request/worker stopping boundary (#201)
+
+The [producer-clock Rust diagnostic](producer-progress-requests.md) now has a real expansion claim barrier and joined dispatch pause. It still cannot use an uncommitted expansion as a written temporal graph. Complete33 actual pinned method controls retain successful resume, early temporal/hook stops, evaluation errors, real EOF and failed Init. At widths1/4/8, early temporal2116 and false-hook2104 return with workers alive; later probe cleanup joins are not original runTLC behavior. A worker division-by-zero sets2179 with keepCallStack=true while runTLC itself returns0, so that return is not model-check success. These are measured method boundaries, not newly declared TLC bugs or ordinary native parity. Ordinary scheduling/count/checkpoint/model-proof authority remains unfinished.

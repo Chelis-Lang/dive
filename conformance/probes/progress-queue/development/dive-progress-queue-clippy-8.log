@@ -1,0 +1,31 @@
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/observer_barrier.rs:272:9
+    |
+272 |         assert!(receipt.claimed().is_empty());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+    = note: `-D clippy::assert-is-empty` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::assert_is_empty)]`
+help: use `assert_eq!` to show the value on failure
+    |
+272 -         assert!(receipt.claimed().is_empty());
+272 +         assert_eq!(receipt.claimed(), []);
+    |
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/observer_barrier.rs:273:9
+    |
+273 |         assert!(receipt.completed().is_empty());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+help: use `assert_eq!` to show the value on failure
+    |
+273 -         assert!(receipt.completed().is_empty());
+273 +         assert_eq!(receipt.completed(), []);
+    |
+
+error: could not compile `dive-check` (test "observer_barrier") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

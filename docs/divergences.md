@@ -782,3 +782,6 @@ comparison, construction or Random/VIEW shape policy. A transported word is not
 a certificate. Reverse construction, arbitrary deferred/symbolic values and
 trusted-storage tuple bit loss (#195) remain separate. See
 [the schema and bounded CLI/API guide](trace-representation.md).
+
+
+Producer request limitation (#201): [the bounded Rust diagnostic](producer-progress-requests.md) stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
