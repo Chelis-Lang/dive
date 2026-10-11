@@ -5,6 +5,10 @@ use sha2::{Digest, Sha256};
 use std::sync::Arc;
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "complete corruption matrix with exact partial-prefix evidence"
+)]
 fn corrupt_name_tables_refuse_without_continuation_or_a_witness() {
     let source = include_str!(
         "../../../conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla"
@@ -107,7 +111,7 @@ fn corrupt_name_tables_refuse_without_continuation_or_a_witness() {
                 );
                 assert!(result.receipt.is_none());
                 assert!(result.check.counterexample.is_none());
-                assert!(result.check.output.is_empty());
+                assert_eq!(result.check.output, [] as [String; 0]);
                 if kind == 2 {
                     // The decoder imported exactly the two valid predecessors
                     // before the missing token: truthful prefix evidence, not

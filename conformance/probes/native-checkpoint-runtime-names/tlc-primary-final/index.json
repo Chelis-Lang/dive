@@ -1,0 +1,455 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "852063c1fa1f1bead834c9aaac7c6e378cc33f08637593d43611dfb452e55ef7",
+  "trace_capture": "clean primary tool/human trace; no dumpTrace flags",
+  "source_sha256": {
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.tla": "a20d6690e9ac04cb890c7ef555e42df1a0da61ffae015e99d2cc3097b5151bc0",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.tla": "a36143c893620ad783d13410cff2633dc2aab8f718d51b7943d8184c85367731",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.tla": "7b1baf2707e31222c5bc62d4b6464e0134b1fc0febfe705557cdfc0d5b5695c6",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.cfg": "fce66b794dd5de712cd99ed7fff2e4c65d8d743ef0e3fddccc42eb72337683ab",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla": "10e3d1905785c1fe19c189e34389f1335a13fecde9255898a6eaacab3410055a",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.tla": "cc6cbc496f42f51b2119e4a3c0809c28583e615baf1f5457a2328ceb453c8653",
+    "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.cfg": "6fbedf0ea05aaf5ed12b60d52a579f56a3c0b446e3d99f9f093cb6c6e44e9cc1"
+  },
+  "controls": [
+    {
+      "case": "RuntimeChoose",
+      "seed": 0,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-r7mi27ok",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.tla"
+      ],
+      "stdout": "RuntimeChoose-seed0.stdout",
+      "stdout_sha256": "cd6ca7e887d33ec5903a0ff1b4d18ff0e9e85a0d31ea5f737b39edd92e1970d3",
+      "stderr": "RuntimeChoose-seed0.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        37,
+        37,
+        11
+      ]
+    },
+    {
+      "case": "RuntimeChoose",
+      "seed": 7,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "7",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-0i0pgjda",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.tla"
+      ],
+      "stdout": "RuntimeChoose-seed7.stdout",
+      "stdout_sha256": "2d3cb6c74fdd6441fd75a8d8c2ed8b09632dd3e20861db6dd65370a123e1adde",
+      "stderr": "RuntimeChoose-seed7.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        37,
+        37,
+        11
+      ]
+    },
+    {
+      "case": "RuntimeChoose",
+      "seed": 14,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "14",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-pt1rbfz6",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeChoose/RuntimeChoose.tla"
+      ],
+      "stdout": "RuntimeChoose-seed14.stdout",
+      "stdout_sha256": "e286ea81b35f2a14ff940e1d56c5505df1f45e8bc8e59ac278699c7afae7353f",
+      "stderr": "RuntimeChoose-seed14.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        37,
+        37,
+        11
+      ]
+    },
+    {
+      "case": "RuntimeDuplicates",
+      "seed": 0,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-6groxdch",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.tla"
+      ],
+      "stdout": "RuntimeDuplicates-seed0.stdout",
+      "stdout_sha256": "7f1d1f8ab7eb1e3521866381691e7d0d9e761b4ceee8945f8cad547a3552162d",
+      "stderr": "RuntimeDuplicates-seed0.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        6,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeDuplicates",
+      "seed": 7,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "7",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-xuyyvhcf",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.tla"
+      ],
+      "stdout": "RuntimeDuplicates-seed7.stdout",
+      "stdout_sha256": "3f78275fdabc925b6504d6265b491113d17a803d350cda8a3bf5a12a0dbc17c4",
+      "stderr": "RuntimeDuplicates-seed7.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        6,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeDuplicates",
+      "seed": 14,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "14",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-keucem80",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeDuplicates/RuntimeDuplicates.tla"
+      ],
+      "stdout": "RuntimeDuplicates-seed14.stdout",
+      "stdout_sha256": "7738ad64f1588987b9bd2601a67871303cf38991b748153833f711c237b9cbf0",
+      "stderr": "RuntimeDuplicates-seed14.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        6,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeSequence",
+      "seed": 0,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-j470cbjs",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.tla"
+      ],
+      "stdout": "RuntimeSequence-seed0.stdout",
+      "stdout_sha256": "e3e644b2fe75582e18697e26f21b0f64b018d3338e2ec731228a71d2fe4e485c",
+      "stderr": "RuntimeSequence-seed0.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeSequence",
+      "seed": 7,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "7",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-bovog92z",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.tla"
+      ],
+      "stdout": "RuntimeSequence-seed7.stdout",
+      "stdout_sha256": "71ba1070ae97e5941172528778bda0fc4985a5ada7abe21c74a2726c2ecc3c6c",
+      "stderr": "RuntimeSequence-seed7.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeSequence",
+      "seed": 14,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "14",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-b8_sl79g",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSequence/RuntimeSequence.tla"
+      ],
+      "stdout": "RuntimeSequence-seed14.stdout",
+      "stdout_sha256": "d63183969c2e44795e42543ff467777fe0fb5846d7c0fdffcc3fa783f53e161e",
+      "stderr": "RuntimeSequence-seed14.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeStrings",
+      "seed": 0,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-iee7nn9w",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla"
+      ],
+      "stdout": "RuntimeStrings-seed0.stdout",
+      "stdout_sha256": "3079431e422129662980af95bec5c8cee6e1bed5917c7c1dd2f12de87a51cf16",
+      "stderr": "RuntimeStrings-seed0.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeStrings",
+      "seed": 7,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "7",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-m1wpmc8f",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla"
+      ],
+      "stdout": "RuntimeStrings-seed7.stdout",
+      "stdout_sha256": "9f374d3da84a8d85aa5fc66a69fe0f19f408fab27280795b1919a0c881a4d60e",
+      "stderr": "RuntimeStrings-seed7.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeStrings",
+      "seed": 14,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "14",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-ykaz343s",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla"
+      ],
+      "stdout": "RuntimeStrings-seed14.stdout",
+      "stdout_sha256": "add219b6d64c5c9e1cc486a3345393bb0647d8e940ed9c6b798039e5766ac8ee",
+      "stderr": "RuntimeStrings-seed14.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeSymView",
+      "seed": 0,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-kufw94wc",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.tla"
+      ],
+      "stdout": "RuntimeSymView-seed0.stdout",
+      "stdout_sha256": "fb3f743d95686fb73064f445bc789f07f5eed6776898a9d530ed291c111761e4",
+      "stderr": "RuntimeSymView-seed0.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeSymView",
+      "seed": 7,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "7",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-fbsc9zi1",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.tla"
+      ],
+      "stdout": "RuntimeSymView-seed7.stdout",
+      "stdout_sha256": "7d646776180b31d0925c07dd1e954c186fb9ad9dd20ecf0e1de08c44bf9bf443",
+      "stderr": "RuntimeSymView-seed7.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    },
+    {
+      "case": "RuntimeSymView",
+      "seed": 14,
+      "exit": 12,
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "14",
+        "-cleanup",
+        "-metadir",
+        "/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-native-name-primary-y3r5hvfs",
+        "-config",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.cfg",
+        "/Users/jeff/code/dive-checkpoint-runtime-strings-work/conformance/probes/native-checkpoint-runtime-names/specs/RuntimeSymView/RuntimeSymView.tla"
+      ],
+      "stdout": "RuntimeSymView-seed14.stdout",
+      "stdout_sha256": "ae007185c0ad4289dc9d8939dce6c1cc3742ba1a67e99973a5b6accc83757be9",
+      "stderr": "RuntimeSymView-seed14.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": [
+        4,
+        4,
+        0
+      ]
+    }
+  ]
+}
