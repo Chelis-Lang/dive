@@ -50,13 +50,13 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
+    "crates/dive-check/src/capture.rs": "218e6e995792f35999017fe88332952ee1ce9b2517865e983b4b4e6aa077f736",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "5424ae75ba41ce8b0e112c68fcfd8a821824289222b5e836eade3b28abb6e836",
-    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
+    "crates/dive-check/src/engine.rs": "d012b31d2e95f05e0a83b67e2599eab11084a500fbd0554289cf252ceecaf038",
+    "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
-    "crates/dive-liveness/src/lib.rs": "8bc4dfd0daee87e938e55dedb92660c8b5ed099982cbba3334186e38057a6c53",
-    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
+    "crates/dive-liveness/src/lib.rs": "785bbceaa3c2ceb0f07e02ea31083e656b72a6cc71a787ae3b2070affad93a52",
+    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
     "crates/dive-liveness/src/phase_l.rs": "d0a8635f992be8c0e4074745d7e668b18616e44b80eca3f62e8629707bbbb4e3",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"

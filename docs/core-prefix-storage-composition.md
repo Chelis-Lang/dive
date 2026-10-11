@@ -69,3 +69,45 @@ contains source, logs and independent readback controls. Production Rust,
 Cargo/toolchain inputs and all literal fixture sites match the original runtime
 producer. The 41 existing runtime campaigns retain `05b3a1ef`; splitting tests
 does not re-execute or retag those campaigns.
+
+The initial eight-job CI split subsequently passed seven partitions but timed
+out in the remaining partition on a Linux runner. The current CI declaration
+uses sixteen disjoint partitions with the same complete tests and unchanged
+timeouts. The retained failed log and scheduling contract are in the
+[CI matrix record](../conformance/probes/ci-storage-matrices/README.md).
+This scheduling continuation requires its own qualification; the earlier
+`d21ea2c6` gate and `05b3a1ef` runtime receipts retain their producer identities.
+
+The frozen sixteen-partition scheduling producer `3dcabae1` has now passed
+all 72 local gate commands, including all 1,648 tests with zero skips. Its
+[separate receipt](../conformance/probes/ci-storage-matrices/epochs/3dcabae15a7dbfcbd093cc1eb654beeaf693addf/index.json)
+records the complete, disjoint inventory and independent corruption controls.
+The existing native runtime and test-splitting epochs keep their own producers.
+
+## Next receiving composition
+
+The receiving branch adds four bounded capabilities. They are implemented in
+source and passed their separate component campaigns. Fresh combined
+qualification is still pending; the preceding frozen epochs remain the evidence
+for the earlier composition.
+
+- [Recursive procedure checksums](pluscal-recursive-procedure-checksums.md)
+  extend source-preserving PlusCal Full editing to the documented sequential
+  procedure forms. Unsupported source shapes retain named refusals; this does
+  not authorize general saved-stack replay.
+- [Optional configured hooks](optional-periodic-hook.md) admit the bounded
+  periodic diagnostic path without requiring a synthetic configured hook.
+- [Terminal periodic service](terminal-periodic-service.md) and
+  [stopped-worker service](stopped-periodic-service.md) distinguish an actual
+  owned EOF from an owned first source error. The latter preserves its original
+  error and completed prefix, and reports any diagnostic failure separately.
+  These are Rust diagnostics, not ordinary temporal checking verdicts.
+- [Pure disk safety roles](user/disk-seen-safety.md) permit the proved bounded
+  state/action PROPERTY forms and safety-only SPEC decomposition in disk mode.
+  Temporal, effectful and unproved role shapes still refuse before execution.
+
+Each guide provides the usable API or CLI route, its restrictions and executable
+examples. Independent replay remains separate from the checker’s enumerator.
+Neither a component pass nor a current source hash promotes a whole TLC feature
+family to certified parity. The receiving branch must rebuild and rerun its
+combined cases before these additions receive a shipping qualification.

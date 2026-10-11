@@ -10,9 +10,9 @@
     "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
     "crates/dive-api/tests/optional_periodic_candidate.rs": "3d57f3266ff659986b003b50ea09d1f388445847a92dd05b8aea4103eb1baa27",
     "crates/dive-api/examples/optional_periodic_candidate.rs": "810f64b605e82167a8f6ddf71ff68aec4119247a109f7e06c99ba745f6b75dac",
-    "crates/dive-model/src/lib.rs": "e8e06232e2dbfffa5a7add765e9f31313eff1a9568d2f77b15651aa8e70abda9",
-    "crates/dive-model/src/bind.rs": "3d2d73ad25247ea2c5f64f650371ae8e48c360b4db425cceba84adccac341de0",
-    "crates/dive-model/src/spec.rs": "1aded7aef71f5dac3e4f0558fa800828c854b8c88b4d7ed026a3a3c1d84b308f",
+    "crates/dive-model/src/lib.rs": "18306b5b35f2efb53e8c5fd3bd5f8ffc364cf929bed00a22d69eb0c29a4b5cc8",
+    "crates/dive-model/src/bind.rs": "ff64d41a152ecc9cd685dfb9a5dda76f4a45e7baa53a768f9a2249db21fe5ad7",
+    "crates/dive-model/src/spec.rs": "c980e47c12f42ba3d03b63586d05535d340afed62ae729b686d985b939684a78",
     "crates/dive-model/src/periodic.rs": "32c95125afe0c2cf6613c71a2660b22f5846b1d54a6674150bd0fd011d42450e",
     "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
@@ -20,9 +20,9 @@
     "docs/optional-periodic-hook.md": "579410a054dbb8212f757d12f46bdb320124121167e8c9318fbc7a7926515016",
     "docs/decisions/0074-optional-configured-periodic-hook.md": "993d14c3e88492456ec1452c88f08913e7ee69bb3d098d57f453cb8a4c2c321c",
     "scripts/check-optional-periodic-hook.py": "f10b54bf8570fd19f5abac4cdcfe974ce8c46cc8dfde8c0579964721799d296e",
-    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e",
-    "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
-    ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340"
+    "conformance/parity-features.json": "f53277956784642fc913c81b4653c3e4c6cd2926d06b636f507b34c794dac436",
+    "AGENTS.md": "361d07e7cbcad020199d259725681a2b1438c710f7754b5d60c3e943f3b1990d",
+    ".github/workflows/ci.yml": "1282422f4d6fc6880240f7a3caef233895f3de236cfbe0b8339ae72f823d194e"
   },
-  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

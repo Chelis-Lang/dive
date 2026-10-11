@@ -42,3 +42,20 @@ Concrete temporal state representation: [Stored successor values](../stored-succ
 
 - [Stopped-worker periodic diagnostics in Rust](../stopped-periodic-service.md):
   original source winner, private transaction facts and separate diagnostic faults.
+
+
+The following receiving additions have component-level evidence. They still
+require a fresh combined build and campaign before shipping qualification:
+
+- [Recursive procedure checksum editing](../pluscal-recursive-procedure-checksums.md)
+  describes the admitted sequential recursive forms, Full/body-only editing and
+  CLI/Rust examples. General saved-stack replay still refuses.
+- [Optional configured periodic hooks](../optional-periodic-hook.md) describes
+  the bounded diagnostic route without a synthetic hook.
+- [Terminal periodic diagnostics](../terminal-periodic-service.md) and
+  [stopped-worker diagnostics](../stopped-periodic-service.md) describe real
+  owned EOF and first-error prefixes. These APIs preserve source errors and
+  cannot establish ordinary temporal model proof.
+- [Pure disk safety properties](disk-seen-safety.md) describes admitted pure
+  state/action properties and safety-only SPEC roles, with named pre-execution
+  refusals for temporal or effectful roles.

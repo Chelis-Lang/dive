@@ -1,0 +1,19 @@
+{
+  "producer": "3dcabae15a7dbfcbd093cc1eb654beeaf693addf",
+  "selected_inputs": 857,
+  "literal_sites": 70,
+  "tests": 1648,
+  "ci_partitions": 16,
+  "gate_commands": 72,
+  "family_certified": false,
+  "rejected_rehashed_semantic_controls": [
+    "family",
+    "unfinished",
+    "runtime-retag",
+    "runtime-claim",
+    "failed-command",
+    "missing-command",
+    "skipped-tests",
+    "incomplete-partitions"
+  ]
+}
