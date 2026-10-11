@@ -1,0 +1,15 @@
+   Compiling serde v1.0.229
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-pluscal)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.97s
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-ir)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-eval)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-stdlib)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-conformance)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.14s

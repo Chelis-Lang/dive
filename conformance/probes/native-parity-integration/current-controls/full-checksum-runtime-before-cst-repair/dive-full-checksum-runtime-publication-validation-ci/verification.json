@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "source_commit": "d7c4f5911a1e68d21a10f67bb3bee0546d6448c6",
+  "family_certified": false,
+  "binary_sha256": {
+    "dive": "a99dd25ae42248656f9aaeca489077ce19e16d43f884eec380c7b23f481877c3",
+    "dive-conformance": "cb2241ecf95531f5c16ab0e706b1c573e322d4f263a4a4c1f3153c5fade9e353"
+  },
+  "controls": [
+    {
+      "source_commit": "d7c4f5911a1e68d21a10f67bb3bee0546d6448c6",
+      "command": [
+        "/Users/jeff/code/dive-full-checksum-runtime-publication-artifacts/dive-conformance",
+        "run",
+        "--impl",
+        "dive",
+        "--impl-profile",
+        "tlc",
+        "--corpus",
+        "validation-smoke",
+        "--tier",
+        "all",
+        "--no-sany",
+        "--no-summary",
+        "--workers",
+        "1,4,8",
+        "--timeout",
+        "30",
+        "--dive-bin",
+        "/Users/jeff/code/dive-full-checksum-runtime-publication-artifacts/dive",
+        "--report-dir",
+        "/private/tmp/dive-full-checksum-runtime-publication-validation-ci/validation-smoke",
+        "--filter",
+        "specifications/06cb41f6d429e5df49e3648fa0c09fcd9dd41244/TLC_M0.cfg",
+        "--filter",
+        "specifications/1433cf727e0e566bdfdca64b1b72b30a32716461/TLC_M0.cfg",
+        "--filter",
+        "specifications/24f15a44b2df798de8c821d6fe3f677722ac1808/TLC_M0.cfg",
+        "--filter",
+        "specifications/3870929418abe4114f36583a9a4d04798480ce4f/TLC_M0.cfg",
+        "--filter",
+        "specifications/4e97856939057fc81a11c6e4e811523e016df94c/TLC_M0.cfg",
+        "--filter",
+        "specifications/5d9425415c79d7fd9b6407f9eb3d100716e6bc2a/TLC_M0.cfg",
+        "--filter",
+        "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.cfg",
+        "--filter",
+        "specifications/7c339496ea8de87b0e9f449e814d23b81215a07d/TLC_M0.cfg",
+        "--filter",
+        "specifications/90fd9daab81221afee6ce88c42448621ec9afb45/TLC_M0.cfg",
+        "--filter",
+        "specifications/94dc14331d9da5603c31466dffc5b4cca2094178/TLC_M0.cfg",
+        "--filter",
+        "specifications/9b33484778609a0a78ef2dae93ea8780283e5604/TLC_M0.cfg",
+        "--filter",
+        "specifications/aca89d8f9ace59a5fd7716214cc8866242eb7135/TLC_M0.cfg",
+        "--filter",
+        "specifications/afb5a158cc0289c80fb1a9285d646ce5c9483562/TLC_M0.cfg",
+        "--filter",
+        "specifications/db34a439da0a07814aeb80e65ca4fdb76d980551/TLC_M0.cfg",
+        "--filter",
+        "specifications/e5d7e351f1d2a4c04a6827d0297b2a90db5011ce/TLC_M0.cfg",
+        "--filter",
+        "specifications/f85a8c8b070809cb0f54c081da908852bbb949be/TLC_M0.cfg"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.2832156250000004,
+      "selected_models": 16,
+      "selection_sha256": "76748a2ea72773b44d156eadf5faf9edada3d9048996c0fccd5b973f8e1fbe57",
+      "workers": [
+        1,
+        4,
+        8
+      ],
+      "every_model_and_width_agrees": true
+    }
+  ],
+  "files_sha256": {
+    "validation-smoke.command.json": "2c1b5a8136cec7937ff9135fdf37f0e5d530e75a4e2f32c3692f1993e6059d62",
+    "validation-smoke.log": "650cb7cae6207959942569043be08458922e326ea74ad998bd3c9d423f45dc28",
+    "validation-smoke/20261011T012538800-dive-all.json": "c045f3bd920a7c53768adc9dfc7939945dd7296726bf166af225774ed40ca73f"
+  }
+}
