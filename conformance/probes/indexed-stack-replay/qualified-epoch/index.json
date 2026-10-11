@@ -685,6 +685,7 @@
     "native/census/sequential-NestedProcedureCrc_P_with_return.violation-tlc.word.json.gz": "b779de8ba39deb9768c04375364ee51e72be23496e5e58d44dbff9ce77f544fa",
     "native/declared-selection.json.gz": "ff702d63d687f75873004520d93a68f0dbae5f397ca02cfc70f956703ef2e9ae",
     "native/first-final-equality.json.gz": "803589a2544b7131783d2914c3631c1d4c87088b7f399189fe65e8f64b49731c",
+    "native/guide-binary.json.gz": "a22ff8c86cead00b35a555bfca09b48e0e601231399867f8a8ff07d95ea9355d",
     "native/guide-primary-cli/dive-representation-v2.check.stderr.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
     "native/guide-primary-cli/dive-representation-v2.check.stdout.gz": "36419bb29efb1d5d8f87285b466a157afddb0501f1a5a380dd81f5ee12989861",
     "native/guide-primary-cli/dive-representation-v2.replay.stderr.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
