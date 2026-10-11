@@ -43,8 +43,8 @@
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-concrete-graph/matrix.json",
       "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
-      "source_archive": "conformance/probes/tlc-planning/historical-before-concrete-graph/sources",
-      "scope": "current main context/tableau/PhaseL source before concrete graph integration"
+      "scope": "current main context/tableau/PhaseL source before concrete graph integration",
+      "source_archive": "conformance/probes/tlc-planning/historical-before-concrete-graph/sources"
     },
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-state-if/matrix.json",
@@ -54,26 +54,26 @@
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-checkpoint/matrix.json",
       "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
-      "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources",
-      "scope": "current source before native checkpoint integration"
+      "scope": "current source before native checkpoint integration",
+      "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources"
     },
     {
       "matrix_path": "conformance/probes/native-parity-integration/history/graph/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "d2eec1d7ae3d5c2f2c0efb6b4ef9997afcf99ba078f9c07abc9ad0ee44f5e2a6",
-      "source_archive": "conformance/probes/native-parity-integration/history/graph/sources",
-      "scope": "immutable independently verified graph source before final native integration"
+      "scope": "immutable independently verified graph source before final native integration",
+      "source_archive": "conformance/probes/native-parity-integration/history/graph/sources"
     },
     {
       "matrix_path": "conformance/probes/native-parity-integration/history/conditional/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "60cb94fddec0590c909dc502d8a81c85fa4edee3661db2887aa19eb1fa0cbdd3",
-      "source_archive": "conformance/probes/native-parity-integration/history/conditional/sources",
-      "scope": "immutable independently verified conditional source before final native integration"
+      "scope": "immutable independently verified conditional source before final native integration",
+      "source_archive": "conformance/probes/native-parity-integration/history/conditional/sources"
     },
     {
       "matrix_path": "conformance/probes/native-parity-integration/history/checkpoint/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "7a8fc837073101d5d248ce2cac1a467ef52906e3dfc300ffed83f6e621a945fa",
-      "source_archive": "conformance/probes/native-parity-integration/history/checkpoint/sources",
-      "scope": "immutable independently verified checkpoint source before final native integration"
+      "scope": "immutable independently verified checkpoint source before final native integration",
+      "source_archive": "conformance/probes/native-parity-integration/history/checkpoint/sources"
     },
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-final-mode/matrix.json",
@@ -83,8 +83,8 @@
     {
       "matrix_path": "conformance/probes/native-checkpoint-parallel/before-authorities/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "b547a5b8c232e4241013661f3cddaea4ae69d63d52f72a919728292c9104b329",
-      "source_archive": "conformance/probes/native-checkpoint-parallel/before-authorities/sources",
-      "scope": "immutable combined source before deterministic native parallel checkpoint recovery"
+      "scope": "immutable combined source before deterministic native parallel checkpoint recovery",
+      "source_archive": "conformance/probes/native-checkpoint-parallel/before-authorities/sources"
     },
     {
       "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
@@ -134,7 +134,7 @@
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/capture/pure.rs": "7609a8061525a8f64bece6c69df2f35f9d6164f18853ffbffb0e7bfd7d3453ef",
-    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+    "crates/dive-check/src/engine.rs": "b08ed9456b4fa53d5fe3f75d890a5ac753e677d12da73a0a184f217e509dad9a",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "10695d924523f746981f4d097a84dd997c3cf0f63696ec7389e87f8458cdfe13",
@@ -163,10 +163,11 @@
     "scripts/check-tlc-tableau.py": "20f4901fc85e0b0a88bff61150b5813fde1453faa2e97db2d4953d6a38722897"
   },
   "transient_recovery_integration": {
-    "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
-    "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
+    "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification",
+    "source_parent": "d0d95389f413edb04b38392918f0c98585682724"
   },
+  "view_normalization_scope_addendum": "2026-10-11: current bytes after unconditional pure VIEW concrete normalization; original producer runs and matrices are preserved, not retagged. Exact before matrices and changed source bytes: conformance/probes/view-concrete-normalization/before/current-authority/.",
   "view_random_admission_previous_authority": {
     "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
     "matrix_sha256": "85ac2acc60949a72e88947bcc0b1f3282cf36a7700a8e54029d70806c06501fd",

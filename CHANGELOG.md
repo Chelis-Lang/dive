@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Normalize every concrete variable before evaluating VIEW, including ignored
+  variables and runs without symmetry. Unproved TLC normalization failures
+  explicitly refuse instead of reporting a model verdict with unprintable
+  states (#188). Preserve concrete parallel/recovered witnesses.
+
 - High-level PlusCal rewriting refuses unproved source-option declarations in
   the original file before masking old translation blocks, preventing silent
   loss of requested fairness under either checksum policy.

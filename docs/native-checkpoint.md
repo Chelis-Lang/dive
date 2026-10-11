@@ -433,3 +433,12 @@ not admit random/effectful checkpoint execution, Java archive interchange,
 temporal checkpointing or full recovery-family certification. Earlier broad
 campaigns retain their original source and executable hashes rather than being
 retagged as results of this combined producer.
+
+## Concrete normalization before VIEW
+
+The configured key path deep-normalizes every concrete variable before VIEW,
+even when the projection ignores that variable. Recovered states use that
+same path. Unsupported normalization/deferred values refuse explicitly;
+archive equivalence never establishes Init or Next, and counterexamples
+still contain concrete states. The [normalization controls](../conformance/probes/view-concrete-normalization/README.md) pair pure VIEW recovery with independent
+concrete witness and changed-Init/Next controls (#188).

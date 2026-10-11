@@ -1,0 +1,65 @@
+{
+  "binary_producer": "550d959e4223e1b6fce47ffd29d039d8dfef016c",
+  "binary_sha256": "fe460a0b783d8922e73fddbca3adde3e7a5d4def5ce76849033e0dc81415ff3e",
+  "main_source": "d67e8d76388c050d8928533ca3b2d7d5572f6733",
+  "key_function_source_equal": true,
+  "rows": [
+    {
+      "workers": 1,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "statistics": {
+        "depth": 4,
+        "distinct": 4,
+        "generated": 4,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "counterexample_validation": null
+    },
+    {
+      "workers": 4,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "statistics": {
+        "depth": 4,
+        "distinct": 4,
+        "generated": 4,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "counterexample_validation": null
+    },
+    {
+      "workers": 8,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "statistics": {
+        "depth": 4,
+        "distinct": 4,
+        "generated": 4,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "counterexample_validation": null
+    }
+  ],
+  "reference_exit": 255,
+  "reference_error_code": 1000,
+  "files_sha256": {
+    "tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Compound.tla": "000fdd2836c9c079f244d7446ac96c6e9120127faf46418b208c38a4655a466c",
+    "main-w1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "main-w1.stdout": "650d0ee6ca9a9c75af57c6adc208be98e40bafae53084840ddbd80ba21c9a9dd",
+    "tlc.stdout": "192a2688473b66d1d9924c9b1f39d7873a806b5bd5f5fe307428df431dc5dc08",
+    "main-w8.stdout": "442dd6ecec5436d4afefe4afe9b48038879c4414fa8d5d9a0622c47dce3b99d9",
+    "main-w4.stdout": "35cf870fac991355b68901320c8697c54659e78b13fdcff4e1f5268aa7e29ae3",
+    "main-w4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "main-w8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6"
+  },
+  "family_certified": false
+}

@@ -512,6 +512,22 @@ TLC's normalization rules, so some heterogeneous set literals remain refusals.
 
 ---
 
+**VIEW normalization boundary (#188, 2026-10-11).** TLC normalizes every
+concrete variable before evaluating VIEW, including values the projection
+ignores. With `Init == n = 0 /\\ s = {<<1>>, [a |-> 1,b |-> 1]}`,
+`VIEW n`, and a pure incrementing `Next`, the clean pinned primary exits 255
+with EC1000 during initial fingerprinting. Earlier dive instead explored four
+states and reported an invariant violation with unprintable `s`; that output
+has no independent trace certificate. The repaired path performs the same
+normalization. Its current strict response to this unproved error-message/class
+boundary is named `unsupported`, with no counterexample, rather than a guessed
+TLC error or a completed model verdict. Canonical comparison defaults retain
+the approved D-009 rules. Compound positive cases and original/recovered
+concrete witnesses are tested in both profiles, stores and worker settings.
+[Source-qualified before and current evidence](../conformance/probes/view-concrete-normalization/README.md)
+retain the old wrong result separately; full VIEW/random and deferred-value
+support remain outside this repair.
+
 ## D-010: The order in which sets are explored
 
 | | |

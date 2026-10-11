@@ -676,3 +676,10 @@ before hiding previous translation output. Full and body-only high-level
 rewriting refuse them by name, including modified-block grants. The retained
 missing-fairness reproduction and current source-span regression are distinct
 from reference CRC/Validator limitations. See the user log and issue #182.
+
+D-009 implementation boundary (#188): pure VIEW now deep-normalizes every
+concrete variable before projection. The pinned primary exits255/EC1000 for
+an ignored reverse-ordered tuple/record set; dive explicitly refuses the
+unproved normalization/error-class case instead of a four-state violation
+with unprintable values. This is an honest implementation refusal, not a new
+result-changing default. See `conformance/probes/view-concrete-normalization/`.
