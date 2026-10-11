@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Bounded global PlusCal LOCAL and function DEFINE declarations preserve helper
+  visibility, domains and pre-state lookup in both profiles. Domain/body
+  action/temporal and recursive/name conflicts remain named refusals; artifact
+  admission, CRC matching and finite model proof remain separate reports.
 - Bounded PlusCal DEFINE helpers preserve global/local declaration order and
   pre-state helper references, with exact post-translation AST/Full CRCs.
   Recursive, action/temporal and unproved scoped declaration shapes refuse

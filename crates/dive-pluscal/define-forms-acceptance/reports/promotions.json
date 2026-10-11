@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "source_bound_promotions": [
+    {
+      "id": "define-acceptance_contexts_Context_C_local",
+      "before": "named-refusal",
+      "after": "exact-raw-ast"
+    },
+    {
+      "id": "define-acceptance_contexts_Context_C_function_definition",
+      "before": "named-refusal",
+      "after": "exact-raw-ast"
+    },
+    {
+      "id": "define-acceptance_contexts_Context_P_local",
+      "before": "named-refusal",
+      "after": "exact-raw-ast"
+    },
+    {
+      "id": "define-acceptance_contexts_Context_P_function_definition",
+      "before": "named-refusal",
+      "after": "exact-raw-ast"
+    }
+  ],
+  "before_report_sha256": "f6651de7b1cb548c266cb1e5a6efb2b5cc93f61cb8908aa4ef0d3f7b35ef525c",
+  "after_report_sha256": "32c5f30a53a330996d0cbeb705d31d633ac7b001d3d239f08e1538b68711ef7c",
+  "qualification": "All four IDs remain within unchanged original136 selection; exact primary serialized bytes andCRC are required, not only accepted status."
+}

@@ -87,8 +87,9 @@ function expressions, CASE, comments, LF/CRLF and tabs have separate captured
 scope/layout controls. Macro expansion remains limited by its own documented
 substitution contracts.
 
-Recursive operators, `RECURSIVE` declarations, LOCAL/symbolic/function-definition
-or INSTANCE declarations, action/temporal helpers, procedure/DEFINE scopes,
+Bounded pure global LOCAL/function definitions are now described in
+[the function-definition guide](pluscal-definition-forms.md). Recursive operators,
+`RECURSIVE` declarations, symbolic or INSTANCE declarations, action/temporal helpers, procedure/DEFINE scopes,
 renaming conflicts and unproved cycles remain named `DIVE-P0090` refusals.
 The dependency proof is conservative about formal/field spellings. Byte/node/
 action limits are unchanged; hitting a bound returns `DIVE-P0040` and no partial

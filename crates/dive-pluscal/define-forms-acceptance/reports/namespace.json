@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "selected": 24,
+  "rows": [
+    {
+      "id": "Consumer_C_local",
+      "producer": "primary",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_C_local",
+      "producer": "primary",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_C_local",
+      "producer": "native",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_C_local",
+      "producer": "native",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_C_function",
+      "producer": "primary",
+      "frontend": "sany",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_C_function",
+      "producer": "primary",
+      "frontend": "dive",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_C_function",
+      "producer": "native",
+      "frontend": "sany",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_C_function",
+      "producer": "native",
+      "frontend": "dive",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_C_unknown",
+      "producer": "primary",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_C_unknown",
+      "producer": "primary",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_C_unknown",
+      "producer": "native",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_C_unknown",
+      "producer": "native",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_P_local",
+      "producer": "primary",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_P_local",
+      "producer": "primary",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_P_local",
+      "producer": "native",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_P_local",
+      "producer": "native",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_P_function",
+      "producer": "primary",
+      "frontend": "sany",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_P_function",
+      "producer": "primary",
+      "frontend": "dive",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_P_function",
+      "producer": "native",
+      "frontend": "sany",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_P_function",
+      "producer": "native",
+      "frontend": "dive",
+      "accepted": true,
+      "exit_code": 0
+    },
+    {
+      "id": "Consumer_P_unknown",
+      "producer": "primary",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_P_unknown",
+      "producer": "primary",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    },
+    {
+      "id": "Consumer_P_unknown",
+      "producer": "native",
+      "frontend": "sany",
+      "accepted": false,
+      "exit_code": 4
+    },
+    {
+      "id": "Consumer_P_unknown",
+      "producer": "native",
+      "frontend": "dive",
+      "accepted": false,
+      "exit_code": 1
+    }
+  ],
+  "script_sha256": "54e84179f4d9d3a32fc6649b0696c9ee05963b582ae2ec8f52cb87c0383e8384",
+  "native_sha256": "8c426fc6c2ad2648d6918c570e5c88148ec16da0a1513b79dc943a99c2bd004f",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false
+}

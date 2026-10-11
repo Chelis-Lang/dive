@@ -2061,3 +2061,11 @@ reads the pre-state `x`. Dive preserves this in both profiles. A definition usin
 a process-local variable remains before that variable's generated declaration,
 and the invalid artifact is rejected rather than reordered into apparent success.
 General recursion, scoped renaming and procedure definitions remain unfinished.
+
+D-008 LOCAL/function DEFINE limitation narrowed: bounded global `LOCAL F == x`
+and `F[a \in 0..x] == a+1` now preserve the reference declaration and pre-state
+lookup rather than substituting an earlier assignment's new value. The
+[LOCAL/function guide](pluscal-definition-forms.md) describes supported scope,
+CLI/API examples and remaining recursive/action/temporal/name/procedure refusals.
+Reference-invalid artifacts and fixture filename failures stay visible without
+admission or proof credit. Neither profile silently repairs the reference output.

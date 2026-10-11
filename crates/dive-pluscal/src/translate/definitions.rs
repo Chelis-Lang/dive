@@ -1,4 +1,4 @@
-//! Source-owned DEFINE text and bounded ordinary-operator admission.
+//! Source-owned DEFINE text and bounded pure helper admission.
 //!
 //! Matches `PcalTLAGen.GenVarsAndDefs`/`TLAExpr.toStringVector`; helpers are
 //! deliberately not inlined or substituted after earlier assignments.
@@ -145,46 +145,74 @@ pub(super) fn admit(
             .filter_map(|s| s.label.as_ref().map(|l| l.name.text.as_str())),
     );
     for unit in module.units() {
-        let Unit::OperatorDef(definition) = unit else {
-            return Err(unsupported(expr.span, "non-operator declaration"));
+        let (name, expressions) = match unit {
+            Unit::OperatorDef(definition) => {
+                if definition
+                    .lhs()
+                    .is_none_or(|lhs| lhs.kind() != SyntaxKind::IDENT_LHS)
+                {
+                    return Err(unsupported(expr.span, "symbolic operator"));
+                }
+                let name = definition
+                    .name()
+                    .ok_or_else(|| unsupported(expr.span, "unnamed operator"))?;
+                let body = definition
+                    .body()
+                    .ok_or_else(|| unsupported(expr.span, "missing operator body"))?;
+                (name, vec![body])
+            }
+            Unit::FunctionDef(definition) => {
+                let name = definition
+                    .name()
+                    .ok_or_else(|| unsupported(expr.span, "unnamed function"))?;
+                let mut expressions = Vec::new();
+                for bound in definition.bounds() {
+                    expressions.push(
+                        bound
+                            .set()
+                            .ok_or_else(|| unsupported(expr.span, "missing function domain"))?,
+                    );
+                }
+                if expressions.is_empty() {
+                    return Err(unsupported(expr.span, "missing function bounds"));
+                }
+                expressions.push(
+                    definition
+                        .body()
+                        .ok_or_else(|| unsupported(expr.span, "missing function body"))?,
+                );
+                (name, expressions)
+            }
+            _ => return Err(unsupported(expr.span, "non-helper declaration")),
         };
-        let Some(name) = definition.name() else {
-            return Err(unsupported(expr.span, "unnamed operator"));
-        };
-        if definition.is_local()
-            || definition
-                .lhs()
-                .is_none_or(|lhs| lhs.kind() != SyntaxKind::IDENT_LHS)
-        {
-            return Err(unsupported(expr.span, "LOCAL or symbolic operator"));
-        }
         if reserved.contains(name.as_str()) || graph.contains_key(&name) {
             return Err(unsupported(
                 expr.span,
                 "operator/global/generated-name conflict",
             ));
         }
-        let Some(body) = definition.body() else {
-            return Err(unsupported(expr.span, "missing operator body"));
-        };
         let mut references = BTreeSet::new();
-        for token in body
-            .syntax()
-            .descendants_with_tokens()
-            .filter_map(dive_syntax::SyntaxElement::into_token)
-        {
-            if ["'", "<>", "~>", "UNCHANGED", "ENABLED"].contains(&token.text())
-                || token.text() == "[]"
-                    && token
-                        .parent()
-                        .is_none_or(|parent| parent.kind() != SyntaxKind::CASE_EXPR)
-                || token.text().starts_with("WF_")
-                || token.text().starts_with("SF_")
+        // Domains participate in dependency/purity checks just like bodies.
+        // LOCAL changes export visibility, not copying or evaluation scope.
+        for expression in expressions {
+            for token in expression
+                .syntax()
+                .descendants_with_tokens()
+                .filter_map(dive_syntax::SyntaxElement::into_token)
             {
-                return Err(unsupported(expr.span, "action or temporal helper"));
-            }
-            if token.kind() == SyntaxKind::IDENT {
-                references.insert(token.text().to_string());
+                if ["'", "<>", "~>", "UNCHANGED", "ENABLED"].contains(&token.text())
+                    || token.text() == "[]"
+                        && token
+                            .parent()
+                            .is_none_or(|parent| parent.kind() != SyntaxKind::CASE_EXPR)
+                    || token.text().starts_with("WF_")
+                    || token.text().starts_with("SF_")
+                {
+                    return Err(unsupported(expr.span, "action or temporal helper"));
+                }
+                if token.kind() == SyntaxKind::IDENT {
+                    references.insert(token.text().to_string());
+                }
             }
         }
         graph.insert(name, references);
