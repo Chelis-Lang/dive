@@ -1,0 +1,7 @@
+{
+  "runtime_source": "babfdea78fd9e0c8f340fcf47411e9902a32f7e6",
+  "before_sha256": "beb6ae9a8ef78e19a0b87eef0f8e002e1bd5f4acede31118d1fa25c434ef2dea",
+  "after_sha256": "9b55a7a4181ad8d6840ddcdc2edc66504f2b23ed50108aa6e3a3f43a0f021221",
+  "original_bytes_archive": "before-native-integration-guard.py.gz",
+  "qualification": "Post-gate Python verification-only packaging; no Rust/Cargo/test/example change, no new full-gate or runtime-source identity. Root receiving gate verifies the new guard."
+}

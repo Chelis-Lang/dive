@@ -55,3 +55,21 @@ header mismatch and an insufficiently small unused-owner negative. The repaired
 controls require exact pinned stored bytes and use a parsed 16-owner cyclic
 source with the original 128-node shared expansion bound. Frozen source/runtime,
 commands and failures will remain individually qualified in the delivery.
+
+## Closed producer qualification
+
+The frozen `babfdea78` Rust/Cargo producer completed all 54 local commands and
+1,203 nextest cases with zero skipped. The fresh 170 raw/340 public selection,
+98 finite sources/2,352 settings and 980 replay controls remain independently
+qualified, with zero strict saved-frame Valid. Four original runtime commands
+failed because historical driver paths were absent; their exact archived drivers
+were restored for four separately recorded fresh reruns, without source/binary,
+quota or assertion changes. The portable reader requires both command epochs
+and rejects 32 fully rehashed semantic forgeries. Post-gate guard/documentation
+packaging changes are not retagged as the tested runtime producer.
+
+The original freeze has 5,264 selected inputs, including 451 standard compiled
+Rust inputs and 65 literal include targets. The separate reference/tool
+supplement records 786 older fixture/primary inputs, 26 runtime-recorded tools
+and two restored drivers after closure; it explicitly grants no retroactive
+freeze membership, hermetic-environment claim or family certification.

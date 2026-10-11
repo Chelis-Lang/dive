@@ -201,3 +201,7 @@ subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-pr
 # Acyclic procedure observations keep frozen source/runtime and repaired command epochs.
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance" / verifier)], check=True)
+
+# Recursive checksum derivation keeps selected source, closed runtime and failure epochs portable.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/recursive-procedure-checksum-acceptance" / verifier)], check=True)
