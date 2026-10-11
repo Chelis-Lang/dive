@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-native-checkpoint.py", line 52, in <module>
+    for name,digest in m['source_sha256'].items():assert sha((ROOT/name).read_bytes())==digest,name
+AssertionError: crates/dive-check/src/engine.rs

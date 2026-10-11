@@ -295,9 +295,8 @@ impl<'a> Run<'a> {
     }
 
     /// The stream a check at `at` draws from, at its start. `None` without
-    /// a replay, under a `VIEW` or `SYMMETRY` (TLC then seeds with the
-    /// fingerprint of the view or of the symmetric representative: refused,
-    /// not guessed), or for a state whose fingerprint cannot be computed;
+    /// a replay, under `SYMMETRY` or an unproved VIEW (not guessed), or
+    /// for a state whose transformed fingerprint cannot be computed;
     /// draws then stay refused.
     fn base(&self, trace: &Trace, at: Place) -> Option<Stream> {
         let streams = self.host.replay.as_ref()?.streams();
@@ -305,7 +304,7 @@ impl<'a> Run<'a> {
             Place::Startup => Some(streams.startup()),
             Place::Expand(k) => {
                 let m = self.model;
-                if m.view.is_some() || m.symmetry.is_some() {
+                if m.symmetry.is_some() || !crate::random_position::pure_random_view(m) {
                     return None;
                 }
                 Some(streams.state(self.state_fingerprint(&trace.states[k])?))
@@ -358,11 +357,20 @@ impl<'a> Run<'a> {
         self.host.placed.store(false, Ordering::Relaxed);
     }
 
-    /// TLC's fingerprint of a state (`TLCStateMut.fingerPrint` without
-    /// `VIEW` or symmetry): FP64 over its values in TLC's variable order.
+    /// TLC's stream identity: FP64 of an admitted VIEW value, otherwise
+    /// concrete values in TLC's variable order. Symmetry is still refused.
     fn state_fingerprint(&self, state: &crate::trace::State) -> Option<u64> {
         let f = self.fingerprint.as_ref()?;
         let ctx: Ctx = self.model.evaluator.options().ctx;
+        if let Some(view) = &self.model.view {
+            let values = state.iter().cloned().collect::<Option<Vec<_>>>()?;
+            dive_model::random_view::admit_values(&values).ok()?;
+            dive_model::symmetry::Reduction::normalize_concrete(&values, ctx).ok()?;
+            let st = St::state(state.clone());
+            let value = self.model.eval(&view.pred, &st).ok()?;
+            dive_model::random_view::admit_values(std::slice::from_ref(&value)).ok()?;
+            return f.fingerprint(&value, ctx).ok();
+        }
         let ordered: Option<Vec<Value>> = self
             .model
             .ir
@@ -1032,7 +1040,7 @@ type Logged = (StdOp, Vec<Value>, Value);
 
 /// The reason a random draw is refused when the validator cannot place it
 /// in the run's streams.
-pub const RANDOM_UNPLACED: &str = "drawn outside the initial predicate and the next-state relation (in an ASSUME after constant draws, an invariant, a constraint, a property or a label), or under a VIEW or SYMMETRY: the run draws it at a position of its stream that only the successor generator determines, so the independent validator cannot replay it (ADR 0016, amendment 2)";
+pub const RANDOM_UNPLACED: &str = "drawn outside the initial predicate and the next-state relation (in an ASSUME after constant draws, an invariant, a constraint, a property or a label), or under an unproved VIEW or SYMMETRY: the run draws it at a position of its stream that only the successor generator determines, so the independent validator cannot replay it (ADR 0016, amendment 2)";
 
 /// What the validator provides of a checking run: the level of the state
 /// being checked (`TLCGet("level")`), `TLCGet("config")` from the host the

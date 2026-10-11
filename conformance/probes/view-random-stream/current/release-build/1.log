@@ -1,0 +1,11 @@
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-ir)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-pluscal)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-liveness)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-trace)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-api)
+    Finished `release` profile [optimized + debuginfo] target(s) in 41.68s

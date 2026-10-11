@@ -1,20 +1,20 @@
 {
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "917a8de80c6bdec1dc28212119082453f2dbee978bb3daa99d5f92cbd28dcc31",
-    "crates/dive-check/src/engine.rs": "af6213f55fa7a25788c0b453c9f237771a8071699a5b7f7fd776564fa17e9b84",
-    "crates/dive-check/src/parallel.rs": "1b81bf965fbceeed02bdb9fc0f18caf090805c6858a28d759845784edfb62fc4",
-    "crates/dive-check/tests/observer_barrier.rs": "49e522ea7f2a784da2fc89ff550f0561842a9394ca2b655e0a2b4a277fde75fa",
-    "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
-    "crates/dive-liveness/src/phase_execution.rs": "88d16a365dd9971f2c993486928419ef12c606e1e42d862306d8a3b21a78085d",
-    "crates/dive-liveness/src/phase_graph.rs": "dc30cae82223c36725651d74faf854ae174456d92fe575cedc638cced4dc77e6",
-    "crates/dive-liveness/src/lib.rs": "1cc2723c0327ae840428d88516534a84e166e1b6587d4913c48a4f410d89ffcb",
-    "crates/dive-liveness/tests/periodic_backend.rs": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
+    "conformance/parity-features.json": "c981fd551a483b1b061b9836cd5a268cf898c8d988bdaaa9ae81d5a399743d51",
     "crates/dive-api/examples/periodic_backend.rs": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
-    "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
-    "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
+    "crates/dive-check/src/capture.rs": "e405c56d5a700b151e9772bf080c23fe605e899972f7bc2a097f99c6ead1fd6b",
+    "crates/dive-check/src/engine.rs": "26856b7f36ba4fa1ae475a09c0e3ab9979fa47cce36bddd8e397175e36aa1bfd",
+    "crates/dive-check/src/parallel.rs": "0c1a7453751c5423ee1e04fe5a25dd14f4699a3907413eb8635a21d09536a5b8",
+    "crates/dive-check/tests/observer_barrier.rs": "f5d399607add125595624b0cadead6e0fa71eb770f2986a12c1f04f3cad1dac7",
+    "crates/dive-liveness/src/lib.rs": "55dab2554cb8e6b3428fa035cbd9310ef350c6cd420ec8f4e1ba145d6484cfae",
+    "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
+    "crates/dive-liveness/src/phase_execution.rs": "027d80c67fb4e4c0484a5be47e1ae494bac22c59d46a0fb3712ff3245062a7e4",
+    "crates/dive-liveness/src/phase_graph.rs": "dc30cae82223c36725651d74faf854ae174456d92fe575cedc638cced4dc77e6",
+    "crates/dive-liveness/tests/periodic_backend.rs": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
     "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
-    "conformance/parity-features.json": "6837263063c26e75a545a0aafd6c967aa3fb0591d8ed0a17e2031f5c6c3de35c"
-  },
-  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+    "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
+    "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3"
+  }
 }

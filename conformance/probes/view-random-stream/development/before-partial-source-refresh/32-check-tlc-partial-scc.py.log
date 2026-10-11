@@ -1,0 +1,5 @@
+Verified32 full prefix rows and8 repeated original checks;8 launcher failures retained; no ordinary clock/model-proof credit
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-tlc-partial-scc.py", line 44, in <module>
+    for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+AssertionError: conformance/parity-features.json

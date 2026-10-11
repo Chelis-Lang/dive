@@ -108,3 +108,6 @@ strict temporal checking. Actual graph-growth, clock and checkpoint authority
 remain separate integration obligations.
 
 Rust backend authors can inspect source-owned graph growth and explicit partial stopping with the [periodic backend diagnostic](../periodic-backend.md). This API does not enable ordinary clock scheduling, Java queue suspension, partial Holds or a model-checking verdict.
+
+
+The [native lifecycle diagnostic](../native-periodic-lifecycle.md) connects internally sampled clocks, real dispatch pauses and actual EOF final checking. Its commit-boundary polling does not certify TLC’s asynchronous ordinary schedule.

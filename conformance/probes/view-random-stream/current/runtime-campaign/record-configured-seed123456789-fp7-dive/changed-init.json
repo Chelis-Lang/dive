@@ -1,0 +1,52 @@
+{
+  "ending": {
+    "kind": "invariant",
+    "name": "Inv"
+  },
+  "format": "dive-trace",
+  "length": 4,
+  "states": [
+    {
+      "action": null,
+      "values": {
+        "n": 0,
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 6, col 9 to line 6, col 37 of module ViewStream>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 1,
+        "x": 67
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 6, col 9 to line 6, col 37 of module ViewStream>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 2,
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 6, col 9 to line 6, col 37 of module ViewStream>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 3,
+        "x": 92
+      }
+    }
+  ],
+  "variables": [
+    "n",
+    "x"
+  ],
+  "version": 1
+}

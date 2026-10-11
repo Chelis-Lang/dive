@@ -54,6 +54,83 @@ pub(crate) fn aligned(model: &Model, pred: &Pred, st: &St, initial: bool) -> boo
         })
 }
 
+/// Callback-free admission of the first closed pure VIEW replay slice.
+/// Concrete trace states are never replaced by their VIEW values.
+pub(crate) fn pure_random_view(model: &Model) -> bool {
+    let Some(view) = &model.view else {
+        return true;
+    };
+    if model.evaluator.scope_shares_side_effects(&view.pred.scope) {
+        return false;
+    }
+    let mut work = vec![view.pred.expr];
+    let mut seen = BTreeSet::new();
+    let mut fuel = 512_usize;
+    while let Some(expr) = work.pop() {
+        let Some(remaining) = fuel.checked_sub(1) else {
+            return false;
+        };
+        fuel = remaining;
+        if !seen.insert(expr) {
+            continue;
+        }
+        let Some(node) = model.ir.nodes().get(expr.index()) else {
+            return false;
+        };
+        if node.level > Level::State
+            || node.effects.intersects(
+                Effects::IMPURE | Effects::USES_ENABLED | Effects::OPEN | Effects::TEMPORAL,
+            )
+            || matches!(
+                node.expr,
+                Expr::Local(_) | Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Const(_)
+            )
+        {
+            return false;
+        }
+        let mut refs = node.expr.op_refs().into_iter().cloned().collect::<Vec<_>>();
+        if let Expr::Def(id) = node.expr {
+            refs.push(OpRef::Def(id));
+        }
+        for op in refs {
+            match op {
+                OpRef::Def(id) => {
+                    let id = model.evaluator.redirected(id);
+                    let Some(def) = model.ir.defs().get(id.index()) else {
+                        return false;
+                    };
+                    if def.recursive || !def.params.is_empty() {
+                        return false;
+                    }
+                    if let Some(op) = def.std {
+                        if op.impure() || op.creates_runtime_names() {
+                            return false;
+                        }
+                    } else {
+                        if work.len() >= fuel {
+                            return false;
+                        }
+                        work.push(def.body);
+                    }
+                }
+                OpRef::Std(op) if op.impure() || op.creates_runtime_names() => return false,
+                OpRef::Std(_) | OpRef::Builtin(_) => {}
+                _ => return false,
+            }
+        }
+        let children = node.expr.children();
+        if work
+            .len()
+            .checked_add(children.len())
+            .is_none_or(|n| n > fuel)
+        {
+            return false;
+        }
+        work.extend(children);
+    }
+    true
+}
+
 #[derive(Default)]
 struct Branch {
     enabled: bool,

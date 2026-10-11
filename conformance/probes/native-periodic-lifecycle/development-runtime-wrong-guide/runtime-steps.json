@@ -1,0 +1,40 @@
+[
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-cli",
+      "-p",
+      "dive-conformance"
+    ],
+    "log": "binary-build.log",
+    "exit": 0,
+    "seconds": 68.504851333
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--example",
+      "periodic_lifecycle"
+    ],
+    "log": "cargo-example-build.log",
+    "exit": 0,
+    "seconds": 42.643444042
+  },
+  {
+    "command": [
+      "/tmp/dive-periodic-lifecycle-frozen-native/periodic-lifecycle-guide"
+    ],
+    "log": "cargo-guide.log",
+    "exit": 0,
+    "seconds": 0.3486333329999951
+  }
+]

@@ -1,0 +1,161 @@
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+   Compiling proc-macro2 v1.0.107
+   Compiling serde_core v1.0.229
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+   Compiling serde_json v1.0.151
+   Compiling serde_derive v1.0.229
+   Compiling libc v0.2.190
+   Compiling serde v1.0.229
+   Compiling cpufeatures v0.3.1
+   Compiling sha2 v0.11.0
+   Compiling getrandom v0.3.4
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-ir)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-eval)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-stdlib)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-trace)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-pluscal)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-api)
+   Compiling bitflags v2.13.2
+   Compiling zerocopy v0.8.62
+   Compiling rand_core v0.9.5
+   Compiling rand v0.9.5
+   Compiling rand_xorshift v0.4.0
+   Compiling regex-syntax v0.8.11
+   Compiling unarray v0.1.4
+   Compiling errno v0.3.14
+   Compiling rustix v1.1.5
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.9.0
+   Compiling proptest v1.11.0
+   Compiling terminal_size v0.4.4
+   Compiling anstyle v1.0.14
+   Compiling clap_lex v1.1.1
+   Compiling clap_builder v4.6.7
+   Compiling syn v2.0.119
+   Compiling clap v4.6.7
+   Compiling signal-hook v0.4.5
+   Compiling winnow v1.0.4
+   Compiling regex-lite v0.1.9
+   Compiling condtype v1.3.0
+   Compiling toml_parser v1.1.4+spec-1.1.0
+   Compiling divan-macros v0.1.21
+   Compiling divan v0.1.21
+   Compiling signal-hook-registry v1.4.8
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling serde_spanned v1.1.2
+   Compiling toml v1.1.7+spec-1.1.0
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-conformance)
+   Compiling dive-compile v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-compile)
+   Compiling dive-lsp v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-lsp)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-store)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-value)
+   Compiling dive-bench v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-bench)
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-config)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-cli)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)
+   Compiling xtask v0.0.0 (/Users/jeff/code/dive-view-random-current-work/xtask)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 10s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+{"selected_tests": 1144, "ignored_tests": 0, "hash_partitions": [139, 150, 166, 140, 155, 140, 137, 117], "disjoint_and_complete": true}

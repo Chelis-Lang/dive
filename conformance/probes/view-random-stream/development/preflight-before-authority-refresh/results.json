@@ -1,0 +1,222 @@
+{
+  "qualification": "Development preflight, uncommitted implementation; preserve failures before current-source-only metadata refresh",
+  "rows": [
+    {
+      "command": "python3 -I scripts/check-parity-ledger.py",
+      "exit": 0,
+      "elapsed": 0.16787475000000002,
+      "log": "00-check-parity-ledger.py.log",
+      "sha256": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398"
+    },
+    {
+      "command": "python3 -I scripts/test-parity-ledger.py",
+      "exit": 0,
+      "elapsed": 0.324448833,
+      "log": "01-test-parity-ledger.py.log",
+      "sha256": "e15c8b4b447fecbf8a2073c25f5107c20863c6e1b4d2925f6f9e65a50543aa8b"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-planning.py",
+      "exit": 1,
+      "elapsed": 0.24774654100000004,
+      "log": "02-check-tlc-planning.py.log",
+      "sha256": "c28f17e43615ab0970627bebc294b3a94c7370b5cc83da839b825565224d87a6"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-tableau.py",
+      "exit": 1,
+      "elapsed": 0.21906316700000006,
+      "log": "03-check-tlc-tableau.py.log",
+      "sha256": "5fe7b4dabd448d6061df5125d406e084123c6ac1a724916deeeea119e2aef5dd"
+    },
+    {
+      "command": "python3 -I scripts/check-temporal-action-order.py",
+      "exit": 0,
+      "elapsed": 0.10522224999999996,
+      "log": "04-check-temporal-action-order.py.log",
+      "sha256": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846"
+    },
+    {
+      "command": "python3 -I scripts/check-phase-l.py",
+      "exit": 1,
+      "elapsed": 0.30705466700000006,
+      "log": "05-check-phase-l.py.log",
+      "sha256": "7e5260671afa7f2df9d8c0c5a939d26ed01b8932bbfe3805f1f3a82262abd885"
+    },
+    {
+      "command": "python3 -I scripts/check-phase-l-graph.py",
+      "exit": 1,
+      "elapsed": 0.16166641699999995,
+      "log": "06-check-phase-l-graph.py.log",
+      "sha256": "88126817e0c5c213366b4e95225821a3129b82c50cd6e3bf0c3f4958aa619088"
+    },
+    {
+      "command": "python3 -I scripts/check-phase-execution.py",
+      "exit": 1,
+      "elapsed": 0.18069237500000002,
+      "log": "07-check-phase-execution.py.log",
+      "sha256": "e2a72fc3b368c90e2d6266d20420fa7adef6a91b3a42d9850c6d1873b7e869b4"
+    },
+    {
+      "command": "python3 -I scripts/check-periodic-controller.py",
+      "exit": 0,
+      "elapsed": 0.2994292500000002,
+      "log": "08-check-periodic-controller.py.log",
+      "sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268"
+    },
+    {
+      "command": "python3 -I scripts/check-runtime-ratio.py",
+      "exit": 0,
+      "elapsed": 0.10993070800000027,
+      "log": "09-check-runtime-ratio.py.log",
+      "sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final.py",
+      "exit": 0,
+      "elapsed": 0.29083083300000023,
+      "log": "10-check-tlc-final.py.log",
+      "sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+    },
+    {
+      "command": "python3 -I scripts/check-state-if-planning.py",
+      "exit": 0,
+      "elapsed": 0.14795254200000008,
+      "log": "11-check-state-if-planning.py.log",
+      "sha256": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f"
+    },
+    {
+      "command": "python3 -I scripts/check-predecessor-spill.py",
+      "exit": 1,
+      "elapsed": 0.35297758299999993,
+      "log": "12-check-predecessor-spill.py.log",
+      "sha256": "6ad2de2dbd9bcdc50c634767955238db2af33391d5ad836b12ead3327ba39767"
+    },
+    {
+      "command": "python3 -I scripts/check-native-checkpoint.py",
+      "exit": 1,
+      "elapsed": 0.3031310839999999,
+      "log": "13-check-native-checkpoint.py.log",
+      "sha256": "d09c61678d1ad7fb7052646a3e4917b557feac95d91cf9988075d3641bd5f02b"
+    },
+    {
+      "command": "python3 -I scripts/check-view-normalization.py",
+      "exit": 0,
+      "elapsed": 0.5954050829999997,
+      "log": "14-check-view-normalization.py.log",
+      "sha256": "8005e4d37f7d463c4167c1c8ad195d5c947d95d11f19d7a750567959ccd360a0"
+    },
+    {
+      "command": "python3 -I scripts/check-native-parity-integration.py",
+      "exit": 1,
+      "elapsed": 5.1430115,
+      "log": "15-check-native-parity-integration.py.log",
+      "sha256": "ff350d15fe64994f8b000395411ac424423f7e8369ef6b7ac542c7dc829a3166"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final.py",
+      "exit": 0,
+      "elapsed": 0.23788966699999925,
+      "log": "16-check-tlc-final.py.log",
+      "sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final-safety.py",
+      "exit": 1,
+      "elapsed": 0.19790691699999918,
+      "log": "17-check-tlc-final-safety.py.log",
+      "sha256": "91c0df46f311213970dfd186c262252533691c0661b7048f0cb08e199ddbca0d"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-state-if.py",
+      "exit": 0,
+      "elapsed": 0.6510437500000013,
+      "log": "18-check-tlc-state-if.py.log",
+      "sha256": "5beb88844459a1f54ad70a0a4e37a5a62e0add877f72f425224983171a4bc7fe"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-temporal-if.py",
+      "exit": 0,
+      "elapsed": 0.23620008299999995,
+      "log": "19-check-tlc-temporal-if.py.log",
+      "sha256": "1137f8ddc0ffa3700abaae37d845680dfe412015ee048b9207517f6d89dd07d6"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+      "exit": 1,
+      "elapsed": 0.8174424589999987,
+      "log": "20-check-tlc-temporal-if-final.py.log",
+      "sha256": "eca844785bb4b4d348548aa907cb75b8546c4edcad6c890dd6db2e1e59042bdc"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final-scopes.py",
+      "exit": 1,
+      "elapsed": 0.654454458,
+      "log": "21-check-tlc-final-scopes.py.log",
+      "sha256": "2124bf2430331e6841857eb3cdf4b8f4b17148041c1c7283a540f2e1cec706ac"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-property-origins.py",
+      "exit": 1,
+      "elapsed": 0.7491272500000008,
+      "log": "22-check-tlc-property-origins.py.log",
+      "sha256": "52145862c28e934bbb958d59a322ca4f194698de8fb30e26e512f0e5c6bc3962"
+    },
+    {
+      "command": "python3 -I scripts/check-material-capture.py",
+      "exit": 1,
+      "elapsed": 0.8413667080000007,
+      "log": "23-check-material-capture.py.log",
+      "sha256": "33eb3db896d292ec38225396a9b406975001cdac39678d0346534ac4edb045b0"
+    },
+    {
+      "command": "python3 -I scripts/check-temporal-operators.py",
+      "exit": 1,
+      "elapsed": 0.6159830000000017,
+      "log": "24-check-temporal-operators.py.log",
+      "sha256": "01c53d1adef9f214a10bed48acec2e5539292578a8ca2ef14d0c311a690eaa6b"
+    },
+    {
+      "command": "python3 -I scripts/check-native-temporal-operators.py",
+      "exit": 1,
+      "elapsed": 1.4246087079999992,
+      "log": "25-check-native-temporal-operators.py.log",
+      "sha256": "00523a8ace010a1b58a4f7dd8dc6410be6185e29d036636ed64027d76e9d5d76"
+    },
+    {
+      "command": "python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py",
+      "exit": 0,
+      "elapsed": 3.328517958000001,
+      "log": "26-verify.py.log",
+      "sha256": "c8670b336f016f82d7372e8334ea5e141e28bc6eda9597bbd9147e332d13dcda"
+    },
+    {
+      "command": "python3 -I scripts/check-stored-successor-material.py",
+      "exit": 0,
+      "elapsed": 0.7136820419999985,
+      "log": "27-check-stored-successor-material.py.log",
+      "sha256": "421b9b40aeddd9efc6776008b05b14c1efe65eec8c5f2ee74380cd3ebad7d662"
+    },
+    {
+      "command": "python3 -I scripts/check-stored-successor-census.py",
+      "exit": 0,
+      "elapsed": 0.2803590420000006,
+      "log": "28-check-stored-successor-census.py.log",
+      "sha256": "c98c2725c762f17af07ecbfb02f603ee7cbac8081366dda907ad3126c9591e39"
+    },
+    {
+      "command": "python3 -I scripts/check-native-sequence-operators.py",
+      "exit": 0,
+      "elapsed": 0.28490120900000093,
+      "log": "29-check-native-sequence-operators.py.log",
+      "sha256": "cc98199c7cb15839e728968ec4144e62aa90bb6a8f3cfc8895e22d15a3abaddc"
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-partial-scc.py",
+      "exit": 0,
+      "elapsed": 0.49850637499999806,
+      "log": "30-check-tlc-partial-scc.py.log",
+      "sha256": "e34b9b02b5cac4dfa28467e7f4a5008ffe2da50222fe8b12902a1dac1d26efd8"
+    }
+  ]
+}

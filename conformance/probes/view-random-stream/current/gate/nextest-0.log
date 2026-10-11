@@ -1,0 +1,1160 @@
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+────────────
+ Nextest run ID 9385effa-98b0-40ca-8231-fd338a9e17d1 with nextest profile: ci
+    Starting 1144 tests across 179 binaries
+        PASS [   0.060s] (   1/1144) dive-api check::evidence_controls::failed_product_report_retains_capture_but_never_a_verdict
+        PASS [   0.062s] (   2/1144) dive-api check::evidence_controls::capture_stop_report_retains_partial_work_and_stage
+        PASS [   0.025s] (   3/1144) dive-api check::evidence_controls::safety_json_retains_actual_nondefault_limits_and_incomplete_stops
+        PASS [   0.037s] (   4/1144) dive-api check::evidence_controls::planning_report_proves_no_capture_without_statistics
+        PASS [   0.015s] (   5/1144) dive-api config::tests::accepted_config_json
+        PASS [   0.016s] (   6/1144) dive-api config::tests::rejected_config_reports_tlc_equivalent
+        PASS [   0.014s] (   7/1144) dive-api config::tests::tla_configs_are_unsupported
+        PASS [   0.013s] (   8/1144) dive-api tests::file_name_mismatch_is_an_error
+        PASS [   0.017s] (   9/1144) dive-api temporal::evidence_controls::lost_thread_evidence_is_unknown_not_zero
+        PASS [   0.017s] (  10/1144) dive-api tests::invalid_utf8_is_read_like_sany
+        PASS [   0.016s] (  11/1144) dive-api tests::json_has_schema_version_and_cst
+        PASS [   0.013s] (  12/1144) dive-api tests::nested_modules_are_listed
+        PASS [   0.213s] (  13/1144) dive-api::config_name_order stable_config_prefix_uses_seed_before_fingerprint_even_in_forged_input
+        PASS [   3.159s] (  14/1144) dive-api::configured_random configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports
+        PASS [   0.082s] (  15/1144) dive-api::constructor_covers constructor_effects_and_binding_budgets_refuse_before_guessing
+        PASS [   0.047s] (  16/1144) dive-api::constructor_covers constructors_do_not_hide_uncovered_successor_reads
+        PASS [   0.038s] (  17/1144) dive-api::constructor_covers finite_constructor_decisions_match_every_concrete_boolean_assignment
+        PASS [   0.100s] (  18/1144) dive-api::constructor_covers pinned_constructor_fairness_runs_have_independently_valid_counterexamples
+        PASS [   0.028s] (  19/1144) dive-api::constructor_covers pinned_enabled_constructor_identities_cover_every_initial_state
+        PASS [   0.051s] (  20/1144) dive-api::constructor_covers primed_constructor_domains_are_not_bound_from_the_current_empty_state
+        PASS [   1.096s] (  21/1144) dive-api::deferred_domains deferred_domains_match_final_truth_counts_and_independent_word_controls
+        PASS [   0.077s] (  22/1144) dive-api::deferred_domains recursive_local_function_domains_remain_explicitly_refused
+        PASS [   0.066s] (  23/1144) dive-api::dfid completion_certificate_and_zero_exit_are_separate
+        PASS [   0.014s] (  24/1144) dive-api::dfid constrained_initial_property_is_refused_before_uncertifiable_witness
+        PASS [   0.053s] (  25/1144) dive-api::dfid cross_root_witness_is_valid_and_mutant_is_rejected
+        PASS [   0.022s] (  26/1144) dive-api::dfid finite_deadlock_is_independently_certified
+        PASS [   0.016s] (  27/1144) dive-api::dfid load_failure_reports_unknown_statistics
+        PASS [   0.048s] (  28/1144) dive-api::dfid ordered_runtime_names_do_not_bypass_independent_witness_refusal
+        PASS [   0.024s] (  29/1144) dive-api::dfid zero_width_precedes_even_model_loading
+        PASS [   0.022s] (  30/1144) dive-api::frontier_spill a_frontier_directory_without_a_budget_rejects_before_file_access
+        PASS [   0.041s] (  31/1144) dive-api::frontier_spill disk_creation_failure_has_no_success_and_truthful_worker_evidence
+        PASS [   5.683s] (  32/1144) dive-api::configured_random property_bearing_final_routes_do_not_return_configured_rng_false_verdicts
+        PASS [   1.562s] (  33/1144) dive-api::frontier_spill spilled_counterexamples_validate_and_corruptions_are_rejected
+        PASS [   0.828s] (  34/1144) dive-api::lazy_domains lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls
+        PASS [   0.062s] (  35/1144) dive-api::material_capture material_context_and_predicate_budget_refuse_before_pool_work
+        PASS [   0.068s] (  36/1144) dive-api::material_capture opposite_profile_stored_order_refuses_before_work_but_tuple_domains_remain_invariant
+        PASS [   2.554s] (  37/1144) dive-api::material_capture all_material_pairs_match_clean_pin_with_fresh_memory_and_json_replay
+        PASS [   0.064s] (  38/1144) dive-api::multiline multiline_scope_and_lowered_budgets_never_admit_partial_output
+        PASS [   7.885s] (  39/1144) dive-api::multiline complete_selected_multiline_artifacts_match_primary_trees
+        PASS [  14.331s] (  40/1144) dive-api::native_checkpoint frontier_recovery_action_constraint_no_deadlock
+        PASS [  14.211s] (  41/1144) dive-api::native_checkpoint frontier_recovery_constrained_violation
+        PASS [  13.127s] (  42/1144) dive-api::native_checkpoint frontier_recovery_deadlock_mid_level
+        PASS [  12.776s] (  43/1144) dive-api::native_checkpoint frontier_recovery_duplicate_successors
+        PASS [  12.152s] (  44/1144) dive-api::native_checkpoint frontier_recovery_eval_error_mid_level
+        PASS [   0.718s] (  45/1144) dive-api::native_checkpoint recovered_defaults_are_reported_and_source_byte_drift_refuses
+        PASS [   0.016s] (  46/1144) dive-api::native_checkpoint unsupported_mode_combinations_refuse_before_file_access
+        PASS [  12.993s] (  47/1144) dive-api::native_checkpoint frontier_recovery_mid_level_violation
+        PASS [  23.044s] (  48/1144) dive-api::native_checkpoint_keys symmetry_recovery_dive_preserves_concrete_owner_and_rejects_equal_key_witnesses
+        PASS [  22.212s] (  49/1144) dive-api::native_checkpoint_keys symmetry_recovery_tlc_preserves_concrete_owner_and_rejects_equal_key_witnesses
+        PASS [  21.035s] (  50/1144) dive-api::native_checkpoint_keys symmetry_view_recovery_dive_matches_full_and_checks_concrete_witnesses
+        PASS [  21.775s] (  51/1144) dive-api::native_checkpoint_keys symmetry_view_recovery_tlc_matches_full_and_checks_concrete_witnesses
+        PASS [  14.504s] (  52/1144) dive-api::native_checkpoint_keys view_recovery_dive_matches_full_and_checks_concrete_witnesses
+        PASS [   0.375s] (  53/1144) dive-api::native_checkpoint_runtime_effects mixed_effects_refuse_before_work_output_or_archive
+        PASS [  13.694s] (  54/1144) dive-api::native_checkpoint_keys view_recovery_tlc_matches_full_and_checks_concrete_witnesses
+        PASS [   4.571s] (  55/1144) dive-api::native_checkpoint_runtime_names choose_dive_exact_w1
+        PASS [   4.457s] (  56/1144) dive-api::native_checkpoint_runtime_names choose_dive_exact_w4
+        PASS [   4.496s] (  57/1144) dive-api::native_checkpoint_runtime_names choose_dive_exact_w8
+        PASS [   4.750s] (  58/1144) dive-api::native_checkpoint_runtime_names choose_dive_fingerprint_w1
+        PASS [   4.462s] (  59/1144) dive-api::native_checkpoint_runtime_names choose_dive_fingerprint_w4
+        PASS [   4.162s] (  60/1144) dive-api::native_checkpoint_runtime_names choose_dive_fingerprint_w8
+        PASS [   4.121s] (  61/1144) dive-api::native_checkpoint_runtime_names choose_tlc_exact_w1
+        PASS [   3.556s] (  62/1144) dive-api::native_checkpoint_runtime_names choose_tlc_exact_w4
+        PASS [   3.478s] (  63/1144) dive-api::native_checkpoint_runtime_names choose_tlc_exact_w8
+        PASS [   3.136s] (  64/1144) dive-api::native_checkpoint_runtime_names choose_tlc_fingerprint_w1
+        PASS [   3.133s] (  65/1144) dive-api::native_checkpoint_runtime_names choose_tlc_fingerprint_w4
+        PASS [   3.092s] (  66/1144) dive-api::native_checkpoint_runtime_names choose_tlc_fingerprint_w8
+        PASS [   3.115s] (  67/1144) dive-api::native_checkpoint_runtime_names duplicates_dive_exact_w1
+        PASS [   3.330s] (  68/1144) dive-api::native_checkpoint_runtime_names duplicates_dive_exact_w4
+        PASS [   3.431s] (  69/1144) dive-api::native_checkpoint_runtime_names duplicates_dive_exact_w8
+        PASS [   3.204s] (  70/1144) dive-api::native_checkpoint_runtime_names duplicates_dive_fingerprint_w1
+        PASS [   3.157s] (  71/1144) dive-api::native_checkpoint_runtime_names duplicates_dive_fingerprint_w4
+        PASS [   3.037s] (  72/1144) dive-api::native_checkpoint_runtime_names duplicates_dive_fingerprint_w8
+        PASS [   3.110s] (  73/1144) dive-api::native_checkpoint_runtime_names duplicates_tlc_exact_w1
+        PASS [   3.254s] (  74/1144) dive-api::native_checkpoint_runtime_names duplicates_tlc_exact_w4
+        PASS [   3.229s] (  75/1144) dive-api::native_checkpoint_runtime_names duplicates_tlc_exact_w8
+        PASS [   3.198s] (  76/1144) dive-api::native_checkpoint_runtime_names duplicates_tlc_fingerprint_w1
+        PASS [   3.244s] (  77/1144) dive-api::native_checkpoint_runtime_names duplicates_tlc_fingerprint_w4
+        PASS [   3.423s] (  78/1144) dive-api::native_checkpoint_runtime_names duplicates_tlc_fingerprint_w8
+        PASS [   3.460s] (  79/1144) dive-api::native_checkpoint_runtime_names sequence_dive_exact_w1
+        PASS [   3.435s] (  80/1144) dive-api::native_checkpoint_runtime_names sequence_dive_exact_w4
+        PASS [   3.635s] (  81/1144) dive-api::native_checkpoint_runtime_names sequence_dive_exact_w8
+        PASS [   2.961s] (  82/1144) dive-api::native_checkpoint_runtime_names sequence_dive_fingerprint_w1
+        PASS [   2.711s] (  83/1144) dive-api::native_checkpoint_runtime_names sequence_dive_fingerprint_w4
+        PASS [   2.673s] (  84/1144) dive-api::native_checkpoint_runtime_names sequence_dive_fingerprint_w8
+        PASS [   2.702s] (  85/1144) dive-api::native_checkpoint_runtime_names sequence_tlc_exact_w1
+        PASS [   3.248s] (  86/1144) dive-api::native_checkpoint_runtime_names sequence_tlc_exact_w4
+        PASS [   3.539s] (  87/1144) dive-api::native_checkpoint_runtime_names sequence_tlc_exact_w8
+        PASS [   3.794s] (  88/1144) dive-api::native_checkpoint_runtime_names sequence_tlc_fingerprint_w1
+        PASS [   3.715s] (  89/1144) dive-api::native_checkpoint_runtime_names sequence_tlc_fingerprint_w4
+        PASS [   3.720s] (  90/1144) dive-api::native_checkpoint_runtime_names sequence_tlc_fingerprint_w8
+        PASS [   3.768s] (  91/1144) dive-api::native_checkpoint_runtime_names string_dive_exact_w1
+        PASS [   3.396s] (  92/1144) dive-api::native_checkpoint_runtime_names string_dive_exact_w4
+        PASS [   3.281s] (  93/1144) dive-api::native_checkpoint_runtime_names string_dive_exact_w8
+        PASS [   3.273s] (  94/1144) dive-api::native_checkpoint_runtime_names string_dive_fingerprint_w1
+        PASS [   3.427s] (  95/1144) dive-api::native_checkpoint_runtime_names string_dive_fingerprint_w4
+        PASS [   3.689s] (  96/1144) dive-api::native_checkpoint_runtime_names string_dive_fingerprint_w8
+        PASS [   3.821s] (  97/1144) dive-api::native_checkpoint_runtime_names string_tlc_exact_w1
+        PASS [   3.640s] (  98/1144) dive-api::native_checkpoint_runtime_names string_tlc_exact_w4
+        PASS [   3.602s] (  99/1144) dive-api::native_checkpoint_runtime_names string_tlc_exact_w8
+        PASS [   3.277s] ( 100/1144) dive-api::native_checkpoint_runtime_names string_tlc_fingerprint_w1
+        PASS [   3.274s] ( 101/1144) dive-api::native_checkpoint_runtime_names string_tlc_fingerprint_w4
+        PASS [   3.407s] ( 102/1144) dive-api::native_checkpoint_runtime_names string_tlc_fingerprint_w8
+        PASS [   3.593s] ( 103/1144) dive-api::native_checkpoint_runtime_names symmetry_view_dive_exact_w1
+        PASS [   3.594s] ( 104/1144) dive-api::native_checkpoint_runtime_names symmetry_view_dive_exact_w4
+        PASS [   3.678s] ( 105/1144) dive-api::native_checkpoint_runtime_names symmetry_view_dive_exact_w8
+        PASS [   3.608s] ( 106/1144) dive-api::native_checkpoint_runtime_names symmetry_view_dive_fingerprint_w1
+        PASS [   3.605s] ( 107/1144) dive-api::native_checkpoint_runtime_names symmetry_view_dive_fingerprint_w4
+        PASS [   3.546s] ( 108/1144) dive-api::native_checkpoint_runtime_names symmetry_view_dive_fingerprint_w8
+        PASS [   3.540s] ( 109/1144) dive-api::native_checkpoint_runtime_names symmetry_view_tlc_exact_w1
+        PASS [   3.468s] ( 110/1144) dive-api::native_checkpoint_runtime_names symmetry_view_tlc_exact_w4
+        PASS [   3.568s] ( 111/1144) dive-api::native_checkpoint_runtime_names symmetry_view_tlc_exact_w8
+        PASS [   4.280s] ( 112/1144) dive-api::native_checkpoint_runtime_names symmetry_view_tlc_fingerprint_w1
+        PASS [   4.336s] ( 113/1144) dive-api::native_checkpoint_runtime_names symmetry_view_tlc_fingerprint_w4
+        PASS [   3.840s] ( 114/1144) dive-api::native_checkpoint_runtime_names symmetry_view_tlc_fingerprint_w8
+        PASS [  15.395s] ( 115/1144) dive-api::native_checkpoint_spill cpsymconcrete_dive_both_spill_recovery
+        PASS [  15.133s] ( 116/1144) dive-api::native_checkpoint_spill cpsymconcrete_dive_frontier_spill_recovery
+        PASS [  14.907s] ( 117/1144) dive-api::native_checkpoint_spill cpsymconcrete_dive_predecessor_spill_recovery
+        PASS [  15.237s] ( 118/1144) dive-api::native_checkpoint_spill cpsymconcrete_tlc_both_spill_recovery
+        PASS [  16.125s] ( 119/1144) dive-api::native_checkpoint_spill cpsymconcrete_tlc_frontier_spill_recovery
+        PASS [  15.954s] ( 120/1144) dive-api::native_checkpoint_spill cpsymconcrete_tlc_predecessor_spill_recovery
+        PASS [  15.577s] ( 121/1144) dive-api::native_checkpoint_spill cpsymview_dive_both_spill_recovery
+        PASS [  15.052s] ( 122/1144) dive-api::native_checkpoint_spill cpsymview_dive_frontier_spill_recovery
+        PASS [  16.076s] ( 123/1144) dive-api::native_checkpoint_spill cpsymview_dive_predecessor_spill_recovery
+        PASS [  16.375s] ( 124/1144) dive-api::native_checkpoint_spill cpsymview_tlc_both_spill_recovery
+        PASS [  13.979s] ( 125/1144) dive-api::native_checkpoint_spill cpsymview_tlc_frontier_spill_recovery
+        PASS [  17.142s] ( 126/1144) dive-api::native_checkpoint_spill cpsymview_tlc_predecessor_spill_recovery
+        PASS [  15.516s] ( 127/1144) dive-api::native_checkpoint_spill cpview_dive_both_spill_recovery
+        PASS [  12.470s] ( 128/1144) dive-api::native_checkpoint_spill cpview_dive_frontier_spill_recovery
+        PASS [  12.074s] ( 129/1144) dive-api::native_checkpoint_spill cpview_dive_predecessor_spill_recovery
+        PASS [  11.692s] ( 130/1144) dive-api::native_checkpoint_spill cpview_tlc_both_spill_recovery
+        PASS [   9.301s] ( 131/1144) dive-api::native_checkpoint_spill cpview_tlc_frontier_spill_recovery
+        PASS [  11.992s] ( 132/1144) dive-api::native_checkpoint_spill cpview_tlc_predecessor_spill_recovery
+        PASS [   4.721s] ( 133/1144) dive-api::native_checkpoint_spill storage_failures_do_not_create_a_pause_or_certify_recovery
+        PASS [   0.226s] ( 134/1144) dive-api::native_sequence_operators append_configured_unused_effect_and_action_actuals_keep_refusals
+        PASS [   0.231s] ( 135/1144) dive-api::native_sequence_operators append_scope_controls_replay_fresh_memory_and_json
+        PASS [   0.262s] ( 136/1144) dive-api::native_sequence_operators append_two_state_operands_have_independent_periodic_truth
+        PASS [   0.027s] ( 137/1144) dive-api::native_sequence_operators either_append_operand_refuses_hidden_providers_namespace_order_and_work
+        PASS [   0.032s] ( 138/1144) dive-api::native_sequence_operators string_capable_tail_and_subseq_remain_prebind_refused
+        PASS [   0.100s] ( 139/1144) dive-api::native_temporal_operators independent_native_word_refuses_providers_foreign_names_order_and_budget_before_callbacks
+        PASS [   0.050s] ( 140/1144) dive-api::native_temporal_operators native_metadata_admission_refuses_unknown_configured_foreign_and_budget_inputs
+        PASS [   0.079s] ( 141/1144) dive-api::native_temporal_operators native_words_are_independently_evaluated_at_every_closing_position
+        PASS [   0.375s] ( 142/1144) dive-api::native_temporal_operators paired_native_final_controls_replay_fresh_memory_and_json
+        PASS [   0.106s] ( 143/1144) dive-api::pluscal_source_context deciding_source_context_inside_previous_translation_is_not_masked
+        PASS [   0.020s] ( 144/1144) dive-api::pluscal_source_context erroneous_source_options_return_no_artifact
+        PASS [   0.459s] ( 145/1144) dive-api::pluscal_source_context source_settings_override_request_in_both_report_surfaces
+        PASS [  12.587s] ( 146/1144) dive-api::native_checkpoint_spill recovery_can_change_transient_budgets_and_worker_width
+        PASS [   2.757s] ( 147/1144) dive-api::predecessor_spill concrete_spilled_symmetry_witnesses_remain_independently_valid
+        PASS [   0.021s] ( 148/1144) dive-api::predecessor_spill early_admission_and_failed_creation_never_certify_success
+        PASS [   4.829s] ( 149/1144) dive-api::predecessor_spill combined_frontier_and_predecessor_spill_preserves_order_and_witnesses
+        PASS [   0.171s] ( 150/1144) dive-api::primed_covers a_deadlock_claim_with_a_real_successor_is_not_validated
+        PASS [   0.014s] ( 151/1144) dive-api::primed_covers constant_primed_domain_still_requires_a_cover_for_its_body_reads
+        PASS [   0.011s] ( 152/1144) dive-api::primed_covers current_empty_domain_still_certifies_disabledness
+        PASS [   0.016s] ( 153/1144) dive-api::primed_covers primed_domains_cannot_be_scanned_as_current_empty_sets
+        PASS [   0.093s] ( 154/1144) dive-api::rewrite explicit_partial_replacement_is_admitted_without_proof
+        PASS [   0.026s] ( 155/1144) dive-api::rewrite failed_generation_and_bad_old_checksum_do_not_return_replacement
+        PASS [   0.066s] ( 156/1144) dive-api::rewrite full_integrity_rejects_algorithm_and_body_changes_without_a_grant
+        PASS [   0.011s] ( 157/1144) dive-api::rewrite original_source_options_refuse_before_masking_previous_translation
+        PASS [   0.085s] ( 158/1144) dive-api::simulate corrupted_trace_rejected_and_undecidable_deadlock_not_certified
+        PASS [   0.027s] ( 159/1144) dive-api::simulate default_trace_identity_replays_and_is_prefix_stable
+        PASS [   0.053s] ( 160/1144) dive-api::simulate seeded_tlc_choices_and_counts_match_ten_oracle_runs
+        PASS [   0.065s] ( 161/1144) dive-api::simulate simulation_error_sites_match_pinned_messages_and_statuses
+        PASS [   0.051s] ( 162/1144) dive-api::simulate tlc_runtime_name_sampling_refuses_before_uncertifiable_traces
+        PASS [   0.014s] ( 163/1144) dive-api::simulate unrepresentable_sample_retains_execution_statistics
+        PASS [   0.419s] ( 164/1144) dive-api::stored_successor_material paired_stored_successor_controls_replay_fresh_memory_and_json
+        PASS [   0.090s] ( 165/1144) dive-api::stored_successor_material stored_words_are_independently_evaluated_at_every_closing_position
+        PASS [   0.940s] ( 166/1144) dive-api::symmetry_trace concrete_symmetry_predecessors_validate_and_corruptions_are_rejected
+        PASS [   0.101s] ( 167/1144) dive-api::temporal action_argument_effects_and_action_in_temporal_helper_remain_refusals
+        PASS [   0.033s] ( 168/1144) dive-api::temporal actual_state_domain_bounds_and_analysis_markers_cannot_claim_truth
+        PASS [   0.014s] ( 169/1144) dive-api::temporal captured_domains_affect_predicate_level_even_when_the_body_ignores_the_binder
+        PASS [   0.010s] ( 170/1144) dive-api::temporal concrete_binding_guard_reads_successor_domains_without_placeholder_states
+        PASS [   0.044s] ( 171/1144) dive-api::temporal conditional_word_truth_uses_current_state_or_temporal_guard
+        PASS [   0.061s] ( 172/1144) dive-api::temporal constant_temporal_calls_keep_scopes_and_match_direct_word_semantics
+        PASS [   0.077s] ( 173/1144) dive-api::temporal constructor_words_retain_bound_variables_and_state_on_the_closing_edge
+        PASS [   0.020s] ( 174/1144) dive-api::temporal default_profile_attributes_all_false_properties_and_repeat_runs_rebind
+        PASS [   0.094s] ( 175/1144) dive-api::temporal effectful_arguments_refuse_while_pure_state_arguments_keep_their_truth
+        PASS [   0.093s] ( 176/1144) dive-api::temporal effectful_infinite_and_oversized_constructor_scopes_are_refused
+        PASS [   0.035s] ( 177/1144) dive-api::temporal effectful_substitutions_refuse_before_evaluation
+        PASS [   0.106s] ( 178/1144) dive-api::temporal finite_choose_models_match_pinned_truth_counts_in_both_profiles_and_stores
+        PASS [   0.215s] ( 179/1144) dive-api::temporal finite_choose_predicates_keep_values_contexts_and_closing_words
+        PASS [   0.033s] ( 180/1144) dive-api::temporal finite_choose_purity_limits_and_unsatisfied_predicates_never_supply_a_value
+        PASS [   0.082s] ( 181/1144) dive-api::temporal finite_data_constructors_match_pinned_temporal_truth_and_counts
+        PASS [   0.107s] ( 182/1144) dive-api::temporal finite_predicate_quantifiers_keep_every_context_and_empty_identity
+        PASS [   0.051s] ( 183/1144) dive-api::temporal incomplete_cases_and_effectful_conditional_branches_are_refused
+        PASS [   0.012s] ( 184/1144) dive-api::temporal instance_state_expression_cannot_replace_a_constant_declaration
+        PASS [   0.078s] ( 185/1144) dive-api::temporal instance_substitutions_match_pinned_final_truth_and_validate_independently
+        PASS [   0.082s] ( 186/1144) dive-api::temporal let_scopes_match_pinned_final_truth_and_validate_independently
+        PASS [   0.035s] ( 187/1144) dive-api::temporal let_word_contexts_match_cycle_algebra_without_freezing_state
+        PASS [   0.020s] ( 188/1144) dive-api::temporal oracle_rejected_temporal_conditionals_remain_named_refusals
+        PASS [   0.152s] ( 189/1144) dive-api::temporal pinned_action_argument_models_match_final_truth_counts_and_validate
+        PASS [   0.068s] ( 190/1144) dive-api::temporal pinned_constant_domain_quantifiers_match_verdicts_and_counts
+        PASS [   0.092s] ( 191/1144) dive-api::temporal pinned_constant_temporal_calls_match_truth_counts_and_validate_independently
+        PASS [   0.813s] ( 192/1144) dive-api::temporal pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims
+        PASS [   1.305s] ( 193/1144) dive-api::temporal pinned_multi_process_fairness_fits_bounded_products_and_rejects_unfair_mutants
+        PASS [   0.098s] ( 194/1144) dive-api::temporal pinned_state_argument_operators_match_truth_counts_and_validate_independently
+        PASS [   0.049s] ( 195/1144) dive-api::temporal pinned_temporal_conditionals_match_oracle_counts_in_both_profiles_and_stores
+        PASS [   0.110s] ( 196/1144) dive-api::temporal pure_action_arguments_preserve_nested_caller_edges_on_every_closing_word
+        PASS [   0.112s] ( 197/1144) dive-api::temporal quantified_actions_and_predicates_match_pinned_final_truth_and_validate
+        PASS [   0.043s] ( 198/1144) dive-api::temporal quantified_word_truth_matches_cycle_algebra_and_empty_domain_identities
+        PASS [   0.072s] ( 199/1144) dive-api::temporal quantifier_limits_and_hidden_constant_effects_are_not_success
+        PASS [   0.016s] ( 200/1144) dive-api::temporal safety_stops_retain_trace_statistics_and_assumption_failures
+        PASS [   0.054s] ( 201/1144) dive-api::temporal scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation
+        PASS [   0.015s] ( 202/1144) dive-api::temporal state_argument_holds_and_resource_limits_never_become_holds
+        PASS [   0.045s] ( 203/1144) dive-api::temporal state_arguments_are_position_dependent_and_priming_uses_the_closing_edge
+        PASS [   0.021s] ( 204/1144) dive-api::temporal state_dependent_constructor_domains_use_actual_states_and_match_tlc
+        PASS [   0.128s] ( 205/1144) dive-api::temporal state_domain_models_match_pinned_final_truth_counts_and_independent_validation
+        PASS [   0.095s] ( 206/1144) dive-api::temporal state_domain_words_change_bindings_and_preserve_primed_closing_edges
+        PASS [   0.173s] ( 207/1144) dive-api::temporal substituted_words_keep_nested_state_and_priming_lazy
+        PASS [   0.015s] ( 208/1144) dive-api::temporal temporal_call_purity_walk_consumes_the_planning_budget
+        PASS [   0.016s] ( 209/1144) dive-api::temporal undecidable_independent_enabledness_is_a_refusal_not_a_violation
+        PASS [   0.012s] ( 210/1144) dive-api::temporal unsupported_substitution_bindings_and_disabledness_never_claim_truth
+        PASS [   0.030s] ( 211/1144) dive-api::temporal used_let_effects_and_checker_reads_refuse_without_evaluation
+        PASS [   0.080s] ( 212/1144) dive-api::temporal_evidence before_capture_planning_and_binding_failures_prove_zero_work
+        PASS [   0.017s] ( 213/1144) dive-api::temporal_evidence capture_stop_retains_partial_safety_result
+        PASS [   0.013s] ( 214/1144) dive-api::temporal_evidence legacy_error_interface_preserves_diagnostic_code
+        PASS [   0.024s] ( 215/1144) dive-api::temporal_evidence post_capture_product_and_atom_limits_retain_actual_work
+        PASS [   0.230s] ( 216/1144) dive-api::temporal_forwarding final_verdicts_and_fresh_witness_validation_keep_forwarded_properties
+        PASS [   0.111s] ( 217/1144) dive-api::temporal_forwarding fixture_integrity_and_complete_historical_census_are_verified
+        PASS [   0.015s] ( 218/1144) dive-api::temporal_forwarding forwarded_context_walk_is_bounded_without_forcing_temporal_values
+        PASS [   0.031s] ( 219/1144) dive-api::temporal_forwarding forwarding_never_runs_impure_or_opaque_operator_arguments
+        PASS [   0.187s] ( 220/1144) dive-api::temporal_forwarding forwarding_preserves_truth_at_all_positions_and_closing_edges
+        PASS [   0.032s] ( 221/1144) dive-api::temporal_forwarding opaque_rust_operator_capture_cannot_hide_under_a_temporal_argument
+        PASS [   0.374s] ( 222/1144) dive-api::temporal_forwarding pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals
+        PASS [   0.017s] ( 223/1144) dive-api::temporal_forwarding state_only_forwarded_enabled_controls_preserve_safety_classification
+        PASS [   0.025s] ( 224/1144) dive-api::temporal_forwarding unchecked_expression_and_definition_endpoints_refuse_without_panics
+        PASS [   0.192s] ( 225/1144) dive-api::temporal_operators actual_operator_planning_keeps_existing_work_and_formula_bounds
+        PASS [   0.086s] ( 226/1144) dive-api::temporal_operators binding_inlined_unused_operator_capture_is_refused_without_callbacks
+        PASS [   0.947s] ( 227/1144) dive-api::temporal_operators clean_paired_primary_models_have_final_outcomes_with_fresh_validation
+        PASS [   0.068s] ( 228/1144) dive-api::temporal_operators configured_target_origin_and_runtime_domains_keep_named_boundaries
+        PASS [   0.064s] ( 229/1144) dive-api::temporal_operators erased_effect_annotations_never_authorize_hidden_native_operator_callbacks
+        PASS [   0.095s] ( 230/1144) dive-api::temporal_operators retained_operator_formals_match_independent_words_and_closing_edges
+        PASS [   0.048s] ( 231/1144) dive-api::temporal_operators unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity
+        PASS [   0.416s] ( 232/1144) dive-api::tlc_final_safety bounds_do_not_become_safety_success_or_temporal_credit
+        PASS [   0.036s] ( 233/1144) dive-api::tlc_final_safety deadlock_cannot_earn_finite_violation_credit_without_independent_cover
+        PASS [   0.031s] ( 234/1144) dive-api::tlc_final_safety route_authority_comes_from_fresh_bound_source_not_empty_report_names
+        PASS [   0.123s] ( 235/1144) dive-api::tlc_final_safety safety_only_uses_real_engine_and_independent_finite_replay
+        PASS [   0.018s] ( 236/1144) dive-api::tlc_final_safety successful_api_receipt_retains_exact_caller_limits
+        PASS [   0.032s] ( 237/1144) dive-api::tlc_final_safety unproved_constraint_property_replay_refuses_before_pool_work
+        PASS [   4.898s] ( 238/1144) dive-api::tlc_final_scopes complete_scope_capture_source_guard
+        PASS [  16.379s] ( 239/1144) dive-api::predecessor_spill zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos
+        PASS [   0.289s] ( 240/1144) dive-api::tlc_final_scopes negated_enabled_keeps_purity_and_finite_action_refusals
+        PASS [   0.255s] ( 241/1144) dive-api::tlc_final_scopes scoped_final_words_counts_and_all_independent_mutations
+        PASS [   0.044s] ( 242/1144) dive-api::tlc_final_scopes state_only_and_exported_formal_boundaries_remain_distinct
+        PASS [   0.278s] ( 243/1144) dive-api::tlc_final_scopes scoped_formula_words_cover_every_periodic_closing_position
+        PASS [   0.258s] ( 244/1144) dive-api::tlc_property_origins edited_role_quantity_refuses_before_executing_stale_origins
+        PASS [   0.255s] ( 245/1144) dive-api::tlc_property_origins primary_action_names_match_binder_projection_execution_and_schema_two
+        PASS [   0.412s] ( 246/1144) dive-api::tlc_state_if conditional_effects_dynamic_captures_and_limits_never_gain_proof
+        PASS [   0.032s] ( 247/1144) dive-api::tlc_state_if conditional_planning_errors_remain_before_any_graph_or_workers
+        PASS [   0.274s] ( 248/1144) dive-api::tlc_state_if pure_if_final_words_counts_and_all_independent_mutations
+        PASS [   0.017s] ( 249/1144) dive-api::tlc_state_if unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations
+        PASS [   0.412s] ( 250/1144) dive-api::tlc_temporal check_file_exposes_only_the_explicit_final_tlc_certificate
+        PASS [   0.029s] ( 251/1144) dive-api::tlc_temporal configured_context_alias_roots_the_actual_target_before_binding
+        PASS [   0.010s] ( 252/1144) dive-api::tlc_temporal explicit_mode_admission_and_bounds_keep_actual_evidence
+        PASS [   0.008s] ( 253/1144) dive-api::tlc_temporal final_source_authority_precedes_request_flags_and_transient_storage_refuses
+        PASS [   0.008s] ( 254/1144) dive-api::tlc_temporal malformed_source_and_sequential_requests_have_no_execution_credit
+        PASS [   0.168s] ( 255/1144) dive-api::tlc_temporal real_model_final_witness_is_independently_certified_at_each_width
+        PASS [   0.191s] ( 256/1144) dive-api::tlc_temporal startup_effects_hooks_and_opaque_source_operators_refuse_before_binding
+        PASS [   3.287s] ( 257/1144) dive-api::tlc_property_origins complete_primary_native_origins_and_source_history_are_verified
+        PASS [   1.077s] ( 258/1144) dive-api::tlc_temporal_if temporal_if_final_words_counts_and_all_independent_mutations
+        PASS [   0.037s] ( 259/1144) dive-api::tlc_temporal_if unused_direct_temporal_if_admits_with_erased_annotations_and_retained_bounds
+        PASS [   0.147s] ( 260/1144) dive-api::trace_controls a_label_must_name_an_action_that_holds
+        PASS [   0.020s] ( 261/1144) dive-api::trace_controls constraints_bound_every_state_but_a_violating_last_one
+        PASS [   0.039s] ( 262/1144) dive-api::trace_controls deadlock_needs_the_model_to_check_it
+        PASS [   3.069s] ( 263/1144) dive-api::tlc_temporal_if complete_current_source_raw_and_user_example_guard
+        PASS [   0.225s] ( 264/1144) dive-api::trace_controls tlc_probe_counterexamples_validate_and_their_mutants_do_not
+        PASS [   0.188s] ( 265/1144) dive-api::trace_random a_coincidental_random_match_is_not_a_stream_position_proof
+        PASS [   0.075s] ( 266/1144) dive-api::trace_random a_draw_the_validator_cannot_place_is_refused
+        PASS [   2.362s] ( 267/1144) dive-api::trace_controls tlc_golden_counterexamples_validate_and_their_mutants_do_not
+        PASS [   1.460s] ( 268/1144) dive-api::trace_random draws_in_init_and_next_replay_in_both_profiles
+        PASS [   0.044s] ( 269/1144) dive-api::trace_random pinned_tlc_random_trace_with_unproved_placement_is_refused
+        PASS [   0.239s] ( 270/1144) dive-api::trace_random draws_out_of_the_generators_order_are_refused_not_judged
+        PASS [   0.072s] ( 271/1144) dive-api::trace_random tlc_p9random_counterexample_replays
+        PASS [   0.138s] ( 272/1144) dive-api::trace_random redraw_mutants_are_rejected
+        PASS [   0.254s] ( 273/1144) dive-api::trace_random wide_random_expansions_are_refused_without_an_offset_search
+        PASS [   0.251s] ( 274/1144) dive-api::trace_runtime_names run_metadata_cannot_make_a_forged_namespace_independently_valid
+        PASS [   0.129s] ( 275/1144) dive-api::translation artifact_validation_and_source_map
+        PASS [   0.147s] ( 276/1144) dive-api::translation default_model_value_binding_and_label_options_are_data
+        PASS [   0.031s] ( 277/1144) dive-api::translation invalid_generated_name_is_not_an_artifact
+        PASS [   0.058s] ( 278/1144) dive-api::translation free_macro_actual_name_is_validated_at_enclosing_module_boundary
+        PASS [   0.199s] ( 279/1144) dive-api::translation invalid_primary_graph_outputs_are_never_public_artifacts
+        PASS [   0.284s] ( 280/1144) dive-api::translation invalid_primary_macro_generation_is_not_public_admission
+        PASS [   0.091s] ( 281/1144) dive-api::translation invalid_primary_procedure_outputs_are_never_public_artifacts
+        PASS [   0.064s] ( 282/1144) dive-api::translation long_module_terminator_and_multiline_expression_boundaries
+        PASS [   0.069s] ( 283/1144) dive-api::translation multiple_process_storage_and_refusals_remain_nonproof
+        PASS [   0.065s] ( 284/1144) dive-api::translation process_artifact_is_validated_nonproof_in_both_profiles
+        PASS [   0.040s] ( 285/1144) dive-api::translation selection_refusals_remain_explicit
+        PASS [   0.253s] ( 286/1144) dive-api::translation process_fairness_options_remain_validated_nonproof_artifacts
+        PASS [   5.626s] ( 287/1144) dive-api::view_normalization ignored_invalid_value_cannot_produce_a_public_verdict_or_archive
+        PASS [  11.834s] ( 288/1144) dive-api::view_normalization record_dive_exact
+        PASS [   9.590s] ( 289/1144) dive-api::view_normalization record_dive_fingerprint
+        PASS [   7.920s] ( 290/1144) dive-api::view_normalization record_tlc_exact
+        PASS [   7.555s] ( 291/1144) dive-api::view_normalization record_tlc_fingerprint
+        PASS [   7.815s] ( 292/1144) dive-api::view_normalization set_dive_exact
+        PASS [   9.892s] ( 293/1144) dive-api::view_normalization set_dive_fingerprint
+        PASS [  10.216s] ( 294/1144) dive-api::view_normalization set_tlc_exact
+        PASS [   8.476s] ( 295/1144) dive-api::view_normalization set_tlc_fingerprint
+        PASS [   8.423s] ( 296/1144) dive-api::view_normalization tuple_dive_exact
+        PASS [   9.350s] ( 297/1144) dive-api::view_normalization tuple_dive_fingerprint
+        PASS [   8.872s] ( 298/1144) dive-api::view_normalization tuple_tlc_exact
+        PASS [   0.987s] ( 299/1144) dive-api::view_random public_view_random_refusal_never_claims_workers_output_or_witness
+        PASS [   0.060s] ( 300/1144) dive-bench tests::incomplete_time_output_is_none
+        PASS [   0.011s] ( 301/1144) dive-bench tests::parses_bsd_time
+        PASS [   0.010s] ( 302/1144) dive-bench tests::parses_gnu_time
+        PASS [   0.008s] ( 303/1144) dive-bench tests::rejects_duplicates
+        PASS [   0.011s] ( 304/1144) dive-bench tests::statistics
+        PASS [   0.009s] ( 305/1144) dive-bench tests::survey_lookup
+        PASS [   0.019s] ( 306/1144) dive-bench tests::the_committed_set_parses
+        PASS [   0.012s] ( 307/1144) dive-bench tests::tlc_count_line
+        PASS [   0.059s] ( 308/1144) dive-bench::bin/dive-bench tests::ratios_require_successful_current_pairs
+        PASS [   0.011s] ( 309/1144) dive-bench::bin/dive-bench tests::wrapper_arguments_quote_apostrophes_and_shell_syntax
+        PASS [   0.056s] ( 310/1144) dive-check capture::evidence_controls::panic_does_not_fabricate_a_zero_worker_stop
+        PASS [   0.018s] ( 311/1144) dive-check capture::pure::tests::material_work_depth_and_namespace_bounds_are_recursive
+        PASS [   0.012s] ( 312/1144) dive-check capture::pure::tests::stored_values_names_and_provider_caches_are_not_callback_authority
+        PASS [   0.023s] ( 313/1144) dive-check capture::pure::tests::unknown_and_unevaluable_open_leaves_never_pass_vacuously
+        PASS [   0.079s] ( 314/1144) dive-check checkpoint::tests::checksummed_structural_mutants_refuse_and_commit_is_complete
+        PASS [   0.017s] ( 315/1144) dive-check checkpoint::tests::committed_archive_receipt_retains_identity_after_actual_transient_close_failure
+        PASS [   0.016s] ( 316/1144) dive-check checkpoint::tests::corrupt_and_interrupted_files_never_become_native_snapshots
+        PASS [   0.010s] ( 317/1144) dive-check checkpoint::tests::failed_staging_inspection_and_cleanup_preserve_original_operation
+        PASS [   0.012s] ( 318/1144) dive-check checkpoint::tests::malformed_encoded_counts_depth_and_tokens_refuse_before_decoding
+        PASS [   0.019s] ( 319/1144) dive-check checkpoint::tests::native_reader_checks_checksum_length_unknown_fields_and_array_limits
+        PASS [   7.308s] ( 320/1144) dive-api::view_normalization tuple_tlc_fingerprint
+        PASS [   1.215s] ( 321/1144) dive-check engine::configured_stream_tests::actual_configured_target_matches_direct_draws_and_inline_order
+        PASS [   0.014s] ( 322/1144) dive-check engine::predecessor_tests::cleanup_failure_preserves_decision_counts_and_actual_workers
+        PASS [   0.014s] ( 323/1144) dive-check engine::predecessor_tests::diagnostic_text_never_creates_storage_failure_evidence
+        PASS [   0.018s] ( 324/1144) dive-check frontier::tests::cleanup_failure_reaches_final_accounting_instead_of_disappearing_in_drop
+        PASS [   0.012s] ( 325/1144) dive-check frontier::tests::missing_disk_payload_is_recorded_as_no_verdict_storage_failure
+        PASS [   0.016s] ( 326/1144) dive-check metadata_controls::panic_and_early_refusal_metadata_do_not_index_invalid_public_ids
+        PASS [   0.136s] ( 327/1144) dive-check::capture actual_captured_scopes_are_proved_before_any_pool_evaluation
+        PASS [   0.019s] ( 328/1144) dive-check::capture caller_replaced_ir_or_names_refuses_before_walk_setup_or_workers
+        PASS [   0.088s] ( 329/1144) dive-check::capture capture_still_refuses_projection_randomness_and_stateful_effects
+        PASS [   0.049s] ( 330/1144) dive-check::capture concrete_parallel_capture_retains_equal_nonrepresentative_values_and_real_width
+        PASS [   2.173s] ( 331/1144) dive-check::capture concrete_parallel_source_rows_equal_inline_across_scheduling_and_fixed_bounds
+        PASS [   0.033s] ( 332/1144) dive-check::capture constraints_filter_generated_edges_without_filtering_implicit_stutters
+        PASS [   0.024s] ( 333/1144) dive-check::capture duplicates_seen_edges_roots_and_stutters_retain_reference_order
+        PASS [   0.019s] ( 334/1144) dive-check::capture every_other_unsupported_reason_and_profile_mismatch_is_retained
+        PASS [   0.088s] ( 335/1144) dive-check::capture failing_assumptions_keep_prints_and_completed_safety_stops_keep_all_evidence
+        PASS [   7.105s] ( 336/1144) dive-check engine::configured_stream_tests::configured_startup_draws_preserve_direct_stream_and_print_order
+        PASS [   0.043s] ( 337/1144) dive-check::capture no_safety_stop_or_resource_bound_exposes_a_complete_graph
+        PASS [   0.270s] ( 338/1144) dive-check::capture ordered_parallel_capture_matches_inline_across_profiles_stores_and_chaos
+        PASS [   0.012s] ( 339/1144) dive-check::capture pre_pool_initial_stop_reports_the_one_thread_that_ran
+        PASS [   1.026s] ( 340/1144) dive-check::capture runtime_string_choice_respects_reference_intern_order
+        PASS [   0.042s] ( 341/1144) dive-check::capture runtime_string_ordinary_safety_probe
+        PASS [   0.080s] ( 342/1144) dive-check::capture speculative_capture_refuses_runtime_name_creation_before_workers
+        PASS [   2.231s] ( 343/1144) dive-check::capture tiny_bounds_choose_the_inline_prefix_at_every_width
+        PASS [   1.709s] ( 344/1144) dive-check::checkpoint_keys configuration_context_aliases_preserve_pure_and_effectful_admission
+        PASS [   1.384s] ( 345/1144) dive-check::checkpoint_keys configured_view_key_failure_is_import_failure_not_a_model_verdict
+        PASS [  11.374s] ( 346/1144) dive-check::capture mid_wave_safety_stops_preserve_ordered_prints_counts_and_predecessors
+        PASS [   0.041s] ( 347/1144) dive-check::checkpoint_keys standard_nonnative_zero_arity_startup_body_cannot_escape_effect_admission
+        PASS [   1.694s] ( 348/1144) dive-check::checkpoint_keys native_override_authority_and_substitutions_preserve_pre_effect_refusals
+        PASS [   0.794s] ( 349/1144) dive-check::configured_random both_concrete_wrong_verdicts_match_the_direct_stream
+        PASS [   2.478s] ( 350/1144) dive-check::checkpoint_runtime_names corrupt_name_tables_refuse_without_continuation_or_a_witness
+        PASS [   0.696s] ( 351/1144) dive-check::configured_random configured_context_alias_and_typed_native_replacement_match_the_stream
+        PASS [   0.041s] ( 352/1144) dive-check::configured_random foreign_native_bound_models_refuse_in_legacy_capture_before_assumptions
+        PASS [   0.022s] ( 353/1144) dive-check::configured_random malformed_native_bindings_are_not_constructible_before_names_or_callbacks
+        PASS [   0.147s] ( 354/1144) dive-check::configured_random other_native_random_families_refuse_and_invalid_transitive_cfg_keeps_startup_error
+        PASS [   0.175s] ( 355/1144) dive-check::configured_random pure_configured_replacement_is_not_random_authority
+        PASS [   0.030s] ( 356/1144) dive-check::configured_random pure_native_imports_and_user_replacements_keep_legacy_capture
+        PASS [   1.309s] ( 357/1144) dive-check::configured_random configured_native_authority_matches_startup_and_initial_effects
+        PASS [   0.066s] ( 358/1144) dive-check::configured_random transformed_keys_with_configured_draws_refuse_before_effects
+        PASS [   0.395s] ( 359/1144) dive-check::dfid captured_fixture_integrity
+        PASS [   0.063s] ( 360/1144) dive-check::dfid default_replays_and_worker_constraints_refuse
+        PASS [   1.026s] ( 361/1144) dive-check::configured_random supplied_bound_models_refuse_native_targets_in_legacy_and_pool_capture
+        PASS [   0.023s] ( 362/1144) dive-check::dfid injected_captured_print_preflight
+        PASS [   0.037s] ( 363/1144) dive-check::dfid limits_never_prove_model
+        PASS [   1.171s] ( 364/1144) dive-check::dfid seeded_reference_matrix
+        PASS [   6.120s] ( 365/1144) dive-check::dfid resource_sweep_keeps_partial_evidence_and_no_false_completion
+        PASS [   0.024s] ( 366/1144) dive-check::errors level_error_is_rejected_like_sany
+        PASS [   0.010s] ( 367/1144) dive-check::errors listed_cells_exist
+        PASS [   0.008s] ( 368/1144) dive-check::errors message_parser_keeps_inline_nested_errors_and_quoted_markers
+        PASS [   7.238s] ( 369/1144) dive-check::fingerprints compat_and_exact_agree_on_mc_write_through_cache
+        PASS [   2.624s] ( 370/1144) dive-check::fingerprints default_profile_finds_every_state_of_mc_write_through_cache
+        PASS [   0.112s] ( 371/1144) dive-check::frontier_spill empty_frontier_and_deferred_view_admission
+        PASS [   0.994s] ( 372/1144) dive-check::frontier_spill tiny_spill_matches_memory_across_events_profiles_stores_and_widths
+        PASS [  19.663s] ( 373/1144) dive-check::errors error_classes_agree_with_tlc
+        PASS [   0.565s] ( 374/1144) dive-check::invariance runtime_choice_matches_clean_pinned_tlc_at_fixed_seeds
+        PASS [   0.197s] ( 375/1144) dive-check::invariance runtime_name_wrappers_aliases_and_operator_arguments_are_reachable
+        PASS [   4.612s] ( 376/1144) dive-check::invariance probes_are_invariant
+        PASS [   0.681s] ( 377/1144) dive-check::invariance runtime_names_preserve_inline_safety
+        PASS [   0.120s] ( 378/1144) dive-check::invariance sequential_mode_is_detected_and_reported
+        PASS [   0.711s] ( 379/1144) dive-check::invariance runtime_names_preserve_inline_symmetry_safety
+        PASS [   0.432s] ( 380/1144) dive-check::invariance wide_print_output_is_released_in_order
+        PASS [  12.933s] ( 381/1144) dive-check::native_checkpoint actual_resume_matches_uninterrupted_and_tlc_reset_is_explicit
+        PASS [  13.474s] ( 382/1144) dive-check::invariance wide_levels_stop_identically_at_every_worker_count
+        PASS [   0.855s] ( 383/1144) dive-check::native_checkpoint coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt
+        PASS [   0.789s] ( 384/1144) dive-check::native_checkpoint concrete_compound_model_values_and_name_prefixes_restore_losslessly
+        PASS [   3.987s] ( 385/1144) dive-check::native_checkpoint native_counter_prefix_exact_tlc
+        PASS [   3.989s] ( 386/1144) dive-check::native_checkpoint native_counter_prefix_exact_dive
+        PASS [   3.948s] ( 387/1144) dive-check::native_checkpoint native_counter_prefix_fingerprint_tlc
+        PASS [   3.948s] ( 388/1144) dive-check::native_checkpoint native_counter_prefix_fingerprint_dive
+        PASS [   0.520s] ( 389/1144) dive-check::native_checkpoint native_refuses_effects_and_identity_mismatch_without_a_verdict
+        PASS [   0.652s] ( 390/1144) dive-check::native_checkpoint retained_near_maximum_generated_counts_refuse_before_continuation
+        PASS [   0.113s] ( 391/1144) dive-check::observed earlier_safety_stop_prevents_source_callback_but_retains_initial_callback
+        PASS [   0.018s] ( 392/1144) dive-check::observed initial_consumer_precedes_initial_invariant_without_fabricating_replay_counts
+        PASS [   0.024s] ( 393/1144) dive-check::observed parameter_and_foreign_ownership_admission_runs_no_callback_or_provider
+        PASS [   0.067s] ( 394/1144) dive-check::observed source_prefix_counts_cross_three_bounded_expansion_waves
+        PASS [   0.181s] ( 395/1144) dive-check::observed temporal_consumer_error_outranks_later_safety_and_enum_errors_at_every_width
+        PASS [   0.009s] ( 396/1144) dive-check::observed uncertified_inline_observation_is_refused_before_callbacks
+        PASS [   0.505s] ( 397/1144) dive-check::probes harness_fixtures_agree
+        PASS [   0.027s] ( 398/1144) dive-check::probes print_output_is_kept_in_order
+        PASS [   0.924s] ( 399/1144) dive-check::probes tlc_probes_agree
+        PASS [   0.145s] ( 400/1144) dive-check::public_ir checkpoint_context_alias_to_effectful_let_refuses_before_binding
+        PASS [   0.183s] ( 401/1144) dive-check::public_ir foreign_capture_metadata_and_actions_refuse_before_assumptions
+        PASS [   0.434s] ( 402/1144) dive-check::public_ir malformed_arena_check_checkpoint_and_binding_admit_before_effects
+        PASS [   0.165s] ( 403/1144) dive-check::public_ir valid_controls_preserve_metadata_and_capture_evidence
+        PASS [   1.543s] ( 404/1144) dive-check::symmetry default_profile_preserves_worker_determinism_and_reports_symmetry_order_policy
+        PASS [   0.711s] ( 405/1144) dive-check::symmetry disabled_and_unused_groups_keep_exact_startup_warnings
+        PASS [   0.149s] ( 406/1144) dive-check::symmetry invalid_representation_diagnostics_precede_assumptions_and_search
+        PASS [   2.150s] ( 407/1144) dive-check::symmetry pure_symmetry_probes_match_in_both_stores_at_every_worker_width
+        PASS [   1.456s] ( 408/1144) dive-check::symmetry unimplemented_infinite_permutation_refuses_instead_of_becoming_a_key
+        PASS [  10.011s] ( 409/1144) dive-check::native_checkpoint recovery_can_change_pool_width_and_resume_an_actual_later_level
+        PASS [   0.508s] ( 410/1144) dive-check::tlc_module tlc_module_operators_agree
+        PASS [   0.220s] ( 411/1144) dive-check::view_normalization ignored_unnormalizable_variable_refuses_before_a_false_search_result
+        PASS [   0.336s] ( 412/1144) dive-check::view_normalization incomplete_view_states_stop_before_concrete_key_normalization
+        PASS [   0.960s] ( 413/1144) dive-check::view_normalization lazy_view_normalization_visits_operands_without_forcing_predicates
+        PASS [   0.194s] ( 414/1144) dive-check::view_random configured_native_targets_refuse_without_source_calls_or_effects
+        PASS [   2.323s] ( 415/1144) dive-check::view_normalization compound_and_approved_canonical_view_controls_keep_concrete_counts
+        PASS [   0.371s] ( 416/1144) dive-check::view_random pure_view_and_untransformed_randomness_still_check_concretely
+        PASS [   0.451s] ( 417/1144) dive-check::view_random transformed_randomness_refuses_before_any_binding_or_search
+        PASS [   0.077s] ( 418/1144) dive-check::view_random_stream transformed_first_successor_replay_boundary_stays_named_and_incomplete
+        PASS [   0.139s] ( 419/1144) dive-check::view_random_stream unproved_concrete_shapes_do_not_turn_into_certified_random_view_traces
+        PASS [   0.758s] ( 420/1144) dive-cli::cli analyze_accepts_and_reports_levels
+        PASS [   0.019s] ( 421/1144) dive-cli::cli analyze_finds_modules_on_the_library_path
+        PASS [   0.012s] ( 422/1144) dive-cli::cli analyze_rejects_with_codes_and_sany_cross_reference
+        PASS [   0.088s] ( 423/1144) dive-cli::cli bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles
+        PASS [   0.016s] ( 424/1144) dive-cli::cli check_refuses_and_rejects_with_distinct_codes
+        PASS [   0.027s] ( 425/1144) dive-cli::cli check_reports_a_violation_with_each_profiles_exit_code
+        PASS [   0.047s] ( 426/1144) dive-cli::cli explicit_final_tlc_mode_certifies_witnesses_and_reports_actual_execution
+        PASS [   0.097s] ( 427/1144) dive-cli::cli final_mode_safety_route_retains_actual_finite_verdicts_without_temporal_claims
+        PASS [   0.040s] ( 428/1144) dive-cli::cli final_temporal_if_retains_exported_forwarding_refusal
+        PASS [   0.032s] ( 429/1144) dive-cli::cli final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options
+        PASS [   0.023s] ( 430/1144) dive-cli::cli final_tlc_effects_are_refused_without_startup_output_or_proof
+        PASS [   0.022s] ( 431/1144) dive-cli::cli frontier_spill_flags_and_directory_dependency
+        PASS [   0.009s] ( 432/1144) dive-cli::cli lsp_refuses_explicitly
+        PASS [   0.026s] ( 433/1144) dive-cli::cli native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes
+        PASS [   0.013s] ( 434/1144) dive-cli::cli native_checkpoint_spill_budgets_pass_option_admission_before_input_error
+        PASS [   0.009s] ( 435/1144) dive-cli::cli parse_accepts_a_valid_module
+        PASS [   0.010s] ( 436/1144) dive-cli::cli parse_json_can_include_the_cst
+        PASS [   0.012s] ( 437/1144) dive-cli::cli parse_json_reports_diagnostics
+        PASS [   0.010s] ( 438/1144) dive-cli::cli parse_missing_file_is_usage_error
+        PASS [   0.010s] ( 439/1144) dive-cli::cli parse_reads_a_config
+        PASS [   0.009s] ( 440/1144) dive-cli::cli parse_refuses_embedded_configs
+        PASS [   0.009s] ( 441/1144) dive-cli::cli parse_reports_config_errors
+        PASS [   0.011s] ( 442/1144) dive-cli::cli parse_without_file_is_usage_error
+        PASS [   0.195s] ( 443/1144) dive-cli::cli pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode
+        PASS [   0.026s] ( 444/1144) dive-cli::cli simulate_is_a_seeded_finite_sample_and_refuses_unbuilt_modes
+        PASS [   0.033s] ( 445/1144) dive-cli::cli translate_label_options_preserve_files_and_default_configuration
+        PASS [   0.059s] ( 446/1144) dive-cli::cli translate_process_fairness_is_explicit_and_never_a_proof
+        PASS [   0.022s] ( 447/1144) dive-cli::cli translate_process_storage_and_label_default_are_explicit
+        PASS [   0.013s] ( 448/1144) dive-cli::cli translate_rejects_multiple_fairness_flags_before_loading
+        PASS [   0.023s] ( 449/1144) dive-cli::cli translate_returns_an_admitted_module_without_rewriting_input
+        PASS [   0.009s] ( 450/1144) dive-cli::cli unknown_command_is_usage_error
+        PASS [   0.031s] ( 451/1144) dive-cli::cli validate_trace_checks_a_trace_against_the_spec
+        PASS [   0.009s] ( 452/1144) dive-cli::cli version_succeeds
+        PASS [   0.059s] ( 453/1144) dive-cli::bin/dive predecessor_tests::orphan_directory_and_other_modes_refuse_before_input_access
+        PASS [   0.038s] ( 454/1144) dive-config diagnostics::tests::codes_are_unique_and_prefixed
+        PASS [   0.007s] ( 455/1144) dive-config parser::tests::lines_follow_javacc
+        PASS [   0.006s] ( 456/1144) dive-config value::tests::typed_model_values
+        PASS [   0.081s] ( 457/1144) dive-config::robustness arbitrary_bytes_never_panic
+        PASS [   0.010s] ( 458/1144) dive-config::robustness nesting_limit_is_explicit
+        PASS [   0.046s] ( 459/1144) dive-config::robustness token_soup_never_panics
+        PASS [   0.362s] ( 460/1144) dive-config::robustness very_deep_input_does_not_overflow
+        PASS [   0.057s] ( 461/1144) dive-config::tlc_oracle captured_interpretations
+        PASS [   0.018s] ( 462/1144) dive-config::tlc_oracle captured_tlc_runs_agree
+        PASS [   0.018s] ( 463/1144) dive-config::tlc_oracle examples_corpus_matches_tlc
+        PASS [   0.007s] ( 464/1144) dive-config::tlc_oracle mutant_specs_match_tlc
+        PASS [   0.009s] ( 465/1144) dive-config::tlc_oracle parse_cases_match_tlc
+        PASS [   0.083s] ( 466/1144) dive-config::tlc_oracle small_tier_goldens_agree
+        PASS [   0.036s] ( 467/1144) dive-config::tlc_oracle tlaplus_test_models_match_tlc
+        PASS [   0.056s] ( 468/1144) dive-conformance cache::tests::layout_is_content_addressed
+        PASS [   0.008s] ( 469/1144) dive-conformance cache::tests::locks_exclude_each_other
+        PASS [   0.007s] ( 470/1144) dive-conformance compare::tests::differences_are_reported_by_field
+        PASS [   0.006s] ( 471/1144) dive-conformance compare::tests::ending_and_queue_are_compared
+        PASS [   0.006s] ( 472/1144) dive-conformance compare::tests::identical_results_agree
+        PASS [   0.007s] ( 473/1144) dive-conformance compare::tests::invariance_ignores_non_facts
+        PASS [   0.007s] ( 474/1144) dive-conformance compare::tests::invariance_summary
+        PASS [   0.007s] ( 475/1144) dive-conformance compare::tests::manifest_drift
+        PASS [   0.006s] ( 476/1144) dive-conformance compare::tests::multi_worker_rules
+        PASS [   0.006s] ( 477/1144) dive-conformance compare::tests::property_rules
+        PASS [   0.008s] ( 478/1144) dive-conformance config::tests::in_repository_corpora
+        PASS [   0.007s] ( 479/1144) dive-conformance config::tests::rejects_unknown_keys_and_bad_digests
+        PASS [   0.008s] ( 480/1144) dive-conformance config::tests::repository_pins_parse
+        PASS [   0.007s] ( 481/1144) dive-conformance corpus::tests::manifest_tiers_and_scope
+        PASS [   0.008s] ( 482/1144) dive-conformance corpus::tests::modules_only_include_exclude_and_hidden
+        PASS [   0.007s] ( 483/1144) dive-conformance corpus::tests::schema_is_strict
+        PASS [   0.007s] ( 484/1144) dive-conformance corpus::tests::tree_digest_covers_names_and_contents
+        PASS [   0.007s] ( 485/1144) dive-conformance corpus::tests::worker_introspection_follows_extends
+        PASS [   0.006s] ( 486/1144) dive-conformance dive::tests::analyze_mapping
+        PASS [   0.006s] ( 487/1144) dive-conformance dive::tests::check_mapping
+        PASS [   0.007s] ( 488/1144) dive-conformance dive::tests::final_only_mapping_requires_its_complete_mode_and_retains_unverified_failures
+        PASS [   0.007s] ( 489/1144) dive-conformance dive::tests::final_periodic_report_cannot_rename_independently_replayed_claims
+        PASS [   0.006s] ( 490/1144) dive-conformance dive::tests::parse_mapping
+        PASS [   0.256s] ( 491/1144) dive-conformance dive::tests::relative_binary_survives_a_different_child_directory
+        PASS [   0.008s] ( 492/1144) dive-conformance dive::tests::safety_route_fakes_cannot_claim_temporal_proof_or_bounded_completion
+        PASS [   0.007s] ( 493/1144) dive-conformance divergence::tests::excuses_only_under_dive
+        PASS [   0.007s] ( 494/1144) dive-conformance divergence::tests::profiles_parse_and_only_tlc_is_strict
+        PASS [   0.007s] ( 495/1144) dive-conformance divergence::tests::registry_validates
+        PASS [   0.007s] ( 496/1144) dive-conformance divergence::tests::repository_registry_loads
+        PASS [   0.006s] ( 497/1144) dive-conformance fetch::tests::curl_quoting
+        PASS [   0.006s] ( 498/1144) dive-conformance fetch::tests::gitmodules_paths
+        PASS [   0.006s] ( 499/1144) dive-conformance fetch::tests::release_urls
+        PASS [   0.007s] ( 500/1144) dive-conformance final_study::tests::claimed_validation_never_certifies_a_lasso
+        PASS [   0.007s] ( 501/1144) dive-conformance final_study::tests::observations_require_the_requested_mode_truth_counts_and_exit
+        PASS [   0.007s] ( 502/1144) dive-conformance final_study::tests::refusals_are_named_timeouts_visible_and_unknown_results_fail
+        PASS [   0.007s] ( 503/1144) dive-conformance golden::tests::overwrite_requires_reason
+        PASS [   0.006s] ( 504/1144) dive-conformance golden::tests::sanitising_paths
+        PASS [   0.006s] ( 505/1144) dive-conformance hash::tests::hex_validation
+        PASS [   0.006s] ( 506/1144) dive-conformance hash::tests::known_digest
+        PASS [   0.007s] ( 507/1144) dive-conformance hash::tests::mismatch_deletes_file
+        PASS [   0.007s] ( 508/1144) dive-conformance implementation::tests::adapter_description_parses_and_refuses
+        PASS [   0.009s] ( 509/1144) dive-conformance implementation::tests::adapter_schema_validates
+        PASS [   0.007s] ( 510/1144) dive-conformance implementation::tests::divergent_trace_pass_keeps_the_clean_result_without_json
+        PASS [   0.008s] ( 511/1144) dive-conformance implementation::tests::repository_adapters_parse
+        PASS [   0.007s] ( 512/1144) dive-conformance implementation::tests::trace_pass_must_reproduce_the_clean_counterexample
+        PASS [   0.006s] ( 513/1144) dive-conformance pipeline::tests::combine_prefers_worst
+        PASS [   0.006s] ( 514/1144) dive-conformance pipeline::tests::parallel_map_preserves_order
+        PASS [   0.036s] ( 515/1144) dive-conformance process::tests::captures_exit_and_output
+        PASS [   4.570s] ( 516/1144) dive-check::view_random_stream clean_primary_view_shapes_match_concrete_draws_at_every_requested_width
+        PASS [   0.007s] ( 517/1144) dive-conformance report::tests::summaries_keep_one_section_per_implementation
+        PASS [   0.006s] ( 518/1144) dive-conformance report::tests::summary_counts_every_outcome
+        PASS [   0.006s] ( 519/1144) dive-conformance sany::tests::clean_exit_is_accepted
+        PASS [   0.006s] ( 520/1144) dive-conformance sany::tests::parse_error_and_unknown_rejection
+        PASS [   0.006s] ( 521/1144) dive-conformance sany::tests::parse_phase_attribution
+        PASS [   0.006s] ( 522/1144) dive-conformance sany::tests::recognized_translation_validation_failure_is_not_a_grammar_rejection
+        PASS [   0.006s] ( 523/1144) dive-conformance sany::tests::semantic_error_with_exit_zero_is_rejected
+        PASS [   0.006s] ( 524/1144) dive-conformance sany::tests::warnings_under_semantic_errors_header_are_accepted
+        PASS [   0.005s] ( 525/1144) dive-conformance tlc::codes::tests::names_and_exits
+        PASS [   0.006s] ( 526/1144) dive-conformance tlc::codes::tests::table_is_sorted_and_unique
+        PASS [   0.006s] ( 527/1144) dive-conformance tlc::codes::tests::verdict_mapping
+        PASS [   0.006s] ( 528/1144) dive-conformance tlc::messages::tests::bad_header_is_an_anomaly
+        PASS [   0.005s] ( 529/1144) dive-conformance tlc::messages::tests::crossed_messages_are_an_anomaly
+        PASS [   0.006s] ( 530/1144) dive-conformance tlc::messages::tests::nested_messages_are_parsed
+        PASS [   0.006s] ( 531/1144) dive-conformance tlc::messages::tests::parses_messages_and_text
+        PASS [   0.005s] ( 532/1144) dive-conformance tlc::messages::tests::unterminated_message_is_an_anomaly
+        PASS [   0.006s] ( 533/1144) dive-conformance tlc::result::tests::context_codes_do_not_decide
+        PASS [   0.006s] ( 534/1144) dive-conformance tlc::result::tests::exit_zero_with_errors_is_oracle_error
+        PASS [   0.007s] ( 535/1144) dive-conformance tlc::result::tests::finite_temporal_prefix_matches_pinned_trace_and_rejects_mutants
+        PASS [   0.006s] ( 536/1144) dive-conformance tlc::result::tests::inconsistent_exit_is_oracle_error
+        PASS [   0.006s] ( 537/1144) dive-conformance tlc::result::tests::lasso_and_stutter_endings
+        PASS [   0.026s] ( 538/1144) dive-conformance tlc::result::tests::oversized_trace_is_digested
+        PASS [   0.007s] ( 539/1144) dive-conformance tlc::result::tests::parse_failures_split_on_text
+        PASS [   0.006s] ( 540/1144) dive-conformance tlc::result::tests::success_requires_success_message
+        PASS [   0.006s] ( 541/1144) dive-conformance tlc::result::tests::timeout_and_signal
+        PASS [   0.006s] ( 542/1144) dive-conformance tlc::result::tests::trace_lengths_must_agree
+        PASS [   0.006s] ( 543/1144) dive-conformance tlc::result::tests::unknown_exit_and_code_are_unclassified
+        PASS [   0.007s] ( 544/1144) dive-conformance upstream::tests::never_applies_to_non_oracle_implementations
+        PASS [   0.007s] ( 545/1144) dive-conformance upstream::tests::registered_change_is_explained
+        PASS [   0.007s] ( 546/1144) dive-conformance upstream::tests::registry_validates
+        PASS [   0.007s] ( 547/1144) dive-conformance upstream::tests::repository_registry_is_valid
+        PASS [   0.007s] ( 548/1144) dive-conformance upstream::tests::unregistered_difference_stays_disagree
+        PASS [   0.006s] ( 549/1144) dive-conformance upstream::tests::unresolved_modules_are_explained_together
+        PASS [   0.005s] ( 550/1144) dive-conformance util::tests::globbing
+        PASS [   0.006s] ( 551/1144) dive-conformance util::tests::redaction_prefers_longest_and_handles_private
+        PASS [   0.006s] ( 552/1144) dive-conformance util::tests::rfc3339_known_values
+        PASS [   1.356s] ( 553/1144) dive-conformance::cache_concurrency two_concurrent_fetches_share_one_cache
+        PASS [   0.073s] ( 554/1144) dive-conformance::fixtures both_oracles_classify_every_fixture
+        PASS [   0.007s] ( 555/1144) dive-conformance::fixtures cross_oracle_diffs_show_version_differences
+        PASS [   0.007s] ( 556/1144) dive-conformance::fixtures golden_round_trip_and_determinism
+        PASS [   0.006s] ( 557/1144) dive-conformance::fixtures missing_modules_are_named
+        PASS [   0.006s] ( 558/1144) dive-conformance::fixtures nested_config_error_in_1_7_4
+        PASS [   0.005s] ( 559/1144) dive-conformance::fixtures printed_markers_do_not_forge_messages
+        PASS [   0.006s] ( 560/1144) dive-conformance::fixtures resource_exhaustion_is_not_an_oracle_fact
+        PASS [   0.013s] ( 561/1144) dive-conformance::fixtures sany_exit_codes_per_version
+        PASS [   0.005s] ( 562/1144) dive-conformance::fixtures success_reports_collision_probability
+        PASS [   0.005s] ( 563/1144) dive-conformance::fixtures unexpected_stderr_is_an_oracle_error
+        PASS [   0.127s] ( 564/1144) dive-conformance::pipeline_totals empty_selection_is_a_usage_error
+        PASS [   0.113s] ( 565/1144) dive-conformance::pipeline_totals module_only_runs_do_not_select_models
+        PASS [   0.171s] ( 566/1144) dive-conformance::pipeline_totals registry_excuses_only_under_the_dive_profile
+        PASS [   0.104s] ( 567/1144) dive-conformance::pipeline_totals result_changing_options_never_agree
+        PASS [   0.104s] ( 568/1144) dive-conformance::pipeline_totals summary_totals_equal_the_selection
+        PASS [   3.316s] ( 569/1144) dive-conformance process::tests::timeout_kills_the_process_tree
+        PASS [   0.138s] ( 570/1144) dive-conformance::review_findings c1_non_oracle_multi_worker_safety_run_must_not_agree
+        PASS [   0.085s] ( 571/1144) dive-conformance::review_findings c2_module_without_sany_golden_is_reported
+        PASS [   0.006s] ( 572/1144) dive-conformance::review_findings c3_named_property_vs_none_is_a_diff
+        PASS [   0.087s] ( 573/1144) dive-conformance::review_findings c2b_missing_sany_golden_dir_is_reported
+        PASS [   0.085s] ( 574/1144) dive-conformance::review_findings compat_without_a_worker_golden_compares_with_the_single_worker_one
+        PASS [   0.086s] ( 575/1144) dive-conformance::review_findings compat_worker_golden_still_compares_the_verdict
+        PASS [   0.086s] ( 576/1144) dive-conformance::review_findings compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count
+        PASS [   0.006s] ( 577/1144) dive-conformance::review_findings m1_out_of_memory_is_not_an_oracle_fact
+        PASS [   0.006s] ( 578/1144) dive-conformance::review_findings m2_stack_overflow_is_not_an_evaluation_error_fact
+        PASS [   0.064s] ( 579/1144) dive-conformance::review_findings m3_ignored_files_written_into_corpus_are_detected
+        PASS [   0.112s] ( 580/1144) dive-conformance::review_findings default_profile_ignores_worker_goldens
+        PASS [   0.054s] ( 581/1144) dive-conformance::review_findings m5_every_golden_command_pins_the_seed
+        PASS [   0.006s] ( 582/1144) dive-conformance::review_findings m6_trace_ending_is_compared
+        PASS [   0.088s] ( 583/1144) dive-conformance::review_findings m4_sany_golden_from_another_jar_is_refused
+        PASS [   0.006s] ( 584/1144) dive-conformance::review_findings minor_golden_paths_are_injective
+        PASS [   0.071s] ( 585/1144) dive-conformance::trace_check an_invariant_counterexample_is_validated_by_the_harness
+        PASS [   0.011s] ( 586/1144) dive-conformance::trace_check finite_deadlocks_validate_independently_and_false_claims_are_rejected
+        PASS [   0.085s] ( 587/1144) dive-conformance::review_findings worker_golden_needs_a_reason
+        PASS [   0.065s] ( 588/1144) dive-eval options::tests::owner_decisions_set_the_default_profile
+        PASS [   0.067s] ( 589/1144) dive-eval bounded_domain::tests::structural_preflight_does_not_normalize_raw_operands
+        PASS [   0.006s] ( 590/1144) dive-eval options::tests::tlc_profile_is_pure_tlc
+        PASS [   0.006s] ( 591/1144) dive-eval tlc_enum::tests::odometer_varies_the_last_column_fastest
+        PASS [   0.020s] ( 592/1144) dive-eval scope::operator_capture_tests::same_lexical_frame_is_inspected_under_each_dynamic_context
+        PASS [   0.080s] ( 593/1144) dive-eval::bounded_domains deferred_and_infinite_domains_are_explicit_refusals
+        PASS [   0.072s] ( 594/1144) dive-eval::bounded_domains deferred_filter_preflight_bounds_input_before_predicate_and_cache
+        PASS [   0.010s] ( 595/1144) dive-eval::bounded_domains deferred_filter_rejects_missing_captured_expression_without_panicking
+        PASS [   0.028s] ( 596/1144) dive-eval::bounded_domains deferred_filter_rejects_effects_before_predicate_invocation
+        PASS [   0.028s] ( 597/1144) dive-eval::bounded_domains deferred_filter_rejects_operator_arguments_injected_by_rust_callers
+        PASS [   0.010s] ( 598/1144) dive-eval::bounded_domains deferred_filter_rejects_unresolved_operator_predicates
+        PASS [   0.010s] ( 599/1144) dive-eval::bounded_domains deferred_filter_retains_caller_state_and_primed_domains_rebind
+        PASS [   0.020s] ( 600/1144) dive-eval::bounded_domains deferred_filter_respects_bound_model_helper_redirect_effects
+        PASS [   0.011s] ( 601/1144) dive-eval::bounded_domains eager_nonfinite_map_keeps_the_existing_tlc_error
+        PASS [   0.045s] ( 602/1144) dive-eval::bounded_domains finite_lazy_domains_bound_components_and_result_slots_before_allocating
+        PASS [   0.032s] ( 603/1144) dive-eval::bounded_domains preflight_preserves_lazy_domain_comparison_errors
+        PASS [   0.118s] ( 604/1144) dive-eval::bounded_domains finite_lazy_bindings_match_unbounded_enumeration_in_both_profiles
+        PASS [   0.024s] ( 605/1144) dive-eval::contexts cached_lazy_atoms_cannot_cross_name_tables
+        PASS [   0.019s] ( 606/1144) dive-eval::contexts cached_lazy_bindings_cannot_cross_evaluator_cores_with_equal_ir_and_names
+        PASS [   0.019s] ( 607/1144) dive-eval::contexts captured_atoms_cannot_cross_name_tables_but_symbolic_scopes_can
+        PASS [   0.103s] ( 608/1144) dive-eval::contexts admission_budget_refuses_without_evaluating_large_values
+        PASS [   0.008s] ( 609/1144) dive-eval::contexts foreign_native_deferred_captures_are_rejected_without_forcing
+        PASS [   0.019s] ( 610/1144) dive-eval::contexts equal_number_foreign_scopes_cannot_evaluate_or_bind_values
+        PASS [   0.024s] ( 611/1144) dive-eval::contexts invalid_override_maps_refuse_before_interning_or_printing
+        PASS [   0.018s] ( 612/1144) dive-eval::contexts malformed_direct_lazy_and_operator_arguments_refuse_before_effects
+        PASS [   0.028s] ( 613/1144) dive-eval::contexts opaque_value_admission_calls_no_deferred_callbacks
+        PASS [   0.033s] ( 614/1144) dive-eval::contexts malformed_serialized_ir_refuses_before_literal_interning
+        PASS [   0.018s] ( 615/1144) dive-eval::contexts validated_identity_chains_recursion_and_operator_arguments_still_work
+        PASS [   0.081s] ( 616/1144) dive-eval::next_probes no_warnings_matches_tlc
+        PASS [   0.063s] ( 617/1144) dive-eval::next_probes probes_match_tlc
+        PASS [   0.056s] ( 618/1144) dive-eval::next_probes rule_fixtures_match_tlc
+        PASS [   0.069s] ( 619/1144) dive-eval::options default_profile_chooses_and_explores_canonically
+        PASS [   0.019s] ( 620/1144) dive-eval::options equality_api_obeys_the_evaluator_comparison_profile
+        PASS [   0.018s] ( 621/1144) dive-eval::options exploration_can_keep_tlc_order
+        PASS [   0.018s] ( 622/1144) dive-eval::options exploration_follows_the_value_order
+        PASS [   0.029s] ( 623/1144) dive-eval::options integer_modes
+        PASS [   0.091s] ( 624/1144) dive-eval::options tla_comparisons_answer_functions_and_sets
+        PASS [   0.047s] ( 625/1144) dive-eval::options tla_comparisons_keep_the_error_where_tla_is_silent
+        PASS [   0.062s] ( 626/1144) dive-eval::options tlc_comparisons_refuse_what_tla_answers
+        PASS [   0.021s] ( 627/1144) dive-eval::options tlc_profile_explores_and_chooses_in_tlc_order
+        PASS [   1.497s] ( 628/1144) dive-eval::properties evaluation_is_deterministic
+        PASS [   0.708s] ( 629/1144) dive-eval::properties integer_modes_agree_without_overflow
+        PASS [   3.317s] ( 630/1144) dive-eval::next_examples cm1_slice_matches_tlc_goldens
+        PASS [   0.076s] ( 631/1144) dive-eval::tlc_fixtures symbolic_function_emptiness_matches_clean_tlc_assumptions
+        PASS [   1.261s] ( 632/1144) dive-eval::tlc_fixtures value_fixtures_match_tlc
+        PASS [   0.061s] ( 633/1144) dive-ir actions::tests::shapes
+        PASS [   0.009s] ( 634/1144) dive-ir actions::tests::split_follows_tlc_rules
+        PASS [   0.006s] ( 635/1144) dive-ir origin::tests::columns_follow_javacc
+        PASS [   0.005s] ( 636/1144) dive-ir std_op::tests::known_entries
+        PASS [   0.006s] ( 637/1144) dive-ir std_op::tests::module_and_name_identify_an_override
+        PASS [   0.160s] ( 638/1144) dive-ir::actions actions_match_tlc
+        PASS [   3.536s] ( 639/1144) dive-eval::tlc_fixtures assumptions_match_tlc
+        PASS [   0.061s] ( 640/1144) dive-ir::lower context_lists_names_and_assumptions
+        PASS [   0.014s] ( 641/1144) dive-ir::lower deterministic_and_serializable
+        PASS [   0.018s] ( 642/1144) dive-ir::lower effects
+        PASS [   0.015s] ( 643/1144) dive-ir::lower every_construct_lowers
+        PASS [   0.008s] ( 644/1144) dive-ir::lower folded_prime_keeps_both_expression_and_operand_locations
+        PASS [   0.007s] ( 645/1144) dive-ir::lower instances_are_substitutions_resolved_dynamically
+        PASS [   0.014s] ( 646/1144) dive-ir::lower java_overrides_are_matched_like_tlc
+        PASS [   0.009s] ( 647/1144) dive-ir::lower lambdas_and_selectors_are_lowered_inline
+        PASS [   0.009s] ( 648/1144) dive-ir::lower levels_are_preserved_from_sema
+        PASS [   0.008s] ( 649/1144) dive-ir::lower operator_arguments_are_laziness_points
+        PASS [   0.007s] ( 650/1144) dive-ir::lower origins_carry_sany_positions
+        PASS [   0.008s] ( 651/1144) dive-ir::lower recursion_is_explicit
+        PASS [   0.021s] ( 652/1144) dive-ir::lower unsupported_overrides_are_refused_by_name
+        PASS [   0.007s] ( 653/1144) dive-ir::lower variables_are_not_strict
+        PASS [   0.312s] ( 654/1144) dive-ir::var_order generated_specs_match_tlc
+        PASS [   1.492s] ( 655/1144) dive-ir::var_order repository_fixtures_match_sany
+        PASS [   0.061s] ( 656/1144) dive-liveness phase_execution::partial_origin_tests::placeholder_requires_actual_matching_committed_successor_slot
+        PASS [   0.009s] ( 657/1144) dive-liveness phase_graph::written_controls::actual_pinned_unwritten_duplicates_and_no_rewrite_are_retained
+        PASS [   0.070s] ( 658/1144) dive-liveness::analyze atom_errors_retain_a_diagnostic_and_source_span
+        PASS [   0.011s] ( 659/1144) dive-liveness::analyze every_false_temporal_property_is_named_on_the_selected_lasso
+        PASS [   0.032s] ( 660/1144) dive-liveness::analyze fairness_limits_and_safety_stops_do_not_guess_holds
+        PASS [   0.032s] ( 661/1144) dive-liveness::analyze pinned_fair_successes_use_full_enabledness_beyond_the_retained_graph
+        PASS [   0.088s] ( 662/1144) dive-liveness::analyze pinned_pure_and_fair_models_have_valid_candidates_and_tlc_counts
+        PASS [   0.012s] ( 663/1144) dive-liveness::analyze pure_behavior_conjuncts_cannot_be_dropped_and_holds_is_exhaustive
+        PASS [   0.578s] ( 664/1144) dive-liveness::components all_four_vertex_graphs_match_mutual_reachability
+        PASS [   0.014s] ( 665/1144) dive-liveness::components deep_cycle_uses_an_explicit_stack
+        PASS [   0.006s] ( 666/1144) dive-liveness::components eventual_cycle_constraints_do_not_constrain_the_prefix
+        PASS [   0.006s] ( 667/1144) dive-liveness::components malformed_references_fail_before_search
+        PASS [   0.006s] ( 668/1144) dive-liveness::components only_reachable_cycles_are_candidates_and_order_is_stable
+        PASS [   0.139s] ( 669/1144) dive-liveness::lassos all_two_vertex_edge_and_visit_labels_match_closed_walk_search
+        PASS [   0.007s] ( 670/1144) dive-liveness::lassos components_compete_by_prefix_distance_then_entry_id
+        PASS [   0.007s] ( 671/1144) dive-liveness::lassos empty_conditions_still_require_a_nonempty_cycle
+        PASS [   0.007s] ( 672/1144) dive-liveness::lassos finite_prefix_is_unrestricted_and_unreachable_cycles_are_excluded
+        PASS [   0.006s] ( 673/1144) dive-liveness::lassos malformed_label_tables_never_become_no_violation
+        PASS [   0.007s] ( 674/1144) dive-liveness::lassos parallel_edges_keep_their_action_labels_and_positions
+        PASS [   0.007s] ( 675/1144) dive-liveness::lassos shortest_prefix_ties_use_vertex_ids_and_sorted_frontiers
+        PASS [   0.133s] ( 676/1144) dive-liveness::partial_execution actual_partial_candidates_require_independent_memory_json_and_mutant_replay
+        PASS [   0.118s] ( 677/1144) dive-liveness::partial_execution actual_source_prefixes_match_complete_pinned_partial_selection
+        PASS [   0.031s] ( 678/1144) dive-liveness::partial_execution foreign_roles_effects_and_partial_bounds_remain_named_failures
+        PASS [   0.013s] ( 679/1144) dive-liveness::partial_execution repeated_partial_checks_share_the_original_graph_steps_budget
+        PASS [   0.052s] ( 680/1144) dive-liveness::periodic all_296_actual_reference_orders_codes_and_force_states_match
+        PASS [   0.006s] ( 681/1144) dive-liveness::periodic every_backend_failure_stops_without_unrequested_work
+        PASS [   0.071s] ( 682/1144) dive-liveness::phase_execution actual_product_candidates_require_independent_complete_claims_and_closing_edges
+        PASS [   0.019s] ( 683/1144) dive-liveness::phase_execution actual_tableau_initial_consistency_precedes_initial_state_invariant
+        PASS [   5.289s] ( 684/1144) dive-ir::corpus every_accepted_fixture_lowers
+        PASS [   0.015s] ( 685/1144) dive-liveness::phase_execution earlier_source_safety_and_preflight_refusal_do_not_earn_temporal_completion
+        PASS [   0.037s] ( 686/1144) dive-liveness::phase_execution earlier_temporal_failure_beats_later_safety_or_enumerator_failure
+        PASS [   0.149s] ( 687/1144) dive-liveness::phase_execution every_raw_execution_and_before_source_observation_is_hash_verified
+        PASS [   0.015s] ( 688/1144) dive-liveness::phase_execution malformed_bound_roles_refuse_before_temporal_planning_and_pool
+        PASS [   0.034s] ( 689/1144) dive-liveness::phase_execution real_ordered_null_graph_is_identical_to_prior_completed_graph_at_every_width
+        PASS [   0.026s] ( 690/1144) dive-liveness::phase_execution scoped_impurity_and_foreign_ownership_stop_before_callbacks_or_pool
+        PASS [   0.017s] ( 691/1144) dive-liveness::phase_execution two_real_tableau_oos_and_done_revisitation_have_complete_product_inputs
+        PASS [   0.340s] ( 692/1144) dive-liveness::phase_graph bounded_random_finite_graphs_equal_independent_reachability_with_implicit_stutter
+        PASS [   0.020s] ( 693/1144) dive-liveness::phase_graph deciding_conditional_planning_error_precedes_graph_capture
+        PASS [   0.013s] ( 694/1144) dive-liveness::phase_graph early_bounds_and_refusals_preserve_requested_actual_width_and_no_graph_proof
+        PASS [   1.061s] ( 695/1144) dive-liveness::phase_execution complete_pinned_graph_census_retains_errors_and_matches_every_completed_field
+        PASS [   0.015s] ( 696/1144) dive-liveness::phase_graph foreign_model_ir_and_names_refuse_before_graph_planning
+        PASS [   0.014s] ( 697/1144) dive-liveness::phase_graph independent_validation_still_decides_words_and_claims_not_graph_receipts
+        PASS [   0.138s] ( 698/1144) dive-liveness::phase_graph raw_graph_selection_hashes_and_all_before_observations_are_preserved
+        PASS [   0.027s] ( 699/1144) dive-liveness::phase_graph real_graph_commits_keep_slot_order_bins_roots_and_actual_pool_evidence
+        PASS [   0.073s] ( 700/1144) dive-liveness::phase_l all_55_forced_key_structural_rows_match_every_java_field
+        PASS [   0.008s] ( 701/1144) dive-liveness::phase_l all_reference_livecheck_null_tableau_logs_preserve_failed_call_and_complete_selection
+        PASS [   0.050s] ( 702/1144) dive-liveness::phase_l bounds_malformed_inputs_and_worker_metadata_cannot_become_success
+        PASS [   0.075s] ( 703/1144) dive-liveness::phase_l caller_edited_fingerprint_permutation_returns_typed_input_refusal
+        PASS [   0.025s] ( 704/1144) dive-liveness::phase_l logical_capacity_history_and_partial_collection_are_preserved
+        PASS [   0.267s] ( 705/1144) dive-liveness::phase_l phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified
+        PASS [   0.038s] ( 706/1144) dive-liveness::phase_l public_opaque_values_and_unchecked_predicates_are_refused_without_callbacks_or_panics
+        PASS [   0.935s] ( 707/1144) dive-liveness::phase_graph every_selected_pinned_graph_projection_is_accounted_for_at_all_widths
+        PASS [   0.025s] ( 708/1144) dive-liveness::phase_l receipts_do_not_certify_forged_words_closing_edges_or_property_claims
+        PASS [   0.024s] ( 709/1144) dive-liveness::phase_l state_if_planning_error_precedes_fingerprints_and_predicate_work
+        PASS [   0.072s] ( 710/1144) dive-liveness::phase_l_material cached_providers_foreign_atoms_and_wrong_storage_order_refuse_before_predicates
+        PASS [   0.009s] ( 711/1144) dive-liveness::phase_l_material default_profile_still_refuses_phase_l_before_any_material_inspection
+        PASS [   0.008s] ( 712/1144) dive-liveness::phase_l_material original_child_visit_depth_and_error_precedence_are_retained
+        PASS [   0.016s] ( 713/1144) dive-liveness::phase_l_material stored_enum_normalized_raw_and_nested_functions_admit_without_new_global_cap
+        PASS [   0.089s] ( 714/1144) dive-liveness::planning bound_boolean_temporal_and_action_formulas_match_direct_words
+        PASS [   0.012s] ( 715/1144) dive-liveness::planning direct_temporal_and_runtime_atoms_match_pinned_order_controls
+        PASS [   0.035s] ( 716/1144) dive-liveness::planning fairness_language_matches_infinite_boolean_words
+        PASS [   0.035s] ( 717/1144) dive-liveness::planning fairness_product_distinguishes_weak_and_strong_intermittent_enabledness
+        PASS [   0.034s] ( 718/1144) dive-liveness::planning pinned_counterexample_words_falsify_the_lowered_property
+        PASS [   0.012s] ( 719/1144) dive-liveness::planning temporal_nonstuttering_checks_subscript_before_body
+        PASS [   0.025s] ( 720/1144) dive-liveness::planning unsupported_planning_never_executes_effects_or_guesses_a_scope
+        PASS [   0.058s] ( 721/1144) dive-liveness::product action_truth_is_per_edge_and_includes_the_closing_transition
+        PASS [   0.038s] ( 722/1144) dive-liveness::product all_two_vertex_branching_graphs_match_independent_path_closure
+        PASS [   0.007s] ( 723/1144) dive-liveness::product empty_language_and_promise_memory_are_distinguished
+        PASS [   0.689s] ( 724/1144) dive-liveness::phase_l real_bound_fp_first_representatives_bins_initial_consistency_and_deciding_errors
+        PASS [   0.086s] ( 725/1144) dive-liveness::product every_short_two_atom_word_agrees_with_direct_semantics
+        PASS [   0.007s] ( 726/1144) dive-liveness::product malformed_labels_and_limits_are_errors_never_absence_of_acceptance
+        PASS [   0.007s] ( 727/1144) dive-liveness::product pair_discovery_order_does_not_choose_the_projected_witness
+        PASS [   0.007s] ( 728/1144) dive-liveness::product parallel_edge_positions_are_preserved_and_dead_ends_are_not_stutters
+        PASS [   0.007s] ( 729/1144) dive-liveness::product reachable_growth_cannot_exceed_vertices_or_promise_cells_silently
+        PASS [   0.007s] ( 730/1144) dive-liveness::product reachable_pairs_fit_small_budgets_without_ignoring_invalid_inputs
+        PASS [   0.066s] ( 731/1144) dive-liveness::recurrences closing_edge_fulfills_recurrence_but_prefix_alone_does_not
+        PASS [   0.009s] ( 732/1144) dive-liveness::recurrences shared_conjunctions_and_disjunctions_have_explicit_work_bounds
+        PASS [   0.038s] ( 733/1144) dive-liveness::runtime_ratio all_primary_numeric_rows_match_within_the_observed_clock_bracket
+        PASS [   0.007s] ( 734/1144) dive-liveness::runtime_ratio negative_elapsed_is_refused_like_the_primary_assertion_controls
+        PASS [   0.144s] ( 735/1144) dive-liveness::state_if_planning complete_pinned_conditional_selection_preserves_error_phase_and_fallback
+        PASS [   0.470s] ( 736/1144) dive-liveness::recurrences every_factored_short_word_matches_original_temporal_truth
+        PASS [   0.007s] ( 737/1144) dive-liveness::tableau direct_word_truth_checks_shapes_domains_and_cell_bounds
+        PASS [   0.007s] ( 738/1144) dive-liveness::tableau malformed_graphs_and_limits_are_errors_not_empty_languages
+        PASS [   0.006s] ( 739/1144) dive-liveness::tableau recurrent_disjunction_uses_one_live_promise_and_keeps_action_edges
+        PASS [   0.006s] ( 740/1144) dive-liveness::tableau shared_next_obligations_preserve_distinct_promises_and_successor_order
+        PASS [   0.006s] ( 741/1144) dive-liveness::tableau unfulfilled_eventuality_cannot_defer_forever
+        PASS [   0.771s] ( 742/1144) dive-liveness::temporal_operators exact_operator_fields
+        PASS [   1.827s] ( 743/1144) dive-liveness::tableau all_short_two_atom_words_match_direct_semantics_at_every_back_edge
+        PASS [   0.265s] ( 744/1144) dive-liveness::tlc_final complete_selection_and_source_histories_are_verified
+        PASS [   0.010s] ( 745/1144) dive-liveness::tlc_final exact_profile_and_resource_refusals_never_become_proofs
+        PASS [   0.029s] ( 746/1144) dive-liveness::tlc_final foreign_and_effectful_models_stop_without_pool_or_predicate_output
+        PASS [   0.011s] ( 747/1144) dive-liveness::tlc_final malformed_bound_role_ids_stop_before_planning
+        PASS [   0.112s] ( 748/1144) dive-liveness::tlc_final_scopes scoped_normalization_group_and_tableau_identity_selection
+        PASS [   0.010s] ( 749/1144) dive-liveness::tlc_final_scopes singleton_disjunction_and_scoped_inputs_keep_existing_bounds
+        PASS [   0.359s] ( 750/1144) dive-liveness::tlc_partial_scc all_three_node_write_masks_match_independent_floyd_acceptance
+        PASS [   0.007s] ( 751/1144) dive-liveness::tlc_partial_scc partial_dimensions_and_limits_refuse_instead_of_claiming_holds
+        PASS [   0.006s] ( 752/1144) dive-liveness::tlc_partial_scc supplied_unwritten_adjacency_cannot_shortcut_a_real_written_prefix
+        PASS [   0.007s] ( 753/1144) dive-liveness::tlc_partial_scc unfinished_roots_and_targets_do_not_become_empty_completed_components
+        PASS [   0.111s] ( 754/1144) dive-liveness::tlc_planning actual_process_liveness_model_fields_and_retained_property_identity
+        PASS [   1.916s] ( 755/1144) dive-liveness::tlc_final actual_final_words_match_and_independently_replay_with_all_claims
+        PASS [   0.260s] ( 756/1144) dive-liveness::tlc_planning complete_selection_raw_hashes_and_source_matrix_are_verified
+        PASS [   0.124s] ( 757/1144) dive-liveness::tlc_planning configured_projection_matches_independent_scoped_word_interpreter
+        PASS [   0.102s] ( 758/1144) dive-liveness::tlc_planning model_projection_refuses_effects_opaque_captures_and_unchecked_ids_before_output
+        PASS [   0.011s] ( 759/1144) dive-liveness::tlc_planning pinned_stages_and_ordered_bins
+        PASS [   0.007s] ( 760/1144) dive-liveness::tlc_planning resource_failures_are_explicit_not_empty_plans
+        PASS [   1.043s] ( 761/1144) dive-liveness::tlc_scc actual_pinned_worker_anchor_pop_order_and_first_visits_match
+        PASS [   0.047s] ( 762/1144) dive-liveness::tlc_scc complete_small_graph_census_matches_independent_cycle_acceptance
+        PASS [   0.007s] ( 763/1144) dive-liveness::tlc_scc exact_budget_edge_and_identity_admission_never_certify_a_cut
+        PASS [   0.007s] ( 764/1144) dive-liveness::tlc_scc malformed_and_bounded_inputs_never_become_completed_empty_language
+        PASS [   0.006s] ( 765/1144) dive-liveness::tlc_scc reverse_successor_order_and_immediate_acceptance_preserve_root_fifo
+        PASS [   0.098s] ( 766/1144) dive-liveness::tlc_tableau all_actual_pin_particles_edges_promises_and_initial_ids_match
+        PASS [   1.926s] ( 767/1144) dive-liveness::tlc_planning all_stages_and_grouping_preserve_periodic_word_truth
+        PASS [   0.010s] ( 768/1144) dive-liveness::tlc_tableau every_fixed_budget_outcome_is_complete_or_typed_refusal
+        PASS [   0.020s] ( 769/1144) dive-liveness::tlc_tableau independent_full_witness_validation_rejects_transition_closing_and_claim_mutants
+        PASS [   0.007s] ( 770/1144) dive-liveness::tlc_tableau limits_malformed_groups_and_particle_mutants_refuse_or_reject
+        PASS [   0.197s] ( 771/1144) dive-liveness::tlc_tableau complete_raw_source_selection_hashes_are_verified
+        PASS [   0.181s] ( 772/1144) dive-liveness::tlc_tableau scoped_models_match_independent_periodic_validator_at_every_word_position
+        PASS [   0.012s] ( 773/1144) dive-liveness::tlc_tableau scoped_three_state_witness_rejects_nonstuttering_next_and_closing_edges
+        PASS [   0.090s] ( 774/1144) dive-liveness::tlc_tableau tableau_pipeline_refuses_effects_opaque_captures_and_unchecked_ids_before_output
+        PASS [   0.285s] ( 775/1144) dive-liveness::tlc_temporal_if complete_model_normalization_group_and_tableau_identity_selection
+        PASS [   0.813s] ( 776/1144) dive-liveness::tlc_tableau periodic_language_and_closing_edges_match_direct_word_truth
+        PASS [   0.007s] ( 777/1144) dive-liveness::tlc_temporal_if shared_objects_keep_last_tags_holes_and_bounded_rewrite_work
+        PASS [   0.181s] ( 778/1144) dive-liveness::tlc_temporal_if complete_raw_capture_history_and_source_guard
+        PASS [   0.068s] ( 779/1144) dive-model::api actions_carry_their_bindings_and_labels
+        PASS [   0.013s] ( 780/1144) dive-model::api both_profiles_bind_the_same_roles
+        PASS [   0.008s] ( 781/1144) dive-model::api configuration_errors_carry_tlc_codes
+        PASS [   0.037s] ( 782/1144) dive-model::api constant_substitutions_are_evaluated_at_every_use
+        PASS [   0.049s] ( 783/1144) dive-model::api dump_trace_modules_change_the_active_overrides
+        PASS [   0.009s] ( 784/1144) dive-model::api model_values_get_tlc_tokens
+        PASS [   0.012s] ( 785/1144) dive-model::api properties_split_as_tlc_splits_them
+        PASS [   0.088s] ( 786/1144) dive-model::deferred_normalization filter_operand_normalization_changes_only_the_stored_bound_set
+        PASS [   0.007s] ( 787/1144) dive-model::deferred_normalization unknown_provider_refuses_without_any_provider_method
+        PASS [   0.052s] ( 788/1144) dive-model::random_view_values stored_replay_shapes_are_admitted_without_normalization
+        PASS [   0.007s] ( 789/1144) dive-model::random_view_values unknown_and_unproved_shapes_refuse_without_provider_calls
+        PASS [   0.007s] ( 790/1144) dive-model::random_view_values width_and_depth_limits_refuse_without_expanding_a_work_vector
+        PASS [   0.510s] ( 791/1144) dive-liveness::tlc_temporal_if sharing_preserves_independent_words_and_every_closing_position
+        PASS [   0.453s] ( 792/1144) dive-model::roles roles_match_tlc
+        PASS [   0.257s] ( 793/1144) dive-model::startup startup_matches_tlc
+        PASS [   1.406s] ( 794/1144) dive-model::startup startup_matches_tlc_with_dump_trace
+        PASS [   0.106s] ( 795/1144) dive-model::symmetry closure_matches_pinned_tlc_order_and_malformed_maps
+        PASS [   0.007s] ( 796/1144) dive-model::symmetry disjoint_generators_close_to_the_product_and_keep_identity_implicit
+        PASS [   0.006s] ( 797/1144) dive-model::symmetry every_resource_refuses_without_exposing_a_partial_group
+        PASS [   0.006s] ( 798/1144) dive-model::symmetry invalid_indices_and_domains_are_errors_in_both_modes
+        PASS [   0.006s] ( 799/1144) dive-model::symmetry partial_maps_are_checked_after_identity_extension
+        PASS [   0.086s] ( 800/1144) dive-model::symmetry_declaration early_errors_match_clean_pinned_tlc_messages
+        PASS [   0.054s] ( 801/1144) dive-model::symmetry_declaration effectful_or_state_dependent_declarations_are_named_refusals
+        PASS [   0.073s] ( 802/1144) dive-model::symmetry_declaration original_definition_survives_constant_evaluation_and_keeps_identity_functions
+        PASS [   0.038s] ( 803/1144) dive-model::symmetry_declaration snapshot_preserves_cfg_substitution_and_assignment_distinction
+        PASS [   0.013s] ( 804/1144) dive-model::symmetry_declaration unverified_startup_errors_are_refusals_not_tlc_claims
+        PASS [   0.058s] ( 805/1144) dive-pluscal translation::fairness::tests::aggregate_fairness_work_is_charged_before_next_owner
+        PASS [   0.041s] ( 806/1144) dive-pluscal::algorithm_checksum full_checksum_bounds_and_reference_fair_weakness_stay_explicit
+        PASS [   0.100s] ( 807/1144) dive-pluscal::algorithm_checksum retained_reference_ast_bytes_are_exact_or_explicitly_unsupported
+        PASS [   0.062s] ( 808/1144) dive-pluscal::checksum_cst case_arrows_preserve_assignment_scope_in_both_syntaxes
+        PASS [   0.222s] ( 809/1144) dive-pluscal::checksum_expressions complete_nesting_layout_selection_matches_or_refuses
+        PASS [   0.011s] ( 810/1144) dive-pluscal::checksum_expressions empty_else_retains_true_before_branch_identity
+        PASS [   0.008s] ( 811/1144) dive-pluscal::checksum_expressions expression_and_nested_output_bounds_are_explicit
+        PASS [   0.007s] ( 812/1144) dive-pluscal::checksum_expressions trailing_with_separator_keeps_empty_binder_rejected
+        PASS [   0.422s] ( 813/1144) dive-pluscal::fairness retained_fairness_artifacts_and_errors
+        PASS [   3.452s] ( 814/1144) dive-model::roles roles_match_tlc_with_dump_trace
+        PASS [   0.009s] ( 815/1144) dive-pluscal::macros original_ast_and_all_error_spans_remain_source_owned
+        PASS [   0.182s] ( 816/1144) dive-pluscal::macros pinned_macro_artifacts_rejections_and_uncredited_invalid_output
+        PASS [   0.010s] ( 817/1144) dive-pluscal::macros repeated_large_actual_is_bounded_before_clone_amplification
+        PASS [   0.007s] ( 818/1144) dive-pluscal::macros unchanged_scopes_do_not_hide_macro_free_process_names
+        PASS [   0.353s] ( 819/1144) dive-pluscal::macros amplification_is_charged_before_output_allocation
+        PASS [   0.063s] ( 820/1144) dive-pluscal::multiple aggregate_budget_fails_before_combining_parts
+        PASS [   0.044s] ( 821/1144) dive-pluscal::multiple limits_charge_all_process_actions_and_bytes
+        PASS [   0.344s] ( 822/1144) dive-pluscal::multiple_procedures retained_multiple_process_procedure_artifacts_match
+        PASS [   0.007s] ( 823/1144) dive-pluscal::multiple_procedures scopes_and_overlapping_domains_remain_explicit
+        PASS [   0.008s] ( 824/1144) dive-pluscal::multiple_procedures shared_actions_and_storage_are_not_multiplied_by_process_count
+        PASS [   0.061s] ( 825/1144) dive-pluscal::normalization prefix_does_not_enable_insertion_and_typed_names_are_skipped
+        PASS [   0.112s] ( 826/1144) dive-pluscal::normalization retained_normalization_artifacts_and_errors
+        PASS [   0.007s] ( 827/1144) dive-pluscal::normalization source_ast_stays_original_and_generated_labels_are_bounded
+        PASS [   0.567s] ( 828/1144) dive-pluscal::multiple retained_multiple_process_artifacts_and_errors
+        PASS [   0.050s] ( 829/1144) dive-pluscal::parser all_arena_nodes_are_reachable_and_token_ranges_preserve_utf8
+        PASS [   0.006s] ( 830/1144) dive-pluscal::parser byte_ranges_and_display_columns_are_distinct
+        PASS [   0.006s] ( 831/1144) dive-pluscal::parser c_process_procedure_and_nested_braces_preserve_source
+        PASS [   0.011s] ( 832/1144) dive-pluscal::parser deep_input_is_bounded_on_an_ordinary_caller_stack
+        PASS [   0.006s] ( 833/1144) dive-pluscal::parser expressions_keep_quantifier_commas_strings_comments_and_record_keywords
+        PASS [   0.006s] ( 834/1144) dive-pluscal::parser pinned_pluscal_string_scanner_rejects_raw_unicode_and_controls
+        PASS [   0.006s] ( 835/1144) dive-pluscal::parser printable_pluscal_string_endpoints_and_known_escapes_are_accepted
+        PASS [   0.007s] ( 836/1144) dive-pluscal::parser resource_and_invalid_controls_never_produce_an_ast
+        PASS [   0.006s] ( 837/1144) dive-pluscal::parser selected_region_ranges_point_into_original_source
+        PASS [   0.006s] ( 838/1144) dive-pluscal::parser source_p_structures_are_not_expanded_or_dropped
+        PASS [   0.052s] ( 839/1144) dive-pluscal::procedure_fairness false_branch_call_still_contributes_and_unused_does_not
+        PASS [   0.009s] ( 840/1144) dive-pluscal::procedure_fairness reachable_owned_fairness_and_nof
+        PASS [   0.006s] ( 841/1144) dive-pluscal::procedure_fairness sequential_modifier_remains_named_and_small_output_is_bounded
+        PASS [   0.008s] ( 842/1144) dive-pluscal::procedure_fairness shared_procedure_fairness_belongs_only_to_fair_caller
+        PASS [   0.045s] ( 843/1144) dive-pluscal::procedure_graph cross_procedure_call_return_keeps_its_reference_frame_owner
+        PASS [   0.010s] ( 844/1144) dive-pluscal::procedure_graph graph_scope_actions_are_globally_bounded_and_source_is_unchanged
+        PASS [   0.021s] ( 845/1144) dive-pluscal::procedure_graph historical_cycles_now_match_the_retained_primary_artifacts
+        PASS [   0.173s] ( 846/1144) dive-pluscal::procedure_graph pinned_nonrecursive_graph_artifacts_and_invalid_output
+        PASS [   0.060s] ( 847/1144) dive-pluscal::procedures call_and_return_do_not_mutate_the_source_ast_or_exceed_action_budget
+        PASS [   0.090s] ( 848/1144) dive-pluscal::procedures pinned_procedure_artifacts_rejections_and_uncredited_invalid_output
+        PASS [   0.064s] ( 849/1144) dive-pluscal::process_checksum option_normalization_budgets_are_global
+        PASS [   0.008s] ( 850/1144) dive-pluscal::process_checksum process_ast_budgets_are_global_and_never_admit_partial_crc
+        PASS [   0.262s] ( 851/1144) dive-pluscal::process_checksum process_option_checksum_captures_match_bytes_and_declared_precedence
+        PASS [   0.134s] ( 852/1144) dive-pluscal::process_checksum retained_process_serialization_matches_each_primary_stage
+        PASS [   0.015s] ( 853/1144) dive-pluscal::process_checksum source_option_comments_have_proved_artifact_and_full_crc
+        PASS [   0.251s] ( 854/1144) dive-pluscal::process_procedures all_single_process_procedure_artifacts_match_the_pin
+        PASS [   0.008s] ( 855/1144) dive-pluscal::process_procedures explicit_stack_expression_is_not_implicitly_indexed
+        PASS [   0.007s] ( 856/1144) dive-pluscal::process_procedures process_frames_are_owned_by_id_and_self_tail_keeps_the_frame
+        PASS [   0.008s] ( 857/1144) dive-pluscal::process_procedures process_procedure_normalization_is_globally_bounded
+        PASS [   0.059s] ( 858/1144) dive-pluscal::processes former_fairness_refusals_are_complete_generated_artifacts
+        PASS [   0.008s] ( 859/1144) dive-pluscal::processes process_labels_require_explicit_insertion_and_remain_source_mapped
+        PASS [   0.007s] ( 860/1144) dive-pluscal::processes process_name_shadowing_and_unproved_bindings_refuse_without_artifacts
+        PASS [   0.214s] ( 861/1144) dive-pluscal::processes retained_process_artifacts_and_errors
+        PASS [   1.816s] ( 862/1144) dive-pluscal::oracle pinned_source_grammar_and_ast_controls
+        PASS [   0.009s] ( 863/1144) dive-pluscal::recursive_procedures recursive_translation_is_source_bounded_and_keeps_runtime_frames
+        PASS [   0.007s] ( 864/1144) dive-pluscal::recursive_procedures self_tail_call_keeps_frame_and_uses_simultaneous_parameter_values
+        PASS [   0.007s] ( 865/1144) dive-pluscal::recursive_procedures zero_parameter_self_tail_and_double_assignment_are_never_silent_repairs
+        PASS [   0.222s] ( 866/1144) dive-pluscal::recursive_procedures all_recursive_source_artifacts_match_the_pin_without_crediting_invalid_output
+        PASS [   0.063s] ( 867/1144) dive-pluscal::rewrite exact_line_checksum_and_prefix_suffix_replacement
+        PASS [   0.007s] ( 868/1144) dive-pluscal::rewrite source_body_normalization_and_output_limits_are_explicit
+        PASS [   0.040s] ( 869/1144) dive-pluscal::rewrite modified_missing_full_and_ambiguous_contracts_refuse
+        PASS [   0.051s] ( 870/1144) dive-pluscal::source_option_header retained_reference_header_alias
+        PASS [   0.048s] ( 871/1144) dive-pluscal::source_options generation_and_checksum_use_identical_context
+        PASS [   0.006s] ( 872/1144) dive-pluscal::source_options ignored_attached_tokens_and_first_empty_declaration
+        PASS [   0.006s] ( 873/1144) dive-pluscal::source_options option_allocations_are_bounded
+        PASS [   0.006s] ( 874/1144) dive-pluscal::source_options partial_reference_errors_never_return_effective_context
+        PASS [   0.006s] ( 875/1144) dive-pluscal::source_options requested_and_effective_settings_are_distinct
+        PASS [   0.049s] ( 876/1144) dive-pluscal::translation flat_elsif_cannot_create_unbounded_normalized_depth
+        PASS [   0.052s] ( 877/1144) dive-pluscal::translation atomic_reads_and_parallel_snapshot
+        PASS [   0.007s] ( 878/1144) dive-pluscal::translation labelled_assertion_uses_keyword_location
+        PASS [   0.006s] ( 879/1144) dive-pluscal::translation opaque_and_unproved_normalizations_refuse
+        PASS [   0.107s] ( 880/1144) dive-pluscal::translation resource_failures_return_no_artifact
+        PASS [   0.108s] ( 881/1144) dive-pluscal::translation quoted_done_is_the_terminal_label
+        PASS [   0.007s] ( 882/1144) dive-pluscal::translation sequential_label_modifiers_force_pc_without_inventing_fairness
+        PASS [   0.006s] ( 883/1144) dive-pluscal::translation source_stack_and_invalid_ranges_are_bounded
+        PASS [   0.006s] ( 884/1144) dive-pluscal::translation unicode_binders_are_named_refusals
+        PASS [   0.035s] ( 885/1144) dive-sema builtins::tests::names_are_unique
+        PASS [   0.007s] ( 886/1144) dive-sema builtins::tests::synonyms
+        PASS [   0.006s] ( 887/1144) dive-sema diagnostics::tests::codes_are_unique_and_well_formed
+        PASS [   0.006s] ( 888/1144) dive-sema diagnostics::tests::sany_codes_are_in_range
+        PASS [   0.006s] ( 889/1144) dive-sema hashtable::tests::negative_hashes_use_the_low_31_bits
+        PASS [   0.006s] ( 890/1144) dive-sema hashtable::tests::rehash_moves_chains_in_java_order
+        PASS [   0.005s] ( 891/1144) dive-sema hashtable::tests::thresholds_follow_java
+        PASS [   0.006s] ( 892/1144) dive-sema loader::tests::monolith_extracts_through_the_end_line
+        PASS [   0.006s] ( 893/1144) dive-sema loader::tests::monolith_header_lines
+        PASS [   0.006s] ( 894/1144) dive-sema pcal_check::tests::end_without_begin_translation_fails
+        PASS [   0.006s] ( 895/1144) dive-sema pcal_check::tests::unterminated_string_in_algorithm_fails
+        PASS [   0.018s] ( 896/1144) dive-sema stdlib::tests::every_standard_module_parses_and_is_named_after_its_file
+        PASS [   0.205s] ( 897/1144) dive-pluscal::translation retained_primary_token_streams
+        PASS [   0.106s] ( 898/1144) dive-sema::sany_cases error_corpus_matches_sany_and_its_codes
+        PASS [   0.089s] ( 899/1144) dive-sema::sany_cases minimal_cases_match_sany
+        PASS [   0.069s] ( 900/1144) dive-sim::bounds exhausted_budgets_keep_partial_statistics_and_refuse
+        PASS [   0.020s] ( 901/1144) dive-sim::bounds failure_traces_respect_zero_and_tiny_retained_budgets
+        PASS [   0.014s] ( 902/1144) dive-sim::bounds initial_enumeration_finishes_before_checking_completeness
+        PASS [   0.030s] ( 903/1144) dive-sim::bounds temporal_effects_and_compound_normalization_are_named_refusals
+        PASS [   0.044s] ( 904/1144) dive-stdlib host::tests::draws_from_the_startup_stream_then_the_state_stream
+        PASS [   0.006s] ( 905/1144) dive-stdlib host::tests::skipping_matches_drawing_one_word_at_a_time
+        PASS [   0.006s] ( 906/1144) dive-stdlib random::lcg::tests::first_n_indices_are_a_permutation
+        PASS [   0.007s] ( 907/1144) dive-stdlib random::lcg::tests::m_and_a_follow_tlc
+        PASS [   0.006s] ( 908/1144) dive-stdlib random::ops::tests::negative_count_on_an_enumerated_set_fails_before_normalizing
+        PASS [   0.006s] ( 909/1144) dive-stdlib random::seeding::tests::dive_streams_are_keyed
+        PASS [   0.006s] ( 910/1144) dive-stdlib random::seeding::tests::seeds_parse_like_long_parse_long
+        PASS [   0.006s] ( 911/1144) dive-stdlib random::seeding::tests::tlc_state_stream_is_fp_xor_seed
+        PASS [   0.006s] ( 912/1144) dive-stdlib random::source::tests::bad_bound_draws_nothing
+        PASS [   0.007s] ( 913/1144) dive-stdlib random::source::tests::matches_java_for_seed_7
+        PASS [   0.038s] ( 914/1144) dive-stdlib::dive_mode a_state_stream_depends_only_on_seed_state_and_call_index
+        PASS [   0.010s] ( 915/1144) dive-stdlib::dive_mode different_seeds_draw_differently
+        PASS [   0.198s] ( 916/1144) dive-sim::comparison comparison_rejects_forged_sampling_evidence
+        PASS [   0.007s] ( 917/1144) dive-stdlib::dive_mode simulation_traces_are_keyed_by_number
+        PASS [   0.095s] ( 918/1144) dive-stdlib::dive_mode replays_at_any_worker_count
+        PASS [   0.037s] ( 919/1144) dive-stdlib::java_random java_util_random_is_bit_exact
+        PASS [   0.007s] ( 920/1144) dive-stdlib::java_random random_generator_next_prime_is_bit_exact
+        PASS [   0.006s] ( 921/1144) dive-stdlib::java_random set_seed_resets_the_generator
+        PASS [   0.006s] ( 922/1144) dive-stdlib::java_random simulation_worker_seeds_are_bit_exact
+        PASS [   0.051s] ( 923/1144) dive-stdlib::tlc_random breadth_first_random_graph_matches_tlc
+        PASS [   0.008s] ( 924/1144) dive-stdlib::tlc_random errors_match_tlc
+        PASS [   0.007s] ( 925/1144) dive-stdlib::tlc_random let_bound_draws_follow_tlc
+        PASS [   0.006s] ( 926/1144) dive-stdlib::tlc_random probe_p9_seed_7
+        PASS [   0.048s] ( 927/1144) dive-stdlib::tlc_random startup_stream_matches_tlc
+        PASS [   0.007s] ( 928/1144) dive-stdlib::tlc_random state_draws_depend_on_the_fingerprint_polynomial
+        PASS [   0.008s] ( 929/1144) dive-stdlib::tlc_random state_streams_match_tlc
+        PASS [   0.008s] ( 930/1144) dive-stdlib::tlc_random tlc_rebuilds_the_initial_state_with_a_reset_stream
+        PASS [   0.045s] ( 931/1144) dive-store collision::tests::actual_probability_rounds_half_up
+        PASS [   0.006s] ( 932/1144) dive-store collision::tests::java_double_to_string_layout
+        PASS [   0.006s] ( 933/1144) dive-store collision::tests::probability_to_string_rounds_like_tlc
+        PASS [   0.009s] ( 934/1144) dive-store predecessor::tests::all_corrupt_records_and_missing_files_refuse
+        PASS [   0.007s] ( 935/1144) dive-store predecessor::tests::corrupted_unvisited_record_prevents_certification
+        PASS [   0.007s] ( 936/1144) dive-store predecessor::tests::failed_write_poisoned_log_and_cleanup_failure_explicit
+        PASS [   0.006s] ( 937/1144) dive-store predecessor::tests::reconstruction_bound_and_bad_parent_refuse_explicitly
+        PASS [   0.008s] ( 938/1144) dive-store predecessor::tests::zero_tiny_and_transition_preserve_ids_and_ordinals
+        PASS [   0.010s] ( 939/1144) dive-store spill::tests::corrupt_truncated_wrong_index_and_oversized_records_refuse
+        PASS [   0.012s] ( 940/1144) dive-store spill::tests::memory_and_disk_keep_ids_order_and_capacity_bound
+        PASS [   0.007s] ( 941/1144) dive-store spill::tests::missing_read_write_and_cleanup_failures_are_explicit
+        PASS [   0.496s] ( 942/1144) dive-stdlib::examples_random span_tree_random_seed_0_matches_the_golden
+        PASS [   0.018s] ( 943/1144) dive-store::collision_tlc ignoring_tlc_sub_sets_would_give_a_different_figure
+        PASS [   0.232s] ( 944/1144) dive-store::collision_tlc optimistic_figure_matches_every_golden
+        PASS [   0.013s] ( 945/1144) dive-store::collision_tlc probability_printing_matches_tlc_cases
+        PASS [   0.523s] ( 946/1144) dive-store::collision_tlc actual_figure_matches_tlc_from_tlc_fingerprints
+        PASS [   0.007s] ( 947/1144) dive-store::properties duplicate_positions_are_reported
+        PASS [   0.077s] ( 948/1144) dive-store::properties equal_states_share_fingerprint_and_key
+        PASS [   1.405s] ( 949/1144) dive-store::properties chaos_runs_at_eight_threads_are_identical
+        PASS [   1.244s] ( 950/1144) dive-store::properties exact_and_fingerprint_membership_agree
+        PASS [   0.081s] ( 951/1144) dive-store::properties exact_set_equals_reference_model
+        PASS [   0.072s] ( 952/1144) dive-store::properties frontier_blocks_cover_in_order
+        PASS [   0.007s] ( 953/1144) dive-store::properties intervals_and_enumerated_sets_are_one_state
+        PASS [   0.006s] ( 954/1144) dive-store::properties mismatched_buffers_are_reported
+        PASS [   0.137s] ( 955/1144) dive-store::properties fpset_equals_reference_model
+        PASS [   0.129s] ( 956/1144) dive-store::properties resolve_equals_sequential_insertion
+        PASS [   0.038s] ( 957/1144) dive-store::properties states_round_trip
+        PASS [   0.007s] ( 958/1144) dive-store::properties tlc_fingerprint_is_tlcs_single_stream
+        PASS [   0.152s] ( 959/1144) dive-store::properties resolve_is_schedule_independent
+        PASS [   0.026s] ( 960/1144) dive-store::properties trace_paths_follow_parents
+        PASS [   0.461s] ( 961/1144) dive-store::state_fingerprint equal_changes_in_two_variables_do_not_cancel
+        PASS [   0.134s] ( 962/1144) dive-store::state_fingerprint former_combination_collided_and_the_new_one_does_not
+        PASS [   0.007s] ( 963/1144) dive-store::state_fingerprint issue_42_states_differ
+        PASS [   0.166s] ( 964/1144) dive-store::state_fingerprint permuting_model_values_across_variables
+        PASS [   0.015s] ( 965/1144) dive-store::state_fingerprint single_variable_changes_never_collide
+        PASS [   0.235s] ( 966/1144) dive-store::state_fingerprint swapping_values_between_variables
+        PASS [   0.338s] ( 967/1144) dive-store::tlc_state_fingerprints every_state_fingerprint_equals_tlcs
+        PASS [   0.007s] ( 968/1144) dive-store::tlc_state_fingerprints the_default_profile_keeps_its_own_fingerprint
+        PASS [   0.051s] ( 969/1144) dive-syntax diagnostics::tests::codes_are_unique
+        PASS [   0.006s] ( 970/1144) dive-syntax diagnostics::tests::line_col_counts_chars
+        PASS [   0.006s] ( 971/1144) dive-syntax kind::tests::classes
+        PASS [   0.005s] ( 972/1144) dive-syntax kind::tests::raw_round_trip
+        PASS [   0.006s] ( 973/1144) dive-syntax lexer::tests::columns_follow_javacc
+        PASS [   0.005s] ( 974/1144) dive-syntax lexer::tests::comments
+        PASS [   0.005s] ( 975/1144) dive-syntax lexer::tests::keywords_and_identifiers
+        PASS [   0.005s] ( 976/1144) dive-syntax lexer::tests::lossless
+        PASS [   0.005s] ( 977/1144) dive-syntax lexer::tests::module_header_forms
+        PASS [   0.006s] ( 978/1144) dive-syntax lexer::tests::numbers
+        PASS [   0.006s] ( 979/1144) dive-syntax lexer::tests::operators_longest_match
+        PASS [   0.005s] ( 980/1144) dive-syntax lexer::tests::steps
+        PASS [   0.005s] ( 981/1144) dive-syntax lexer::tests::strings
+        PASS [   0.006s] ( 982/1144) dive-syntax ops::tests::every_operator_token_has_precedence
+        PASS [   0.005s] ( 983/1144) dive-syntax ops::tests::ranges
+        PASS [   0.005s] ( 984/1144) dive-syntax ops::tests::synonyms_share_an_entry
+        PASS [   0.005s] ( 985/1144) dive-syntax tokens::tests::errors_are_flagged
+        PASS [   0.005s] ( 986/1144) dive-syntax tokens::tests::lossless
+        PASS [   0.005s] ( 987/1144) dive-syntax tokens::tests::spec_state_from_offset_zero
+        PASS [   0.054s] ( 988/1144) dive-syntax::ast binders
+        PASS [   0.006s] ( 989/1144) dive-syntax::ast let_if_case
+        PASS [   0.006s] ( 990/1144) dive-syntax::ast lists_applications_and_labels
+        PASS [   0.006s] ( 991/1144) dive-syntax::ast module_units
+        PASS [   0.079s] ( 992/1144) dive-syntax::corpus corpus_matches_sany_verdicts_and_round_trips
+        PASS [   0.046s] ( 993/1144) dive-syntax::corpus corpus_structure_matches_expected_trees
+        PASS [   0.111s] ( 994/1144) dive-syntax::roundtrip arbitrary_bytes_round_trip
+        PASS [   0.057s] ( 995/1144) dive-syntax::roundtrip arbitrary_text_round_trips
+        PASS [   0.015s] ( 996/1144) dive-syntax::roundtrip deep_nesting_is_refused_without_overflow
+        PASS [   0.013s] ( 997/1144) dive-syntax::roundtrip long_operator_chains_are_accepted
+        PASS [   0.007s] ( 998/1144) dive-syntax::roundtrip moderate_nesting_is_accepted
+        PASS [   0.132s] ( 999/1144) dive-syntax::roundtrip module_with_arbitrary_body_round_trips
+        PASS [   0.066s] (1000/1144) dive-syntax::roundtrip token_soup_round_trips
+        PASS [   0.080s] (1001/1144) dive-syntax::roundtrip very_long_operator_chains_are_refused_without_overflow
+        PASS [   0.054s] (1002/1144) dive-syntax::sany_cases every_case_file_has_a_verdict
+        PASS [   0.030s] (1003/1144) dive-syntax::sany_cases every_case_matches_sany
+        PASS [   0.045s] (1004/1144) dive-syntax::structure associativity
+        PASS [   0.007s] (1005/1144) dive-syntax::structure brackets_and_binders
+        PASS [   0.006s] (1006/1144) dive-syntax::structure junction_lists
+        PASS [   0.006s] (1007/1144) dive-syntax::structure names_labels_and_subexpressions
+        PASS [   0.006s] (1008/1144) dive-syntax::structure precedence
+        PASS [   0.006s] (1009/1144) dive-syntax::structure prefix_and_postfix
+        PASS [   0.006s] (1010/1144) dive-syntax::structure proofs
+        PASS [   0.006s] (1011/1144) dive-syntax::structure recovery_keeps_later_units
+        PASS [   0.057s] (1012/1144) dive-trace exists::tuple_shape_tests::invalid_ids_and_lazy_captures_cannot_prove_a_tuple
+        PASS [   0.007s] (1013/1144) dive-trace format::tests::dive_format_round_trips
+        PASS [   0.006s] (1014/1144) dive-trace format::tests::parses_command_line_endings
+        PASS [   0.006s] (1015/1144) dive-trace format::tests::reads_tlc_dump_trace_json
+        PASS [   0.006s] (1016/1144) dive-trace format::tests::rejects_a_tlc_document_whose_steps_do_not_connect
+        PASS [   0.006s] (1017/1144) dive-trace tlc::tests::forces_what_the_json_decides
+        PASS [   0.006s] (1018/1144) dive-trace tlc::tests::parses_tlc_keys
+        PASS [   0.006s] (1019/1144) dive-trace value_json::tests::a_fcn_over_one_to_n_reads_as_the_sequence
+        PASS [   0.006s] (1020/1144) dive-trace value_json::tests::rejects_ambiguous_and_malformed_input
+        PASS [   0.006s] (1021/1144) dive-trace value_json::tests::round_trips_every_kind
+        PASS [   0.119s] (1022/1144) dive-trace::configured_random_stream configured_native_root_and_redirect_have_independent_draw_position_proofs
+        PASS [   0.023s] (1023/1144) dive-trace::configured_random_stream configured_random_guard_is_not_misclassified_as_pure
+        PASS [   0.023s] (1024/1144) dive-trace::configured_random_stream full_two_state_witness_is_valid_but_does_not_certify_tlc_printing
+        PASS [   0.038s] (1025/1144) dive-trace::configured_random_stream startup_configured_draws_do_not_create_a_fresh_init_certificate
+        PASS [   0.068s] (1026/1144) dive-trace::contexts admitted_clones_and_complete_words_remain_valid
+        PASS [   0.015s] (1027/1144) dive-trace::contexts foreign_scopes_and_replaced_model_arenas_never_certify
+        PASS [   0.067s] (1028/1144) dive-trace::exists constant_action_calls_preserve_contexts_and_return_real_witnesses
+        PASS [   0.010s] (1029/1144) dive-trace::exists constraints_and_reachable_states_never_restrict_enabled
+        PASS [   0.048s] (1030/1144) dive-trace::exists finite_quantified_actions_match_every_small_assignment
+        PASS [   0.020s] (1031/1144) dive-trace::exists finite_relations_match_exhaustive_assignments_and_return_real_witnesses
+        PASS [   0.010s] (1032/1144) dive-trace::exists incomplete_covers_and_budgets_are_refusals_never_disabled
+        PASS [   0.021s] (1033/1144) dive-trace::exists let_bound_necessary_covers_preserve_outer_values_and_real_witnesses
+        PASS [   0.009s] (1034/1144) dive-trace::exists missing_subscript_bounds_cannot_certify_fair_disabledness
+        PASS [   0.018s] (1035/1144) dive-trace::exists pinned_quantified_enabledness_matches_all_36_states
+        PASS [   0.019s] (1036/1144) dive-trace::exists pinned_scoped_enabledness_agrees_on_all_initial_states
+        PASS [   0.012s] (1037/1144) dive-trace::exists pinned_tlc_enabledness_matches_every_finite_cover_state
+        PASS [   0.011s] (1038/1144) dive-trace::exists quantified_missing_domains_correlations_and_limits_never_guess_disabled
+        PASS [   0.010s] (1039/1144) dive-trace::exists scoped_covers_keep_missing_bounds_and_lazy_arguments_as_refusals
+        PASS [   0.073s] (1040/1144) dive-trace::lasso_claims closing_edge_and_claimed_truth_are_both_checked
+        PASS [   0.012s] (1041/1144) dive-trace::lasso_claims implicit_stutters_bypass_action_constraints_but_real_edges_do_not
+        PASS [   0.022s] (1042/1144) dive-trace::lasso_claims lossy_reader_preflights_before_scoring_effectful_initial_predicates
+        PASS [   0.008s] (1043/1144) dive-trace::lasso_claims named_set_is_complete_and_legacy_claims_stay_unsupported
+        PASS [   0.040s] (1044/1144) dive-trace::lasso_claims pinned_liveness_words_validate_including_recurring_fair_actions
+        PASS [   0.010s] (1045/1144) dive-trace::lasso_claims temporal_behavior_conjuncts_must_hold_and_recurring_action_certifies_fairness
+        PASS [   0.006s] (1046/1144) dive-trace::lasso_claims wrapper_claims_cannot_disagree_with_the_inner_document
+        PASS [   0.103s] (1047/1144) dive-trace::runtime_names canonical_predicate_answers_do_not_depend_on_prior_name_encounters
+        PASS [   0.023s] (1048/1144) dive-trace::runtime_names canonical_validation_still_distinguishes_actual_and_forged_steps
+        PASS [   0.022s] (1049/1144) dive-trace::runtime_names forged_lossless_and_lossy_witnesses_cannot_prove_their_own_namespace
+        PASS [   0.022s] (1050/1144) dive-trace::runtime_names literal_names_remain_supported_in_tlc_order
+        PASS [   0.053s] (1051/1144) dive-trace::runtime_names native_aliases_and_nested_definitions_receive_the_same_scoped_refusal
+        PASS [   0.129s] (1052/1144) dive-trace::runtime_names predicate_apis_refuse_encounter_sensitive_names_with_or_without_config_roles
+        PASS [   0.099s] (1053/1144) dive-trace::runtime_names scoped_tuple_only_sequence_calls_remain_independently_decidable
+        PASS [   0.081s] (1054/1144) dive-trace::runtime_names string_mixed_opaque_and_effectful_sequence_inputs_stay_refused
+        PASS [   0.068s] (1055/1144) dive-trace::temporal actions_use_the_closing_successor_and_bad_words_refuse
+        PASS [   0.008s] (1056/1144) dive-trace::temporal direct_enabledness_is_evaluated_independently_at_every_word_position
+        PASS [   0.016s] (1057/1144) dive-trace::temporal every_suffix_of_small_words_matches_direct_infinite_semantics
+        PASS [   0.022s] (1058/1144) dive-trace::temporal inherited_search_levels_cannot_supply_temporal_truth
+        PASS [   0.027s] (1059/1144) dive-trace::temporal pinned_tlc_liveness_words_violate_the_reported_property
+        PASS [   0.021s] (1060/1144) dive-trace::temporal recurring_action_certifies_both_fairness_kinds_on_every_small_word
+        PASS [   0.010s] (1061/1144) dive-trace::temporal temporal_action_subscript_short_circuit_includes_closing_edge
+        PASS [   0.021s] (1062/1144) dive-trace::temporal temporal_validation_does_not_execute_side_effects
+        PASS [   0.011s] (1063/1144) dive-trace::temporal unfair_stutter_is_false_and_unbounded_enabledness_still_refuses
+        PASS [   0.113s] (1064/1144) dive-trace::temporal weak_and_strong_fairness_differ_on_intermittent_enabledness
+        PASS [   0.219s] (1065/1144) dive-trace::view_random_stream pinned_view_random_words_replay_and_altered_initial_words_fail
+        PASS [   0.052s] (1066/1144) dive-value codec::tests::small_values_are_small
+        PASS [   0.007s] (1067/1144) dive-value codec::tests::truncated_input_is_an_error
+        PASS [   0.006s] (1068/1144) dive-value codec::tests::varints_round_trip
+        PASS [   0.138s] (1069/1144) dive-value::codec cached_fingerprints_equal_uncached
+        PASS [   0.141s] (1070/1144) dive-value::codec canonical_keys_decide_equality
+        PASS [   0.007s] (1071/1144) dive-value::codec canonical_keys_fail_where_fingerprints_fail
+        PASS [   0.076s] (1072/1144) dive-value::codec canonical_keys_ignore_representation
+        PASS [   0.018s] (1073/1144) dive-value::codec decoding_garbage_never_panics
+        PASS [   0.006s] (1074/1144) dive-value::codec deferred_sets_are_written_as_their_elements
+        PASS [   0.168s] (1075/1144) dive-value::codec encodings_are_prefix_free
+        PASS [   0.010s] (1076/1144) dive-value::codec frontier_admission_never_invokes_nested_deferred_callbacks
+        PASS [   0.137s] (1077/1144) dive-value::codec frontier_bound_admits_lossless_values_without_underestimating
+        PASS [   0.006s] (1078/1144) dive-value::codec huge_intervals_have_constant_size_keys
+        PASS [   0.153s] (1079/1144) dive-value::codec lossless_round_trip_preserves_representation
+        PASS [   0.006s] (1080/1144) dive-value::codec representations_with_equal_values_share_a_key
+        PASS [   0.006s] (1081/1144) dive-value::codec unknown_tokens_are_errors
+        PASS [   0.006s] (1082/1144) dive-value::codec unnormalized_sets_keep_tlc_semantics
+        PASS [   0.051s] (1083/1144) dive-value::layout clones_share_structure
+        PASS [   0.006s] (1084/1144) dive-value::layout values_are_compact_and_thread_safe
+        PASS [   0.040s] (1085/1144) dive-value::limits huge_intervals_are_compared_without_materializing
+        PASS [   7.294s] (1086/1144) dive-store::state_fingerprint fingerprint_and_exact_membership_agree_on_a_large_sample
+        PASS [   0.007s] (1087/1144) dive-value::limits nonenumerable_function_set_diagnostics_do_not_reenter_the_same_expansion
+        PASS [   0.007s] (1088/1144) dive-value::limits recursive_operations_handle_the_documented_depth
+        PASS [   0.138s] (1089/1144) dive-value::limits recursive_operations_refuse_deep_values_with_an_error
+        PASS [   0.007s] (1090/1144) dive-value::limits symbolic_function_emptiness_preserves_size_hash_equality_and_fingerprints
+        PASS [   0.006s] (1091/1144) dive-value::limits unknown_domain_is_not_inferred_nonempty_from_failed_enumeration
+        PASS [   0.068s] (1092/1144) dive-value::properties big_mode_is_mathematical
+        PASS [   0.006s] (1093/1144) dive-value::properties both_orders_build_the_same_sets
+        PASS [   0.079s] (1094/1144) dive-value::properties canonical_order_is_total_and_agrees_with_eq
+        PASS [   0.082s] (1095/1144) dive-value::properties hash_agrees_with_eq
+        PASS [   0.225s] (1096/1144) dive-value::properties lazy_membership_equals_enumerated_membership
+        PASS [   0.094s] (1097/1144) dive-value::properties normalization_is_idempotent_and_order_independent
+        PASS [   0.121s] (1098/1144) dive-value::properties order_is_total_and_agrees_with_eq
+        PASS [   0.027s] (1099/1144) dive-value::properties set_algebra_laws
+        PASS [   0.085s] (1100/1144) dive-value::properties tlc_checked_ops_agree_with_total_order
+        PASS [   0.059s] (1101/1144) dive-value::properties tlc_overflow_is_exact
+        PASS [   0.055s] (1102/1144) dive-value::review_adversarial apply_tuple_at_i64_min_does_not_panic_issue_overflow
+        PASS [   0.007s] (1103/1144) dive-value::review_adversarial bigint_domain_is_an_integer_issue_non_int_domain
+        PASS [   0.006s] (1104/1144) dive-value::review_adversarial canonical_profile_comparability_differs_from_tlc_issue_d009_claim
+        PASS [   0.006s] (1105/1144) dive-value::review_adversarial cmp_with_equal_iff_eq_issue_unnormalizable_raw_sets
+        PASS [   0.058s] (1106/1144) dive-value::review_adversarial compare_deeply_nested_values_issue_stack_overflow
+        PASS [   0.007s] (1107/1144) dive-value::review_adversarial debug_formatting_a_raw_set_must_not_change_membership_issue_normalize_side_effect
+        PASS [   0.006s] (1108/1144) dive-value::review_adversarial deferred_sets_order_is_allocation_dependent_issue_nondeterminism
+        PASS [   0.235s] (1109/1144) dive-value::review_adversarial drop_deeply_nested_value_issue_stack_overflow
+        PASS [   0.007s] (1110/1144) dive-value::review_adversarial enumeration_error_must_not_depend_on_who_enumerated_first_issue_cache
+        PASS [   0.006s] (1111/1144) dive-value::review_adversarial eq_is_reflexive_across_copies_issue_unnormalizable_raw_sets
+        PASS [   0.051s] (1112/1144) dive-value::review_adversarial fingerprint_deeply_nested_value_issue_stack_overflow
+        PASS [   0.007s] (1113/1144) dive-value::review_adversarial fp64_state_fingerprints_match_tlc_in_all_64_bits
+        PASS [   3.733s] (1114/1144) dive-value::limits large_lazy_sets_are_streamed_for_hash_and_fingerprint
+        PASS [   0.006s] (1115/1144) dive-value::review_adversarial hashing_a_raw_set_must_not_change_membership_issue_normalize_side_effect
+        PASS [   0.006s] (1116/1144) dive-value::review_adversarial interval_domain_function_vs_record_matches_tlc
+        PASS [   0.006s] (1117/1144) dive-value::review_adversarial member_with_mismatched_ctx_order_issue_silent_false
+        PASS [   0.006s] (1118/1144) dive-value::review_adversarial non_canonical_bigint_issue_public_variants
+        PASS [   0.006s] (1119/1144) dive-value::review_adversarial rust_eq_on_a_raw_set_must_not_change_membership_issue_normalize_side_effect
+        PASS [   0.006s] (1120/1144) dive-value::review_adversarial rust_eq_on_an_incomparable_raw_set_must_not_normalize_nested_sets_issue_32
+        PASS [   0.006s] (1121/1144) dive-value::review_adversarial rust_eq_on_large_intervals_materializes_issue_hash_enumerates
+        PASS [   0.006s] (1122/1144) dive-value::review_adversarial seq_of_empty_equals_its_enumeration_issue_hash
+        PASS [   0.006s] (1123/1144) dive-value::review_adversarial string_domain_function_is_not_a_record_literal_issue_fcnrcd_vs_record
+        PASS [   0.062s] (1124/1144) dive-value::tlc_differential canonical_order_differs_from_tlc_somewhere
+        PASS [   0.007s] (1125/1144) dive-value::tlc_differential choose_depends_on_interning_only_in_tlc_order
+        PASS [   0.022s] (1126/1144) dive-value::tlc_differential errors_match_tlc
+        PASS [   0.007s] (1127/1144) dive-value::tlc_differential fp64_matches_tlc_dump_dot_in_all_64_bits
+        PASS [   0.006s] (1128/1144) dive-value::tlc_differential membership_after_tlc_normalization_matches_tlc
+        PASS [   0.013s] (1129/1144) dive-value::tlc_differential outcomes_match_tlc
+        PASS [   0.012s] (1130/1144) dive-value::tlc_differential printed_values_match_tlc
+        PASS [   0.007s] (1131/1144) dive-value::tlc_differential trace_states_match_tlc
+        PASS [   0.057s] (1132/1144) xtask::bin/xtask features::tests::default_features_enable_the_enumerator
+        PASS [   0.006s] (1133/1144) xtask::bin/xtask features::tests::default_features_off_is_clean
+        PASS [   0.006s] (1134/1144) xtask::bin/xtask features::tests::explicit_feature_is_caught
+        PASS [   0.006s] (1135/1144) xtask::bin/xtask features::tests::feature_of_an_intermediate_crate_is_caught
+        PASS [   0.006s] (1136/1144) xtask::bin/xtask features::tests::inactive_optional_and_dev_dependencies_do_not_count
+        PASS [   0.006s] (1137/1144) xtask::bin/xtask features::tests::renamed_dependencies_resolve_by_package_name
+        PASS [   0.006s] (1138/1144) xtask::bin/xtask features::tests::root_feature_table_is_caught
+        PASS [   0.006s] (1139/1144) xtask::bin/xtask features::tests::transitive_through_model_is_caught
+        PASS [   0.006s] (1140/1144) xtask::bin/xtask features::tests::weak_dependency_features_need_the_dependency
+        PASS [   0.006s] (1141/1144) xtask::bin/xtask layering::tests::every_edge_targets_a_listed_crate
+        PASS [   0.006s] (1142/1144) xtask::bin/xtask layering::tests::permitted_graph_is_acyclic
+        PASS [   0.006s] (1143/1144) xtask::bin/xtask layering::tests::trace_validator_is_independent_of_checker
+        PASS [   1.251s] (1144/1144) dive-value::review_adversarial fuzz::no_panics_and_consistent
+────────────
+     Summary [ 564.279s] 1144 tests run: 1144 passed, 0 skipped

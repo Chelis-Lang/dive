@@ -272,12 +272,13 @@ pub(crate) fn run_check_with_checkpoint(
     opts: &CheckOptions,
     mut checkpoint: Option<&mut checkpoint::Session>,
 ) -> CheckResult {
-    // The current expansion stream uses the raw predecessor fingerprint.
-    // TLCStateMutExt.fingerPrint applies VIEW first. Equal counts therefore
-    // do not establish equivalent draws or a sound concrete witness (#178).
-    // This source-wide guard intentionally includes unused definitions and
-    // native aliases, before binding can print or consume a startup stream.
-    if cfg.view.is_some() && engine::uses_configured_random(ir, cfg) {
+    // Only the callback-free closed pure VIEW slice has transformed stream
+    // authority. Other shapes retain the source-wide pre-binding refusal,
+    // including unused random calls and native aliases (#178).
+    if cfg.view.is_some()
+        && engine::uses_configured_random(ir, cfg)
+        && (checkpoint.is_some() || !engine::admitted_random_view(ir, cfg))
+    {
         return bare(
             Verdict::Unsupported {
                 feature: "randomness under VIEW needs transformed-fingerprint seeding and independent replay".into(),

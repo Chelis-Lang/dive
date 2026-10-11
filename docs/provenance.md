@@ -648,3 +648,28 @@ normal parser validation. All 32 paired C/P controls retain clean primary
 outputs. The new development-only `MarkerOptionProbe` uses the same source
 selection; its separate class/name preserves the earlier helper's wrong
 same-line order as historical evidence. It is never a native dependency.
+
+
+### Native periodic lifecycle
+
+The native lifecycle diagnostic follows `ModelChecker.doPeriodicWork` and
+`updateRuntimeRatio`, with `StateQueue.suspendAll`, `resumeAll` and `finishAll`
+compared against actual selected `DiskStateQueue` thread controls at MIT-licensed
+pin `94d0c50`. The 296 controller, 196 updater and 96 queue observations retain
+separate producers. Borrowed native dispatch authority and the internal
+source-commit timer/EOF SCC seam are diagnostics; they do not establish ordinary
+scheduler equivalence. See [ADR 0052](decisions/0052-native-periodic-lifecycle.md).
+
+### VIEW-backed RandomElement authority (2026-10-11)
+
+`dive-check::Search::seed_state` and independent `dive-trace::Run` match pinned
+`RandomEnumerableValues.TLCStateRandom.initializedFor` and
+`TLCStateMut.fingerPrint` (`94d0c50`, MIT): state fingerprint applies concrete
+normalization and VIEW before stream selection. Concrete predecessor retention
+is unchanged. Callback-free bounded source and stored-value admission is native
+policy, not a Java error-class port or independent reachability certificate.
+The shared `dive-model::random_view` helper does not enumerate successors or
+invoke providers; trace replay stays independently built without enumeration.
+Original 84 diagnostic rows, wider seeds and shipping producer evidence remain
+separate under `conformance/probes/view-random-stream/`. Symmetry and other RNG
+families/recovery are excluded until their own contracts are proved.
