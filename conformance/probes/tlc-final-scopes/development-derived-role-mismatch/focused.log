@@ -1,0 +1,39 @@
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-syntax)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-sema)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-config)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-store)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-ir)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-pluscal)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-final-scopes-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 21.37s
+     Running tests/tlc_final_scopes.rs (/Users/jeff/code/dive-final-scopes-target/debug/deps/tlc_final_scopes-3123416035ffbbd2)
+
+running 2 tests
+test state_only_and_exported_formal_boundaries_remain_distinct ... ok
+test scoped_final_words_counts_and_all_independent_mutations ... FAILED
+
+failures:
+
+---- scoped_final_words_counts_and_all_independent_mutations stdout ----
+
+thread 'scoped_final_words_counts_and_all_independent_mutations' (112521846) panicked at crates/dive-api/tests/tlc_final_scopes.rs:175:5:
+assertion `left == right` failed
+  left: "Identity"
+ right: "Saved"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    scoped_final_words_counts_and_all_independent_mutations
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+error: test failed, to rerun pass `-p dive-api --test tlc_final_scopes`

@@ -4,6 +4,13 @@ import json,hashlib,gzip,re
 ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/tlc-temporal-if-final'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+# Inherited captures/gates retain immutable parent producer source.
+# Current equality is enforced separately by matrices and fresh scope controls.
+HISTORY=ROOT/'conformance/probes/tlc-final-scopes/shipped-parent-source'
+PARENT_RECORD=json.loads((HISTORY/'manifest.json').read_text())
+def parent_source(path,digest):
+ assert PARENT_RECORD['source_sha256'][path]==digest,path
+ assert hashlib.sha256(gzip.decompress((HISTORY/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 selection=json.loads((BASE/'selection.json').read_text())
 assert len(selection)==30 and len({r['name']for r in selection})==30
 def capture(folder):
@@ -64,7 +71,7 @@ for path,d in previous['source_sha256'].items():assert hashlib.sha256(gzip.decom
 native=BASE/'native-current';nm=json.loads((native/'capture.json').read_text());assert nm['source_and_binary_unchanged']is True
 assert nm['selection_sha256']==sha(BASE/'selection.json')and len(nm['rows'])==120
 assert [(r['model'],r['requested_workers'])for r in nm['rows']]==[(r['name'],w)for r in selection for w in [1,3,4,8]]
-for path,d in nm['source_sha256'].items():assert sha(ROOT/path)==d,path
+for path,d in nm['source_sha256'].items():parent_source(path,d)
 supported={r['name']:r for r in final['rows']if r['exit']==0};reference={r['name']:r for r in clean['rows']}
 counts={'liveness-violation':0,'success':0,'unsupported':0}
 for row in nm['rows']:
@@ -125,13 +132,13 @@ example=BASE/'user-example-after-cli-test-controls';em=json.loads((example/'rece
 assert em['compile_exit']==0 and em['run_exit']==0 and em['source_and_binary_unchanged']is True
 assert em['source_sha256']==sha(BASE/'user-example.rs')
 for path,d in em['files'].items():assert sha(example/path)==d,path
-for path,d in em['crate_source_sha256'].items():assert sha(ROOT/path)==d,path
+for path,d in em['crate_source_sha256'].items():parent_source(path,d)
 assert (example/'stdout').read_text().strip()=='["Live"]'
 delivery=json.loads((study/'delivery.json').read_text());assert delivery['gate']['rust_tests']==916 and delivery['gate']['passed']==916 and delivery['gate']['skipped']==0
 assert sha(study/'workspace-gate.log')==delivery['gate']['gate_log_sha256']
 assert sha(study/'build-inputs.json')==delivery['gate']['input_manifest_sha256']
 assert sha(study/'build-related-source.tar.gz')==delivery['gate']['archive_sha256']
-for path,d in json.loads((study/'build-inputs.json').read_text()).items():assert sha(ROOT/path)==d,path
+for path,d in json.loads((study/'build-inputs.json').read_text()).items():parent_source(path,d)
 for name,key in [('cm1-gate.log','cm1_log_sha256'),('vts-gate.log','vts_log_sha256')]:
  assert sha(study/name)==delivery['conformance'][key]
  assert 'gate: passed' in (study/name).read_text()

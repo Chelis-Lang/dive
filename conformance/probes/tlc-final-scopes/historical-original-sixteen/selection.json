@@ -1,0 +1,66 @@
+[
+  {
+    "name": "TfBooleanFails",
+    "model": "TfBooleanFails"
+  },
+  {
+    "name": "TfBooleanHolds",
+    "model": "TfBooleanHolds"
+  },
+  {
+    "name": "TfClaimPairFails",
+    "model": "TfClaimPairFails"
+  },
+  {
+    "name": "TfClaimPairHolds",
+    "model": "TfClaimPairHolds"
+  },
+  {
+    "name": "TfEnabledFails",
+    "model": "TfEnabledFails"
+  },
+  {
+    "name": "TfEnabledHolds",
+    "model": "TfEnabledHolds"
+  },
+  {
+    "name": "TfEnabledLiveFails",
+    "model": "TfEnabledLiveFails"
+  },
+  {
+    "name": "TfEnabledLiveHolds",
+    "model": "TfEnabledLiveHolds"
+  },
+  {
+    "name": "TfIdentityFails",
+    "model": "TfIdentityFails"
+  },
+  {
+    "name": "TfIdentityHolds",
+    "model": "TfIdentityHolds"
+  },
+  {
+    "name": "TfInstanceBodyFails",
+    "model": "TfInstanceBodyFails"
+  },
+  {
+    "name": "TfInstanceBodyHolds",
+    "model": "TfInstanceBodyHolds"
+  },
+  {
+    "name": "TfInstanceFails",
+    "model": "TfInstanceFails"
+  },
+  {
+    "name": "TfInstanceHolds",
+    "model": "TfInstanceHolds"
+  },
+  {
+    "name": "TfNestedFails",
+    "model": "TfNestedFails"
+  },
+  {
+    "name": "TfNestedHolds",
+    "model": "TfNestedHolds"
+  }
+]

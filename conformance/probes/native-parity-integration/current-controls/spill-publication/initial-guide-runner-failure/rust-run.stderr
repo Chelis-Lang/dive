@@ -1,0 +1,51 @@
+     Locking 45 packages to highest Rust 1.99.0 compatible versions
+   Compiling text-size v1.1.1
+   Compiling rustc-hash v1.1.0
+   Compiling hashbrown v0.14.5
+   Compiling countme v3.0.1
+   Compiling serde_core v1.0.229
+   Compiling num-traits v0.2.19
+   Compiling rowan v0.16.1
+   Compiling syn v3.0.7
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.5.1
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-value)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-ir)
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+   Compiling libc v0.2.190
+   Compiling zmij v1.0.23
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-config)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-eval)
+   Compiling serde_json v1.0.152
+   Compiling crypto-common v0.2.2
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-model)
+   Compiling block-buffer v0.12.1
+   Compiling const-oid v0.10.2
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling digest v0.11.3
+   Compiling cpufeatures v0.3.1
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.11.0
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-store)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-trace)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-check)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sim)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-liveness)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-api)
+   Compiling spill-publication-guide v0.0.0 (/private/tmp/dive-spill-publication-executed-guide/caller)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 19s
+     Running `/Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/spill-publication-guide`
+
+thread 'main' (113431002) panicked at src/main.rs:15:1:
+assertion `left == right` failed
+  left: Null
+ right: "paused-incomplete"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

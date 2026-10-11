@@ -1,0 +1,18 @@
+Parsing file /Users/jeff/code/dive-final-scopes-work/conformance/probes/tlc-final-scopes/models/TfInstanceFails/TfInstanceFails.tla
+Semantic processing of module TfInstanceFails
+Linting of module TfInstanceFails
+Starting... (2026-10-11 00:55:55)
+Exception in thread "main" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at tlc2.tool.liveness.IfIdentityProbe.run(IfIdentityProbe.java:120)
+	at tlc2.tool.liveness.IfIdentityProbe.main(IfIdentityProbe.java:100)
+Caused by: util.Assert$TLCRuntimeException: TLC cannot handle the temporal formula line 10, col 13 to line 10, col 22 of module TfInstanceFails
+	at util.Assert.fail(Assert.java:86)
+	at tlc2.tool.liveness.Liveness.astToLiveAppl(Liveness.java:298)
+	at tlc2.tool.liveness.Liveness.astToLive(Liveness.java:144)
+	at tlc2.tool.liveness.Liveness.astToLive(Liveness.java:159)
+	at tlc2.tool.liveness.Liveness.parseLiveness(Liveness.java:596)
+	... 6 more

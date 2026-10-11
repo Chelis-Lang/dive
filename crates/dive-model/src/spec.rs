@@ -819,7 +819,24 @@ impl Binder<'_> {
                 Found::Value(Value::Bool(false)) => {
                     return Err(BindError::tlc(Ec::TlcConfigSpecIsTrivial, &[&op_name]));
                 }
-                Found::Lazy(x, s) => return self.props(name, x, s, wrap),
+                Found::Lazy(x, s) => {
+                    // TLC's lookup returns a zero-arity LET as an OpDefNode,
+                    // renaming the derived role, whereas formal arguments are
+                    // LazyValue closures that preserve the previous name.
+                    // Evaluation represents both as lazy slots; retain that
+                    // distinction without changing the captured expression.
+                    let name = if let Expr::Local(slot) = ir.expr(e)
+                        && self
+                            .t
+                            .slot_info(scope.def(), *slot)
+                            .is_some_and(|(_, kind)| matches!(kind, dive_ir::SlotKind::LetValue(_)))
+                    {
+                        op_name
+                    } else {
+                        name
+                    };
+                    return self.props(name, x, s, wrap);
+                }
                 Found::Value(v) => {
                     let shown = self.show(&v);
                     return Err(BindError::tlc(

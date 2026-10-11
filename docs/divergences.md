@@ -590,3 +590,10 @@ refusals; `--rewrite --checksums tla` explicitly disables algorithm CRC. See D-0
 [user log](tlc-differences.md), D-008 for separate artifact admission, and
 `crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
 source-edit controls.
+
+Bounded final scope evidence (#134) now distinguishes configured names from
+local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
+Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
+refusals. Original expanded-action attribution is still a missing native field,
+not an approved result-changing default. Ordinary periodic scheduling remains
+unsupported; the whole small-model study from the prior IF slice is unchanged.

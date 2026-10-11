@@ -25,6 +25,11 @@ pub enum AtomTest {
         /// State-level subscript for `<<A>>_v`, if requested.
         sub: Option<ExprId>,
     },
+    /// TLC retains directly syntactic `~ENABLED A` as one state atom.
+    NegatedEnabled {
+        /// Pure action in the original predicate scope.
+        action: ExprId,
+    },
     /// The action holds and the state-level subscript changes on this edge.
     Nonstuttering {
         /// State-level subscript.
@@ -61,6 +66,18 @@ impl PredicateAtom {
                 return Err(EvalError::general("ENABLED atom requires a current state"));
             };
             return ev.enabled_scoped(&self.pred.scope, self.pred.expr, sub, current.clone());
+        }
+        if let AtomTest::NegatedEnabled { action } = self.test {
+            ev.validate_predicate(&self.pred.scope, action)?;
+            ev.check_finite_bindings(&self.pred.scope, action, st, self.binding_limit)?;
+            let StateRef::Vals(current) = &st.s0 else {
+                return Err(EvalError::general(
+                    "negated ENABLED atom requires a current state",
+                ));
+            };
+            return ev
+                .enabled_scoped(&self.pred.scope, action, None, current.clone())
+                .map(|b| !b);
         }
         if let AtomTest::Nonstuttering { sub } = self.test {
             ev.validate_predicate(&self.pred.scope, sub)?;
@@ -948,6 +965,22 @@ impl Lower<'_> {
             }
         }
         let level = self.scoped_level(expr, scope, depth)?;
+        if self.tlc_shape
+            && let Expr::Not(child) = &node.expr
+            && let Expr::Enabled(action) = ir.expr(*child)
+        {
+            // Pinned OPCODE_lnot falls back to one LNStateAST for this
+            // state-level expression. Keep the source ~ENABLED expression,
+            // but evaluate its pure action with the existing bounded search.
+            self.pure_atom(*action, scope)?;
+            return self.special_atom(
+                expr,
+                scope,
+                AtomKind::State,
+                AtomTest::NegatedEnabled { action: *action },
+            );
+        }
+
         if self.tlc_shape
             && let Expr::If { cond, then, other } = &node.expr
         {

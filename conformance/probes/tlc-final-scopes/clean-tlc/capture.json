@@ -1,0 +1,562 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Complete scoped-final attribution selection including original16 and two alias controls; retain every error and reference-only expanded name vector",
+  "timestamp": "2026-10-10T23:56:07.668249+00:00",
+  "selection_sha256": "320383008d5fffe9711fde672a05eeff9a070dd3570e7110c0f1d944124ed8c3",
+  "source_sha256": "1e488bd5571bc0b7f0006f5c456f8fe53fd410b524369c2b52ddafca19d2bf99",
+  "flags": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "lncheck": "final"
+  },
+  "rows": [
+    {
+      "name": "TfAliasFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "b60bc5123d887b479d404f23993bd9e5eef210d0f8762b7ae6d772fa9c6d1639",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfAliasFails/TfAliasFails.cfg": "18eb2042be1e86a14e531d62e7521d80d5b9ebc1932d8c0802c86be149ab791b",
+        "models/TfAliasFails/TfAliasFails.tla": "5902c2456c981a97d6deda8c7098386e71ed884992057913eeb89a28a6bdd88f"
+      }
+    },
+    {
+      "name": "TfAliasHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "281b05c1b62f00f4f5b7af110a86bafe62d286c4a5e52e6c6ec9b564c9367a35",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfAliasHolds/TfAliasHolds.cfg": "18eb2042be1e86a14e531d62e7521d80d5b9ebc1932d8c0802c86be149ab791b",
+        "models/TfAliasHolds/TfAliasHolds.tla": "99d53d523075aa021ac9bd7f02aea9277ccdf24981a6bb293264d8be3fc0714f"
+      }
+    },
+    {
+      "name": "TfBooleanFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "c05a6bf28fa5d519c26a7cb732253020fe041e46489a9e9c5638738b57d4e6c7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfBooleanFails/TfBooleanFails.tla": "7385505c8327f0a3228c8e8485e7cddf30677512042d713b6f05282c98ac510d",
+        "models/TfBooleanFails/TfBooleanFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac"
+      }
+    },
+    {
+      "name": "TfBooleanHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "5781007f3c112920015144664cf6972a100dbcda612b743577e96950a277ddc7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfBooleanHolds/TfBooleanHolds.tla": "67b7de757686a547b739a58db266eee72928084c888d4328e6390ca74998bf9b",
+        "models/TfBooleanHolds/TfBooleanHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac"
+      }
+    },
+    {
+      "name": "TfClaimPairFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "f65a2a5fad0008838e6adf60ec12786b18f7494d3ef51ac66385065d4250a340",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfClaimPairFails/TfClaimPairFails.cfg": "1abc01ba353c868f6882a16bb1cd6ddceeac7a0c91be0720807caf7acaf46e97",
+        "models/TfClaimPairFails/TfClaimPairFails.tla": "b2fda2238d51ccea51d85a961dc1ad593ef622e623e4afcdcb06a533f3e36f9b"
+      }
+    },
+    {
+      "name": "TfClaimPairHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "533d88397a98d49460432791b7b5612842467b33adc36d04fba7f600d0722fd0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfClaimPairHolds/TfClaimPairHolds.cfg": "1abc01ba353c868f6882a16bb1cd6ddceeac7a0c91be0720807caf7acaf46e97",
+        "models/TfClaimPairHolds/TfClaimPairHolds.tla": "b45b3b198603333762c0e319aced20f9f640798b79e0e027f162238dd77feecc"
+      }
+    },
+    {
+      "name": "TfEnabledFails",
+      "exit": 12,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2107,
+        2186
+      ],
+      "stdout_sha256": "7537625c3ed2c24cbb4fa742b6efc136863df359ce23722fe02bc6975cc07760",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfEnabledFails/TfEnabledFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfEnabledFails/TfEnabledFails.tla": "f5a49199f5bd3af7454d263aa644bee2ba9440dd9746c1cecca8526f4bde4a09"
+      }
+    },
+    {
+      "name": "TfEnabledHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "c8cde70e7e10ff3fbacd8f3c6281a67633549f55e9979b9f32f57b6e2ecbf30d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfEnabledHolds/TfEnabledHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfEnabledHolds/TfEnabledHolds.tla": "c5a7eb6763f420ecc4cb344e8f534aeb5c9a08ec0d8905e65387706a10052d74"
+      }
+    },
+    {
+      "name": "TfEnabledLiveFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "20fc894582e7bf2d56d4417f9afd2f769f4485a1cb58f456f49c4ab709d6b030",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfEnabledLiveFails/TfEnabledLiveFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfEnabledLiveFails/TfEnabledLiveFails.tla": "0afa303642b09d7060ae5112ecc1fb9b43137c49f9bf3acb0320db0394d7c3c5"
+      }
+    },
+    {
+      "name": "TfEnabledLiveHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "8e0935f82e6631754949b5e489b5e228c0959c98e2f9d3d4b750a3d2b9fb7d00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfEnabledLiveHolds/TfEnabledLiveHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfEnabledLiveHolds/TfEnabledLiveHolds.tla": "9118a8de907257acef99e1c3abe00a8c8a58e2e99c4fc6913bddfe47b0382cb1"
+      }
+    },
+    {
+      "name": "TfIdentityFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "45c54cc7caeaea8cc1c447ba552cdaf71ac53e0fdd13808b679a362dec42c6f9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfIdentityFails/TfIdentityFails.tla": "9a20c7d320a78b0b4053297c11bedb37d8da4a8f809614d06408c7ef4f82f0f8",
+        "models/TfIdentityFails/TfIdentityFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac"
+      }
+    },
+    {
+      "name": "TfIdentityHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "aaceba3514114b7fe631267d3787a645b01c92a28717a42903a8c2174f68e9f7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfIdentityHolds/TfIdentityHolds.tla": "72e63fa17126ae0657034703ca8b853cafd245a1c05f837bea388fde99aee94b",
+        "models/TfIdentityHolds/TfIdentityHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac"
+      }
+    },
+    {
+      "name": "TfInstanceBodyFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "bcc51c9972e31d89695ccc96d76a91825b5ba8b209cbe7850398a701ef31cbe9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfInstanceBodyFails/TfInstanceBodyFails.tla": "7910d83cba713812d69024eeec8cee9177ebf725de6d7458788e3f9f9a884eaf",
+        "models/TfInstanceBodyFails/TfInstanceBodyFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac"
+      }
+    },
+    {
+      "name": "TfInstanceBodyHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "885499d9e0395f9de528fcb8b1d48a46e9e7b361a2583357ff13574b4243e563",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfInstanceBodyHolds/TfInstanceBodyHolds.tla": "6557f2b3332ae21a5f2fffe089519c888ec4f9b086b871f80ebb9ef00a7c7d3b",
+        "models/TfInstanceBodyHolds/TfInstanceBodyHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac"
+      }
+    },
+    {
+      "name": "TfInstanceFails",
+      "exit": 255,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2213,
+        2186
+      ],
+      "stdout_sha256": "89f337efe1964eacb5c1b6e6f2d22f91c0481ac06e607cef6a392d34ad885648",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfInstanceFails/TfInstanceFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfInstanceFails/TfInstanceFails.tla": "218671d2e1ba0816ae54efa29f9e9640c948fdde57c5cffb284d0dd5e722c5c1"
+      }
+    },
+    {
+      "name": "TfInstanceHolds",
+      "exit": 255,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2213,
+        2186
+      ],
+      "stdout_sha256": "3e2b3fdb0b09fbeadfa0295f3e4569e8972b16e55dda619b8a569027a716d18f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfInstanceHolds/TfInstanceHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfInstanceHolds/TfInstanceHolds.tla": "465162dc5b24b0779ffb7fa42d03dbd01b53d1810d10e007be755dfd6dcffca4"
+      }
+    },
+    {
+      "name": "TfNestedFails",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2217,
+        2122,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "17cf23e8a5e9da676bcf630c41923e1d9da37ce6f49510fbb7c69ff635249c7d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfNestedFails/TfNestedFails.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfNestedFails/TfNestedFails.tla": "aa3473876f2a3d34f458c1b57c7b253f7b65564b4892aa0ab7769baae78942bf"
+      }
+    },
+    {
+      "name": "TfNestedHolds",
+      "exit": 0,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2267,
+        2193,
+        2200,
+        2199,
+        2194,
+        2268,
+        2186
+      ],
+      "stdout_sha256": "ece2debd3d29a3a2b1db53616dd51ad8cb11c5f885cd9053b5c3b93fb53c929f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TfNestedHolds/TfNestedHolds.cfg": "fe1a3db5dcd2a80733fe7f0c58c3caaa9bc7e50ca6b3d376c4cb10c27d8902ac",
+        "models/TfNestedHolds/TfNestedHolds.tla": "7d9b0776fabd6ca667a3e91aed41f56d0305e6d90cb4a7f0a25f63e836625d85"
+      }
+    }
+  ]
+}
