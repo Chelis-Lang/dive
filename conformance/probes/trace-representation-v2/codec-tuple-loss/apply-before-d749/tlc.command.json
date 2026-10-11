@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/Users/jeff/code/dive-view-random-stream-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+    "-cp",
+    "/Users/jeff/code/dive-view-random-stream-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-cleanup",
+    "-metadir",
+    "/tmp/dive-tuple-storage-primary-190",
+    "TupleStorage"
+  ],
+  "exit": 75,
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+}

@@ -1,0 +1,79 @@
+{
+  "runtime_producer": {
+    "source_commit": "e6c56158620d986c7acb9580b3c15f892d4de270",
+    "producer_commit": "e6c56158620d986c7acb9580b3c15f892d4de270",
+    "source_index_sha256": "014773b05b50b76a36588d3aab43c8c6664b93efe5018a4fb95e7300eeb58ee8",
+    "binaries_sha256": {
+      "dive": "1681de6f282ff18b09216bf8bdcdab3c68f97ff8a43aef0486d182b05e012288",
+      "dive-conformance": "8e4aa766739e1d59aca4667f2525b04e53ab8b2a945aba6206ef87f059dcf9db"
+    },
+    "build": {
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "-p",
+        "dive-cli",
+        "-p",
+        "dive-conformance"
+      ],
+      "exit": 0,
+      "jobs": 2,
+      "seconds": 70.422677041,
+      "log_sha256": "796efd67468f6e622be09786c1ea04004d2115a16285ff923299953693d7f98d"
+    }
+  },
+  "rows": [
+    {
+      "name": "rust-guide",
+      "command": [
+        "cargo",
+        "run",
+        "--locked",
+        "-p",
+        "dive-api",
+        "--example",
+        "trace_representation"
+      ],
+      "exit": 0,
+      "seconds": 2.492007708,
+      "stdout_sha256": "6bcbc23a5f99318e8a6e22e973f4aeab7c5a12ba148d82512b9d333c16bdded6",
+      "stderr_sha256": "4847a36a458c05f6c2188b2623912e0244e7e6eadc55747da60a177abd700b45",
+      "compiled_example_sha256": "8ac349f485a37cd620147564187ba69e2945a481e662de91df378ab1d27d5bb9"
+    },
+    {
+      "name": "cm1",
+      "command": [
+        "bash",
+        "scripts/conformance-gate.sh",
+        "conformance/gates/cm1.txt",
+        "--workers",
+        "1,4,8",
+        "--dive-bin",
+        "/Users/jeff/code/dive-trace-representation-artifacts/current-binaries/dive"
+      ],
+      "exit": 0,
+      "seconds": 14.730661584,
+      "stdout_sha256": "1f33bce675472e462680c74fc939701c65df4b6451d0e1808d793afe5454b2a3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "validation-smoke",
+      "command": [
+        "bash",
+        "scripts/conformance-gate.sh",
+        "conformance/gates/validation-smoke.txt",
+        "--workers",
+        "1,4,8",
+        "--dive-bin",
+        "/Users/jeff/code/dive-trace-representation-artifacts/current-binaries/dive"
+      ],
+      "exit": 0,
+      "seconds": 0.5549777080000027,
+      "stdout_sha256": "b0d6cf1054d604d56cca69e6d19a928deb6f0c3976c7368931bd39a36dc8bd62",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "driver_sha256": "3a8bf03dffe88ec3992ce62c6f569a9baa0eaa145800e3accd8f186e0479c811"
+}

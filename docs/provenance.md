@@ -694,3 +694,40 @@ The lifecycle foundation retains the separately captured controller, runtime-rat
 ## Configuration-owned periodic snapshot (ADR 0057)
 
 `dive-model::periodic` and the diagnostic flag in the shared binder match pinned `tlc2.tool.impl.SpecProcessor` constructor snapshot timing and `processPeriodic` (1634–1650), with `tlc2.tool.Defns.snapshot`: substitutions precede snapshot, constant caching precedes role validation, selected original body and configured spelling remain distinct. Pin `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT); actual Java reflection reads metadata only. `dive-liveness::periodic_snapshot` prebinding grammar is a conservative native policy, not a port of TLC evaluation. Its structural nonconstant witness follows the shared `dive-model::LevelCx::try_level` cache authority rather than editable node/definition levels. All 38 primary controls and raw captures are retained in `conformance/probes/periodic-snapshot`; startup restrictions and Java-exception refusals earn no error-class parity credit.
+
+## Checked stored trace transport
+
+`dive-trace/src/value_repr.rs` is dive's native version2 transport (ADR0055),
+using the existing `Value::set`, `Value::fcn`, record and tuple constructors.
+Pinned `SetEnumValue.normalize`, `ValueVec.sort`, `TupleValue` and `FcnRcdValue`
+representation are semantic references at `94d0c50`, under MIT; JSON, admission
+budgets and construction witnesses are dive's own design. The storage codec's
+native format is not exposed to untrusted words. Its tuple tag loses the
+nonliteral tuple distinction; the separate preserved spill/recovery study
+records that remaining storage limitation without changing its format here.
+Encoder witness probes use the existing Quiet marker authority solely to keep
+shared operand normalization markers unchanged. Provider/opaque representation
+is refused before probing. `dive-trace` retains its standalone generator-free
+build; transport success proves shape, not Init/Next/ending or reachability.
+
+Stored v2 constructor probes additionally reconstruct function kind/literal/order
+and Raw normalized flags through the existing constructors, under Quiet marker
+suppression. They do not authorize trusted-storage flags or change canonical
+keys. The first frozen 249f gate passed all 1,156 tests and every other stage but
+failed Clippy helper placement; the unchanged failed epoch is retained separately.
+
+The stored transport's final encoder admission uses fresh owned reconstruction
+through the same checked reader, with a bounded original-Atom resolver and shared
+normalization reservation; receiving Model tokens are checked separately. The
+green92e full gate and its later nested-Raw writer/reader counterexample are retained
+in `conformance/probes/trace-representation-v2/before-decoder-admission-gate/`.
+No value/storage/comparison algorithm is replaced by the admission correction.
+
+The corrected e6 stored-transport producer has its own full 1,159-test/eight-stage
+gate, fresh release binary identity, 72 independently valid version-2 words and
+216 altered-word rejections in
+`conformance/probes/trace-representation-v2/current/`. Twelve interval encoding
+refusals remain separate from semantic replay. Existing 21/16 conformance gates
+and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
+checks all 443 producing workspace Rust/Cargo inputs against archived and Git
+bytes; earlier source and runtime histories are not relabelled.

@@ -1,9 +1,10 @@
-//! dive's tagged JSON form of values (trace format version 1).
+//! Legacy normalized JSON values (trace format version 1).
 //!
 //! TLC's `-dumpTrace json` form ([`dive_value::json`]) cannot be read back
 //! exactly: a set and a sequence are both arrays, a string and a model value
-//! are both strings. dive's form distinguishes these extensional value kinds
-//! and stays plain JSON for the common scalar cases:
+//! are both strings. The legacy form distinguishes these common categories, but
+//! does not preserve every stored representation. See [`crate::value_repr`] for
+//! bounded opt-in version-2 transport. Scalars remain plain JSON:
 //!
 //! | Value | JSON |
 //! |---|---|
@@ -20,14 +21,10 @@
 //! A function whose domain is `1..n` is a `seq`; one whose domain is a
 //! non-empty set of strings is a `record`. Reading normalizes, so a `fcn`
 //! with domain `{1, 2}` reads as the sequence it equals. Sets are written
-//! in the run's normalized order; reading applies the value layer's construction
-//! and comparability rules. This is not a lossless encoding of TLC construction
-//! provenance or concrete function representation. In particular, some mixed
-//! record/tuple sets serialize but fail to read back after enumeration changes
-//! their order. Such transport failures cannot count as independent semantic
-//! validation; see the maintained limitations in `docs/tlc-differences.md` and
-//! issue #190. Infinite sets (`Nat`) have no form: TLC cannot hold one in a state
-//! either.
+//! in the run's normalized order. Reading runs the existing constructor, so
+//! mixed structured sets may refuse after serialization (#190); input order
+//! is not universally interchangeable. Literal/function and Raw/normalized
+//! representation flags are not preserved. Infinite sets (`Nat`) have no form.
 
 use dive_value::{Ctx, Int, Interner, Value};
 use serde_json::{Map, Value as J, json};
@@ -144,7 +141,7 @@ pub fn from_json(j: &J, names: &Interner, ctx: Ctx) -> Result<Value, String> {
 }
 
 /// An integer written as a decimal string, in the run's integer mode.
-fn parse_int(s: &str, ctx: Ctx) -> Result<Value, String> {
+pub(crate) fn parse_int(s: &str, ctx: Ctx) -> Result<Value, String> {
     let (neg, digits) = match s.strip_prefix('-') {
         Some(d) => (true, d),
         None => (false, s),
