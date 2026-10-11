@@ -40,7 +40,8 @@ use std::sync::Arc;
 
 pub use dive_trace::mutate::Mutant;
 pub use dive_trace::{
-    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
+    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, TraceEncoding,
+    Validation,
 };
 use serde_json::{Value, json};
 
@@ -244,6 +245,21 @@ impl SpecModel {
     pub fn mutants(&self, trace: &Trace) -> Vec<Mutant> {
         on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace, self.replay.as_ref()))
             .unwrap_or_default()
+    }
+
+    /// Writes opt-in stored representation without changing the trace claim.
+    /// Successful transport is not semantic validation.
+    ///
+    /// # Errors
+    /// Unsupported stored shape or bounded transport admission.
+    pub fn to_doc_with_encoding(
+        &self,
+        trace: &Trace,
+        encoding: dive_trace::TraceEncoding,
+    ) -> Result<TraceDoc, ApiError> {
+        trace
+            .to_doc_with_encoding(&self.model, encoding)
+            .map_err(|message| ApiError::Rejected { message })
     }
 
     /// The trace in dive's format.

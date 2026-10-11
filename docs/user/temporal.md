@@ -113,3 +113,5 @@ Rust backend authors can inspect source-owned graph growth and explicit partial 
 The [native lifecycle diagnostic](../native-periodic-lifecycle.md) connects internally sampled clocks, real dispatch pauses and actual EOF final checking. Its commit-boundary polling does not certify TLC’s asynchronous ordinary schedule.
 
 [Pure supplied periodic expressions](../periodic-hook.md) can be composed diagnostically at real native pauses. Ordinary configured hook binding, checkpoints and scheduler verdicts remain refused; no TRUE hook result means temporal Holds.
+
+The [configuration-owned snapshot diagnostic](../configured-periodic-snapshot.md) selects the actual pure `_PERIODIC` body before constant caching and preserves its configured name and original definition. This separate Rust API does not enable ordinary CLI scheduling or temporal proof.

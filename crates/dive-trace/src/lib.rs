@@ -75,10 +75,11 @@ pub mod tlc;
 mod trace;
 mod validate;
 pub mod value_json;
+pub mod value_repr;
 
 use dive_model::Model;
 
-pub use format::{Ending, Label, Source, TraceDoc};
+pub use format::{Ending, Label, Source, TraceDoc, TraceEncoding};
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
     Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNPLACED, RUNTIME_NAMES_UNSUPPORTED, Replay,
@@ -103,7 +104,7 @@ pub fn validate_doc(
             let r = tlc::validate_tlc(model, doc, model_values, replay);
             (r.report, r.trace)
         }
-        Source::Dive => match Trace::decode(model, doc) {
+        Source::Dive | Source::DiveRepresentation => match Trace::decode(model, doc) {
             Ok(t) => (validate(model, &t, replay), Some(t)),
             Err(e) => (
                 Report {

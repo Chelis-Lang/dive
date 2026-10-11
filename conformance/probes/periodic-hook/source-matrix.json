@@ -6,19 +6,19 @@
   "scope": "Current supplied pure hook diagnostic only, not configured hook binding or ordinary schedule proof.",
   "history_manifest_sha256": "3abf6a1851b0aca9efec90a9f2566a4c6b869240bfbb5a2c50860ed0a9ecc817",
   "source_sha256": {
-    "crates/dive-liveness/src/periodic_hook.rs": "19dcff4c1da7f30b772c7478f98aff6b4d5d84a5ff833a571bfb5062095f75d0",
+    "crates/dive-liveness/src/periodic_hook.rs": "46d2e9632bd7b85fe498421497ccbaf2bb96c392c5df64f60d55e4edd4527c46",
     "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
     "crates/dive-liveness/src/periodic_lifecycle.rs": "d39534850f93f4122ea426a82b16080ab0cb9ef041ea16f1d68718baeee90f52",
     "crates/dive-liveness/src/phase_execution.rs": "203795e697118e6a57e1570bdfa1854419822552dcd70a42b913afb6354c561b",
-    "crates/dive-liveness/src/lib.rs": "584c8b019003f7ed19bf7f90f8448bcef0ea1d7aee90e37dc38ea069598f5c9f",
+    "crates/dive-liveness/src/lib.rs": "168dce4c6e8f392f6974b7c3334fc43187036b97bed59d2bc1bfad0960513931",
     "crates/dive-liveness/tests/periodic_hook.rs": "89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4",
     "crates/dive-api/examples/periodic_hook.rs": "529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574",
     "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
     "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
     "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
-    "AGENTS.md": "cefc48524084ba9f06044cde939da15cfc57051212efa8f5fc5adf09392a2d4f",
-    ".github/workflows/ci.yml": "4d70034aa97a6378e5a016fea704c9ff575fc4b8a69ce4a1258f5064f884d689",
-    "conformance/parity-features.json": "0dd1e98cc1a1754974f4ce320a953deb5005d55b3a581de0d29ce03c947347cb"
+    "AGENTS.md": "14f43544ae8705e5a59fe57b33810c9f110010e5d3f8c506e4961193d8b816cf",
+    ".github/workflows/ci.yml": "246e36a05235b0a8f85f74b8a578aabb01f5d3519498da55e91fef6e7fc3aa93",
+    "conformance/parity-features.json": "696e32524af15fdc10bc1e1eee999d0e69590fdef81c45a7ff7244f2392c2a5d"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

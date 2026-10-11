@@ -1,0 +1,78 @@
+{
+  "producer_commit": "e6c56158620d986c7acb9580b3c15f892d4de270",
+  "scope": "Immutable original maintained metadata bytes before current receipt/docs/offline helper packaging. Only changed current files are archived; original e6 source/gate/runtime unchanged.",
+  "inputs": {
+    ".github/workflows/ci.yml": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/.github/workflows/ci.yml.gz",
+      "sha256": "e743c36fc46b4caca4a97fd8a28c7726e79ff13bb7b4d96092b5130eb5f28965"
+    },
+    "conformance/parity-features.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/parity-features.json.gz",
+      "sha256": "f1fcceaee091858ca8569a5435f40cac2b3de672588314512c4d2cc36a582e34"
+    },
+    "conformance/probes/material-capture/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/material-capture/source-matrix.json.gz",
+      "sha256": "97f97409fd11e71beb9362ec01c6bd43f056a79edae596703e756b447b0d83e4"
+    },
+    "conformance/probes/native-parity-integration/current-source.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/native-parity-integration/current-source.json.gz",
+      "sha256": "68f9dbbbff43daf8625705415d5be1a6dd21e35c6d86e385aac2f4cb31678f1b"
+    },
+    "conformance/probes/native-temporal-operators/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/native-temporal-operators/source-matrix.json.gz",
+      "sha256": "89d30d28f4fd000982eaa447d85aac9f15e669e7008b69dd997fe7987f3f4575"
+    },
+    "conformance/probes/temporal-operators/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/temporal-operators/source-matrix.json.gz",
+      "sha256": "6204bb534e9c1f4a55bb6c102aa78a7f595038e6a419ce826d96a97641e7d4bd"
+    },
+    "conformance/probes/tlc-final-property-origins/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/tlc-final-property-origins/source-matrix.json.gz",
+      "sha256": "c89d8baca37815d03b6aca56aec225fd34bb1d323bfdd263da61a674d9f31eaf"
+    },
+    "conformance/probes/tlc-final-scopes/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/tlc-final-scopes/source-matrix.json.gz",
+      "sha256": "447924a0932197b04c24a5588de16b4a15874176c9111550cbff01eb7bb96d99"
+    },
+    "conformance/probes/tlc-partial-scc/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/tlc-partial-scc/source-matrix.json.gz",
+      "sha256": "4ca2829ae784d6553098ebc75d8b1410806b7c607a290ccfcf9dda96f40c232d"
+    },
+    "conformance/probes/tlc-state-if/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/tlc-state-if/source-matrix.json.gz",
+      "sha256": "bfb9cfecc817ea5d2ca142114e866655a80d92aeb93f9d2c21a10cd967372908"
+    },
+    "conformance/probes/tlc-temporal-if-final/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/tlc-temporal-if-final/source-matrix.json.gz",
+      "sha256": "cadb46fba988a23a68bf3148e67c092937c6e894e8cdf1ec0375757e6417d616"
+    },
+    "conformance/probes/tlc-temporal-if/source-matrix.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/tlc-temporal-if/source-matrix.json.gz",
+      "sha256": "30e619654f204c3b273254575aa61787a9778dfb0f4e14b90d76c43afdad6142"
+    },
+    "conformance/probes/trace-representation-v2/README.md": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/trace-representation-v2/README.md.gz",
+      "sha256": "39068150e4342a46758e54f2dec507419f3afb9ab5892110dfa35257f887dce5"
+    },
+    "conformance/probes/view-random-stream/current-source.json": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/conformance/probes/view-random-stream/current-source.json.gz",
+      "sha256": "e28da1066e6bc497b142a104ffe46ad537d977daac04157501e9558d9a4cf81e"
+    },
+    "docs/provenance.md": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/docs/provenance.md.gz",
+      "sha256": "bdb8651fd1a9a0b1464cc73d0ea63bbbfdbe2fe042283509f80becf66401d888"
+    },
+    "docs/tlc-differences.md": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/docs/tlc-differences.md.gz",
+      "sha256": "637ac91738f78217f1cf1dca117ab9b06dd4d7009cb54d73e41a4da2693203b0"
+    },
+    "docs/trace-representation.md": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/docs/trace-representation.md.gz",
+      "sha256": "c6217b6eb485d9872f65f9e5d414ddfc6207dc660f2612016373216c83cd4966"
+    },
+    "docs/user/traces.md": {
+      "archive": "conformance/probes/trace-representation-v2/before-final-metadata-authority/source/docs/user/traces.md.gz",
+      "sha256": "537331221e2a8df0206c9aa8e2733a35765236df900af350425b11c0decdb7d6"
+    }
+  }
+}

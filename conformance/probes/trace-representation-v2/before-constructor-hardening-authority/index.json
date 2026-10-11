@@ -1,0 +1,82 @@
+{
+  "producer_commit": "249f16308014bf82f57dab011e1703cadfe01159",
+  "scope": "Immutable current source authority before encoder constructor hardening. Source integrity only, no execution retagging.",
+  "inputs": {
+    "conformance/probes/tlc-partial-scc/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-partial-scc/source-matrix.json.gz",
+      "sha256": "4ca2829ae784d6553098ebc75d8b1410806b7c607a290ccfcf9dda96f40c232d"
+    },
+    "conformance/probes/view-random-stream/current-source.json": {
+      "archive": "source/conformance/probes/view-random-stream/current-source.json.gz",
+      "sha256": "7a75a76aeb62f0b2a7faa55aa49d6df87a14d216caa3d889185039aab097fc76"
+    },
+    "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json.gz",
+      "sha256": "9bae7ce5724cf5fa07537b276434ab3516ac239b41454b91e996e30ea08af67f"
+    },
+    "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json.gz",
+      "sha256": "6448a0b9be76665c881fa3b488f5864b19889f5648cef084923fff6e2a0917f4"
+    },
+    "conformance/probes/tlc-phase-l-graph/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-phase-l-graph/source-matrix.json.gz",
+      "sha256": "11201b0103442538d1104d97eb8ff30e52b566cbbda2b7ec1e4abf503f947416"
+    },
+    "conformance/probes/predecessor-spill/current-integration-source.json": {
+      "archive": "source/conformance/probes/predecessor-spill/current-integration-source.json.gz",
+      "sha256": "de65a40e4c1deb3cb136a3dec923ce37f503dd8b3101eb5e39f838db0c62fe2c"
+    },
+    "conformance/probes/native-checkpoint/current-integration-source.json": {
+      "archive": "source/conformance/probes/native-checkpoint/current-integration-source.json.gz",
+      "sha256": "8e32905b39505490aad2f5099034d5b273430a90e94276c7a0956dabecad1aeb"
+    },
+    "conformance/probes/tlc-final-check/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-final-check/source-matrix.json.gz",
+      "sha256": "89e73d711e395ea66aa5e928b3337e68e42d82e61c9d992ff6352d5fdbd09bb0"
+    },
+    "conformance/probes/tlc-state-if/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-state-if/source-matrix.json.gz",
+      "sha256": "bfb9cfecc817ea5d2ca142114e866655a80d92aeb93f9d2c21a10cd967372908"
+    },
+    "conformance/probes/tlc-temporal-if/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-temporal-if/source-matrix.json.gz",
+      "sha256": "30e619654f204c3b273254575aa61787a9778dfb0f4e14b90d76c43afdad6142"
+    },
+    "conformance/probes/tlc-temporal-if-final/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-temporal-if-final/source-matrix.json.gz",
+      "sha256": "8bb2384f1ad394771a7b54cf8658522f7605600b5b8c274ca6eb13b585b31d6e"
+    },
+    "conformance/probes/tlc-final-scopes/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-final-scopes/source-matrix.json.gz",
+      "sha256": "08ff37e31b04a9f23994168db0b5a1b73544411c9aa243b194eebaf44daa4bd7"
+    },
+    "conformance/probes/tlc-phase-execution/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-phase-execution/source-matrix.json.gz",
+      "sha256": "842db18fdb02ce4af02740bfcd70dc37c98d33e2b815185d0be68b1e0c906422"
+    },
+    "conformance/probes/temporal-forwarding/source-matrix.json": {
+      "archive": "source/conformance/probes/temporal-forwarding/source-matrix.json.gz",
+      "sha256": "d6a7e544a300250232c44c012b1f194bac6268fe80934ecd1ddcecd09a67750c"
+    },
+    "conformance/probes/tlc-final-property-origins/source-matrix.json": {
+      "archive": "source/conformance/probes/tlc-final-property-origins/source-matrix.json.gz",
+      "sha256": "c939111d8bd4e10bee46d6efd3ca2dc724a74a8454938018086e6042b787ce33"
+    },
+    "conformance/probes/material-capture/source-matrix.json": {
+      "archive": "source/conformance/probes/material-capture/source-matrix.json.gz",
+      "sha256": "cb4da3eb05647ade884ea87ae762d9e4dea340652fc152c17ed63fbfbdb517f7"
+    },
+    "conformance/probes/temporal-operators/source-matrix.json": {
+      "archive": "source/conformance/probes/temporal-operators/source-matrix.json.gz",
+      "sha256": "9c7591b0cc4aa68eeca373c8da252fdae959636c4f9c8956999ee077ff6ce946"
+    },
+    "conformance/probes/native-temporal-operators/source-matrix.json": {
+      "archive": "source/conformance/probes/native-temporal-operators/source-matrix.json.gz",
+      "sha256": "b011123269d03bbb116d8ac1102f8bdd4b3b345716484494dab216cc14f44cf1"
+    },
+    "conformance/probes/native-parity-integration/current-source.json": {
+      "archive": "source/conformance/probes/native-parity-integration/current-source.json.gz",
+      "sha256": "b69e368ca2a248c0250200fbd9847411eb2e013326681b283f2b60dc15234b66"
+    }
+  }
+}

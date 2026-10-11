@@ -85,7 +85,8 @@
       "conformance_evidence": "crates/dive-value/tests/tlc_differential.rs",
       "issues": [
         28,
-        61
+        61,
+        195
       ],
       "acceptance": "All value classes and constructor-sensitive equality, normalization, enumeration, print and errors; both profiles including integer overflow and canonical ordering.",
       "interactions": [
@@ -336,7 +337,8 @@
       "rust_evidence": "crates/dive-store/src/lib.rs",
       "conformance_evidence": "crates/dive-store/tests/tlc_state_fingerprints.rs",
       "issues": [
-        28
+        28,
+        195
       ],
       "acceptance": "Bit-exact TLC stream, safe default mixing, exact identity and probabilities; forced collisions, symmetry/VIEW keys, spill and replay produce no silent state loss.",
       "interactions": [
@@ -720,7 +722,11 @@
         "crates/dive-liveness/src/periodic_hook.rs",
         "crates/dive-liveness/tests/periodic_hook.rs",
         "conformance/probes/periodic-hook/README.md",
-        "docs/periodic-hook.md"
+        "docs/periodic-hook.md",
+        "crates/dive-liveness/src/periodic_snapshot.rs",
+        "crates/dive-liveness/tests/periodic_snapshot.rs",
+        "conformance/probes/periodic-snapshot/README.md",
+        "docs/configured-periodic-snapshot.md"
       ],
       "certification": "audit-required",
       "conformance_evidence": "docs/design/m6-plan.md",
@@ -735,10 +741,11 @@
         66,
         140,
         185,
-        189
+        189,
+        197
       ],
       "name": "Periodic/final/off/sequential liveness schedules",
-      "notes": "Historical inline, single-null-OOS, final-only, partial SCC and explicit checkpoint stages retain original producers, bounds and failures. The controller has 296 actual doPeriodicWork observations; arithmetic has 196 updateRuntimeRatio observations plus three assertion controls. Source-owned graph growth and actual joined-wave authority drive bounded explicit checkpoints. Native commit-clock lifecycle now holds actual dispatch pauses and runs final SCC only at genuine safety EOF; 40 native outcomes, eight fresh word replays and four safe force/resume controls qualify this diagnostic slice. Asynchronous TLC scheduling, precise ordinary stop counts, configured PERIODIC, checkpoint transactions and deciding witness certification remain pending. No partial Holds or ordinary CLI/family certification; F-023 remains missing/audit-required.  Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Bounded source-produced partial SCC checkpoints skip unwritten records and preserve original OOS/PEM/traversal/candidate order. Shared graph quota and independent witness mutants are staged diagnostics only; no partial Holds, ordinary clock schedule, stopping-count or family credit. Source-qualified pointer-table sizes, last-check snapshots and actual joined native-wave receipts now drive explicit bounded checkpoint requests, stopping real capture at first candidate. All32 clean projections at four widths plus retained Java IO faults qualify only graph-growth/backend diagnostics, not ordinary clock/ratio/queue/checkpoint or model verdict authority; F-023 remains missing/uncertified. Native real dispatch-pause/internal commit-clock controller and actual EOF final SCC diagnostics are bounded evidence only; asynchronous ordinary scheduling, stop counts, PERIODIC/checkpoint and deciding witness certification remain pending. No partial Holds or family credit. Bounded pure supplied-expression hook composition retains original value/errors at real native pauses. Configured snapshot binding, ordinary CLI/checkpoint/queue timing and model proof remain refused; complete59 actual method controls are diagnostic only.",
+      "notes": "Historical inline, single-null-OOS, final-only, partial SCC and explicit checkpoint stages retain original producers, bounds and failures. The controller has 296 actual doPeriodicWork observations; arithmetic has 196 updateRuntimeRatio observations plus three assertion controls. Source-owned graph growth and actual joined-wave authority drive bounded explicit checkpoints. Native commit-clock lifecycle now holds actual dispatch pauses and runs final SCC only at genuine safety EOF; 40 native outcomes, eight fresh word replays and four safe force/resume controls qualify this diagnostic slice. Asynchronous TLC scheduling, precise ordinary stop counts, ordinary configured PERIODIC, checkpoint transactions and deciding witness certification remain pending. No partial Holds or ordinary CLI/family certification; F-023 remains missing/audit-required.  Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Bounded source-produced partial SCC checkpoints skip unwritten records and preserve original OOS/PEM/traversal/candidate order. Shared graph quota and independent witness mutants are staged diagnostics only; no partial Holds, ordinary clock schedule, stopping-count or family credit. Source-qualified pointer-table sizes, last-check snapshots and actual joined native-wave receipts now drive explicit bounded checkpoint requests, stopping real capture at first candidate. All32 clean projections at four widths plus retained Java IO faults qualify only graph-growth/backend diagnostics, not ordinary clock/ratio/queue/checkpoint or model verdict authority; F-023 remains missing/uncertified. Native real dispatch-pause/internal commit-clock controller and actual EOF final SCC diagnostics are bounded evidence only; asynchronous ordinary scheduling, stop counts, PERIODIC/checkpoint and deciding witness certification remain pending. No partial Holds or family credit. Bounded pure supplied-expression hook composition retains original value/errors at real native pauses. Ordinary configured-hook checking, CLI/checkpoint/queue timing and model proof remain refused; complete59 actual method controls are diagnostic only. A separate bounded pure configuration-owned snapshot diagnostic now preserves actual pre-constant role/body identity and rejects unproved startup work before effects. All38 pin selection/startup rows remain complete; native refusals and Java exceptions earn no parity credit. Private producer provenance and fresh candidate replay do not certify ordinary scheduling or the family.",
       "phase": 4,
       "pinned_source": "tlc2/tool/liveness/LiveCheck.java",
       "rust_evidence": "crates/dive-api/src/check.rs"
@@ -863,7 +870,8 @@
       "rust_evidence": "crates/dive-api/src/check.rs",
       "conformance_evidence": "crates/dive-api/tests/trace_controls.rs",
       "issues": [
-        124
+        124,
+        190
       ],
       "acceptance": "TLC trace loading, generated trace specs, binary/JSON/state/DOT dumps, ALIAS and exploration preserve evaluation side effects; retain clean oracle run when dumpTrace perturbs overrides.",
       "interactions": [
@@ -872,7 +880,14 @@
         "F-026",
         "F-027"
       ],
-      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required."
+      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required. Separate v2 release selection retains72 independentlyValid originals/216 semanticInvalid mutants and24 matching legacyMixed shapeInvalid rows, with12 interval encoding refusals; no arbitrary representation or family certification.",
+      "additional_evidence": [
+        "docs/trace-representation.md",
+        "docs/decisions/0055-stored-trace-transport.md",
+        "crates/dive-api/tests/trace_representation.rs",
+        "crates/dive-trace/tests/value_representation.rs",
+        "conformance/probes/trace-representation-v2/current/receipt.json"
+      ]
     },
     {
       "id": "F-030",
@@ -933,7 +948,8 @@
       "conformance_evidence": "docs/native-checkpoint.md",
       "issues": [
         152,
-        164
+        164,
+        195
       ],
       "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
       "interactions": [
@@ -1198,7 +1214,12 @@
         "docs/pluscal-definitions.md",
         "docs/decisions/0053-pluscal-global-definitions.md",
         "crates/dive-pluscal/tests/definitions.rs",
-        "crates/dive-pluscal/define-acceptance/primary/manifest.json"
+        "crates/dive-pluscal/define-acceptance/primary/manifest.json",
+        "docs/trace-representation.md",
+        "docs/decisions/0055-stored-trace-transport.md",
+        "crates/dive-api/tests/trace_representation.rs",
+        "crates/dive-trace/tests/value_representation.rs",
+        "conformance/probes/trace-representation-v2/current/receipt.json"
       ],
       "certification": "audit-required",
       "conformance_evidence": "docs/pluscal-rewriting.md",
@@ -1233,10 +1254,11 @@
         163,
         171,
         172,
-        186
+        186,
+        190
       ],
       "name": "Public Rust APIs and cargo-test integration",
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required.",
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Opt-in checked stored transport v2 covers admitted forward mixed sets and nonliteral tuple/record functions; legacy v1 decoder failures and #195 trusted-storage bit loss remain separate. Transport is not a certificate; provider/symbolic/reverse construction and Random/VIEW extensions remain unsupported. Family remains partial/audit-required. Separate v2 release selection retains72 independentlyValid originals/216 semanticInvalid mutants and24 matching legacyMixed shapeInvalid rows, with12 interval encoding refusals; no arbitrary representation or family certification.",
       "phase": 9,
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/lib.rs"
