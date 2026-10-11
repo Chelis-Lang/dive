@@ -71,7 +71,7 @@ supported `with` contexts retain the pinned logical token layout. Source spans
 still name the original argument or macro definition. Unchanged junctions
 retain their original columns. Multiline arguments, multiline macro bodies,
 substituted `/\` or `\/` junction columns, duplicate formals, recursive calls,
-definitions, procedures and unproved scoped name fixes are named refusals.
+unproved definition scopes, procedures and scoped name fixes are named refusals. See the separate [bounded DEFINE path](pluscal-definitions.md).
 Existing finite-process ownership restrictions still apply.
 
 The embedded selector handles ASCII-star comment decoration such as

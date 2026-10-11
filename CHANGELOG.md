@@ -43,6 +43,11 @@ All notable changes to this project are documented here. The project will follow
 
 - Memory VIEW preserves nonforcing normalization of evaluator-owned lazy filters; unknown providers and unproved lazy-operation caches remain explicit refusals. Spill and checkpoint deferred-value admission is unchanged.
 
+
+- Bounded PlusCal DEFINE helpers preserve global/local declaration order and
+  pre-state helper references, with exact post-translation AST/Full CRCs.
+  Recursive, action/temporal and unproved scoped declaration shapes refuse
+  explicitly; public generated modules still require syntax/semantic admission.
 - PlusCal embedded selection follows pinned line-first marker ownership; a later
   unfair algorithm cannot replace an earlier fair one. Same-line priority and
   split/tab/space separators have paired primary controls (#192).

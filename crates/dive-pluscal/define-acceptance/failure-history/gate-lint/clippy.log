@@ -1,0 +1,75 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling serde_core v1.0.229
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+    Checking serde_json v1.0.151
+   Compiling serde_derive v1.0.229
+   Compiling libc v0.2.190
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+   Compiling getrandom v0.3.4
+    Checking serde v1.0.229
+    Checking bitflags v2.13.2
+   Compiling zerocopy v0.8.62
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-ir)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-pluscal)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-eval)
+    Checking rand_core v0.9.5
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-liveness)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-sim)
+    Checking ppv-lite86 v0.2.21
+    Checking rand_chacha v0.9.0
+    Checking rand v0.9.5
+    Checking rand_xorshift v0.4.0
+    Checking unarray v0.1.4
+    Checking regex-syntax v0.8.11
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-api)
+    Checking errno v0.3.14
+   Compiling rustix v1.1.5
+    Checking proptest v1.11.0
+    Checking terminal_size v0.4.4
+    Checking clap_lex v1.1.1
+    Checking anstyle v1.0.14
+    Checking clap_builder v4.6.7
+   Compiling syn v2.0.119
+    Checking clap v4.6.7
+    Checking condtype v1.3.0
+    Checking regex-lite v0.1.9
+   Compiling signal-hook v0.4.5
+    Checking winnow v1.0.4
+    Checking toml_parser v1.1.4+spec-1.1.0
+    Checking signal-hook-registry v1.4.8
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking toml v1.1.7+spec-1.1.0
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-conformance)
+   Compiling divan-macros v0.1.21
+    Checking divan v0.1.21
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-store)
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-value)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-bench)
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-syntax)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-config)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-definitions-work/crates/dive-cli)
+error: `format!(..)` appended to existing `String`
+   --> crates/dive-pluscal/tests/definitions.rs:122:9
+    |
+122 |         definitions.push_str(&format!("F{i}==F{} ", i - 1));
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: you may need to import the `std::fmt::Write` trait
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#format_push_string
+    = note: `-D clippy::format-push-string` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::format_push_string)]`
+help: consider using `write!` to avoid the extra allocation
+    |
+122 -         definitions.push_str(&format!("F{i}==F{} ", i - 1));
+122 +         let _ = write!(definitions, "F{i}==F{} ", i - 1);
+    |
+
+error: could not compile `dive-pluscal` (test "definitions") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -1,0 +1,8 @@
+{
+  "stage": "primary-capture",
+  "source_scope": "first88fixture rows captured before Echo assertion; no completed campaign credit",
+  "failure": "Echo clean primary rewrites an existing BEGIN TRANSLATION header without adding checksums; previous runner incorrectly required a Full checksum header",
+  "closed": true,
+  "rerun": "primary/manifest.json preserves all90observations; corpus/primary additionally resolves exact local Relation dependency",
+  "raw_prefix_external": "first-primary-prefix retained outside checkout under delivery artifacts"
+}

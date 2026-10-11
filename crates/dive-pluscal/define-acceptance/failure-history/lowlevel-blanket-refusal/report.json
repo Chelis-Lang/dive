@@ -1,0 +1,300 @@
+{
+  "source_producer": "../final/producer.json",
+  "source_commit": null,
+  "all_stages": 33,
+  "completed": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.47682785987854,
+      "log": "00.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-validation-import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2057428359985352,
+      "log": "01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-frontend-campaign.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.884857892990112,
+      "log": "02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-safety.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.8108108043670654,
+      "log": "03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-state-if.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9813151359558105,
+      "log": "04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3631927967071533,
+      "log": "05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if-final.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.687849998474121,
+      "log": "06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-scopes.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.040065050125122,
+      "log": "07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-property-origins.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9337537288665771,
+      "log": "08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-material-capture.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.297508716583252,
+      "log": "09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0223259925842285,
+      "log": "10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-temporal-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2749707698822021,
+      "log": "11.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-parity-ledger.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1742568016052246,
+      "log": "12.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-parity-ledger.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.37256479263305664,
+      "log": "13.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-planning.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.28028368949890137,
+      "log": "14.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-tableau.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2620420455932617,
+      "log": "15.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-action-order.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14161419868469238,
+      "log": "16.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4429507255554199,
+      "log": "17.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l-graph.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.24074888229370117,
+      "log": "18.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-execution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2428581714630127,
+      "log": "19.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.34781885147094727,
+      "log": "20.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-state-if-planning.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.16459083557128906,
+      "log": "21.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-predecessor-spill.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5572981834411621,
+      "log": "22.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4498598575592041,
+      "log": "23.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-parity-integration.py"
+      ],
+      "exit_code": 0,
+      "seconds": 14.359576940536499,
+      "log": "24.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.737712144851685,
+      "log": "25.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 5.333409786224365,
+      "log": "26.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "nextest",
+        "run",
+        "--workspace",
+        "--locked",
+        "--profile",
+        "ci",
+        "--test-threads",
+        "2"
+      ],
+      "exit_code": 100,
+      "seconds": 634.0042009353638,
+      "log": "27.log"
+    }
+  ],
+  "passed": false
+}

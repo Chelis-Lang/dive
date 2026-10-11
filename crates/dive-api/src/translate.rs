@@ -15,7 +15,7 @@ pub struct TranslationRequest {
     /// Module resolution for validating the resulting module.
     pub analyze: AnalyzeOptions,
     /// Global compatibility selection. Current supported generation is shared;
-    /// historical flags, formatting and rewrite/checksum parity remain pending.
+    /// historical flags, exact formatting and broader rewrite/checksum shapes remain pending.
     pub compat_tlc: bool,
 }
 /// Stage-separated translation report. Acceptance never means a model proof.
@@ -58,7 +58,7 @@ fn report(
     let mut document = json!({"schema_version":TRANSLATE_SCHEMA_VERSION,"command":"translate","file":file,
         "profile":if request.compat_tlc {"tlc"} else {"dive"},"result":result,"stage":stage,"accepted":status==0,
         "exit_code":status,"model_proved":false,"exhaustive":false,"limits":request.limits,
-        "pending":["unproved-overlapping-process-domains","unproved-sequential-procedure-modifiers","name-renaming","unproved-scoped-process-procedure-renaming","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-rewriting","checksums","mapping-format"]});
+        "pending":["unproved-overlapping-process-domains","unproved-sequential-procedure-modifiers","name-renaming","unproved-scoped-process-procedure-renaming","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-writing","unproved-ast-checksum-shapes","mapping-format"]});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }

@@ -673,3 +673,5 @@ invoke providers; trace replay stays independently built without enumeration.
 Original 84 diagnostic rows, wider seeds and shipping producer evidence remain
 separate under `conformance/probes/view-random-stream/`. Symmetry and other RNG
 families/recovery are excluded until their own contracts are proved.
+
+| `dive-pluscal` DEFINE sections (`translate/definitions.rs`, `emit.rs`, `checksum.rs`) | tlaplus `pcal/PcalTLAGen.java` `GenVarsAndDefs`, `GenVarDecl`, `addExprToTLA`; `TLAExpr.java` `normalize`, `toStringVector`, `toString`; `AST.java` `Uniprocess.toString` / `Multiprocess.toString` defs field; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Global declarations precede copied helpers; process locals follow. UTF-16/tab-expanded significant-token columns and serialized defs are source-backed; conservative native declaration/cycle admission is dive-owned. Reference adapter is development-only. |

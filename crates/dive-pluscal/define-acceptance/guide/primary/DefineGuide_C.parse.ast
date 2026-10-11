@@ -1,0 +1,11 @@
+[type     |-> "uniprocess", 
+ name  |-> "A", 
+ decls  |-> <<[var |-> "x", eqOrIn |-> "=", val |-> << "0" >>]>>,
+ defs   |-> << "Step", "(", "a", ")", "==", "a", "+", "1" >>,
+ prcds  |-> <<>>,
+ body  |-> <<[label |-> "L",
+              stmts |-> <<[type |-> "assignment",
+                           ass  |-> <<[lhs |-> [var |-> "x", sub |-> <<  >>],
+                                       rhs |-> << "Step", "(", "x", ")" >>]>>]>>], 
+             [label |-> "E",
+              stmts |-> <<[type |-> "skip"]>>]>>]

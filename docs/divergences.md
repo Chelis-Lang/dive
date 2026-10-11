@@ -756,3 +756,10 @@ share the same line, in both profiles. Expanded split/tab/space and malformed
 controls preserve real reference rejection boundaries. See the
 [macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
 Artifact admission and CRC equality still never establish model correctness.
+
+D-008 bounded DEFINE progress: [DEFINE helpers](pluscal-definitions.md) can be
+serialized and emitted with reference declaration ordering. Raw AST/CRC equality
+is separate from enclosing-module SANY/native admission and finite-model
+checking. Invalid primary artifacts stay uncredited; recursive, LOCAL/symbolic,
+action/temporal and unproved scope shapes remain named refusals. Neither profile
+inlines helpers or silently repairs the reference output.

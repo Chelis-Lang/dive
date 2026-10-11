@@ -2190,3 +2190,11 @@ Artifact admission and CRC equality still never establish model correctness.
 
 
 The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
+
+D-008 native PlusCal DEFINE limitation: ordinary global helper declarations now
+have a bounded [native translation and Full-checksum path](pluscal-definitions.md).
+For `F == x; x := 1; y := F`, the pinned translator emits `y' = F`, so the helper
+reads the pre-state `x`. Dive preserves this in both profiles. A definition using
+a process-local variable remains before that variable's generated declaration,
+and the invalid artifact is rejected rather than reordered into apparent success.
+General recursion, scoped renaming and procedure definitions remain unfinished.

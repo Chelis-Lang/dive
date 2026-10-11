@@ -1,0 +1,357 @@
+{
+  "source_producer": "../final/producer.json",
+  "source_commit": null,
+  "all_stages": 33,
+  "completed": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.406804084777832,
+      "log": "00.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-validation-import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3078029155731201,
+      "log": "01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-frontend-campaign.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2349748611450195,
+      "log": "02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-safety.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0839259624481201,
+      "log": "03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-state-if.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4606180191040039,
+      "log": "04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.15023112297058105,
+      "log": "05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if-final.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7044880390167236,
+      "log": "06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-scopes.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.42041897773742676,
+      "log": "07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-property-origins.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4267730712890625,
+      "log": "08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-material-capture.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4740769863128662,
+      "log": "09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.492995023727417,
+      "log": "10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-temporal-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8176820278167725,
+      "log": "11.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-parity-ledger.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11290216445922852,
+      "log": "12.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-parity-ledger.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.22132396697998047,
+      "log": "13.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-planning.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.18277573585510254,
+      "log": "14.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-tableau.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.15972495079040527,
+      "log": "15.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-action-order.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08344292640686035,
+      "log": "16.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.21498394012451172,
+      "log": "17.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l-graph.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1328291893005371,
+      "log": "18.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-execution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14270997047424316,
+      "log": "19.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2137126922607422,
+      "log": "20.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-state-if-planning.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11053633689880371,
+      "log": "21.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-predecessor-spill.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.27074599266052246,
+      "log": "22.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2386021614074707,
+      "log": "23.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-parity-integration.py"
+      ],
+      "exit_code": 0,
+      "seconds": 7.781214952468872,
+      "log": "24.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.505408763885498,
+      "log": "25.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2130119800567627,
+      "log": "26.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "nextest",
+        "run",
+        "--workspace",
+        "--locked",
+        "--profile",
+        "ci",
+        "--test-threads",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 474.7492380142212,
+      "log": "27.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--doc",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 12.337586164474487,
+      "log": "28.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "doc",
+        "--workspace",
+        "--no-deps",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 23.565552949905396,
+      "log": "29.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "xtask",
+        "check-layering"
+      ],
+      "exit_code": 0,
+      "seconds": 4.173694133758545,
+      "log": "30.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "dive-trace",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 8.420394897460938,
+      "log": "31.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2506961822509766,
+      "log": "32.log"
+    }
+  ],
+  "passed": true
+}
