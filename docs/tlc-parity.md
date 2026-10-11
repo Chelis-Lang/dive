@@ -699,3 +699,7 @@ artifacts without positive artifact credit. Source recursion is not runtime
 unrolling/termination proof. F-034/F-035 remain partial and audit-required;
 strict saved-frame replay #124 is unchanged. See
 [the maintained guide](pluscal-recursive-procedure-checksums.md).
+
+Issue224 adds bounded stopped-worker transaction evidence without ordinary clock,
+queue/count/graph or model-proof credit. F-023 remains missing/audit-required;
+see [the user contract](stopped-periodic-service.md).

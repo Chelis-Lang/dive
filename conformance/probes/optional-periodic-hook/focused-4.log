@@ -1,0 +1,20 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.36s
+     Running tests/optional_periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_candidate-dd76aa900833e3df)
+
+running 3 tests
+test empty_request_is_not_eof_and_false_hook_still_precedes_expansion ... ok
+test no_hook_does_not_relax_profile_startup_or_bounds ... ok
+test genuine_absent_hook_eof_words_are_independently_admitted_and_mutants_rejected ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests/optional_periodic_snapshot.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_snapshot-6443fcc969f22fc6)
+
+running 3 tests
+test errors_and_unproved_effects_keep_original_prebinding_dispositions ... ok
+test absent_unused_definitions_never_create_a_role_and_mandatory_api_stays_required ... ok
+test original_present_name_and_actual_replacement_definition_are_preserved ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+

@@ -195,6 +195,17 @@ impl Lane {
         self.wake.notify_all();
         (fresh, pending)
     }
+    /// Close publication/claims atomically, retaining an actual unserviced request.
+    /// This is request-lane closure, not timer join or state-queue completion.
+    pub(crate) fn finish(&self) -> Result<Option<Request>, String> {
+        let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        state.closed = true;
+        self.wake.notify_all();
+        match state.error.as_ref() {
+            Some(error) => Err(error.clone()),
+            None => Ok(state.pending.take()),
+        }
+    }
     pub(crate) fn close(&self) {
         self.state
             .lock()
@@ -258,12 +269,23 @@ impl Drop for Close {
         self.0.close();
     }
 }
+#[cfg(test)]
 pub(crate) fn with_lane<R>(
     options: Option<Options>,
     callback: impl FnOnce(Option<Arc<Lane>>) -> R,
 ) -> Result<R, String> {
+    let (value, join_error) = with_lane_retained(options, callback)?;
+    join_error.map_or(Ok(value), Err)
+}
+
+/// Retain an actual returned search value even if subsequent timer join fails.
+/// Setup failure still has no search value or invented execution evidence.
+pub(crate) fn with_lane_retained<R>(
+    options: Option<Options>,
+    callback: impl FnOnce(Option<Arc<Lane>>) -> R,
+) -> Result<(R, Option<String>), String> {
     let Some(options) = options else {
-        return Ok(callback(None));
+        return Ok((callback(None), None));
     };
     let lane = Lane::new(options)?;
     std::thread::scope(|scope| {
@@ -275,10 +297,11 @@ pub(crate) fn with_lane<R>(
         let close = Close(lane.clone());
         let result = callback(Some(lane));
         drop(close);
-        handle
+        let error = handle
             .join()
-            .map_err(|_| "native request producer panicked".to_owned())?;
-        Ok(result)
+            .err()
+            .map(|_| "native request producer panicked".to_owned());
+        Ok((result, error))
     })
 }
 
@@ -289,6 +312,85 @@ pub(crate) fn with_lane<R>(
 )]
 mod tests {
     use super::*;
+    #[test]
+    #[allow(
+        clippy::panic,
+        reason = "controlled exhausted-lane unwind proves real resource teardown"
+    )]
+    fn exhausted_lane_unwind_joins_timer_and_waiting_pool_threads() {
+        let mut weak = None;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            crate::pool::with_pool(4, dive_eval::RECOMMENDED_STACK, |pool| {
+                with_lane(
+                    Some(Options {
+                        interval: Duration::from_secs(3600),
+                        force: true,
+                    }),
+                    |lane| {
+                        let lane = lane.expect("actual producer");
+                        weak = Some(Arc::downgrade(&lane));
+                        lane.finish().expect("actual publication closure");
+                        pool.with_pause(|_| panic!("controlled prejoin terminal unwind"))
+                            .expect("real pause");
+                    },
+                )
+                .expect("lane");
+            });
+        }));
+        assert!(result.is_err());
+        assert!(weak.expect("actual timer owner").upgrade().is_none());
+    }
+    #[test]
+    fn exhausted_finish_retains_real_pending_identity_and_denies_future_claims() {
+        let lane = Lane::new(Options {
+            interval: Duration::from_secs(3600),
+            force: true,
+        })
+        .expect("lane");
+        let pending = lane
+            .finish()
+            .expect("actual lane close")
+            .expect("real initial request");
+        assert_eq!(pending.sequence(), 1);
+        assert!(pending.forced());
+        let next = AtomicUsize::new(0);
+        assert_eq!(lane.claim(&next, 1), None);
+        lane.publish(false);
+        assert!(lane.take().expect("no new request").is_none());
+        assert!(lane.finish().expect("already closed").is_none());
+        assert_eq!(next.load(Ordering::Relaxed), 0);
+    }
+    #[test]
+    fn exhausted_finish_preserves_original_lane_error_and_closes_timer() {
+        let result = with_lane(
+            Some(Options {
+                interval: Duration::from_secs(3600),
+                force: true,
+            }),
+            |lane| {
+                let lane = lane.expect("real producer");
+                lane.state.lock().expect("state").error =
+                    Some("controlled original publication failure".into());
+                assert_eq!(
+                    lane.finish().err().as_deref(),
+                    Some("controlled original publication failure")
+                );
+                assert_eq!(
+                    lane.finish().err().as_deref(),
+                    Some("controlled original publication failure")
+                );
+                assert!(
+                    lane.state
+                        .lock()
+                        .expect("retained request")
+                        .pending
+                        .is_some()
+                );
+                assert_eq!(lane.claim(&AtomicUsize::new(0), 1), None);
+            },
+        );
+        assert!(result.is_ok()); // Actual scoped timer join completes despite its old hour deadline.
+    }
     #[test]
     #[cfg(feature = "test-rendezvous")]
     fn test_rendezvous_restores_scope_and_does_not_invent_requests() {

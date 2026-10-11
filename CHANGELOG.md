@@ -1,5 +1,20 @@
 # Changelog
 
+
+- Add source-owned stopped-worker periodic diagnostics through
+  `periodic_candidate::check_optional_stopped`. Eligible ordered source errors
+  remain authoritative across diagnostic callback failures and timer/pool joins;
+  no failed source becomes EOF, final checking or temporal Holds. Ordinary
+  scheduling remains refused; the executable guide records actual method/CLI
+  evidence and the unproved Java after-error graph/count boundary.
+
+
+- Explicit final TLC mode now admits pure state conditional predicates through
+  the corrected shared planner and fresh independent witness replay. Scoped
+  LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
+  resource bounds and ordinary periodic scheduling restrictions stay unchanged.
+
+
 All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
@@ -8,6 +23,10 @@ All notable changes to this project are documented here. The project will follow
 - Composed request/candidate diagnostics, disk safety and positioned replay,
   bounded procedure checksum editing, and inductive tuple replay with fresh
   release verification and maintained user/developer guides.
+
+- Add a source-owned exhausted-queue terminal diagnostic before timer/pool joins. Request-lane setup/join failures retain actual initial or returned-prefix statistics. Genuine finished queues skip configured hooks; deciding final words reuse fresh independent replay. Ordinary checking and scheduling/count/model-proof claims stay refused.
+
+- Add source-owned optional periodic diagnostics: genuine configuration absence skips only the hook stage, while mandatory APIs, pre-startup guards and private independent candidate replay remain unchanged. No ordinary scheduling or model-proof credit.
 
 - Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
 

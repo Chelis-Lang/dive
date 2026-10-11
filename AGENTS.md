@@ -206,6 +206,10 @@ python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py
 python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
 python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py
 python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py
+
+python3 -I scripts/check-optional-periodic-hook.py
+python3 -I scripts/check-terminal-periodic-service.py
+python3 -I scripts/check-stopped-periodic-service.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

@@ -1,0 +1,210 @@
+[
+  {
+    "id": "absent-no-definition",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "absent-unused-false",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == FALSE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "absent-unused-arg",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook(v) == v\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "present-true",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == TRUE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "present-false",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == FALSE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "alias",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nBase == FALSE\nHook == Base\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "state",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == x=0\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "action",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == x'=0\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "temporal",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == <>(x=0)\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "integer",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == 1\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "error",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == 1 \\div 0\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "missing",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Missing\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "arity",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook(v) == v\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "constant-role",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Token\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "qualified",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nS == INSTANCE Helper\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC S!Probe\n",
+    "lib": "---- MODULE Helper ----\nProbe == FALSE\n====\n",
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "substitution",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == TRUE\nReplacement == FALSE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\nCONSTANT Hook <- Replacement\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "absent-startup",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nUnused == PrintT(\"STARTUP_MARKER\")\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": false,
+    "force": false
+  },
+  {
+    "id": "service-absent",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-absent-forced",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": true,
+    "force": true
+  },
+  {
+    "id": "service-unused-false",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == FALSE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-true",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == TRUE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-false",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == FALSE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-integer",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == 1\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-error",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == 1 \\div 0\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-state",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nHook == x=0\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  },
+  {
+    "id": "service-failed-init",
+    "source": "---- MODULE Snapshot ----\nEXTENDS Integers,TLC\nCONSTANT Token\nVARIABLE x\nInit == x = (1 \\div 0)\nNext == x'=1-x\nHook == TRUE\n====\n",
+    "config": "CONSTANT Token=Atom\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+    "lib": null,
+    "service": true,
+    "force": false
+  }
+]

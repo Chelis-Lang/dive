@@ -857,6 +857,82 @@ fn internal(message: String, stats: Stats) -> (Option<Stop>, Stats) {
     )
 }
 
+fn stopped_fault<S: Keyed>(
+    search: &mut Search<'_, '_, S>,
+    fault: crate::capture::StoppedDiagnosticFault,
+) {
+    search.stopped_faults[fault as usize] = true;
+    if let Some(observer) = search.observer.as_mut()
+        && std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            observer.stopped_diagnostic_failed(fault);
+        }))
+        .is_err()
+    {
+        search.stopped_faults[crate::capture::StoppedDiagnosticFault::Unwind as usize] = true;
+    }
+}
+
+fn stopped_origin(stop: &Stop) -> Option<(crate::capture::WorkerStop, u64)> {
+    if stop.in_init {
+        return None;
+    }
+    let (source, _) = stop.path.as_ref()?;
+    Some((
+        crate::capture::WorkerStop::classify(&stop.verdict)?,
+        *source,
+    ))
+}
+
+fn stopped_service<S: Keyed>(
+    search: &mut Search<'_, '_, S>,
+    stop: &Stop,
+    kind: crate::capture::WorkerStop,
+    stats: Stats,
+    pool: &Pool<'_>,
+    progress: Option<&Arc<crate::progress::Lane>>,
+) {
+    use crate::capture::StoppedDiagnosticFault as Fault;
+    let Ok(pending) = progress.map_or(Ok(None), |lane| lane.finish()) else {
+        stopped_fault(search, Fault::LaneClose);
+        return;
+    };
+    let callback = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        pool.with_pause(|pause| {
+            let Some((source, _)) = stop.path.as_ref() else {
+                return Ok(());
+            };
+            let end = crate::capture::StoppedQueue::new(
+                &stop.verdict,
+                kind,
+                stats,
+                pause,
+                pending,
+                *source,
+            );
+            search.stopped_transaction = Some(crate::capture::StoppedTransaction {
+                verdict: stop.verdict.clone(),
+                source: *source,
+                stats,
+                workers: pause.workers(),
+                generation: pause.generation(),
+            });
+            search
+                .observer
+                .as_mut()
+                .map_or(Ok(()), |observer| observer.stopped_queue_finished(&end))
+        })
+    }));
+    let fault = match callback {
+        Ok(Ok(Ok(()))) => None,
+        Ok(Ok(Err(_))) => Some(Fault::Callback),
+        Ok(Err(_)) => Some(Fault::Dispatch),
+        Err(_) => Some(Fault::Unwind),
+    };
+    if let Some(fault) = fault {
+        stopped_fault(search, fault);
+    }
+}
+
 /// Runs every level from the frontier `next` (the initial states) with up
 /// to `workers` threads. Returns the stop, the statistics and the number of
 /// threads used.
@@ -877,21 +953,86 @@ pub(crate) fn levels_from<S: Keyed>(
     workers: usize,
     level: u64,
 ) -> (Option<Stop>, Stats, usize) {
+    let initial_stats = search.stats(next.len() as u64);
     let set = RwLock::new(std::mem::replace(&mut search.set, S::fresh(0)));
     let (stop, stats, used) = with_pool(workers, dive_eval::RECOMMENDED_STACK, |pool| {
         let request_options = search.observer.as_ref().and_then(|o| o.progress_requests());
-        match crate::progress::with_lane(request_options, |progress| {
-            run_levels(search, &set, next, opts, pool, level, progress.as_ref())
+        let mut returned_stats = None;
+        let mut stopped_enabled = false;
+        match crate::progress::with_lane_retained(request_options, |progress| {
+            let (stop, stats) =
+                run_levels(search, &set, next, opts, pool, level, progress.as_ref());
+            returned_stats = Some(stats);
+            if let Some((winner, kind)) = stop
+                .as_ref()
+                .and_then(|winner| stopped_origin(winner).map(|(kind, _)| (winner, kind)))
+            {
+                let enabled = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    search
+                        .observer
+                        .as_ref()
+                        .is_some_and(|observer| observer.requires_stopped_service())
+                }));
+                match enabled {
+                    Ok(true) => {
+                        stopped_enabled = true;
+                        stopped_service(search, winner, kind, stats, pool, progress.as_ref());
+                    }
+                    Ok(false) => {}
+                    Err(_) => {
+                        stopped_enabled = true;
+                        stopped_fault(search, crate::capture::StoppedDiagnosticFault::Unwind);
+                    }
+                }
+            }
+            // Only the real exhausted-frontier return may enter this additive
+            // transaction. A failed source/Init/cut never creates EOF authority.
+            if stop.is_none()
+                && search
+                    .observer
+                    .as_ref()
+                    .is_some_and(|o| o.requires_terminal_service())
+            {
+                let result = progress
+                    .as_ref()
+                    .map_or(Ok(None), |lane| lane.finish())
+                    .and_then(|pending| {
+                        pool.with_pause(|pause| {
+                            let end = crate::capture::ExhaustedQueue::new(stats, pause, pending);
+                            search
+                                .observer
+                                .as_mut()
+                                .map_or(Ok(()), |o| o.terminal_queue_finished(&end))
+                        })
+                    })
+                    .and_then(std::convert::identity);
+                if let Err(feature) = result {
+                    return (
+                        Some(Stop {
+                            verdict: Verdict::Unsupported { feature },
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        stats,
+                    );
+                }
+            }
+            (stop, stats)
         }) {
-            Ok((stop, stats)) => (stop, stats, pool.threads()),
-            Err(feature) => (
+            Ok(((stop, stats), None)) => (stop, stats, pool.threads()),
+            Ok(((stop, stats), Some(_))) if stopped_enabled => {
+                stopped_fault(search, crate::capture::StoppedDiagnosticFault::LaneJoin);
+                (stop, stats, pool.threads())
+            }
+            Ok((_, Some(feature))) | Err(feature) => (
                 Some(Stop {
                     verdict: Verdict::Unsupported { feature },
                     in_init: false,
                     path: None,
                     then: None,
                 }),
-                search.stats(0),
+                returned_stats.unwrap_or(initial_stats),
                 pool.threads(),
             ),
         }
@@ -1873,5 +2014,20 @@ mod prefix_tests {
                 assert_eq!(contiguous_returned(outputs, cursor, 8), expected);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod stopped_origin_tests {
+    use super::*;
+    #[test]
+    fn eligible_classification_without_actual_source_path_is_not_authority() {
+        let stop = Stop {
+            verdict: Verdict::Deadlock,
+            in_init: false,
+            path: None,
+            then: None,
+        };
+        assert!(stopped_origin(&stop).is_none());
     }
 }

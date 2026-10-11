@@ -1,0 +1,53 @@
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error: this function has too many arguments (8/7)
+    --> crates/dive-liveness/src/phase_execution.rs:2018:1
+     |
+2018 | / pub(crate) fn execute_periodic_service(
+2019 | |     model: &Model,
+2020 | |     options: &CheckOptions,
+2021 | |     limits: Limits,
+...    |
+2026 | |     terminal: bool,
+2027 | | ) -> crate::periodic_lifecycle::Run {
+     | |___________________________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#too_many_arguments
+     = note: `-D clippy::too-many-arguments` implied by `-D clippy::all`
+     = help: to override `-D clippy::all` add `#[allow(clippy::too_many_arguments)]`
+
+error: this function has too many lines (102/100)
+    --> crates/dive-liveness/src/phase_execution.rs:2044:1
+     |
+2044 | / fn execute_lifecycle_mode(
+2045 | |     model: &Model,
+2046 | |     options: &CheckOptions,
+2047 | |     limits: Limits,
+...    |
+2053 | |     terminal: bool,
+2054 | | ) -> crate::periodic_lifecycle::Run {
+     | |___________________________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#too_many_lines
+     = note: `-D clippy::too-many-lines` implied by `-D clippy::pedantic`
+     = help: to override `-D clippy::pedantic` add `#[allow(clippy::too_many_lines)]`
+
+error: more than 3 bools in a struct
+   --> crates/dive-liveness/src/periodic_lifecycle.rs:302:1
+    |
+302 | / pub(crate) struct State {
+303 | |     pub concrete_sources: Vec<ConcreteSource>,
+304 | |     pub concrete_retention: SourceRetention,
+305 | |     pub request_service: bool,
+...   |
+325 | |     pub hook_evaluations: Vec<crate::periodic_hook::Evaluation>,
+326 | | }
+    | |_^
+    |
+    = help: consider using a state machine or refactoring bools into two-variant enums
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#struct_excessive_bools
+    = note: `-D clippy::struct-excessive-bools` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::struct_excessive_bools)]`
+
+error: could not compile `dive-liveness` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

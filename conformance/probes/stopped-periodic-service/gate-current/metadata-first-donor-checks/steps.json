@@ -1,0 +1,242 @@
+[
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "log": "00.log",
+    "exit": 0,
+    "wall_seconds": 0.255247875
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "log": "01.log",
+    "exit": 0,
+    "wall_seconds": 1.9218026669999997
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "log": "02.log",
+    "exit": 0,
+    "wall_seconds": 0.5336081670000001
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "log": "03.log",
+    "exit": 0,
+    "wall_seconds": 0.8399621669999999
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "log": "04.log",
+    "exit": 0,
+    "wall_seconds": 0.24429016599999986
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "log": "05.log",
+    "exit": 0,
+    "wall_seconds": 1.1219070410000005
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "log": "06.log",
+    "exit": 0,
+    "wall_seconds": 0.8722156669999999
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "log": "07.log",
+    "exit": 0,
+    "wall_seconds": 0.7778538749999999
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "log": "08.log",
+    "exit": 0,
+    "wall_seconds": 1.2546642500000003
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "log": "09.log",
+    "exit": 0,
+    "wall_seconds": 0.8764596659999997
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "log": "10.log",
+    "exit": 0,
+    "wall_seconds": 0.5215714580000004
+  },
+  {
+    "command": "python3 -I scripts/check-stored-successor-material.py",
+    "log": "11.log",
+    "exit": 0,
+    "wall_seconds": 0.5480816669999999
+  },
+  {
+    "command": "python3 -I scripts/check-native-sequence-operators.py",
+    "log": "12.log",
+    "exit": 0,
+    "wall_seconds": 0.2966910829999989
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-partial-scc.py",
+    "log": "13.log",
+    "exit": 0,
+    "wall_seconds": 0.4508896670000002
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-backend.py",
+    "log": "14.log",
+    "exit": 0,
+    "wall_seconds": 0.43559699999999957
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-controller.py",
+    "log": "15.log",
+    "exit": 0,
+    "wall_seconds": 0.5989869999999993
+  },
+  {
+    "command": "python3 -I scripts/check-runtime-ratio.py",
+    "log": "16.log",
+    "exit": 0,
+    "wall_seconds": 0.11379329100000035
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-lifecycle.py",
+    "log": "17.log",
+    "exit": 0,
+    "wall_seconds": 1.1866684999999997
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-hook.py",
+    "log": "18.log",
+    "exit": 0,
+    "wall_seconds": 0.3808478329999989
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-snapshot.py",
+    "log": "19.log",
+    "exit": 0,
+    "wall_seconds": 0.7389377919999998
+  },
+  {
+    "command": "python3 -I scripts/check-progress-queue.py",
+    "log": "20.log",
+    "exit": 0,
+    "wall_seconds": 0.8934401249999997
+  },
+  {
+    "command": "python3 -I scripts/check-committed-prefix.py",
+    "log": "21.log",
+    "exit": 0,
+    "wall_seconds": 0.48512587500000137
+  },
+  {
+    "command": "python3 -I scripts/check-request-owned-service.py",
+    "log": "22.log",
+    "exit": 0,
+    "wall_seconds": 0.434276208
+  },
+  {
+    "command": "python3 -I scripts/check-producer-owned-candidate.py",
+    "log": "23.log",
+    "exit": 0,
+    "wall_seconds": 0.38545691700000084
+  },
+  {
+    "command": "python3 -I scripts/check-optional-periodic-hook.py",
+    "log": "24.log",
+    "exit": 0,
+    "wall_seconds": 0.9839652080000008
+  },
+  {
+    "command": "python3 -I scripts/check-terminal-periodic-service.py",
+    "log": "25.log",
+    "exit": 0,
+    "wall_seconds": 1.4989023340000003
+  },
+  {
+    "command": "python3 -I scripts/check-stopped-periodic-service.py",
+    "log": "26.log",
+    "exit": 0,
+    "wall_seconds": 1.0920586669999999
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "log": "27.log",
+    "exit": 0,
+    "wall_seconds": 0.12922558400000028
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "log": "28.log",
+    "exit": 0,
+    "wall_seconds": 0.26228708300000037
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "log": "29.log",
+    "exit": 0,
+    "wall_seconds": 0.23369441699999882
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-tableau.py",
+    "log": "30.log",
+    "exit": 0,
+    "wall_seconds": 0.20890699999999995
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-action-order.py",
+    "log": "31.log",
+    "exit": 0,
+    "wall_seconds": 0.0989229999999992
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l.py",
+    "log": "32.log",
+    "exit": 0,
+    "wall_seconds": 0.27056679200000033
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l-graph.py",
+    "log": "33.log",
+    "exit": 0,
+    "wall_seconds": 0.15642112500000138
+  },
+  {
+    "command": "python3 -I scripts/check-phase-execution.py",
+    "log": "34.log",
+    "exit": 0,
+    "wall_seconds": 0.17120016700000207
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final.py",
+    "log": "35.log",
+    "exit": 0,
+    "wall_seconds": 0.2914567080000019
+  },
+  {
+    "command": "python3 -I scripts/check-state-if-planning.py",
+    "log": "36.log",
+    "exit": 0,
+    "wall_seconds": 0.13126291600000073
+  },
+  {
+    "command": "python3 -I scripts/check-predecessor-spill.py",
+    "log": "37.log",
+    "exit": 0,
+    "wall_seconds": 0.3297954169999997
+  },
+  {
+    "command": "python3 -I scripts/check-native-checkpoint.py",
+    "log": "38.log",
+    "exit": 0,
+    "wall_seconds": 0.2936972080000011
+  },
+  {
+    "command": "python3 -I scripts/check-native-parity-integration.py",
+    "log": "39.log",
+    "exit": 0,
+    "wall_seconds": 3.6036455000000025
+  }
+]

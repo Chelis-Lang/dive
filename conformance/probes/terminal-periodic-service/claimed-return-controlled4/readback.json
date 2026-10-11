@@ -1,0 +1,20 @@
+{
+  "rows": 12,
+  "widths": [
+    1,
+    4,
+    8
+  ],
+  "actual_return_codes": {
+    "safe-true": 0,
+    "safe-false": 2104,
+    "safe-division": 1000,
+    "violating-false": 2116
+  },
+  "observer_exit": 0,
+  "independent_payload_readback": true,
+  "old_adapter_discarded_integer_return": true,
+  "ordinary_native_proof": false,
+  "source_sha256": "ffef04aac409a62222ea72b1bb1af1affa42b692b02e53802b342843e31d0125",
+  "capture_sha256": "4d224b5c78cbd01231604fd1133c1a1418ad8b3e6f58626a1729bdc258bf812c"
+}

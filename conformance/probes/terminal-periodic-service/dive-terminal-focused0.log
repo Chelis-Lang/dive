@@ -1,0 +1,13 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+error[E0609]: no field `max_states` on type `CheckOptions`
+   --> crates/dive-api/tests/terminal_periodic_candidate.rs:163:18
+    |
+163 |             opts.max_states = states;
+    |                  ^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `frontier_memory_bytes`, `frontier_directory`, `predecessor_memory_bytes`, `predecessor_directory`, `profile` ... and 9 others
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `dive-api` (test "terminal_periodic_candidate") due to 1 previous error

@@ -1,0 +1,36 @@
+{
+  "baseline_output": "[]",
+  "baseline_stats": "Some(Stats { generated: 2, distinct: 1, left_on_queue: 0, depth: 1, initial_generated: 1 })",
+  "baseline_verdict": "NotCompletelySpecified { initial: false, variables: [\"y\"], message: \"Successor state is not completely specified by the next-state action. The following variable is not defined: y.\" }",
+  "configuration": "INIT Init\nNEXT Next\nPROPERTY Live\n\n",
+  "execution_retained": true,
+  "forced": false,
+  "hook": "absent",
+  "kind": "incomplete",
+  "limits": "Limits { capture: Limits { states: 1000000, edges: 8000000, generated: 32000000, successors_per_unit: 65536 }, phase_l: Limits { formula: Limits { formula_nodes: 4096, tableau_nodes: 4096, expansion_steps: 1000000 }, incoming: 8000000, slots: 8000000, values: 8000000, cells: 8000000, work: 32000000 }, graph: Limits { vertices: 1000000, edges: 8000000, acceptance_cells: 8000000, steps: 32000000 }, workers: 64 }",
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "original_output": "[]",
+  "original_stats": "Some(Stats { generated: 2, distinct: 1, left_on_queue: 0, depth: 1, initial_generated: 1 })",
+  "original_trace": "Counterexample { states: [TraceState { label: \"<Initial predicate>\", action: None, values: [0, 0], text: None }, TraceState { label: \"<Next line 5, col 9 to line 5, col 12 of module WorkerRuntime>\", action: Some(\"Next\"), values: [], text: Some(\"/\\\\ x = 1\\n/\\\\ y = null\\n\") }] }",
+  "original_verdict": "NotCompletelySpecified { initial: false, variables: [\"y\"], message: \"Successor state is not completely specified by the next-state action. The following variable is not defined: y.\" }",
+  "requested_width": 4,
+  "source": "---- MODULE WorkerRuntime ----\nEXTENDS Integers\nVARIABLES x,y\nInit == x=0 /\\ y=0\nNext == x'=1\nInv == x=0\nPrefixInv == x<4\nAction == [][x'=x]_<<x,y>>\nLive == <>(x=0)\nHook == TRUE\n====\n",
+  "stopped_faults": [],
+  "stopped_service": {
+    "code": 2109,
+    "graph_source": null,
+    "joined_stats": "Some(Stats { generated: 2, distinct: 1, left_on_queue: 0, depth: 1, initial_generated: 1 })",
+    "kind": "Incomplete",
+    "model_proof": false,
+    "outcome": "Ok(Complete)",
+    "pending_request": "None",
+    "pool": [
+      4,
+      1
+    ],
+    "prejoin_stats": "Stats { generated: 2, distinct: 1, left_on_queue: 0, depth: 1, initial_generated: 1 }",
+    "source": 0,
+    "suspension_attempted": false
+  }
+}

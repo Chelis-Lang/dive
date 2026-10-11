@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-periodic-snapshot-work/scripts/check-stopped-periodic-service.py", line 33, in <module>
+    assert any(e.startswith('setErrState-return:false:')for e in events),(case,w)
+AssertionError: ('deadlock', 1)

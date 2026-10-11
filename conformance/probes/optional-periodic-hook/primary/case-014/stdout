@@ -1,0 +1,6 @@
+EVENT	exception-class:tlc2.tool.ConfigFileException
+EVENT	exception-code:5006
+MESSAGE-BEGIN
+TLC found an error in the configuration file at line 5
+It was expecting a keyword, but did not find it.
+MESSAGE-END

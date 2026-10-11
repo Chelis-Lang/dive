@@ -1,0 +1,110 @@
+[
+  {
+    "id": "safe-true-w1",
+    "width": 1,
+    "case": "safe-true",
+    "property": "<>(x=0)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-false-w1",
+    "width": 1,
+    "case": "safe-false",
+    "property": "<>(x=0)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-division-w1",
+    "width": 1,
+    "case": "safe-division",
+    "property": "<>(x=0)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-false-w1",
+    "width": 1,
+    "case": "violating-false",
+    "property": "<>(x=2)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-true-w4",
+    "width": 4,
+    "case": "safe-true",
+    "property": "<>(x=0)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-false-w4",
+    "width": 4,
+    "case": "safe-false",
+    "property": "<>(x=0)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-division-w4",
+    "width": 4,
+    "case": "safe-division",
+    "property": "<>(x=0)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-false-w4",
+    "width": 4,
+    "case": "violating-false",
+    "property": "<>(x=2)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-true-w8",
+    "width": 8,
+    "case": "safe-true",
+    "property": "<>(x=0)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-false-w8",
+    "width": 8,
+    "case": "safe-false",
+    "property": "<>(x=0)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-division-w8",
+    "width": 8,
+    "case": "safe-division",
+    "property": "<>(x=0)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-false-w8",
+    "width": 8,
+    "case": "violating-false",
+    "property": "<>(x=2)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  }
+]

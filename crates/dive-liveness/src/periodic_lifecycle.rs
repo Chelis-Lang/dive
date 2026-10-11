@@ -171,6 +171,9 @@ impl ConcreteSource {
 /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
 #[derive(Clone, Debug)]
 pub struct Run {
+    pub(crate) terminal: Option<crate::periodic_terminal::Invocation>,
+    pub(crate) stopped: Option<crate::periodic_stopped::Invocation>,
+    pub(crate) stopped_faults: [bool; 5],
     pub(crate) concrete_sources: Vec<ConcreteSource>,
     pub(crate) backend: periodic_backend::Run,
     pub(crate) options: Options,
@@ -186,6 +189,33 @@ pub struct Run {
     pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
 }
 impl Run {
+    /// Actual eligible worker-error service, distinct from successful EOF.
+    #[must_use]
+    pub fn stopped_service(&self) -> Option<&crate::periodic_stopped::Invocation> {
+        self.stopped.as_ref()
+    }
+    /// Diagnostic faults retained separately from the original search winner.
+    pub fn stopped_faults(
+        &self,
+    ) -> impl Iterator<Item = dive_check::capture::StoppedDiagnosticFault> + '_ {
+        use dive_check::capture::StoppedDiagnosticFault as F;
+        [
+            F::LaneClose,
+            F::LaneJoin,
+            F::Dispatch,
+            F::Callback,
+            F::Unwind,
+        ]
+        .into_iter()
+        .enumerate()
+        .filter_map(|(i, f)| self.stopped_faults[i].then_some(f))
+    }
+    /// Actual terminal service before timer/pool joins, present only on the
+    /// additive exhausted-queue route. No successful result certifies Holds.
+    #[must_use]
+    pub fn terminal_service(&self) -> Option<&crate::periodic_terminal::Invocation> {
+        self.terminal.as_ref()
+    }
     /// Actual successful source callbacks retained in discovery order. These
     /// original concrete values are not recovered from a fingerprint or from
     /// an arbitrary stored target representative. Only the distinct
@@ -292,10 +322,21 @@ pub(crate) enum SourceRetention {
     Omitted,
     Original,
 }
+/// Additive terminal authority mode, distinct from per-request service.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TerminalMode {
+    Omitted,
+    BeforeJoin,
+    BeforeJoinStopped,
+}
 pub(crate) struct State {
     pub concrete_sources: Vec<ConcreteSource>,
     pub concrete_retention: SourceRetention,
     pub request_service: bool,
+    pub terminal_service: TerminalMode,
+    pub terminal: Option<crate::periodic_terminal::Invocation>,
+    pub stopped: Option<crate::periodic_stopped::Invocation>,
+    pub stopped_faults: [bool; 5],
     pub initial_stats: Option<Stats>,
     pub graph_source: Option<u64>,
     pub request_services: Vec<crate::periodic_service::Invocation>,
@@ -340,6 +381,10 @@ impl State {
             concrete_sources: Vec::new(),
             concrete_retention: SourceRetention::Omitted,
             request_service: false,
+            terminal_service: TerminalMode::Omitted,
+            terminal: None,
+            stopped: None,
+            stopped_faults: [false; 5],
             initial_stats: None,
             graph_source: None,
             request_services: Vec::new(),

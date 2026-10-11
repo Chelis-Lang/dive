@@ -93,7 +93,10 @@ use dive_ir::Ir;
 pub use bind::BindOptions;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
-pub use periodic::{PeriodicSnapshot, bind_periodic_snapshot};
+pub use periodic::{
+    OptionalPeriodicSnapshot, PeriodicSnapshot, bind_optional_periodic_snapshot,
+    bind_periodic_snapshot,
+};
 
 /// The modules TLC's `-dumpTrace json <file>` loads in addition to the
 /// specification's own (`TLC.java` adds the `_JsonTrace` post-condition, and
@@ -112,7 +115,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None, false).map(|(model, _)| model)
+    bind_in(ir, cfg, opts, None, periodic::Mode::Ordinary).map(|(model, _)| model)
 }
 
 /// Binds a trusted native recovered ordered name table before evaluating constants.
@@ -128,7 +131,7 @@ pub fn bind_with_names(
     opts: &BindOptions,
     restored: &[String],
 ) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored), false).map(|(model, _)| model)
+    bind_in(ir, cfg, opts, Some(restored), periodic::Mode::Ordinary).map(|(model, _)| model)
 }
 
 fn bind_in(
@@ -136,7 +139,7 @@ fn bind_in(
     cfg: &ModelConfig,
     opts: &BindOptions,
     restored: Option<&[String]>,
-    periodic_snapshot: bool,
+    periodic_snapshot: periodic::Mode,
 ) -> Result<(Model, Option<periodic::Role>), Box<Failure>> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
@@ -237,12 +240,14 @@ fn run(b: &mut bind::Binder<'_>) -> Result<(Model, Option<periodic::Role>), Bind
     b.build_evaluator()?;
     b.process_constant_defns()?;
     b.process_config()?;
-    let periodic = if b.periodic_snapshot {
+    let periodic = if b.periodic_snapshot == periodic::Mode::Required
+        || (b.periodic_snapshot == periodic::Mode::Optional && b.cfg.periodic.is_some())
+    {
         Some(periodic::resolve(b, periodic_definition.as_ref())?)
     } else {
         None
     };
-    if b.periodic_snapshot && !b.cfg.possible.is_empty() {
+    if b.periodic_snapshot != periodic::Mode::Ordinary && !b.cfg.possible.is_empty() {
         return Err(BindError::unsupported("_POSSIBLE"));
     }
     let view = b.process_view()?;

@@ -836,3 +836,82 @@ not runtime unrolling or termination analysis. The 162 primary and separate
 exploded rows retain two generated/SANY-invalid artifacts without public credit.
 See [ADR0077](decisions/0077-recursive-procedure-header-checksums.md) and
 [the executable contract](pluscal-recursive-procedure-checksums.md).
+
+Candidate delivery10af preserves full45-stage/1057-test source receipts, default release feature isolation,27 separately corrected public outcomes, fresh memory/JSON witness mutants and all37 required safety gate models at1/4/8. The original unparenthesized IF material workload correctly produced an incomplete successor (four pin exit75 controls); four separately parenthesized controls give exit13. Every failed observer/source/script epoch remains retained, with no ordinary scheduling or corpus/family gain claimed.
+
+## Optional configured periodic role (ADR0074, #220)
+
+The shared binder's optional mode follows pinned94d0c50 MIT
+`tlc2.tool.impl.SpecProcessor.processPeriodic` (1634–1650) null/definition/arity
+selection and actual pre-constant `Defns.snapshot` authority. Selected real
+`ModelChecker.doPeriodicWork` observations preserve absent-hook skip, separately
+forced suspension/resume, false2104 and type1000/error2179 outcomes. The complete26
+rows in `conformance/probes/optional-periodic-hook/primary` retain actual Java
+exception and observer queue cleanup. Additive optional native tokens and shared
+independent candidate admission are dive architecture; they do not establish
+ordinary Java queue/clock/count/model-proof equivalence. Existing mandatory APIs
+and original startup/predicate bounds remain unchanged.
+
+Optional-hook Init precedence includes a separate unmodified full TLC invocation:
+GENERAL1000 contains inner2179, then nested-expression2103 decides exit75. This is
+not substituted with the selected direct doInit2179 exception surface. Original
+failed assertion/source and both primary stages remain retained.
+
+The clean e553 optional producer has 46 closed gate stages/1,067 zero-skip tests,
+479 exact compiler inputs including 50 embedded literal payloads, 46 default-library
+runtime rows, 12 independently Valid EOF words and 48 strict Invalid mutants through
+both memory/JSON routes. Default feature isolation, executable Cargo guide,
+mandatory API controls and 37 safety models at 1/4/8 are separate receipts. Historical
+matrix hashes remain tied to their original archived sources; the failed packaging
+assumption is retained. No ordinary schedule/model/family certification follows.
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+
+
+### Distinct partial-stop and full-CLI observations (#222)
+
+The separately controlled 12-row queue study holds a genuinely dequeued state:
+physical queue size 0 is not finished while a Worker owns outstanding work.
+Actual suspension succeeds, partial checking precedes the hook, and FALSE or
+division stops without final selection; a deciding temporal2116 precedes FALSE.
+These bounded scheduler observations are separate from the natural full CLI.
+The original observer discards the integer returned by `AbstractChecker.modelCheck`;
+its earlier description as a void method was incorrect and is preserved as history.
+The separate corrected twelve-row observer records actual returns at widths 1/4/8:
+TRUE 0, FALSE 2104, division 1000, and temporal violation 2116. Reflected
+`errorCode` 0 and observer process exit 0 are separate fields. The subprocess
+exits zero because its adapter does not forward the method result to `System.exit`;
+none of these early-stop observations establishes temporal success.
+
+The separate unmodified full CLI FALSE-hook counter exits 10, with 3,913,590
+states generated/distinct and one queued state after 4.2456s; it prints no success
+and no 2104 message. The declared 512MiB heap and 30s observer bound remain recorded.
+This is an intentional-boundary observation, not a newly declared TLC bug. A
+native early hook/service stop remains incomplete or refused and cannot be Holds.
+All original selections, cleanup events and raw command/timing facts are retained
+in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+## Stopped-queue worker diagnostics (ADR 0078, issue 224)
+
+`Worker.run`, `ModelChecker.setErrState/setError`, `runTLC` and
+`AbstractChecker.modelCheck` determine first-error/finished-queue behavior. The
+complete `conformance/probes/stopped-periodic-service/primary` selection preserves
+actual integer returns and independent CLI exits at 1/4/8, plus all earlier
+rejected selections. Native private transaction facts retain original source
+error/counters through joins; no claim reproduces Java graph writes after errors,
+natural clock scheduling or ordinary model proof. See
+[ADR0078](decisions/0078-stopped-queue-worker-errors.md) and the
+[executable guide](stopped-periodic-service.md).

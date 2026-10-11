@@ -60,3 +60,7 @@ pub mod periodic_hook;
 pub mod periodic_lifecycle;
 pub mod periodic_service;
 pub mod periodic_snapshot;
+
+pub mod periodic_stopped;
+/// Source-owned exhausted-queue controller transaction before joins.
+pub mod periodic_terminal;

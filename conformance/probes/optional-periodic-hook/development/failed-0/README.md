@@ -1,0 +1,1 @@
+First uncommitted draft on ae359. cargo check failed E0618: helper service shadowed by existing boolean service. No runtime evidence. Full compiler text retained in tool transcript; this archive preserves exact failed source.

@@ -1,0 +1,10 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.67s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_check-99fca5828fb4d40d)
+
+running 2 tests
+test progress::tests::exhausted_finish_retains_real_pending_identity_and_denies_future_claims ... ok
+test progress::tests::exhausted_finish_preserves_original_lane_error_and_closes_timer ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.00s
+

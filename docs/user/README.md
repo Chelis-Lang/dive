@@ -39,3 +39,6 @@ Concrete temporal state representation: [Stored successor values](../stored-succ
 
 - [Opt-in disk seen-state safety checking](disk-seen-safety.md): explicit bounded
   retention, inline fallback, typed failure/cleanup facts and executable Rust example.
+
+- [Stopped-worker periodic diagnostics in Rust](../stopped-periodic-service.md):
+  original source winner, private transaction facts and separate diagnostic faults.

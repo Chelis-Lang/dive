@@ -1,0 +1,22 @@
+{
+  "format": "dive-trace",
+  "version": 1,
+  "variables": [
+    "x"
+  ],
+  "properties": [
+    "Live"
+  ],
+  "length": 1,
+  "states": [
+    {
+      "action": null,
+      "values": {
+        "x": 0
+      }
+    }
+  ],
+  "ending": {
+    "kind": "stuttering"
+  }
+}

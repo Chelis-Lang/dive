@@ -173,3 +173,11 @@ unproved effects continue to refuse. The declared matrix, resident/pinned
 counterparts, two profiles/stores, widths and tiny-budget interactions require
 fresh native CLI and public API evidence, independently validated witnesses
 and same-delivery user documentation. This continuation does not certify F-031.
+
+### Ordered worker-stop service checkpoint (issue 224)
+
+ADR0078 adds a bounded private actual prejoin stopped transaction, immutable
+original source winner and postjoin matching. Controlled method/CLI captures and
+fresh independent candidates are separate from native clock/count proof. Java
+after-error `doNextCheckLiveness` writes, complete ordinary queue/stop-prefix and
+checkpoint scheduling remain prerequisites; F-023 remains missing/audit-required.

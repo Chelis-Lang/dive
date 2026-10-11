@@ -106,3 +106,17 @@ The [configuration-owned periodic snapshot](../configured-periodic-snapshot.md) 
 [`Snapshot::execute_service`](../request-owned-periodic-service.md) is an additive request-owned Rust diagnostic with actual post-append counters, optional graph source and separate hook evaluations. TLC evaluator-option consistency is required; this is not an ordinary checker result.
 
 The [producer-owned temporal candidate API](../producer-owned-temporal-candidate.md) adds `dive_api::periodic_candidate::check`. Run `cargo run -p dive-api --example periodic_candidate --locked`. Only an actual privately produced word with fresh memory and JSON Valid replay has a witness; absence is never Holds, and ordinary scheduling/count/model-proof authority remains unavailable.
+
+The [optional configuration-owned diagnostic](../optional-periodic-hook.md) adds
+`dive_liveness::periodic_snapshot::bind_optional` and
+`dive_api::periodic_candidate::check_optional`. Run
+`cargo run -p dive-api --example optional_periodic_candidate --locked`.
+An absent original role remains None, never TRUE; ordinary scheduling remains
+unsupported and both independent replay routes are required for an admitted word.
+
+`periodic_candidate::check_optional_terminal` is an additive [terminal diagnostic](../terminal-periodic-service.md): actual exhausted queue service before joins, bounded final candidates and fresh memory/JSON replay. No witness absence or controller Complete establishes temporal Holds or ordinary scheduling/count equality.
+
+`periodic_candidate::check_optional_stopped` adds an eligible ordered-worker-stop
+transaction to the optional configured-hook diagnostic. The original source
+result remains authoritative; no diagnostic receipt certifies ordinary scheduling
+or Holds. See the [Cargo example and exact contract](../stopped-periodic-service.md).

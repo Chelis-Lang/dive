@@ -2470,3 +2470,68 @@ pending under #124; canonical-only evidence is not strict TLC validation.
 Read [the C/P and Cargo guide](pluscal-recursive-procedure-checksums.md).
 Broader process/scoped/automatic-label/multiline procedure checksum contexts
 remain named refusals, not conformance successes.
+
+The candidate-admission delivery passes its45-stage/1057-test gate and admits12 actual EOF words via two independent routes;48 deliberately corrupted words fail both. Source-error history is retained: an unparenthesized IF material workload leaves one variable undefined (pin exit75), whereas the separately parenthesized workload gives exit13. This is ordinary TLA+ grouping, not a TLC bug or semantic divergence. The required37 safety gates at1/4/8 remain green; none of these results certifies ordinary temporal scheduling.
+
+### Genuine optional configured-hook diagnostic (#220)
+
+The [bounded Rust diagnostic](optional-periodic-hook.md) retains actual absence
+instead of requiring a synthetic configured TRUE hook. Pinned26 selected method
+controls show unused FALSE/nonzero-arity declarations still yield null; unforced
+no-hook/no-liveness service returns0 without suspension, while a separately forced
+service really suspends/resumes and retains force when no liveness runs. Native
+request receipts likewise distinguish initial progress publication from forced
+liveness; an empty request is not EOF. This is not a new TLC bug/default change.
+Original hidden-startup/state/temporal/error refusals and all quotas remain; no
+ordinary scheduling, stopping-count, Holds or family certification is granted.
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+
+
+### Distinct partial-stop and full-CLI observations (#222)
+
+The separately controlled 12-row queue study holds a genuinely dequeued state:
+physical queue size 0 is not finished while a Worker owns outstanding work.
+Actual suspension succeeds, partial checking precedes the hook, and FALSE or
+division stops without final selection; a deciding temporal2116 precedes FALSE.
+These bounded scheduler observations are separate from the natural full CLI.
+The original observer discards the integer returned by `AbstractChecker.modelCheck`;
+its earlier description as a void method was incorrect and is preserved as history.
+The separate corrected twelve-row observer records actual returns at widths 1/4/8:
+TRUE 0, FALSE 2104, division 1000, and temporal violation 2116. Reflected
+`errorCode` 0 and observer process exit 0 are separate fields. The subprocess
+exits zero because its adapter does not forward the method result to `System.exit`;
+none of these early-stop observations establishes temporal success.
+
+The separate unmodified full CLI FALSE-hook counter exits 10, with 3,913,590
+states generated/distinct and one queued state after 4.2456s; it prints no success
+and no 2104 message. The declared 512MiB heap and 30s observer bound remain recorded.
+This is an intentional-boundary observation, not a newly declared TLC bug. A
+native early hook/service stop remains incomplete or refused and cannot be Holds.
+All original selections, cleanup events and raw command/timing facts are retained
+in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+## Stopped-worker diagnostic boundary (issue 224)
+
+The bounded Rust stopped-service API preserves the original deciding worker
+error: pinned Next division returns2179/CLI255, invariant2110/12, action
+property2112/13, incomplete2109/75 and deadlock2114/11 at1/4/8. An actual FALSE
+hook does not override a prior division/invariant error. This is an honest native
+limitation, not a new default divergence or upstream-bug claim: Java can write
+liveness successor records after its error winner, while native diagnostics
+contain only the earlier actually committed prefix. No ordinary queue/count/graph
+or clock parity follows. The [guide](stopped-periodic-service.md) distinguishes
+actual method returns, CLI exits, callback failures and joins.
