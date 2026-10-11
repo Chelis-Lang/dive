@@ -737,3 +737,8 @@ The independent tuple-history admission (ADR 0067) is a bounded Rust logical
 proof of necessary Init facts and all-branches Next preservation. It ports no
 checker enumeration algorithm and uses neither supplied witness states nor
 TLC's encounter-order side effects as type evidence.
+
+- `dive-trace::tuple_history` fixed tuple projection rule (ADR 0071): matches
+  TLA+ function/tuple equality and UNCHANGED semantics, using original actual
+  bound definitions and scopes. It is an independent logical admission proof,
+  not a port of the successor enumerator. Conditional/permuted projections refuse.
