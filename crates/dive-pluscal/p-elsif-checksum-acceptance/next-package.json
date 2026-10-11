@@ -1,0 +1,25 @@
+{
+  "title": "Bounded P elsif sequential-procedure shared-header checksums",
+  "parent_runtime_source": "657eaebd844bc33fe90d3f7e2698eaa50d8868e5",
+  "original180_selection_retained": true,
+  "new_rows": 32,
+  "clean_primary_sany_valid": 32,
+  "native_baseline_exact": 17,
+  "native_baseline_named_refusals": 15,
+  "scope": "One disjoint labelled sequential procedure; P elsif transfers first/middle/final branch, nested With/Either/While, CallGoto/Return. C actual nested-If forms stay positive controls. No recursive/multiple/process-owned/scoped checksum promotion.",
+  "representation_obligations": [
+    "Typed per-virtual-If Then/Else ownership, not one flattened branch overlay key",
+    "Appended UpdatePC after whole virtualElse If when outerThen transfers but remaining chain falls through",
+    "Generation-visit ordering and single logical token-line While truth remain unchanged",
+    "Reserve virtual-container/transfer/frame/slot/name/output amplification before allocation"
+  ],
+  "evidence_obligations": [
+    "Retain original180+4+8 studies and new32 primary/directExplode source/AST/CRC/error bytes",
+    "Strict generated wholemoduleCST/SANY/Validator separate from header CRC",
+    "Finite profile/worker/store counts and good/bad independent witnesses; saved-frame strict#124 remains pending",
+    "Actual C/P CLI and Cargo guide",
+    "Portable source/runtime/bin/readback and complete unchanged fullgate +CM121/VTS16 widths1/4/8"
+  ],
+  "native_credit": false,
+  "family_certified": false
+}

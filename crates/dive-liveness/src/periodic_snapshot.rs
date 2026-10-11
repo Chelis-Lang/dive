@@ -50,7 +50,7 @@ impl Snapshot {
         limits: crate::phase_graph::Limits,
         policy: crate::periodic_lifecycle::Options,
     ) -> Result<Run, EvalError> {
-        self.execute_inner(options, limits, policy, None)
+        self.execute_inner(options, limits, policy, None, false, false)
     }
     /// Add an internally generated timer/initial-force lane to actual expansion
     /// claims. Requests join claimed work under real dispatch authority, then
@@ -69,7 +69,46 @@ impl Snapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
     ) -> Result<Run, EvalError> {
-        self.execute_inner(options, limits, policy, Some(requests))
+        self.execute_inner(options, limits, policy, Some(requests), false, false)
+    }
+    /// Service each genuine request once after its returned prefix has passed
+    /// ordered safety/graph publication and successful frontier append. Source
+    /// callbacks only publish graph data in this separate diagnostic mode.
+    /// An empty request services existing initialization registrations with no
+    /// invented source or EOF. The retained configured hook runs under the real
+    /// dispatch pause; a deciding candidate, false hook or error prevents resume.
+    /// Ordinary scheduling and model-proof certification remain unsupported.
+    ///
+    /// # Errors
+    /// The same callback-free snapshot admission and unchanged cumulative limits.
+    /// This entry requires the TLC profile and requested evaluator options exactly
+    /// matching the retained bound evaluator; mixed comparison/order, warning or
+    /// depth settings refuse before clock/worker setup. Legacy entries are unchanged.
+    pub fn execute_service(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<Run, EvalError> {
+        self.execute_inner(options, limits, policy, Some(requests), true, false)
+    }
+    /// Run the same request-owned service while retaining bounded original
+    /// concrete source authority for independent candidate admission. This is
+    /// still a diagnostic: no caller may certify its graph or selected word.
+    /// Raw fingerprint collisions and additional provenance retention bounds
+    /// refuse; the existing service entry preserves its prior resource policy.
+    ///
+    /// # Errors
+    /// The same source/profile admission and shared limits as `execute_service`.
+    pub fn execute_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<Run, EvalError> {
+        self.execute_inner(options, limits, policy, Some(requests), true, true)
     }
     fn execute_inner(
         &self,
@@ -77,9 +116,24 @@ impl Snapshot {
         limits: crate::phase_graph::Limits,
         policy: crate::periodic_lifecycle::Options,
         requests: Option<dive_check::progress::Options>,
+        service: bool,
+        retain_sources: bool,
     ) -> Result<Run, EvalError> {
         admit_source(&self.bound.model().ir, &self.configuration)?;
         crate::periodic_hook::admit(self.bound.model(), self.bound.predicate())?;
+        let tlc = dive_eval::Options::tlc();
+        if service
+            && (options.profile != dive_eval::Profile::Tlc
+                || options.eval.ctx != tlc.ctx
+                || options.eval.comparisons != tlc.comparisons
+                || options.eval.exploration != tlc.exploration
+                || options.eval != *self.bound.model().evaluator.options())
+        {
+            return Err(EvalError::unsupported(
+                "request-owned service requires matching TLC checker/evaluator mode",
+            )
+            .at(self.bound.predicate().expr));
+        }
         let mut model = self.bound.model().clone();
         match model.unsupported.pop() {
             Some(marker)
@@ -87,7 +141,17 @@ impl Snapshot {
                     && marker.feature == PeriodicSnapshot::ORDINARY_REFUSAL => {}
             _ => return Err(refusal()),
         }
-        let lifecycle = if let Some(requests) = requests {
+        let lifecycle = if let Some(requests) = requests.filter(|_| service) {
+            crate::periodic_hook::execute_service(
+                &model,
+                self.bound.predicate(),
+                options,
+                limits,
+                policy,
+                requests,
+                retain_sources,
+            )?
+        } else if let Some(requests) = requests {
             crate::periodic_hook::execute_requests(
                 &model,
                 self.bound.predicate(),

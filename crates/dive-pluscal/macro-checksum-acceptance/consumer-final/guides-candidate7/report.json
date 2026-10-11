@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "selected": 10,
+  "script_sha256": "ca1c6213dacea02ce22997cdd4645f9fba5dd473537eb2ef65abb3ce42fef0e5",
+  "binaries": {
+    "dive": "44378ebf1ac6e4d7b702621877ae0f8dfc33ace995feff3dbaf8e1eb30bbf1fd",
+    "context": "9cb288d5271fdfd9644e23682f2bafcaef939958961ba515fb48b41fff5d30aa",
+    "checksum": "d6d374519abea9826fefc86a2f6d58390b524fe36a0961d0dbd60f655395d3ce"
+  },
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "Guide_P.dive.cli",
+      "outcome": "admitted-no-model-proof",
+      "profile": "dive",
+      "mode": "cli",
+      "source_sha256": "6fd9e147c7beeb24e3e9a6ffc3a3e95a62f653c2a8f0eeb99e2e903ea4793b58"
+    },
+    {
+      "id": "Guide_P.dive.rust",
+      "outcome": "admitted-no-model-proof",
+      "profile": "dive",
+      "mode": "rust",
+      "source_sha256": "6fd9e147c7beeb24e3e9a6ffc3a3e95a62f653c2a8f0eeb99e2e903ea4793b58"
+    },
+    {
+      "id": "Guide_P.tlc.cli",
+      "outcome": "admitted-no-model-proof",
+      "profile": "tlc",
+      "mode": "cli",
+      "source_sha256": "6fd9e147c7beeb24e3e9a6ffc3a3e95a62f653c2a8f0eeb99e2e903ea4793b58"
+    },
+    {
+      "id": "Guide_P.tlc.rust",
+      "outcome": "admitted-no-model-proof",
+      "profile": "tlc",
+      "mode": "rust",
+      "source_sha256": "6fd9e147c7beeb24e3e9a6ffc3a3e95a62f653c2a8f0eeb99e2e903ea4793b58"
+    },
+    {
+      "id": "Guide_P.raw",
+      "outcome": "exact-raw-no-admission"
+    },
+    {
+      "id": "Guide_C.dive.cli",
+      "outcome": "admitted-no-model-proof",
+      "profile": "dive",
+      "mode": "cli",
+      "source_sha256": "afc6b95d38f419fa410804726fd9bf4c6a55301dd535354317b3b85d0234649e"
+    },
+    {
+      "id": "Guide_C.dive.rust",
+      "outcome": "admitted-no-model-proof",
+      "profile": "dive",
+      "mode": "rust",
+      "source_sha256": "afc6b95d38f419fa410804726fd9bf4c6a55301dd535354317b3b85d0234649e"
+    },
+    {
+      "id": "Guide_C.tlc.cli",
+      "outcome": "admitted-no-model-proof",
+      "profile": "tlc",
+      "mode": "cli",
+      "source_sha256": "afc6b95d38f419fa410804726fd9bf4c6a55301dd535354317b3b85d0234649e"
+    },
+    {
+      "id": "Guide_C.tlc.rust",
+      "outcome": "admitted-no-model-proof",
+      "profile": "tlc",
+      "mode": "rust",
+      "source_sha256": "afc6b95d38f419fa410804726fd9bf4c6a55301dd535354317b3b85d0234649e"
+    },
+    {
+      "id": "Guide_C.raw",
+      "outcome": "exact-raw-no-admission"
+    }
+  ]
+}

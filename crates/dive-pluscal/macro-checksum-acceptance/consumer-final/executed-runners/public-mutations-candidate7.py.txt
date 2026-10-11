@@ -1,0 +1,16 @@
+"""Negative full-schema consumer controls; the tested comparator is unmodified."""
+from pathlib import Path
+import json,gzip,subprocess,hashlib,shutil,copy,sys,argparse
+p=argparse.ArgumentParser();p.add_argument('--art',type=Path,required=True);p.add_argument('--base',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args();base=a.base;art=a.art;out=a.out;out.mkdir(exist_ok=False);selected=out/'selection';selected.mkdir()
+row=next(x for x in json.loads((base/'primary/manifest.json').read_text())['rows']if x['id']=='Macro_C_simple'); original=gzip.decompress((art/'public-candidate7/Macro_C_simple_dive.native.stdout.gz').read_bytes());genuine=json.loads(original);assert genuine['accepted']
+for folder in ['', 'boundary','layout','regression','api-regression','ownership','insertion','insertion-old','closing-line','inline','marker','marker-extra','marker-single']:
+ target=selected/folder;(target/'primary').mkdir(parents=True,exist_ok=True);(target/'cases').mkdir();(target/'primary/manifest.json').write_text(json.dumps({'rows':[row]if folder==''else[]}))
+for suffix in ['translated.ast','translated.tla']:shutil.copy2(base/'primary'/(row['id']+'.'+suffix),selected/'primary')
+shutil.copy2(base/'cases'/(row['id']+'.tla'),selected/'cases')
+rows=[]
+cache=art.parent/'dive-pluscal-macro-checksum-cache';java=cache/'jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java';jar=cache/'sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar';library=cache/'git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library'
+for key,value in [('model_proved',True),('exhaustive',True),('result','internal-error'),('exit_code',4),('algorithm_checksum_verified',False),('body_checksum_verified',False)]:
+ doc=copy.deepcopy(genuine);doc[key]=value;fixture=out/(key+'.json');fixture.write_text(json.dumps(doc));fake=out/(key+'.py');fake.write_text('#!'+sys.executable+'\nfrom pathlib import Path\nimport sys\nsys.stdout.write(Path('+repr(str(fixture))+').read_text())\n');fake.chmod(0o755)
+ command=[sys.executable,'-I',str(base/'public-controls.py'),'--base',str(selected),'--binary',str(fake),'--cst',str(art/'candidate7/cst'),'--java',str(java),'--jar',str(jar),'--adapter',str(art/'adapter'),'--library',str(library),'--out',str(out/key)]
+ q=subprocess.run(command,capture_output=True);(out/(key+'.stdout')).write_bytes(q.stdout);(out/(key+'.stderr')).write_bytes(q.stderr);report=json.loads((out/key/'report.json').read_text());assert q.returncode==1 and report['summary']=={'disagree':2},(key,q.returncode,report['summary']);rows.append({'mutation':key,'exit_code':q.returncode,'summary':report['summary']})
+(out/'genuine.json').write_bytes(original);(out/'report.json').write_text(json.dumps({'schema_version':1,'script_sha256':hashlib.sha256((base/'public-controls.py').read_bytes()).hexdigest(),'runner_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'genuine_sha256':hashlib.sha256(original).hexdigest(),'selected':len(rows),'rows':rows},indent=2)+'\n');print('All six full-schema mutations fail closed in both profiles.')

@@ -78,11 +78,19 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
     ));
     assert!(native.is_ok() && primary.is_ok());
     assert_eq!(structure(&native.syntax()), structure(&primary.syntax()));
-    let unsupported = source.replace("begin L:", "macro M() begin skip; end macro; begin L:");
-    assert!(
-        rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())
-            .is_err_and(|error| error.code == Code::Unsupported)
+    let unused_macro = source.replace("begin L:", "macro M() begin skip; end macro; begin L:");
+    let macro_plan = rewrite_document(&unused_macro, "x == 1", &RewriteOptions::default())?;
+    let macro_checksum = macro_plan
+        .algorithm_checksum
+        .ok_or("missing macro checksum")?;
+    assert_eq!(macro_checksum.checksum, "dbedd2a2");
+    assert_eq!(
+        macro_checksum.serialized_ast,
+        include_str!(
+            "../macro-checksum-acceptance/regression/primary/UnusedMacroRewrite.translated.ast"
+        )
     );
+    verify_define_boundary(&source)?;
     let initial = rewrite_document(&source, "x == 1", &options());
     assert!(initial.is_ok());
     if let Ok(initial) = initial {
@@ -155,4 +163,59 @@ fn structure(node: &dive_syntax::SyntaxNode) -> serde_json::Value {
         })
         .collect();
     serde_json::json!([format!("{:?}", node.kind()), children])
+}
+
+fn verify_define_boundary(source: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let supported_define = source.replace("begin L:", "define F == 1 end define; begin L:");
+    assert_eq!(
+        supported_define,
+        include_str!("../define-acceptance/promoted/cases/DefineBlockRewrite.tla")
+    );
+    let define_plan = rewrite_document(&supported_define, "x == 1", &RewriteOptions::default())?;
+    let define_checksum = define_plan
+        .algorithm_checksum
+        .ok_or("missing DEFINE checksum")?;
+    assert_eq!(
+        define_checksum.serialized_ast,
+        include_str!("../define-acceptance/promoted/primary/DefineBlockRewrite.translated.ast")
+    );
+    let define_manifest: serde_json::Value = serde_json::from_str(include_str!(
+        "../define-acceptance/promoted/primary/manifest.json"
+    ))?;
+    let primary_define = define_manifest["rows"]
+        .as_array()
+        .ok_or("missing DEFINE rows")?
+        .iter()
+        .find(|row| row["id"] == "DefineBlockRewrite")
+        .ok_or("missing DEFINE reference")?;
+    assert_eq!(
+        define_checksum.checksum,
+        primary_define["stages"]["translated"]["crc"]
+    );
+    let selected = select_rewrite(&supported_define, &RewriteOptions::default())?;
+    let define_artifact = dive_pluscal::translate_at(
+        &supported_define,
+        selected.algorithm.start..selected.algorithm.end,
+        &dive_pluscal::TranslationOptions::default(),
+    )?;
+    let generated_define = rewrite_document(
+        &supported_define,
+        &define_artifact.tla,
+        &RewriteOptions::default(),
+    )?;
+    let native_define = dive_syntax::parse_module(&generated_define.module_source);
+    let reference_define = dive_syntax::parse_module(include_str!(
+        "../define-acceptance/promoted/primary/DefineBlockRewrite.translated.tla"
+    ));
+    assert!(native_define.is_ok() && reference_define.is_ok());
+    assert_eq!(
+        structure(&native_define.syntax()),
+        structure(&reference_define.syntax())
+    );
+    let unsupported = source.replace("begin L:", "define F == x' end define; begin L:");
+    assert!(
+        rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())
+            .is_err_and(|error| error.code == Code::Unsupported)
+    );
+    Ok(())
 }

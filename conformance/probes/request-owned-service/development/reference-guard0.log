@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-periodic-snapshot-work/scripts/check-request-owned-service.py", line 42, in <module>
+    assert ('second-service-result:2104'in events)if category=='empty'else('second-periodic:2104'in events)
+AssertionError

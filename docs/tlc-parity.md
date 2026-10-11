@@ -98,7 +98,7 @@ and a corresponding certification schema before the label can change.
 | F-026 | Granted environment, file and process effects | missing | 6 | [tlc-differences.md](tlc-differences.md) |
 | F-027 | Runtime introspection and configuration services | partial | 6 | [tlc_module.rs](../crates/dive-check/tests/tlc_module.rs) |
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
-| F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs) |
+| F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs); [strict tuple-only replay](tuple-only-trace-replay.md) and [bounded tuple-variable admission](inductive-tuple-trace-replay.md); general variable-stack namespace histories remain unproved |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); default seen/candidate/graph/SCC retention remains resident; opt-in disk safety membership is partial |
 | F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
@@ -653,16 +653,20 @@ variable is normalized before projection, while unproved mixed-value errors
 refuse explicitly. The [retained study](../conformance/probes/view-concrete-normalization/README.md)
 separates original incorrect native verdicts, current recovery/witness controls
 and incomplete-state diagnostic limits. This adds evidence, not certification.
+
 The source-qualified [periodic backend](periodic-backend.md) now derives pointer-table growth and per-OOS last-check snapshots from actual commits, with private joined-wave facts and first-candidate stopping. Thirty-two clean primary projections match at1/3/4/8 workers; four actual Java IO failures remain uncredited reference errors. These explicit-prefix diagnostics do not implement an ordinary clock schedule, Java queue suspension or a temporal verdict. F-023 stays missing/audit-required; no family or corpus certification gain.
 
+The #186 bounded macro checksum continuation keeps F-034/F-035 partial and
+audit-required. Logical substituted-token serialization and public artifact
+admission remain separate from model proof; original invalid-reference outputs
+and measured trailing-prose grammar gaps receive no completion credit.
+See [the maintained macro checksum guide](pluscal-macro-checksums.md).
 
-The explicit disk seen-state safety route (#212, ADR0068) extends P7 with full
-fingerprint/exact key admission through fallible inline insertion and audited
-cleanup. It admits explicit INIT/NEXT configurations only and reports requested
-widths separately from actual inline execution. PROPERTY/SPECIFICATION role
-decomposition, parallel read views, capture/temporal routing and disk seen-state
-recovery remain pending. Candidate/graph/reconstruction retention and OS page
-cache remain outside these bounds; F-031 remains partial/audit-required.
+The [bounded DEFINE increment](pluscal-definitions.md) adds source-owned ordinary
+global helpers and exact post-translation defs serialization. Declaration scope,
+AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
+F-034/F-035 stay partial: recursive/scoped declarations and complete translator
+formatting/maps/options remain unproved.
 
 The first disk engine epoch refused invariant-error call-stack replay; its
 original refusal/error/count evidence remains historical and receives no replay credit.
@@ -674,8 +678,15 @@ ReplayNew gives 2 generated/4 distinct/2 logically queued; later storage failure
 retain the original error and ordered prefix but confer no completion credit.
 The bound action-property probe does not lift public configured PROPERTY refusal.
 Disk parallel/capture/temporal/recovery and full error-class coverage remain
-pending; F-031 stays partial/audit-required. Current producer/runtime verification
-is pending in [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+pending; F-031 stays partial/audit-required. The original `881b75992d0ef5dc11539018da526e5e55066027` producer
+passed independent source, full-gate and runtime readback; the combined receiving
+branch still requires its own qualification. See [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+The [composed core receiving delivery](core-prefix-storage-composition.md) now has a separate
+1,346-test zero-skip gate and fresh selected release runtimes, with all 37
+required models agreeing at 1/4/8 workers. Component and failed producer
+identities remain separate; ordinary scheduling and full-family certification
+are still open.
 
 
 Source-owned disk safety role admission (#221, ADR0075) adds a bounded shared
@@ -685,4 +696,4 @@ quantified-domain/strict-substitution evaluation remain refused; the complete
 selection retains resident-success/refused differences without parity credit.
 This extends opt-in inline evidence only: disk parallel/capture/recovery and
 aggregate-memory bounds remain pending. F-031 stays partial/audit-required.
-Current source qualification is in progress.
+The frozen 7fae producer and closed d4c delivery have their own full-gate/runtime/source receipts. This receiving composition requires fresh qualification.

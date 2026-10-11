@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "native_sha256": "44378ebf1ac6e4d7b702621877ae0f8dfc33ace995feff3dbaf8e1eb30bbf1fd",
+  "harness_sha256": "01351f82d1eadf0a4f31a7dacb100da04f24789b7ceb200a5dbc4b635bc64536",
+  "workers": [
+    1,
+    4,
+    8
+  ],
+  "rows": [
+    {
+      "corpus": "examples",
+      "exit_code": 0,
+      "seconds": 17.708717,
+      "listing_sha256": "19bfa4b0a6e0a3e1bd6bd65b266dd23856a6abd28a26b29c24e1f9a36c77e339",
+      "stdout_sha256": "05366cf0ed8ea40b3a15d697e508961ca8f84b8bd35e441411758ae784fc283b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "corpus": "validation-smoke",
+      "exit_code": 0,
+      "seconds": 0.9237681249999987,
+      "listing_sha256": "76748a2ea72773b44d156eadf5faf9edada3d9048996c0fccd5b973f8e1fbe57",
+      "stdout_sha256": "9ac6d416320f3d716b947533947ae119d0a4aaab8fa01cfb2cf2e0d84cff2ca5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

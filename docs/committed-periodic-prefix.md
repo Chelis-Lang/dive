@@ -175,3 +175,7 @@ The eight exact/fingerprint worker-width controls run as separate named tests,
 with unchanged finite workload and bounds. Each must exercise an actual prefix
 publication and match the whole-wave baseline. The original aggregate campaign
 remains preserved separately from these publication tests.
+
+## Request-owned continuation (#208)
+
+The original ordinal source/controller API and epochs stay intact. The separate [request-owned service](request-owned-periodic-service.md) publishes graph data first, completes physical prefix append, then services the whole real request once, including empty requests. It exposes distinct receipts and does not upgrade ordinary schedule or model-proof claims.

@@ -76,3 +76,9 @@ when encoding succeeds. Unknown/mismatched receiving-model name tokens and
 constructor-changing nested Raw representations refuse before Model-based
 emission. Read the [current scope and evidence](../trace-representation.md#current-scoped-evidence)
 without treating transport admission as a certificate.
+
+For TLC-profile sequence calls, [literal tuple admission](../tuple-only-trace-replay.md)
+and [bounded tuple-variable histories](../inductive-tuple-trace-replay.md)
+prove operand shape without using the report itself as evidence. The latter
+requires Init and every Next branch to establish/preserve the invariant.
+Arbitrary-state APIs and general saved procedure stacks remain refused.

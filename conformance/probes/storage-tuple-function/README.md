@@ -53,6 +53,14 @@ arbitrary archives or the complete storage family. Legacy v1 JSON still has its
 separate representation limitations; only the structural native codec/container
 formats change here.
 
+The frozen producer archive remains unchanged when this slice is composed with
+other work. `current-source.json` separately checks the same 445 source paths in
+the receiving checkout and states whether they still equal that producer. A
+false equality field is an explicit integration boundary: the old runtime and
+gate remain evidence about `ead7260`, while the receiving source needs its own
+fresh gate and runtime controls. Updating current hashes does not retag the old
+executables or certify the receiving behavior.
+
 The first dc0f full gate is retained under
 `before-current-format-fixtures-gate/`:1160/1167 tests passed, seven existing
 current-payload rewriters failed at the old CP01 header; all other stages passed.

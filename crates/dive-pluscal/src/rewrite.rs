@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Checksum contract requested for a rewritten document.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChecksumPolicy {
-    /// Require proved post-translation/Explode AST and body checksums.
+    /// Require proved original post-translation header AST and body checksums.
     /// Unimplemented AST shapes are refused, never silently downgraded.
     #[default]
     Full,
@@ -246,6 +246,77 @@ fn checksum_header(header: &str) -> Option<Header<'_>> {
         translation_hex,
     })
 }
+/// Select the algorithm region inside an already identified block comment.
+/// Pinned translation ignores trailing ASCII-star comment decoration. The
+/// enclosing comment and original source remain untouched; arbitrary trailing
+/// prose is not removed. This selects bytes, without grammar or artifact admission.
+/// Standalone parsing still requires every algorithm token to be consumed.
+#[must_use]
+pub fn algorithm_comment_region(source: &str, comment: Span) -> Option<Span> {
+    let text = source.get(comment.start..comment.end)?;
+    if !text.starts_with("(*") || !text.ends_with("*)") {
+        return None;
+    }
+    let marker = algorithm_marker(text)?;
+    let start = comment.start + marker;
+    let mut end = comment.end.checked_sub(2)?;
+    let content = source.get(start..end)?;
+    let trimmed = content.trim_end_matches(['*', ' ', '\t', '\r', '\n']);
+    if content.get(trimmed.len()..)?.contains('*') {
+        end = start + trimmed.len();
+    }
+    Some(Span { start, end })
+}
+
+fn algorithm_marker(text: &str) -> Option<usize> {
+    // trans.java scans lines in order and prefers --algorithm over --fair
+    // only when both occur on that same line. Parsing validates the selected
+    // marker; in particular, whitespace may separate --fair and algorithm.
+    let mut offset = 0;
+    text.split_inclusive(['\r', '\n']).find_map(|line| {
+        let marker = line.find("--algorithm").or_else(|| line.find("--fair"));
+        let start = offset;
+        offset += line.len();
+        marker.map(|column| start + column)
+    })
+}
+
+/// Select only a completely parsed algorithm inside an identified comment.
+/// The exact consumed C/P grammar end determines ownership; ordinary trailing
+/// prose stays in the original comment but is not algorithm input. Unterminated
+/// quoted/comment lexical state and resource limits remain deciding errors.
+/// Standalone `parse_at` retains its strict EOF contract.
+///
+/// # Errors
+/// Invalid comment selection or bounded source/lexical/grammar diagnostics.
+pub fn owned_algorithm_comment_region(
+    source: &str,
+    comment: Span,
+    limits: &crate::Options,
+) -> Result<Span, Diagnostic> {
+    let region = algorithm_comment_region(source, comment).ok_or_else(|| {
+        // An invalid caller range must still yield a valid UTF-8 diagnostic.
+        let boundary = |offset: usize| {
+            let mut offset = offset.min(source.len());
+            while !source.is_char_boundary(offset) {
+                offset -= 1;
+            }
+            offset
+        };
+        let start = boundary(comment.start);
+        failure(
+            Code::Syntax,
+            Span {
+                start,
+                end: boundary(comment.end).max(start),
+            },
+            "invalid algorithm comment region",
+        )
+    })?;
+    let parsed = crate::parser::parse_prefix_at(source, region.start..region.end, limits)?;
+    Ok(parsed.algorithm.span)
+}
+
 /// Selects one outer algorithm comment and at most one following marker pair.
 /// Unknown/ambiguous marker layouts yield named diagnostics, not guessed edits.
 ///
@@ -362,10 +433,8 @@ pub fn select_rewrite(
             continue;
         }
         let text = &source[start..end];
-        let offset = text
-            .find("--algorithm")
-            .or_else(|| text.find("--fair algorithm"));
-        if let Some(offset) = offset {
+        let offset = algorithm_marker(text);
+        if offset.is_some() {
             if token.error.is_some() {
                 return Err(failure(
                     Code::Lexical,
@@ -373,16 +442,28 @@ pub fn select_rewrite(
                     "unterminated algorithm comment",
                 ));
             }
-            if selected
-                .replace((
-                    Span { start, end },
-                    Span {
-                        start: start + offset,
-                        end: end - 2,
-                    },
-                ))
-                .is_some()
-            {
+            let comment = Span { start, end };
+            let candidate = algorithm_comment_region(source, comment).ok_or_else(|| {
+                failure(Code::Syntax, comment, "invalid algorithm comment region")
+            })?;
+            // Low-level source selection is not grammar/artifact admission.
+            // Refine only a proved complete prefix; malformed grammar keeps
+            // its raw region and the strict downstream deciding diagnostic.
+            let region = match owned_algorithm_comment_region(
+                source,
+                comment,
+                &crate::Options {
+                    max_bytes: options.max_bytes,
+                    ..crate::Options::default()
+                },
+            ) {
+                Ok(owned) => owned,
+                Err(error) if matches!(error.code, Code::Resource | Code::Internal) => {
+                    return Err(error);
+                }
+                Err(_) => candidate,
+            };
+            if selected.replace((comment, region)).is_some() {
                 return Err(failure(
                     Code::Unsupported,
                     Span { start, end },
@@ -416,7 +497,9 @@ pub fn select_rewrite(
         .iter()
         .find(|line| line.start < comment.end && comment.end <= line.end)
         .ok_or_else(|| failure(Code::Internal, comment, "missing algorithm closing line"))?;
-    let tail = source[comment.end..line.start + line.text.len()].trim();
+    // trans.java uses String.trim(), whose boundary is ASCII space (0x20).
+    let tail = source[comment.end..line.start + line.text.len()]
+        .trim_matches(|character: char| character <= ' ');
     if !tail.is_empty() && !tail.starts_with("\\*") {
         return Err(failure(
             Code::Syntax,

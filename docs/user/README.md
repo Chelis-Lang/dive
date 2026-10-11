@@ -16,10 +16,12 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
+| Replay tuple sequence calls in TLC mode | [Tuple-only replay](../tuple-only-trace-replay.md) | Unevaluated shape proof; variable stack histories remain refused |
+| Replay tuple-valued variables | [Inductive tuple replay](../inductive-tuple-trace-replay.md) | Bounded Init/all-branches Next proof; arbitrary states and general saved stacks remain refused |
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
 | Build a periodic backend | [Periodic controller](../ordinary-periodic-controller.md) | Callback ordering only; ordinary temporal verdicts remain unavailable |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
-| Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; checker admission remains pending |
+| Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; the separate opt-in safety route is available |
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |
 | Interpret structured results | [Reports and errors](reports-and-errors.md) | Versioned schemas; exit zero alone is insufficient |
 

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "scope": "Post-gate verification-only packaging controls; original 49-stage gate/source identity retained",
+  "commands": [
+    {
+      "name": "guard",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-parity-integration.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "mutation_controls": 14,
+  "records": {
+    "guard": {
+      "archive": "guard.log.gz",
+      "raw_sha256": "61973f390fe7c8d704d2dd0a57816b8604bd4d5ad8cd99f3f3251580d47720a1",
+      "archive_sha256": "3c26add89a44345f741306c73ac7a1de4489a422bf940c136b16f2733b4f8384"
+    },
+    "fmt": {
+      "archive": "fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "mutations": {
+      "archive": "mutations.log.gz",
+      "raw_sha256": "c9b77f9a046e94a55ea3e153d3b50c614725e304eccc3741dd378d6ac6de6bf0",
+      "archive_sha256": "64a0a7fa5d3ad5342b0d99286a4fb7e00995587103138d7d9bc42ff0e1c90e07"
+    }
+  },
+  "consumer_scope": "Final verifier and14 mutation controls; logs packaged after closure. Historical runtime/fullgate unchanged."
+}

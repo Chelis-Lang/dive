@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Current configuration-owned pure snapshot diagnostic only, not ordinary configured-hook scheduling or proof.",
+  "history_manifest_sha256": "19e43daa6f7b11ddc96ef7217ac1c5b36db97a6308ddce30e6bce30858e64c06",
+  "source_sha256": {
+    "crates/dive-model/src/periodic.rs": "7f0c20c1b8d4d8d4d04936eb18b194579c2458f193e6061a1899a87dac4df1dd",
+    "crates/dive-model/src/lib.rs": "d178738a24ce92bd4439edc5d04f28443ff39771f0185f4ce40dd54ea13c4861",
+    "crates/dive-model/src/bind.rs": "c776bf58522bc1817a28e05f631372cc172f8b998859ee341833497f899f9c7f",
+    "crates/dive-model/src/spec.rs": "7b000e0371510d25cbc718b285bf5ce5d08163c5c6aea2ab7053a4e9c20de6d0",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
+    "crates/dive-liveness/src/periodic_hook.rs": "7f293e375a874ffe05de7880f4043f7f1b6f27074410c66b92d64decd6a8ccbc",
+    "crates/dive-liveness/src/lib.rs": "8bc4dfd0daee87e938e55dedb92660c8b5ed099982cbba3334186e38057a6c53",
+    "crates/dive-liveness/Cargo.toml": "589d0af0087bfa40514295114a88efad1bb4bd2204761c44ee3473c59ea04ea5",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
+    "crates/dive-api/examples/periodic_snapshot.rs": "f860e45ba4eb3645d038b36972c2d16156aa734133448866797799a16b4a0e21",
+    "docs/configured-periodic-snapshot.md": "79bb84630f176ed4cef3c2707d9f093e470b245b79b4cd7f11e52e0b43ad095b",
+    "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
+    "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
+    "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
+    ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
+    "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67"
+  },
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+}

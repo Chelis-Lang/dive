@@ -1,0 +1,1282 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "52e3ee32f92a82f7070e6418535ba1a884c72e5346b1ee225bac020899398a24",
+  "capture_sha256": "ccaaff1299ea2a886d0616e621c1cf70ebc2836ab15e93bef30950693b121dae",
+  "adapter_sha256": {
+    "SourceOptionProbe.class": "2b927b398ea4b7439fdfedaf345e0c349da5597583c35ab650c79a3947d1f36f",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 16,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "MacroBoundary_C_normal",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "5b34032ea8c9e39e5cbedef120d2a48521407418a6bbfb76fc04fa802a2ca810",
+      "output_sha256": "8135530ddc24fada5f59e843bfb60383f73a5aba2396ca61a0c8d3e6afd8c331",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_normal.primary.stdout.gz",
+          "sha256": "22c5d26622c03b326d5fbdca5e52991d1a7607f4fb573b24b4735820b23d7a0b"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_normal.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_normal.stages.stdout.gz",
+          "sha256": "f36e0a7d534c87db8d3e1aef11cb480f7e148d80be3f9fe13d9efceaf839fc60"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_normal.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_normal.sany.stdout.gz",
+          "sha256": "603ef0d37062d1cccc52e31ef0e8c110be0e6427eafb728aa961e6505ac7a370"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_normal.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_normal.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_open_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "83396163f4bca3e7ec4c9dd5f7c5147ac6f9626bc89ee2a6429a09095afe88f9",
+      "output_sha256": "d320d3ee93500c2d370671d8852074139e39ac7b71ac4b3e7d7474951e57e80a",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_open_extra.primary.stdout.gz",
+          "sha256": "abd0630adcc56a975ea22b3e8e37680e98c6662f97d5e1c31093a14fc0120101"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_open_extra.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_open_extra.stages.stdout.gz",
+          "sha256": "9b35426dcb78ab96b27d51814cc77ebf5e6604473312d004d893cc5057cb9ce1"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_open_extra.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "7e829ab4da162ca9e6c8c7237f5d960fd0ba597d13c23755c2edb74e7da75b64"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "7e829ab4da162ca9e6c8c7237f5d960fd0ba597d13c23755c2edb74e7da75b64"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "7e829ab4da162ca9e6c8c7237f5d960fd0ba597d13c23755c2edb74e7da75b64"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_open_extra.sany.stdout.gz",
+          "sha256": "7946076eedf6e4c6baec6d96ee76a95b2fb4cc83e286154169fc1cd58a84627d"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_open_extra.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_open_extra.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_close_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "f8be00ac8064f32fe0705d28286d330c62114e514dcd8a06569853ee62406de9",
+      "output_sha256": "95aaeddba675662cce0227341fe7b35430e769ce01350edbf777796fc917a560",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_close_extra.primary.stdout.gz",
+          "sha256": "425fa18e42ab9a166d558e05edce5961da5c0b0117acdd05023d419be7c161ad"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_close_extra.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_close_extra.stages.stdout.gz",
+          "sha256": "f36e0a7d534c87db8d3e1aef11cb480f7e148d80be3f9fe13d9efceaf839fc60"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_close_extra.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_close_extra.sany.stdout.gz",
+          "sha256": "d31450075c196e6154ee04169bb384576157993d23c33f584f29d5984e2349e6"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_close_extra.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_close_extra.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_doc",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "23f64b05f31c8a558a5369be806a842895730df3853381873951b600e455f82a",
+      "output_sha256": "8e9c7dd0b947abe88663e07692e9ef6e30cb54d7ffad5978a33888f8768cbf62",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_doc.primary.stdout.gz",
+          "sha256": "656bb4bf4c52d4a17b22b3b834b512b3528f43b5bd2787b64a43b87f7f7d0beb"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_doc.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_doc.stages.stdout.gz",
+          "sha256": "9b35426dcb78ab96b27d51814cc77ebf5e6604473312d004d893cc5057cb9ce1"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_doc.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "7e829ab4da162ca9e6c8c7237f5d960fd0ba597d13c23755c2edb74e7da75b64"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "7e829ab4da162ca9e6c8c7237f5d960fd0ba597d13c23755c2edb74e7da75b64"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "7e829ab4da162ca9e6c8c7237f5d960fd0ba597d13c23755c2edb74e7da75b64"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_doc.sany.stdout.gz",
+          "sha256": "c9c8cb593862d4281936f03dfa7cef6f7c0463b8681ea33bdd9674dc8d16dd05"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_doc.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_doc.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_close_run",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "8e629cbf1415d257ca02805561d44a40ed0a61573f246d3ec97540b2b78cd2c8",
+      "output_sha256": "a575ff9fa711f89ce8e3ba843416dd9d6fff66d7028ecfc322c90f415bd3ddab",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_close_run.primary.stdout.gz",
+          "sha256": "0927c6dc9e304a42b10cfcd3ada55081fbb930d213b39d2a95cfd962ef397cad"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_close_run.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_close_run.stages.stdout.gz",
+          "sha256": "f36e0a7d534c87db8d3e1aef11cb480f7e148d80be3f9fe13d9efceaf839fc60"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_close_run.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_close_run.sany.stdout.gz",
+          "sha256": "0367abd17eff079992874f775b718927619522a57aa80bb60f6f9a6a891aacaa"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_close_run.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_close_run.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_comment_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "9af481d9eaf7ce1fce3f54fc5ce40e72c5dee476fd0638b8603a42e1592a34de",
+      "output_sha256": "980416ad213ac1693559cdf074263d1ad094c792b94472286a278306cf3c65a6",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_comment_tail.primary.stdout.gz",
+          "sha256": "ac4ef715caa1cd16823a620286cbe9831d26756ea2bf0f77c23463e3bd8f9b94"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_comment_tail.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_comment_tail.stages.stdout.gz",
+          "sha256": "f36e0a7d534c87db8d3e1aef11cb480f7e148d80be3f9fe13d9efceaf839fc60"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_comment_tail.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_comment_tail.sany.stdout.gz",
+          "sha256": "d6408f3641acfef7b573aa58c520bdea6d84423d2f8c69b89ebbd4a68948fa96"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_comment_tail.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_comment_tail.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_text_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "116a4b42438572e578b8d03ddd2658efe5fb7e0f4f9657d71e1a96aea1e99102",
+      "output_sha256": "5298b5d3222799b87ebc6daee8b6317d5911b63b8a3194d18a4b1152be58edf2",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_text_tail.primary.stdout.gz",
+          "sha256": "7c0d352e2cfceb1bf2d78847a8f3d37ea0ff5f720a9aa22745dcc7638cf5b78a"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_text_tail.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_text_tail.stages.stdout.gz",
+          "sha256": "f36e0a7d534c87db8d3e1aef11cb480f7e148d80be3f9fe13d9efceaf839fc60"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_text_tail.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_text_tail.sany.stdout.gz",
+          "sha256": "978e3b2236287b443d561d29800f41a4eb89e78eea3772e35af4f2c9fd0ab909"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_text_tail.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_C_text_tail.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_C_unclosed",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "79a6712efc9d5dda4db4c346344f1105eed15407b8637cf9828ad4cfbf20bebc",
+      "output_sha256": "79a6712efc9d5dda4db4c346344f1105eed15407b8637cf9828ad4cfbf20bebc",
+      "primary": {
+        "exit_code": 255,
+        "stdout": {
+          "path": "MacroBoundary_C_unclosed.primary.stdout.gz",
+          "sha256": "9a55f1597c50b06839ebaa81daa27c0ec5c12f3abb59d37041fd9eecae6b4603"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_unclosed.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": true,
+      "translated": false,
+      "header": null,
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_C_unclosed.stages.stdout.gz",
+          "sha256": "f36e0a7d534c87db8d3e1aef11cb480f7e148d80be3f9fe13d9efceaf839fc60"
+        },
+        "stderr": {
+          "path": "MacroBoundary_C_unclosed.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "3d920c8a49eab2c952e9d224026b803cf374f50e7a2660d7d0918219784fe419"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_normal",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "6ae766638eece6e7c5edf83d21c8ac1c2db7485af4018b1d9853bcdcdc764277",
+      "output_sha256": "0df7b1bc2ba5373f87c1c80cfbc10ab9983baa338c371f058fb817419d075275",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_normal.primary.stdout.gz",
+          "sha256": "eeaa43276c436effab89f6dc28ddfe059babe726ce6e084c1d779b85ab7b6114"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_normal.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_normal.stages.stdout.gz",
+          "sha256": "fef08e791d1be3958e185b5ad196957f8d12942b4b72848d9ba52eea58b6b448"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_normal.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_normal.sany.stdout.gz",
+          "sha256": "eea0857d09eb8cc8fc4884c66366411711c10589e6cf3e5f4601ec5ddeb06ccb"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_normal.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_normal.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_open_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "1703d640dc96663b0190216e1578404361ca1084f559d5b3e1558deec29b3fbb",
+      "output_sha256": "4b71d03c350234f1ba6016c000100347b2f1c056d337bfdc1439b35072468f3b",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_open_extra.primary.stdout.gz",
+          "sha256": "aa85acde497655c52da26e5ddbf668a1bfbe00fa223f30084c3461ac3440d063"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_open_extra.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_open_extra.stages.stdout.gz",
+          "sha256": "ddc194921b9aed7fe6e449e5f67ccb90c5f202ea4757c28fb794ca5e6c5fd107"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_open_extra.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "a5b1d7c6da734b382cd553f7e63759e6a10d3bac3432488515c96fb6d1a0ee37"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "a5b1d7c6da734b382cd553f7e63759e6a10d3bac3432488515c96fb6d1a0ee37"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "a5b1d7c6da734b382cd553f7e63759e6a10d3bac3432488515c96fb6d1a0ee37"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_open_extra.sany.stdout.gz",
+          "sha256": "5b8be72d81d594cc2564e542fe128fa2385d9a8ae20c53d3c785521eecc66f2a"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_open_extra.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_open_extra.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_close_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "a1c420e7f3ec32d388c3ba052d7aea0b699cf15ce39657df9415a02dab11efbe",
+      "output_sha256": "d3a87eaeb2d1eca0957ac1387da3068484c0d7f92780d942e972eed895c33910",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_close_extra.primary.stdout.gz",
+          "sha256": "cfcb378abb63c3643c4db4d3206a9b84a4bf0f6da8a407cb88b749f37cb52d9d"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_close_extra.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_close_extra.stages.stdout.gz",
+          "sha256": "fef08e791d1be3958e185b5ad196957f8d12942b4b72848d9ba52eea58b6b448"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_close_extra.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_close_extra.sany.stdout.gz",
+          "sha256": "e89135200c15d7a114ed4830f2d86b9bfbd3d6d6af2f5ec5818eb4c3feeac1e3"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_close_extra.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_close_extra.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_doc",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "2e1ec7cdb43284368392bf6f94ef9a9e5899db3779d6cec5ae2f1fef71d17539",
+      "output_sha256": "efb8db139dafd88f294aa31bc4f99897a72304c3a4d83e5d122a8b0dc1b9088f",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_doc.primary.stdout.gz",
+          "sha256": "c36374ec75879510b0dfba9cc4391f0ff8bdebd74a067fa8dce019970386772d"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_doc.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_doc.stages.stdout.gz",
+          "sha256": "ddc194921b9aed7fe6e449e5f67ccb90c5f202ea4757c28fb794ca5e6c5fd107"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_doc.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "a5b1d7c6da734b382cd553f7e63759e6a10d3bac3432488515c96fb6d1a0ee37"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "a5b1d7c6da734b382cd553f7e63759e6a10d3bac3432488515c96fb6d1a0ee37"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "a5b1d7c6da734b382cd553f7e63759e6a10d3bac3432488515c96fb6d1a0ee37"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_doc.sany.stdout.gz",
+          "sha256": "ea8da82a5d50badec3c77e6572df5314531b1cc7e80e9d53075db8174ee9046d"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_doc.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_doc.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_close_run",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "d19c3beef29e25ce66342987bd65d42f5291ae8056928f558f324e0151034635",
+      "output_sha256": "365ec9d64d0b109b5da98b0d75bc0f8bbdca86552b440a312333fff6f6d8ad07",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_close_run.primary.stdout.gz",
+          "sha256": "71dc078d4541d4f4b33c6fd9ccebcef16240d9fe6c08e8f5eca02a08f202f8d4"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_close_run.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_close_run.stages.stdout.gz",
+          "sha256": "fef08e791d1be3958e185b5ad196957f8d12942b4b72848d9ba52eea58b6b448"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_close_run.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_close_run.sany.stdout.gz",
+          "sha256": "cb5f43c2363586d081f9273023880a58a3f8c003e6557c5433c59b49c98e5218"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_close_run.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_close_run.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_comment_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "940c2f7447752de8be76cc51256c02a41617eec0826e058d63b1c5af15eb31fc",
+      "output_sha256": "71f36a13b9bd35168a5adf1017053c36ac7e1a561ff30d43cb982de98b420046",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_comment_tail.primary.stdout.gz",
+          "sha256": "22a5934060caba2d7bac126b3f934294858499860ba39fa0a29cc3f071c86574"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_comment_tail.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_comment_tail.stages.stdout.gz",
+          "sha256": "fef08e791d1be3958e185b5ad196957f8d12942b4b72848d9ba52eea58b6b448"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_comment_tail.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_comment_tail.sany.stdout.gz",
+          "sha256": "0dd321fa90b6964866577fec2ae04ac27ee788509baf06cb10903b1c67b94062"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_comment_tail.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_comment_tail.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_text_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "b7a1790ad354fb85c7ea10c64f053e93e077d8edd95bd6795e57c0d3bb408b96",
+      "output_sha256": "474cb272807b5ffd3a911d639e52688054dec4af1b866e1228d3fe506cf23ad2",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_text_tail.primary.stdout.gz",
+          "sha256": "34e127fe8284fadd358961ec1ca8cf4c1426793bfcd5fa9c881e5d8c49bc3183"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_text_tail.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_text_tail.stages.stdout.gz",
+          "sha256": "fef08e791d1be3958e185b5ad196957f8d12942b4b72848d9ba52eea58b6b448"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_text_tail.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_text_tail.sany.stdout.gz",
+          "sha256": "597a8f1ec85f28327dd6cf58e4302909a691091bad448194405afe2d1eff0c09"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_text_tail.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroBoundary_P_text_tail.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroBoundary_P_unclosed",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "384fb77733aba29abb65ecde9a73e3671a51e8d7af69e32531230814cd34c62c",
+      "output_sha256": "384fb77733aba29abb65ecde9a73e3671a51e8d7af69e32531230814cd34c62c",
+      "primary": {
+        "exit_code": 255,
+        "stdout": {
+          "path": "MacroBoundary_P_unclosed.primary.stdout.gz",
+          "sha256": "9a55f1597c50b06839ebaa81daa27c0ec5c12f3abb59d37041fd9eecae6b4603"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_unclosed.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": true,
+      "translated": false,
+      "header": null,
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroBoundary_P_unclosed.stages.stdout.gz",
+          "sha256": "fef08e791d1be3958e185b5ad196957f8d12942b4b72848d9ba52eea58b6b448"
+        },
+        "stderr": {
+          "path": "MacroBoundary_P_unclosed.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "634688d2cc7f3d72386576541ef0aeedb3f0202c219a17a3df41e7a393535ff7"
+        }
+      }
+    }
+  ]
+}

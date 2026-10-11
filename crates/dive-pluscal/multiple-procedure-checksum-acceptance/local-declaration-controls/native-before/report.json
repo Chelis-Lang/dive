@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "selected": 2,
+  "native_binary_sha256": "788745b3e789260f2deb70d7366e11711f62fd6b2a9f49f31cd8f8b993601ec2",
+  "primary_manifest_sha256": {
+    "": "4f05908d5646c1a3c9761e2ad9f7c9fffacea4426b1062246c47d1f070627d6e"
+  },
+  "executed_script_sha256": "b6e69721368b987ed31c22d60c94585b80c7083d7bfa51217998b9750870c9fd",
+  "family_certified": false,
+  "summary": {
+    "named-refusal": 2
+  },
+  "rows": [
+    {
+      "id": "MultipleHeader_C_locals_outside_body",
+      "outcome": "named-refusal",
+      "detail": "unsupported post-translation AST checksum: checksum requires one explicitly labelled sequential procedure without definitions/macros",
+      "document": {
+        "artifact_admitted": false,
+        "checksum": {
+          "Err": {
+            "diagnostic": {
+              "code": "Unsupported",
+              "message": "unsupported post-translation AST checksum: checksum requires one explicitly labelled sequential procedure without definitions/macros",
+              "span": {
+                "end": 312,
+                "start": 90
+              }
+            },
+            "stage": "Normalization"
+          }
+        },
+        "model_proved": false,
+        "translation": {
+          "Ok": {
+            "actions": [
+              "P1",
+              "P2",
+              "P3",
+              "G1",
+              "G2",
+              "G3",
+              "L",
+              "M",
+              "E"
+            ],
+            "configuration": "",
+            "inserted_labels": [],
+            "mappings": [
+              {
+                "generated": {
+                  "end": 88,
+                  "start": 0
+                },
+                "original": {
+                  "end": 312,
+                  "start": 90
+                }
+              },
+              {
+                "generated": {
+                  "end": 253,
+                  "start": 88
+                },
+                "original": {
+                  "end": 312,
+                  "start": 90
+                }
+              },
+              {
+                "generated": {
+                  "end": 362,
+                  "start": 253
+                },
+                "original": {
+                  "end": 169,
+                  "start": 159
+                }
+              },
+              {
+                "generated": {
+                  "end": 467,
+                  "start": 362
+                },
+                "original": {
+                  "end": 178,
+                  "start": 170
+                }
+              },
+              {
+                "generated": {
+                  "end": 667,
+                  "start": 467
+                },
+                "original": {
+                  "end": 189,
+                  "start": 179
+                }
+              },
+              {
+                "generated": {
+                  "end": 690,
+                  "start": 667
+                },
+                "original": {
+                  "end": 192,
+                  "start": 120
+                }
+              },
+              {
+                "generated": {
+                  "end": 799,
+                  "start": 690
+                },
+                "original": {
+                  "end": 241,
+                  "start": 231
+                }
+              },
+              {
+                "generated": {
+                  "end": 904,
+                  "start": 799
+                },
+                "original": {
+                  "end": 250,
+                  "start": 242
+                }
+              },
+              {
+                "generated": {
+                  "end": 1104,
+                  "start": 904
+                },
+                "original": {
+                  "end": 261,
+                  "start": 251
+                }
+              },
+              {
+                "generated": {
+                  "end": 1127,
+                  "start": 1104
+                },
+                "original": {
+                  "end": 264,
+                  "start": 192
+                }
+              },
+              {
+                "generated": {
+                  "end": 1348,
+                  "start": 1127
+                },
+                "original": {
+                  "end": 283,
+                  "start": 267
+                }
+              },
+              {
+                "generated": {
+                  "end": 1569,
+                  "start": 1348
+                },
+                "original": {
+                  "end": 300,
+                  "start": 284
+                }
+              },
+              {
+                "generated": {
+                  "end": 1672,
+                  "start": 1569
+                },
+                "original": {
+                  "end": 308,
+                  "start": 301
+                }
+              },
+              {
+                "generated": {
+                  "end": 1718,
+                  "start": 1672
+                },
+                "original": {
+                  "end": 312,
+                  "start": 90
+                }
+              },
+              {
+                "generated": {
+                  "end": 1768,
+                  "start": 1718
+                },
+                "original": {
+                  "end": 312,
+                  "start": 90
+                }
+              },
+              {
+                "generated": {
+                  "end": 1799,
+                  "start": 1768
+                },
+                "original": {
+                  "end": 312,
+                  "start": 90
+                }
+              },
+              {
+                "generated": {
+                  "end": 1830,
+                  "start": 1799
+                },
+                "original": {
+                  "end": 312,
+                  "start": 90
+                }
+              }
+            ],
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "processes": [],
+            "program_counter": true,
+            "tla": "VARIABLES pc, x, stack, z, a, u, q, b, v\n\nvars == << pc, x, stack, z, a, u, q, b, v >>\n\nInit == /\\ x = 0\n        /\\ z = 0\n        /\\ a = 0\n        /\\ u = 0\n        /\\ q = 0\n        /\\ b = 0\n        /\\ v = 0\n        /\\ stack = << >>\n        /\\ pc = \"L\"\n\nP1 == /\\ pc = \"P1\"\n      /\\ u' = a + z\n      /\\ pc' = \"P2\"\n      /\\ UNCHANGED << x, stack, z, a, q, b, v >>\n\nP2 == /\\ pc = \"P2\"\n      /\\ x' = u\n      /\\ pc' = \"P3\"\n      /\\ UNCHANGED << stack, z, a, u, q, b, v >>\n\nP3 == /\\ pc = \"P3\"\n      /\\ pc' = Head(stack).pc\n      /\\ u' = Head(stack).u\n      /\\ z' = Head(stack).z\n      /\\ a' = Head(stack).a\n      /\\ stack' = Tail(stack)\n      /\\ UNCHANGED << x, q, b, v >>\n\nPut == P1 \\/ P2 \\/ P3\n\nG1 == /\\ pc = \"G1\"\n      /\\ v' = b + q\n      /\\ pc' = \"G2\"\n      /\\ UNCHANGED << x, stack, z, a, u, q, b >>\n\nG2 == /\\ pc = \"G2\"\n      /\\ x' = v\n      /\\ pc' = \"G3\"\n      /\\ UNCHANGED << stack, z, a, u, q, b, v >>\n\nG3 == /\\ pc = \"G3\"\n      /\\ pc' = Head(stack).pc\n      /\\ v' = Head(stack).v\n      /\\ q' = Head(stack).q\n      /\\ b' = Head(stack).b\n      /\\ stack' = Tail(stack)\n      /\\ UNCHANGED << x, z, a, u >>\n\nGet == G1 \\/ G2 \\/ G3\n\nL == /\\ pc = \"L\"\n     /\\ /\\ a' = 2\n        /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"M\", u |-> u, z |-> z, a |-> a ] >> \\o stack\n        /\\ z' = 1\n     /\\ u' = 0\n     /\\ pc' = \"P1\"\n     /\\ UNCHANGED << x, q, b, v >>\n\nM == /\\ pc = \"M\"\n     /\\ /\\ b' = 4\n        /\\ q' = 3\n        /\\ stack' = << [ procedure |-> \"Get\", pc |-> \"E\", v |-> v, q |-> q, b |-> b ] >> \\o stack\n     /\\ v' = 0\n     /\\ pc' = \"G1\"\n     /\\ UNCHANGED << x, z, a, u >>\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, z, a, u, q, b, v >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Put \\/ Get \\/ L \\/ M \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+            "warnings": []
+          }
+        }
+      }
+    },
+    {
+      "id": "MultipleHeader_C_local_from_parameter_outside_body",
+      "outcome": "named-refusal",
+      "detail": "unsupported post-translation AST checksum: checksum requires one explicitly labelled sequential procedure without definitions/macros",
+      "document": {
+        "artifact_admitted": false,
+        "checksum": {
+          "Err": {
+            "diagnostic": {
+              "code": "Unsupported",
+              "message": "unsupported post-translation AST checksum: checksum requires one explicitly labelled sequential procedure without definitions/macros",
+              "span": {
+                "end": 308,
+                "start": 104
+              }
+            },
+            "stage": "Normalization"
+          }
+        },
+        "model_proved": false,
+        "translation": {
+          "Ok": {
+            "actions": [
+              "P1",
+              "P2",
+              "G1",
+              "G2",
+              "L",
+              "M",
+              "E"
+            ],
+            "configuration": "",
+            "inserted_labels": [],
+            "mappings": [
+              {
+                "generated": {
+                  "end": 88,
+                  "start": 0
+                },
+                "original": {
+                  "end": 308,
+                  "start": 104
+                }
+              },
+              {
+                "generated": {
+                  "end": 253,
+                  "start": 88
+                },
+                "original": {
+                  "end": 308,
+                  "start": 104
+                }
+              },
+              {
+                "generated": {
+                  "end": 362,
+                  "start": 253
+                },
+                "original": {
+                  "end": 183,
+                  "start": 173
+                }
+              },
+              {
+                "generated": {
+                  "end": 562,
+                  "start": 362
+                },
+                "original": {
+                  "end": 194,
+                  "start": 184
+                }
+              },
+              {
+                "generated": {
+                  "end": 579,
+                  "start": 562
+                },
+                "original": {
+                  "end": 197,
+                  "start": 134
+                }
+              },
+              {
+                "generated": {
+                  "end": 688,
+                  "start": 579
+                },
+                "original": {
+                  "end": 246,
+                  "start": 236
+                }
+              },
+              {
+                "generated": {
+                  "end": 888,
+                  "start": 688
+                },
+                "original": {
+                  "end": 257,
+                  "start": 247
+                }
+              },
+              {
+                "generated": {
+                  "end": 905,
+                  "start": 888
+                },
+                "original": {
+                  "end": 260,
+                  "start": 197
+                }
+              },
+              {
+                "generated": {
+                  "end": 1127,
+                  "start": 905
+                },
+                "original": {
+                  "end": 279,
+                  "start": 263
+                }
+              },
+              {
+                "generated": {
+                  "end": 1349,
+                  "start": 1127
+                },
+                "original": {
+                  "end": 296,
+                  "start": 280
+                }
+              },
+              {
+                "generated": {
+                  "end": 1452,
+                  "start": 1349
+                },
+                "original": {
+                  "end": 304,
+                  "start": 297
+                }
+              },
+              {
+                "generated": {
+                  "end": 1498,
+                  "start": 1452
+                },
+                "original": {
+                  "end": 308,
+                  "start": 104
+                }
+              },
+              {
+                "generated": {
+                  "end": 1548,
+                  "start": 1498
+                },
+                "original": {
+                  "end": 308,
+                  "start": 104
+                }
+              },
+              {
+                "generated": {
+                  "end": 1579,
+                  "start": 1548
+                },
+                "original": {
+                  "end": 308,
+                  "start": 104
+                }
+              },
+              {
+                "generated": {
+                  "end": 1610,
+                  "start": 1579
+                },
+                "original": {
+                  "end": 308,
+                  "start": 104
+                }
+              }
+            ],
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "processes": [],
+            "program_counter": true,
+            "tla": "VARIABLES pc, x, stack, z, a, u, q, b, v\n\nvars == << pc, x, stack, z, a, u, q, b, v >>\n\nInit == /\\ x = 0\n        /\\ z = 0\n        /\\ a = 0\n        /\\ u = a\n        /\\ q = 0\n        /\\ b = 0\n        /\\ v = b\n        /\\ stack = << >>\n        /\\ pc = \"L\"\n\nP1 == /\\ pc = \"P1\"\n      /\\ x' = u + z\n      /\\ pc' = \"P2\"\n      /\\ UNCHANGED << stack, z, a, u, q, b, v >>\n\nP2 == /\\ pc = \"P2\"\n      /\\ pc' = Head(stack).pc\n      /\\ u' = Head(stack).u\n      /\\ z' = Head(stack).z\n      /\\ a' = Head(stack).a\n      /\\ stack' = Tail(stack)\n      /\\ UNCHANGED << x, q, b, v >>\n\nPut == P1 \\/ P2\n\nG1 == /\\ pc = \"G1\"\n      /\\ x' = v + q\n      /\\ pc' = \"G2\"\n      /\\ UNCHANGED << stack, z, a, u, q, b, v >>\n\nG2 == /\\ pc = \"G2\"\n      /\\ pc' = Head(stack).pc\n      /\\ v' = Head(stack).v\n      /\\ q' = Head(stack).q\n      /\\ b' = Head(stack).b\n      /\\ stack' = Tail(stack)\n      /\\ UNCHANGED << x, z, a, u >>\n\nGet == G1 \\/ G2\n\nL == /\\ pc = \"L\"\n     /\\ /\\ a' = 2\n        /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"M\", u |-> u, z |-> z, a |-> a ] >> \\o stack\n        /\\ z' = 1\n     /\\ u' = a'\n     /\\ pc' = \"P1\"\n     /\\ UNCHANGED << x, q, b, v >>\n\nM == /\\ pc = \"M\"\n     /\\ /\\ b' = 4\n        /\\ q' = 3\n        /\\ stack' = << [ procedure |-> \"Get\", pc |-> \"E\", v |-> v, q |-> q, b |-> b ] >> \\o stack\n     /\\ v' = b'\n     /\\ pc' = \"G1\"\n     /\\ UNCHANGED << x, z, a, u >>\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, z, a, u, q, b, v >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Put \\/ Get \\/ L \\/ M \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+            "warnings": []
+          }
+        }
+      }
+    }
+  ]
+}

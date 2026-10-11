@@ -754,6 +754,42 @@ The [periodic backend controller](ordinary-periodic-controller.md) now implement
 
 **Example and measurement.** The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct states in three pinned-TLC runs. All found the same violation, but the stopping counts depended on time. Fixed level boundaries make those counts reproducible across workers. They are a named scheduling difference, not a claim of exact TLC scheduling. Evidence: ADR 0017 §6 and the recorded probe transcripts.
 
+### Zero-duration ratio edge case (controlled component evidence)
+
+The pinned `ModelChecker.updateRuntimeRatio` returns NaN when previous ratio is
+zero and both elapsed runtime and liveness time are zero: `0/0`. The actual
+zero-duration sample in `conformance/probes/runtime-ratio/stage1.stdout` (ROW 4)
+records IEEE bits `7ff8000000000000`. The complete updater selection is 196
+rows plus three assertion negatives. Controlled actual `doPeriodicWork` rows
+in `conformance/probes/ordinary-periodic-work/capture.json` show supplied NaN
+with force=false skips its liveness callback; force=true still invokes it.
+These are actual component observations, not a measured ordinary TLC startup
+starvation run.
+
+A native diagnostic experiment used:
+
+```tla
+Init == x = 0
+Next == \E i \in 1..1024: x' = x + 1
+Live == <>(x = 2)
+Hook == TRUE
+```
+
+Its initial forced empty service can take zero milliseconds and produce NaN.
+With the current Java-compatible ratio policy, a width-3 run retained 12,337
+genuine requests, reached 3,929,089 generated occurrences and returned a shared
+ResourceLimit instead of selecting a later unforced candidate. This failed
+experiment is retained in `conformance/probes/request-owned-service/development/gate1`;
+it earns no success or schedule credit. JSON null ratios remain unchanged in
+that history; new diagnostic recordings also expose raw IEEE bits.
+
+A separately named `--liveness-ratio=finite` improvement is under consideration,
+not implemented or approved as a default. The current ratio arithmetic and TLC
+setting remain unchanged. The stable candidate control explicitly selects a
++Infinity ratio limit, no initially forced timer request, and a test-only
+returned-prefix/timer rendezvous. It proves diagnostic composition and replay,
+not ordinary timing or default-policy equivalence.
+
 ## D-015: Symmetry functions must actually be permutations
 
 **Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and symmetry with liveness remain named refusals. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
@@ -1390,6 +1426,15 @@ rejects the forged `"7"` step. Ordinary literal strings remain supported.
 This is dive's own limitation, not a new language default. Establishing namespace
 provenance independently is required before lifting the refusal. The admission
 analysis conservatively includes operators with both tuple and string forms.
+Whole-word replay can now discharge that guard for independently proved
+tuple-only `Tail`, concatenation and `SubSeq` operands, without evaluating
+their arguments or using witness values as type evidence. Strings, mixed
+branches and nested name constructors retain the refusal. A separately bounded
+[source-wide tuple-history proof](inductive-tuple-trace-replay.md) can admit
+some variable sequence histories; general saved-frame provenance remains
+unproved. Fixed nested tuple aliases through `UNCHANGED vars` have a bounded
+projection proof (#215); conditional tuple permutations cannot establish
+per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. See [the literal operand slice](tuple-only-trace-replay.md).
 
 
 Finite safety simulation also refuses TLC runtime-name models before sampling
@@ -2148,6 +2193,71 @@ for Next. Mixed-value diagnostic printing remains unproved: rejecting an
 incomplete state before keying does not establish its exact printer/error
 counterpart, and no malformed-input-wide conformance is claimed.
 
+The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
+
+D-008's macro checksum continuation separates exact expanded AST CRC derivation
+from admitted TLA+ output and checked models. A minimal bounded macro
+`macro Set(v,a) begin v:=a; end macro;` can now derive Full checksums for
+`Set(x,1+2)`. Multiline actuals and substituted junction columns remain named
+refusals. The pinned translator accepts algorithm comments ending with arbitrary
+prose after `end algorithm;`; native embedded selection now stops only at a completely parsed algorithm end.
+The two original C/P failures remain archived; standalone parsing stays EOF strict.
+See [the macro checksum guide](pluscal-macro-checksums.md) for evidence and
+the unchanged fair-header-only checksum limitation.
+
+The macro continuation also retains dive's original `Lock` enclosing-module
+ordering failure: generated declarations were appended after definitions using
+`lock`, `pc` and `ProcSet`. Inserting them immediately after the algorithm
+comment restores the pinned declaration order; genuine unknown-name controls
+still reject. This is a native defect correction, not a new TLC divergence.
+
+The same study keeps two original standalone inline-definition false
+acceptances and four block-comment-tail false acceptances. Pinned translation
+rejects non-line-comment text after the algorithm comment on its closing line;
+native admission now enforces that exact wrapper boundary. Invalid formfeed
+reference artifacts remain uncredited. No new default grammar relaxation is
+introduced.
+
+
+### D-008 embedded marker ownership repair
+
+A minimal comment containing `--fair algorithm A` (assigning `x := 1`) and a
+complete `--algorithm B` (assigning `x := 2`) on a later line exposed a native
+selector defect: the pinned translator emitted `x' = 1`, while source5 emitted
+`x' = 2` and admitted the module. Exact selector bytes in shipped main `fe35c73f5`
+match the original base; the source5 runtime evidence is not retagged as a main
+runtime. Original 16-case controls retain four raw and eight public wrong-answer
+rows. The repair uses pinned line order, preferring unfair only when both markers
+share the same line, in both profiles. Expanded split/tab/space and malformed
+controls preserve real reference rejection boundaries. See the
+[macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
+Artifact admission and CRC equality still never establish model correctness.
+
+
+The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
+
+D-008 native PlusCal DEFINE limitation: ordinary global helper declarations now
+have a bounded [native translation and Full-checksum path](pluscal-definitions.md).
+For `F == x; x := 1; y := F`, the pinned translator emits `y' = F`, so the helper
+reads the pre-state `x`. Dive preserves this in both profiles. A definition using
+a process-local variable remains before that variable's generated declaration,
+and the invalid artifact is rejected rather than reordered into apparent success.
+General recursion, scoped renaming and procedure definitions remain unfinished.
+
+## Native periodic hook boundary
+
+The [pure supplied-expression API](periodic-hook.md) now composes a bounded hook at real native dispatch pauses, with original FALSE comparison and evaluation errors. It does not bind configured `_PERIODIC` and does not enable ordinary checking. The complete59 actual-TLC controls retain even setup failures: an `_PERIODIC` constant name throws ClassCastException rather than a stable binding diagnostic. Native configured binding remains a named refusal, so no fabricated error-class agreement is claimed. Checkpoint/host effects, ordinary schedule and stopping-count parity remain pending; no result default changes.
+
+D-008 LOCAL/function DEFINE limitation narrowed: bounded global `LOCAL F == x`
+and `F[a \in 0..x] == a+1` now preserve the reference declaration and pre-state
+lookup rather than substituting an earlier assignment's new value. The
+[LOCAL/function guide](pluscal-definition-forms.md) describes supported scope,
+CLI/API examples and remaining recursive/action/temporal/name/procedure refusals.
+Reference-invalid artifacts and fixture filename failures stay visible without
+admission or proof credit. Neither profile silently repairs the reference output.
+### Configuration-owned periodic diagnostic limitation (#197)
+
+`_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. [User contract and executable example](configured-periodic-snapshot.md); [ADR 0057](decisions/0057-configured-periodic-snapshot.md). No ordinary-schedule or family certification is granted.
 
 ### Opt-in stored trace transport (#190)
 
@@ -2169,6 +2279,20 @@ interval encoding controls retain the concrete violation but emit no transport
 or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
 this does not certify arbitrary stored representations.
 
+
+D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
+labelled sequential procedure can now use Full editing. The pinned original
+header AST retains top-level calls but shared If/With/Either branch vectors are
+mutated by Explode; these six new shapes remain named checksum refusals. Two
+retained local_update controls are primary missing-label errors while raw native
+lowering admits them; neither receives compatible artifact credit here. Read
+[the procedure checksum guide](pluscal-procedure-checksums.md) for exact scope,
+D-020 fair-header CRC limits and strict #124 pending replay.
+
+### Progress-request/worker stopping boundary (#201)
+
+The [producer-clock Rust diagnostic](producer-progress-requests.md) now has a real expansion claim barrier and joined dispatch pause. It still cannot use an uncommitted expansion as a written temporal graph. Complete33 actual pinned method controls retain successful resume, early temporal/hook stops, evaluation errors, real EOF and failed Init. At widths1/4/8, early temporal2116 and false-hook2104 return with workers alive; later probe cleanup joins are not original runTLC behavior. A worker division-by-zero sets2179 with keepCallStack=true while runTLC itself returns0, so that return is not model-check success. These are measured method boundaries, not newly declared TLC bugs or ordinary native parity. Ordinary scheduling/count/checkpoint/model-proof authority remains unfinished.
+
 ### Native tuple-function storage repair (#195)
 
 This was a dive defect, not a TLC defect. For `s=[i \in 1..1 |-> 1]`, the
@@ -2186,6 +2310,26 @@ mathematical canonical keys and fingerprints are unchanged. Native error metadat
 still reports `verified: false` for this ported diagnostic site; representation
 matching does not certify every error class. Independent transported-witness
 checks remain separate. See [the full evidence](../conformance/probes/storage-tuple-function/README.md).
+### Actual committed request-prefix limitation (#204)
+
+The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+D-008 nested sequential procedure checksum continuation (ADR 0061): Full editing
+uses typed shared header vectors for proved If/With/Either/While transfers. The
+180-row selection retains the old six byte mismatches/refusals and all primary
+errors/invalid outputs; no reference defect is silently repaired. Broader call
+scopes and strict #124 saved-frame replay remain qualified. See
+[the user guide](pluscal-nested-procedure-checksums.md).
+
+The bounded nested-procedure checksum implementation retains a failed development
+producer that sorted shared call frames even after `while TRUE` discarded their
+generated tail. The repaired path preserves pinned creation order for that tail.
+Separately, TLC optimizes `(TRUE)` only when its tokens occupy one logical line;
+line breaks in a comment between tokens prevent that optimization. Native output
+retains the conditional stored-header path in that spelling. Public generation
+continues to name the unsupported multiline procedure expression layout, with no
+replacement/CRC claim. The smallest paired C/P
+controls and original mismatches are in the nested-procedure checksum study;
+these are fidelity repairs, not new result-changing defaults or full parity.
 
 ### Disk seen-state retention is a library increment
 
@@ -2197,6 +2341,38 @@ The later #212 opt-in inline route has a separate contract below. Its
 physical entry count does not certify a discovery prefix, and bounded collision
 summary refusal cannot be counted as completed safety. Frontier/predecessor
 budgets, recovery and total-memory qualifications remain unchanged.
+
+### Request-owned service limitation (#208)
+
+The [Rust diagnostic](request-owned-periodic-service.md) now services one real request after successful source-prefix graph publication and physical frontier append, including an empty request with no invented source. Pin94d0c50 measured empty FALSE2104 and repeated unchanged graph FALSE2104, hook division errors2179/exit2, and written-graph temporal2116 before the hook. Actual candidate words are replayed independently; clock/suspendAll/count/checkpoint parity remains unfinished. Every failed adapter/EOF-race and incorrect native test assumption remains preserved; no new TLC bug/default or ordinary verdict is declared.
+D-008 P elsif procedure-checksum continuation (ADR0066): the native flat source
+branch list now has a typed virtual nested-If header view for the pinned shared
+Else-vector mutation. Before this increment the32 clean C/P controls produced17
+exact pairs and15 named P refusals; focused stored-header bytes/CRC now match all32.
+Public artifact/model evidence is separately source-bound, never inferred from
+CRC equality. General procedure/scoped checksums and strict saved-frame replay
+remain qualified; see [the runnable guide](pluscal-p-elsif-checksums.md).
+
+
+D-008 disjoint sequential procedure checksum continuation (ADR 0069): main can
+call globally disjoint, explicitly labelled procedures through the bounded Full
+editor. With declarations `Put(z,a)` then `Get(q,b)`, main calls `Put(1,2)` then
+`Get(3,4)`, the pinned stored header keeps `Put.proceduresCalled` empty and stores
+`<<"Put", "Get">>` on `Get`. The measured algorithm CRC is `99cb7254`. Reversing
+main calls yields `182d4367`; reversing declarations yields `8197b276` and moves
+the shared vector to `Put`. These original stored-header fields differ from the
+separate exploded call frames, whose saved slots belong to the actual target.
+Native serialization preserves both in both profiles; it does not infer header
+fields from reachability. Procedure-to-procedure/recursive/process/scoped checksum
+ownership stays refused by name. Fair CRC-only policy and strict saved-frame
+replay #124 remain unchanged; CRC equality does not certify a usable artifact,
+model proof or independently valid witness. Read [the guide](pluscal-multiple-procedure-checksums.md).
+
+The 98-row study also retains two invalid `-fair` command controls: clean pinned
+translator exit 255, separate development stage-probe exit 0 carrying the error,
+and native CLI exit 2. Those errors are not TLA grammar or checksum equivalence
+credit. Original verification-driver failures remain archived; corrected command
+accounting never changes their oracle or native bytes.
 The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
 
 

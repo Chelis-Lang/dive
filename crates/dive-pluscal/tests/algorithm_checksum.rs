@@ -62,7 +62,7 @@ fn retained_reference_ast_bytes_are_exact_or_explicitly_unsupported()
         }
     }
     assert_eq!(total, 192);
-    assert_eq!((exact, refused, rejected), (154, 16, 22));
+    assert_eq!((exact, refused, rejected), (156, 14, 22));
     Ok(())
 }
 #[test]

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "selected": 16,
+  "native_credit": false,
+  "rows": [
+    {
+      "id": "MacroBoundary_C_normal",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "5b34032ea8c9e39e5cbedef120d2a48521407418a6bbfb76fc04fa802a2ca810"
+    },
+    {
+      "id": "MacroBoundary_C_open_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "83396163f4bca3e7ec4c9dd5f7c5147ac6f9626bc89ee2a6429a09095afe88f9"
+    },
+    {
+      "id": "MacroBoundary_C_close_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "f8be00ac8064f32fe0705d28286d330c62114e514dcd8a06569853ee62406de9"
+    },
+    {
+      "id": "MacroBoundary_C_doc",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "23f64b05f31c8a558a5369be806a842895730df3853381873951b600e455f82a"
+    },
+    {
+      "id": "MacroBoundary_C_close_run",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "8e629cbf1415d257ca02805561d44a40ed0a61573f246d3ec97540b2b78cd2c8"
+    },
+    {
+      "id": "MacroBoundary_C_comment_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "9af481d9eaf7ce1fce3f54fc5ce40e72c5dee476fd0638b8603a42e1592a34de"
+    },
+    {
+      "id": "MacroBoundary_C_text_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "116a4b42438572e578b8d03ddd2658efe5fb7e0f4f9657d71e1a96aea1e99102"
+    },
+    {
+      "id": "MacroBoundary_C_unclosed",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "79a6712efc9d5dda4db4c346344f1105eed15407b8637cf9828ad4cfbf20bebc"
+    },
+    {
+      "id": "MacroBoundary_P_normal",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "6ae766638eece6e7c5edf83d21c8ac1c2db7485af4018b1d9853bcdcdc764277"
+    },
+    {
+      "id": "MacroBoundary_P_open_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "1703d640dc96663b0190216e1578404361ca1084f559d5b3e1558deec29b3fbb"
+    },
+    {
+      "id": "MacroBoundary_P_close_extra",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "a1c420e7f3ec32d388c3ba052d7aea0b699cf15ce39657df9415a02dab11efbe"
+    },
+    {
+      "id": "MacroBoundary_P_doc",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "2e1ec7cdb43284368392bf6f94ef9a9e5899db3779d6cec5ae2f1fef71d17539"
+    },
+    {
+      "id": "MacroBoundary_P_close_run",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "d19c3beef29e25ce66342987bd65d42f5291ae8056928f558f324e0151034635"
+    },
+    {
+      "id": "MacroBoundary_P_comment_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "940c2f7447752de8be76cc51256c02a41617eec0826e058d63b1c5af15eb31fc"
+    },
+    {
+      "id": "MacroBoundary_P_text_tail",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "b7a1790ad354fb85c7ea10c64f053e93e077d8edd95bd6795e57c0d3bb408b96"
+    },
+    {
+      "id": "MacroBoundary_P_unclosed",
+      "flags": [],
+      "origin": "comment-boundary-control",
+      "input_sha256": "384fb77733aba29abb65ecde9a73e3671a51e8d7af69e32531230814cd34c62c"
+    }
+  ]
+}

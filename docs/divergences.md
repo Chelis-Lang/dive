@@ -667,7 +667,7 @@ unconfigured and original ignored-option native captures in
 `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
 
 D-008 process checksum options update: supported explicit fairness and inserted
-label settings now have stage-separated raw/full controls; procedure/macro ASTs,
+label settings now have stage-separated raw/full controls; unproved procedure/macro ASTs,
 scoped renaming and unproved source-option declarations remain named Full refusals.
 F-034/F-035 are still partial; CRC derivation, artifact admission and finite
 model/witness checks do not certify the whole translator or liveness.
@@ -730,6 +730,50 @@ See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
 
+### D-008 macro checksum stage qualification
+
+Bounded nonrecursive macro Full serialization retains expanded reference AST
+bytes separately from module admission. The original 240-row primary selection
+has 28 translated/SANY-invalid artifacts; none earns artifact or proof credit.
+Embedded ASCII-star decoration is now selected without source mutation, while
+two C/P arbitrary trailing-prose native syntax
+disagreements remain archived, with exact parser-consumed embedded end ownership
+now matching the paired controls. Full procedural/scoped layout and multiline/junction actuals
+remain explicit refusals. See [macro checksum scope](pluscal-macro-checksums.md).
+D-020 fair-header-only CRC weakness remains unchanged in both profiles.
+
+
+### D-008 embedded marker ownership repair
+
+A minimal comment containing `--fair algorithm A` (assigning `x := 1`) and a
+complete `--algorithm B` (assigning `x := 2`) on a later line exposed a native
+selector defect: the pinned translator emitted `x' = 1`, while source5 emitted
+`x' = 2` and admitted the module. Exact selector bytes in shipped main `fe35c73f5`
+match the original base; the source5 runtime evidence is not retagged as a main
+runtime. Original 16-case controls retain four raw and eight public wrong-answer
+rows. The repair uses pinned line order, preferring unfair only when both markers
+share the same line, in both profiles. Expanded split/tab/space and malformed
+controls preserve real reference rejection boundaries. See the
+[macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
+Artifact admission and CRC equality still never establish model correctness.
+
+D-008 bounded DEFINE progress: [DEFINE helpers](pluscal-definitions.md) can be
+serialized and emitted with reference declaration ordering. Raw AST/CRC equality
+is separate from enclosing-module SANY/native admission and finite-model
+checking. Invalid primary artifacts stay uncredited; recursive, symbolic,
+action/temporal and unproved scope shapes remain named refusals. Neither profile
+inlines helpers or silently repairs the reference output.
+
+## Supplied pure periodic expressions (bounded diagnostic limitation)
+
+ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).
+
+D-008 bounded LOCAL/function DEFINE progress: [the executable guide](pluscal-definition-forms.md)
+preserves local export visibility, pre-state helper lookup and function domains.
+Domains and bodies share the action/temporal/cycle guard. Exact raw CRC equality
+is distinct from public enclosing-module admission and model proof; invalid
+reference outputs remain uncredited. Both profiles keep these same semantics.
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).
 D-009 trace transport boundary (#190): default legacy version 1 retains the
 known mixed-set shape failures. Opt-in `--trace-format representation-v2`
 preserves admitted forward stored sets and nonliteral tuple/record functions
@@ -739,11 +783,35 @@ a certificate. Reverse construction, arbitrary deferred/symbolic values and
 trusted-storage tuple bit loss (#195) is repaired by explicitly versioned structural storage format 2; older ambiguous archives refuse. See
 [the schema and bounded CLI/API guide](trace-representation.md).
 
+
+Producer request limitation (#201): [the bounded Rust diagnostic](producer-progress-requests.md) stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
+
+### Actual committed request-prefix limitation (#204)
+
+The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
 D-007 storage increment (ADR 0063): additive `dive_store::seen::DiskSeen`
 provides actual fallible disk fingerprint/exact membership with bounded
-workspaces and explicit owned cleanup. Ordinary engine/parallel admission and
-seen-memory CLI budgets remain pending; the library is not a full storage-family
-certificate. See `docs/user/disk-seen-library.md`.
+workspaces and explicit owned cleanup. ADR0063 qualified the standalone library only. ADR0068 now also admits
+explicit INIT/NEXT safety through the ordinary disk route described below;
+parallel read views and a total seen-memory budget remain pending. Neither
+increment certifies the full storage family. See [the library guide](user/disk-seen-library.md)
+and [the current CLI/API route](user/disk-seen-safety.md).
+
+D-014 also retains the controlled zero-duration NaN updater/controller observation
+and a failed native diagnostic resource experiment in [the known-issues log](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
+A finite-ratio improvement remains under consideration; no ratio default changes.
+
+
+D-008 disjoint sequential procedure Full checksum continuation (ADR 0069)
+represents target/current frame owners separately from the last declaration's
+shared main-call vector. The original 64 C/P rows retain 62 clean reference
+translations and two grammar errors; two corrected declarations and 32 declared
+ownership/call-graph/option controls remain distinct. Named unproved call-graph,
+process/scoped and modifier boundaries emit no replacement or CRC. Both profiles
+retain the pinned header behavior, unchanged global quotas and D-020 weakness.
+Invalid `-fair` commands are command-stage uncredited controls, not language
+rejection or exit-equivalence credit. Artifact and strict saved-frame replay
+remain separately qualified. See [the runnable guide](pluscal-multiple-procedure-checksums.md).
 ## Supplied pure periodic expressions (bounded diagnostic limitation)
 
 ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).

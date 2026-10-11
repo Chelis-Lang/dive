@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "Relation.tla": "396cfc86672145d54002f6052b0fcfcfc3802bc3294520b4d8add6d91e9504a5",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "de7a8f9e584f824e21b6921bf7be6ce129ec2cf7380b96ab1add17117cbdaeb6",
+  "capture_sha256": "247927fe3cb9cd741e412fc5ce0163dea93e5b69a20879db4efaf9ed20ad0109",
+  "adapter_sha256": {
+    "DefinitionProbe.class": "cff461fd85e24923876b2fded1c11969ef2c96ecad357fb7400d4fa5977a7337",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 2,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "DefineGuide_C",
+      "input_sha256": "9e1759e6c3b128b130b3586c86fa7e83fa4e986d2509d339507fecd7aa71a3bc",
+      "flags": [],
+      "output_sha256": "22a7b7309b04cca7ad815bf0521ffbb8ea51bd4c5f795000de79d06d4392b092",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineGuide_C.primary.stdout.gz",
+          "sha256": "e3b431e481388f9eff1315ff419d09d9521ceedd87ee2b163e151d319d308c4b"
+        },
+        "stderr": {
+          "path": "DefineGuide_C.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "bb328c33",
+        "ee5287b5"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineGuide_C.stages.stdout.gz",
+          "sha256": "a3e3ea7ee1798bc42764c1ec811781b3984b8bbaabd8709104f43eb164fe6cec"
+        },
+        "stderr": {
+          "path": "DefineGuide_C.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "bb328c33",
+          "ast_sha256": "cfd1c13a8e4a124296853a192869c0a8321238580b898a5cbd93cbd6f38af106",
+          "json_sha256": "4f0dd7711d46601fa4c4ebf3a5a3d2d30715afd94ccdf4cf6b4bf62c017180e9"
+        },
+        "names": {
+          "crc": "bb328c33",
+          "ast_sha256": "cfd1c13a8e4a124296853a192869c0a8321238580b898a5cbd93cbd6f38af106",
+          "json_sha256": "4f0dd7711d46601fa4c4ebf3a5a3d2d30715afd94ccdf4cf6b4bf62c017180e9"
+        },
+        "translated": {
+          "crc": "bb328c33",
+          "ast_sha256": "cfd1c13a8e4a124296853a192869c0a8321238580b898a5cbd93cbd6f38af106",
+          "json_sha256": "4f0dd7711d46601fa4c4ebf3a5a3d2d30715afd94ccdf4cf6b4bf62c017180e9"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineGuide_C.sany.stdout.gz",
+          "sha256": "737add32b38225c5f2431e456ca3caf09db0cd60bde6fa18e58fda6540b55301"
+        },
+        "stderr": {
+          "path": "DefineGuide_C.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "DefineGuide_C.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "DefineGuide_P",
+      "input_sha256": "a0424d6c4e673f3579eabc14859b86cdcd29147ca8cdfb3ad6259a6e78be1841",
+      "flags": [],
+      "output_sha256": "77705c4ebd51a1f5568ab0219b7e5b12d3b96e56969a434efa8eea140b3c79ab",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineGuide_P.primary.stdout.gz",
+          "sha256": "10cccad8f56f55385101297c0702041e52fcef486e1e652db6ab0db25877bf12"
+        },
+        "stderr": {
+          "path": "DefineGuide_P.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "bb328c33",
+        "ee5287b5"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineGuide_P.stages.stdout.gz",
+          "sha256": "0132e7637ba9183cd05153edfeadde851b9c72cb74a144d6d301fc7eb7ee9c0c"
+        },
+        "stderr": {
+          "path": "DefineGuide_P.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "bb328c33",
+          "ast_sha256": "cfd1c13a8e4a124296853a192869c0a8321238580b898a5cbd93cbd6f38af106",
+          "json_sha256": "9e52bf827ce1c6422caae74da3a1cf10164758659735a801c929e02acfc8ae12"
+        },
+        "names": {
+          "crc": "bb328c33",
+          "ast_sha256": "cfd1c13a8e4a124296853a192869c0a8321238580b898a5cbd93cbd6f38af106",
+          "json_sha256": "9e52bf827ce1c6422caae74da3a1cf10164758659735a801c929e02acfc8ae12"
+        },
+        "translated": {
+          "crc": "bb328c33",
+          "ast_sha256": "cfd1c13a8e4a124296853a192869c0a8321238580b898a5cbd93cbd6f38af106",
+          "json_sha256": "9e52bf827ce1c6422caae74da3a1cf10164758659735a801c929e02acfc8ae12"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineGuide_P.sany.stdout.gz",
+          "sha256": "d41709686d03d18f951b16536464ca3e6e4a998eec0ae26afb4f8f1154a61e8b"
+        },
+        "stderr": {
+          "path": "DefineGuide_P.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "DefineGuide_P.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

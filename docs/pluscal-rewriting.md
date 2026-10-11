@@ -86,9 +86,11 @@ unproved junction, binder, macro and process layouts remain named refusals.
 [the expression guide](pluscal-checksum-expressions.md) gives executable C/P
 and Rust examples and precise newline/column/refusal limits. The separately
 measured Unicode expression controls include `∧`, `≤`, `≠` and `∈`. Definitions,
-macros, procedures, scoped name fixes, branch-internal labels,
+procedures, scoped name fixes, branch-internal labels,
 labelled C wrappers and unproved
-proof-step-shaped expression tokens are named refusals. Use `--checksums tla`
+proof-step-shaped expression tokens are named refusals. Bounded nonrecursive
+macro Full serialization is described in [the macro checksum guide](pluscal-macro-checksums.md);
+multiline actuals and substituted junction columns remain unsupported. Use `--checksums tla`
 explicitly when generation is supported but full serialization is not; that
 policy disables rather than invents the missing checksum.
 

@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "selected": 16,
+  "native_binary_sha256": "f333959d108615babe8c8400ed3b43e2564bd20eaee6bfadc53f573139fc84db",
+  "cst_binary_sha256": "29b987e6ce6c9a12ae1028faecc6430da555b3aebfc47653b46f1718ad59c546",
+  "script_sha256": "e230063ec35858aefdfba4affd902102f4f898e8c78a7be9e903b7ab1dfc983a",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false,
+  "model_proved": false,
+  "summary": {
+    "admitted-exact-cst-sany-validator": 8,
+    "named-public-refusal": 8
+  },
+  "rows": [
+    {
+      "id": "WhileLines_C_paren_dive",
+      "folder": "",
+      "source_id": "WhileLines_C_paren",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "2f5d51b3713359941147a9cfb6885b45cbe7dd6f8713b74d3689bafda392324c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_C_paren_tlc",
+      "folder": "",
+      "source_id": "WhileLines_C_paren",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "60c42f6c0dfb503b2d0e091d461fc170357d486a760f243b4112127f80df766c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_C_split_dive",
+      "folder": "",
+      "source_id": "WhileLines_C_split",
+      "profile": "dive",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "2e736e8fac8532a16b2c2894243131a709a997ba0866a3cc0caaf0e84457586e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_C_split_tlc",
+      "folder": "",
+      "source_id": "WhileLines_C_split",
+      "profile": "tlc",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "cffa5008e55b8966848bda85b6ac8a8b607335e9f300cf8340944c50248544af",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_C_comment_dive",
+      "folder": "",
+      "source_id": "WhileLines_C_comment",
+      "profile": "dive",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "6a99cff2e6ffca00c66efab6a73750dcb513a2ad9757c2cb1366351cc6468d58",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_C_comment_tlc",
+      "folder": "",
+      "source_id": "WhileLines_C_comment",
+      "profile": "tlc",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "e0f1b91ef9621c3d64584149a72cb19b4e05adf3bc0bfb2b2937dcf4a01e4685",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_C_nested_dive",
+      "folder": "",
+      "source_id": "WhileLines_C_nested",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "e88a13ef16c46d258ad14c6305712d6fe47a8d5c4fd26106c9456a0c8c97c5da",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_C_nested_tlc",
+      "folder": "",
+      "source_id": "WhileLines_C_nested",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "d47d52e4f10bc5f43dca765277437694c7c71786850431e9eec3766a3105b015",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_P_paren_dive",
+      "folder": "",
+      "source_id": "WhileLines_P_paren",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "413c886fa7a88cf1a4dca0bfcb4acf98658260686fa291cdcc609f4549e6b580",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_P_paren_tlc",
+      "folder": "",
+      "source_id": "WhileLines_P_paren",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "fe34edac1f4fc06a3e3ce9645968eb705290e097c591bc4281571e32940cc980",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_P_split_dive",
+      "folder": "",
+      "source_id": "WhileLines_P_split",
+      "profile": "dive",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "63f796f48aa49b3b52274dae2160bb238360155fc397de2790308b9ecd63ea9a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_P_split_tlc",
+      "folder": "",
+      "source_id": "WhileLines_P_split",
+      "profile": "tlc",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "9545ca34832907f37b73af8f8be13a58ede03ae6476645d18fbb65d83d1e395a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_P_comment_dive",
+      "folder": "",
+      "source_id": "WhileLines_P_comment",
+      "profile": "dive",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "743391ddd80f6cef18638fab82c41ab39b102295b8c41eb2f93bd62fb704584d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_P_comment_tlc",
+      "folder": "",
+      "source_id": "WhileLines_P_comment",
+      "profile": "tlc",
+      "outcome": "named-public-refusal",
+      "detail": "",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "e1a2ebc963d771b1604a5d6299ca7a22760fee06a9fdb41cafa269ab03eb9208",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileLines_P_nested_dive",
+      "folder": "",
+      "source_id": "WhileLines_P_nested",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "413bf7884b528680ba477bc013491323259d220e53858999f3fd270d6133fa4a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileLines_P_nested_tlc",
+      "folder": "",
+      "source_id": "WhileLines_P_nested",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "d1c3dc79f5f7677c0375f98f637acf937316cf664d3c071d8c80cee5bebcd65c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    }
+  ]
+}

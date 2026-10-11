@@ -48,13 +48,15 @@ pub mod tlc_witness;
 /// Constructed-model final-only pinned SCC/lasso analysis; candidates require validation.
 pub mod tlc_final;
 
+/// Pinned periodic controller callback order; no ordinary backend proof claim.
+pub mod periodic;
+
 /// Source-owned pointer growth and explicit partial-check stopping receipts.
 pub mod periodic_backend;
 
-/// Pinned controller/ratio primitives; native lifecycle integration remains separate.
-pub mod periodic;
-
+/// Bounded supplied pure expressions; configured hook binding remains separate.
 pub mod periodic_hook;
 /// Native producer-owned commit-boundary clock/pool diagnostics.
 pub mod periodic_lifecycle;
+pub mod periodic_service;
 pub mod periodic_snapshot;

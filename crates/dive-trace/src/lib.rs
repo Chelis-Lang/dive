@@ -21,7 +21,8 @@
 //! unnamed legacy periodic claims remain explicit refusals.
 //!
 //! - [`mod@format`]: the versioned trace format (also TLC's `-dumpTrace json`).
-//! - [`value_json`]: dive's lossless JSON form of values.
+//! - [`value_json`]: dive's tagged JSON values, with documented representation
+//!   and mixed-set round-trip limitations.
 //! - [`validate()`]: the checks, giving [`Validation::Valid`],
 //!   [`Validation::Invalid`] (the first failing state and check) or
 //!   [`Validation::Unsupported`] (naming what cannot be checked). Given the
@@ -69,9 +70,11 @@ pub mod exists;
 pub mod format;
 pub mod mutate;
 mod random_position;
+mod runtime_order;
 pub mod temporal;
 pub mod tlc;
 mod trace;
+mod tuple_history;
 mod validate;
 pub mod value_json;
 pub mod value_repr;

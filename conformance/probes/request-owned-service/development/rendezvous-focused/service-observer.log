@@ -1,0 +1,34 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized] target(s) in 8.12s
+     Running tests/observer_barrier.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/observer_barrier-d3c4bf0080769cff)
+
+running 7 tests
+test actual_request_observer_error_and_unwind_close_timer_and_pool_without_eof ... ok
+test generation_and_source_failures_keep_the_real_callback_prefix ... ok
+test source_fault_after_graph_observation_never_certifies_frontier_append_or_eof ... ok
+test deciding_graph_callback_before_append_prevents_request_owned_service ... ok
+test complete_initialization_is_once_before_real_wave_and_never_after_failed_init ... ok
+test actual_dispatch_pause_and_eof_are_not_prefix_inferences ... ok
+test observer_failure_after_prefix_append_retains_actual_queue_and_counters ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s
+
+     Running tests/periodic_service.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_service-1c4c9687a9947203)
+
+running 12 tests
+test failed_init_never_services_the_initial_request ... ok
+test initial_empty_false_service_has_no_invented_source_and_no_elapsed_suppression ... ok
+test empty_request_preserves_actual_hook_evaluation_error_and_does_not_resume ... ok
+test actual_empty_true_service_resumes_before_real_safety_eof ... ok
+test requested_default_or_mixed_evaluator_mode_refuses_before_service_setup ... ok
+test view_keyed_representatives_still_refuse_without_service_or_workers ... ok
+test graph_predicate_failure_prevents_later_request_hook_service ... ok
+test earlier_safety_winner_stops_without_a_later_service_or_eof ... ok
+test appended_request_candidate_precedes_hook_and_replays_against_fresh_binding ... ok
+test request_service_retention_and_partial_work_share_the_existing_graph_quota ... ok
+test request_service_eof_candidates_have_separate_fresh_replay ... ok
+test real_nonempty_request_service_observes_the_appended_transaction_once ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+

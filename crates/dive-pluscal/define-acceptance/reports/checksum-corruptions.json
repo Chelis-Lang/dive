@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "selected": 12,
+  "script_sha256": "5e9d37e431f90975d00f00fc550a73148508dd3698989a5ff4cfaaf8aac1dd52",
+  "binary_sha256": "e69b103c4fbc5d73642462966f4d613670a47467b556717e9951b3a9f3a65540",
+  "cst_sha256": "a3b076b58ead7c3583d0808cda28462fe6d5bb311930370a89cc9d7e11f03ca6",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "DefineGuide_C.unchanged",
+      "outcome": "valid-unchanged",
+      "validator": "[NO_DIVERGENCE]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_C.algorithm-source",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS, PCAL_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_C.algorithm-header",
+      "outcome": "corruption-refused",
+      "validator": "[PCAL_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_C.body",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_C.body-header",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_C.both",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS, PCAL_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_P.unchanged",
+      "outcome": "valid-unchanged",
+      "validator": "[NO_DIVERGENCE]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_P.algorithm-source",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS, PCAL_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_P.algorithm-header",
+      "outcome": "corruption-refused",
+      "validator": "[PCAL_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_P.body",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_P.body-header",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    },
+    {
+      "id": "DefineGuide_P.both",
+      "outcome": "corruption-refused",
+      "validator": "[TLA_DIVERGENCE_EXISTS, PCAL_DIVERGENCE_EXISTS]",
+      "model_proved": false
+    }
+  ]
+}

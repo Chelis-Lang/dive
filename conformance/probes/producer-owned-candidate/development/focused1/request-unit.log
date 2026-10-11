@@ -1,0 +1,8 @@
+
+running 1 test
+test periodic_candidate::tests::actual_request_candidate_is_admitted_before_configured_false_hook ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.10s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_api-0d0565546f9ff82a)

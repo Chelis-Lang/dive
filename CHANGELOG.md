@@ -11,6 +11,45 @@ All notable changes to this project are documented here. The project will follow
   refusals; resident binding, actual inline fallback and separate budget scopes
   stay unchanged.
 
+- Composed request/candidate diagnostics, disk safety and positioned replay,
+  bounded procedure checksum editing, and inductive tuple replay with fresh
+  release verification and maintained user/developer guides.
+
+- Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
+
+- Bounded Full PlusCal editing supports disjoint explicitly labelled sequential
+  procedures called from main. Typed call frames retain target ownership while
+  the original header preserves the last declaration's shared call vector
+  (ADR 0069). Call graphs, process-owned checksums and strict saved-frame witness
+  replay remain separate named boundaries; quotas and defaults are unchanged.
+
+- Bounded P `elsif` sequential-procedure Full checksums retain virtual Else
+  ownership and conditional continuation updates, with pinned stored-header
+  byte/CRC controls and unchanged resource budgets (ADR 0066). Artifact, model
+  and strict saved-frame replay qualifications remain separate.
+
+- Full PlusCal editing derives exact header AST/CRC for proved nested sequential
+  procedure If/With/Either/While transfers, with bounded typed expansion and
+  separate artifact/model/replay qualifications (ADR 0061). Unvisited While TRUE
+  tail assignments preserve reference creation order; split/comment token-line
+  conditions retain the conditional stored-header path. Public multiline
+  procedure generation remains named Unsupported.
+- Bounded Full PlusCal editing now derives exact header AST checksums for one
+  disjoint labelled sequential procedure, with ordinary calls/returns and
+  call-goto. This earlier increment retained nested transfers as refusals; the
+  later bounded nested continuation above lifts only its proved shapes. Wider
+  ownership remains unsupported; artifact admission and model proofs stay separate.
+
+- Independent whole-word replay can prove bounded tuple-preserving variable
+  histories from Init and every Next branch; unknown history remains refused.
+- Strict independent whole-word replay admits proved tuple-only `Tail`,
+  concatenation and `SubSeq` operands while retaining string-history and
+  variable-stack refusals; includes a runnable CLI/Cargo guide.
+- Trace JSON documentation now distinguishes tagged value kinds and document
+  round trips from construction-preserving value transport and independent
+  validation. Mixed record/tuple set decoding limitations remain tracked in #190;
+  this clarification does not change admission or validation behavior.
+
 - Opt-in bounded disk seen-state safety membership uses fallible ordered inline
   admission, preserving concrete outcomes while reporting actual worker fallback,
   positioned errors and explicit cleanup. Graph/recovery and unproved
@@ -35,6 +74,10 @@ All notable changes to this project are documented here. The project will follow
 - Periodic backend runtime-fraction arithmetic matches 196 actual pinned updater
   observations, including wrapping and NaN/zero behavior. It remains separate
   from ordinary scheduling and checker verdicts.
+
+
+- Add a bounded request-owned periodic Rust diagnostic: real prefix append precedes a single configured-hook/controller service, including empty requests. Separate receipts retain actual counters and source identity; no ordinary temporal verdict or default/profile change.
+
 - Producer-owned request pauses publish the maximal returned contiguous source prefix through the shared safety/graph path, retaining later buffers without regeneration. Typed receipts distinguish graph publication from physical frontier append; no ordinary temporal verdict or schedule credit. See `docs/committed-periodic-prefix.md`.
 
 - Producer-owned progress requests pause actual expansion claims and join admitted work under real dispatch authority; privately retained receipts keep uncommitted output separate from logical/temporal graph publication. Runnable Rust diagnostics grant no ordinary schedule or model-proof credit.
@@ -66,6 +109,26 @@ All notable changes to this project are documented here. The project will follow
 
 
 - Memory VIEW preserves nonforcing normalization of evaluator-owned lazy filters; unknown providers and unproved lazy-operation caches remain explicit refusals. Spill and checkpoint deferred-value admission is unchanged.
+
+
+
+- Bounded global PlusCal LOCAL and function DEFINE declarations preserve helper
+  visibility, domains and pre-state lookup in both profiles. Domain/body
+  action/temporal and recursive/name conflicts remain named refusals; artifact
+  admission, CRC matching and finite model proof remain separate reports.
+- Bounded PlusCal DEFINE helpers preserve global/local declaration order and
+  pre-state helper references, with exact post-translation AST/Full CRCs.
+  Recursive, action/temporal and unproved scoped declaration shapes refuse
+  explicitly; public generated modules still require syntax/semantic admission.
+- PlusCal embedded selection follows pinned line-first marker ownership; a later
+  unfair algorithm cannot replace an earlier fair one. Same-line priority and
+  split/tab/space separators have paired primary controls (#192).
+- Bounded nonrecursive PlusCal macros support Full post-expansion AST CRCs.
+  Single-line substitutions retain logical serialization positions; multiline
+  actuals and substituted junction columns are refused. Embedded algorithm
+  comment decoration preserves original spans; standalone parsing still requires EOF.
+  Generated declarations precede trailing user definitions; unknown names still
+  reject and invalid caller ranges carry bounded UTF-8 diagnostics.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and
@@ -1087,3 +1150,8 @@ All notable changes to this project are documented here. The project will follow
 - Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.
 
 
+
+- Independent whole-word tuple replay follows fixed nested tuple aliases in
+  `UNCHANGED`; conditional permutations remain refused.
+
+- Preserve complete storage, VIEW, and checkpoint recovery matrices as smaller CI test cases; retain timeout evidence and verify their compiled inventory without extending test budgets.

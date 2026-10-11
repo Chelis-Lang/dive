@@ -106,6 +106,7 @@ to preserve pinned suspension, force, PERIODIC and checkpoint callback order.
 Its successful invocation is not a model verdict and does not enable ordinary
 strict temporal checking. Actual graph-growth, clock and checkpoint authority
 remain separate integration obligations.
+
 Rust backend authors can inspect source-owned graph growth and explicit partial stopping with the [periodic backend diagnostic](../periodic-backend.md). This API does not enable ordinary clock scheduling, Java queue suspension, partial Holds or a model-checking verdict.
 
 
@@ -118,3 +119,7 @@ The [configuration-owned snapshot diagnostic](../configured-periodic-snapshot.md
 The [producer-owned request diagnostic](../producer-progress-requests.md) adds real expansion claim/pause receipts to the configured snapshot. Completed uncommitted output is not a temporal graph write; ordinary periodic checking remains unsupported. Its runnable Cargo example documents the separate request/controller force policies.
 
 [Committed request prefixes](../committed-periodic-prefix.md) publish actual returned contiguous work under the existing owned pause. The Cargo example and typed receipts distinguish expansion, graph publication and physical frontier append; ordinary temporal checking remains unsupported.
+
+The [request-owned service diagnostic](../request-owned-periodic-service.md) runs the actual configuration hook/controller once after successful prefix append, including genuinely empty requests. Its executable Cargo example and receipts remain nonproof; ordinary scheduling is unsupported.
+
+For original-value reconstruction and fresh independent memory/JSON replay of an actual diagnostic request/EOF candidate, see the [producer-owned candidate Rust guide](../producer-owned-temporal-candidate.md). This separate API does not enable ordinary periodic CLI checking or certify temporal absence/completion.

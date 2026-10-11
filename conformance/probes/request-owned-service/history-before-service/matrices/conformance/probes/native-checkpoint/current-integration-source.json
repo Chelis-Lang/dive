@@ -1,0 +1,34 @@
+{
+  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
+  "historical_integration_sources": [
+    {
+      "matrix": "before-final-mode-source/matrix.json",
+      "matrix_sha256": "df483feff6ba044615c90151c01428f18b3062642c80fbcadb53c63f00568a63",
+      "source_archive": "before-final-mode-source/sources"
+    }
+  ],
+  "scope": "current combined source; frozen original delivery retained separately; staged deterministic pure safety parallel recovery; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
+  "source_sha256": {
+    "crates/dive-api/src/check.rs": "fb504620a8d0de1d00c3b7309ad615cb109682fe5fa4e877c2e6c8e99b73b038",
+    "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
+    "crates/dive-api/tests/native_checkpoint.rs": "5862572c7b3618c7f856027cb2b0c0542bdfda896add46f4a3735b45c821b6e0",
+    "crates/dive-check/src/checkpoint.rs": "096e3daa74bb0bbebb06fd0ebdb8f7e302b436fd1442ce9c971377d038a7745b",
+    "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
+    "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
+    "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
+    "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f",
+    "crates/dive-model/src/lib.rs": "5b3375547916df8de057372abe036861356624a3fb3fe6903dd2f39a2a0a64d1",
+    "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
+    "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd"
+  },
+  "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "fbd84798a042fbf3a0f42e55f03b3b99e203693053ad51106f815e0961ce831c",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit."
+}

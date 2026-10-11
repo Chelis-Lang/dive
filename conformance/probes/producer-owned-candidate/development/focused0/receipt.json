@@ -1,0 +1,54 @@
+{
+  "base_head": "3d99a1b2f6fb7d178062ab6684055b0c428bd302",
+  "uncommitted_source_sha256": {
+    "crates/dive-api/src/periodic_candidate.rs": "48053b1060a3e619336dd17cb954e30096b441918dae39b1ad37da4511cd06f6",
+    "crates/dive-api/src/periodic_candidate_word.rs": "f7fa91df45978eec384a3ed4352efeb42af0371649ee64d6d1b15c5f8a5cf190",
+    "crates/dive-api/tests/periodic_candidate.rs": "c20088a2a8f921fb29ef92606743ce6b1f336666ebba73aee9d2ea8189b1db68",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "f60ded877eb5cd98eb7b9c5186d95557065d01de7640934ae4865a795b68d387",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
+    "crates/dive-liveness/src/phase_execution.rs": "52fe2119066f3a1c0b1d2378a86e333690ecd054189140c7bb5f717f0a412168",
+    "crates/dive-liveness/src/periodic_hook.rs": "7f293e375a874ffe05de7880f4043f7f1b6f27074410c66b92d64decd6a8ccbc",
+    "crates/dive-liveness/src/phase_l.rs": "15ef956d91128cfb612fd4766d9feb7d0c6ef8b2f7e6d45fdbbb1ce34fd8f4cd",
+    "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090"
+  },
+  "source_epoch": "development focused0; no clean base-head producer credit",
+  "steps": [
+    {
+      "name": "request-unit",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--lib",
+        "periodic_candidate::tests",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 101,
+      "seconds": 1.2464403750000002,
+      "log_sha256": "c8ae1adf410eba02f6face5312c622adf305a047f4b6e8dd41e2c2caf551a75e"
+    },
+    {
+      "name": "public-api",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "periodic_candidate",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 101,
+      "seconds": 0.964574083,
+      "log_sha256": "db7f358c5c5c4ed0338ff57975c20fee8db0146b35b0c56e911132c79f423861"
+    }
+  ],
+  "source_unchanged": true
+}

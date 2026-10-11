@@ -181,11 +181,17 @@ python3 -I scripts/check-native-checkpoint.py
 python3 -I scripts/check-view-normalization.py
 python3 -I scripts/check-view-random-stream.py
 python3 -I scripts/check-trace-representation.py
+python3 -I scripts/check-tuple-only-replay.py
 python3 -I scripts/check-fallible-seen-store.py
 python3 -I scripts/check-fallible-seen-engine.py
 python3 -I scripts/test-fallible-seen-git-proof.py
 python3 -I scripts/check-disk-safety-roles.py
 python3 -I scripts/test-disk-safety-role-proof.py
+python3 -I scripts/check-inductive-tuple-replay.py
+python3 -I scripts/check-fixed-tuple-projection.py
+python3 -I scripts/check-core-prefix-storage-integration.py
+python3 -I scripts/check-core-composed-epoch.py
+python3 -I scripts/test-core-composed-epoch.py
 python3 -I scripts/check-native-parity-integration.py
 python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-tlc-state-if.py
@@ -204,12 +210,24 @@ python3 -I scripts/check-tlc-partial-scc.py
 python3 -I scripts/check-periodic-backend.py
 python3 -I scripts/check-periodic-lifecycle.py
 python3 -I scripts/check-periodic-hook.py
+python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
+python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
 python3 -I scripts/check-periodic-snapshot.py
 python3 -I scripts/check-progress-queue.py
+python3 -I conformance/probes/storage-tuple-function/verify.py
 python3 -I scripts/check-committed-prefix.py
+python3 -I scripts/check-request-owned-service.py
+python3 -I scripts/check-producer-owned-candidate.py
+python3 -I scripts/check-fallible-invariant-replay.py
+python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py
+python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
+python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py
+python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py
 python3 -I scripts/check-test-partitions.py
 python3 -I scripts/test-workspace-gate.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
+python3 -I scripts/check-test-partitions.py
+python3 -I scripts/test-workspace-gate.py
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked

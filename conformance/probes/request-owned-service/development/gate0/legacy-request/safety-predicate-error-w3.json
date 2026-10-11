@@ -1,0 +1,55 @@
+{
+  "aborted_request": null,
+  "complete": false,
+  "eof": null,
+  "invocations": [],
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "pauses": [
+    {
+      "claimed": [],
+      "committed_end": 0,
+      "committed_start": 0,
+      "committed_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "initial_generated": 9,
+        "queue": 9
+      },
+      "completed": [],
+      "expanded_generated": 0,
+      "failed": [],
+      "forced": true,
+      "frontier_appended_end": 0,
+      "frontier_appended_start": 0,
+      "logical_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "initial_generated": 9,
+        "queue": 9
+      },
+      "millis": 1791732238247,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        3,
+        1
+      ],
+      "predicate_workers": 0,
+      "request": 1,
+      "submitted_end": 8,
+      "submitted_start": 0
+    }
+  ],
+  "requests_cancelled": false,
+  "stop": "phase-L safety capture stopped: EvaluationError { site: Invariant, code: 2179, name: \"TLC_MODULE_DIVISION_BY_ZERO\", reported: 2111, message: \"Evaluating invariant Bad failed.\\n@!@!@STARTMSG 2179:0 @!@!@\\nThe second argument of \\\\div is 0.\\n@!@!@ENDMSG 2179 @!@!@\", verified: true, cause: EvalError(Inner { class: Eval, ec: DivisionByZero, message: \"The second argument of \\\\div is 0.\", origin: Some(ExprId(66)), eval_exception: true }) }",
+  "stop_stats": {
+    "depth": 2,
+    "distinct": 33,
+    "generated": 41,
+    "initial_generated": 9,
+    "queue": 30
+  }
+}

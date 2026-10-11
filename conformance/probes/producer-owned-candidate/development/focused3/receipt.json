@@ -1,0 +1,106 @@
+{
+  "base_head": "3d99a1b2f6fb7d178062ab6684055b0c428bd302",
+  "source_epoch": "development focused3; no clean base-head producer credit",
+  "uncommitted_source_sha256": {
+    "crates/dive-api/src/periodic_candidate.rs": "a06cf7284b3c280e5ba38a0965bea40ca20079f5ce47a818827b85518d593204",
+    "crates/dive-api/src/periodic_candidate_word.rs": "f7fa91df45978eec384a3ed4352efeb42af0371649ee64d6d1b15c5f8a5cf190",
+    "crates/dive-api/tests/periodic_candidate.rs": "3b928e4628dd8817896c1c9c7ed65f6a2e9a74edef0354512cfab7ce65da3b9f",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
+    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
+    "crates/dive-liveness/src/periodic_hook.rs": "7f293e375a874ffe05de7880f4043f7f1b6f27074410c66b92d64decd6a8ccbc",
+    "crates/dive-liveness/src/phase_l.rs": "d0a8635f992be8c0e4074745d7e668b18616e44b80eca3f62e8629707bbbb4e3",
+    "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090"
+  },
+  "steps": [
+    {
+      "name": "request-private-unit",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--lib",
+        "periodic_candidate::tests",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 0,
+      "seconds": 20.602720583,
+      "log_sha256": "feb4323a921d3fed2fdb3bacf110f6835722ae836292194a14122b78763f639d"
+    },
+    {
+      "name": "public-api",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-api",
+        "--test",
+        "periodic_candidate",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 0,
+      "seconds": 13.869157999999999,
+      "log_sha256": "60b8ba64a0cf6533de68b5ec89f162224e964a3e30a217a2a14548683e0a087a"
+    },
+    {
+      "name": "raw-original-audit",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-liveness",
+        "--lib",
+        "concrete_audit",
+        "--locked",
+        "--",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 0,
+      "seconds": 19.790964250000002,
+      "log_sha256": "e5cc72d58a162122613b4f49beb71805580d1280284b1f7737f463dc3e81f8b1"
+    },
+    {
+      "name": "cargo-guide",
+      "command": [
+        "cargo",
+        "run",
+        "-p",
+        "dive-api",
+        "--example",
+        "periodic_candidate",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 2.7042704169999965,
+      "log_sha256": "321219f4606cf1410aa04a9bbbe0c25929f6aa8fdaba391c1061b238beaba401"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "dive-api",
+        "-p",
+        "dive-liveness",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 0.864001334000001,
+      "log_sha256": "ec3275bd7cdb61fe7edc4fadcb9a7a8d1c03aef38d75c8a6d05652c57a1d448e"
+    }
+  ],
+  "source_unchanged": true
+}

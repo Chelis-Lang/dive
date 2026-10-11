@@ -15,7 +15,7 @@ pub struct TranslationRequest {
     /// Module resolution for validating the resulting module.
     pub analyze: AnalyzeOptions,
     /// Global compatibility selection. Current supported generation is shared;
-    /// historical flags, formatting and rewrite/checksum parity remain pending.
+    /// historical flags, exact formatting and broader rewrite/checksum shapes remain pending.
     pub compat_tlc: bool,
 }
 /// Stage-separated translation report. Acceptance never means a model proof.
@@ -58,7 +58,7 @@ fn report(
     let mut document = json!({"schema_version":TRANSLATE_SCHEMA_VERSION,"command":"translate","file":file,
         "profile":if request.compat_tlc {"tlc"} else {"dive"},"result":result,"stage":stage,"accepted":status==0,
         "exit_code":status,"model_proved":false,"exhaustive":false,"limits":request.limits,
-        "pending":["unproved-overlapping-process-domains","unproved-sequential-procedure-modifiers","name-renaming","unproved-scoped-process-procedure-renaming","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-rewriting","checksums","mapping-format"]});
+        "pending":["unproved-overlapping-process-domains","unproved-sequential-procedure-modifiers","name-renaming","unproved-scoped-process-procedure-renaming","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-writing","unproved-ast-checksum-shapes","mapping-format"]});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }
@@ -157,11 +157,51 @@ pub fn translate_source(
                     json!({"diagnostic":{"code":"DIVE-P0001","span":{"start":start,"end":end},"message":"unterminated module block comment"}}),
                 );
             }
-            let marker = text
-                .find("--algorithm")
-                .or_else(|| text.find("--fair algorithm"));
-            if let Some(marker) = marker
-                && selected.replace(start + marker..end - 2).is_some()
+            let candidate =
+                dive_pluscal::rewrite::algorithm_comment_region(source, Span { start, end });
+            if candidate.is_none() {
+                continue;
+            }
+            // Pinned trans.java admits only whitespace or a line comment after
+            // the closing delimiter, and inserts after that complete line.
+            let closing_line = source[end..]
+                .find('\n')
+                .map_or(source.len(), |offset| end + offset);
+            let tail = source[end..closing_line].trim_matches(|character: char| character <= ' ');
+            if !tail.is_empty() && !tail.starts_with("\\*") {
+                return report(
+                    file,
+                    request,
+                    1,
+                    "selection",
+                    json!({"diagnostic":{"code":"DIVE-P0002","span":{"start":end,"end":closing_line},"message":"text after algorithm closing comment must be whitespace or a line comment"}}),
+                );
+            }
+            let insertion = closing_line + usize::from(closing_line < source.len());
+            let region = match dive_pluscal::rewrite::owned_algorithm_comment_region(
+                source,
+                Span { start, end },
+                &request.limits.parser,
+            ) {
+                Ok(region) => region,
+                Err(error) => {
+                    let status = match error.code {
+                        Code::Unsupported | Code::Resource => 3,
+                        Code::Internal => 4,
+                        _ => 1,
+                    };
+                    return report(
+                        file,
+                        request,
+                        status,
+                        "selection",
+                        json!({"code":error.code.as_str(),"diagnostic":error}),
+                    );
+                }
+            };
+            if selected
+                .replace((region.start..region.end, insertion))
+                .is_some()
             {
                 return refused(
                     file,
@@ -182,7 +222,7 @@ pub fn translate_source(
             );
         }
     }
-    let Some(region) = selected else {
+    let Some((region, insertion)) = selected else {
         return refused(
             file,
             request,
@@ -190,7 +230,7 @@ pub fn translate_source(
             "missing algorithm block comment",
         );
     };
-    let Some(module_end) = module_end else {
+    let Some(_) = module_end else {
         return report(
             file,
             request,
@@ -218,9 +258,9 @@ pub fn translate_source(
     };
     let generated = format!(
         "{}\n{}\n{}",
-        &source[..module_end],
+        &source[..insertion],
         artifact.tla,
-        &source[module_end..]
+        &source[insertion..]
     );
     let analysis = analyze_source(file, &generated, &request.analyze);
     if !analysis.accepted() {

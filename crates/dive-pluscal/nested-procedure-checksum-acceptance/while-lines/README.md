@@ -1,0 +1,1 @@
+Separate pre-repair selection. Clean primary stage/output bytes and the failed frozen623 native/public observations are retained. Original180 selection remains unchanged. No failed row earns conformance credit.

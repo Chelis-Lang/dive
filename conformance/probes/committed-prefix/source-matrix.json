@@ -8,24 +8,24 @@
   "source_sha256": {
     "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
     "crates/dive-store/tests/properties.rs": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
-    "crates/dive-check/src/progress.rs": "4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5",
+    "crates/dive-check/src/progress.rs": "5eb33ca05e070773e584ddef66d491ea9855c71c5a25cdc98a8fcc17b9a34db3",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
-    "crates/dive-check/src/capture.rs": "c0da499fcba3afeff4e2d9ddec3dee9cc78a3217eb53f5262b9bcd9c16236baa",
-    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
+    "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
+    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-check/src/lib.rs": "bead11282e3b776c2f158f1bf9d9dd0999e06631e0992aa084f387d1e2d54cbf",
-    "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
-    "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
-    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
-    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
+    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
+    "crates/dive-liveness/src/periodic_hook.rs": "7f293e375a874ffe05de7880f4043f7f1b6f27074410c66b92d64decd6a8ccbc",
     "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
     "crates/dive-api/examples/committed_prefix.rs": "221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb",
-    "docs/committed-periodic-prefix.md": "d7e92c2ff68b13f5d665dd31822f3fb199a4aa374a66568f2a86dcf9d1d9ff0f",
+    "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "eb6e68a6c2448edb257c61a2a7e07151c79b7b35077647ab0bef265420329fcf",
-    ".github/workflows/ci.yml": "e9bd36a90272e17c64fa30274cca9078d318436f39c79b10d1fd62e1077bf153",
-    "conformance/parity-features.json": "3dd88efdfac1201bdedcf81d2cb50fe2cbd5adea260a414c66d1cece2a980bcf"
+    "AGENTS.md": "d86906d82657e55fb89552377d0833de36b7f7c915a5e41b72a548233a4abeee",
+    ".github/workflows/ci.yml": "4afc0be2fe1c064de2bcde110c6e0a9eb80c166d2bc59a3c8d285a6059e52738",
+    "conformance/parity-features.json": "886c065a7e814dbd5f3ca6d7c01a45a2cd3c73030b0373e760c246bdcc4f20bf"
   },
-  "current_integration_scope": "Current source integrity only; original runtime producers and observations remain historical, no family certification."
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

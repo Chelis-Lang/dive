@@ -1,0 +1,1328 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "baf9892b9a0c3dcf08c1e7a11bf808e20ba9cfcf0af43eed4ddb0b84fe972e29",
+  "capture_sha256": "ccaaff1299ea2a886d0616e621c1cf70ebc2836ab15e93bef30950693b121dae",
+  "adapter_sha256": {
+    "SourceOptionProbe.class": "2b927b398ea4b7439fdfedaf345e0c349da5597583c35ab650c79a3947d1f36f",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 16,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "MacroLayout_C_multiline_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "f7ebc0f7503378118ec32de0b27c1e6f672fe4c068dcb07f251624b4bee5fa79",
+      "output_sha256": "0c634249c6f67e4d023b22724282269d56ee730f560696d5a033e86d359132c2",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_multiline_arg.primary.stdout.gz",
+          "sha256": "a23ab6f4f404b6b60ce0e11977533cc9e15532fc9d53c231238792af9f111db1"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_multiline_arg.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "550dfca8",
+        "c261faa8"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_multiline_arg.stages.stdout.gz",
+          "sha256": "c36aed6fe65f02c69c3bbc315cd10b4dd168ffa78836ddb74df7cbc245e508a3"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_multiline_arg.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "550dfca8",
+          "ast_sha256": "61fafed8f102e22bdfc53de131307933034c8a462b2af1549c9e4ed92ee01f5c",
+          "json_sha256": "16e6006681ace372c5a86bcd8dba64979928396f903d348c0bfcabf91f107129"
+        },
+        "names": {
+          "crc": "550dfca8",
+          "ast_sha256": "61fafed8f102e22bdfc53de131307933034c8a462b2af1549c9e4ed92ee01f5c",
+          "json_sha256": "16e6006681ace372c5a86bcd8dba64979928396f903d348c0bfcabf91f107129"
+        },
+        "translated": {
+          "crc": "550dfca8",
+          "ast_sha256": "61fafed8f102e22bdfc53de131307933034c8a462b2af1549c9e4ed92ee01f5c",
+          "json_sha256": "16e6006681ace372c5a86bcd8dba64979928396f903d348c0bfcabf91f107129"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_multiline_arg.sany.stdout.gz",
+          "sha256": "beae3676e7fe9bf2a265695dbd988e13db2b1407486b78eb06117610ca4e9d5b"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_multiline_arg.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_multiline_arg.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_inline_junction_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "302281c43dc6c29eff667a9473115b2080c3b75cbd0d6890d212577d81136b0b",
+      "output_sha256": "0f1e1abfd536e52b745c31795080c60a27a20112adb27527d74f0da293cdb4b5",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_inline_junction_arg.primary.stdout.gz",
+          "sha256": "cd5bf0eaa780b546a435a89b2bf05cb13c7af07360df483047271814a3efa8e1"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_inline_junction_arg.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "1ee2ebea",
+        "1f6da274"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_inline_junction_arg.stages.stdout.gz",
+          "sha256": "3387bd0a81bfec07768ab5aa3843583877a318170d7949295ce6aedbdecdc895"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_inline_junction_arg.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "7f84da528f3ad3edbd0aa0f6bdb2ffdf7bb5fa67337f10f298700d9b466a89bd"
+        },
+        "names": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "7f84da528f3ad3edbd0aa0f6bdb2ffdf7bb5fa67337f10f298700d9b466a89bd"
+        },
+        "translated": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "7f84da528f3ad3edbd0aa0f6bdb2ffdf7bb5fa67337f10f298700d9b466a89bd"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_inline_junction_arg.sany.stdout.gz",
+          "sha256": "936ed77bbbb7f43ca11b970f1e74497e9d4e7f65f762c499b3c233feb8c7bb2f"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_inline_junction_arg.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_inline_junction_arg.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_body_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "4bd0d31f10fc4c8f9442c67ec0957bbdc210fa23dfabfcd0c7394b3d1b0e354c",
+      "output_sha256": "ffe14285cb2deafd99b28aea07c0d1fac848793095f78680a23d06d75cd9b54a",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_body_junction.primary.stdout.gz",
+          "sha256": "b8b459bea90364a3a937fa929cc450fd1e98604c1019b93578505b71af1110bc"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_body_junction.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "476a3b24",
+        "ca6f2328"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_body_junction.stages.stdout.gz",
+          "sha256": "78a29a0286796341400a5990b3c95c0e09909f5614026aadc4c00fe2d9d810a8"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_body_junction.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "476a3b24",
+          "ast_sha256": "6b507ec16d67ac5eb29a69dcfb12855b553a11b195eded38502d7cdfa7c8f69c",
+          "json_sha256": "32be00b07ec3ae989f670001a003b0764b6de4a83b333d5550b1ce8c89324aa9"
+        },
+        "names": {
+          "crc": "476a3b24",
+          "ast_sha256": "6b507ec16d67ac5eb29a69dcfb12855b553a11b195eded38502d7cdfa7c8f69c",
+          "json_sha256": "32be00b07ec3ae989f670001a003b0764b6de4a83b333d5550b1ce8c89324aa9"
+        },
+        "translated": {
+          "crc": "476a3b24",
+          "ast_sha256": "6b507ec16d67ac5eb29a69dcfb12855b553a11b195eded38502d7cdfa7c8f69c",
+          "json_sha256": "32be00b07ec3ae989f670001a003b0764b6de4a83b333d5550b1ce8c89324aa9"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_body_junction.sany.stdout.gz",
+          "sha256": "b339cdbf5ed59e2ef9c5f4af3177ba44d1edc5e44d6fad71e0e1157a5907d28c"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_body_junction.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_body_junction.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_unchanged_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "e74f4a578ec6ed508f87dd7be6d8a0d5f4364533646006212166e3a54b5ab066",
+      "output_sha256": "f3a4e057a41eb1d586640faaa51398d3e7a2abd9576696e45315f54d0ce24193",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_unchanged_junction.primary.stdout.gz",
+          "sha256": "9440fe6df3fe57f4febf65a2d7176330e04cbe258c45a26f57eb2002cb8e7c77"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_unchanged_junction.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "1ee2ebea",
+        "1f6da274"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_unchanged_junction.stages.stdout.gz",
+          "sha256": "7e9055a843f151b9615cf1e63df29383e6a0a670d7de06c1526949c00e515aee"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_unchanged_junction.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "6fa3f2fbfa7798d188958a471acef62f1dabc01f05377627974ed5e1a3c47275"
+        },
+        "names": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "6fa3f2fbfa7798d188958a471acef62f1dabc01f05377627974ed5e1a3c47275"
+        },
+        "translated": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "6fa3f2fbfa7798d188958a471acef62f1dabc01f05377627974ed5e1a3c47275"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_unchanged_junction.sany.stdout.gz",
+          "sha256": "b37e5c375a34e54725b154dbba35c28bc46b892ca02a44d8a3a4950fed69606f"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_unchanged_junction.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_unchanged_junction.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_multiline_body",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "2736c2c4f7b7c09ed650e8c88ba608afba97cbe399abe94c7c409cbb623e79ee",
+      "output_sha256": "76efb409cdab53cedb7bc9285a44ab18d0e01bcb35c667e63cd763730a196913",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_multiline_body.primary.stdout.gz",
+          "sha256": "2abadb2e46194fe82e6bf5de0a62c1afb4d40305c4e8c6fb93b31979ab818f4c"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_multiline_body.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "ad80fbc1",
+        "e7e8438e"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_multiline_body.stages.stdout.gz",
+          "sha256": "acb70464c4fd6fb3099af264287d2e4aad2f5c7a33bd078928947142ee88f4a7"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_multiline_body.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "ad80fbc1",
+          "ast_sha256": "b401d876599b78c37e42941fb4c750eb086e49999a0dc3de9b77787c05b32ec1",
+          "json_sha256": "0f2280208ac7641bc0a02efd053891f8cceb20b68f838dc103d197bfc6b6d912"
+        },
+        "names": {
+          "crc": "ad80fbc1",
+          "ast_sha256": "b401d876599b78c37e42941fb4c750eb086e49999a0dc3de9b77787c05b32ec1",
+          "json_sha256": "0f2280208ac7641bc0a02efd053891f8cceb20b68f838dc103d197bfc6b6d912"
+        },
+        "translated": {
+          "crc": "ad80fbc1",
+          "ast_sha256": "b401d876599b78c37e42941fb4c750eb086e49999a0dc3de9b77787c05b32ec1",
+          "json_sha256": "0f2280208ac7641bc0a02efd053891f8cceb20b68f838dc103d197bfc6b6d912"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_multiline_body.sany.stdout.gz",
+          "sha256": "15d35dc5d5e1f0b0454623e4a8f6c2d23a0b8382a194d4da18f8198debf81fc2"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_multiline_body.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_multiline_body.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_comment_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "ea3fe565343672a2635b01e18ef7cf250be2110335468c78068aa2999ec0a5e7",
+      "output_sha256": "a3dde048d9e6ebc06ec29cbd9e25dcbbc4adf3e5e3ff2bece264ea48b5251982",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_comment_arg.primary.stdout.gz",
+          "sha256": "0fe2395ed3946b7089597883d4e71bd49693b57a1995c0c1318d82e0d985f5a7"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_comment_arg.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "4f4af27b",
+        "845ca6bc"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_comment_arg.stages.stdout.gz",
+          "sha256": "d299fb5348c82586714697cc01ccbcf941fca6133de9b85e08b5998ac2a7da04"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_comment_arg.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "4f4af27b",
+          "ast_sha256": "60f0fd368e83fa2d78faa26ae9edd25afcc7500c49dba919d9c8420f9045873c",
+          "json_sha256": "fc0263b84f05bb580cf15c5c6811a772310dac92e985d709b5d837cc60c75712"
+        },
+        "names": {
+          "crc": "4f4af27b",
+          "ast_sha256": "60f0fd368e83fa2d78faa26ae9edd25afcc7500c49dba919d9c8420f9045873c",
+          "json_sha256": "fc0263b84f05bb580cf15c5c6811a772310dac92e985d709b5d837cc60c75712"
+        },
+        "translated": {
+          "crc": "4f4af27b",
+          "ast_sha256": "60f0fd368e83fa2d78faa26ae9edd25afcc7500c49dba919d9c8420f9045873c",
+          "json_sha256": "fc0263b84f05bb580cf15c5c6811a772310dac92e985d709b5d837cc60c75712"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_comment_arg.sany.stdout.gz",
+          "sha256": "3156de021a6a6b876298655b2d12d2625310010c46c390aea003d85b363e395f"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_comment_arg.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_comment_arg.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_ascii_string",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "48be8f15813f2fefe0c05fcb16868b82933b9613412ae0cbf4e27cd89125698e",
+      "output_sha256": "2695b06ba59874ab8691cfb5d8695b622e2338a143acc4e95398ac5b776239e2",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_ascii_string.primary.stdout.gz",
+          "sha256": "766115f19a4bdc93a6c8c3eccf80983cbf033e5905ca7161a396b46bc1fcf1fd"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_ascii_string.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "8736f128",
+        "f5824edf"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_ascii_string.stages.stdout.gz",
+          "sha256": "d159ea9423ae5ba10590446c940f0097e45294e48909ace307fdf4d40d01668b"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_ascii_string.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "8736f128",
+          "ast_sha256": "63a1125d9cffcd817937224b68a7330b9e73c756cba7f4619ac8c9016bd3431a",
+          "json_sha256": "5459685df9af1788a4747b444731bb4c8c60a905466800e1c534ba38ec6c93c9"
+        },
+        "names": {
+          "crc": "8736f128",
+          "ast_sha256": "63a1125d9cffcd817937224b68a7330b9e73c756cba7f4619ac8c9016bd3431a",
+          "json_sha256": "5459685df9af1788a4747b444731bb4c8c60a905466800e1c534ba38ec6c93c9"
+        },
+        "translated": {
+          "crc": "8736f128",
+          "ast_sha256": "63a1125d9cffcd817937224b68a7330b9e73c756cba7f4619ac8c9016bd3431a",
+          "json_sha256": "5459685df9af1788a4747b444731bb4c8c60a905466800e1c534ba38ec6c93c9"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_ascii_string.sany.stdout.gz",
+          "sha256": "8bf2d1bedb9c2ba4bea666710eb7ddac7fc6ccfa5050085a53f152a32702845c"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_ascii_string.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_ascii_string.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_C_unicode_comment",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "a4b96effad06a042199a1a9fc8c7a9dca8d77aaa14de92fc74ccd6039982069d",
+      "output_sha256": "b8dbac3f2128463e043ab41c14c24f9684efd6ed82e58ca1020ae5b3791c441a",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_unicode_comment.primary.stdout.gz",
+          "sha256": "1c8cc17f30359efa1a47e6f4ca1a144ed2e42ac59ab650200b7f693f21f55506"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_unicode_comment.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_unicode_comment.stages.stdout.gz",
+          "sha256": "b9a3078d5afddf4d6cb979c65748955c4289a9d64fce904dc1f2e2328e37a38a"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_unicode_comment.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "b32ebe8c30b9a708ed6506468793ab2e9e31c34d1961cd714fcff54818b7bfce"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "b32ebe8c30b9a708ed6506468793ab2e9e31c34d1961cd714fcff54818b7bfce"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "b32ebe8c30b9a708ed6506468793ab2e9e31c34d1961cd714fcff54818b7bfce"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_C_unicode_comment.sany.stdout.gz",
+          "sha256": "d1116d107bb42da655a5cd7bd6e51e132a64d89ee996d1698043bb43598193aa"
+        },
+        "stderr": {
+          "path": "MacroLayout_C_unicode_comment.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_C_unicode_comment.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_multiline_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "8ca20c2bec2340b8819a4671e9e6e409600951f9cdeeee5456b9e90db3f7e87d",
+      "output_sha256": "866a836a53990cdfa85fa4ee5414ac3d5c2182131d3337d68386d130218a6f3d",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_multiline_arg.primary.stdout.gz",
+          "sha256": "197777b1772424a4a1e9fafa9c20f6cfd13f6a6058a83471aebb2d4b3186ed41"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_multiline_arg.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "550dfca8",
+        "7c70405c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_multiline_arg.stages.stdout.gz",
+          "sha256": "9d79ef6452504e43f3925b9190b568f8a3a7471c2477e52c88b534e6db7810c4"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_multiline_arg.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "550dfca8",
+          "ast_sha256": "61fafed8f102e22bdfc53de131307933034c8a462b2af1549c9e4ed92ee01f5c",
+          "json_sha256": "887653330930b65a69d00c0956c0801e17586b7302dc72cab58f415ed90ba6d0"
+        },
+        "names": {
+          "crc": "550dfca8",
+          "ast_sha256": "61fafed8f102e22bdfc53de131307933034c8a462b2af1549c9e4ed92ee01f5c",
+          "json_sha256": "887653330930b65a69d00c0956c0801e17586b7302dc72cab58f415ed90ba6d0"
+        },
+        "translated": {
+          "crc": "550dfca8",
+          "ast_sha256": "61fafed8f102e22bdfc53de131307933034c8a462b2af1549c9e4ed92ee01f5c",
+          "json_sha256": "887653330930b65a69d00c0956c0801e17586b7302dc72cab58f415ed90ba6d0"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_multiline_arg.sany.stdout.gz",
+          "sha256": "988fabca0cfe8b7f6efcf34063eef43a2b28033c654c7ac8c1a50bba6e504697"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_multiline_arg.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_multiline_arg.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_inline_junction_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "6f08ecddd25c72aa87171057c9c65d81d893c6d6370d23356c3e497616798012",
+      "output_sha256": "31a7f6da69778b1610f073f3efd0379b0e79ca6f79b3c8a5cf2e5cf43edb2b3d",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_inline_junction_arg.primary.stdout.gz",
+          "sha256": "1bd761bbcfb5d879928a808db38bf04de87a40ad11d1ad16408c47c02cb1e0ce"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_inline_junction_arg.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "1ee2ebea",
+        "1f6da274"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_inline_junction_arg.stages.stdout.gz",
+          "sha256": "d114dff7e1016a2a33c23a8ee50d9d46f899ea468c75f3deb22d96c1679ff1c9"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_inline_junction_arg.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "cc9294299094a992f477303abf9b010c6f0f90123719c5605990c83fe0521cf5"
+        },
+        "names": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "cc9294299094a992f477303abf9b010c6f0f90123719c5605990c83fe0521cf5"
+        },
+        "translated": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "cc9294299094a992f477303abf9b010c6f0f90123719c5605990c83fe0521cf5"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_inline_junction_arg.sany.stdout.gz",
+          "sha256": "afb5ceca9e297bbbf451d5e8b49f48f1be45086025e170b8994c63f983845488"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_inline_junction_arg.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_inline_junction_arg.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_body_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "59c59d8cf184409a9eaba70bda0963df635db7450f5a55b36017928f8f8459c8",
+      "output_sha256": "a9b1fea4c32632ac25788fccc8549dda407ee2065b2737bfb215b6c339449e88",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_body_junction.primary.stdout.gz",
+          "sha256": "bfd3f033246b4ff688461e3c59a0c89f2f55cab439e90ea9ddfe3d5585ed70d9"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_body_junction.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "476a3b24",
+        "ca6f2328"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_body_junction.stages.stdout.gz",
+          "sha256": "c655b87097556b4caddb4be78bfaf3fca43b51a25101efffc39086101fe357b6"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_body_junction.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "476a3b24",
+          "ast_sha256": "6b507ec16d67ac5eb29a69dcfb12855b553a11b195eded38502d7cdfa7c8f69c",
+          "json_sha256": "f073a4f2d454717850dddeadb1e9dbdf3ae58bd742e51a91ae5f223d4a02d0ed"
+        },
+        "names": {
+          "crc": "476a3b24",
+          "ast_sha256": "6b507ec16d67ac5eb29a69dcfb12855b553a11b195eded38502d7cdfa7c8f69c",
+          "json_sha256": "f073a4f2d454717850dddeadb1e9dbdf3ae58bd742e51a91ae5f223d4a02d0ed"
+        },
+        "translated": {
+          "crc": "476a3b24",
+          "ast_sha256": "6b507ec16d67ac5eb29a69dcfb12855b553a11b195eded38502d7cdfa7c8f69c",
+          "json_sha256": "f073a4f2d454717850dddeadb1e9dbdf3ae58bd742e51a91ae5f223d4a02d0ed"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_body_junction.sany.stdout.gz",
+          "sha256": "a2ec96102dba36a1e8b02b3b5bf05b8a10c422e2ecf30039e5cb1ef2b42f9005"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_body_junction.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_body_junction.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_unchanged_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "62294bf90372f1ec747060abd85038333400ec34ef3e0928a23697a23875e64b",
+      "output_sha256": "eeb2f78413103ca80731d2fc2588b49277ca4490ce20b63d19adbe0c1e70a44f",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_unchanged_junction.primary.stdout.gz",
+          "sha256": "17d49f2da1f0a070bd2668c4a09fedaf2938feb72ae7f218048ba0b856e610bc"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_unchanged_junction.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "1ee2ebea",
+        "1f6da274"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_unchanged_junction.stages.stdout.gz",
+          "sha256": "d4d2bce5f39d4d262324b3f4c82f78e693327089f836ee7bfb3dc1b11534bd9c"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_unchanged_junction.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "287e24995adb7293f0135913cb60cdd5d8f8fb661fb00fc374319f1234bd8e60"
+        },
+        "names": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "287e24995adb7293f0135913cb60cdd5d8f8fb661fb00fc374319f1234bd8e60"
+        },
+        "translated": {
+          "crc": "1ee2ebea",
+          "ast_sha256": "527b9ea25cae534245a2483cea1ad94c8f11364a66cba7f37f1dc8282cc9a8d0",
+          "json_sha256": "287e24995adb7293f0135913cb60cdd5d8f8fb661fb00fc374319f1234bd8e60"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_unchanged_junction.sany.stdout.gz",
+          "sha256": "00840a1acacdca9cf6f6be5d20caa555b4cec3bef2be9496b1a33820d49ad1f7"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_unchanged_junction.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_unchanged_junction.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_multiline_body",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "bdd4e73c45c5c2543a3077492efdb7e7b2b6c789ade3553b5d251b3954ce88bc",
+      "output_sha256": "ed253f9c0d1d6be749b2a8c963b4cbce109c7c04f83daaa26a262519497ee157",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_multiline_body.primary.stdout.gz",
+          "sha256": "2249f7fcf6de2fb5d4462096cb3227e6572aa032f79f949ddcb0d24c7d6d80bd"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_multiline_body.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "ad80fbc1",
+        "e316d696"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_multiline_body.stages.stdout.gz",
+          "sha256": "2d69e15ebb5381e94f7de4d984cdb40358b60b25d19a012a0a0a2064d33c9a2f"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_multiline_body.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "ad80fbc1",
+          "ast_sha256": "b401d876599b78c37e42941fb4c750eb086e49999a0dc3de9b77787c05b32ec1",
+          "json_sha256": "ab69aa91966586f3e95e5574d6eb067261e2b501e5ca37357dacea2b4ee95316"
+        },
+        "names": {
+          "crc": "ad80fbc1",
+          "ast_sha256": "b401d876599b78c37e42941fb4c750eb086e49999a0dc3de9b77787c05b32ec1",
+          "json_sha256": "ab69aa91966586f3e95e5574d6eb067261e2b501e5ca37357dacea2b4ee95316"
+        },
+        "translated": {
+          "crc": "ad80fbc1",
+          "ast_sha256": "b401d876599b78c37e42941fb4c750eb086e49999a0dc3de9b77787c05b32ec1",
+          "json_sha256": "ab69aa91966586f3e95e5574d6eb067261e2b501e5ca37357dacea2b4ee95316"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_multiline_body.sany.stdout.gz",
+          "sha256": "0bde8a3e4dccd6051d9bb8c61c7360a192b31e9ccf5bf1761f3fad2129c9b4f7"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_multiline_body.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_multiline_body.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_comment_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "4d857bce35a9666aa14a25d2a7739667c7e0b8fb8e83ca6a6e2744e5cd04edb0",
+      "output_sha256": "33263a1fe031177086510400afe33bc1e30d94fdee65fc2d947b34d5f0e2b61e",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_comment_arg.primary.stdout.gz",
+          "sha256": "00986f680b93129ea14b829ac7cc7e2bba25d02f556f0277aae3b2d6f0de04a5"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_comment_arg.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "4f4af27b",
+        "845ca6bc"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_comment_arg.stages.stdout.gz",
+          "sha256": "ef07b8496fb77f0713b594727d8f871e9e7c65163b5a2f1080c159a62a6da7c1"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_comment_arg.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "4f4af27b",
+          "ast_sha256": "60f0fd368e83fa2d78faa26ae9edd25afcc7500c49dba919d9c8420f9045873c",
+          "json_sha256": "52a25f91947f93ee1af4750228649603ae492280332bff5fd6828d4ff7e792a5"
+        },
+        "names": {
+          "crc": "4f4af27b",
+          "ast_sha256": "60f0fd368e83fa2d78faa26ae9edd25afcc7500c49dba919d9c8420f9045873c",
+          "json_sha256": "52a25f91947f93ee1af4750228649603ae492280332bff5fd6828d4ff7e792a5"
+        },
+        "translated": {
+          "crc": "4f4af27b",
+          "ast_sha256": "60f0fd368e83fa2d78faa26ae9edd25afcc7500c49dba919d9c8420f9045873c",
+          "json_sha256": "52a25f91947f93ee1af4750228649603ae492280332bff5fd6828d4ff7e792a5"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_comment_arg.sany.stdout.gz",
+          "sha256": "afbe3ca88254631d294e1ebb64ced34760b075c9ebd6ae1f662490ff3b8c45f2"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_comment_arg.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_comment_arg.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_ascii_string",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "a8c359332b32de7bfe51f4809d55760799142f47ef734409bf722411523f42b9",
+      "output_sha256": "f5848de1aee3319b980013aae62fe33721d17452868fb11bdee2aea13dec04da",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_ascii_string.primary.stdout.gz",
+          "sha256": "f3e7530d32735c1d61ddeae03b238f98dbd1a9b7432cf6af0d56f9fb1d5b9c90"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_ascii_string.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "8736f128",
+        "f5824edf"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_ascii_string.stages.stdout.gz",
+          "sha256": "c83d5ccb2998e9e4671fd6404928c6d465942b2b1542bcf27b921bda69954241"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_ascii_string.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "8736f128",
+          "ast_sha256": "63a1125d9cffcd817937224b68a7330b9e73c756cba7f4619ac8c9016bd3431a",
+          "json_sha256": "1d94518f53049d5754a4a6bb6541afa7eae7839d6687c70d1dbe9f7b0180a232"
+        },
+        "names": {
+          "crc": "8736f128",
+          "ast_sha256": "63a1125d9cffcd817937224b68a7330b9e73c756cba7f4619ac8c9016bd3431a",
+          "json_sha256": "1d94518f53049d5754a4a6bb6541afa7eae7839d6687c70d1dbe9f7b0180a232"
+        },
+        "translated": {
+          "crc": "8736f128",
+          "ast_sha256": "63a1125d9cffcd817937224b68a7330b9e73c756cba7f4619ac8c9016bd3431a",
+          "json_sha256": "1d94518f53049d5754a4a6bb6541afa7eae7839d6687c70d1dbe9f7b0180a232"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_ascii_string.sany.stdout.gz",
+          "sha256": "47dcaf822eeb4899e846e99a96bd5fc027feca4ca662cafa8307a13b38f4b2c3"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_ascii_string.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_ascii_string.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MacroLayout_P_unicode_comment",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "44558a42a1bf2d9e291e637cf391dfe59a04886a226b1224a0422063586a4359",
+      "output_sha256": "35a3d82424ff06c67b57ec9e697de0b20e51265e46bbc0fae5cec96aecad4d1a",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_unicode_comment.primary.stdout.gz",
+          "sha256": "45912d9213a2c54d66f142013c75ef9eccd1e97db65d51ca8ba3fbe38d574796"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_unicode_comment.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_unicode_comment.stages.stdout.gz",
+          "sha256": "a1371e8d70aab875c85ac7696698a4d56105c6cedbedee5a4571f897430674cb"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_unicode_comment.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "88111dbeb4a1340c352546292c8a548e5a1a74f3a4133cf5243920bba9a68884"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "88111dbeb4a1340c352546292c8a548e5a1a74f3a4133cf5243920bba9a68884"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "88111dbeb4a1340c352546292c8a548e5a1a74f3a4133cf5243920bba9a68884"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MacroLayout_P_unicode_comment.sany.stdout.gz",
+          "sha256": "918024d7891fa87f92bbcc9050d3b3831fc6c567b91090c60f66a8d9a67d964d"
+        },
+        "stderr": {
+          "path": "MacroLayout_P_unicode_comment.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MacroLayout_P_unicode_comment.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "gate_source_commit": null,
+  "historical_producer_retagged": false,
+  "gate_input_count": 514,
+  "unchanged_gate_inputs": 513,
+  "unchanged_rust_cargo_test_example": true,
+  "post_gate_changes": [
+    {
+      "path": "scripts/check-native-parity-integration.py",
+      "gate_sha256": "3b0a5a0f8a60f709d1fa44447ca3a9207e1b505315e5d2e59d4bf74422469c40",
+      "delivery_sha256": "f622314276179e12337cba2d0af3b64e5b3494084df487d0574e83fb44d98dcf"
+    }
+  ]
+}

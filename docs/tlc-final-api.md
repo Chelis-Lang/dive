@@ -153,7 +153,7 @@ these are entry/work counts, not aggregate byte budgets.
 Completed results include actual engine counts, collision-qualified storage,
 requested/used workers and an `execution` completion receipt. A violation carries
 all original configured `properties`, their joined TLC message name, and a
-lossless independently replayed `counterexample.trace`. A self-loop is represented
+tagged independently replayed `counterexample.trace`. A self-loop is represented
 as a stuttering ending, as in TLC's printed trace; other cycles carry a one-based
 `back_to` marker. The document never substitutes backend role labels for original
 configured property identities. The final-mode harness requires scalar joined

@@ -39,6 +39,7 @@
       "source_archive": "before-final-mode-source/sources"
     }
   ],
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "runtime_name_recovery_previous_authority": {
     "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
     "matrix_sha256": "f53b6961727674708c27d154d5e1b8e9b96c9d383d59b7bb5c1c679adac63fa9",

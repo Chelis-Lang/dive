@@ -68,9 +68,13 @@ native enclosing-module analysis.
 General scoped renaming, sequential procedure modifiers, historical translator
 flags, exact formatter output, filesystem writes and TLC mapping-file parity
 remain unfinished. Full checksum derivation has a narrower scope than raw
-translation: procedure/macro ASTs, unproved source-option declarations and
-layout/name-fix shapes may
-translate successfully while an editing request explicitly refuses. It never
+translation: unproved recursive/process-owned procedure checksum ASTs and elsif shapes
+outside the bounded [P elsif contract](../pluscal-p-elsif-checksums.md),
+macro substitution/renaming shapes beyond the [bounded macro Full contract](../pluscal-macro-checksums.md),
+unproved source-option declarations and layout/name-fix shapes may translate
+successfully while an editing request explicitly refuses. Bounded ordinary and nested shared-vector procedure calls have their own
+[Full editing contracts](../pluscal-procedure-checksums.md) and
+[nested scope guide](../pluscal-nested-procedure-checksums.md). It never
 silently falls back to body-only editing. Reference-produced but SANY-invalid
 text cannot become an admitted public artifact. The lower-level source parser/raw
 translator is a separate contract, not a replacement for enclosing-module admission.
@@ -105,3 +109,41 @@ The bounded proved source fairness/label subset is resolved before generation
 and CRC derivation. Reports retain explicit requested settings, effective
 settings and original declaration spans; unknown, malformed and conflicting
 contexts return no artifact. See [runnable C/P and Rust source-option examples](../pluscal-source-options.md).
+
+
+Global pure DEFINE helpers are supported within the documented scope. See
+[bounded DEFINE translation](../pluscal-definitions.md) and
+[LOCAL and function DEFINE helpers](../pluscal-definition-forms.md) for runnable
+C/P and Cargo-owned Rust examples, current name/cycle/action/temporal refusals,
+visibility checks and CRC/admission versus model-proof boundaries. Parsed
+function domains are not universally proved finite; the finite model evidence
+covers the selected fixtures only.
+
+The [sequential procedure checksum guide](../pluscal-procedure-checksums.md)
+explains the narrower one-procedure Full editor, runnable CLI/Cargo examples,
+nested-transfer refusals and CRC/witness qualification.
+
+The [nested procedure checksum guide](../pluscal-nested-procedure-checksums.md)
+adds proved shared If/With/Either/While header mutations; recursive, process-owned
+and scoped checksum shapes remain separate named boundaries.
+
+For the newly bounded nested sequential call/return header shapes, use the
+[nested procedure checksum guide](../pluscal-nested-procedure-checksums.md). It
+distinguishes exact stored-header bytes, admitted generated modules and finite
+model/trace evidence. Procedure layouts and transfers outside that guide and the bounded
+[P elsif editor](../pluscal-p-elsif-checksums.md) remain named refusals; strict
+saved-frame replay remains
+separately qualified under #124.
+
+For bounded sequential procedure `elsif` header editing, see
+[Procedure checksums with P elsif](../pluscal-p-elsif-checksums.md), with executable
+C/P and Cargo examples and separate artifact/count/strict-replay qualifications.
+
+
+Full editing also supports bounded [disjoint sequential procedure headers](../pluscal-multiple-procedure-checksums.md)
+with main-only calls and globally disjoint parameter/local names. Target-specific
+frames and return slots remain separate from the reference header's shared
+last-declaration call vector. The guide includes executable C/P and Cargo-owned
+Rust examples. Procedure-to-procedure, recursive, process-owned and scoped
+checksum shapes remain explicit refusals; no artifact checksum certifies a model
+or a strict saved-frame witness.

@@ -142,9 +142,36 @@ impl ExpansionPause {
         (self.workers, self.generation)
     }
 }
+/// Original concrete values of one actually completed graph/source callback.
+/// A caller cannot manufacture this producer-owned provenance.
+#[derive(Clone, Debug)]
+pub struct ConcreteSource {
+    pub(crate) identity: u64,
+    pub(crate) fingerprint: u64,
+    pub(crate) values: dive_eval::next::StateVals,
+}
+impl ConcreteSource {
+    /// Actual logical discovery identity, distinct from transaction range.
+    #[must_use]
+    pub fn identity(&self) -> u64 {
+        self.identity
+    }
+    /// Original concrete state fingerprint observed by the graph producer.
+    #[must_use]
+    pub fn fingerprint(&self) -> u64 {
+        self.fingerprint
+    }
+    /// Original source values admitted by the same Phase-L session.
+    #[must_use]
+    pub fn values(&self) -> &dive_eval::next::StateVals {
+        &self.values
+    }
+}
+
 /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
 #[derive(Clone, Debug)]
 pub struct Run {
+    pub(crate) concrete_sources: Vec<ConcreteSource>,
     pub(crate) backend: periodic_backend::Run,
     pub(crate) options: Options,
     pub(crate) expansion_pauses: Vec<ExpansionPause>,
@@ -155,8 +182,29 @@ pub struct Run {
     pub(crate) final_checks: Vec<FinalCheck>,
     pub(crate) eof: Option<Stats>,
     pub(crate) hook_evaluations: Vec<crate::periodic_hook::Evaluation>,
+    pub(crate) request_services: Vec<crate::periodic_service::Invocation>,
+    pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
 }
 impl Run {
+    /// Actual successful source callbacks retained in discovery order. These
+    /// original concrete values are not recovered from a fingerprint or from
+    /// an arbitrary stored target representative. Only the distinct
+    /// candidate-source endpoint retains this bounded reconstruction authority.
+    #[must_use]
+    pub fn concrete_sources(&self) -> &[ConcreteSource] {
+        &self.concrete_sources
+    }
+    /// Request-owned services after actual prefix append. Empty services retain
+    /// no invented source; these never establish ordinary temporal verdicts.
+    #[must_use]
+    pub fn request_services(&self) -> &[crate::periodic_service::Invocation] {
+        &self.request_services
+    }
+    /// Actual configured-hook calls in request service, separate from ordinal calls.
+    #[must_use]
+    pub fn service_evaluations(&self) -> &[crate::periodic_service::Evaluation] {
+        &self.service_evaluations
+    }
     /// Source-owned graph/partial-check evidence and actual deciding stop.
     #[must_use]
     pub fn backend(&self) -> &periodic_backend::Run {
@@ -238,7 +286,20 @@ pub fn execute(
     phase_execution::execute_periodic_lifecycle(model, options, limits, policy)
 }
 
+/// Reconstruction provenance is retained only by the distinct candidate endpoint.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SourceRetention {
+    Omitted,
+    Original,
+}
 pub(crate) struct State {
+    pub concrete_sources: Vec<ConcreteSource>,
+    pub concrete_retention: SourceRetention,
+    pub request_service: bool,
+    pub initial_stats: Option<Stats>,
+    pub graph_source: Option<u64>,
+    pub request_services: Vec<crate::periodic_service::Invocation>,
+    pub service_evaluations: Vec<crate::periodic_service::Evaluation>,
     pub options: Options,
     pub requests: Option<dive_check::progress::Options>,
     pub requests_cancelled: bool,
@@ -276,6 +337,13 @@ impl State {
         }
         let start = time_millis()?;
         Ok(Self {
+            concrete_sources: Vec::new(),
+            concrete_retention: SourceRetention::Omitted,
+            request_service: false,
+            initial_stats: None,
+            graph_source: None,
+            request_services: Vec::new(),
+            service_evaluations: Vec::new(),
             options,
             requests: None,
             requests_cancelled: false,

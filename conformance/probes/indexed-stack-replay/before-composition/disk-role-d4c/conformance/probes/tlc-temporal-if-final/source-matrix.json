@@ -1,0 +1,72 @@
+{
+  "base_commit": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "116384bce8347cefd51d297faf1d62c11afa8ec677151ff364c61a08a54b96f1",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "447eab06558d52d527eda2cb38e5bd62ed018f2eb506230ec2f96f6b83b30b43",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "e9bc6f5283cc5a7bf3264a424df4f4ae84b4f9c1dc5338e59615d5354252931a",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "d925ce5121eaba938b850f97a23e48ac583aae4442ee94f8b978429f900efac7",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "958d2789d89b226732f3ce1cc149ab50bedbb67175ce3abd54398893e42b36e5",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
+  "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
+  "schema_version": 1,
+  "scope": "current bounded direct IF final admission and original configured/derived identities, no ordinary periodic/full-family certification; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "496b6848d45ee0aa2b94d6340e50e99539782cc7927c26c9ad26446ac716f385",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
+  "source_sha256": {
+    "conformance/parity-features.json": "3dd88efdfac1201bdedcf81d2cb50fe2cbd5adea260a414c66d1cece2a980bcf",
+    "crates/dive-api/src/tlc_temporal.rs": "01cc114e46c925713d99b2b10f8d5090c2e1997238edc8ce435813f9eef6c064",
+    "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
+    "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
+    "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
+    "crates/dive-check/src/capture.rs": "c0da499fcba3afeff4e2d9ddec3dee9cc78a3217eb53f5262b9bcd9c16236baa",
+    "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",
+    "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
+    "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
+    "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
+    "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
+    "docs/divergences.md": "b7d3846ff6a8102d1395d2a277c4f7498c51022bbcc47209a2f7572b7ebe8e47",
+    "docs/provenance.md": "d0b7fdeea5fccac75932e5b674e4747b889d11cba7e55f62af77f882dbca12cb",
+    "docs/tlc-differences.md": "385b9c1a4a89a98342064512f705b5262133d2300b5022e3d618528fec1c1556",
+    "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
+    "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
+    "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
+    "docs/user/temporal.md": "840e869be09f9aa1eb8d501b2fe929195a643879121ce378a819c5ccc2e1ed2f",
+    "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
+    "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1"
+  },
+  "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
+  "view_normalization_scope_addendum": "2026-10-11: current integration of unconditional concrete normalization before pure VIEW. Exact preceding main maps/changed bytes retained at conformance/probes/view-concrete-normalization/before/fe35-current-authority; original producer runs remain historical, not retagged. No RNG or family certification.",
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "510b896121368b487e3a914fe4edad4e04a41d109b1f84dcc47d333a59e0ea02",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
+  }
+}

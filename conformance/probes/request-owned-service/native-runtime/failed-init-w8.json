@@ -1,0 +1,16 @@
+{
+  "evaluations": [],
+  "final_checks": 0,
+  "label": "failed-init-w8",
+  "legacy_hook_evaluations": 0,
+  "legacy_ordinal_invocations": 0,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "partial_checks": 0,
+  "pauses": [],
+  "safety_eof": null,
+  "selected_policy_ratio_limit_positive_infinity": false,
+  "services": [],
+  "stop": "phase-L safety capture stopped: EvaluationError { site: Init, code: 2103, name: \"TLC_NESTED_EXPRESSION\", reported: 1000, message: \"@!@!@STARTMSG 2179:0 @!@!@\\nThe second argument of \\\\div is 0.\\n@!@!@ENDMSG 2179 @!@!@\", verified: true, cause: EvalError(Inner { class: Eval, ec: DivisionByZero, message: \"The second argument of \\\\div is 0.\", origin: Some(ExprId(42)), eval_exception: true }) }",
+  "test_only_returned_prefix_rendezvous": false
+}

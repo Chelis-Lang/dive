@@ -92,12 +92,18 @@ fn unsupported(span: Span, feature: &str) -> TranslationError {
 pub(super) fn tokens(parsed: &Parsed, expr: Expr) -> &[crate::ast::Token] {
     parsed.tokens(expr)
 }
-fn truth(parsed: &Parsed, expr: Expr, strict: bool) -> bool {
+pub(super) fn truth(parsed: &Parsed, expr: Expr, strict: bool) -> bool {
     let text: Vec<_> = tokens(parsed, expr)
         .iter()
         .map(|token| token.text.as_str())
         .collect();
-    text == ["TRUE"] || (!strict && text == ["(", "TRUE", ")"])
+    // Pinned IsTRUE requires one logical token line. Tokenize preserves line
+    // breaks between these significant tokens, including breaks in comments.
+    // Do not scan a source prefix or accept a split parenthesized expression.
+    let one_line = parsed
+        .text(expr.span)
+        .is_some_and(|source| !source.contains(['\n', '\r']));
+    one_line && (text == ["TRUE"] || (!strict && text == ["(", "TRUE", ")"]))
 }
 
 #[allow(
@@ -108,6 +114,7 @@ pub(super) fn normalize(
     parsed: &Parsed,
     options: &TranslationOptions,
 ) -> Result<Model, TranslationError> {
+    super::definitions::admit(parsed, options)?;
     let algorithm = &parsed.algorithm;
     if let Body::Processes(processes) = &algorithm.body {
         return super::process::normalize(parsed, processes, options);
@@ -144,9 +151,6 @@ pub(super) fn normalize_context(
     };
     if let Some(mac) = algorithm.macros.first() {
         return Err(unsupported(mac.span, "macro expansion"));
-    }
-    if let Some(definition) = algorithm.definitions {
-        return Err(unsupported(definition.span, "define-block name binding"));
     }
     let block = procedure.map_or(block, |p| &p.body);
     let mut lower = Lower {

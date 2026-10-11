@@ -1,0 +1,7 @@
+{
+  "cargo_owned_example_sha256": "9e65e9171436118c660238cde5125cdeec00d8d6660326cb3c78b9f701d47a69",
+  "markdown_sha256": "d2c1b046d8c06c439aafe86e3bf54f26675a15c16637fe69cd18d5c1c10674cc",
+  "rust_code_body_exact": true,
+  "excluded_only_cargo_crate_rustdoc_header": true,
+  "code_body_sha256": "920d0a60bb3858ea2352444c020b4e6fe9a7c2dd6b23bd545e0330ab626e01f7"
+}

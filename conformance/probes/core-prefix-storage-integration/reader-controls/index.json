@@ -1,0 +1,19 @@
+{
+  "producer": "2bff2728cc065209ef9743e419dee56ed8ca4ccb",
+  "files_sha256": {
+    "missing-receiving-archive.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "false-family-promotion.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "omitted-include-authority.stderr.gz": "e119ba058e89e533256e22e11c45fc85c076cc66d4db5da5ba2fea3a5fe7003f",
+    "missing-embedded-input.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "unclosed-epoch.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "unclosed-epoch.stderr.gz": "d43d3b2e01c46083db783d92cc3cd0ec9fa4e813ebcbeaa9710da24c178acc2f",
+    "false-family-promotion.stderr.gz": "d43d3b2e01c46083db783d92cc3cd0ec9fa4e813ebcbeaa9710da24c178acc2f",
+    "missing-embedded-input.stderr.gz": "37bcfffec788b3a83acab77943e0bc377b73aafe308dfd4c542e0c3ff1328c79",
+    "omitted-include-authority.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "missing-receiving-archive.stderr.gz": "5648984c2a8c12ebd545b8cf1da96455c81396f953fc0c729121a60b130828ca",
+    "receipt.json.gz": "21bf02685642462e9a240817adeb642b25298105b683664fc267b2ad623b0be9",
+    "dive-core-prefix-storage-reader-controls.py.gz": "b07accef9b60515c9776987ddd39ef63789d18e293e4926e0f83db5ef59c7276",
+    "dive-embedded-input-supplement.py.gz": "644091528406e7b77d33acf469d155a053c89be88d4d885ff3e7c0a19ca0cda9"
+  },
+  "new_runtime_credit": false
+}

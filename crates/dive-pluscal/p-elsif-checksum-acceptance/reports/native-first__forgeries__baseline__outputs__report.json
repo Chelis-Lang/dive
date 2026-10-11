@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "selected": 4,
+  "native_binary_sha256": "d4eb99821fdbb9cb7def0e6689941cb929346e46224a44d4a1d41a22df382495",
+  "cst_binary_sha256": "9c79348f83262bc33c14f14b4173246af341055db4df4ca5a99af29aca9d6fcf",
+  "script_sha256": "e230063ec35858aefdfba4affd902102f4f898e8c78a7be9e903b7ab1dfc983a",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false,
+  "model_proved": false,
+  "summary": {
+    "admitted-exact-cst-sany-validator": 4
+  },
+  "rows": [
+    {
+      "id": "ElsifProcedureChecksum_C_dive",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_C",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "060807ece60396ce560b3e04a04cbfdb0da4de920fae9d67110091a47b7be27a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "ElsifProcedureChecksum_C_tlc",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_C",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "7617fdb50cb7721b456d50f38d6705aa301240c00d88385b3a69c9b97127a484",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "ElsifProcedureChecksum_P_dive",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_P",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "de781fbf061bbcb8e4552c4c357c267c7d1ec3c666c590148f5aa95994073045",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "ElsifProcedureChecksum_P_tlc",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_P",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "817c5d1fabc8e993d1e9a24edb58c9fcc9d0422bc6edad457d1f825088fe7cc9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    }
+  ]
+}

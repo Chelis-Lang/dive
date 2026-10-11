@@ -1,0 +1,18 @@
+"""D-020 reproduction; CRC equality is explicitly not source identity credit."""
+from pathlib import Path
+import argparse,json,gzip,re,subprocess,hashlib,tempfile
+p=argparse.ArgumentParser();p.add_argument('--base',type=Path,required=True);p.add_argument('--art',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args();a.out.mkdir(exist_ok=False);cache=a.art.parent/'dive-pluscal-macro-checksum-cache';java=cache/'jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java';jar=cache/'sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar';lib=cache/'git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library';rows=[]
+for syntax in ['C','P']:
+ ident='MacroChecksum_'+syntax+'_fair';source=(a.base/'primary'/(ident+'.translated.tla')).read_text();actual='Put(x, 1)'if syntax=='C'else'Put(x,1)';assert actual in source
+ for change in ['unchanged','algorithm-source-changed']:
+  value=source if change=='unchanged'else source.replace(actual,actual.replace('1','2'),1);stem=ident+'.'+change
+  with tempfile.TemporaryDirectory()as tmp:
+   file=Path(tmp)/(ident+'.tla');file.write_text(value);(a.out/(stem+'.tla')).write_text(value)
+   q=subprocess.run([str(java),'-cp',str(a.art/'adapter')+':'+str(jar),'pcal.OptionValidatorProbe',str(file)],capture_output=True,timeout=30)
+   for stream in ['stdout','stderr']:(a.out/(stem+'.validator.'+stream+'.gz')).write_bytes(gzip.compress(getattr(q,stream),mtime=0))
+   assert q.returncode==0 and b'VALIDATION\t[NO_DIVERGENCE]'in q.stdout,q.stdout
+   native=subprocess.run([str(a.art/'candidate7/dive'),'translate',str(file),'--rewrite','--compat=tlc','--output','json','--library-path',str(lib)],capture_output=True,timeout=30)
+   for stream in ['stdout','stderr']:(a.out/(stem+'.native.'+stream+'.gz')).write_bytes(gzip.compress(getattr(native,stream),mtime=0))
+   d=json.loads(native.stdout);assert native.returncode==0 and d['accepted']and d['algorithm_checksum_verified']and not d['model_proved']and not d['exhaustive'];assert d['replacement']['algorithm_checksum']['fair_header_crc_only']
+   rows.append({'id':stem,'oracle_validation':'NO_DIVERGENCE','native_algorithm_checksum_verified':True,'fair_header_crc_only':True,'source_identity_verified':False,'model_proved':False,'outcome':'reference-weakness-reproduced','source_sha256':hashlib.sha256(value.encode()).hexdigest()})
+(a.out/'report.json').write_text(json.dumps({'schema_version':1,'selected':len(rows),'script_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'native_sha256':hashlib.sha256((a.art/'candidate7/dive').read_bytes()).hexdigest(),'oracle_sha256':hashlib.sha256(jar.read_bytes()).hexdigest(),'family_certified':False,'rows':rows},indent=2)+'\n');print('Both syntaxes preserve D-020 reference weakness; no source identity credit.')
