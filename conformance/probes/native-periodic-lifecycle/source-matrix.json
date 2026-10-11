@@ -6,7 +6,7 @@
   "scope": "Current native commit-boundary lifecycle diagnostics only. Clock, actual dispatch pause and EOF selection remain distinct from ordinary asynchronous TLC scheduling.",
   "history_manifest_sha256": "f3a8cc4808bcf9c22e1ebf33c33988648df728bc58cbf8963d39aa0a2fd24ff9",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
+    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
     "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",

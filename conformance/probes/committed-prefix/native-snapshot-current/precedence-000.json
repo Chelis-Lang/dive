@@ -1,0 +1,12 @@
+{
+  "index": 0,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "binding_code": 2222,
+    "startup_output": [],
+    "status": "refused",
+    "text": "TLC_CONFIG_VALUE_NOT_ASSIGNED_TO_CONSTANT_PARAM (2222): The constant parameter Token is not assigned a value by the configuration file."
+  },
+  "selection": "precedence"
+}

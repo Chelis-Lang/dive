@@ -239,7 +239,8 @@ pub struct CommittedSource<'a> {
 /// Consumers must meter their own work and retain any deciding typed error.
 pub trait SourceObserver: Send {
     /// Opt in to producer-clock requests between actual expansion claims.
-    /// These do not publish completed expansions into the temporal graph.
+    /// A joined request transaction can publish its returned contiguous source
+    /// prefix before the quiescence callback; later outputs stay speculative.
     fn progress_requests(&self) -> Option<crate::progress::Options> {
         None
     }
@@ -247,8 +248,10 @@ pub trait SourceObserver: Send {
     /// This notification cannot fail or replace the existing ordered safety error.
     /// Claims stay open to drain earlier unclaimed sources; this is not lane closure.
     fn expansion_requests_cancelled(&mut self, _pending: Option<crate::progress::Request>) {}
-    /// Actual joined expansion pause before this wave's ordered safety/graph
-    /// publication. Success resumes unclaimed expansion work, not a Java queue.
+    /// Actual joined expansion pause after the returned contiguous prefix passes
+    /// ordered safety/graph publication and successful frontier append. An empty
+    /// prefix leaves the existing graph unchanged. Success resumes unclaimed
+    /// expansion work, not a Java queue or a model-completion claim.
     ///
     /// # Errors
     /// A named diagnostic stop; no completed graph or temporal proof is exposed.
@@ -314,9 +317,10 @@ pub trait SourceObserver: Send {
     fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String>;
 }
 
-/// Real expansion-claim barrier and joined pool evidence, before publication.
+/// Real expansion-claim barrier and joined pool evidence after prefix publication.
 /// Completed IDs can be noncontiguous. Only `committed` records have passed
-/// ordered safety/publication; this receipt still grants no ordinary proof.
+/// ordered safety/publication and successful frontier append; later completed
+/// outputs remain speculative. This receipt still grants no ordinary proof.
 #[derive(Clone, Debug)]
 pub struct ExpansionQuiescence {
     pub(crate) request: crate::progress::Request,

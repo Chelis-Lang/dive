@@ -1,7 +1,7 @@
 {
   "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
+    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",

@@ -387,7 +387,7 @@
     "crates/dive-bench/src/lib.rs": "b38aa59a23579d9391a663f7986b8541f3daf870e56bd4a74403705600e76bc5",
     "crates/dive-bench/src/main.rs": "4712d8720c3b7a14ba25a202615062e159d39f7055eb3110d4afbf3cfc2e3c88",
     "crates/dive-check/Cargo.toml": "eec393f8a0d26fee9b6b928558e62965801d20a8e660645c384fcfa637da8bcd",
-    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
+    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
     "crates/dive-check/src/checkpoint.rs": "096e3daa74bb0bbebb06fd0ebdb8f7e302b436fd1442ce9c971377d038a7745b",
     "crates/dive-check/src/class.rs": "2c48df9482bcec4f5857b256fe139712c2e71e687c8cae3a37ba1a3ca19bf419",

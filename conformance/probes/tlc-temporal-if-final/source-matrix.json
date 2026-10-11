@@ -10,7 +10,7 @@
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
-    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
+    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "d525d87444795a3b6b615cdeb5fd6a9254f08f7e08e27d08bdf605d6106888c4",
