@@ -785,3 +785,23 @@ TLC's encounter-order side effects as type evidence.
   TLA+ function/tuple equality and UNCHANGED semantics, using original actual
   bound definitions and scopes. It is an independent logical admission proof,
   not a port of the successor enumerator. Conditional/permuted projections refuse.
+
+### Positioned disk invariant-error replay (#217)
+
+`dive-check::Search::replay_after_disk/replay_disk_states` matches MIT pinned
+94d0c50 `tlc2.tool.ModelChecker.doNext`, `doNextSetErr` and invariant/action
+continuation ordering. Full disk keys and Result operations use the existing
+ADR0063 library; no Boolean StateSet adapter or resident key mirror exists.
+Fresh clean six-fixture stdout/exit evidence is in
+`conformance/probes/fallible-invariant-replay/primary/`. Original wrong-count and
+refusal epochs are unchanged. Class parity is limited to actual known verified
+sites, and the private bound action-property control does not lift public
+PROPERTY admission. Inline fallback, logical versus physical replay counts,
+first cause/cleanup retention and non-certificate limits are ADR0072.
+
+The ADR0072 Print boundary is native admission, not a ported output algorithm:
+`Evaluator::has_print_event` observes actual `Core::print` dispatch before
+capture/sink calls, separately from warnings. The disk error route refuses
+unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr`
+and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
+pre-review native run's single event is retained as failed output evidence.

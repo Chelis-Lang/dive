@@ -21,8 +21,13 @@ fn observable(result: &CheckResult) -> String {
 }
 
 fn verify(name: &str) {
+    let family = if name.starts_with("Er") {
+        "errors/specs"
+    } else {
+        "disk-seen"
+    };
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join(format!("tests/fixtures/disk-seen/{name}/{name}.tla"));
+        .join(format!("tests/fixtures/{family}/{name}/{name}.tla"));
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
@@ -41,6 +46,26 @@ fn verify(name: &str) {
                 expected.verdict
             );
             assert!(expected.seen.is_none());
+            let pinned = match name {
+                "ReplayNew" => Some((2, 4, 2, 2)),
+                "ReplayLaterViolation" => Some((2, 3, 0, 2)),
+                "ErInvDivZero" => Some((4, 5, 2, 3)),
+                "ErInvReplayError" => Some((4, 5, 1, 3)),
+                "ErInvReplayViolation" => Some((3, 3, 1, 2)),
+                _ => None,
+            };
+            if let Some(pinned) = pinned {
+                let stats = expected.stats.expect("clean pinned replay counters");
+                assert_eq!(
+                    (
+                        stats.generated,
+                        stats.distinct,
+                        stats.left_on_queue,
+                        stats.depth
+                    ),
+                    pinned
+                );
+            }
             for width in [1, 4, 8] {
                 for chaos in [None, Some(0), Some(7)] {
                     for budgets in [false, true] {
@@ -205,7 +230,7 @@ fn capture_and_dfid_refuse_before_assumption_work() {
 }
 
 #[test]
-fn invariant_error_replay_refuses_disk_membership_without_resident_fallback() {
+fn invariant_error_replay_uses_positioned_disk_membership_without_resident_fallback() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/disk-seen/ReplayMembership/ReplayMembership.tla");
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
@@ -249,22 +274,29 @@ fn invariant_error_replay_refuses_disk_membership_without_resident_fallback() {
                     disk.chaos = chaos;
                     disk.seen_disk = Some(SeenOptions::default());
                     let result = check(&ir, &cfg, &disk);
-                    assert!(
-                        matches!(result.verdict, Verdict::Unsupported { ref feature }
-                        if feature == "disk seen-state invariant-error call-stack replay")
-                    );
-                    // These are admitted-prefix facts, not completed replay counts.
+                    assert_eq!(result.verdict, memory.verdict);
+                    // Replay consults the real disk identity, never its empty resident shadow.
                     assert_eq!(result.stats, memory.stats);
                     assert_eq!(
                         format!("{:?}", result.counterexample),
                         format!("{:?}", memory.counterexample)
                     );
                     assert_eq!(result.output, memory.output);
-                    assert!(result.notes.iter().any(|n| n.contains("EvaluationError")
-                        && n.contains("Invariant")
-                        && n.contains("stopping prefix")));
+                    assert_eq!(result.notes, memory.notes);
                     let usage = result.seen.expect("disk cleanup evidence");
                     assert_eq!(usage.admitted_keys, 3);
+                    let replay = usage.replay.expect("positioned replay receipt");
+                    assert_eq!(replay.original_error, memory.verdict);
+                    assert_eq!(
+                        (
+                            replay.generated,
+                            replay.predecessor,
+                            replay.stopped_successor_ordinal
+                        ),
+                        (3, 0, 0)
+                    );
+                    assert_eq!((replay.admitted_keys, replay.queued), (0, 0));
+                    assert!(replay.halted_by.is_none());
                     assert!(usage.first_failure.is_none());
                     assert!(usage.after_cleanup.expect("close").cleanup_completed);
                     assert_eq!(result.workers.requested, width);
@@ -273,4 +305,26 @@ fn invariant_error_replay_refuses_disk_membership_without_resident_fallback() {
             }
         }
     }
+}
+
+#[test]
+fn replay_new_keys_match_memory() {
+    verify("ReplayNew");
+}
+#[test]
+fn replay_division_error_matches_memory() {
+    verify("ErInvDivZero");
+}
+#[test]
+fn replay_secondary_error_matches_memory() {
+    verify("ErInvReplayError");
+}
+#[test]
+fn replay_later_invariant_control_matches_memory() {
+    verify("ErInvReplayViolation");
+}
+
+#[test]
+fn replay_later_violation_retains_original_error() {
+    verify("ReplayLaterViolation");
 }

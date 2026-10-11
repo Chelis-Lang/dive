@@ -110,22 +110,64 @@ See [the storage library](disk-seen-library.md),
 [source-bound study](../../conformance/probes/fallible-seen-engine/README.md).
 
 
-An invariant that raises an evaluation error on a successor currently returns
-`unsupported: disk seen-state invariant-error call-stack replay`. TLC resumes
-past that successor during call-stack replay; the disk route has no proved
-positioned read/replay authority yet. The original error remains in `notes` and
-any concrete word is diagnostic evidence, not a completed certificate. Reported
-counters describe only admitted keys and the initial stop; they are not TLC's
-completed error-replay counters. Use the resident counterpart for this case.
+An invariant evaluation error now uses positioned fallible disk replay. For
+example, start at `x=0`, generate `x=1`, `x=2`, `x=3`, and divide by zero only
+when `x=1`. Clean pinned TLC stops generating at 2 states, but its replay brings
+the totals to 4 distinct and 2 queued (exit 76, invariant message 2111). Disk
+checking follows that continuation through actual key queries/inserts, without
+consulting an empty resident store or counting replay as generated work.
 
-The minimal retained case starts from `x = 0` or `x = 2`, visits `x = 1` before
-an already-seen `x = 2`, and divides by zero in its invariant at `x = 1`.
-Pinned TLC and the resident reference report 3 generated, 3 distinct and 1 queued.
-The preserved failed disk epoch reported 4 distinct and 2 queued. Current disk
-checking explicitly refuses that boundary; it never consults an empty resident
-set as an answer. [Source and original raw observations](../../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+Run that diagnostic example (the checker exits 76 under TLC compatibility;
+an error report is not a successful safety certificate):
 
-The [current source-bound controls](../../conformance/probes/fallible-seen-engine/current/)
+```sh
+cargo run -p dive-cli --release -- check \
+  crates/dive-api/examples/seen-replay/ReplayNew.tla \
+  --compat=tlc --seed 7 --fp 0 --workers 8 \
+  --seen-disk-entries 1000 --output json
+```
+
+Execute the Rust counterpart's four profile/store controls:
+
+```sh
+cargo run -p dive-api --example disk_seen_replay --locked
+```
+
+`seen_storage.replay` preserves the original error, concrete predecessor and
+stopped successor ordinal, frozen `generated`, additional `admitted_keys`,
+logical `queued` contribution, `unproved_print_output` and any `halted_by` error. Replay admissions are
+physical keys, not new predecessor/frontier rows. If replay hits an I/O or entry
+bound, the result is `resource-limit` with the original error and completed
+prefix retained. Its concrete word is diagnostic evidence, not an independently
+validated certificate. A later audit/cleanup failure also prevents completion.
+Unknown error sites still report an unverified error class; this does not grant
+blanket TLC error-class coverage.
+
+If actual `Print`/`PrintT` execution occurred before or during this error
+reconstruction, the result is `unsupported` naming the repeated-output
+boundary. For example, adding `PrintT("expand") /\` to `ReplayNew.Next`
+makes clean TLC print `"expand"` three times; the pre-review native run printed
+it once. The checker does not claim TLC class/output agreement for that word:
+`tlc` and `counterexample` are null, while original error, counts, output and
+`seen_storage.replay.unproved_print_output=true` remain diagnostic facts.
+The check uses actual event presence, including empty text, startup/Init,
+wrappers, configured aliases and quiet reconstruction. It excludes warnings
+and unused definitions; draining output does not erase the event. This
+conservative boundary can also refuse a cached or Init-only print whose exact
+repetition has not been proved. A prior storage/resource failure retains its
+first cause. No resident-memory print behavior is changed by this disk guard.
+
+For the minimal already-seen successor case, pinned TLC and resident checking
+report 3 generated, 3 distinct and 1 queued. The original failed disk epoch gave
+4 distinct/2 queued; the first guarded epoch refused replay. Both remain
+[immutable observations](../../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+The positioned implementation, clean probes and current validation status are
+in [ADR0072](../decisions/0072-fallible-invariant-error-replay.md) and
+[the replay study](../../conformance/probes/fallible-invariant-replay/README.md).
+The public PROPERTY/SPECIFICATION and other mode restrictions above remain.
+Per-action replay successor buffers are outside the disk-key budget.
+
+The [current replay source-bound controls](../../conformance/probes/fallible-invariant-replay/current/)
 include real VIEW and symmetry counterexamples, separately checked by the
 independent validator at both profiles/stores and requested 1/4/8 workers. They
 retain 144 Valid original words and 864 rejected mutants. The actual VIEW case
@@ -134,3 +176,11 @@ evidence. The 384 original memory runs remain unchanged, and the 576 disk runs
 compare every existing concrete result field while checking the added disk and
 fallback metadata separately. These controls establish the bounded examples,
 not general storage-family certification.
+
+The positioned-replay campaign separately retains 432 pure disk comparisons
+and 504 explicit Print-output refusals against 104 inline references. Those
+refusals receive no output/error-class or certificate agreement credit. All
+original named witness mutants remain selected; the varied five/six/seven
+mutants per word total 864. The [portable readback](../../scripts/check-fallible-invariant-replay.py)
+checks the immutable packet without running the checker. Hash integrity is not
+a safety proof or archive authentication.

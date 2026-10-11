@@ -1,0 +1,29 @@
+{
+  "args": [
+    "<pinned-jre>",
+    "-cp",
+    "<primary-jar>",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-lncheck",
+    "final",
+    "-cleanup",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-metadir",
+    "<private-metadir>",
+    "-config",
+    "ReplayPrintEmpty.cfg",
+    "ReplayPrintEmpty"
+  ],
+  "cwd": "crates/dive-check/tests/fixtures/disk-seen/ReplayPrintEmpty",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "source_sha256": "122c6038582d40a06cd8fe08f9f2bee18782f70d8f303458555e839ec8ea52f5",
+  "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d"
+}

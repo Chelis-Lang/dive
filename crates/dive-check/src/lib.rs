@@ -78,7 +78,7 @@ pub mod progress;
 mod render;
 mod result;
 mod seen;
-pub use seen::{SeenFailure, SeenOptions, SeenPhase, SeenUsage};
+pub use seen::{SeenFailure, SeenOptions, SeenPhase, SeenReplay, SeenUsage};
 
 use std::sync::Arc;
 use std::time::Instant;

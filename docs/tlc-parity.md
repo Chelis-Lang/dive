@@ -668,22 +668,15 @@ AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
 
-The [tuple-history replay guide](inductive-tuple-trace-replay.md) now includes
-fixed nested `UNCHANGED` projections through actual lazy aliases, LET and
-substitution scopes (ADR 0071). The sealed proof admits four fresh alias
-controls and rejects altered words, while conditional tuple permutations retain
-strict refusal. The separate generated procedure study admits 32/32
-strict words at the archived producer; general runtime-name and stack provenance
-remain pending. No family certification or denominator changes.
+The first disk engine epoch refused invariant-error call-stack replay; its
+original refusal/error/count evidence remains historical and receives no replay credit.
 
-## Current combined core receiver
 
-The integration source composes the qualified request-service, producer-owned
-candidate, P elsif and disjoint-procedure checksum, ordinary disk seen-state
-safety, and fixed tuple-projection replay increments. Each component retains its
-original source and runtime identity. The archived receiving epoch `2bff2728`
-predates these additions: its full gate and runtime are historical evidence,
-not qualification of the new combined source. A new immutable producer, full
-workspace gate and fresh affected runtime campaign are required before this
-receiver can ship. F-023 and F-031 remain partial or missing as recorded in the
-ledger; source composition does not certify them.
+Positioned invariant-error replay (#217, ADR0072) adds actual fallible membership
+and insertion to the existing inline disk INIT/NEXT safety route. Clean
+ReplayNew gives 2 generated/4 distinct/2 logically queued; later storage failures
+retain the original error and ordered prefix but confer no completion credit.
+The bound action-property probe does not lift public configured PROPERTY refusal.
+Disk parallel/capture/temporal/recovery and full error-class coverage remain
+pending; F-031 stays partial/audit-required. Current producer/runtime verification
+is pending in [the replay study](../conformance/probes/fallible-invariant-replay/README.md).

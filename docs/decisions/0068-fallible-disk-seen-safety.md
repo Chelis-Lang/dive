@@ -80,13 +80,13 @@ state. User commands, Rust example and current limits are maintained in
 [the safety guide](../user/disk-seen-safety.md).
 
 
-## Invariant-error replay boundary (2026-10-11)
+## Original guarded invariant-error replay boundary (2026-10-11)
 
 The immutable first engine epoch exposed a separate replay authority gap:
 `ReplayMembership` gives 3 generated/3 distinct/1 queued in clean TLC and the
 resident counterpart, but 4 distinct/2 queued when replay reads the empty
 resident reference on a disk run. Preserve the failed source/raw/gate epoch.
-Disk invariant-evaluation errors now refuse their call-stack replay by name,
+The first guarded disk epoch refused invariant-evaluation call-stack replay by name,
 retaining the original error in notes and the original stopping prefix/diagnostic
 word. Memory replay is unchanged. Positioned fallible replay reads and exact
 TLC error-counter continuation remain a future increment; no refusal earns
@@ -112,3 +112,14 @@ CM1 driver invocation's absent default binary path is retained separately from
 the passing explicit-binary invocation. Full selection, semantic comparisons,
 error-class qualification and all immutable failure epochs remain in the
 [source-bound evidence](../../conformance/probes/fallible-seen-engine/README.md).
+
+
+## Positioned replay continuation (2026-10-11)
+
+ADR0072 implements the separate fallible disk membership/insertion replay
+transaction. It preserves the original source/ordinal and frozen generated
+counter while accounting newly admitted keys and logical queue contributions.
+Resource/bound/cleanup failures retain the first positioned cause and diagnostic
+original error without completion credit. Public configured role/mode and
+parallel disk restrictions above remain; original da0 verification and wrong
+b07/refusal observations are not retagged as this new producer.

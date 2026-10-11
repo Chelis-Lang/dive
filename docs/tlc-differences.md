@@ -2407,18 +2407,31 @@ predecessor budgets can combine, without a total-RAM/crash/import claim.
 [Executable user/API guide](user/disk-seen-safety.md).
 
 
-This disk slice also refuses invariant-evaluation error call-stack replay.
-For `ReplayMembership` (initial `x=0` or `x=2`, successors `x=1` then `x=2`,
-invariant divides by zero only at `x=1`), clean TLC and resident checking report
-3 generated/3 distinct/1 queued. The preserved first disk attempt incorrectly
-reported 4 distinct/2 queued by inspecting an empty resident reference during
-replay. Current disk mode returns named `unsupported`, with the initial error
-and stopping-prefix evidence retained. Remove disk flags to use the existing
-resident replay. This is dive's temporary limitation, not a TLC defect or a
-completed violation agreement. [Original paired observations](../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+The first disk slice refused invariant-evaluation error call-stack replay.
+That guard followed a real bug: `ReplayMembership` starts at `x=0` or `x=2`,
+visits `x=1` then the already-seen `x=2`, and divides by zero at `x=1`.
+Clean TLC and resident checking report 3 generated/3 distinct/1 queued; the
+failed disk attempt incorrectly reported 4 distinct/2 queued by reading an
+empty resident reference. Those [original observations](../conformance/probes/fallible-seen-engine/invariant-replay-before/)
+remain separate from the positioned implementation.
 
-### Producer-owned candidate admission: remaining ordinary schedule limitation
+The next increment queries and inserts actual disk keys through fallible
+operations in source/ordinal order. `ReplayNew` proves that successful replay
+can add distinct/queued states while generated stays frozen: clean TLC gives
+2 generated/4 distinct/2 queued, depth 2, exit 76. Storage/bound/cleanup failures
+retain the original error and diagnostic prefix while refusing completion;
+unknown error classes remain unverified. Public PROPERTY/SPECIFICATION,
+parallel disk/capture/temporal and recovery restrictions remain. See
+[the user guide](user/disk-seen-safety.md) and [source-bound replay study](../conformance/probes/fallible-invariant-replay/README.md).
 
-The [Rust candidate API](producer-owned-temporal-candidate.md) now privately reconstructs actual request or EOF words and validates them against two freshly bound independent models. It cannot certify ordinary scheduling, TLC stopping counts, temporal absence or model completion. An absent witness means only no admitted candidate, never Holds. Pin94d0c50 final baselines retain `Live == <>(x=1)` with Init x0 and Next x1 as exit13: initial stuttering is legal without fairness. The original mistaken expectation0 remains in the evidence, with a distinct holding `<>(x=0)` exit0 control. This is not a newly declared TLC bug or default change; ordinary CLI scheduling and checkpoint composition stay refused.
-
-The candidate-admission delivery passes its45-stage/1057-test gate and admits12 actual EOF words via two independent routes;48 deliberately corrupted words fail both. Source-error history is retained: an unparenthesized IF material workload leaves one variable undefined (pin exit75), whereas the separately parenthesized workload gives exit13. This is ordinary TLA+ grouping, not a TLC bug or semantic divergence. The required37 safety gates at1/4/8 remain green; none of these results certifies ordinary temporal scheduling.
+The disk error-replay continuation has a separate output refusal: clean
+`ReplayPrint` emits `"expand"` three times at 2 generated/4 distinct/2 queued,
+where the pre-review native run emitted it once. Actual Print/PrintT execution
+before or during reconstruction now yields a named unsupported result in both
+profiles, including empty events, Init-only printing, wrappers and configured
+aliases. The original error/counts/output remain diagnostic; neither a TLC
+class nor a counterexample certificate is claimed. Earlier resource/storage
+causes retain precedence. Warnings and unexecuted Print definitions do not
+trigger this event-based guard. Pure positioned replay is unchanged; resident
+memory replay's repeated-output contract is not extended here. Clean primary
+records and the original failed output are retained in the replay study.

@@ -1,0 +1,4 @@
+profile=dive,store=fingerprint,generated=2,distinct=4,queued=2,replay_admitted=2,actual_workers=1,cleanup_completed=true
+profile=dive,store=exact,generated=2,distinct=4,queued=2,replay_admitted=2,actual_workers=1,cleanup_completed=true
+profile=tlc,store=fingerprint,generated=2,distinct=4,queued=2,replay_admitted=2,actual_workers=1,cleanup_completed=true
+profile=tlc,store=exact,generated=2,distinct=4,queued=2,replay_admitted=2,actual_workers=1,cleanup_completed=true

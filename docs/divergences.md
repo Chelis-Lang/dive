@@ -832,6 +832,18 @@ unproved. This is result-preserving completed behavior with explicit limits,
 not a new semantic default or total-memory promise. See the
 [user and Rust guide](user/disk-seen-safety.md).
 
-### Producer-owned deciding words (#213)
 
-The bounded [candidate Rust API](producer-owned-temporal-candidate.md) reconstructs only actual service/EOF selections from original concrete source identities and independently admits the word twice. Missing/unwritten representatives, fingerprint ambiguity, resource stops and refused replay never produce a witness. This implements a witness-admission prerequisite without changing any default or TLC semantic option; ordinary schedule/count/checkpoint equivalence and F-023 remain missing/audit-required.
+D-007 storage implementation note (#217, ADR0072): the existing opt-in inline
+INIT/NEXT disk engine now has a positioned fallible invariant-error replay path.
+Clean ReplayNew reports 2 generated/4 distinct/2 queued while the generated
+counter remains frozen. First query/insertion/bound/cleanup failures retain the
+original error and ordered prefix and refuse completion. This adds no new
+result-changing default, disk parallel/capture/recovery support or family credit.
+Original guarded and incorrect-count epochs remain separately linked in
+[the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+ADR0072's D-007 disk continuation retains an explicit actual-Print/PrintT
+error-reconstruction refusal. Clean `ReplayPrint` has three output events,
+pre-review native one; equal counts do not grant class/output or certificate
+credit. Pure key/count replay, original errors and positioned failure evidence
+remain separately qualified. This adds no result-changing default.

@@ -54,7 +54,7 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "crates/dive-api/src/check.rs": "82a72e6a07d26718ea299408886c86bdb687d389d66b65d50e00723d131724b1",
+    "crates/dive-api/src/check.rs": "f3f0c571f4bc736d24f3ad80f7122891e80cfd689b998e06f6973a7cb13cfbd9",
     "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
     "crates/dive-api/src/lib.rs": "ea7a9ea09b78bedb147aa962cba7a7b5ce6ab78086a166111054ff5dd6ed96c5",
     "crates/dive-api/src/tlc_temporal.rs": "01cc114e46c925713d99b2b10f8d5090c2e1997238edc8ce435813f9eef6c064",

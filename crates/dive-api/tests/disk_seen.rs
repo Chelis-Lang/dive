@@ -7,6 +7,61 @@ use dive_api::{
 use std::path::Path;
 
 #[test]
+fn invariant_error_replay_reports_actual_continuation_and_verified_known_class() {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.tla");
+    for compat_tlc in [false, true] {
+        for store in [Store::Fingerprint, Store::Exact] {
+            for width in [1, 4, 8] {
+                let json = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    store,
+                    workers: Some(width),
+                    seed: Some(7),
+                    fp: Some(0),
+                    chaos: Some(7),
+                    seen_disk: Some(SeenOptions::default()),
+                    ..CheckRequest::default()
+                })
+                .expect("error report")
+                .to_json();
+                assert_eq!(json["statistics"]["generated"], 2);
+                assert_eq!(json["statistics"]["distinct"], 4);
+                assert_eq!(json["statistics"]["left_on_queue"], 2);
+                assert_eq!(json["tlc"]["code"], 2111);
+                assert_eq!(json["tlc"]["verified"], true);
+                assert_eq!(json["options"]["workers"]["requested"], width);
+                assert_eq!(json["options"]["workers"]["used"], 1);
+                let replay = &json["seen_storage"]["replay"];
+                assert_eq!(replay["generated"], 2);
+                assert_eq!(replay["predecessor"], 0);
+                assert_eq!(replay["stopped_successor_ordinal"], 0);
+                assert_eq!(replay["admitted_keys"], 2);
+                assert_eq!(replay["queued"], 2);
+                assert_eq!(replay["halted_by"], serde_json::Value::Null);
+                assert!(
+                    replay["original_error"]
+                        .as_str()
+                        .expect("typed original error")
+                        .contains("EvaluationError")
+                );
+                assert_eq!(json["seen_storage"]["admitted_keys"], 4);
+                assert_eq!(
+                    json["seen_storage"]["first_failure"],
+                    serde_json::Value::Null
+                );
+                assert_eq!(
+                    json["seen_storage"]["after_cleanup"]["cleanup_completed"],
+                    true
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() {
     for compat_tlc in [false, true] {
         let mut request = CheckRequest {
@@ -214,5 +269,77 @@ fn specification_role_refuses_before_binding_even_when_only_safety() {
         assert_eq!(result.output, [] as [String; 0]);
         assert!(result.stats.is_none());
         assert!(result.seen.is_none());
+    }
+}
+
+#[test]
+fn actual_print_events_refuse_unproved_disk_error_output() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/disk-seen");
+    for name in [
+        "ReplayPrint",
+        "ReplayPrintInit",
+        "ReplayPrintEmpty",
+        "ReplayPrintInvariant",
+        "ReplayPrintWrapper",
+        "ReplayPrintAlias",
+        "ReplayPrintReplayOnly",
+    ] {
+        let file = root.join(name).join(format!("{name}.tla"));
+        for compat_tlc in [false, true] {
+            for store in [Store::Fingerprint, Store::Exact] {
+                for width in [1, 4, 8] {
+                    let json = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        store,
+                        seen_disk: Some(SeenOptions::default()),
+                        workers: Some(width),
+                        seed: Some(7),
+                        fp: Some(0),
+                        chaos: Some(7),
+                        ..CheckRequest::default()
+                    })
+                    .expect("diagnostic report")
+                    .to_json();
+                    assert_eq!(json["verdict"], "unsupported", "{name}: {json}");
+                    assert!(
+                        json["message"]
+                            .as_str()
+                            .expect("feature")
+                            .contains("Print/PrintT")
+                    );
+                    assert_eq!(json["statistics"]["generated"], 2);
+                    assert_eq!(json["statistics"]["distinct"], 4);
+                    assert_eq!(json["statistics"]["left_on_queue"], 2);
+                    assert_eq!(json["tlc"], serde_json::Value::Null);
+                    assert_eq!(json["counterexample"], serde_json::Value::Null);
+                    assert_eq!(json["options"]["workers"]["requested"], width);
+                    assert_eq!(json["options"]["workers"]["used"], 1);
+                    let replay = &json["seen_storage"]["replay"];
+                    assert_eq!(replay["unproved_print_output"], true);
+                    assert!(
+                        replay["original_error"]
+                            .as_str()
+                            .expect("original error")
+                            .contains("EvaluationError")
+                    );
+                    assert!(
+                        replay["halted_by"]
+                            .as_str()
+                            .expect("halt")
+                            .contains("Unsupported")
+                    );
+                    assert_eq!(
+                        json["seen_storage"]["first_failure"],
+                        serde_json::Value::Null
+                    );
+                    assert_eq!(
+                        json["seen_storage"]["after_cleanup"]["cleanup_completed"],
+                        true
+                    );
+                }
+            }
+        }
     }
 }

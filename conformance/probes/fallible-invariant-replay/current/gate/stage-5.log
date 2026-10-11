@@ -1,0 +1,2 @@
+COMMAND: cargo xtask check-layering
+layering ok (20 crates)
