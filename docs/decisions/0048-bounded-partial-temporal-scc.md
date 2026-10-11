@@ -1,6 +1,6 @@
 # ADR 0048: Bounded partial temporal SCC checks
 
-- Status: Proposed implementation boundary
+- Status: Accepted bounded diagnostic implementation
 - Date: 2026-10-11
 - Tracking: #185, #66, F-023
 

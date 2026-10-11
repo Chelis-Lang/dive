@@ -3,8 +3,10 @@
 The Rust diagnostic under #185 constructs actual ordered Phase-L records from a
 bound model, then checks written product records after initial registrations
 and entire source commits. Its public entry is
-`dive_liveness::phase_execution::execute_partial`; full workspace verification
-is still pending for this delivery. Ordinary `dive check --compat=tlc` periodic liveness remains
+`dive_liveness::phase_execution::execute_partial`. The bounded delivery passed
+the full 35-stage workspace gate (965 tests, zero skips), the standalone Cargo
+example, and all 21 CM1 plus 16 validation-smoke models at 1/4/8 workers.
+Ordinary `dive check --compat=tlc` periodic liveness remains
 refused. Explicit final-only checking remains a separate mode.
 
 A partial check can find a candidate counterexample. It cannot return `Holds`,
@@ -27,7 +29,10 @@ when a real stored successor slot first mentions that fingerprint. It retains
 the original source index/fingerprint, actual table slot, slot-vector position
 and generator ordinal (absent for implicit stutter). The original vertex and
 shared work quotas are charged before retention. Placeholder adjacency remains
-empty until an actual source write; final/full execution is unchanged.
+empty until an actual source write; final/full execution is unchanged. Registered
+placeholder/product counts do not establish TLC node-pointer-table size, growth
+thresholds or physical disk bytes. Those schedule authorities still need their
+own source-produced evidence.
 
 Requested/actual pool widths, original concrete graph/safety counts and logical
 source prefixes remain separate from graph and SCC work. Partial projection,
@@ -98,4 +103,4 @@ fields are compared only in the documented representation: Java `getPath`
 exposes concrete fingerprint-only prefixes; native product identities remain
 separate, never inferred from that vector. Exact temporal storage, clock timing,
 quiescence, deciding-stop counters and ordinary schedule certification remain
-pending under #66 and #185.
+pending under #66; this bounded diagnostic increment is tracked by #185.
