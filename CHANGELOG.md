@@ -10,6 +10,9 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- A closed complete stored-successor final-TLC census retains all 140 models:
+  60 agree, 75 explicitly refuse and five time out. Historical source/binary
+  receipts and every raw outcome remain separate from later producer results.
 - Explicit final TLC state admission accepts stored Enum/Raw sets, including
   normalized sets nested in tuples, records and general functions. Callback-free
   namespace/order checks and unchanged cumulative work/depth bounds precede

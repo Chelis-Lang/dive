@@ -73,3 +73,10 @@ retain seven clean pinned 0/13 pairs and all 56 original named native refusals.
 Fresh source-bound results must remain separate from historical censuses and
 ordinary-schedule/family certification. Independent periodic words and fresh
 memory/JSON replay cover closing edges and altered property/initial/ending controls.
+
+The separately closed [complete small census](../conformance/studies/stored-successor-final-small/README.md)
+ran the unchanged 140-model selection against the exact stored-successor producer:
+60 agreements, 75 named refusals and five 600-second timeouts, with no disagreements.
+The harness exited 1. Seven earlier refusals became agreements; three others now
+reach a timeout. These observations retain all original rows and do not certify
+ordinary periodic checking or an entire feature family.
