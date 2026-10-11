@@ -611,3 +611,5 @@ normal parser validation. All 32 paired C/P controls retain clean primary
 outputs. The new development-only `MarkerOptionProbe` uses the same source
 selection; its separate class/name preserves the earlier helper's wrong
 same-line order as historical evidence. It is never a native dependency.
+
+| `dive-pluscal` DEFINE sections (`translate/definitions.rs`, `emit.rs`, `checksum.rs`) | tlaplus `pcal/PcalTLAGen.java` `GenVarsAndDefs`, `GenVarDecl`, `addExprToTLA`; `TLAExpr.java` `normalize`, `toStringVector`, `toString`; `AST.java` `Uniprocess.toString` / `Multiprocess.toString` defs field; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Global declarations precede copied helpers; process locals follow. UTF-16/tab-expanded significant-token columns and serialized defs are source-backed; conservative native declaration/cycle admission is dive-owned. Reference adapter is development-only. |

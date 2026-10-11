@@ -645,3 +645,9 @@ audit-required. Logical substituted-token serialization and public artifact
 admission remain separate from model proof; original invalid-reference outputs
 and measured trailing-prose grammar gaps receive no completion credit.
 See [the maintained macro checksum guide](pluscal-macro-checksums.md).
+
+The [bounded DEFINE increment](pluscal-definitions.md) adds source-owned ordinary
+global helpers and exact post-translation defs serialization. Declaration scope,
+AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
+F-034/F-035 stay partial: recursive/scoped declarations and complete translator
+formatting/maps/options remain unproved.

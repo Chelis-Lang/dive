@@ -1,0 +1,42 @@
+---- MODULE Context_P_default_init ----
+EXTENDS Naturals, Integers, Sequences, TLC
+(*
+--algorithm A
+ variables x, y=0;
+ define
+ F(a) == a + 1
+ end define;
+begin L: x := F(1); end algorithm;
+*)
+\* BEGIN TRANSLATION (chksum(pcal) = "e20755ea" /\ chksum(tla) = "34f8fe36")
+CONSTANT defaultInitValue
+VARIABLES pc, x, y
+
+(* define statement *)
+F(a) == a + 1
+
+
+vars == << pc, x, y >>
+
+Init == (* Global variables *)
+        /\ x = defaultInitValue
+        /\ y = 0
+        /\ pc = "L"
+
+L == /\ pc = "L"
+     /\ x' = F(1)
+     /\ pc' = "Done"
+     /\ y' = y
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == pc = "Done" /\ UNCHANGED vars
+
+Next == L
+           \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(pc = "Done")
+
+\* END TRANSLATION 
+====
