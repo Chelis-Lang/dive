@@ -2273,3 +2273,20 @@ checks remain separate. See [the full evidence](../conformance/probes/storage-tu
 ### Actual committed request-prefix limitation (#204)
 
 The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+D-008 nested sequential procedure checksum continuation (ADR 0061): Full editing
+uses typed shared header vectors for proved If/With/Either/While transfers. The
+180-row selection retains the old six byte mismatches/refusals and all primary
+errors/invalid outputs; no reference defect is silently repaired. Broader call
+scopes and strict #124 saved-frame replay remain qualified. See
+[the user guide](pluscal-nested-procedure-checksums.md).
+
+The bounded nested-procedure checksum implementation retains a failed development
+producer that sorted shared call frames even after `while TRUE` discarded their
+generated tail. The repaired path preserves pinned creation order for that tail.
+Separately, TLC optimizes `(TRUE)` only when its tokens occupy one logical line;
+line breaks in a comment between tokens prevent that optimization. Native output
+retains the conditional stored-header path in that spelling. Public generation
+continues to name the unsupported multiline procedure expression layout, with no
+replacement/CRC claim. The smallest paired C/P
+controls and original mismatches are in the nested-procedure checksum study;
+these are fidelity repairs, not new result-changing defaults or full parity.

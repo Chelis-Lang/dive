@@ -16,7 +16,8 @@
       "interactions": [
         "F-002",
         "F-034"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-002",
@@ -32,7 +33,8 @@
       "interactions": [
         "F-006",
         "F-019"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-003",
@@ -49,7 +51,8 @@
         "F-004",
         "F-027",
         "F-029"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-004",
@@ -72,7 +75,8 @@
         "F-019",
         "F-027"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required."
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
+      "additional_evidence": []
     },
     {
       "id": "F-005",
@@ -94,7 +98,8 @@
         "F-011",
         "F-014",
         "F-018"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "acceptance": "Lazy scalar/action/temporal/operator parameters, LET, nested INSTANCE and substitutions retain levels and caller scope through evaluation and validation.",
@@ -210,7 +215,8 @@
         "F-010",
         "F-026",
         "F-027"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-009",
@@ -264,7 +270,8 @@
         "F-006",
         "F-008",
         "F-026"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-011",
@@ -284,7 +291,8 @@
         "F-005",
         "F-020",
         "F-028"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-012",
@@ -302,7 +310,8 @@
         "F-013",
         "F-015",
         "F-018"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-013",
@@ -325,7 +334,8 @@
         "F-033"
       ],
       "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
-      "implementation_notes": "Pure final/short capture now uses the requested pool with fixed eight-source waves and separate scratch admission. Capture and safety controls cover inline/1/4/8/chaos; runtime-sensitive graph reads/effects still refuse. No temporal/symmetry interaction certification or 64-way capture scaling claim."
+      "implementation_notes": "Pure final/short capture now uses the requested pool with fixed eight-source waves and separate scratch admission. Capture and safety controls cover inline/1/4/8/chaos; runtime-sensitive graph reads/effects still refuse. No temporal/symmetry interaction certification or 64-way capture scaling claim.",
+      "additional_evidence": []
     },
     {
       "id": "F-014",
@@ -372,7 +382,8 @@
         "F-004",
         "F-012",
         "F-020"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-016",
@@ -434,7 +445,8 @@
         "F-005",
         "F-018"
       ],
-      "implementation_notes": "Supported pure declaration preparation includes source-backed warnings and bounded closure. Unverified startup exceptions, unsupported declaration shapes, and deferred/lazy/infinite permutations still refuse by name; #104 remains open."
+      "implementation_notes": "Supported pure declaration preparation includes source-backed warnings and bounded closure. Unverified startup exceptions, unsupported declaration shapes, and deferred/lazy/infinite permutations still refuse by name; #104 remains open.",
+      "additional_evidence": []
     },
     {
       "id": "F-018",
@@ -456,7 +468,8 @@
         "F-021",
         "F-022"
       ],
-      "implementation_notes": "Pure safety keys canonicalize before VIEW and retain concrete states and independently validated paths. Eleven intended corpus models plus the extra selected Voting model agree at four workers; the original single-worker FastPaxos timeout is preserved. Both profiles/stores/1-4-8 widths have probe controls. Randomness and symmetry with liveness still refuse; the opt-in audit is unimplemented. No full-family certification is claimed."
+      "implementation_notes": "Pure safety keys canonicalize before VIEW and retain concrete states and independently validated paths. Eleven intended corpus models plus the extra selected Voting model agree at four workers; the original single-worker FastPaxos timeout is preserved. Both profiles/stores/1-4-8 widths have probe controls. Randomness and symmetry with liveness still refuse; the opt-in audit is unimplemented. No full-family certification is claimed.",
+      "additional_evidence": []
     },
     {
       "id": "F-019",
@@ -810,7 +823,8 @@
       ],
       "evidence_updates": [
         "Native pure safety DFID visitation/status, eager vectors, counts and bounded completion; clean primary and separately identified injected-seed controls. Full acceptance and interactions remain audit-required."
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-026",
@@ -828,7 +842,8 @@
         "F-010",
         "F-024",
         "F-033"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-027",
@@ -849,7 +864,8 @@
         "F-024",
         "F-025",
         "F-029"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-028",
@@ -872,7 +888,8 @@
       ],
       "evidence_updates": [
         "Explicit native dive dfid command with versioned complete/incomplete/refusal evidence. Raw TLC display, collision probability text, binding failure classes and wider flag interactions remain pending."
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-029",
@@ -918,7 +935,8 @@
         "F-006",
         "F-011",
         "F-028"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "id": "F-031",
@@ -1012,7 +1030,8 @@
         "F-026",
         "F-031",
         "F-032"
-      ]
+      ],
+      "additional_evidence": []
     },
     {
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently. Disjoint sequential recursive call/return and bounded normalized source evidence do not certify process-owned/scoped renaming, strict namespace witnesses or full translator parity.",
@@ -1109,7 +1128,11 @@
         "docs/pluscal-definitions.md",
         "docs/decisions/0053-pluscal-global-definitions.md",
         "crates/dive-pluscal/tests/definitions.rs",
-        "crates/dive-pluscal/define-acceptance/primary/manifest.json"
+        "crates/dive-pluscal/define-acceptance/primary/manifest.json",
+        "docs/pluscal-nested-procedure-checksums.md",
+        "docs/decisions/0061-nested-procedure-header-vectors.md",
+        "crates/dive-pluscal/nested-procedure-checksum-acceptance/README.md",
+        "crates/dive-pluscal/tests/nested_procedure_checksum.rs"
       ],
       "certification": "audit-required",
       "conformance_evidence": "docs/pluscal-process-procedures.md",
@@ -1133,7 +1156,9 @@
         163,
         171,
         172,
-        186
+        186,
+        200,
+        203
       ],
       "name": "PlusCal translation and translation validation",
       "phase": 8,
@@ -1240,7 +1265,11 @@
         "docs/decisions/0055-stored-trace-transport.md",
         "crates/dive-api/tests/trace_representation.rs",
         "crates/dive-trace/tests/value_representation.rs",
-        "conformance/probes/trace-representation-v2/current/receipt.json"
+        "conformance/probes/trace-representation-v2/current/receipt.json",
+        "docs/pluscal-nested-procedure-checksums.md",
+        "docs/decisions/0061-nested-procedure-header-vectors.md",
+        "crates/dive-pluscal/nested-procedure-checksum-acceptance/README.md",
+        "crates/dive-pluscal/tests/nested_procedure_checksum.rs"
       ],
       "certification": "audit-required",
       "conformance_evidence": "docs/pluscal-rewriting.md",
@@ -1276,7 +1305,9 @@
         171,
         172,
         186,
-        190
+        190,
+        200,
+        203
       ],
       "name": "Public Rust APIs and cargo-test integration",
       "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Opt-in checked stored transport v2 covers admitted forward mixed sets and nonliteral tuple/record functions; legacy v1 decoder failures and #195 trusted-storage bit loss remain separate. Transport is not a certificate; provider/symbolic/reverse construction and Random/VIEW extensions remain unsupported. Family remains partial/audit-required. Separate v2 release selection retains72 independentlyValid originals/216 semanticInvalid mutants and24 matching legacyMixed shapeInvalid rows, with12 interval encoding refusals; no arbitrary representation or family certification.",

@@ -92,12 +92,18 @@ fn unsupported(span: Span, feature: &str) -> TranslationError {
 pub(super) fn tokens(parsed: &Parsed, expr: Expr) -> &[crate::ast::Token] {
     parsed.tokens(expr)
 }
-fn truth(parsed: &Parsed, expr: Expr, strict: bool) -> bool {
+pub(super) fn truth(parsed: &Parsed, expr: Expr, strict: bool) -> bool {
     let text: Vec<_> = tokens(parsed, expr)
         .iter()
         .map(|token| token.text.as_str())
         .collect();
-    text == ["TRUE"] || (!strict && text == ["(", "TRUE", ")"])
+    // Pinned IsTRUE requires one logical token line. Tokenize preserves line
+    // breaks between these significant tokens, including breaks in comments.
+    // Do not scan a source prefix or accept a split parenthesized expression.
+    let one_line = parsed
+        .text(expr.span)
+        .is_some_and(|source| !source.contains(['\n', '\r']));
+    one_line && (text == ["TRUE"] || (!strict && text == ["(", "TRUE", ")"]))
 }
 
 #[allow(

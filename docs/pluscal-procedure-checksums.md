@@ -101,13 +101,16 @@ assignment may still assign several variables.
 
 Full serialization refuses recursion, multiple procedures, process-owned
 procedures, DEFINE/macro combinations, automatic procedure labels, label
-modifiers, nested call/return branches and unproved renaming. Some of these
+modifiers, unproved nested transfer shapes and renaming.
+The [nested procedure guide](pluscal-nested-procedure-checksums.md) describes the
+proved If/With/Either/While continuation. Some of these
 already work in raw translation or body-only editing; those stages are separate
 from Full checksum support. No unproved shape receives an invented CRC.
 
 Pinned reference generation retains top-level source calls but mutates shared
 nested branch vectors while expanding transfers. The six C/P If/With/Either
-call controls are therefore retained as named checksum refusals. Two original
+call controls were initially retained as named checksum refusals; the later
+ADR 0061 continuation now matches their exact original-header bytes. Two original
 `local_update` controls are primary parse errors (missing label), while the
 existing raw native lowerer admits them; this known raw-stage gap is not counted
 as matching rejection or artifact success.

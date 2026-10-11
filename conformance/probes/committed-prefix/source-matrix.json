@@ -25,7 +25,7 @@
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
     "AGENTS.md": "c07334e641376c465f25c39314924b9b8cd2f98629642d69d18f6a8a41ab745b",
     ".github/workflows/ci.yml": "381ad153d199168ac76e921855c9db8b746c92ca6a2dc428cb3275ed3fcb7018",
-    "conformance/parity-features.json": "25bfbdca43c76056a1e82fd2a5630721b4fcf9f6fe22eb6e39d7f005724245af"
+    "conformance/parity-features.json": "f77bd5f871151a9e94d4b0ad2a8d4e373fd0da786ebe455ae0d0466edc440684"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }
