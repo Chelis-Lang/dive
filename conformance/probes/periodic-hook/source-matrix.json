@@ -8,7 +8,7 @@
   "source_sha256": {
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
     "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "a5fa59708db9605f19416b7ac9de5061388c05084e088407c120d6a3fa5f0c64",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
     "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
     "crates/dive-liveness/tests/periodic_hook.rs": "89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4",

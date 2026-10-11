@@ -12,7 +12,7 @@
     "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",
     "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/src/periodic.rs": "2bd9ed572999c8189ee00371e40124cf03c010f6e91ba5c573db3478033c1553",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "a5fa59708db9605f19416b7ac9de5061388c05084e088407c120d6a3fa5f0c64",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
     "crates/dive-liveness/tests/periodic_lifecycle.rs": "053969cbbb1b1d46f73a9e9731cf6a49c35155f2bcc0aa8cb67a59f667b9bb8e",
     "crates/dive-api/examples/periodic_lifecycle.rs": "d30b8f527e83a9d55d6deadfc640e8cf8be64f43d5d5d91b70b9666d749635c2",
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",

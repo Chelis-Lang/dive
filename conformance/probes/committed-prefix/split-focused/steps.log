@@ -1,0 +1,160 @@
+
+COMMAND:cargo fmt --all --check
+
+COMMAND:python3 scripts/test-validation-import.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.177s
+
+OK
+
+COMMAND:python3 -I scripts/test-frontend-campaign.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 3.596s
+
+OK
+
+COMMAND:python3 -I scripts/check-tlc-final-safety.py
+Verified all nine clean safety-route captures and seven exact pre-route source matrices; resource stops and empty temporal obligations do not certify a temporal product
+Verified complete successful before-limits source/gate receipt; new limits controls are separate producer evidence
+
+COMMAND:python3 -I scripts/check-tlc-state-if.py
+Verified complete15 conditional controls:11 complete projections/4 reference errors; all histories retained; no periodic or family certification
+Verified complete15 clean final TLC controls, including all four deciding reference errors
+Verified all60 historical native rows:40 supported final-only outcomes/20 named refusals; no reference-error or periodic credit
+Verified executable user API example and retained first compilation failure
+Verified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained
+
+COMMAND:python3 -I scripts/check-tlc-temporal-if.py
+Verified25 complete tag/tableau controls:20 projections/5 preserved failures;25 clean outcomes and15/10 diagnostic final rows, no new verdict or periodic credit
+
+COMMAND:python3 -I scripts/check-tlc-temporal-if-final.py
+Verified all30 primary selections/120 native outcomes:80 supported final outcomes,40 named refusals; independent replay and all source histories retained, no periodic/family credit
+Complete unchanged140 census retained:6 agree/134 unsupported; earlier138 zero-native launcher failures remain separate history
+Verified fresh current Rust guide execution and916-test frozen Rust/Cargo gate identity; no periodic/family claim
+
+COMMAND:python3 -I scripts/check-tlc-final-scopes.py
+Verified complete18 primary/72 native scoped final outcomes and retained name/shape failures;56 temporal,8 safety,8refused; expanded-action and ordinary scheduling remain unclaimed
+
+COMMAND:python3 -I scripts/check-tlc-property-origins.py
+Verified18 primary/72 native origin controls: separate configured, expanded Action and derived vectors; retained2 reference failures/8 native refusals; no ordinary or full-family credit
+
+COMMAND:python3 -I scripts/check-material-capture.py
+Verified18 primary/72 native material pairs and all36 prior refusals/64 first-attempt outcomes; fresh replay and fixed50k/128 controls, no corpus/family/ordinary credit
+
+COMMAND:python3 -I scripts/check-temporal-operators.py
+Verified18 clean primary/72 current native rows,14 exact temporal projections,72 original refusals, bounded independent captures/replay; prior9b140 census46/92/2 remains separate, no ordinary/family credit
+
+COMMAND:python3 -I scripts/check-native-temporal-operators.py
+Verified20 clean rows/17 field projections/80 native observations:48 supported final outcomes,32 retained refusals/rejections; no ordinary/family/error upgrade
+
+COMMAND:python3 -I scripts/check-stored-successor-material.py
+Verified80 establishednative rows:60 supported final outcomes,20 unchangedrefusals/rejections; no errorcredit
+Verified14 primary0/13 rows,14 exact projection rows,56 historical refusals and56 current final outcomes; no ordinary/family credit
+
+COMMAND:python3 -I scripts/check-native-sequence-operators.py
+Verified33 clean primary/29 Java projections/132 native observations:32 supported bounded Append outcomes; Tail/SubSeq/error/refusal histories remain uncredited
+
+COMMAND:python3 -I scripts/check-tlc-partial-scc.py
+Verified32 full prefix rows and8 repeated original checks;8 launcher failures retained; no ordinary clock/model-proof credit
+
+COMMAND:python3 -I scripts/check-periodic-backend.py
+Verified36 complete source-growth rows (4 real failures uncredited), original32 history, table/threshold projection and source epochs; no ordinary schedule/Holds credit
+
+COMMAND:python3 -I scripts/check-periodic-controller.py
+Verified296 pinned periodic observations,2089 archived artifacts and exact generated controls; no family certification
+
+COMMAND:python3 -I scripts/check-runtime-ratio.py
+Verified196 actual updater rows,3 negative assertion controls and every Rust fixture; no ordinary clock/model-proof credit
+
+COMMAND:python3 -I scripts/check-periodic-lifecycle.py
+Verified96 real selected queue controls, preserved failures and source epochs; native commit-clock/EOF diagnostics grant no ordinary proof
+
+COMMAND:python3 -I scripts/check-periodic-hook.py
+Verified59 actual pinned hook controls and preserved epochs; supplied native diagnostics grant no configured-hook or ordinary proof
+
+COMMAND:python3 -I scripts/check-periodic-snapshot.py
+Verified38 actual configured snapshot observations, bounded native diagnostic epochs and no ordinary proof
+
+COMMAND:python3 -I scripts/check-progress-queue.py
+Verified33 actual local worker/queue method rows and separate bounded native nonproof contract
+
+COMMAND:python3 -I scripts/check-committed-prefix.py
+Verified24 actual controlled Worker/queue rows, unchanged failed epochs and native prefix nonproof boundary
+
+COMMAND:python3 -I scripts/check-parity-ledger.py
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+
+COMMAND:python3 -I scripts/test-parity-ledger.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.152s
+
+OK
+
+COMMAND:python3 -I scripts/check-tlc-planning.py
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+
+COMMAND:python3 -I scripts/check-tlc-tableau.py
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+
+COMMAND:python3 -I scripts/check-temporal-action-order.py
+verified all 36 pinned direct controls, compiler failure and native before observations
+
+COMMAND:python3 -I scripts/check-phase-l.py
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+
+COMMAND:python3 -I scripts/check-phase-l-graph.py
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+
+COMMAND:python3 -I scripts/check-phase-execution.py
+verified all26 execution rows:15 completed graph fields,3 no-OOS boundaries,8 retained failures;8 clean TLC precedence controls and preserved producer histories; no strict verdict claim
+
+COMMAND:python3 -I scripts/check-tlc-final.py
+verified all30 reference rows/120 native outcomes:19 completed final projections,11 failures without error agreement; exact source histories retained; ordinary strict parity remains unclaimed
+verified complete140 historical refusal rows/138 raw subprocesses; no broad corpus credit
+
+COMMAND:python3 -I scripts/check-state-if-planning.py
+verified all24 current and18 historical conditional controls, original capture failure and native regressions
+
+COMMAND:python3 -I scripts/check-predecessor-spill.py
+verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes
+
+COMMAND:python3 -I scripts/check-native-checkpoint.py
+verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration
+
+COMMAND:python3 -I scripts/check-native-parity-integration.py
+verified 17 immutable slice source histories and distinct combined source hashes; no family certification
+verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants
+
+COMMAND:cargo clippy -p dive-liveness --test periodic_snapshot --locked -- -D warnings
+    Checking serde v1.0.229
+    Checking libc v0.2.190
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-ir)
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-eval)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-stdlib)
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-model)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `dev` profile [unoptimized] target(s) in 7.03s
+
+COMMAND:cargo nextest run --locked -p dive-liveness --profile ci --test-threads 2 -E test(completed_prefix_graph)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized] target(s) in 18.13s
+────────────
+ Nextest run ID 35a4b36a-663e-4bb8-be0f-d9ad4203b929 with nextest profile: ci
+    Starting 8 tests across 28 binaries (162 tests skipped)
+        PASS [  12.022s] (1/8) dive-liveness::periodic_snapshot completed_prefix_graph_exact_w3
+        PASS [  12.269s] (2/8) dive-liveness::periodic_snapshot completed_prefix_graph_exact_w1
+        PASS [  12.563s] (3/8) dive-liveness::periodic_snapshot completed_prefix_graph_exact_w8
+        PASS [  12.855s] (4/8) dive-liveness::periodic_snapshot completed_prefix_graph_exact_w4
+        PASS [  13.823s] (5/8) dive-liveness::periodic_snapshot completed_prefix_graph_fingerprint_w3
+        PASS [  14.531s] (6/8) dive-liveness::periodic_snapshot completed_prefix_graph_fingerprint_w1
+        PASS [  14.218s] (7/8) dive-liveness::periodic_snapshot completed_prefix_graph_fingerprint_w4
+        PASS [  13.687s] (8/8) dive-liveness::periodic_snapshot completed_prefix_graph_fingerprint_w8
+────────────
+     Summary [  53.060s] 8 tests run: 8 passed, 162 skipped

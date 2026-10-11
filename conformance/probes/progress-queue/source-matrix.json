@@ -11,7 +11,7 @@
     "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "a5fa59708db9605f19416b7ac9de5061388c05084e088407c120d6a3fa5f0c64",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
     "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
     "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",

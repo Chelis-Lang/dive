@@ -120,7 +120,10 @@ impl FinalCheck {
         &self.selection
     }
 }
-/// Actual pre-publication request service under the joined pool mutex.
+/// Actual request quiescence and returned-prefix publication under the pool mutex.
+/// The receipt distinguishes the selected returned prefix, successful physical
+/// frontier append and later unreturned outputs; it does not assert that every
+/// submitted source has completed or that TLC's queue suspension was reproduced.
 #[derive(Clone, Debug)]
 pub struct ExpansionPause {
     pub(crate) receipt: dive_check::capture::ExpansionQuiescence,
@@ -128,7 +131,7 @@ pub struct ExpansionPause {
     pub(crate) generation: u64,
 }
 impl ExpansionPause {
-    /// Actual claims/completed output versus the prior logical commit prefix.
+    /// Actual claims/completed output and committed/frontier-appended prefix.
     #[must_use]
     pub fn receipt(&self) -> &dive_check::capture::ExpansionQuiescence {
         &self.receipt
@@ -190,8 +193,11 @@ impl Run {
     pub fn aborted_request(&self) -> Option<dive_check::progress::Request> {
         self.aborted_request
     }
-    /// Producer-clock claim pauses before current-wave graph publication.
-    /// No SCC or configured hook is run against uncommitted expansion output.
+    /// Producer-clock claim pauses retaining actual successful prefix publication.
+    /// Per-source graph/controller callbacks precede physical frontier append;
+    /// this receipt is retained after the selected transaction's append succeeds.
+    /// Later unreturned outputs remain separate from the committed graph. An
+    /// empty prefix is not an EOF or a model-completion certificate.
     #[must_use]
     pub fn expansion_pauses(&self) -> &[ExpansionPause] {
         &self.expansion_pauses

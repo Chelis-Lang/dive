@@ -1,0 +1,12 @@
+{
+  "producer": "860e8e5d718fd6db6df6cc53a61619ca07db7aef",
+  "source_sha256": {
+    "conformance/probes/committed-prefix/source-matrix.json": "f573262ee66627280e5102daafd39bb0af755aadba143feffd0abb8daa08d26a",
+    "conformance/probes/native-parity-integration/current-source.json": "8a3d707ea32da795365137e64b9f22896471dae180ab5f6f01c8b92b94a4bdc7",
+    "conformance/probes/native-periodic-lifecycle/source-matrix.json": "81d16028425b05a0d487792ae9277d0288391e7487dbf2667de12edbcecaddbc",
+    "conformance/probes/periodic-hook/source-matrix.json": "9d238c8a4c5ec67bbb6e9761e6b02b0d6802f4f4cb20c5c40b6a82d5f5e84928",
+    "conformance/probes/progress-queue/source-matrix.json": "2aaf836574a686e8fb511517a133b684228688783e76b995986c302d7440b34a",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "a5fa59708db9605f19416b7ac9de5061388c05084e088407c120d6a3fa5f0c64"
+  },
+  "scope": "Closed focused consumer before documentation-only correction. Original artifacts, counts and eight-case inventory remain unchanged; no new-producer runtime claim."
+}
