@@ -44,6 +44,13 @@ if (BASE/'historical-before-backend/manifest.json').exists():
  h=BASE/'historical-before-backend';m=load(h/'manifest.json')
  for p,expected in m['source_sha256'].items():assert hashlib.sha256(gzip.decompress((h/'source'/(p+'.gz')).read_bytes())).hexdigest()==expected,p
  for p,expected in m['matrices_sha256'].items():assert sha(h/'matrices'/p)==expected,p
+if (BASE/'development-first-gate/after.json').exists():
+ d=BASE/'development-first-gate';m=load(d/'after.json')
+ assert m['source_and_binaries_unchanged'] and not m['all_steps_passed']
+ assert sha(d/'workspace.log')==m['log_sha256']
+ steps=load(d/'steps.json');assert steps[-1]['exit']==1 and steps[-1]['command']=='python3 -I scripts/check-tlc-final-safety.py'
+ for p,h in load(d/'current-matrices/manifest.json')['source_sha256'].items():
+  assert hashlib.sha256(gzip.decompress((d/'current-matrices'/(p+'.gz')).read_bytes())).hexdigest()==h,p
 if (BASE/'source-matrix.json').exists():
  for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
 if (BASE/'native-current/manifest.json').exists():
