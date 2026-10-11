@@ -1,0 +1,61 @@
+{
+  "by_corpus": {
+    "examples": {
+      "models": {
+        "agree": 21,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 0
+      },
+      "modules": {
+        "agree": 0,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 0
+      }
+    }
+  },
+  "informational_drift_findings": 0,
+  "models": {
+    "agree": 21,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 0
+  },
+  "modules": {
+    "agree": 0,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 0
+  },
+  "oracle_drift_findings": 0,
+  "run_id": "20261011T212832384-dive-all",
+  "worker_counts_variant": 0,
+  "worker_depth_variant": 0,
+  "worker_property_variant": 0,
+  "worker_verdict_variant": 0
+}

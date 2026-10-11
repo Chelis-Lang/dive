@@ -4393,7 +4393,7 @@
     "conformance/probes/fallible-seen-engine/producer-git-objects/objects/fd558be58b62d959179bf75712b2fb568ffdf434.gz": "5863073da7f2539d89efd60025fe4a9b9651a2a1d21eed5a68b410942149e6d5",
     "conformance/probes/fallible-seen-engine/producer-git-objects/objects/ff0934cb6536e8510c024dc1b6281e2f76f73acb.gz": "b9638950163b8893c7ce1dbd762265884a2c7fdd0e9bac0d16882ed0b961175c",
     "docs/decisions/0068-fallible-disk-seen-safety.md": "a83a6d695689be19307f0b5e0aa9c87456364a20e43a78293157d7e8ad8907f1",
-    "docs/user/disk-seen-safety.md": "b4efc389dbbdbeabc825b4958e353b524679e45696cfa716f0ab18dc84f88d1e",
+    "docs/user/disk-seen-safety.md": "ec770383094a6ad0a1df9cc03f35caac22227013a98e189296df339099157a0c",
     "scripts/check-fallible-seen-engine.py": "845fab39b8a5adc76b86233d67ef57eda578819108bb71947e6b7cc93bd7c18d"
   },
   "metadata_receipt": "conformance/probes/fallible-seen-engine/current/metadata-controls/receipt.json",

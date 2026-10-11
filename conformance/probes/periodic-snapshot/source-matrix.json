@@ -19,9 +19,9 @@
     "docs/configured-periodic-snapshot.md": "79bb84630f176ed4cef3c2707d9f093e470b245b79b4cd7f11e52e0b43ad095b",
     "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
     "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
-    "AGENTS.md": "478da1d5e0bcbfe92dbdbb19fe623b836e22657c47b2c6c7dd17d6196b344520",
-    ".github/workflows/ci.yml": "8765dd2ea930727f18373cebf8fc998262387751ed137464b4005a56d2ba662c",
-    "conformance/parity-features.json": "8675663ee1b294b479afe7bbe11f0dd9815b187f72efd34e26fb02a98ceec449"
+    "AGENTS.md": "eb6e68a6c2448edb257c61a2a7e07151c79b7b35077647ab0bef265420329fcf",
+    ".github/workflows/ci.yml": "e9bd36a90272e17c64fa30274cca9078d318436f39c79b10d1fd62e1077bf153",
+    "conformance/parity-features.json": "3dd88efdfac1201bdedcf81d2cb50fe2cbd5adea260a414c66d1cece2a980bcf"
   },
   "current_integration_scope": "Current source integrity only; original runtime producers and observations remain historical, no family certification."
 }

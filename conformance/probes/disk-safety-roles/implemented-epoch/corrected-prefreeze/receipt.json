@@ -1,0 +1,235 @@
+{
+  "qualification": "Preparation source current dirty test/docs/authority diff; not immutable full gate. All actual current CI Python commands selected.",
+  "rows": [
+    {
+      "command": "cargo fmt --all --check",
+      "exit": 0,
+      "seconds": 1.5558865
+    },
+    {
+      "command": "python3 scripts/test-validation-import.py",
+      "exit": 0,
+      "seconds": 0.1707764999999999
+    },
+    {
+      "command": "python3 -I scripts/test-frontend-campaign.py",
+      "exit": 0,
+      "seconds": 1.0840722500000002
+    },
+    {
+      "command": "python3 -I scripts/check-parity-ledger.py",
+      "exit": 0,
+      "seconds": 0.09219441699999997
+    },
+    {
+      "command": "python3 -I scripts/test-parity-ledger.py",
+      "exit": 0,
+      "seconds": 0.20185041700000017
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-planning.py",
+      "exit": 0,
+      "seconds": 0.21518712499999992
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-tableau.py",
+      "exit": 0,
+      "seconds": 0.15119312499999982
+    },
+    {
+      "command": "python3 -I scripts/check-temporal-action-order.py",
+      "exit": 0,
+      "seconds": 0.07786712500000004
+    },
+    {
+      "command": "python3 -I scripts/check-phase-l.py",
+      "exit": 0,
+      "seconds": 0.21220820799999984
+    },
+    {
+      "command": "python3 -I scripts/check-phase-l-graph.py",
+      "exit": 0,
+      "seconds": 0.12289537500000014
+    },
+    {
+      "command": "python3 -I scripts/check-phase-execution.py",
+      "exit": 0,
+      "seconds": 0.1283282920000004
+    },
+    {
+      "command": "python3 -I scripts/check-periodic-controller.py",
+      "exit": 0,
+      "seconds": 0.22353999999999985
+    },
+    {
+      "command": "python3 -I scripts/check-runtime-ratio.py",
+      "exit": 0,
+      "seconds": 0.07433762500000007
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final.py",
+      "exit": 0,
+      "seconds": 0.21175304200000067
+    },
+    {
+      "command": "python3 -I scripts/check-state-if-planning.py",
+      "exit": 0,
+      "seconds": 0.095627833
+    },
+    {
+      "command": "python3 -I scripts/check-predecessor-spill.py",
+      "exit": 0,
+      "seconds": 0.24900887499999946
+    },
+    {
+      "command": "python3 -I scripts/check-native-checkpoint.py",
+      "exit": 0,
+      "seconds": 0.22820195799999965
+    },
+    {
+      "command": "python3 -I scripts/check-view-normalization.py",
+      "exit": 0,
+      "seconds": 0.4555970829999998
+    },
+    {
+      "command": "python3 -I scripts/check-view-random-stream.py",
+      "exit": 0,
+      "seconds": 1.2899482080000002
+    },
+    {
+      "command": "python3 -I scripts/check-trace-representation.py",
+      "exit": 0,
+      "seconds": 1.4866357919999995
+    },
+    {
+      "command": "python3 -I scripts/check-fallible-seen-store.py",
+      "exit": 0,
+      "seconds": 0.5150742910000012
+    },
+    {
+      "command": "python3 -I scripts/check-fallible-seen-engine.py",
+      "exit": 0,
+      "seconds": 1.428912500000001
+    },
+    {
+      "command": "python3 -I scripts/test-fallible-seen-git-proof.py",
+      "exit": 0,
+      "seconds": 0.15909254199999978
+    },
+    {
+      "command": "python3 -I scripts/check-native-parity-integration.py",
+      "exit": 0,
+      "seconds": 8.16694975
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final-safety.py",
+      "exit": 0,
+      "seconds": 1.0012932499999998
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-state-if.py",
+      "exit": 0,
+      "seconds": 0.4605925000000006
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-temporal-if.py",
+      "exit": 0,
+      "seconds": 0.1416932920000029
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+      "exit": 0,
+      "seconds": 0.692116875
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final-scopes.py",
+      "exit": 0,
+      "seconds": 0.4076359580000002
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-property-origins.py",
+      "exit": 0,
+      "seconds": 0.4611467910000009
+    },
+    {
+      "command": "python3 -I scripts/check-material-capture.py",
+      "exit": 0,
+      "seconds": 0.44159145799999777
+    },
+    {
+      "command": "python3 -I scripts/check-temporal-operators.py",
+      "exit": 0,
+      "seconds": 0.47247320800000026
+    },
+    {
+      "command": "python3 -I scripts/check-native-temporal-operators.py",
+      "exit": 0,
+      "seconds": 0.79751525
+    },
+    {
+      "command": "python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py",
+      "exit": 0,
+      "seconds": 2.565372332999999
+    },
+    {
+      "command": "python3 -I scripts/check-stored-successor-material.py",
+      "exit": 0,
+      "seconds": 0.4125534580000014
+    },
+    {
+      "command": "python3 -I scripts/check-stored-successor-census.py",
+      "exit": 0,
+      "seconds": 0.20277629100000283
+    },
+    {
+      "command": "python3 -I scripts/check-native-sequence-operators.py",
+      "exit": 0,
+      "seconds": 0.19479687500000153
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-partial-scc.py",
+      "exit": 0,
+      "seconds": 0.32198858299999955
+    },
+    {
+      "command": "python3 -I scripts/check-periodic-backend.py",
+      "exit": 0,
+      "seconds": 0.34718345799999994
+    },
+    {
+      "command": "python3 -I scripts/check-periodic-lifecycle.py",
+      "exit": 0,
+      "seconds": 0.8705770000000008
+    },
+    {
+      "command": "python3 -I scripts/check-periodic-hook.py",
+      "exit": 0,
+      "seconds": 0.2909931659999998
+    },
+    {
+      "command": "python3 -I scripts/check-periodic-snapshot.py",
+      "exit": 0,
+      "seconds": 1.1836702499999987
+    },
+    {
+      "command": "python3 -I scripts/check-progress-queue.py",
+      "exit": 0,
+      "seconds": 1.5838268749999997
+    },
+    {
+      "command": "python3 -I scripts/check-committed-prefix.py",
+      "exit": 0,
+      "seconds": 0.4002692500000009
+    },
+    {
+      "command": "python3 -I scripts/check-test-partitions.py",
+      "exit": 0,
+      "seconds": 142.258119958
+    },
+    {
+      "command": "python3 -I scripts/test-workspace-gate.py",
+      "exit": 0,
+      "seconds": 0.3718378750000113
+    }
+  ]
+}

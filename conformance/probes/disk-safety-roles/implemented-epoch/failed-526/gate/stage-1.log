@@ -1,0 +1,13 @@
+COMMAND: cargo clippy --workspace --all-targets --locked -- -D warnings
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+error: this function has too many lines (125/100)
+   --> crates/dive-check/src/seen/tests.rs:743:1
+    |
+743 | fn public_pure_action_property_replay_matches_memory_and_private_disk() {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#too_many_lines
+    = note: `-D clippy::too-many-lines` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::too_many_lines)]`
+
+error: could not compile `dive-check` (lib test) due to 1 previous error

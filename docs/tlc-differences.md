@@ -2270,11 +2270,16 @@ roles, while actual temporal assumptions or obligations refuse. The declared
 29-model before-selection keeps clean pinned output, resident results and the old
 blanket disk refusal separately. A strict INSTANCE expression occurring only
 in the SPECIFICATION subscript remains refused before startup: the selected
-primary and resident control succeed with three states and warning2140, while
+primary and resident control succeed with three states and warning 2140, while
 warning-only subscript inspection does not prove structural disk admission.
 The preliminary4f disk Success and failed admission regression are preserved.
 This is a scoped native restriction, not a wrong TLC verdict. LET/INSTANCE/configured aliases are selected,
-not granted support merely by name. Current qualification remains in progress.
+not granted support merely by name. The frozen `7fae387c` producer passed the
+full gate (1,326 tests, zero skips) and all 2,320 current-role CLI observations.
+Its 2,088 public API comparisons retain 432 independently Valid words and
+2,592 Invalid named mutants; seven refusal models stay selected without proof
+credit. Original resident reports and diagnostic error words are qualified
+separately in the study.
 
 The policy is deliberately partial. A fairness-only specification that succeeds
 in the resident route remains refused on disk; quantified PROPERTY domain

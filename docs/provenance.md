@@ -764,3 +764,11 @@ conservative unused roots and pre-startup native refusals are original bounded
 policy, not claimed Java error parity. Resident binding is unchanged; no crate
 edge changes. The declared before-selection and current proof scope are in
 `conformance/probes/disk-safety-roles/` and ADR0075.
+
+The role admission runtime source is frozen at `7fae387c11675b6a72119cc0013dd18f4eac33cb`.
+Its archived selected inputs include 1,347 Git/live pairs and all 61 literal
+include sites/56 targets derived from actual workspace Rust sources. Portable
+commit/tree objects establish the selected Git blob identities without requiring
+an unsquashed producer object in a future clone. This is selected-input provenance,
+not a hermetic build or independent semantic certificate. Runtime/gate histories
+and metadata-only current authority stay separate in the role study.

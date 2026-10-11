@@ -1,0 +1,55 @@
+{
+  "producer": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+  "rows": [
+    {
+      "stage": 0,
+      "command": [
+        "python3",
+        "-I",
+        "/tmp/dive-role-current-runtime.py"
+      ],
+      "exit": 0,
+      "stdout_sha256": "a8ea8cd8730c93e353d386a36a86f4d6102615e935ca40b239411870dcf61086",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 85.4375035
+    },
+    {
+      "stage": 1,
+      "command": [
+        "python3",
+        "-I",
+        "/tmp/dive-role-original-runtime.py"
+      ],
+      "exit": 0,
+      "stdout_sha256": "30b239f6925563a1877cc29945b0b1834d08ade018599298d3fdd394770da96b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 22.727409292000004
+    },
+    {
+      "stage": 2,
+      "command": [
+        "python3",
+        "-I",
+        "/tmp/dive-role-replay-property-runtime.py"
+      ],
+      "exit": 0,
+      "stdout_sha256": "2228a30876bc2e1d83edd20f49fd92760313b833a0e57182d8bdc547f633085b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 5.0943341669999995
+    },
+    {
+      "stage": 3,
+      "command": [
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-roles-current/current-binaries/dive-disk-role-controls",
+        "/Users/jeff/code/dive-trace-representation-work",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-roles-current/runtime"
+      ],
+      "exit": 0,
+      "stdout_sha256": "4ee8665381354b5d364568d8b20a5b122e8bb956e1839b09c847ff288b130662",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "seconds": 12.300981790999998
+    }
+  ],
+  "elapsed_seconds": 137.232344958,
+  "family_certified": false
+}

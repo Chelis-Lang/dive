@@ -1,0 +1,2321 @@
+memory-ActionLevelProperty-tlc-fp-False 151
+memory-ActionLevelProperty-tlc-fp-True 151
+memory-ActionLevelProperty-tlc-exact-False 151
+memory-ActionLevelProperty-tlc-exact-True 151
+memory-ActionLevelProperty-dive-fp-False 1
+memory-ActionLevelProperty-dive-fp-True 1
+memory-ActionLevelProperty-dive-exact-False 1
+memory-ActionLevelProperty-dive-exact-True 1
+memory-ActionProperty-tlc-fp-False 13
+memory-ActionProperty-tlc-fp-True 13
+memory-ActionProperty-tlc-exact-False 13
+memory-ActionProperty-tlc-exact-True 13
+memory-ActionProperty-dive-fp-False 10
+memory-ActionProperty-dive-fp-True 10
+memory-ActionProperty-dive-exact-False 10
+memory-ActionProperty-dive-exact-True 10
+memory-AlwaysProperty-tlc-fp-False 12
+memory-AlwaysProperty-tlc-fp-True 12
+memory-AlwaysProperty-tlc-exact-False 12
+memory-AlwaysProperty-tlc-exact-True 12
+memory-AlwaysProperty-dive-fp-False 10
+memory-AlwaysProperty-dive-fp-True 10
+memory-AlwaysProperty-dive-exact-False 10
+memory-AlwaysProperty-dive-exact-True 10
+memory-ArityProperty-tlc-fp-False 151
+memory-ArityProperty-tlc-fp-True 151
+memory-ArityProperty-tlc-exact-False 151
+memory-ArityProperty-tlc-exact-True 151
+memory-ArityProperty-dive-fp-False 1
+memory-ArityProperty-dive-fp-True 1
+memory-ArityProperty-dive-exact-False 1
+memory-ArityProperty-dive-exact-True 1
+memory-AritySpecification-tlc-fp-False 151
+memory-AritySpecification-tlc-fp-True 151
+memory-AritySpecification-tlc-exact-False 151
+memory-AritySpecification-tlc-exact-True 151
+memory-AritySpecification-dive-fp-False 1
+memory-AritySpecification-dive-fp-True 1
+memory-AritySpecification-dive-exact-False 1
+memory-AritySpecification-dive-exact-True 1
+memory-AssumeFalseSafety-tlc-fp-False 10
+memory-AssumeFalseSafety-tlc-fp-True 10
+memory-AssumeFalseSafety-tlc-exact-False 10
+memory-AssumeFalseSafety-tlc-exact-True 10
+memory-AssumeFalseSafety-dive-fp-False 12
+memory-AssumeFalseSafety-dive-fp-True 12
+memory-AssumeFalseSafety-dive-exact-False 12
+memory-AssumeFalseSafety-dive-exact-True 12
+memory-AssumePrintSafety-tlc-fp-False 0
+memory-AssumePrintSafety-tlc-fp-True 0
+memory-AssumePrintSafety-tlc-exact-False 0
+memory-AssumePrintSafety-tlc-exact-True 0
+memory-AssumePrintSafety-dive-fp-False 0
+memory-AssumePrintSafety-dive-fp-True 0
+memory-AssumePrintSafety-dive-exact-False 0
+memory-AssumePrintSafety-dive-exact-True 0
+memory-ConfiguredSpecification-tlc-fp-False 0
+memory-ConfiguredSpecification-tlc-fp-True 0
+memory-ConfiguredSpecification-tlc-exact-False 0
+memory-ConfiguredSpecification-tlc-exact-True 0
+memory-ConfiguredSpecification-dive-fp-False 0
+memory-ConfiguredSpecification-dive-fp-True 0
+memory-ConfiguredSpecification-dive-exact-False 0
+memory-ConfiguredSpecification-dive-exact-True 0
+memory-ConjunctionProperty-tlc-fp-False 12
+memory-ConjunctionProperty-tlc-fp-True 12
+memory-ConjunctionProperty-tlc-exact-False 12
+memory-ConjunctionProperty-tlc-exact-True 12
+memory-ConjunctionProperty-dive-fp-False 10
+memory-ConjunctionProperty-dive-fp-True 10
+memory-ConjunctionProperty-dive-exact-False 10
+memory-ConjunctionProperty-dive-exact-True 10
+memory-ConstantFalseProperty-tlc-fp-False 151
+memory-ConstantFalseProperty-tlc-fp-True 151
+memory-ConstantFalseProperty-tlc-exact-False 151
+memory-ConstantFalseProperty-tlc-exact-True 151
+memory-ConstantFalseProperty-dive-fp-False 1
+memory-ConstantFalseProperty-dive-fp-True 1
+memory-ConstantFalseProperty-dive-exact-False 1
+memory-ConstantFalseProperty-dive-exact-True 1
+memory-ConstantSpecification-tlc-fp-False 151
+memory-ConstantSpecification-tlc-fp-True 151
+memory-ConstantSpecification-tlc-exact-False 151
+memory-ConstantSpecification-tlc-exact-True 151
+memory-ConstantSpecification-dive-fp-False 1
+memory-ConstantSpecification-dive-fp-True 1
+memory-ConstantSpecification-dive-exact-False 1
+memory-ConstantSpecification-dive-exact-True 1
+memory-ConstantTrueProperty-tlc-fp-False 0
+memory-ConstantTrueProperty-tlc-fp-True 0
+memory-ConstantTrueProperty-tlc-exact-False 0
+memory-ConstantTrueProperty-tlc-exact-True 0
+memory-ConstantTrueProperty-dive-fp-False 0
+memory-ConstantTrueProperty-dive-fp-True 0
+memory-ConstantTrueProperty-dive-exact-False 0
+memory-ConstantTrueProperty-dive-exact-True 0
+memory-FairSpecification-tlc-fp-False 0
+memory-FairSpecification-tlc-fp-True 0
+memory-FairSpecification-tlc-exact-False 0
+memory-FairSpecification-tlc-exact-True 0
+memory-FairSpecification-dive-fp-False 0
+memory-FairSpecification-dive-fp-True 0
+memory-FairSpecification-dive-exact-False 0
+memory-FairSpecification-dive-exact-True 0
+memory-InitNextCounterpart-tlc-fp-False 0
+memory-InitNextCounterpart-tlc-fp-True 0
+memory-InitNextCounterpart-tlc-exact-False 0
+memory-InitNextCounterpart-tlc-exact-True 0
+memory-InitNextCounterpart-dive-fp-False 0
+memory-InitNextCounterpart-dive-fp-True 0
+memory-InitNextCounterpart-dive-exact-False 0
+memory-InitNextCounterpart-dive-exact-True 0
+memory-InstanceProperty-tlc-fp-False 12
+memory-InstanceProperty-tlc-fp-True 12
+memory-InstanceProperty-tlc-exact-False 12
+memory-InstanceProperty-tlc-exact-True 12
+memory-InstanceProperty-dive-fp-False 10
+memory-InstanceProperty-dive-fp-True 10
+memory-InstanceProperty-dive-exact-False 10
+memory-InstanceProperty-dive-exact-True 10
+memory-InstanceSpecification-tlc-fp-False 0
+memory-InstanceSpecification-tlc-fp-True 0
+memory-InstanceSpecification-tlc-exact-False 0
+memory-InstanceSpecification-tlc-exact-True 0
+memory-InstanceSpecification-dive-fp-False 0
+memory-InstanceSpecification-dive-fp-True 0
+memory-InstanceSpecification-dive-exact-False 0
+memory-InstanceSpecification-dive-exact-True 0
+memory-LetProperty-tlc-fp-False 12
+memory-LetProperty-tlc-fp-True 12
+memory-LetProperty-tlc-exact-False 12
+memory-LetProperty-tlc-exact-True 12
+memory-LetProperty-dive-fp-False 10
+memory-LetProperty-dive-fp-True 10
+memory-LetProperty-dive-exact-False 10
+memory-LetProperty-dive-exact-True 10
+memory-LetSpecification-tlc-fp-False 0
+memory-LetSpecification-tlc-fp-True 0
+memory-LetSpecification-tlc-exact-False 0
+memory-LetSpecification-tlc-exact-True 0
+memory-LetSpecification-dive-fp-False 0
+memory-LetSpecification-dive-fp-True 0
+memory-LetSpecification-dive-exact-False 0
+memory-LetSpecification-dive-exact-True 0
+memory-MissingProperty-tlc-fp-False 151
+memory-MissingProperty-tlc-fp-True 151
+memory-MissingProperty-tlc-exact-False 151
+memory-MissingProperty-tlc-exact-True 151
+memory-MissingProperty-dive-fp-False 1
+memory-MissingProperty-dive-fp-True 1
+memory-MissingProperty-dive-exact-False 1
+memory-MissingProperty-dive-exact-True 1
+memory-MissingSpecification-tlc-fp-False 151
+memory-MissingSpecification-tlc-fp-True 151
+memory-MissingSpecification-tlc-exact-False 151
+memory-MissingSpecification-tlc-exact-True 151
+memory-MissingSpecification-dive-fp-False 1
+memory-MissingSpecification-dive-fp-True 1
+memory-MissingSpecification-dive-exact-False 1
+memory-MissingSpecification-dive-exact-True 1
+memory-MixedRoles-tlc-fp-False 151
+memory-MixedRoles-tlc-fp-True 151
+memory-MixedRoles-tlc-exact-False 151
+memory-MixedRoles-tlc-exact-True 151
+memory-MixedRoles-dive-fp-False 1
+memory-MixedRoles-dive-fp-True 1
+memory-MixedRoles-dive-exact-False 1
+memory-MixedRoles-dive-exact-True 1
+memory-PrintedProperty-tlc-fp-False 12
+memory-PrintedProperty-tlc-fp-True 12
+memory-PrintedProperty-tlc-exact-False 12
+memory-PrintedProperty-tlc-exact-True 12
+memory-PrintedProperty-dive-fp-False 10
+memory-PrintedProperty-dive-fp-True 10
+memory-PrintedProperty-dive-exact-False 10
+memory-PrintedProperty-dive-exact-True 10
+memory-PrintedSpecification-tlc-fp-False 0
+memory-PrintedSpecification-tlc-fp-True 0
+memory-PrintedSpecification-tlc-exact-False 0
+memory-PrintedSpecification-tlc-exact-True 0
+memory-PrintedSpecification-dive-fp-False 0
+memory-PrintedSpecification-dive-fp-True 0
+memory-PrintedSpecification-dive-exact-False 0
+memory-PrintedSpecification-dive-exact-True 0
+memory-PropertyAlias-tlc-fp-False 12
+memory-PropertyAlias-tlc-fp-True 12
+memory-PropertyAlias-tlc-exact-False 12
+memory-PropertyAlias-tlc-exact-True 12
+memory-PropertyAlias-dive-fp-False 10
+memory-PropertyAlias-dive-fp-True 10
+memory-PropertyAlias-dive-exact-False 10
+memory-PropertyAlias-dive-exact-True 10
+memory-PureSpecification-tlc-fp-False 0
+memory-PureSpecification-tlc-fp-True 0
+memory-PureSpecification-tlc-exact-False 0
+memory-PureSpecification-tlc-exact-True 0
+memory-PureSpecification-dive-fp-False 0
+memory-PureSpecification-dive-fp-True 0
+memory-PureSpecification-dive-exact-False 0
+memory-PureSpecification-dive-exact-True 0
+memory-QuantifiedProperty-tlc-fp-False 12
+memory-QuantifiedProperty-tlc-fp-True 12
+memory-QuantifiedProperty-tlc-exact-False 12
+memory-QuantifiedProperty-tlc-exact-True 12
+memory-QuantifiedProperty-dive-fp-False 10
+memory-QuantifiedProperty-dive-fp-True 10
+memory-QuantifiedProperty-dive-exact-False 10
+memory-QuantifiedProperty-dive-exact-True 10
+memory-StateProperty-tlc-fp-False 0
+memory-StateProperty-tlc-fp-True 0
+memory-StateProperty-tlc-exact-False 0
+memory-StateProperty-tlc-exact-True 0
+memory-StateProperty-dive-fp-False 0
+memory-StateProperty-dive-fp-True 0
+memory-StateProperty-dive-exact-False 0
+memory-StateProperty-dive-exact-True 0
+memory-TemporalProperty-tlc-fp-False 3
+memory-TemporalProperty-tlc-fp-True 3
+memory-TemporalProperty-tlc-exact-False 3
+memory-TemporalProperty-tlc-exact-True 3
+memory-TemporalProperty-dive-fp-False 3
+memory-TemporalProperty-dive-fp-True 3
+memory-TemporalProperty-dive-exact-False 3
+memory-TemporalProperty-dive-exact-True 3
+memory-WrapperSpecification-tlc-fp-False 3
+memory-WrapperSpecification-tlc-fp-True 3
+memory-WrapperSpecification-tlc-exact-False 3
+memory-WrapperSpecification-tlc-exact-True 3
+memory-WrapperSpecification-dive-fp-False 3
+memory-WrapperSpecification-dive-fp-True 3
+memory-WrapperSpecification-dive-exact-False 3
+memory-WrapperSpecification-dive-exact-True 3
+disk-ActionLevelProperty-tlc-fp-1-None-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-1-None-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-1-0-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-1-0-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-1-7-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-1-7-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-4-None-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-4-None-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-4-0-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-4-0-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-4-7-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-4-7-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-8-None-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-8-None-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-8-0-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-8-0-True 151 model-error
+disk-ActionLevelProperty-tlc-fp-8-7-False 151 model-error
+disk-ActionLevelProperty-tlc-fp-8-7-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-1-None-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-1-None-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-1-0-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-1-0-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-1-7-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-1-7-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-4-None-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-4-None-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-4-0-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-4-0-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-4-7-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-4-7-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-8-None-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-8-None-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-8-0-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-8-0-True 151 model-error
+disk-ActionLevelProperty-tlc-exact-8-7-False 151 model-error
+disk-ActionLevelProperty-tlc-exact-8-7-True 151 model-error
+disk-ActionLevelProperty-dive-fp-1-None-False 1 model-error
+disk-ActionLevelProperty-dive-fp-1-None-True 1 model-error
+disk-ActionLevelProperty-dive-fp-1-0-False 1 model-error
+disk-ActionLevelProperty-dive-fp-1-0-True 1 model-error
+disk-ActionLevelProperty-dive-fp-1-7-False 1 model-error
+disk-ActionLevelProperty-dive-fp-1-7-True 1 model-error
+disk-ActionLevelProperty-dive-fp-4-None-False 1 model-error
+disk-ActionLevelProperty-dive-fp-4-None-True 1 model-error
+disk-ActionLevelProperty-dive-fp-4-0-False 1 model-error
+disk-ActionLevelProperty-dive-fp-4-0-True 1 model-error
+disk-ActionLevelProperty-dive-fp-4-7-False 1 model-error
+disk-ActionLevelProperty-dive-fp-4-7-True 1 model-error
+disk-ActionLevelProperty-dive-fp-8-None-False 1 model-error
+disk-ActionLevelProperty-dive-fp-8-None-True 1 model-error
+disk-ActionLevelProperty-dive-fp-8-0-False 1 model-error
+disk-ActionLevelProperty-dive-fp-8-0-True 1 model-error
+disk-ActionLevelProperty-dive-fp-8-7-False 1 model-error
+disk-ActionLevelProperty-dive-fp-8-7-True 1 model-error
+disk-ActionLevelProperty-dive-exact-1-None-False 1 model-error
+disk-ActionLevelProperty-dive-exact-1-None-True 1 model-error
+disk-ActionLevelProperty-dive-exact-1-0-False 1 model-error
+disk-ActionLevelProperty-dive-exact-1-0-True 1 model-error
+disk-ActionLevelProperty-dive-exact-1-7-False 1 model-error
+disk-ActionLevelProperty-dive-exact-1-7-True 1 model-error
+disk-ActionLevelProperty-dive-exact-4-None-False 1 model-error
+disk-ActionLevelProperty-dive-exact-4-None-True 1 model-error
+disk-ActionLevelProperty-dive-exact-4-0-False 1 model-error
+disk-ActionLevelProperty-dive-exact-4-0-True 1 model-error
+disk-ActionLevelProperty-dive-exact-4-7-False 1 model-error
+disk-ActionLevelProperty-dive-exact-4-7-True 1 model-error
+disk-ActionLevelProperty-dive-exact-8-None-False 1 model-error
+disk-ActionLevelProperty-dive-exact-8-None-True 1 model-error
+disk-ActionLevelProperty-dive-exact-8-0-False 1 model-error
+disk-ActionLevelProperty-dive-exact-8-0-True 1 model-error
+disk-ActionLevelProperty-dive-exact-8-7-False 1 model-error
+disk-ActionLevelProperty-dive-exact-8-7-True 1 model-error
+disk-ActionProperty-tlc-fp-1-None-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-1-None-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-1-0-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-1-0-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-1-7-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-1-7-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-4-None-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-4-None-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-4-0-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-4-0-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-4-7-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-4-7-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-8-None-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-8-None-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-8-0-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-8-0-True 13 action-property-violation
+disk-ActionProperty-tlc-fp-8-7-False 13 action-property-violation
+disk-ActionProperty-tlc-fp-8-7-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-1-None-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-1-None-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-1-0-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-1-0-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-1-7-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-1-7-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-4-None-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-4-None-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-4-0-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-4-0-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-4-7-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-4-7-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-8-None-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-8-None-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-8-0-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-8-0-True 13 action-property-violation
+disk-ActionProperty-tlc-exact-8-7-False 13 action-property-violation
+disk-ActionProperty-tlc-exact-8-7-True 13 action-property-violation
+disk-ActionProperty-dive-fp-1-None-False 10 action-property-violation
+disk-ActionProperty-dive-fp-1-None-True 10 action-property-violation
+disk-ActionProperty-dive-fp-1-0-False 10 action-property-violation
+disk-ActionProperty-dive-fp-1-0-True 10 action-property-violation
+disk-ActionProperty-dive-fp-1-7-False 10 action-property-violation
+disk-ActionProperty-dive-fp-1-7-True 10 action-property-violation
+disk-ActionProperty-dive-fp-4-None-False 10 action-property-violation
+disk-ActionProperty-dive-fp-4-None-True 10 action-property-violation
+disk-ActionProperty-dive-fp-4-0-False 10 action-property-violation
+disk-ActionProperty-dive-fp-4-0-True 10 action-property-violation
+disk-ActionProperty-dive-fp-4-7-False 10 action-property-violation
+disk-ActionProperty-dive-fp-4-7-True 10 action-property-violation
+disk-ActionProperty-dive-fp-8-None-False 10 action-property-violation
+disk-ActionProperty-dive-fp-8-None-True 10 action-property-violation
+disk-ActionProperty-dive-fp-8-0-False 10 action-property-violation
+disk-ActionProperty-dive-fp-8-0-True 10 action-property-violation
+disk-ActionProperty-dive-fp-8-7-False 10 action-property-violation
+disk-ActionProperty-dive-fp-8-7-True 10 action-property-violation
+disk-ActionProperty-dive-exact-1-None-False 10 action-property-violation
+disk-ActionProperty-dive-exact-1-None-True 10 action-property-violation
+disk-ActionProperty-dive-exact-1-0-False 10 action-property-violation
+disk-ActionProperty-dive-exact-1-0-True 10 action-property-violation
+disk-ActionProperty-dive-exact-1-7-False 10 action-property-violation
+disk-ActionProperty-dive-exact-1-7-True 10 action-property-violation
+disk-ActionProperty-dive-exact-4-None-False 10 action-property-violation
+disk-ActionProperty-dive-exact-4-None-True 10 action-property-violation
+disk-ActionProperty-dive-exact-4-0-False 10 action-property-violation
+disk-ActionProperty-dive-exact-4-0-True 10 action-property-violation
+disk-ActionProperty-dive-exact-4-7-False 10 action-property-violation
+disk-ActionProperty-dive-exact-4-7-True 10 action-property-violation
+disk-ActionProperty-dive-exact-8-None-False 10 action-property-violation
+disk-ActionProperty-dive-exact-8-None-True 10 action-property-violation
+disk-ActionProperty-dive-exact-8-0-False 10 action-property-violation
+disk-ActionProperty-dive-exact-8-0-True 10 action-property-violation
+disk-ActionProperty-dive-exact-8-7-False 10 action-property-violation
+disk-ActionProperty-dive-exact-8-7-True 10 action-property-violation
+disk-AlwaysProperty-tlc-fp-1-None-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-1-None-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-1-0-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-1-0-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-1-7-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-1-7-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-4-None-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-4-None-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-4-0-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-4-0-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-4-7-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-4-7-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-8-None-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-8-None-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-8-0-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-8-0-True 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-8-7-False 12 invariant-violation
+disk-AlwaysProperty-tlc-fp-8-7-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-1-None-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-1-None-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-1-0-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-1-0-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-1-7-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-1-7-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-4-None-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-4-None-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-4-0-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-4-0-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-4-7-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-4-7-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-8-None-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-8-None-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-8-0-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-8-0-True 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-8-7-False 12 invariant-violation
+disk-AlwaysProperty-tlc-exact-8-7-True 12 invariant-violation
+disk-AlwaysProperty-dive-fp-1-None-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-1-None-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-1-0-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-1-0-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-1-7-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-1-7-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-4-None-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-4-None-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-4-0-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-4-0-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-4-7-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-4-7-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-8-None-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-8-None-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-8-0-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-8-0-True 10 invariant-violation
+disk-AlwaysProperty-dive-fp-8-7-False 10 invariant-violation
+disk-AlwaysProperty-dive-fp-8-7-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-1-None-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-1-None-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-1-0-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-1-0-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-1-7-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-1-7-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-4-None-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-4-None-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-4-0-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-4-0-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-4-7-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-4-7-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-8-None-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-8-None-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-8-0-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-8-0-True 10 invariant-violation
+disk-AlwaysProperty-dive-exact-8-7-False 10 invariant-violation
+disk-AlwaysProperty-dive-exact-8-7-True 10 invariant-violation
+disk-ArityProperty-tlc-fp-1-None-False 151 model-error
+disk-ArityProperty-tlc-fp-1-None-True 151 model-error
+disk-ArityProperty-tlc-fp-1-0-False 151 model-error
+disk-ArityProperty-tlc-fp-1-0-True 151 model-error
+disk-ArityProperty-tlc-fp-1-7-False 151 model-error
+disk-ArityProperty-tlc-fp-1-7-True 151 model-error
+disk-ArityProperty-tlc-fp-4-None-False 151 model-error
+disk-ArityProperty-tlc-fp-4-None-True 151 model-error
+disk-ArityProperty-tlc-fp-4-0-False 151 model-error
+disk-ArityProperty-tlc-fp-4-0-True 151 model-error
+disk-ArityProperty-tlc-fp-4-7-False 151 model-error
+disk-ArityProperty-tlc-fp-4-7-True 151 model-error
+disk-ArityProperty-tlc-fp-8-None-False 151 model-error
+disk-ArityProperty-tlc-fp-8-None-True 151 model-error
+disk-ArityProperty-tlc-fp-8-0-False 151 model-error
+disk-ArityProperty-tlc-fp-8-0-True 151 model-error
+disk-ArityProperty-tlc-fp-8-7-False 151 model-error
+disk-ArityProperty-tlc-fp-8-7-True 151 model-error
+disk-ArityProperty-tlc-exact-1-None-False 151 model-error
+disk-ArityProperty-tlc-exact-1-None-True 151 model-error
+disk-ArityProperty-tlc-exact-1-0-False 151 model-error
+disk-ArityProperty-tlc-exact-1-0-True 151 model-error
+disk-ArityProperty-tlc-exact-1-7-False 151 model-error
+disk-ArityProperty-tlc-exact-1-7-True 151 model-error
+disk-ArityProperty-tlc-exact-4-None-False 151 model-error
+disk-ArityProperty-tlc-exact-4-None-True 151 model-error
+disk-ArityProperty-tlc-exact-4-0-False 151 model-error
+disk-ArityProperty-tlc-exact-4-0-True 151 model-error
+disk-ArityProperty-tlc-exact-4-7-False 151 model-error
+disk-ArityProperty-tlc-exact-4-7-True 151 model-error
+disk-ArityProperty-tlc-exact-8-None-False 151 model-error
+disk-ArityProperty-tlc-exact-8-None-True 151 model-error
+disk-ArityProperty-tlc-exact-8-0-False 151 model-error
+disk-ArityProperty-tlc-exact-8-0-True 151 model-error
+disk-ArityProperty-tlc-exact-8-7-False 151 model-error
+disk-ArityProperty-tlc-exact-8-7-True 151 model-error
+disk-ArityProperty-dive-fp-1-None-False 1 model-error
+disk-ArityProperty-dive-fp-1-None-True 1 model-error
+disk-ArityProperty-dive-fp-1-0-False 1 model-error
+disk-ArityProperty-dive-fp-1-0-True 1 model-error
+disk-ArityProperty-dive-fp-1-7-False 1 model-error
+disk-ArityProperty-dive-fp-1-7-True 1 model-error
+disk-ArityProperty-dive-fp-4-None-False 1 model-error
+disk-ArityProperty-dive-fp-4-None-True 1 model-error
+disk-ArityProperty-dive-fp-4-0-False 1 model-error
+disk-ArityProperty-dive-fp-4-0-True 1 model-error
+disk-ArityProperty-dive-fp-4-7-False 1 model-error
+disk-ArityProperty-dive-fp-4-7-True 1 model-error
+disk-ArityProperty-dive-fp-8-None-False 1 model-error
+disk-ArityProperty-dive-fp-8-None-True 1 model-error
+disk-ArityProperty-dive-fp-8-0-False 1 model-error
+disk-ArityProperty-dive-fp-8-0-True 1 model-error
+disk-ArityProperty-dive-fp-8-7-False 1 model-error
+disk-ArityProperty-dive-fp-8-7-True 1 model-error
+disk-ArityProperty-dive-exact-1-None-False 1 model-error
+disk-ArityProperty-dive-exact-1-None-True 1 model-error
+disk-ArityProperty-dive-exact-1-0-False 1 model-error
+disk-ArityProperty-dive-exact-1-0-True 1 model-error
+disk-ArityProperty-dive-exact-1-7-False 1 model-error
+disk-ArityProperty-dive-exact-1-7-True 1 model-error
+disk-ArityProperty-dive-exact-4-None-False 1 model-error
+disk-ArityProperty-dive-exact-4-None-True 1 model-error
+disk-ArityProperty-dive-exact-4-0-False 1 model-error
+disk-ArityProperty-dive-exact-4-0-True 1 model-error
+disk-ArityProperty-dive-exact-4-7-False 1 model-error
+disk-ArityProperty-dive-exact-4-7-True 1 model-error
+disk-ArityProperty-dive-exact-8-None-False 1 model-error
+disk-ArityProperty-dive-exact-8-None-True 1 model-error
+disk-ArityProperty-dive-exact-8-0-False 1 model-error
+disk-ArityProperty-dive-exact-8-0-True 1 model-error
+disk-ArityProperty-dive-exact-8-7-False 1 model-error
+disk-ArityProperty-dive-exact-8-7-True 1 model-error
+disk-AritySpecification-tlc-fp-1-None-False 151 model-error
+disk-AritySpecification-tlc-fp-1-None-True 151 model-error
+disk-AritySpecification-tlc-fp-1-0-False 151 model-error
+disk-AritySpecification-tlc-fp-1-0-True 151 model-error
+disk-AritySpecification-tlc-fp-1-7-False 151 model-error
+disk-AritySpecification-tlc-fp-1-7-True 151 model-error
+disk-AritySpecification-tlc-fp-4-None-False 151 model-error
+disk-AritySpecification-tlc-fp-4-None-True 151 model-error
+disk-AritySpecification-tlc-fp-4-0-False 151 model-error
+disk-AritySpecification-tlc-fp-4-0-True 151 model-error
+disk-AritySpecification-tlc-fp-4-7-False 151 model-error
+disk-AritySpecification-tlc-fp-4-7-True 151 model-error
+disk-AritySpecification-tlc-fp-8-None-False 151 model-error
+disk-AritySpecification-tlc-fp-8-None-True 151 model-error
+disk-AritySpecification-tlc-fp-8-0-False 151 model-error
+disk-AritySpecification-tlc-fp-8-0-True 151 model-error
+disk-AritySpecification-tlc-fp-8-7-False 151 model-error
+disk-AritySpecification-tlc-fp-8-7-True 151 model-error
+disk-AritySpecification-tlc-exact-1-None-False 151 model-error
+disk-AritySpecification-tlc-exact-1-None-True 151 model-error
+disk-AritySpecification-tlc-exact-1-0-False 151 model-error
+disk-AritySpecification-tlc-exact-1-0-True 151 model-error
+disk-AritySpecification-tlc-exact-1-7-False 151 model-error
+disk-AritySpecification-tlc-exact-1-7-True 151 model-error
+disk-AritySpecification-tlc-exact-4-None-False 151 model-error
+disk-AritySpecification-tlc-exact-4-None-True 151 model-error
+disk-AritySpecification-tlc-exact-4-0-False 151 model-error
+disk-AritySpecification-tlc-exact-4-0-True 151 model-error
+disk-AritySpecification-tlc-exact-4-7-False 151 model-error
+disk-AritySpecification-tlc-exact-4-7-True 151 model-error
+disk-AritySpecification-tlc-exact-8-None-False 151 model-error
+disk-AritySpecification-tlc-exact-8-None-True 151 model-error
+disk-AritySpecification-tlc-exact-8-0-False 151 model-error
+disk-AritySpecification-tlc-exact-8-0-True 151 model-error
+disk-AritySpecification-tlc-exact-8-7-False 151 model-error
+disk-AritySpecification-tlc-exact-8-7-True 151 model-error
+disk-AritySpecification-dive-fp-1-None-False 1 model-error
+disk-AritySpecification-dive-fp-1-None-True 1 model-error
+disk-AritySpecification-dive-fp-1-0-False 1 model-error
+disk-AritySpecification-dive-fp-1-0-True 1 model-error
+disk-AritySpecification-dive-fp-1-7-False 1 model-error
+disk-AritySpecification-dive-fp-1-7-True 1 model-error
+disk-AritySpecification-dive-fp-4-None-False 1 model-error
+disk-AritySpecification-dive-fp-4-None-True 1 model-error
+disk-AritySpecification-dive-fp-4-0-False 1 model-error
+disk-AritySpecification-dive-fp-4-0-True 1 model-error
+disk-AritySpecification-dive-fp-4-7-False 1 model-error
+disk-AritySpecification-dive-fp-4-7-True 1 model-error
+disk-AritySpecification-dive-fp-8-None-False 1 model-error
+disk-AritySpecification-dive-fp-8-None-True 1 model-error
+disk-AritySpecification-dive-fp-8-0-False 1 model-error
+disk-AritySpecification-dive-fp-8-0-True 1 model-error
+disk-AritySpecification-dive-fp-8-7-False 1 model-error
+disk-AritySpecification-dive-fp-8-7-True 1 model-error
+disk-AritySpecification-dive-exact-1-None-False 1 model-error
+disk-AritySpecification-dive-exact-1-None-True 1 model-error
+disk-AritySpecification-dive-exact-1-0-False 1 model-error
+disk-AritySpecification-dive-exact-1-0-True 1 model-error
+disk-AritySpecification-dive-exact-1-7-False 1 model-error
+disk-AritySpecification-dive-exact-1-7-True 1 model-error
+disk-AritySpecification-dive-exact-4-None-False 1 model-error
+disk-AritySpecification-dive-exact-4-None-True 1 model-error
+disk-AritySpecification-dive-exact-4-0-False 1 model-error
+disk-AritySpecification-dive-exact-4-0-True 1 model-error
+disk-AritySpecification-dive-exact-4-7-False 1 model-error
+disk-AritySpecification-dive-exact-4-7-True 1 model-error
+disk-AritySpecification-dive-exact-8-None-False 1 model-error
+disk-AritySpecification-dive-exact-8-None-True 1 model-error
+disk-AritySpecification-dive-exact-8-0-False 1 model-error
+disk-AritySpecification-dive-exact-8-0-True 1 model-error
+disk-AritySpecification-dive-exact-8-7-False 1 model-error
+disk-AritySpecification-dive-exact-8-7-True 1 model-error
+disk-AssumeFalseSafety-tlc-fp-1-None-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-1-None-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-1-0-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-1-0-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-1-7-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-1-7-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-4-None-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-4-None-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-4-0-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-4-0-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-4-7-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-4-7-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-8-None-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-8-None-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-8-0-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-8-0-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-8-7-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-fp-8-7-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-1-None-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-1-None-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-1-0-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-1-0-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-1-7-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-1-7-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-4-None-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-4-None-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-4-0-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-4-0-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-4-7-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-4-7-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-8-None-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-8-None-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-8-0-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-8-0-True 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-8-7-False 10 assumption-failure
+disk-AssumeFalseSafety-tlc-exact-8-7-True 10 assumption-failure
+disk-AssumeFalseSafety-dive-fp-1-None-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-1-None-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-1-0-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-1-0-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-1-7-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-1-7-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-4-None-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-4-None-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-4-0-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-4-0-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-4-7-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-4-7-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-8-None-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-8-None-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-8-0-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-8-0-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-8-7-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-fp-8-7-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-1-None-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-1-None-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-1-0-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-1-0-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-1-7-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-1-7-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-4-None-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-4-None-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-4-0-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-4-0-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-4-7-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-4-7-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-8-None-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-8-None-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-8-0-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-8-0-True 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-8-7-False 12 assumption-failure
+disk-AssumeFalseSafety-dive-exact-8-7-True 12 assumption-failure
+disk-AssumePrintSafety-tlc-fp-1-None-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-1-None-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-1-0-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-1-0-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-1-7-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-1-7-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-4-None-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-4-None-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-4-0-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-4-0-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-4-7-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-4-7-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-8-None-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-8-None-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-8-0-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-8-0-True 3 unsupported
+disk-AssumePrintSafety-tlc-fp-8-7-False 3 unsupported
+disk-AssumePrintSafety-tlc-fp-8-7-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-1-None-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-1-None-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-1-0-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-1-0-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-1-7-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-1-7-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-4-None-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-4-None-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-4-0-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-4-0-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-4-7-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-4-7-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-8-None-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-8-None-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-8-0-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-8-0-True 3 unsupported
+disk-AssumePrintSafety-tlc-exact-8-7-False 3 unsupported
+disk-AssumePrintSafety-tlc-exact-8-7-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-1-None-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-1-None-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-1-0-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-1-0-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-1-7-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-1-7-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-4-None-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-4-None-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-4-0-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-4-0-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-4-7-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-4-7-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-8-None-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-8-None-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-8-0-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-8-0-True 3 unsupported
+disk-AssumePrintSafety-dive-fp-8-7-False 3 unsupported
+disk-AssumePrintSafety-dive-fp-8-7-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-1-None-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-1-None-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-1-0-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-1-0-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-1-7-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-1-7-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-4-None-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-4-None-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-4-0-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-4-0-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-4-7-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-4-7-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-8-None-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-8-None-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-8-0-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-8-0-True 3 unsupported
+disk-AssumePrintSafety-dive-exact-8-7-False 3 unsupported
+disk-AssumePrintSafety-dive-exact-8-7-True 3 unsupported
+disk-ConfiguredSpecification-tlc-fp-1-None-False 0 success
+disk-ConfiguredSpecification-tlc-fp-1-None-True 0 success
+disk-ConfiguredSpecification-tlc-fp-1-0-False 0 success
+disk-ConfiguredSpecification-tlc-fp-1-0-True 0 success
+disk-ConfiguredSpecification-tlc-fp-1-7-False 0 success
+disk-ConfiguredSpecification-tlc-fp-1-7-True 0 success
+disk-ConfiguredSpecification-tlc-fp-4-None-False 0 success
+disk-ConfiguredSpecification-tlc-fp-4-None-True 0 success
+disk-ConfiguredSpecification-tlc-fp-4-0-False 0 success
+disk-ConfiguredSpecification-tlc-fp-4-0-True 0 success
+disk-ConfiguredSpecification-tlc-fp-4-7-False 0 success
+disk-ConfiguredSpecification-tlc-fp-4-7-True 0 success
+disk-ConfiguredSpecification-tlc-fp-8-None-False 0 success
+disk-ConfiguredSpecification-tlc-fp-8-None-True 0 success
+disk-ConfiguredSpecification-tlc-fp-8-0-False 0 success
+disk-ConfiguredSpecification-tlc-fp-8-0-True 0 success
+disk-ConfiguredSpecification-tlc-fp-8-7-False 0 success
+disk-ConfiguredSpecification-tlc-fp-8-7-True 0 success
+disk-ConfiguredSpecification-tlc-exact-1-None-False 0 success
+disk-ConfiguredSpecification-tlc-exact-1-None-True 0 success
+disk-ConfiguredSpecification-tlc-exact-1-0-False 0 success
+disk-ConfiguredSpecification-tlc-exact-1-0-True 0 success
+disk-ConfiguredSpecification-tlc-exact-1-7-False 0 success
+disk-ConfiguredSpecification-tlc-exact-1-7-True 0 success
+disk-ConfiguredSpecification-tlc-exact-4-None-False 0 success
+disk-ConfiguredSpecification-tlc-exact-4-None-True 0 success
+disk-ConfiguredSpecification-tlc-exact-4-0-False 0 success
+disk-ConfiguredSpecification-tlc-exact-4-0-True 0 success
+disk-ConfiguredSpecification-tlc-exact-4-7-False 0 success
+disk-ConfiguredSpecification-tlc-exact-4-7-True 0 success
+disk-ConfiguredSpecification-tlc-exact-8-None-False 0 success
+disk-ConfiguredSpecification-tlc-exact-8-None-True 0 success
+disk-ConfiguredSpecification-tlc-exact-8-0-False 0 success
+disk-ConfiguredSpecification-tlc-exact-8-0-True 0 success
+disk-ConfiguredSpecification-tlc-exact-8-7-False 0 success
+disk-ConfiguredSpecification-tlc-exact-8-7-True 0 success
+disk-ConfiguredSpecification-dive-fp-1-None-False 0 success
+disk-ConfiguredSpecification-dive-fp-1-None-True 0 success
+disk-ConfiguredSpecification-dive-fp-1-0-False 0 success
+disk-ConfiguredSpecification-dive-fp-1-0-True 0 success
+disk-ConfiguredSpecification-dive-fp-1-7-False 0 success
+disk-ConfiguredSpecification-dive-fp-1-7-True 0 success
+disk-ConfiguredSpecification-dive-fp-4-None-False 0 success
+disk-ConfiguredSpecification-dive-fp-4-None-True 0 success
+disk-ConfiguredSpecification-dive-fp-4-0-False 0 success
+disk-ConfiguredSpecification-dive-fp-4-0-True 0 success
+disk-ConfiguredSpecification-dive-fp-4-7-False 0 success
+disk-ConfiguredSpecification-dive-fp-4-7-True 0 success
+disk-ConfiguredSpecification-dive-fp-8-None-False 0 success
+disk-ConfiguredSpecification-dive-fp-8-None-True 0 success
+disk-ConfiguredSpecification-dive-fp-8-0-False 0 success
+disk-ConfiguredSpecification-dive-fp-8-0-True 0 success
+disk-ConfiguredSpecification-dive-fp-8-7-False 0 success
+disk-ConfiguredSpecification-dive-fp-8-7-True 0 success
+disk-ConfiguredSpecification-dive-exact-1-None-False 0 success
+disk-ConfiguredSpecification-dive-exact-1-None-True 0 success
+disk-ConfiguredSpecification-dive-exact-1-0-False 0 success
+disk-ConfiguredSpecification-dive-exact-1-0-True 0 success
+disk-ConfiguredSpecification-dive-exact-1-7-False 0 success
+disk-ConfiguredSpecification-dive-exact-1-7-True 0 success
+disk-ConfiguredSpecification-dive-exact-4-None-False 0 success
+disk-ConfiguredSpecification-dive-exact-4-None-True 0 success
+disk-ConfiguredSpecification-dive-exact-4-0-False 0 success
+disk-ConfiguredSpecification-dive-exact-4-0-True 0 success
+disk-ConfiguredSpecification-dive-exact-4-7-False 0 success
+disk-ConfiguredSpecification-dive-exact-4-7-True 0 success
+disk-ConfiguredSpecification-dive-exact-8-None-False 0 success
+disk-ConfiguredSpecification-dive-exact-8-None-True 0 success
+disk-ConfiguredSpecification-dive-exact-8-0-False 0 success
+disk-ConfiguredSpecification-dive-exact-8-0-True 0 success
+disk-ConfiguredSpecification-dive-exact-8-7-False 0 success
+disk-ConfiguredSpecification-dive-exact-8-7-True 0 success
+disk-ConjunctionProperty-tlc-fp-1-None-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-1-None-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-1-0-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-1-0-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-1-7-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-1-7-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-4-None-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-4-None-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-4-0-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-4-0-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-4-7-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-4-7-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-8-None-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-8-None-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-8-0-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-8-0-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-8-7-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-fp-8-7-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-1-None-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-1-None-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-1-0-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-1-0-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-1-7-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-1-7-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-4-None-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-4-None-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-4-0-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-4-0-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-4-7-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-4-7-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-8-None-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-8-None-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-8-0-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-8-0-True 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-8-7-False 12 invariant-violation
+disk-ConjunctionProperty-tlc-exact-8-7-True 12 invariant-violation
+disk-ConjunctionProperty-dive-fp-1-None-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-1-None-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-1-0-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-1-0-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-1-7-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-1-7-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-4-None-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-4-None-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-4-0-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-4-0-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-4-7-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-4-7-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-8-None-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-8-None-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-8-0-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-8-0-True 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-8-7-False 10 invariant-violation
+disk-ConjunctionProperty-dive-fp-8-7-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-1-None-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-1-None-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-1-0-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-1-0-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-1-7-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-1-7-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-4-None-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-4-None-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-4-0-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-4-0-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-4-7-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-4-7-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-8-None-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-8-None-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-8-0-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-8-0-True 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-8-7-False 10 invariant-violation
+disk-ConjunctionProperty-dive-exact-8-7-True 10 invariant-violation
+disk-ConstantFalseProperty-tlc-fp-1-None-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-1-None-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-1-0-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-1-0-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-1-7-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-1-7-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-4-None-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-4-None-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-4-0-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-4-0-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-4-7-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-4-7-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-8-None-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-8-None-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-8-0-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-8-0-True 151 model-error
+disk-ConstantFalseProperty-tlc-fp-8-7-False 151 model-error
+disk-ConstantFalseProperty-tlc-fp-8-7-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-1-None-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-1-None-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-1-0-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-1-0-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-1-7-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-1-7-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-4-None-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-4-None-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-4-0-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-4-0-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-4-7-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-4-7-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-8-None-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-8-None-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-8-0-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-8-0-True 151 model-error
+disk-ConstantFalseProperty-tlc-exact-8-7-False 151 model-error
+disk-ConstantFalseProperty-tlc-exact-8-7-True 151 model-error
+disk-ConstantFalseProperty-dive-fp-1-None-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-1-None-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-1-0-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-1-0-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-1-7-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-1-7-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-4-None-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-4-None-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-4-0-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-4-0-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-4-7-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-4-7-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-8-None-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-8-None-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-8-0-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-8-0-True 1 model-error
+disk-ConstantFalseProperty-dive-fp-8-7-False 1 model-error
+disk-ConstantFalseProperty-dive-fp-8-7-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-1-None-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-1-None-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-1-0-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-1-0-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-1-7-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-1-7-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-4-None-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-4-None-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-4-0-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-4-0-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-4-7-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-4-7-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-8-None-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-8-None-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-8-0-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-8-0-True 1 model-error
+disk-ConstantFalseProperty-dive-exact-8-7-False 1 model-error
+disk-ConstantFalseProperty-dive-exact-8-7-True 1 model-error
+disk-ConstantSpecification-tlc-fp-1-None-False 151 model-error
+disk-ConstantSpecification-tlc-fp-1-None-True 151 model-error
+disk-ConstantSpecification-tlc-fp-1-0-False 151 model-error
+disk-ConstantSpecification-tlc-fp-1-0-True 151 model-error
+disk-ConstantSpecification-tlc-fp-1-7-False 151 model-error
+disk-ConstantSpecification-tlc-fp-1-7-True 151 model-error
+disk-ConstantSpecification-tlc-fp-4-None-False 151 model-error
+disk-ConstantSpecification-tlc-fp-4-None-True 151 model-error
+disk-ConstantSpecification-tlc-fp-4-0-False 151 model-error
+disk-ConstantSpecification-tlc-fp-4-0-True 151 model-error
+disk-ConstantSpecification-tlc-fp-4-7-False 151 model-error
+disk-ConstantSpecification-tlc-fp-4-7-True 151 model-error
+disk-ConstantSpecification-tlc-fp-8-None-False 151 model-error
+disk-ConstantSpecification-tlc-fp-8-None-True 151 model-error
+disk-ConstantSpecification-tlc-fp-8-0-False 151 model-error
+disk-ConstantSpecification-tlc-fp-8-0-True 151 model-error
+disk-ConstantSpecification-tlc-fp-8-7-False 151 model-error
+disk-ConstantSpecification-tlc-fp-8-7-True 151 model-error
+disk-ConstantSpecification-tlc-exact-1-None-False 151 model-error
+disk-ConstantSpecification-tlc-exact-1-None-True 151 model-error
+disk-ConstantSpecification-tlc-exact-1-0-False 151 model-error
+disk-ConstantSpecification-tlc-exact-1-0-True 151 model-error
+disk-ConstantSpecification-tlc-exact-1-7-False 151 model-error
+disk-ConstantSpecification-tlc-exact-1-7-True 151 model-error
+disk-ConstantSpecification-tlc-exact-4-None-False 151 model-error
+disk-ConstantSpecification-tlc-exact-4-None-True 151 model-error
+disk-ConstantSpecification-tlc-exact-4-0-False 151 model-error
+disk-ConstantSpecification-tlc-exact-4-0-True 151 model-error
+disk-ConstantSpecification-tlc-exact-4-7-False 151 model-error
+disk-ConstantSpecification-tlc-exact-4-7-True 151 model-error
+disk-ConstantSpecification-tlc-exact-8-None-False 151 model-error
+disk-ConstantSpecification-tlc-exact-8-None-True 151 model-error
+disk-ConstantSpecification-tlc-exact-8-0-False 151 model-error
+disk-ConstantSpecification-tlc-exact-8-0-True 151 model-error
+disk-ConstantSpecification-tlc-exact-8-7-False 151 model-error
+disk-ConstantSpecification-tlc-exact-8-7-True 151 model-error
+disk-ConstantSpecification-dive-fp-1-None-False 1 model-error
+disk-ConstantSpecification-dive-fp-1-None-True 1 model-error
+disk-ConstantSpecification-dive-fp-1-0-False 1 model-error
+disk-ConstantSpecification-dive-fp-1-0-True 1 model-error
+disk-ConstantSpecification-dive-fp-1-7-False 1 model-error
+disk-ConstantSpecification-dive-fp-1-7-True 1 model-error
+disk-ConstantSpecification-dive-fp-4-None-False 1 model-error
+disk-ConstantSpecification-dive-fp-4-None-True 1 model-error
+disk-ConstantSpecification-dive-fp-4-0-False 1 model-error
+disk-ConstantSpecification-dive-fp-4-0-True 1 model-error
+disk-ConstantSpecification-dive-fp-4-7-False 1 model-error
+disk-ConstantSpecification-dive-fp-4-7-True 1 model-error
+disk-ConstantSpecification-dive-fp-8-None-False 1 model-error
+disk-ConstantSpecification-dive-fp-8-None-True 1 model-error
+disk-ConstantSpecification-dive-fp-8-0-False 1 model-error
+disk-ConstantSpecification-dive-fp-8-0-True 1 model-error
+disk-ConstantSpecification-dive-fp-8-7-False 1 model-error
+disk-ConstantSpecification-dive-fp-8-7-True 1 model-error
+disk-ConstantSpecification-dive-exact-1-None-False 1 model-error
+disk-ConstantSpecification-dive-exact-1-None-True 1 model-error
+disk-ConstantSpecification-dive-exact-1-0-False 1 model-error
+disk-ConstantSpecification-dive-exact-1-0-True 1 model-error
+disk-ConstantSpecification-dive-exact-1-7-False 1 model-error
+disk-ConstantSpecification-dive-exact-1-7-True 1 model-error
+disk-ConstantSpecification-dive-exact-4-None-False 1 model-error
+disk-ConstantSpecification-dive-exact-4-None-True 1 model-error
+disk-ConstantSpecification-dive-exact-4-0-False 1 model-error
+disk-ConstantSpecification-dive-exact-4-0-True 1 model-error
+disk-ConstantSpecification-dive-exact-4-7-False 1 model-error
+disk-ConstantSpecification-dive-exact-4-7-True 1 model-error
+disk-ConstantSpecification-dive-exact-8-None-False 1 model-error
+disk-ConstantSpecification-dive-exact-8-None-True 1 model-error
+disk-ConstantSpecification-dive-exact-8-0-False 1 model-error
+disk-ConstantSpecification-dive-exact-8-0-True 1 model-error
+disk-ConstantSpecification-dive-exact-8-7-False 1 model-error
+disk-ConstantSpecification-dive-exact-8-7-True 1 model-error
+disk-ConstantTrueProperty-tlc-fp-1-None-False 0 success
+disk-ConstantTrueProperty-tlc-fp-1-None-True 0 success
+disk-ConstantTrueProperty-tlc-fp-1-0-False 0 success
+disk-ConstantTrueProperty-tlc-fp-1-0-True 0 success
+disk-ConstantTrueProperty-tlc-fp-1-7-False 0 success
+disk-ConstantTrueProperty-tlc-fp-1-7-True 0 success
+disk-ConstantTrueProperty-tlc-fp-4-None-False 0 success
+disk-ConstantTrueProperty-tlc-fp-4-None-True 0 success
+disk-ConstantTrueProperty-tlc-fp-4-0-False 0 success
+disk-ConstantTrueProperty-tlc-fp-4-0-True 0 success
+disk-ConstantTrueProperty-tlc-fp-4-7-False 0 success
+disk-ConstantTrueProperty-tlc-fp-4-7-True 0 success
+disk-ConstantTrueProperty-tlc-fp-8-None-False 0 success
+disk-ConstantTrueProperty-tlc-fp-8-None-True 0 success
+disk-ConstantTrueProperty-tlc-fp-8-0-False 0 success
+disk-ConstantTrueProperty-tlc-fp-8-0-True 0 success
+disk-ConstantTrueProperty-tlc-fp-8-7-False 0 success
+disk-ConstantTrueProperty-tlc-fp-8-7-True 0 success
+disk-ConstantTrueProperty-tlc-exact-1-None-False 0 success
+disk-ConstantTrueProperty-tlc-exact-1-None-True 0 success
+disk-ConstantTrueProperty-tlc-exact-1-0-False 0 success
+disk-ConstantTrueProperty-tlc-exact-1-0-True 0 success
+disk-ConstantTrueProperty-tlc-exact-1-7-False 0 success
+disk-ConstantTrueProperty-tlc-exact-1-7-True 0 success
+disk-ConstantTrueProperty-tlc-exact-4-None-False 0 success
+disk-ConstantTrueProperty-tlc-exact-4-None-True 0 success
+disk-ConstantTrueProperty-tlc-exact-4-0-False 0 success
+disk-ConstantTrueProperty-tlc-exact-4-0-True 0 success
+disk-ConstantTrueProperty-tlc-exact-4-7-False 0 success
+disk-ConstantTrueProperty-tlc-exact-4-7-True 0 success
+disk-ConstantTrueProperty-tlc-exact-8-None-False 0 success
+disk-ConstantTrueProperty-tlc-exact-8-None-True 0 success
+disk-ConstantTrueProperty-tlc-exact-8-0-False 0 success
+disk-ConstantTrueProperty-tlc-exact-8-0-True 0 success
+disk-ConstantTrueProperty-tlc-exact-8-7-False 0 success
+disk-ConstantTrueProperty-tlc-exact-8-7-True 0 success
+disk-ConstantTrueProperty-dive-fp-1-None-False 0 success
+disk-ConstantTrueProperty-dive-fp-1-None-True 0 success
+disk-ConstantTrueProperty-dive-fp-1-0-False 0 success
+disk-ConstantTrueProperty-dive-fp-1-0-True 0 success
+disk-ConstantTrueProperty-dive-fp-1-7-False 0 success
+disk-ConstantTrueProperty-dive-fp-1-7-True 0 success
+disk-ConstantTrueProperty-dive-fp-4-None-False 0 success
+disk-ConstantTrueProperty-dive-fp-4-None-True 0 success
+disk-ConstantTrueProperty-dive-fp-4-0-False 0 success
+disk-ConstantTrueProperty-dive-fp-4-0-True 0 success
+disk-ConstantTrueProperty-dive-fp-4-7-False 0 success
+disk-ConstantTrueProperty-dive-fp-4-7-True 0 success
+disk-ConstantTrueProperty-dive-fp-8-None-False 0 success
+disk-ConstantTrueProperty-dive-fp-8-None-True 0 success
+disk-ConstantTrueProperty-dive-fp-8-0-False 0 success
+disk-ConstantTrueProperty-dive-fp-8-0-True 0 success
+disk-ConstantTrueProperty-dive-fp-8-7-False 0 success
+disk-ConstantTrueProperty-dive-fp-8-7-True 0 success
+disk-ConstantTrueProperty-dive-exact-1-None-False 0 success
+disk-ConstantTrueProperty-dive-exact-1-None-True 0 success
+disk-ConstantTrueProperty-dive-exact-1-0-False 0 success
+disk-ConstantTrueProperty-dive-exact-1-0-True 0 success
+disk-ConstantTrueProperty-dive-exact-1-7-False 0 success
+disk-ConstantTrueProperty-dive-exact-1-7-True 0 success
+disk-ConstantTrueProperty-dive-exact-4-None-False 0 success
+disk-ConstantTrueProperty-dive-exact-4-None-True 0 success
+disk-ConstantTrueProperty-dive-exact-4-0-False 0 success
+disk-ConstantTrueProperty-dive-exact-4-0-True 0 success
+disk-ConstantTrueProperty-dive-exact-4-7-False 0 success
+disk-ConstantTrueProperty-dive-exact-4-7-True 0 success
+disk-ConstantTrueProperty-dive-exact-8-None-False 0 success
+disk-ConstantTrueProperty-dive-exact-8-None-True 0 success
+disk-ConstantTrueProperty-dive-exact-8-0-False 0 success
+disk-ConstantTrueProperty-dive-exact-8-0-True 0 success
+disk-ConstantTrueProperty-dive-exact-8-7-False 0 success
+disk-ConstantTrueProperty-dive-exact-8-7-True 0 success
+disk-FairSpecification-tlc-fp-1-None-False 3 unsupported
+disk-FairSpecification-tlc-fp-1-None-True 3 unsupported
+disk-FairSpecification-tlc-fp-1-0-False 3 unsupported
+disk-FairSpecification-tlc-fp-1-0-True 3 unsupported
+disk-FairSpecification-tlc-fp-1-7-False 3 unsupported
+disk-FairSpecification-tlc-fp-1-7-True 3 unsupported
+disk-FairSpecification-tlc-fp-4-None-False 3 unsupported
+disk-FairSpecification-tlc-fp-4-None-True 3 unsupported
+disk-FairSpecification-tlc-fp-4-0-False 3 unsupported
+disk-FairSpecification-tlc-fp-4-0-True 3 unsupported
+disk-FairSpecification-tlc-fp-4-7-False 3 unsupported
+disk-FairSpecification-tlc-fp-4-7-True 3 unsupported
+disk-FairSpecification-tlc-fp-8-None-False 3 unsupported
+disk-FairSpecification-tlc-fp-8-None-True 3 unsupported
+disk-FairSpecification-tlc-fp-8-0-False 3 unsupported
+disk-FairSpecification-tlc-fp-8-0-True 3 unsupported
+disk-FairSpecification-tlc-fp-8-7-False 3 unsupported
+disk-FairSpecification-tlc-fp-8-7-True 3 unsupported
+disk-FairSpecification-tlc-exact-1-None-False 3 unsupported
+disk-FairSpecification-tlc-exact-1-None-True 3 unsupported
+disk-FairSpecification-tlc-exact-1-0-False 3 unsupported
+disk-FairSpecification-tlc-exact-1-0-True 3 unsupported
+disk-FairSpecification-tlc-exact-1-7-False 3 unsupported
+disk-FairSpecification-tlc-exact-1-7-True 3 unsupported
+disk-FairSpecification-tlc-exact-4-None-False 3 unsupported
+disk-FairSpecification-tlc-exact-4-None-True 3 unsupported
+disk-FairSpecification-tlc-exact-4-0-False 3 unsupported
+disk-FairSpecification-tlc-exact-4-0-True 3 unsupported
+disk-FairSpecification-tlc-exact-4-7-False 3 unsupported
+disk-FairSpecification-tlc-exact-4-7-True 3 unsupported
+disk-FairSpecification-tlc-exact-8-None-False 3 unsupported
+disk-FairSpecification-tlc-exact-8-None-True 3 unsupported
+disk-FairSpecification-tlc-exact-8-0-False 3 unsupported
+disk-FairSpecification-tlc-exact-8-0-True 3 unsupported
+disk-FairSpecification-tlc-exact-8-7-False 3 unsupported
+disk-FairSpecification-tlc-exact-8-7-True 3 unsupported
+disk-FairSpecification-dive-fp-1-None-False 3 unsupported
+disk-FairSpecification-dive-fp-1-None-True 3 unsupported
+disk-FairSpecification-dive-fp-1-0-False 3 unsupported
+disk-FairSpecification-dive-fp-1-0-True 3 unsupported
+disk-FairSpecification-dive-fp-1-7-False 3 unsupported
+disk-FairSpecification-dive-fp-1-7-True 3 unsupported
+disk-FairSpecification-dive-fp-4-None-False 3 unsupported
+disk-FairSpecification-dive-fp-4-None-True 3 unsupported
+disk-FairSpecification-dive-fp-4-0-False 3 unsupported
+disk-FairSpecification-dive-fp-4-0-True 3 unsupported
+disk-FairSpecification-dive-fp-4-7-False 3 unsupported
+disk-FairSpecification-dive-fp-4-7-True 3 unsupported
+disk-FairSpecification-dive-fp-8-None-False 3 unsupported
+disk-FairSpecification-dive-fp-8-None-True 3 unsupported
+disk-FairSpecification-dive-fp-8-0-False 3 unsupported
+disk-FairSpecification-dive-fp-8-0-True 3 unsupported
+disk-FairSpecification-dive-fp-8-7-False 3 unsupported
+disk-FairSpecification-dive-fp-8-7-True 3 unsupported
+disk-FairSpecification-dive-exact-1-None-False 3 unsupported
+disk-FairSpecification-dive-exact-1-None-True 3 unsupported
+disk-FairSpecification-dive-exact-1-0-False 3 unsupported
+disk-FairSpecification-dive-exact-1-0-True 3 unsupported
+disk-FairSpecification-dive-exact-1-7-False 3 unsupported
+disk-FairSpecification-dive-exact-1-7-True 3 unsupported
+disk-FairSpecification-dive-exact-4-None-False 3 unsupported
+disk-FairSpecification-dive-exact-4-None-True 3 unsupported
+disk-FairSpecification-dive-exact-4-0-False 3 unsupported
+disk-FairSpecification-dive-exact-4-0-True 3 unsupported
+disk-FairSpecification-dive-exact-4-7-False 3 unsupported
+disk-FairSpecification-dive-exact-4-7-True 3 unsupported
+disk-FairSpecification-dive-exact-8-None-False 3 unsupported
+disk-FairSpecification-dive-exact-8-None-True 3 unsupported
+disk-FairSpecification-dive-exact-8-0-False 3 unsupported
+disk-FairSpecification-dive-exact-8-0-True 3 unsupported
+disk-FairSpecification-dive-exact-8-7-False 3 unsupported
+disk-FairSpecification-dive-exact-8-7-True 3 unsupported
+disk-InitNextCounterpart-tlc-fp-1-None-False 0 success
+disk-InitNextCounterpart-tlc-fp-1-None-True 0 success
+disk-InitNextCounterpart-tlc-fp-1-0-False 0 success
+disk-InitNextCounterpart-tlc-fp-1-0-True 0 success
+disk-InitNextCounterpart-tlc-fp-1-7-False 0 success
+disk-InitNextCounterpart-tlc-fp-1-7-True 0 success
+disk-InitNextCounterpart-tlc-fp-4-None-False 0 success
+disk-InitNextCounterpart-tlc-fp-4-None-True 0 success
+disk-InitNextCounterpart-tlc-fp-4-0-False 0 success
+disk-InitNextCounterpart-tlc-fp-4-0-True 0 success
+disk-InitNextCounterpart-tlc-fp-4-7-False 0 success
+disk-InitNextCounterpart-tlc-fp-4-7-True 0 success
+disk-InitNextCounterpart-tlc-fp-8-None-False 0 success
+disk-InitNextCounterpart-tlc-fp-8-None-True 0 success
+disk-InitNextCounterpart-tlc-fp-8-0-False 0 success
+disk-InitNextCounterpart-tlc-fp-8-0-True 0 success
+disk-InitNextCounterpart-tlc-fp-8-7-False 0 success
+disk-InitNextCounterpart-tlc-fp-8-7-True 0 success
+disk-InitNextCounterpart-tlc-exact-1-None-False 0 success
+disk-InitNextCounterpart-tlc-exact-1-None-True 0 success
+disk-InitNextCounterpart-tlc-exact-1-0-False 0 success
+disk-InitNextCounterpart-tlc-exact-1-0-True 0 success
+disk-InitNextCounterpart-tlc-exact-1-7-False 0 success
+disk-InitNextCounterpart-tlc-exact-1-7-True 0 success
+disk-InitNextCounterpart-tlc-exact-4-None-False 0 success
+disk-InitNextCounterpart-tlc-exact-4-None-True 0 success
+disk-InitNextCounterpart-tlc-exact-4-0-False 0 success
+disk-InitNextCounterpart-tlc-exact-4-0-True 0 success
+disk-InitNextCounterpart-tlc-exact-4-7-False 0 success
+disk-InitNextCounterpart-tlc-exact-4-7-True 0 success
+disk-InitNextCounterpart-tlc-exact-8-None-False 0 success
+disk-InitNextCounterpart-tlc-exact-8-None-True 0 success
+disk-InitNextCounterpart-tlc-exact-8-0-False 0 success
+disk-InitNextCounterpart-tlc-exact-8-0-True 0 success
+disk-InitNextCounterpart-tlc-exact-8-7-False 0 success
+disk-InitNextCounterpart-tlc-exact-8-7-True 0 success
+disk-InitNextCounterpart-dive-fp-1-None-False 0 success
+disk-InitNextCounterpart-dive-fp-1-None-True 0 success
+disk-InitNextCounterpart-dive-fp-1-0-False 0 success
+disk-InitNextCounterpart-dive-fp-1-0-True 0 success
+disk-InitNextCounterpart-dive-fp-1-7-False 0 success
+disk-InitNextCounterpart-dive-fp-1-7-True 0 success
+disk-InitNextCounterpart-dive-fp-4-None-False 0 success
+disk-InitNextCounterpart-dive-fp-4-None-True 0 success
+disk-InitNextCounterpart-dive-fp-4-0-False 0 success
+disk-InitNextCounterpart-dive-fp-4-0-True 0 success
+disk-InitNextCounterpart-dive-fp-4-7-False 0 success
+disk-InitNextCounterpart-dive-fp-4-7-True 0 success
+disk-InitNextCounterpart-dive-fp-8-None-False 0 success
+disk-InitNextCounterpart-dive-fp-8-None-True 0 success
+disk-InitNextCounterpart-dive-fp-8-0-False 0 success
+disk-InitNextCounterpart-dive-fp-8-0-True 0 success
+disk-InitNextCounterpart-dive-fp-8-7-False 0 success
+disk-InitNextCounterpart-dive-fp-8-7-True 0 success
+disk-InitNextCounterpart-dive-exact-1-None-False 0 success
+disk-InitNextCounterpart-dive-exact-1-None-True 0 success
+disk-InitNextCounterpart-dive-exact-1-0-False 0 success
+disk-InitNextCounterpart-dive-exact-1-0-True 0 success
+disk-InitNextCounterpart-dive-exact-1-7-False 0 success
+disk-InitNextCounterpart-dive-exact-1-7-True 0 success
+disk-InitNextCounterpart-dive-exact-4-None-False 0 success
+disk-InitNextCounterpart-dive-exact-4-None-True 0 success
+disk-InitNextCounterpart-dive-exact-4-0-False 0 success
+disk-InitNextCounterpart-dive-exact-4-0-True 0 success
+disk-InitNextCounterpart-dive-exact-4-7-False 0 success
+disk-InitNextCounterpart-dive-exact-4-7-True 0 success
+disk-InitNextCounterpart-dive-exact-8-None-False 0 success
+disk-InitNextCounterpart-dive-exact-8-None-True 0 success
+disk-InitNextCounterpart-dive-exact-8-0-False 0 success
+disk-InitNextCounterpart-dive-exact-8-0-True 0 success
+disk-InitNextCounterpart-dive-exact-8-7-False 0 success
+disk-InitNextCounterpart-dive-exact-8-7-True 0 success
+disk-InstanceProperty-tlc-fp-1-None-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-1-None-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-1-0-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-1-0-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-1-7-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-1-7-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-4-None-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-4-None-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-4-0-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-4-0-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-4-7-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-4-7-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-8-None-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-8-None-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-8-0-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-8-0-True 12 invariant-violation
+disk-InstanceProperty-tlc-fp-8-7-False 12 invariant-violation
+disk-InstanceProperty-tlc-fp-8-7-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-1-None-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-1-None-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-1-0-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-1-0-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-1-7-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-1-7-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-4-None-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-4-None-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-4-0-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-4-0-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-4-7-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-4-7-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-8-None-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-8-None-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-8-0-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-8-0-True 12 invariant-violation
+disk-InstanceProperty-tlc-exact-8-7-False 12 invariant-violation
+disk-InstanceProperty-tlc-exact-8-7-True 12 invariant-violation
+disk-InstanceProperty-dive-fp-1-None-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-1-None-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-1-0-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-1-0-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-1-7-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-1-7-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-4-None-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-4-None-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-4-0-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-4-0-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-4-7-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-4-7-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-8-None-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-8-None-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-8-0-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-8-0-True 10 invariant-violation
+disk-InstanceProperty-dive-fp-8-7-False 10 invariant-violation
+disk-InstanceProperty-dive-fp-8-7-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-1-None-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-1-None-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-1-0-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-1-0-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-1-7-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-1-7-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-4-None-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-4-None-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-4-0-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-4-0-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-4-7-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-4-7-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-8-None-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-8-None-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-8-0-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-8-0-True 10 invariant-violation
+disk-InstanceProperty-dive-exact-8-7-False 10 invariant-violation
+disk-InstanceProperty-dive-exact-8-7-True 10 invariant-violation
+disk-InstanceSpecification-tlc-fp-1-None-False 0 success
+disk-InstanceSpecification-tlc-fp-1-None-True 0 success
+disk-InstanceSpecification-tlc-fp-1-0-False 0 success
+disk-InstanceSpecification-tlc-fp-1-0-True 0 success
+disk-InstanceSpecification-tlc-fp-1-7-False 0 success
+disk-InstanceSpecification-tlc-fp-1-7-True 0 success
+disk-InstanceSpecification-tlc-fp-4-None-False 0 success
+disk-InstanceSpecification-tlc-fp-4-None-True 0 success
+disk-InstanceSpecification-tlc-fp-4-0-False 0 success
+disk-InstanceSpecification-tlc-fp-4-0-True 0 success
+disk-InstanceSpecification-tlc-fp-4-7-False 0 success
+disk-InstanceSpecification-tlc-fp-4-7-True 0 success
+disk-InstanceSpecification-tlc-fp-8-None-False 0 success
+disk-InstanceSpecification-tlc-fp-8-None-True 0 success
+disk-InstanceSpecification-tlc-fp-8-0-False 0 success
+disk-InstanceSpecification-tlc-fp-8-0-True 0 success
+disk-InstanceSpecification-tlc-fp-8-7-False 0 success
+disk-InstanceSpecification-tlc-fp-8-7-True 0 success
+disk-InstanceSpecification-tlc-exact-1-None-False 0 success
+disk-InstanceSpecification-tlc-exact-1-None-True 0 success
+disk-InstanceSpecification-tlc-exact-1-0-False 0 success
+disk-InstanceSpecification-tlc-exact-1-0-True 0 success
+disk-InstanceSpecification-tlc-exact-1-7-False 0 success
+disk-InstanceSpecification-tlc-exact-1-7-True 0 success
+disk-InstanceSpecification-tlc-exact-4-None-False 0 success
+disk-InstanceSpecification-tlc-exact-4-None-True 0 success
+disk-InstanceSpecification-tlc-exact-4-0-False 0 success
+disk-InstanceSpecification-tlc-exact-4-0-True 0 success
+disk-InstanceSpecification-tlc-exact-4-7-False 0 success
+disk-InstanceSpecification-tlc-exact-4-7-True 0 success
+disk-InstanceSpecification-tlc-exact-8-None-False 0 success
+disk-InstanceSpecification-tlc-exact-8-None-True 0 success
+disk-InstanceSpecification-tlc-exact-8-0-False 0 success
+disk-InstanceSpecification-tlc-exact-8-0-True 0 success
+disk-InstanceSpecification-tlc-exact-8-7-False 0 success
+disk-InstanceSpecification-tlc-exact-8-7-True 0 success
+disk-InstanceSpecification-dive-fp-1-None-False 0 success
+disk-InstanceSpecification-dive-fp-1-None-True 0 success
+disk-InstanceSpecification-dive-fp-1-0-False 0 success
+disk-InstanceSpecification-dive-fp-1-0-True 0 success
+disk-InstanceSpecification-dive-fp-1-7-False 0 success
+disk-InstanceSpecification-dive-fp-1-7-True 0 success
+disk-InstanceSpecification-dive-fp-4-None-False 0 success
+disk-InstanceSpecification-dive-fp-4-None-True 0 success
+disk-InstanceSpecification-dive-fp-4-0-False 0 success
+disk-InstanceSpecification-dive-fp-4-0-True 0 success
+disk-InstanceSpecification-dive-fp-4-7-False 0 success
+disk-InstanceSpecification-dive-fp-4-7-True 0 success
+disk-InstanceSpecification-dive-fp-8-None-False 0 success
+disk-InstanceSpecification-dive-fp-8-None-True 0 success
+disk-InstanceSpecification-dive-fp-8-0-False 0 success
+disk-InstanceSpecification-dive-fp-8-0-True 0 success
+disk-InstanceSpecification-dive-fp-8-7-False 0 success
+disk-InstanceSpecification-dive-fp-8-7-True 0 success
+disk-InstanceSpecification-dive-exact-1-None-False 0 success
+disk-InstanceSpecification-dive-exact-1-None-True 0 success
+disk-InstanceSpecification-dive-exact-1-0-False 0 success
+disk-InstanceSpecification-dive-exact-1-0-True 0 success
+disk-InstanceSpecification-dive-exact-1-7-False 0 success
+disk-InstanceSpecification-dive-exact-1-7-True 0 success
+disk-InstanceSpecification-dive-exact-4-None-False 0 success
+disk-InstanceSpecification-dive-exact-4-None-True 0 success
+disk-InstanceSpecification-dive-exact-4-0-False 0 success
+disk-InstanceSpecification-dive-exact-4-0-True 0 success
+disk-InstanceSpecification-dive-exact-4-7-False 0 success
+disk-InstanceSpecification-dive-exact-4-7-True 0 success
+disk-InstanceSpecification-dive-exact-8-None-False 0 success
+disk-InstanceSpecification-dive-exact-8-None-True 0 success
+disk-InstanceSpecification-dive-exact-8-0-False 0 success
+disk-InstanceSpecification-dive-exact-8-0-True 0 success
+disk-InstanceSpecification-dive-exact-8-7-False 0 success
+disk-InstanceSpecification-dive-exact-8-7-True 0 success
+disk-LetProperty-tlc-fp-1-None-False 12 invariant-violation
+disk-LetProperty-tlc-fp-1-None-True 12 invariant-violation
+disk-LetProperty-tlc-fp-1-0-False 12 invariant-violation
+disk-LetProperty-tlc-fp-1-0-True 12 invariant-violation
+disk-LetProperty-tlc-fp-1-7-False 12 invariant-violation
+disk-LetProperty-tlc-fp-1-7-True 12 invariant-violation
+disk-LetProperty-tlc-fp-4-None-False 12 invariant-violation
+disk-LetProperty-tlc-fp-4-None-True 12 invariant-violation
+disk-LetProperty-tlc-fp-4-0-False 12 invariant-violation
+disk-LetProperty-tlc-fp-4-0-True 12 invariant-violation
+disk-LetProperty-tlc-fp-4-7-False 12 invariant-violation
+disk-LetProperty-tlc-fp-4-7-True 12 invariant-violation
+disk-LetProperty-tlc-fp-8-None-False 12 invariant-violation
+disk-LetProperty-tlc-fp-8-None-True 12 invariant-violation
+disk-LetProperty-tlc-fp-8-0-False 12 invariant-violation
+disk-LetProperty-tlc-fp-8-0-True 12 invariant-violation
+disk-LetProperty-tlc-fp-8-7-False 12 invariant-violation
+disk-LetProperty-tlc-fp-8-7-True 12 invariant-violation
+disk-LetProperty-tlc-exact-1-None-False 12 invariant-violation
+disk-LetProperty-tlc-exact-1-None-True 12 invariant-violation
+disk-LetProperty-tlc-exact-1-0-False 12 invariant-violation
+disk-LetProperty-tlc-exact-1-0-True 12 invariant-violation
+disk-LetProperty-tlc-exact-1-7-False 12 invariant-violation
+disk-LetProperty-tlc-exact-1-7-True 12 invariant-violation
+disk-LetProperty-tlc-exact-4-None-False 12 invariant-violation
+disk-LetProperty-tlc-exact-4-None-True 12 invariant-violation
+disk-LetProperty-tlc-exact-4-0-False 12 invariant-violation
+disk-LetProperty-tlc-exact-4-0-True 12 invariant-violation
+disk-LetProperty-tlc-exact-4-7-False 12 invariant-violation
+disk-LetProperty-tlc-exact-4-7-True 12 invariant-violation
+disk-LetProperty-tlc-exact-8-None-False 12 invariant-violation
+disk-LetProperty-tlc-exact-8-None-True 12 invariant-violation
+disk-LetProperty-tlc-exact-8-0-False 12 invariant-violation
+disk-LetProperty-tlc-exact-8-0-True 12 invariant-violation
+disk-LetProperty-tlc-exact-8-7-False 12 invariant-violation
+disk-LetProperty-tlc-exact-8-7-True 12 invariant-violation
+disk-LetProperty-dive-fp-1-None-False 10 invariant-violation
+disk-LetProperty-dive-fp-1-None-True 10 invariant-violation
+disk-LetProperty-dive-fp-1-0-False 10 invariant-violation
+disk-LetProperty-dive-fp-1-0-True 10 invariant-violation
+disk-LetProperty-dive-fp-1-7-False 10 invariant-violation
+disk-LetProperty-dive-fp-1-7-True 10 invariant-violation
+disk-LetProperty-dive-fp-4-None-False 10 invariant-violation
+disk-LetProperty-dive-fp-4-None-True 10 invariant-violation
+disk-LetProperty-dive-fp-4-0-False 10 invariant-violation
+disk-LetProperty-dive-fp-4-0-True 10 invariant-violation
+disk-LetProperty-dive-fp-4-7-False 10 invariant-violation
+disk-LetProperty-dive-fp-4-7-True 10 invariant-violation
+disk-LetProperty-dive-fp-8-None-False 10 invariant-violation
+disk-LetProperty-dive-fp-8-None-True 10 invariant-violation
+disk-LetProperty-dive-fp-8-0-False 10 invariant-violation
+disk-LetProperty-dive-fp-8-0-True 10 invariant-violation
+disk-LetProperty-dive-fp-8-7-False 10 invariant-violation
+disk-LetProperty-dive-fp-8-7-True 10 invariant-violation
+disk-LetProperty-dive-exact-1-None-False 10 invariant-violation
+disk-LetProperty-dive-exact-1-None-True 10 invariant-violation
+disk-LetProperty-dive-exact-1-0-False 10 invariant-violation
+disk-LetProperty-dive-exact-1-0-True 10 invariant-violation
+disk-LetProperty-dive-exact-1-7-False 10 invariant-violation
+disk-LetProperty-dive-exact-1-7-True 10 invariant-violation
+disk-LetProperty-dive-exact-4-None-False 10 invariant-violation
+disk-LetProperty-dive-exact-4-None-True 10 invariant-violation
+disk-LetProperty-dive-exact-4-0-False 10 invariant-violation
+disk-LetProperty-dive-exact-4-0-True 10 invariant-violation
+disk-LetProperty-dive-exact-4-7-False 10 invariant-violation
+disk-LetProperty-dive-exact-4-7-True 10 invariant-violation
+disk-LetProperty-dive-exact-8-None-False 10 invariant-violation
+disk-LetProperty-dive-exact-8-None-True 10 invariant-violation
+disk-LetProperty-dive-exact-8-0-False 10 invariant-violation
+disk-LetProperty-dive-exact-8-0-True 10 invariant-violation
+disk-LetProperty-dive-exact-8-7-False 10 invariant-violation
+disk-LetProperty-dive-exact-8-7-True 10 invariant-violation
+disk-LetSpecification-tlc-fp-1-None-False 0 success
+disk-LetSpecification-tlc-fp-1-None-True 0 success
+disk-LetSpecification-tlc-fp-1-0-False 0 success
+disk-LetSpecification-tlc-fp-1-0-True 0 success
+disk-LetSpecification-tlc-fp-1-7-False 0 success
+disk-LetSpecification-tlc-fp-1-7-True 0 success
+disk-LetSpecification-tlc-fp-4-None-False 0 success
+disk-LetSpecification-tlc-fp-4-None-True 0 success
+disk-LetSpecification-tlc-fp-4-0-False 0 success
+disk-LetSpecification-tlc-fp-4-0-True 0 success
+disk-LetSpecification-tlc-fp-4-7-False 0 success
+disk-LetSpecification-tlc-fp-4-7-True 0 success
+disk-LetSpecification-tlc-fp-8-None-False 0 success
+disk-LetSpecification-tlc-fp-8-None-True 0 success
+disk-LetSpecification-tlc-fp-8-0-False 0 success
+disk-LetSpecification-tlc-fp-8-0-True 0 success
+disk-LetSpecification-tlc-fp-8-7-False 0 success
+disk-LetSpecification-tlc-fp-8-7-True 0 success
+disk-LetSpecification-tlc-exact-1-None-False 0 success
+disk-LetSpecification-tlc-exact-1-None-True 0 success
+disk-LetSpecification-tlc-exact-1-0-False 0 success
+disk-LetSpecification-tlc-exact-1-0-True 0 success
+disk-LetSpecification-tlc-exact-1-7-False 0 success
+disk-LetSpecification-tlc-exact-1-7-True 0 success
+disk-LetSpecification-tlc-exact-4-None-False 0 success
+disk-LetSpecification-tlc-exact-4-None-True 0 success
+disk-LetSpecification-tlc-exact-4-0-False 0 success
+disk-LetSpecification-tlc-exact-4-0-True 0 success
+disk-LetSpecification-tlc-exact-4-7-False 0 success
+disk-LetSpecification-tlc-exact-4-7-True 0 success
+disk-LetSpecification-tlc-exact-8-None-False 0 success
+disk-LetSpecification-tlc-exact-8-None-True 0 success
+disk-LetSpecification-tlc-exact-8-0-False 0 success
+disk-LetSpecification-tlc-exact-8-0-True 0 success
+disk-LetSpecification-tlc-exact-8-7-False 0 success
+disk-LetSpecification-tlc-exact-8-7-True 0 success
+disk-LetSpecification-dive-fp-1-None-False 0 success
+disk-LetSpecification-dive-fp-1-None-True 0 success
+disk-LetSpecification-dive-fp-1-0-False 0 success
+disk-LetSpecification-dive-fp-1-0-True 0 success
+disk-LetSpecification-dive-fp-1-7-False 0 success
+disk-LetSpecification-dive-fp-1-7-True 0 success
+disk-LetSpecification-dive-fp-4-None-False 0 success
+disk-LetSpecification-dive-fp-4-None-True 0 success
+disk-LetSpecification-dive-fp-4-0-False 0 success
+disk-LetSpecification-dive-fp-4-0-True 0 success
+disk-LetSpecification-dive-fp-4-7-False 0 success
+disk-LetSpecification-dive-fp-4-7-True 0 success
+disk-LetSpecification-dive-fp-8-None-False 0 success
+disk-LetSpecification-dive-fp-8-None-True 0 success
+disk-LetSpecification-dive-fp-8-0-False 0 success
+disk-LetSpecification-dive-fp-8-0-True 0 success
+disk-LetSpecification-dive-fp-8-7-False 0 success
+disk-LetSpecification-dive-fp-8-7-True 0 success
+disk-LetSpecification-dive-exact-1-None-False 0 success
+disk-LetSpecification-dive-exact-1-None-True 0 success
+disk-LetSpecification-dive-exact-1-0-False 0 success
+disk-LetSpecification-dive-exact-1-0-True 0 success
+disk-LetSpecification-dive-exact-1-7-False 0 success
+disk-LetSpecification-dive-exact-1-7-True 0 success
+disk-LetSpecification-dive-exact-4-None-False 0 success
+disk-LetSpecification-dive-exact-4-None-True 0 success
+disk-LetSpecification-dive-exact-4-0-False 0 success
+disk-LetSpecification-dive-exact-4-0-True 0 success
+disk-LetSpecification-dive-exact-4-7-False 0 success
+disk-LetSpecification-dive-exact-4-7-True 0 success
+disk-LetSpecification-dive-exact-8-None-False 0 success
+disk-LetSpecification-dive-exact-8-None-True 0 success
+disk-LetSpecification-dive-exact-8-0-False 0 success
+disk-LetSpecification-dive-exact-8-0-True 0 success
+disk-LetSpecification-dive-exact-8-7-False 0 success
+disk-LetSpecification-dive-exact-8-7-True 0 success
+disk-MissingProperty-tlc-fp-1-None-False 151 model-error
+disk-MissingProperty-tlc-fp-1-None-True 151 model-error
+disk-MissingProperty-tlc-fp-1-0-False 151 model-error
+disk-MissingProperty-tlc-fp-1-0-True 151 model-error
+disk-MissingProperty-tlc-fp-1-7-False 151 model-error
+disk-MissingProperty-tlc-fp-1-7-True 151 model-error
+disk-MissingProperty-tlc-fp-4-None-False 151 model-error
+disk-MissingProperty-tlc-fp-4-None-True 151 model-error
+disk-MissingProperty-tlc-fp-4-0-False 151 model-error
+disk-MissingProperty-tlc-fp-4-0-True 151 model-error
+disk-MissingProperty-tlc-fp-4-7-False 151 model-error
+disk-MissingProperty-tlc-fp-4-7-True 151 model-error
+disk-MissingProperty-tlc-fp-8-None-False 151 model-error
+disk-MissingProperty-tlc-fp-8-None-True 151 model-error
+disk-MissingProperty-tlc-fp-8-0-False 151 model-error
+disk-MissingProperty-tlc-fp-8-0-True 151 model-error
+disk-MissingProperty-tlc-fp-8-7-False 151 model-error
+disk-MissingProperty-tlc-fp-8-7-True 151 model-error
+disk-MissingProperty-tlc-exact-1-None-False 151 model-error
+disk-MissingProperty-tlc-exact-1-None-True 151 model-error
+disk-MissingProperty-tlc-exact-1-0-False 151 model-error
+disk-MissingProperty-tlc-exact-1-0-True 151 model-error
+disk-MissingProperty-tlc-exact-1-7-False 151 model-error
+disk-MissingProperty-tlc-exact-1-7-True 151 model-error
+disk-MissingProperty-tlc-exact-4-None-False 151 model-error
+disk-MissingProperty-tlc-exact-4-None-True 151 model-error
+disk-MissingProperty-tlc-exact-4-0-False 151 model-error
+disk-MissingProperty-tlc-exact-4-0-True 151 model-error
+disk-MissingProperty-tlc-exact-4-7-False 151 model-error
+disk-MissingProperty-tlc-exact-4-7-True 151 model-error
+disk-MissingProperty-tlc-exact-8-None-False 151 model-error
+disk-MissingProperty-tlc-exact-8-None-True 151 model-error
+disk-MissingProperty-tlc-exact-8-0-False 151 model-error
+disk-MissingProperty-tlc-exact-8-0-True 151 model-error
+disk-MissingProperty-tlc-exact-8-7-False 151 model-error
+disk-MissingProperty-tlc-exact-8-7-True 151 model-error
+disk-MissingProperty-dive-fp-1-None-False 1 model-error
+disk-MissingProperty-dive-fp-1-None-True 1 model-error
+disk-MissingProperty-dive-fp-1-0-False 1 model-error
+disk-MissingProperty-dive-fp-1-0-True 1 model-error
+disk-MissingProperty-dive-fp-1-7-False 1 model-error
+disk-MissingProperty-dive-fp-1-7-True 1 model-error
+disk-MissingProperty-dive-fp-4-None-False 1 model-error
+disk-MissingProperty-dive-fp-4-None-True 1 model-error
+disk-MissingProperty-dive-fp-4-0-False 1 model-error
+disk-MissingProperty-dive-fp-4-0-True 1 model-error
+disk-MissingProperty-dive-fp-4-7-False 1 model-error
+disk-MissingProperty-dive-fp-4-7-True 1 model-error
+disk-MissingProperty-dive-fp-8-None-False 1 model-error
+disk-MissingProperty-dive-fp-8-None-True 1 model-error
+disk-MissingProperty-dive-fp-8-0-False 1 model-error
+disk-MissingProperty-dive-fp-8-0-True 1 model-error
+disk-MissingProperty-dive-fp-8-7-False 1 model-error
+disk-MissingProperty-dive-fp-8-7-True 1 model-error
+disk-MissingProperty-dive-exact-1-None-False 1 model-error
+disk-MissingProperty-dive-exact-1-None-True 1 model-error
+disk-MissingProperty-dive-exact-1-0-False 1 model-error
+disk-MissingProperty-dive-exact-1-0-True 1 model-error
+disk-MissingProperty-dive-exact-1-7-False 1 model-error
+disk-MissingProperty-dive-exact-1-7-True 1 model-error
+disk-MissingProperty-dive-exact-4-None-False 1 model-error
+disk-MissingProperty-dive-exact-4-None-True 1 model-error
+disk-MissingProperty-dive-exact-4-0-False 1 model-error
+disk-MissingProperty-dive-exact-4-0-True 1 model-error
+disk-MissingProperty-dive-exact-4-7-False 1 model-error
+disk-MissingProperty-dive-exact-4-7-True 1 model-error
+disk-MissingProperty-dive-exact-8-None-False 1 model-error
+disk-MissingProperty-dive-exact-8-None-True 1 model-error
+disk-MissingProperty-dive-exact-8-0-False 1 model-error
+disk-MissingProperty-dive-exact-8-0-True 1 model-error
+disk-MissingProperty-dive-exact-8-7-False 1 model-error
+disk-MissingProperty-dive-exact-8-7-True 1 model-error
+disk-MissingSpecification-tlc-fp-1-None-False 151 model-error
+disk-MissingSpecification-tlc-fp-1-None-True 151 model-error
+disk-MissingSpecification-tlc-fp-1-0-False 151 model-error
+disk-MissingSpecification-tlc-fp-1-0-True 151 model-error
+disk-MissingSpecification-tlc-fp-1-7-False 151 model-error
+disk-MissingSpecification-tlc-fp-1-7-True 151 model-error
+disk-MissingSpecification-tlc-fp-4-None-False 151 model-error
+disk-MissingSpecification-tlc-fp-4-None-True 151 model-error
+disk-MissingSpecification-tlc-fp-4-0-False 151 model-error
+disk-MissingSpecification-tlc-fp-4-0-True 151 model-error
+disk-MissingSpecification-tlc-fp-4-7-False 151 model-error
+disk-MissingSpecification-tlc-fp-4-7-True 151 model-error
+disk-MissingSpecification-tlc-fp-8-None-False 151 model-error
+disk-MissingSpecification-tlc-fp-8-None-True 151 model-error
+disk-MissingSpecification-tlc-fp-8-0-False 151 model-error
+disk-MissingSpecification-tlc-fp-8-0-True 151 model-error
+disk-MissingSpecification-tlc-fp-8-7-False 151 model-error
+disk-MissingSpecification-tlc-fp-8-7-True 151 model-error
+disk-MissingSpecification-tlc-exact-1-None-False 151 model-error
+disk-MissingSpecification-tlc-exact-1-None-True 151 model-error
+disk-MissingSpecification-tlc-exact-1-0-False 151 model-error
+disk-MissingSpecification-tlc-exact-1-0-True 151 model-error
+disk-MissingSpecification-tlc-exact-1-7-False 151 model-error
+disk-MissingSpecification-tlc-exact-1-7-True 151 model-error
+disk-MissingSpecification-tlc-exact-4-None-False 151 model-error
+disk-MissingSpecification-tlc-exact-4-None-True 151 model-error
+disk-MissingSpecification-tlc-exact-4-0-False 151 model-error
+disk-MissingSpecification-tlc-exact-4-0-True 151 model-error
+disk-MissingSpecification-tlc-exact-4-7-False 151 model-error
+disk-MissingSpecification-tlc-exact-4-7-True 151 model-error
+disk-MissingSpecification-tlc-exact-8-None-False 151 model-error
+disk-MissingSpecification-tlc-exact-8-None-True 151 model-error
+disk-MissingSpecification-tlc-exact-8-0-False 151 model-error
+disk-MissingSpecification-tlc-exact-8-0-True 151 model-error
+disk-MissingSpecification-tlc-exact-8-7-False 151 model-error
+disk-MissingSpecification-tlc-exact-8-7-True 151 model-error
+disk-MissingSpecification-dive-fp-1-None-False 1 model-error
+disk-MissingSpecification-dive-fp-1-None-True 1 model-error
+disk-MissingSpecification-dive-fp-1-0-False 1 model-error
+disk-MissingSpecification-dive-fp-1-0-True 1 model-error
+disk-MissingSpecification-dive-fp-1-7-False 1 model-error
+disk-MissingSpecification-dive-fp-1-7-True 1 model-error
+disk-MissingSpecification-dive-fp-4-None-False 1 model-error
+disk-MissingSpecification-dive-fp-4-None-True 1 model-error
+disk-MissingSpecification-dive-fp-4-0-False 1 model-error
+disk-MissingSpecification-dive-fp-4-0-True 1 model-error
+disk-MissingSpecification-dive-fp-4-7-False 1 model-error
+disk-MissingSpecification-dive-fp-4-7-True 1 model-error
+disk-MissingSpecification-dive-fp-8-None-False 1 model-error
+disk-MissingSpecification-dive-fp-8-None-True 1 model-error
+disk-MissingSpecification-dive-fp-8-0-False 1 model-error
+disk-MissingSpecification-dive-fp-8-0-True 1 model-error
+disk-MissingSpecification-dive-fp-8-7-False 1 model-error
+disk-MissingSpecification-dive-fp-8-7-True 1 model-error
+disk-MissingSpecification-dive-exact-1-None-False 1 model-error
+disk-MissingSpecification-dive-exact-1-None-True 1 model-error
+disk-MissingSpecification-dive-exact-1-0-False 1 model-error
+disk-MissingSpecification-dive-exact-1-0-True 1 model-error
+disk-MissingSpecification-dive-exact-1-7-False 1 model-error
+disk-MissingSpecification-dive-exact-1-7-True 1 model-error
+disk-MissingSpecification-dive-exact-4-None-False 1 model-error
+disk-MissingSpecification-dive-exact-4-None-True 1 model-error
+disk-MissingSpecification-dive-exact-4-0-False 1 model-error
+disk-MissingSpecification-dive-exact-4-0-True 1 model-error
+disk-MissingSpecification-dive-exact-4-7-False 1 model-error
+disk-MissingSpecification-dive-exact-4-7-True 1 model-error
+disk-MissingSpecification-dive-exact-8-None-False 1 model-error
+disk-MissingSpecification-dive-exact-8-None-True 1 model-error
+disk-MissingSpecification-dive-exact-8-0-False 1 model-error
+disk-MissingSpecification-dive-exact-8-0-True 1 model-error
+disk-MissingSpecification-dive-exact-8-7-False 1 model-error
+disk-MissingSpecification-dive-exact-8-7-True 1 model-error
+disk-MixedRoles-tlc-fp-1-None-False 151 model-error
+disk-MixedRoles-tlc-fp-1-None-True 151 model-error
+disk-MixedRoles-tlc-fp-1-0-False 151 model-error
+disk-MixedRoles-tlc-fp-1-0-True 151 model-error
+disk-MixedRoles-tlc-fp-1-7-False 151 model-error
+disk-MixedRoles-tlc-fp-1-7-True 151 model-error
+disk-MixedRoles-tlc-fp-4-None-False 151 model-error
+disk-MixedRoles-tlc-fp-4-None-True 151 model-error
+disk-MixedRoles-tlc-fp-4-0-False 151 model-error
+disk-MixedRoles-tlc-fp-4-0-True 151 model-error
+disk-MixedRoles-tlc-fp-4-7-False 151 model-error
+disk-MixedRoles-tlc-fp-4-7-True 151 model-error
+disk-MixedRoles-tlc-fp-8-None-False 151 model-error
+disk-MixedRoles-tlc-fp-8-None-True 151 model-error
+disk-MixedRoles-tlc-fp-8-0-False 151 model-error
+disk-MixedRoles-tlc-fp-8-0-True 151 model-error
+disk-MixedRoles-tlc-fp-8-7-False 151 model-error
+disk-MixedRoles-tlc-fp-8-7-True 151 model-error
+disk-MixedRoles-tlc-exact-1-None-False 151 model-error
+disk-MixedRoles-tlc-exact-1-None-True 151 model-error
+disk-MixedRoles-tlc-exact-1-0-False 151 model-error
+disk-MixedRoles-tlc-exact-1-0-True 151 model-error
+disk-MixedRoles-tlc-exact-1-7-False 151 model-error
+disk-MixedRoles-tlc-exact-1-7-True 151 model-error
+disk-MixedRoles-tlc-exact-4-None-False 151 model-error
+disk-MixedRoles-tlc-exact-4-None-True 151 model-error
+disk-MixedRoles-tlc-exact-4-0-False 151 model-error
+disk-MixedRoles-tlc-exact-4-0-True 151 model-error
+disk-MixedRoles-tlc-exact-4-7-False 151 model-error
+disk-MixedRoles-tlc-exact-4-7-True 151 model-error
+disk-MixedRoles-tlc-exact-8-None-False 151 model-error
+disk-MixedRoles-tlc-exact-8-None-True 151 model-error
+disk-MixedRoles-tlc-exact-8-0-False 151 model-error
+disk-MixedRoles-tlc-exact-8-0-True 151 model-error
+disk-MixedRoles-tlc-exact-8-7-False 151 model-error
+disk-MixedRoles-tlc-exact-8-7-True 151 model-error
+disk-MixedRoles-dive-fp-1-None-False 1 model-error
+disk-MixedRoles-dive-fp-1-None-True 1 model-error
+disk-MixedRoles-dive-fp-1-0-False 1 model-error
+disk-MixedRoles-dive-fp-1-0-True 1 model-error
+disk-MixedRoles-dive-fp-1-7-False 1 model-error
+disk-MixedRoles-dive-fp-1-7-True 1 model-error
+disk-MixedRoles-dive-fp-4-None-False 1 model-error
+disk-MixedRoles-dive-fp-4-None-True 1 model-error
+disk-MixedRoles-dive-fp-4-0-False 1 model-error
+disk-MixedRoles-dive-fp-4-0-True 1 model-error
+disk-MixedRoles-dive-fp-4-7-False 1 model-error
+disk-MixedRoles-dive-fp-4-7-True 1 model-error
+disk-MixedRoles-dive-fp-8-None-False 1 model-error
+disk-MixedRoles-dive-fp-8-None-True 1 model-error
+disk-MixedRoles-dive-fp-8-0-False 1 model-error
+disk-MixedRoles-dive-fp-8-0-True 1 model-error
+disk-MixedRoles-dive-fp-8-7-False 1 model-error
+disk-MixedRoles-dive-fp-8-7-True 1 model-error
+disk-MixedRoles-dive-exact-1-None-False 1 model-error
+disk-MixedRoles-dive-exact-1-None-True 1 model-error
+disk-MixedRoles-dive-exact-1-0-False 1 model-error
+disk-MixedRoles-dive-exact-1-0-True 1 model-error
+disk-MixedRoles-dive-exact-1-7-False 1 model-error
+disk-MixedRoles-dive-exact-1-7-True 1 model-error
+disk-MixedRoles-dive-exact-4-None-False 1 model-error
+disk-MixedRoles-dive-exact-4-None-True 1 model-error
+disk-MixedRoles-dive-exact-4-0-False 1 model-error
+disk-MixedRoles-dive-exact-4-0-True 1 model-error
+disk-MixedRoles-dive-exact-4-7-False 1 model-error
+disk-MixedRoles-dive-exact-4-7-True 1 model-error
+disk-MixedRoles-dive-exact-8-None-False 1 model-error
+disk-MixedRoles-dive-exact-8-None-True 1 model-error
+disk-MixedRoles-dive-exact-8-0-False 1 model-error
+disk-MixedRoles-dive-exact-8-0-True 1 model-error
+disk-MixedRoles-dive-exact-8-7-False 1 model-error
+disk-MixedRoles-dive-exact-8-7-True 1 model-error
+disk-PrintedProperty-tlc-fp-1-None-False 3 unsupported
+disk-PrintedProperty-tlc-fp-1-None-True 3 unsupported
+disk-PrintedProperty-tlc-fp-1-0-False 3 unsupported
+disk-PrintedProperty-tlc-fp-1-0-True 3 unsupported
+disk-PrintedProperty-tlc-fp-1-7-False 3 unsupported
+disk-PrintedProperty-tlc-fp-1-7-True 3 unsupported
+disk-PrintedProperty-tlc-fp-4-None-False 3 unsupported
+disk-PrintedProperty-tlc-fp-4-None-True 3 unsupported
+disk-PrintedProperty-tlc-fp-4-0-False 3 unsupported
+disk-PrintedProperty-tlc-fp-4-0-True 3 unsupported
+disk-PrintedProperty-tlc-fp-4-7-False 3 unsupported
+disk-PrintedProperty-tlc-fp-4-7-True 3 unsupported
+disk-PrintedProperty-tlc-fp-8-None-False 3 unsupported
+disk-PrintedProperty-tlc-fp-8-None-True 3 unsupported
+disk-PrintedProperty-tlc-fp-8-0-False 3 unsupported
+disk-PrintedProperty-tlc-fp-8-0-True 3 unsupported
+disk-PrintedProperty-tlc-fp-8-7-False 3 unsupported
+disk-PrintedProperty-tlc-fp-8-7-True 3 unsupported
+disk-PrintedProperty-tlc-exact-1-None-False 3 unsupported
+disk-PrintedProperty-tlc-exact-1-None-True 3 unsupported
+disk-PrintedProperty-tlc-exact-1-0-False 3 unsupported
+disk-PrintedProperty-tlc-exact-1-0-True 3 unsupported
+disk-PrintedProperty-tlc-exact-1-7-False 3 unsupported
+disk-PrintedProperty-tlc-exact-1-7-True 3 unsupported
+disk-PrintedProperty-tlc-exact-4-None-False 3 unsupported
+disk-PrintedProperty-tlc-exact-4-None-True 3 unsupported
+disk-PrintedProperty-tlc-exact-4-0-False 3 unsupported
+disk-PrintedProperty-tlc-exact-4-0-True 3 unsupported
+disk-PrintedProperty-tlc-exact-4-7-False 3 unsupported
+disk-PrintedProperty-tlc-exact-4-7-True 3 unsupported
+disk-PrintedProperty-tlc-exact-8-None-False 3 unsupported
+disk-PrintedProperty-tlc-exact-8-None-True 3 unsupported
+disk-PrintedProperty-tlc-exact-8-0-False 3 unsupported
+disk-PrintedProperty-tlc-exact-8-0-True 3 unsupported
+disk-PrintedProperty-tlc-exact-8-7-False 3 unsupported
+disk-PrintedProperty-tlc-exact-8-7-True 3 unsupported
+disk-PrintedProperty-dive-fp-1-None-False 3 unsupported
+disk-PrintedProperty-dive-fp-1-None-True 3 unsupported
+disk-PrintedProperty-dive-fp-1-0-False 3 unsupported
+disk-PrintedProperty-dive-fp-1-0-True 3 unsupported
+disk-PrintedProperty-dive-fp-1-7-False 3 unsupported
+disk-PrintedProperty-dive-fp-1-7-True 3 unsupported
+disk-PrintedProperty-dive-fp-4-None-False 3 unsupported
+disk-PrintedProperty-dive-fp-4-None-True 3 unsupported
+disk-PrintedProperty-dive-fp-4-0-False 3 unsupported
+disk-PrintedProperty-dive-fp-4-0-True 3 unsupported
+disk-PrintedProperty-dive-fp-4-7-False 3 unsupported
+disk-PrintedProperty-dive-fp-4-7-True 3 unsupported
+disk-PrintedProperty-dive-fp-8-None-False 3 unsupported
+disk-PrintedProperty-dive-fp-8-None-True 3 unsupported
+disk-PrintedProperty-dive-fp-8-0-False 3 unsupported
+disk-PrintedProperty-dive-fp-8-0-True 3 unsupported
+disk-PrintedProperty-dive-fp-8-7-False 3 unsupported
+disk-PrintedProperty-dive-fp-8-7-True 3 unsupported
+disk-PrintedProperty-dive-exact-1-None-False 3 unsupported
+disk-PrintedProperty-dive-exact-1-None-True 3 unsupported
+disk-PrintedProperty-dive-exact-1-0-False 3 unsupported
+disk-PrintedProperty-dive-exact-1-0-True 3 unsupported
+disk-PrintedProperty-dive-exact-1-7-False 3 unsupported
+disk-PrintedProperty-dive-exact-1-7-True 3 unsupported
+disk-PrintedProperty-dive-exact-4-None-False 3 unsupported
+disk-PrintedProperty-dive-exact-4-None-True 3 unsupported
+disk-PrintedProperty-dive-exact-4-0-False 3 unsupported
+disk-PrintedProperty-dive-exact-4-0-True 3 unsupported
+disk-PrintedProperty-dive-exact-4-7-False 3 unsupported
+disk-PrintedProperty-dive-exact-4-7-True 3 unsupported
+disk-PrintedProperty-dive-exact-8-None-False 3 unsupported
+disk-PrintedProperty-dive-exact-8-None-True 3 unsupported
+disk-PrintedProperty-dive-exact-8-0-False 3 unsupported
+disk-PrintedProperty-dive-exact-8-0-True 3 unsupported
+disk-PrintedProperty-dive-exact-8-7-False 3 unsupported
+disk-PrintedProperty-dive-exact-8-7-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-1-None-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-1-None-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-1-0-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-1-0-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-1-7-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-1-7-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-4-None-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-4-None-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-4-0-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-4-0-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-4-7-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-4-7-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-8-None-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-8-None-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-8-0-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-8-0-True 3 unsupported
+disk-PrintedSpecification-tlc-fp-8-7-False 3 unsupported
+disk-PrintedSpecification-tlc-fp-8-7-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-1-None-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-1-None-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-1-0-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-1-0-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-1-7-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-1-7-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-4-None-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-4-None-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-4-0-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-4-0-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-4-7-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-4-7-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-8-None-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-8-None-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-8-0-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-8-0-True 3 unsupported
+disk-PrintedSpecification-tlc-exact-8-7-False 3 unsupported
+disk-PrintedSpecification-tlc-exact-8-7-True 3 unsupported
+disk-PrintedSpecification-dive-fp-1-None-False 3 unsupported
+disk-PrintedSpecification-dive-fp-1-None-True 3 unsupported
+disk-PrintedSpecification-dive-fp-1-0-False 3 unsupported
+disk-PrintedSpecification-dive-fp-1-0-True 3 unsupported
+disk-PrintedSpecification-dive-fp-1-7-False 3 unsupported
+disk-PrintedSpecification-dive-fp-1-7-True 3 unsupported
+disk-PrintedSpecification-dive-fp-4-None-False 3 unsupported
+disk-PrintedSpecification-dive-fp-4-None-True 3 unsupported
+disk-PrintedSpecification-dive-fp-4-0-False 3 unsupported
+disk-PrintedSpecification-dive-fp-4-0-True 3 unsupported
+disk-PrintedSpecification-dive-fp-4-7-False 3 unsupported
+disk-PrintedSpecification-dive-fp-4-7-True 3 unsupported
+disk-PrintedSpecification-dive-fp-8-None-False 3 unsupported
+disk-PrintedSpecification-dive-fp-8-None-True 3 unsupported
+disk-PrintedSpecification-dive-fp-8-0-False 3 unsupported
+disk-PrintedSpecification-dive-fp-8-0-True 3 unsupported
+disk-PrintedSpecification-dive-fp-8-7-False 3 unsupported
+disk-PrintedSpecification-dive-fp-8-7-True 3 unsupported
+disk-PrintedSpecification-dive-exact-1-None-False 3 unsupported
+disk-PrintedSpecification-dive-exact-1-None-True 3 unsupported
+disk-PrintedSpecification-dive-exact-1-0-False 3 unsupported
+disk-PrintedSpecification-dive-exact-1-0-True 3 unsupported
+disk-PrintedSpecification-dive-exact-1-7-False 3 unsupported
+disk-PrintedSpecification-dive-exact-1-7-True 3 unsupported
+disk-PrintedSpecification-dive-exact-4-None-False 3 unsupported
+disk-PrintedSpecification-dive-exact-4-None-True 3 unsupported
+disk-PrintedSpecification-dive-exact-4-0-False 3 unsupported
+disk-PrintedSpecification-dive-exact-4-0-True 3 unsupported
+disk-PrintedSpecification-dive-exact-4-7-False 3 unsupported
+disk-PrintedSpecification-dive-exact-4-7-True 3 unsupported
+disk-PrintedSpecification-dive-exact-8-None-False 3 unsupported
+disk-PrintedSpecification-dive-exact-8-None-True 3 unsupported
+disk-PrintedSpecification-dive-exact-8-0-False 3 unsupported
+disk-PrintedSpecification-dive-exact-8-0-True 3 unsupported
+disk-PrintedSpecification-dive-exact-8-7-False 3 unsupported
+disk-PrintedSpecification-dive-exact-8-7-True 3 unsupported
+disk-PropertyAlias-tlc-fp-1-None-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-1-None-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-1-0-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-1-0-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-1-7-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-1-7-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-4-None-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-4-None-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-4-0-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-4-0-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-4-7-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-4-7-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-8-None-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-8-None-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-8-0-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-8-0-True 12 invariant-violation
+disk-PropertyAlias-tlc-fp-8-7-False 12 invariant-violation
+disk-PropertyAlias-tlc-fp-8-7-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-1-None-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-1-None-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-1-0-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-1-0-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-1-7-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-1-7-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-4-None-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-4-None-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-4-0-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-4-0-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-4-7-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-4-7-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-8-None-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-8-None-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-8-0-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-8-0-True 12 invariant-violation
+disk-PropertyAlias-tlc-exact-8-7-False 12 invariant-violation
+disk-PropertyAlias-tlc-exact-8-7-True 12 invariant-violation
+disk-PropertyAlias-dive-fp-1-None-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-1-None-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-1-0-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-1-0-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-1-7-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-1-7-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-4-None-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-4-None-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-4-0-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-4-0-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-4-7-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-4-7-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-8-None-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-8-None-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-8-0-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-8-0-True 10 invariant-violation
+disk-PropertyAlias-dive-fp-8-7-False 10 invariant-violation
+disk-PropertyAlias-dive-fp-8-7-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-1-None-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-1-None-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-1-0-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-1-0-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-1-7-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-1-7-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-4-None-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-4-None-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-4-0-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-4-0-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-4-7-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-4-7-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-8-None-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-8-None-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-8-0-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-8-0-True 10 invariant-violation
+disk-PropertyAlias-dive-exact-8-7-False 10 invariant-violation
+disk-PropertyAlias-dive-exact-8-7-True 10 invariant-violation
+disk-PureSpecification-tlc-fp-1-None-False 0 success
+disk-PureSpecification-tlc-fp-1-None-True 0 success
+disk-PureSpecification-tlc-fp-1-0-False 0 success
+disk-PureSpecification-tlc-fp-1-0-True 0 success
+disk-PureSpecification-tlc-fp-1-7-False 0 success
+disk-PureSpecification-tlc-fp-1-7-True 0 success
+disk-PureSpecification-tlc-fp-4-None-False 0 success
+disk-PureSpecification-tlc-fp-4-None-True 0 success
+disk-PureSpecification-tlc-fp-4-0-False 0 success
+disk-PureSpecification-tlc-fp-4-0-True 0 success
+disk-PureSpecification-tlc-fp-4-7-False 0 success
+disk-PureSpecification-tlc-fp-4-7-True 0 success
+disk-PureSpecification-tlc-fp-8-None-False 0 success
+disk-PureSpecification-tlc-fp-8-None-True 0 success
+disk-PureSpecification-tlc-fp-8-0-False 0 success
+disk-PureSpecification-tlc-fp-8-0-True 0 success
+disk-PureSpecification-tlc-fp-8-7-False 0 success
+disk-PureSpecification-tlc-fp-8-7-True 0 success
+disk-PureSpecification-tlc-exact-1-None-False 0 success
+disk-PureSpecification-tlc-exact-1-None-True 0 success
+disk-PureSpecification-tlc-exact-1-0-False 0 success
+disk-PureSpecification-tlc-exact-1-0-True 0 success
+disk-PureSpecification-tlc-exact-1-7-False 0 success
+disk-PureSpecification-tlc-exact-1-7-True 0 success
+disk-PureSpecification-tlc-exact-4-None-False 0 success
+disk-PureSpecification-tlc-exact-4-None-True 0 success
+disk-PureSpecification-tlc-exact-4-0-False 0 success
+disk-PureSpecification-tlc-exact-4-0-True 0 success
+disk-PureSpecification-tlc-exact-4-7-False 0 success
+disk-PureSpecification-tlc-exact-4-7-True 0 success
+disk-PureSpecification-tlc-exact-8-None-False 0 success
+disk-PureSpecification-tlc-exact-8-None-True 0 success
+disk-PureSpecification-tlc-exact-8-0-False 0 success
+disk-PureSpecification-tlc-exact-8-0-True 0 success
+disk-PureSpecification-tlc-exact-8-7-False 0 success
+disk-PureSpecification-tlc-exact-8-7-True 0 success
+disk-PureSpecification-dive-fp-1-None-False 0 success
+disk-PureSpecification-dive-fp-1-None-True 0 success
+disk-PureSpecification-dive-fp-1-0-False 0 success
+disk-PureSpecification-dive-fp-1-0-True 0 success
+disk-PureSpecification-dive-fp-1-7-False 0 success
+disk-PureSpecification-dive-fp-1-7-True 0 success
+disk-PureSpecification-dive-fp-4-None-False 0 success
+disk-PureSpecification-dive-fp-4-None-True 0 success
+disk-PureSpecification-dive-fp-4-0-False 0 success
+disk-PureSpecification-dive-fp-4-0-True 0 success
+disk-PureSpecification-dive-fp-4-7-False 0 success
+disk-PureSpecification-dive-fp-4-7-True 0 success
+disk-PureSpecification-dive-fp-8-None-False 0 success
+disk-PureSpecification-dive-fp-8-None-True 0 success
+disk-PureSpecification-dive-fp-8-0-False 0 success
+disk-PureSpecification-dive-fp-8-0-True 0 success
+disk-PureSpecification-dive-fp-8-7-False 0 success
+disk-PureSpecification-dive-fp-8-7-True 0 success
+disk-PureSpecification-dive-exact-1-None-False 0 success
+disk-PureSpecification-dive-exact-1-None-True 0 success
+disk-PureSpecification-dive-exact-1-0-False 0 success
+disk-PureSpecification-dive-exact-1-0-True 0 success
+disk-PureSpecification-dive-exact-1-7-False 0 success
+disk-PureSpecification-dive-exact-1-7-True 0 success
+disk-PureSpecification-dive-exact-4-None-False 0 success
+disk-PureSpecification-dive-exact-4-None-True 0 success
+disk-PureSpecification-dive-exact-4-0-False 0 success
+disk-PureSpecification-dive-exact-4-0-True 0 success
+disk-PureSpecification-dive-exact-4-7-False 0 success
+disk-PureSpecification-dive-exact-4-7-True 0 success
+disk-PureSpecification-dive-exact-8-None-False 0 success
+disk-PureSpecification-dive-exact-8-None-True 0 success
+disk-PureSpecification-dive-exact-8-0-False 0 success
+disk-PureSpecification-dive-exact-8-0-True 0 success
+disk-PureSpecification-dive-exact-8-7-False 0 success
+disk-PureSpecification-dive-exact-8-7-True 0 success
+disk-QuantifiedProperty-tlc-fp-1-None-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-1-None-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-1-0-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-1-0-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-1-7-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-1-7-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-4-None-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-4-None-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-4-0-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-4-0-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-4-7-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-4-7-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-8-None-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-8-None-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-8-0-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-8-0-True 3 unsupported
+disk-QuantifiedProperty-tlc-fp-8-7-False 3 unsupported
+disk-QuantifiedProperty-tlc-fp-8-7-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-1-None-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-1-None-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-1-0-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-1-0-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-1-7-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-1-7-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-4-None-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-4-None-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-4-0-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-4-0-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-4-7-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-4-7-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-8-None-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-8-None-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-8-0-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-8-0-True 3 unsupported
+disk-QuantifiedProperty-tlc-exact-8-7-False 3 unsupported
+disk-QuantifiedProperty-tlc-exact-8-7-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-1-None-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-1-None-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-1-0-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-1-0-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-1-7-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-1-7-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-4-None-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-4-None-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-4-0-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-4-0-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-4-7-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-4-7-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-8-None-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-8-None-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-8-0-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-8-0-True 3 unsupported
+disk-QuantifiedProperty-dive-fp-8-7-False 3 unsupported
+disk-QuantifiedProperty-dive-fp-8-7-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-1-None-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-1-None-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-1-0-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-1-0-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-1-7-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-1-7-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-4-None-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-4-None-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-4-0-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-4-0-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-4-7-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-4-7-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-8-None-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-8-None-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-8-0-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-8-0-True 3 unsupported
+disk-QuantifiedProperty-dive-exact-8-7-False 3 unsupported
+disk-QuantifiedProperty-dive-exact-8-7-True 3 unsupported
+disk-StateProperty-tlc-fp-1-None-False 0 success
+disk-StateProperty-tlc-fp-1-None-True 0 success
+disk-StateProperty-tlc-fp-1-0-False 0 success
+disk-StateProperty-tlc-fp-1-0-True 0 success
+disk-StateProperty-tlc-fp-1-7-False 0 success
+disk-StateProperty-tlc-fp-1-7-True 0 success
+disk-StateProperty-tlc-fp-4-None-False 0 success
+disk-StateProperty-tlc-fp-4-None-True 0 success
+disk-StateProperty-tlc-fp-4-0-False 0 success
+disk-StateProperty-tlc-fp-4-0-True 0 success
+disk-StateProperty-tlc-fp-4-7-False 0 success
+disk-StateProperty-tlc-fp-4-7-True 0 success
+disk-StateProperty-tlc-fp-8-None-False 0 success
+disk-StateProperty-tlc-fp-8-None-True 0 success
+disk-StateProperty-tlc-fp-8-0-False 0 success
+disk-StateProperty-tlc-fp-8-0-True 0 success
+disk-StateProperty-tlc-fp-8-7-False 0 success
+disk-StateProperty-tlc-fp-8-7-True 0 success
+disk-StateProperty-tlc-exact-1-None-False 0 success
+disk-StateProperty-tlc-exact-1-None-True 0 success
+disk-StateProperty-tlc-exact-1-0-False 0 success
+disk-StateProperty-tlc-exact-1-0-True 0 success
+disk-StateProperty-tlc-exact-1-7-False 0 success
+disk-StateProperty-tlc-exact-1-7-True 0 success
+disk-StateProperty-tlc-exact-4-None-False 0 success
+disk-StateProperty-tlc-exact-4-None-True 0 success
+disk-StateProperty-tlc-exact-4-0-False 0 success
+disk-StateProperty-tlc-exact-4-0-True 0 success
+disk-StateProperty-tlc-exact-4-7-False 0 success
+disk-StateProperty-tlc-exact-4-7-True 0 success
+disk-StateProperty-tlc-exact-8-None-False 0 success
+disk-StateProperty-tlc-exact-8-None-True 0 success
+disk-StateProperty-tlc-exact-8-0-False 0 success
+disk-StateProperty-tlc-exact-8-0-True 0 success
+disk-StateProperty-tlc-exact-8-7-False 0 success
+disk-StateProperty-tlc-exact-8-7-True 0 success
+disk-StateProperty-dive-fp-1-None-False 0 success
+disk-StateProperty-dive-fp-1-None-True 0 success
+disk-StateProperty-dive-fp-1-0-False 0 success
+disk-StateProperty-dive-fp-1-0-True 0 success
+disk-StateProperty-dive-fp-1-7-False 0 success
+disk-StateProperty-dive-fp-1-7-True 0 success
+disk-StateProperty-dive-fp-4-None-False 0 success
+disk-StateProperty-dive-fp-4-None-True 0 success
+disk-StateProperty-dive-fp-4-0-False 0 success
+disk-StateProperty-dive-fp-4-0-True 0 success
+disk-StateProperty-dive-fp-4-7-False 0 success
+disk-StateProperty-dive-fp-4-7-True 0 success
+disk-StateProperty-dive-fp-8-None-False 0 success
+disk-StateProperty-dive-fp-8-None-True 0 success
+disk-StateProperty-dive-fp-8-0-False 0 success
+disk-StateProperty-dive-fp-8-0-True 0 success
+disk-StateProperty-dive-fp-8-7-False 0 success
+disk-StateProperty-dive-fp-8-7-True 0 success
+disk-StateProperty-dive-exact-1-None-False 0 success
+disk-StateProperty-dive-exact-1-None-True 0 success
+disk-StateProperty-dive-exact-1-0-False 0 success
+disk-StateProperty-dive-exact-1-0-True 0 success
+disk-StateProperty-dive-exact-1-7-False 0 success
+disk-StateProperty-dive-exact-1-7-True 0 success
+disk-StateProperty-dive-exact-4-None-False 0 success
+disk-StateProperty-dive-exact-4-None-True 0 success
+disk-StateProperty-dive-exact-4-0-False 0 success
+disk-StateProperty-dive-exact-4-0-True 0 success
+disk-StateProperty-dive-exact-4-7-False 0 success
+disk-StateProperty-dive-exact-4-7-True 0 success
+disk-StateProperty-dive-exact-8-None-False 0 success
+disk-StateProperty-dive-exact-8-None-True 0 success
+disk-StateProperty-dive-exact-8-0-False 0 success
+disk-StateProperty-dive-exact-8-0-True 0 success
+disk-StateProperty-dive-exact-8-7-False 0 success
+disk-StateProperty-dive-exact-8-7-True 0 success
+disk-TemporalProperty-tlc-fp-1-None-False 3 unsupported
+disk-TemporalProperty-tlc-fp-1-None-True 3 unsupported
+disk-TemporalProperty-tlc-fp-1-0-False 3 unsupported
+disk-TemporalProperty-tlc-fp-1-0-True 3 unsupported
+disk-TemporalProperty-tlc-fp-1-7-False 3 unsupported
+disk-TemporalProperty-tlc-fp-1-7-True 3 unsupported
+disk-TemporalProperty-tlc-fp-4-None-False 3 unsupported
+disk-TemporalProperty-tlc-fp-4-None-True 3 unsupported
+disk-TemporalProperty-tlc-fp-4-0-False 3 unsupported
+disk-TemporalProperty-tlc-fp-4-0-True 3 unsupported
+disk-TemporalProperty-tlc-fp-4-7-False 3 unsupported
+disk-TemporalProperty-tlc-fp-4-7-True 3 unsupported
+disk-TemporalProperty-tlc-fp-8-None-False 3 unsupported
+disk-TemporalProperty-tlc-fp-8-None-True 3 unsupported
+disk-TemporalProperty-tlc-fp-8-0-False 3 unsupported
+disk-TemporalProperty-tlc-fp-8-0-True 3 unsupported
+disk-TemporalProperty-tlc-fp-8-7-False 3 unsupported
+disk-TemporalProperty-tlc-fp-8-7-True 3 unsupported
+disk-TemporalProperty-tlc-exact-1-None-False 3 unsupported
+disk-TemporalProperty-tlc-exact-1-None-True 3 unsupported
+disk-TemporalProperty-tlc-exact-1-0-False 3 unsupported
+disk-TemporalProperty-tlc-exact-1-0-True 3 unsupported
+disk-TemporalProperty-tlc-exact-1-7-False 3 unsupported
+disk-TemporalProperty-tlc-exact-1-7-True 3 unsupported
+disk-TemporalProperty-tlc-exact-4-None-False 3 unsupported
+disk-TemporalProperty-tlc-exact-4-None-True 3 unsupported
+disk-TemporalProperty-tlc-exact-4-0-False 3 unsupported
+disk-TemporalProperty-tlc-exact-4-0-True 3 unsupported
+disk-TemporalProperty-tlc-exact-4-7-False 3 unsupported
+disk-TemporalProperty-tlc-exact-4-7-True 3 unsupported
+disk-TemporalProperty-tlc-exact-8-None-False 3 unsupported
+disk-TemporalProperty-tlc-exact-8-None-True 3 unsupported
+disk-TemporalProperty-tlc-exact-8-0-False 3 unsupported
+disk-TemporalProperty-tlc-exact-8-0-True 3 unsupported
+disk-TemporalProperty-tlc-exact-8-7-False 3 unsupported
+disk-TemporalProperty-tlc-exact-8-7-True 3 unsupported
+disk-TemporalProperty-dive-fp-1-None-False 3 unsupported
+disk-TemporalProperty-dive-fp-1-None-True 3 unsupported
+disk-TemporalProperty-dive-fp-1-0-False 3 unsupported
+disk-TemporalProperty-dive-fp-1-0-True 3 unsupported
+disk-TemporalProperty-dive-fp-1-7-False 3 unsupported
+disk-TemporalProperty-dive-fp-1-7-True 3 unsupported
+disk-TemporalProperty-dive-fp-4-None-False 3 unsupported
+disk-TemporalProperty-dive-fp-4-None-True 3 unsupported
+disk-TemporalProperty-dive-fp-4-0-False 3 unsupported
+disk-TemporalProperty-dive-fp-4-0-True 3 unsupported
+disk-TemporalProperty-dive-fp-4-7-False 3 unsupported
+disk-TemporalProperty-dive-fp-4-7-True 3 unsupported
+disk-TemporalProperty-dive-fp-8-None-False 3 unsupported
+disk-TemporalProperty-dive-fp-8-None-True 3 unsupported
+disk-TemporalProperty-dive-fp-8-0-False 3 unsupported
+disk-TemporalProperty-dive-fp-8-0-True 3 unsupported
+disk-TemporalProperty-dive-fp-8-7-False 3 unsupported
+disk-TemporalProperty-dive-fp-8-7-True 3 unsupported
+disk-TemporalProperty-dive-exact-1-None-False 3 unsupported
+disk-TemporalProperty-dive-exact-1-None-True 3 unsupported
+disk-TemporalProperty-dive-exact-1-0-False 3 unsupported
+disk-TemporalProperty-dive-exact-1-0-True 3 unsupported
+disk-TemporalProperty-dive-exact-1-7-False 3 unsupported
+disk-TemporalProperty-dive-exact-1-7-True 3 unsupported
+disk-TemporalProperty-dive-exact-4-None-False 3 unsupported
+disk-TemporalProperty-dive-exact-4-None-True 3 unsupported
+disk-TemporalProperty-dive-exact-4-0-False 3 unsupported
+disk-TemporalProperty-dive-exact-4-0-True 3 unsupported
+disk-TemporalProperty-dive-exact-4-7-False 3 unsupported
+disk-TemporalProperty-dive-exact-4-7-True 3 unsupported
+disk-TemporalProperty-dive-exact-8-None-False 3 unsupported
+disk-TemporalProperty-dive-exact-8-None-True 3 unsupported
+disk-TemporalProperty-dive-exact-8-0-False 3 unsupported
+disk-TemporalProperty-dive-exact-8-0-True 3 unsupported
+disk-TemporalProperty-dive-exact-8-7-False 3 unsupported
+disk-TemporalProperty-dive-exact-8-7-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-1-None-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-1-None-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-1-0-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-1-0-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-1-7-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-1-7-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-4-None-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-4-None-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-4-0-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-4-0-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-4-7-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-4-7-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-8-None-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-8-None-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-8-0-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-8-0-True 3 unsupported
+disk-WrapperSpecification-tlc-fp-8-7-False 3 unsupported
+disk-WrapperSpecification-tlc-fp-8-7-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-1-None-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-1-None-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-1-0-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-1-0-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-1-7-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-1-7-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-4-None-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-4-None-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-4-0-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-4-0-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-4-7-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-4-7-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-8-None-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-8-None-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-8-0-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-8-0-True 3 unsupported
+disk-WrapperSpecification-tlc-exact-8-7-False 3 unsupported
+disk-WrapperSpecification-tlc-exact-8-7-True 3 unsupported
+disk-WrapperSpecification-dive-fp-1-None-False 3 unsupported
+disk-WrapperSpecification-dive-fp-1-None-True 3 unsupported
+disk-WrapperSpecification-dive-fp-1-0-False 3 unsupported
+disk-WrapperSpecification-dive-fp-1-0-True 3 unsupported
+disk-WrapperSpecification-dive-fp-1-7-False 3 unsupported
+disk-WrapperSpecification-dive-fp-1-7-True 3 unsupported
+disk-WrapperSpecification-dive-fp-4-None-False 3 unsupported
+disk-WrapperSpecification-dive-fp-4-None-True 3 unsupported
+disk-WrapperSpecification-dive-fp-4-0-False 3 unsupported
+disk-WrapperSpecification-dive-fp-4-0-True 3 unsupported
+disk-WrapperSpecification-dive-fp-4-7-False 3 unsupported
+disk-WrapperSpecification-dive-fp-4-7-True 3 unsupported
+disk-WrapperSpecification-dive-fp-8-None-False 3 unsupported
+disk-WrapperSpecification-dive-fp-8-None-True 3 unsupported
+disk-WrapperSpecification-dive-fp-8-0-False 3 unsupported
+disk-WrapperSpecification-dive-fp-8-0-True 3 unsupported
+disk-WrapperSpecification-dive-fp-8-7-False 3 unsupported
+disk-WrapperSpecification-dive-fp-8-7-True 3 unsupported
+disk-WrapperSpecification-dive-exact-1-None-False 3 unsupported
+disk-WrapperSpecification-dive-exact-1-None-True 3 unsupported
+disk-WrapperSpecification-dive-exact-1-0-False 3 unsupported
+disk-WrapperSpecification-dive-exact-1-0-True 3 unsupported
+disk-WrapperSpecification-dive-exact-1-7-False 3 unsupported
+disk-WrapperSpecification-dive-exact-1-7-True 3 unsupported
+disk-WrapperSpecification-dive-exact-4-None-False 3 unsupported
+disk-WrapperSpecification-dive-exact-4-None-True 3 unsupported
+disk-WrapperSpecification-dive-exact-4-0-False 3 unsupported
+disk-WrapperSpecification-dive-exact-4-0-True 3 unsupported
+disk-WrapperSpecification-dive-exact-4-7-False 3 unsupported
+disk-WrapperSpecification-dive-exact-4-7-True 3 unsupported
+disk-WrapperSpecification-dive-exact-8-None-False 3 unsupported
+disk-WrapperSpecification-dive-exact-8-None-True 3 unsupported
+disk-WrapperSpecification-dive-exact-8-0-False 3 unsupported
+disk-WrapperSpecification-dive-exact-8-0-True 3 unsupported
+disk-WrapperSpecification-dive-exact-8-7-False 3 unsupported
+disk-WrapperSpecification-dive-exact-8-7-True 3 unsupported
+CLOSED232memory2088disk29primarycontracts

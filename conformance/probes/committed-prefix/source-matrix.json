@@ -23,9 +23,9 @@
     "docs/committed-periodic-prefix.md": "d7e92c2ff68b13f5d665dd31822f3fb199a4aa374a66568f2a86dcf9d1d9ff0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "478da1d5e0bcbfe92dbdbb19fe623b836e22657c47b2c6c7dd17d6196b344520",
-    ".github/workflows/ci.yml": "8765dd2ea930727f18373cebf8fc998262387751ed137464b4005a56d2ba662c",
-    "conformance/parity-features.json": "8675663ee1b294b479afe7bbe11f0dd9815b187f72efd34e26fb02a98ceec449"
+    "AGENTS.md": "eb6e68a6c2448edb257c61a2a7e07151c79b7b35077647ab0bef265420329fcf",
+    ".github/workflows/ci.yml": "e9bd36a90272e17c64fa30274cca9078d318436f39c79b10d1fd62e1077bf153",
+    "conformance/parity-features.json": "3dd88efdfac1201bdedcf81d2cb50fe2cbd5adea260a414c66d1cece2a980bcf"
   },
   "current_integration_scope": "Current source integrity only; original runtime producers and observations remain historical, no family certification."
 }

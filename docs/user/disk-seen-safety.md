@@ -101,18 +101,18 @@ state properties, `[]` invariants, `[][A]_v` action properties and
 The real binder still runs afterward in its original order; admission does not
 execute startup definitions, ASSUMEs or Init and is not a safety proof.
 As in TLC, a state-level formula used directly as `PROPERTY` checks only Init
-and emits warning2255. Use `PROPERTY []P` or `INVARIANT P` to check every state;
+and emits warning 2255. Use `PROPERTY []P` or `INVARIANT P` to check every state;
 disk placement does not change that distinction.
 
 This first role slice refuses temporal assumptions/obligations, effectful or
 checker-reading source paths, opaque/recursive contexts, evaluated quantified
 PROPERTY domains and strict INSTANCE substitutions. Source inspection is bounded
-to 16,384 visits and depth128; it conservatively includes unused user definitions.
+to 16,384 visits and depth 128; it conservatively includes unused user definitions.
 A strict INSTANCE expression used only in a SPECIFICATION subscript is also
 refused: the normal subscript collector can turn an unproved scope into a
 warning, which is insufficient for disk admission. The minimal selected
 `R == INSTANCE StrictRolePart WITH c <- 1` / `[][Next]_R!Sub` control still
-succeeds with three states and warning2140 in TLC and resident checking. This
+succeeds with three states and warning 2140 in TLC and resident checking. This
 is a disk support restriction, not a changed resident verdict.
 A refusal can therefore precede a later role-name/arity error. Plain native
 startup definitions that the actual binder skips are not treated as executed
@@ -147,8 +147,14 @@ selects the role policy: the same disk opt-in invokes admission, and output stil
 reports requested8/actual1 workers. Separately add frontier/predecessor budgets
 when needed; their scopes remain independent. [ADR0075](../decisions/0075-source-owned-pure-safety-role-admission.md)
 and [the complete declared selection](../../conformance/probes/disk-safety-roles/declared-selection.json)
-record support and refused rows. Current qualification is in progress; no
-family-certification claim follows from this example.
+record support and refused rows. The frozen `7fae387c` producer passed all
+eight local gate stages and 1,326 tests with zero skips. Its complete 29-model
+selection retains 2,320 CLI rows and 2,088 public API comparisons, with 432
+independently Valid violation words and 2,592 Invalid named mutants. All seven
+refusal cases stay selected and receive no agreement or certificate credit.
+The original 1,024 resident/disk controls and all 37 CM1/ValidationTestSuite
+models at widths 1/4/8 also pass. These bounded observations do not certify
+the entire storage or role family.
 
 See [the storage library](disk-seen-library.md),
 [ADR0068](../decisions/0068-fallible-disk-seen-safety.md) and the current

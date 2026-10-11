@@ -1,7 +1,7 @@
 # ADR 0075: Source-owned pure safety role admission for disk seen-state checking
 
 - Date: 2026-10-11
-- Status: implementation in progress
+- Status: accepted bounded implementation
 - Issue: #221
 
 ## Context
@@ -22,8 +22,8 @@ selected definition redirects and constant bindings, inspects native dispatch
 explicitly, and includes potential startup roots. Native overrides' documented
 bodies are not execution authority. Effectful/checker-reading and opaque
 operator contexts refuse before startup. Conservative unused-source refusals
-are reported rather than granted parity credit. The walk admits at most16,384
-traversal visits (shared paths count repeatedly) and depth128. Active definition
+are reported rather than granted parity credit. The walk admits at most 16,384
+traversal visits (shared paths count repeatedly) and depth 128. Active definition
 and expression paths refuse cycles; a global visited cache cannot waive the
 remaining depth or establish purity of an unproved redirected cycle.
 
@@ -54,7 +54,7 @@ archive-certificate or full F-031 certification claim. Crate layering is unchang
 ## Pre-freeze strict-subscript control
 
 The separately selected strict INSTANCE subscript shows a structural scope
-refusal can become warning2140 in the real subscript collector. Preliminary4f
+refusal can become warning 2140 in the real subscript collector. Preliminary4f
 admitted it on disk; the primary and resident checker succeed with three
 states. Therefore the source walk itself rejects strict expression arguments
 before warning-only subscript traversal. This preserves resident ordering and
@@ -76,3 +76,29 @@ intact. [The failed gate and instrumented/pinned evidence](
 ../../conformance/probes/disk-safety-roles/replay-property-before/)
 are historical, not passing test credit. Error words remain diagnostic evidence,
 not independent violation certificates.
+
+
+## Qualification
+
+The frozen source `7fae387c11675b6a72119cc0013dd18f4eac33cb` passed all eight
+local gate stages: 45 Python checks, Clippy, 1,326 workspace tests with zero
+skips, doctests, warning-denied Rustdoc, layering, standalone trace and dependency
+checks. Two compile/test workers and unchanged per-test time limits remain
+recorded; the complete nextest stage took 1,669.829 seconds locally.
+
+Fresh execution preserves the entire original 29-model selection: 232 resident
+references and 2,088 disk CLI runs at both profiles/stores, requested 1/4/8
+workers, three scheduling settings and zero/nonzero transient budgets. The seven
+refusals stay explicit. The standalone public API consumer matches all 2,088
+CLI reports except elapsed time and independently validates 432 concrete words
+and rejects 2,592 actual named mutants. An additional 80 current error-replay
+controls retain the measured four generated/four distinct/one queued/depth-three
+contract; those diagnostic words receive no violation-certificate credit.
+
+The original 384 no-option resident reports remain equal, within their original
+elapsed-time allowance, in the separately retained 1,024-row campaign. The
+actual Cargo guide, four CLI guide variants and all 37 CM1/ValidationTestSuite
+models agree at requested widths 1/4/8. Original failed 9bb and 526 source/gate
+epochs and the output-channel adapter failure remain preserved. Final metadata
+updates do not retag this runtime producer; selected source and literal embedded
+input provenance is explicitly not a hermetic dependency/toolchain certificate.
