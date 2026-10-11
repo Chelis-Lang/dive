@@ -129,3 +129,20 @@ compares native serialized bytes with pinned parsed/name-fixed/post-translation
 captures and independently checks admitted full documents with SANY and Validator.
 Exact generator pretty-print bytes, file writing, mapping formats and other AST
 shapes remain pending under [ADR 0047](decisions/0047-bounded-translation-block-editing.md).
+
+## Syntax scope and reference checks
+
+Generation preserves the reference expression scope, including parentheses
+around a `CASE` assignment and the explicit `TRUE` conjunct for an empty
+`else`. SANY acceptance and matching checksums alone do not prove that scope:
+regression controls compare the complete generated module syntax tree with
+the pinned translator, retaining parentheses, primes and operator grouping.
+The original failed comparisons remain in the integration evidence.
+
+[Conditional and expression-layout checksum support](pluscal-checksum-expressions.md)
+describes the admitted nested `elsif` and multiple `with` forms. Multiline
+checksum serialization is available in the proved subset; multiline artifact
+generation still returns a named unsupported result in this delivery.
+
+These checks do not certify full PlusCal parity, source integrity, model
+correctness or byte-for-byte generator formatting.

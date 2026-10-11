@@ -1,0 +1,1560 @@
+{
+  "schema_version": 1,
+  "run_id": "20261011T011912549-dive-all",
+  "generated_at": "2026-10-11T01:19:12Z",
+  "generator": "dive-conformance 0.0.0",
+  "implementation": "dive",
+  "implementation_oracle": null,
+  "golden_oracle": "tlc-2026.10.06.014338",
+  "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "golden_oracle_role": "gating",
+  "implementation_oracle_role": null,
+  "reference": false,
+  "implementation_dive": {
+    "binary": "/Users/jeff/code/dive-scoped-temporal-publication-artifacts/dive",
+    "sha256": "924fcbdf1b657e3dd7f8ef51521d1d09af17672409432e10c2c1937bc25e36cc",
+    "version": "dive 0.0.0",
+    "module_path": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      },
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ]
+  },
+  "corpora": [
+    {
+      "id": "validation-smoke",
+      "commit": "sha256:894f55e23245de464084043a3bb3ff49d86eb400552a526ecf6e0f40f7ccc4e6",
+      "unfetched_submodules": [],
+      "uncovered": []
+    }
+  ],
+  "host": {
+    "os": "macos",
+    "arch": "aarch64",
+    "kernel": "Darwin 25.5.0",
+    "cpus": 8,
+    "memory_bytes": 25769803776
+  },
+  "settings": {
+    "tier": "all",
+    "filters": [
+      "specifications/06cb41f6d429e5df49e3648fa0c09fcd9dd41244/TLC_M0.cfg",
+      "specifications/1433cf727e0e566bdfdca64b1b72b30a32716461/TLC_M0.cfg",
+      "specifications/24f15a44b2df798de8c821d6fe3f677722ac1808/TLC_M0.cfg",
+      "specifications/3870929418abe4114f36583a9a4d04798480ce4f/TLC_M0.cfg",
+      "specifications/4e97856939057fc81a11c6e4e811523e016df94c/TLC_M0.cfg",
+      "specifications/5d9425415c79d7fd9b6407f9eb3d100716e6bc2a/TLC_M0.cfg",
+      "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.cfg",
+      "specifications/7c339496ea8de87b0e9f449e814d23b81215a07d/TLC_M0.cfg",
+      "specifications/90fd9daab81221afee6ce88c42448621ec9afb45/TLC_M0.cfg",
+      "specifications/94dc14331d9da5603c31466dffc5b4cca2094178/TLC_M0.cfg",
+      "specifications/9b33484778609a0a78ef2dae93ea8780283e5604/TLC_M0.cfg",
+      "specifications/aca89d8f9ace59a5fd7716214cc8866242eb7135/TLC_M0.cfg",
+      "specifications/afb5a158cc0289c80fb1a9285d646ce5c9483562/TLC_M0.cfg",
+      "specifications/db34a439da0a07814aeb80e65ca4fdb76d980551/TLC_M0.cfg",
+      "specifications/e5d7e351f1d2a4c04a6827d0297b2a90db5011ce/TLC_M0.cfg",
+      "specifications/f85a8c8b070809cb0f54c081da908852bbb949be/TLC_M0.cfg"
+    ],
+    "workers": [
+      1,
+      4,
+      8
+    ],
+    "jobs": 4,
+    "xmx": "3g",
+    "timeout_policy": "fixed 30 s",
+    "crosscheck_manifest": false,
+    "sany_phase": "full",
+    "impl_options": [],
+    "impl_profile": "tlc",
+    "strict_tier": true
+  },
+  "summary": {
+    "models_selected": 16,
+    "modules_selected": 0,
+    "models": {
+      "agree": 16,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "modules": {
+      "agree": 0,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "models_with_oracle_drift": 0,
+    "oracle_drift_findings": 0,
+    "informational_drift_findings": 0,
+    "worker_verdict_variant": 0,
+    "worker_counts_variant": 0,
+    "worker_depth_variant": 0,
+    "worker_introspecting": 0,
+    "worker_property_variant": 0,
+    "by_corpus": {
+      "validation-smoke": {
+        "models": {
+          "agree": 16,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      }
+    }
+  },
+  "models": [
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/06cb41f6d429e5df49e3648fa0c09fcd9dd41244/TLC_M0.cfg",
+      "module": "specifications/06cb41f6d429e5df49e3648fa0c09fcd9dd41244/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 40,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 30,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 43,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/1433cf727e0e566bdfdca64b1b72b30a32716461/TLC_M0.cfg",
+      "module": "specifications/1433cf727e0e566bdfdca64b1b72b30a32716461/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 40,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 41,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 44,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/24f15a44b2df798de8c821d6fe3f677722ac1808/TLC_M0.cfg",
+      "module": "specifications/24f15a44b2df798de8c821d6fe3f677722ac1808/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 32,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 39,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 37,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/3870929418abe4114f36583a9a4d04798480ce4f/TLC_M0.cfg",
+      "module": "specifications/3870929418abe4114f36583a9a4d04798480ce4f/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 33,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 34,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 46,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 8,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/4e97856939057fc81a11c6e4e811523e016df94c/TLC_M0.cfg",
+      "module": "specifications/4e97856939057fc81a11c6e4e811523e016df94c/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 31,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 33,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 44,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 8,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/5d9425415c79d7fd9b6407f9eb3d100716e6bc2a/TLC_M0.cfg",
+      "module": "specifications/5d9425415c79d7fd9b6407f9eb3d100716e6bc2a/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2107,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": null,
+          "depth": null,
+          "trace_length": 1,
+          "diffs": [],
+          "elapsed_ms": 32,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2107,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": null,
+          "depth": null,
+          "trace_length": 1,
+          "diffs": [],
+          "elapsed_ms": 36,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2107,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": null,
+          "depth": null,
+          "trace_length": 1,
+          "diffs": [],
+          "elapsed_ms": 33,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 8,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "violated_property": "Inv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.cfg",
+      "module": "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 33,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 40,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 55,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/7c339496ea8de87b0e9f449e814d23b81215a07d/TLC_M0.cfg",
+      "module": "specifications/7c339496ea8de87b0e9f449e814d23b81215a07d/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 40,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 37,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 48,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/90fd9daab81221afee6ce88c42448621ec9afb45/TLC_M0.cfg",
+      "module": "specifications/90fd9daab81221afee6ce88c42448621ec9afb45/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 43,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 40,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 45,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 8,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/94dc14331d9da5603c31466dffc5b4cca2094178/TLC_M0.cfg",
+      "module": "specifications/94dc14331d9da5603c31466dffc5b4cca2094178/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 42,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 44,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 42,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/9b33484778609a0a78ef2dae93ea8780283e5604/TLC_M0.cfg",
+      "module": "specifications/9b33484778609a0a78ef2dae93ea8780283e5604/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 37,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 31,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 38,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/aca89d8f9ace59a5fd7716214cc8866242eb7135/TLC_M0.cfg",
+      "module": "specifications/aca89d8f9ace59a5fd7716214cc8866242eb7135/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "action-property-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "action-property-violation",
+          "verdict_code": 2112,
+          "exit_code": 13,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 42,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "action-property-violation",
+          "verdict_code": 2112,
+          "exit_code": 13,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 46,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "action-property-violation",
+          "verdict_code": 2112,
+          "exit_code": 13,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 37,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "action-property-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Prop"
+          },
+          {
+            "workers": 4,
+            "verdict": "action-property-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Prop"
+          },
+          {
+            "workers": 8,
+            "verdict": "action-property-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Prop"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/afb5a158cc0289c80fb1a9285d646ce5c9483562/TLC_M0.cfg",
+      "module": "specifications/afb5a158cc0289c80fb1a9285d646ce5c9483562/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 35,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 32,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2,
+          "states_generated": 3,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 35,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 8,
+            "verdict": "success",
+            "distinct_states": 2,
+            "states_generated": 3,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/db34a439da0a07814aeb80e65ca4fdb76d980551/TLC_M0.cfg",
+      "module": "specifications/db34a439da0a07814aeb80e65ca4fdb76d980551/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 43,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 30,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 109,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 8,
+            "verdict": "safety-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Inv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/e5d7e351f1d2a4c04a6827d0297b2a90db5011ce/TLC_M0.cfg",
+      "module": "specifications/e5d7e351f1d2a4c04a6827d0297b2a90db5011ce/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2107,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": null,
+          "depth": null,
+          "trace_length": 1,
+          "diffs": [],
+          "elapsed_ms": 39,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2107,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": null,
+          "depth": null,
+          "trace_length": 1,
+          "diffs": [],
+          "elapsed_ms": 33,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2107,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": null,
+          "depth": null,
+          "trace_length": 1,
+          "diffs": [],
+          "elapsed_ms": 115,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "violated_property": "Inv"
+          },
+          {
+            "workers": 8,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": null,
+            "depth": null,
+            "violated_property": "Inv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "validation-smoke",
+      "model": "specifications/f85a8c8b070809cb0f54c081da908852bbb949be/TLC_M0.cfg",
+      "module": "specifications/f85a8c8b070809cb0f54c081da908852bbb949be/TLC_M0.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "action-property-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "action-property-violation",
+          "verdict_code": 2112,
+          "exit_code": 13,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 38,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "action-property-violation",
+          "verdict_code": 2112,
+          "exit_code": 13,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 94,
+          "detail": null
+        },
+        {
+          "workers": 8,
+          "outcome": "agree",
+          "verdict": "action-property-violation",
+          "verdict_code": 2112,
+          "exit_code": 13,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "depth": 3,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 47,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "action-property-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Prop"
+          },
+          {
+            "workers": 4,
+            "verdict": "action-property-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Prop"
+          },
+          {
+            "workers": 8,
+            "verdict": "action-property-violation",
+            "distinct_states": 3,
+            "states_generated": 3,
+            "depth": 3,
+            "violated_property": "Prop"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false,
+        "excluded": 0
+      },
+      "manifest_drift": [],
+      "worker_introspecting": false
+    }
+  ],
+  "modules": []
+}

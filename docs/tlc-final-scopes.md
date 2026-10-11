@@ -104,8 +104,25 @@ separate stage. The original shape mismatch is retained alongside the repair.
 All selected failures, prior source manifests and raw observations remain
 available. None of this certifies ordinary scheduling or a full feature family.
 
-The implementation passed all 923 workspace tests with none skipped, plus the
+The frozen scoped-property producer passed all 923 workspace tests with none skipped, plus the
 complete local gate. The ordinary safety controls remain green: all 21 CM1 and
 16 ValidationTestSuite smoke models agree at 1, 4 and 8 workers. These receipts
 are [retained with the fixture evidence](../conformance/probes/tlc-final-scopes/gate-current/);
 they do not promote the historical full-corpus census or certify a whole family.
+
+
+## Published integration verification
+
+The combined implementation passed all 957 workspace tests with none skipped,
+plus the complete local gate. Fresh runs retained all 72 scoped CLI outcomes
+at 1, 3, 4 and 8 workers: 56 temporal outcomes, eight state-only safety outcomes
+and eight exported-formal refusals. Both exact Rust guide examples compiled and
+executed through Cargo. Property claims, derived roles, pinned verdict/count
+fields and independent witness validation were checked separately.
+
+The ordinary safety gates also fully agree on all 21 CM1 and 16 validation smoke
+models at 1, 4 and 8 workers. The smoke selection retains its 30-second CI limit.
+Read the [combined-source receipt](../conformance/probes/native-parity-integration/current-controls/scoped-temporal-publication/verification.json)
+for source identity and retained raw results. Expanded original Action metadata,
+ordinary periodic scheduling and broad-corpus certification remain separate
+implementation obligations.

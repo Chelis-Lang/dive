@@ -1,6 +1,7 @@
 {
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Bounded Full checksum, scoped temporal, pure runtime-name recovery and published spill composition; independent frozen evidence preserved, no full family certification",
+  "current_integration_scope": "Combined scoped-final temporal checks, pure runtime checkpoint names and bounded Full PlusCal checksums with nested conditional/multi-With serialization and exact CASE/empty-Else scope; source integrity only, no full family certification.",
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged.",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "historical_integration_sources": [
     {
@@ -9,6 +10,11 @@
       "source_archive": "before-final-mode-source/sources"
     }
   ],
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "f53b6961727674708c27d154d5e1b8e9b96c9d383d59b7bb5c1c679adac63fa9",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
   "scope": "current combined source; frozen original delivery retained separately; staged deterministic pure safety parallel recovery",
   "scoped_final_parent_history": {
     "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
@@ -33,11 +39,5 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  },
-  "runtime_name_recovery_previous_authority": {
-    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
-    "matrix_sha256": "f53b6961727674708c27d154d5e1b8e9b96c9d383d59b7bb5c1c679adac63fa9",
-    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
-  },
-  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged."
+  }
 }

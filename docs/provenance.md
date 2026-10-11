@@ -530,3 +530,5 @@ parser disagreements and separate SANY-invalid artifacts are retained in
 name-fix/process/procedure serialization or stronger checksum default is added.
 
 | `dive-pluscal` empty-Else generation (`translate/emit.rs`) | `pcal.PcalTLAGen.GenIf` empty Else TRUE before identity updates; `ParseAlgorithm.GetIf`/`GetStmtSeq` P empty branches and C nonempty bodies; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Retained original operator-CST mismatch and complete paired empty/explicit-Skip/elsif controls. Empty Then generation remains explicitly unsupported. |
+
+| Native PlusCal value-expression parenthesization (`translate/emit.rs`) | Pinned `pcal.PcalTLAGen.NeedsParentheses`, commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | A top-level CASE arrow contains the reference greater-than trigger. C/P whole-module node/token CST controls retain parentheses so the CASE arm cannot absorb following action conjuncts. Original failed grouping controls and source remain archived; first-line scanning behavior is unchanged. |
