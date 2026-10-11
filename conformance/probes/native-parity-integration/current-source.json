@@ -7581,6 +7581,7 @@
     "crates/dive-api/Cargo.toml": "3ff682272044a869f39687d4a8b8608445ae6fadcd80f6755004a9a8b879b392",
     "crates/dive-api/examples/native_sequence_operator.rs": "a4625d55b5ff6566581a53f34731813cc385fa3b6b8f492672cac89fb4892acd",
     "crates/dive-api/examples/native_temporal_operator.rs": "2040b4e5a29c36fd77577a32ed3ac01e7190a3185be6eab91a0d11373d586e45",
+    "crates/dive-api/examples/partial_temporal_checks.rs": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
     "crates/dive-api/examples/pluscal_multiline.rs": "cb940e77e7e2dd83c41ecd85f7cc4cbe099e7b1a34077e86d83a09b8c75af8de",
     "crates/dive-api/examples/pluscal_process_checksum.rs": "a90b68a283ce4d1d98ce2f45a17cd6adbf007bb8444288af815a4348d60841eb",
     "crates/dive-api/examples/pluscal_process_options.rs": "4b51e471090deeb4b3efd2e894d3e46d332266c374d478ce46603d169394c3bc",
@@ -8602,6 +8603,7 @@
     "docs/divergences.md": "2e10f18939b3f05574c8a1aa7f8297b198dc6b9ef72fa09d1aee22dab8587201",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
     "docs/native-temporal-operators.md": "f4e6a76385e575e249367cb0f3827b0a685c24dd539df5dce7988b5d0a3e4cb0",
+    "docs/partial-temporal-checks.md": "d3a4075e3c8a44953e2f381834b17764c177ec95a9f3ee3acc7ca603e5d9b7f5",
     "docs/pluscal-checksum-expressions.md": "e14c75453d8b95e138d3afeabb74dba9e2263e19054dc5493d6a8a7ea638ec6c",
     "docs/pluscal-fairness.md": "74e841756e5bf84641376253c28b0ac958d7197e36315c012e82542190683b69",
     "docs/pluscal-macros.md": "c53ed12918542ea719ef1a61015b600264e6c5784ff3f6ebd5a8025a9a45a9ec",
@@ -8642,7 +8644,7 @@
     "scripts/check-temporal-operators.py": "46cca16e943d19e6ac690b555a051d26891733c3cc481e0ce48634a82fbc172a",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
     "scripts/check-tlc-final.py": "6a543eca4ca83b62176e68072968ad155f3a86b52a057ff9f3d32e7082f496d3",
-    "scripts/check-tlc-partial-scc.py": "b7769f1b04e16a50f940e96617a6ae79e9e0bf78c111a1959ae587a18625f7bd",
+    "scripts/check-tlc-partial-scc.py": "7b5d0ddab95a64eeee51f50959010067016de1e6818692cf693a9aa5616c4e45",
     "scripts/check-tlc-planning.py": "d5c5859e82d3b8c8389bb12c3131b71650d4867f1a17c7c035e227d10daf024e",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
@@ -8672,7 +8674,7 @@
     "conformance/probes/material-capture/source-matrix.json": "c352729dd67d20e8e63f2019db6dd592658113a1dd131057da59358e0aa253c4",
     "conformance/probes/temporal-operators/source-matrix.json": "537d6e8022d04db74d4088f74860f23abfdd3d1ae46824139eb8e150ff07083a",
     "conformance/probes/native-temporal-operators/source-matrix.json": "25c2673dd673acf9f8cc34ed9bf81bd4e9df6f4b7fd2e4b4b25837a331d9dfef",
-    "conformance/probes/tlc-partial-scc/source-matrix.json": "1c6722bf2cc609f0b7b931cc8e8fa7e58e8469500ca49b6369f51e6c743dd09e"
+    "conformance/probes/tlc-partial-scc/source-matrix.json": "42fb31ed46ce25e415b1ef603ad6c1b0103f2b0126c2f6b63e80656605bbc83f"
   },
   "generated_manifest_paths": [
     "conformance/probes/material-capture/source-matrix.json",

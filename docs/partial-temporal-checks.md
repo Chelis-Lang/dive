@@ -55,37 +55,67 @@ strict temporal mode; it cannot silently substitute final-only or short lassos.
 
 ## Rust usage
 
-The [runnable example](../conformance/probes/tlc-partial-scc/user-example.rs)
-loads the real `PartialGrowthSafe` source and configuration, binds with
-`CheckOptions::tlc(0, 0)` at four workers, and calls `execute_partial`. It asserts
-actual worker width, no candidate, shared accounting and `model_proof() == false`.
-This is a successful diagnostic, not a proof that the temporal property holds.
+Run the Cargo-owned example from the repository root:
 
-For a standalone caller checked out alongside this repository, use edition2024
-and path dependencies `dive-sema`, `dive-ir`, `dive-config`, `dive-model`,
-`dive-check` and `dive-liveness` from their corresponding `crates/dive-*` paths.
-For example, with a caller directory at `examples/partial-caller`:
-
-```toml
-[package]
-name = "partial-caller"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-dive-sema = { path = "../../crates/dive-sema" }
-dive-ir = { path = "../../crates/dive-ir" }
-dive-config = { path = "../../crates/dive-config" }
-dive-model = { path = "../../crates/dive-model" }
-dive-check = { path = "../../crates/dive-check" }
-dive-liveness = { path = "../../crates/dive-liveness" }
+```sh
+cargo run -p dive-api --example partial_temporal_checks
 ```
 
-Copy the linked example to that caller's `src/main.rs`, then run
-`cargo run --manifest-path examples/partial-caller/Cargo.toml` from the
-repository root so its relative model path resolves. Keep this standalone
-package outside the workspace members (or add an empty `[workspace]`).
-No CLI flag exposes this diagnostic as ordinary model checking.
+It loads the real `PartialGrowthSafe` model, uses four workers, and asserts that
+every retained check has no candidate and `model_proof() == false`. The output
+prints `4 diagnostic checks; no model proof`; it does
+not certify that the temporal property holds.
+
+The complete example is compiled with the workspace and is shown here:
+
+```rust
+use std::{path::Path, sync::Arc};
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let file = Path::new(
+        "conformance/probes/tlc-partial-scc/models/PartialGrowthSafe/PartialGrowthSafe.tla",
+    );
+    let analysis = dive_sema::analyze_file(file, &dive_sema::Options::default())?;
+    let ir = Arc::new(dive_ir::lower(&analysis)?);
+    let cfg = dive_config::parse("SPECIFICATION Spec\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n")
+        .into_config()
+        .ok_or("invalid configuration")?;
+    let options = dive_check::CheckOptions {
+        workers: 4,
+        ..dive_check::CheckOptions::tlc(0, 0)
+    };
+    let model = dive_model::bind(
+        ir,
+        &cfg,
+        &dive_model::BindOptions {
+            eval: options.eval,
+            no_deadlock: options.no_deadlock,
+            host: None,
+        },
+    )?;
+    let result = dive_liveness::phase_execution::execute_partial(
+        &model,
+        &options,
+        dive_liveness::phase_graph::Limits::default(),
+    )?;
+    assert!(!result.model_proof());
+    assert_eq!(result.execution().capture.workers.used, 4);
+    assert!(
+        result
+            .checks()
+            .iter()
+            .all(|c| c.selection().candidate().is_none() && !c.model_proof())
+    );
+    assert!(result.inspections() <= result.graph_inspections());
+    println!(
+        "{} diagnostic checks; no model proof",
+        result.checks().len()
+    );
+    Ok(())
+}
+```
+
+The original [standalone caller](../conformance/probes/tlc-partial-scc/user-example.rs)
+and its frozen Cargo execution remain historical producer evidence.
 
 `PartialExecution::checks()` retains each original OOS/PEM, logical committed
 source count, original registered product identities, actual write bits,

@@ -42,3 +42,10 @@ a=BASE/'historical-before-partial'
 for p,h in load(a/'manifest.json')['source_sha256'].items():
  assert hashlib.sha256(gzip.decompress((a/'source'/(p+'.gz')).read_bytes())).hexdigest()==h,p
 for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+
+# The current user guide executes this Cargo-owned example, distinct from the
+# original standalone producer example retained above.
+example=(ROOT/'crates/dive-api/examples/partial_temporal_checks.rs').read_text().split('\n',1)[1].rstrip()
+guide=(ROOT/'docs/partial-temporal-checks.md').read_text()
+assert '```rust\n'+example+'\n```' in guide
+assert 'cargo run -p dive-api --example partial_temporal_checks' in guide
