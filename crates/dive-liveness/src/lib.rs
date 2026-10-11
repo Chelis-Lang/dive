@@ -54,5 +54,7 @@ pub mod periodic;
 /// Source-owned pointer growth and explicit partial-check stopping receipts.
 pub mod periodic_backend;
 
+/// Bounded supplied pure expressions; configured hook binding remains separate.
+pub mod periodic_hook;
 /// Native producer-owned commit-boundary clock/pool diagnostics.
 pub mod periodic_lifecycle;

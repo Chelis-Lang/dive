@@ -1,4 +1,6 @@
 {
+  "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "family_certified": false,
   "generated_manifest_paths": [
     "conformance/probes/material-capture/source-matrix.json",
@@ -23,7 +25,8 @@
     "conformance/probes/tlc-state-if/source-matrix.json",
     "conformance/probes/tlc-temporal-if-final/source-matrix.json",
     "conformance/probes/tlc-temporal-if/source-matrix.json",
-    "conformance/probes/view-random-stream/current-source.json"
+    "conformance/probes/view-random-stream/current-source.json",
+    "conformance/probes/periodic-hook/source-matrix.json"
   ],
   "historical_slices_sha256": "3b370cfde055a5fea1a3a9a9bd5699307022d627e2a194c86d6d3127a027a91f",
   "manifest_sha256": {
@@ -32,6 +35,7 @@
     "conformance/probes/native-periodic-lifecycle/source-matrix.json": "18114eb3938869424e3b8853ece4c3c70db6b9cbd4315e01b24ab1017e9db24e",
     "conformance/probes/native-temporal-operators/source-matrix.json": "89eab6b87be5c2cdf51e8117dacf319125d3841ca26a97a7c99b2211d67c5558",
     "conformance/probes/periodic-backend/source-matrix.json": "1a79263cfc8291f00d5b38e0b1fe4122d9827323c9c95804ae596931cb72f233",
+    "conformance/probes/periodic-hook/source-matrix.json": "c3fe8d986271f63378d57624ce471a95b16e751d2d8565066b355883471e35f5",
     "conformance/probes/predecessor-spill/current-integration-source.json": "1e793ae3dc9366683ba92318b150878e99213e00a8b759415b5e1beb3d131f40",
     "conformance/probes/runtime-ratio/current-source.json": "054a7406f5fba240e91ca025dfed5a57184b9aac8e8ba82952d33b03af05312d",
     "conformance/probes/temporal-forwarding/source-matrix.json": "d6a7e544a300250232c44c012b1f194bac6268fe80934ecd1ddcecd09a67750c",
@@ -49,8 +53,16 @@
     "conformance/probes/tlc-temporal-if/source-matrix.json": "bb618e957beb03ecc8af3b62b1afcbb050427b5ac252a92798d27613cf754ee7",
     "conformance/probes/view-random-stream/current-source.json": "535f31ea72804a63e35e3e0745780526589545a7461bbd91b48879ffccd387dc"
   },
+  "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "schema_version": 1,
   "scope": "Current combined-source integrity only; historical producer observations and proof qualifications remain separate. Consult current feature guides and source-bound receipts.",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/native-parity-integration/current-source.json",
+    "matrix_sha256": "eac3f9021b4583ac1bc9d82a5bef08f4426a9432904f97f6103ca7b8ec629942",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Append metadata-only current source qualification; prior matrix/raw executions are preserved in native-sequence-operators/historical-current-authorities and development-initial/gate-public-ir-source-binding; no historical execution gain.",
   "source_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
     ".github/workflows/ci.yml": "30272e583e255d83a3ce3cefce1d866cc5f7e71fc58a4acf9f2c96c74895f8f2",
@@ -7634,6 +7646,7 @@
     "crates/dive-api/examples/partial_temporal_checks.rs": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
     "crates/dive-api/examples/periodic_backend.rs": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
     "crates/dive-api/examples/periodic_controller.rs": "98456933a303463479c020bcf0bbc085c5c379801eeca8554c8f65371624690f",
+    "crates/dive-api/examples/periodic_hook.rs": "529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574",
     "crates/dive-api/examples/periodic_lifecycle.rs": "d30b8f527e83a9d55d6deadfc640e8cf8be64f43d5d5d91b70b9666d749635c2",
     "crates/dive-api/examples/pluscal_definitions.rs": "9e65e9171436118c660238cde5125cdeec00d8d6660326cb3c78b9f701d47a69",
     "crates/dive-api/examples/pluscal_multiline.rs": "cb940e77e7e2dd83c41ecd85f7cc4cbe099e7b1a34077e86d83a09b8c75af8de",
@@ -7843,9 +7856,10 @@
     "crates/dive-liveness/src/lib.rs": "55dab2554cb8e6b3428fa035cbd9310ef350c6cd420ec8f4e1ba145d6484cfae",
     "crates/dive-liveness/src/periodic.rs": "2bd9ed572999c8189ee00371e40124cf03c010f6e91ba5c573db3478033c1553",
     "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "e1052ee3251317c9972c016b828956f7d2284534ccea31d70f0f03b44609c449",
-    "crates/dive-liveness/src/phase_execution.rs": "027d80c67fb4e4c0484a5be47e1ae494bac22c59d46a0fb3712ff3245062a7e4",
-    "crates/dive-liveness/src/phase_graph.rs": "dc30cae82223c36725651d74faf854ae174456d92fe575cedc638cced4dc77e6",
+    "crates/dive-liveness/src/periodic_hook.rs": "19dcff4c1da7f30b772c7478f98aff6b4d5d84a5ff833a571bfb5062095f75d0",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "d39534850f93f4122ea426a82b16080ab0cb9ef041ea16f1d68718baeee90f52",
+    "crates/dive-liveness/src/phase_execution.rs": "203795e697118e6a57e1570bdfa1854419822552dcd70a42b913afb6354c561b",
+    "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
     "crates/dive-liveness/src/product.rs": "8a9db0c2bf9e5ba97cec24ed0673b3fbfb144272bd3f40b9a17de30077f3a462",
@@ -7863,6 +7877,7 @@
     "crates/dive-liveness/tests/partial_execution.rs": "de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1",
     "crates/dive-liveness/tests/periodic.rs": "5f2dd7aa739b01c601867ca3f5898a38923edda0e11bd64ff5f4265406066973",
     "crates/dive-liveness/tests/periodic_backend.rs": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
+    "crates/dive-liveness/tests/periodic_hook.rs": "89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4",
     "crates/dive-liveness/tests/periodic_lifecycle.rs": "053969cbbb1b1d46f73a9e9731cf6a49c35155f2bcc0aa8cb67a59f667b9bb8e",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
@@ -8689,6 +8704,7 @@
     "docs/decisions/0047-bounded-translation-block-editing.md": "c5a53ba58c11f9ad7c529bc4883553f35cc5fd940baf4c5695944362ba6fe3d6",
     "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
+    "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
     "docs/divergences.md": "9368a3866cccaa734dcb135df7bb4d15282d50ff751ca4b5223c7d00d67a77a7",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
@@ -8696,6 +8712,7 @@
     "docs/ordinary-periodic-controller.md": "3b6602080050c07b3fd9ff371e2749f3ce4973bed925ca9f05ddafcb03a89ccb",
     "docs/partial-temporal-checks.md": "d3a4075e3c8a44953e2f381834b17764c177ec95a9f3ee3acc7ca603e5d9b7f5",
     "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
+    "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
     "docs/pluscal-checksum-expressions.md": "a4ea685f9a7d7e2807f5dfddef2c4d07142c115d5739df525769d98e41b44c7d",
     "docs/pluscal-definitions.md": "d2c1b046d8c06c439aafe86e3bf54f26675a15c16637fe69cd18d5c1c10674cc",
     "docs/pluscal-fairness.md": "74e841756e5bf84641376253c28b0ac958d7197e36315c012e82542190683b69",
@@ -8730,6 +8747,7 @@
     "scripts/check-native-parity-integration.py": "1de00f87b843fa67d34bcc7ef028318a09c1c7698b4214340d5908d7ed585d97",
     "scripts/check-native-temporal-operators.py": "a42e85b378b0c8150cbd83d8ab1036c3ccea26607c9bfc6c2023b8050acac88a",
     "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
+    "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
@@ -8753,5 +8771,6 @@
     "xtask/src/features.rs": "4479feaaf3c8e015be79e3f0e87b9e0a633f753d45bf966ede771211fa356fa5",
     "xtask/src/layering.rs": "1dd773541e4e272f73aa67a2deaf629d9ede1881a1ba67c0fe087db9053dab97",
     "xtask/src/main.rs": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9"
-  }
+  },
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged"
 }

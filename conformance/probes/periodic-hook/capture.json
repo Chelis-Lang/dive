@@ -1,0 +1,2345 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "source_sha256": {
+    "HookProbe.java": "b0d34bf6f830ae68b4788934636d52d1d9a809a0a711a115e93a93d8f9d2d838",
+    "capture.py": "11476dc19e3833ec0e2f2048e67f494c05e5436fbc1073b44256924f09cd72a9",
+    "selection.json": "ad6bd446b9b2a98815272fa8d7733871cc7a77a451b948a02ea607432a5d9135"
+  },
+  "compile_exit": 0,
+  "rows": [
+    {
+      "case": {
+        "id": "true-invoke",
+        "expr": "TRUE",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 3.2465629160000002,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-000/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "0a5c64f7f0637ad02271d64d2200098914c09c32c87f5b81ec77ebd3eb8dd21f",
+        "stderr": "5f4ad664b1fb5da646d78ced06dfa88f761c1ccae4c5ea0613b81e4d3f51fc59"
+      }
+    },
+    {
+      "case": {
+        "id": "true-suspend-false",
+        "expr": "TRUE",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.8607850409999998,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-001/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "46cc1642c7a0cfc87a8b6cadf67a8dce8c3251a9e4e7be8cb97dbf5f8d7f9a70"
+      }
+    },
+    {
+      "case": {
+        "id": "true-live-error-first",
+        "expr": "TRUE",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.9115016669999996,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-002/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "590c0e33095004afb1d02f2d4423b633123f3c7aa50a7e49721f8c2edddd096d"
+      }
+    },
+    {
+      "case": {
+        "id": "true-checkpoint-after",
+        "expr": "TRUE",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.3448849580000015,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-003/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "25dd61a93133a43e75de3c7de78041ddbbf4426dde68aeb83fcfbfc182a2353e",
+        "stderr": "f676da4ad6f444970ae3258f34dcc7a13c06aac126bb06281c186a9fe69444a4"
+      }
+    },
+    {
+      "case": {
+        "id": "false-invoke",
+        "expr": "FALSE",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.0540353749999998,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-004/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcd10d5fc4ff0200bc213531e96cfd14ffcb32e70a433f93e5114672645a095e",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5715bf8fa8dce812c76332047ddff1b33a6654aa970caf5cd9df5255a0bd58c1",
+        "stderr": "5546107e3098c33028431db3495fbfde05a56497b07dc8d29c364c9626bd8f0c"
+      }
+    },
+    {
+      "case": {
+        "id": "false-suspend-false",
+        "expr": "FALSE",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.0520938330000007,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-005/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcd10d5fc4ff0200bc213531e96cfd14ffcb32e70a433f93e5114672645a095e",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "4ada0c596c17ab7b9a5eeca0a7d0e566d3a19f25f15a673eb45e1f9a7e8b0d04"
+      }
+    },
+    {
+      "case": {
+        "id": "false-live-error-first",
+        "expr": "FALSE",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.0305282499999997,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-006/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcd10d5fc4ff0200bc213531e96cfd14ffcb32e70a433f93e5114672645a095e",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "f5fad2e0854ccbadb2bc43649bc44fd359d9a9363c38471476fdf0140df1973e"
+      }
+    },
+    {
+      "case": {
+        "id": "false-checkpoint-after",
+        "expr": "FALSE",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.565198999999998,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-007/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcd10d5fc4ff0200bc213531e96cfd14ffcb32e70a433f93e5114672645a095e",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5715bf8fa8dce812c76332047ddff1b33a6654aa970caf5cd9df5255a0bd58c1",
+        "stderr": "05f21ac61adadf20cc880c3cee8fea60fda00560b069e1a7c92dd0a9b1b33b5b"
+      }
+    },
+    {
+      "case": {
+        "id": "integer-invoke",
+        "expr": "1",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.6696111249999994,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-008/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "2ae126324deb3b691a24e8ea4e0b1e904a093424ec8e53b3abda4288a3e18cf3",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "b62769e4b75705db83e118a6a2d67dbd67908473c058ea0194cee039eae6c568",
+        "stderr": "7cadfb9df446b29fc515b24004f9de100455320f66b362514cea8c8f5466680f"
+      }
+    },
+    {
+      "case": {
+        "id": "integer-suspend-false",
+        "expr": "1",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.9303237499999994,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-009/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "2ae126324deb3b691a24e8ea4e0b1e904a093424ec8e53b3abda4288a3e18cf3",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "758decd2dcc646ab039d281c8e129c644a52469807c9d7447565588b39a6d61f"
+      }
+    },
+    {
+      "case": {
+        "id": "integer-live-error-first",
+        "expr": "1",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 2.1589287090000013,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-010/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "2ae126324deb3b691a24e8ea4e0b1e904a093424ec8e53b3abda4288a3e18cf3",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "e45b9b2623e61b6e4a574643ad5edf650e9f018f1a475aa4e826eb49ddf5abe6"
+      }
+    },
+    {
+      "case": {
+        "id": "integer-checkpoint-after",
+        "expr": "1",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.7048231660000006,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-011/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "2ae126324deb3b691a24e8ea4e0b1e904a093424ec8e53b3abda4288a3e18cf3",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "b62769e4b75705db83e118a6a2d67dbd67908473c058ea0194cee039eae6c568",
+        "stderr": "319d21649077e2476f511e5ff1bed9bf366337cf2e84214f383937fbfdbf5f80"
+      }
+    },
+    {
+      "case": {
+        "id": "string-invoke",
+        "expr": "\"text\"",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.2653486670000014,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-012/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "163691ba1e2e2e9943a2d16431bc1c835d37515a3987a78fc5525ccfddbee108",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "4c897a302bc5cd46b0b8149546871d3443423cd051f18b728d8a5be038c0753e",
+        "stderr": "66578a8a3fb246be6c22fa783aa637a363a04f87b98300778b2898663223b00a"
+      }
+    },
+    {
+      "case": {
+        "id": "string-suspend-false",
+        "expr": "\"text\"",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.2087528749999983,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-013/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "163691ba1e2e2e9943a2d16431bc1c835d37515a3987a78fc5525ccfddbee108",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "73e0fdcbbaecabea58eb730a221c29871d60718ac5ad1f0dbdb6843607d675fc"
+      }
+    },
+    {
+      "case": {
+        "id": "string-live-error-first",
+        "expr": "\"text\"",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.2509890839999969,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-014/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "163691ba1e2e2e9943a2d16431bc1c835d37515a3987a78fc5525ccfddbee108",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "98ebc1282b43e4ee6de1ea515e948c0044778465585109464952cef70af74b31"
+      }
+    },
+    {
+      "case": {
+        "id": "string-checkpoint-after",
+        "expr": "\"text\"",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.7503009170000006,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-015/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "163691ba1e2e2e9943a2d16431bc1c835d37515a3987a78fc5525ccfddbee108",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "4c897a302bc5cd46b0b8149546871d3443423cd051f18b728d8a5be038c0753e",
+        "stderr": "02f9401caa8a7f51938db1868a9d7f58598a6507b0d5d28cfe404b80b732b402"
+      }
+    },
+    {
+      "case": {
+        "id": "set-invoke",
+        "expr": "{1}",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.7258025420000003,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-016/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "27eeff1e6356e699e1026abe221c8bdfd60337132b5d81b77870cb96852ea8cf",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "06a0a82e368c09aa3309f8d239a0dd5748969afe8e91e6341b61f93ca34821d4",
+        "stderr": "8a5454447a726498c8d18f13e6e4655e6bfb1a642d2964d01bf8ae4b73137f5e"
+      }
+    },
+    {
+      "case": {
+        "id": "set-suspend-false",
+        "expr": "{1}",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.7992053329999997,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-017/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "27eeff1e6356e699e1026abe221c8bdfd60337132b5d81b77870cb96852ea8cf",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "f4c04591f4837592c82ab542f54d2ab4c227215cb7b73cab74d40e16412227c5"
+      }
+    },
+    {
+      "case": {
+        "id": "set-live-error-first",
+        "expr": "{1}",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.9850236250000002,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-018/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "27eeff1e6356e699e1026abe221c8bdfd60337132b5d81b77870cb96852ea8cf",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "1a8bd52e1b5e4a690d3c32f3f879b5cb7ae3fcb5dae1e4135e0caf7e575b8a94"
+      }
+    },
+    {
+      "case": {
+        "id": "set-checkpoint-after",
+        "expr": "{1}",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.0633175000000001,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-019/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "27eeff1e6356e699e1026abe221c8bdfd60337132b5d81b77870cb96852ea8cf",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "06a0a82e368c09aa3309f8d239a0dd5748969afe8e91e6341b61f93ca34821d4",
+        "stderr": "5b2b1a39b34fcaf281ac317f4c8fde8bdd555ca9d78ec64ec704c7de74cd33db"
+      }
+    },
+    {
+      "case": {
+        "id": "tuple-invoke",
+        "expr": "<<1>>",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.029112167000001,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-020/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "f3a74d1ddbc718c8a7f01b371abbfc8b7be1729156ba3f9f0586c2b5c7daa809",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "7cca9762baaaceecee2f7075f41611f72d8e331f880f1ee9e21f65c87e0f5adc",
+        "stderr": "a5a1a425454911ccb735880d8a1ae373ac61e2a72be6b091f00fbbfbe9355fa3"
+      }
+    },
+    {
+      "case": {
+        "id": "tuple-suspend-false",
+        "expr": "<<1>>",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.0827199579999984,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-021/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "f3a74d1ddbc718c8a7f01b371abbfc8b7be1729156ba3f9f0586c2b5c7daa809",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "365dad538734a988f458a18f84f0145e0d766aeb83eada0fc6502388df0a3741"
+      }
+    },
+    {
+      "case": {
+        "id": "tuple-live-error-first",
+        "expr": "<<1>>",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8837145419999999,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-022/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "f3a74d1ddbc718c8a7f01b371abbfc8b7be1729156ba3f9f0586c2b5c7daa809",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "dc7fce4916b7810527771f2cb398b318bff718b2e456fb91b03390ff8f5f4c2d"
+      }
+    },
+    {
+      "case": {
+        "id": "tuple-checkpoint-after",
+        "expr": "<<1>>",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.9703036249999997,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-023/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "f3a74d1ddbc718c8a7f01b371abbfc8b7be1729156ba3f9f0586c2b5c7daa809",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "7cca9762baaaceecee2f7075f41611f72d8e331f880f1ee9e21f65c87e0f5adc",
+        "stderr": "4f6b53d06ba8e5c474d501efeb188d5c6f45595294198cb153776165ca62c38e"
+      }
+    },
+    {
+      "case": {
+        "id": "record-invoke",
+        "expr": "[a |-> 1]",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.8917740000000052,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-024/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1707dfe9c9bd4d90cf9d0a30528033c2d993109f0ad87f5639fd937d495b9c12",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "d65420393a86d2f9a980c37a8286dcb9ef3bcd292312bcdc81ec845e3dfd5dd7",
+        "stderr": "b7a09c80062cb894a69264a2bb52293b64434161abf1bd3612f0e5a94b1070e4"
+      }
+    },
+    {
+      "case": {
+        "id": "record-suspend-false",
+        "expr": "[a |-> 1]",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8881216660000035,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-025/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1707dfe9c9bd4d90cf9d0a30528033c2d993109f0ad87f5639fd937d495b9c12",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "58acd09f567aadaf836c0c3f021e0ef4482ffe34a614bfd7be70e3f96b7cb880"
+      }
+    },
+    {
+      "case": {
+        "id": "record-live-error-first",
+        "expr": "[a |-> 1]",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8837768329999989,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-026/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1707dfe9c9bd4d90cf9d0a30528033c2d993109f0ad87f5639fd937d495b9c12",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "1ef8abd414643d84189f1737991e37dc94959bad9bb978f1cdc60021ca22c5e7"
+      }
+    },
+    {
+      "case": {
+        "id": "record-checkpoint-after",
+        "expr": "[a |-> 1]",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.5159851669999966,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:1000"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-027/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1707dfe9c9bd4d90cf9d0a30528033c2d993109f0ad87f5639fd937d495b9c12",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "d65420393a86d2f9a980c37a8286dcb9ef3bcd292312bcdc81ec845e3dfd5dd7",
+        "stderr": "d4833b753ed05bc218582c6bb4243e5fb204055837d8f693e83a1d9ab01a7944"
+      }
+    },
+    {
+      "case": {
+        "id": "divide-zero-invoke",
+        "expr": "1 \\div 0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.933118707999995,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:tlc2.tool.EvalException",
+        "exception-code:2179"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-028/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "29f22c715ad00c18c64cf1549b816abdea6bfc8ef8b7adcb4320931e881bfc20",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "41d876eb4d6256bbf6e8988e2fe70a13dae6aa64e3e7121bbf6383cc2555c3e0",
+        "stderr": "49cec627ecb9f1128f66645b0e1d1837e858fef9a62d28efaf0fb06fb7f58eeb"
+      }
+    },
+    {
+      "case": {
+        "id": "divide-zero-suspend-false",
+        "expr": "1 \\div 0",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8272995419999987,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-029/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "29f22c715ad00c18c64cf1549b816abdea6bfc8ef8b7adcb4320931e881bfc20",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "00f0c07473e3f74227047af9052d081b64fd628bd148d703fdf785797c671c22"
+      }
+    },
+    {
+      "case": {
+        "id": "divide-zero-live-error-first",
+        "expr": "1 \\div 0",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.6668257090000012,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-030/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "29f22c715ad00c18c64cf1549b816abdea6bfc8ef8b7adcb4320931e881bfc20",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "a9145a57e784516316908d6838a83d7c8e9817622f6222434cd2e137b897783b"
+      }
+    },
+    {
+      "case": {
+        "id": "divide-zero-checkpoint-after",
+        "expr": "1 \\div 0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.9066779589999996,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:tlc2.tool.EvalException",
+        "exception-code:2179"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-031/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "29f22c715ad00c18c64cf1549b816abdea6bfc8ef8b7adcb4320931e881bfc20",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "41d876eb4d6256bbf6e8988e2fe70a13dae6aa64e3e7121bbf6383cc2555c3e0",
+        "stderr": "ce9fa6ed38c55a48765f0f7d95606c8703b3c168cebf4423892c9fc0720fdfa5"
+      }
+    },
+    {
+      "case": {
+        "id": "state-invoke",
+        "expr": "x=0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.6592837920000036,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2280"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-032/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcec58842a6121e3a706a47b7b7d1f96e1bb41904360aaa51779a3d291566c95",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "d1cdafd45f843ead33cf02df87fb25ac606db05f4cbd20802d5417124773fcb6",
+        "stderr": "2b3974a85bdabeed73681d743eb6611d80759047795ada5b30b733ae689496eb"
+      }
+    },
+    {
+      "case": {
+        "id": "state-suspend-false",
+        "expr": "x=0",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8354764580000023,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-033/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcec58842a6121e3a706a47b7b7d1f96e1bb41904360aaa51779a3d291566c95",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "a5c5e74add06b6397a7f5a5a069c78e883d84078a3e6d8e7f9c0ad9b32c2d60e"
+      }
+    },
+    {
+      "case": {
+        "id": "state-live-error-first",
+        "expr": "x=0",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.9986054999999965,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-034/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcec58842a6121e3a706a47b7b7d1f96e1bb41904360aaa51779a3d291566c95",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "73bd4f521b937d1c4ef97aeb4acd2f0c13abccb68ca620500c9b03ce616cc64e"
+      }
+    },
+    {
+      "case": {
+        "id": "state-checkpoint-after",
+        "expr": "x=0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.0957392080000048,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2280"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-035/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "bcec58842a6121e3a706a47b7b7d1f96e1bb41904360aaa51779a3d291566c95",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "d1cdafd45f843ead33cf02df87fb25ac606db05f4cbd20802d5417124773fcb6",
+        "stderr": "4dfce743813f8df13ba978bb9acca974d113822c82faaf4236e7c7fcfdd882f1"
+      }
+    },
+    {
+      "case": {
+        "id": "action-invoke",
+        "expr": "x'=0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.050495749999996,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2280"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-036/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "33ef6df98479993aa46f6afbd9918fc6f10ee4f272c36c0e73a8b8787f00f8aa",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "d1cdafd45f843ead33cf02df87fb25ac606db05f4cbd20802d5417124773fcb6",
+        "stderr": "c544f5cb461b470c39ccf572e428e9695d08be9a20fb9ec502eab1d4097a94d9"
+      }
+    },
+    {
+      "case": {
+        "id": "action-suspend-false",
+        "expr": "x'=0",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.9709683339999984,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-037/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "33ef6df98479993aa46f6afbd9918fc6f10ee4f272c36c0e73a8b8787f00f8aa",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "0c4d3be2e580442e1555544ebc95d92c963dbc6adeb9ee5934c3f586e1163ead"
+      }
+    },
+    {
+      "case": {
+        "id": "action-live-error-first",
+        "expr": "x'=0",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.1070105000000012,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-038/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "33ef6df98479993aa46f6afbd9918fc6f10ee4f272c36c0e73a8b8787f00f8aa",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "c252d2b2d74d97c5988e41a6c34147f367f0d0500b5872e7bdc50ad74b630078"
+      }
+    },
+    {
+      "case": {
+        "id": "action-checkpoint-after",
+        "expr": "x'=0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.964192833999995,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2280"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-039/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "33ef6df98479993aa46f6afbd9918fc6f10ee4f272c36c0e73a8b8787f00f8aa",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "d1cdafd45f843ead33cf02df87fb25ac606db05f4cbd20802d5417124773fcb6",
+        "stderr": "c69e7e523351c63fa9240d21e41ff0d35e8c4f64e7c7715b711a47a6e6771734"
+      }
+    },
+    {
+      "case": {
+        "id": "temporal-invoke",
+        "expr": "<>(x=0)",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.6768458340000052,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2261"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-040/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1de56f7213fc6079c58f6ceee33d6f650cb133100aae6598a09d0ecccecda921",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "ef93e214f6f0c6827603786f211f78ed7ee811850d807c27b670ec886aec870f",
+        "stderr": "1912c025c6ff6997f56885c249ee3e1eb071870cfabd3164a8cc47666a4ab205"
+      }
+    },
+    {
+      "case": {
+        "id": "temporal-suspend-false",
+        "expr": "<>(x=0)",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.9769955419999974,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-041/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1de56f7213fc6079c58f6ceee33d6f650cb133100aae6598a09d0ecccecda921",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "51f0666ba4917917e1d3f38e8b9557803ebf58cb81270fece2d5402cc8603d0e"
+      }
+    },
+    {
+      "case": {
+        "id": "temporal-live-error-first",
+        "expr": "<>(x=0)",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.613666416000001,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-042/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1de56f7213fc6079c58f6ceee33d6f650cb133100aae6598a09d0ecccecda921",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "8ad8fa1718af63a00a8a04b63788423378f98b4390730101ea9e6e7ce1e989c7"
+      }
+    },
+    {
+      "case": {
+        "id": "temporal-checkpoint-after",
+        "expr": "<>(x=0)",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 1.496333374999999,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2261"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-043/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "1de56f7213fc6079c58f6ceee33d6f650cb133100aae6598a09d0ecccecda921",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "ef93e214f6f0c6827603786f211f78ed7ee811850d807c27b670ec886aec870f",
+        "stderr": "585c6e77cf02094a37dc3f45eabe384c006738cf609ee3faa1bd09eb196bd57f"
+      }
+    },
+    {
+      "case": {
+        "id": "effect-invoke",
+        "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.315400541999999,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-044/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "cd76cfbeb1312c56ea2a57e00607ea81cea06587a0ea1c4626f566b9fef36847",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "07fc7ff978e832bd732dc436ecc8217eda9623aade7ae17f785ebf0bc2184ab3",
+        "stderr": "055f8ea2750dda7a67c893963235447a19001db59a658dd050d905d5c10d3c90"
+      }
+    },
+    {
+      "case": {
+        "id": "effect-suspend-false",
+        "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.9779451670000014,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-045/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "cd76cfbeb1312c56ea2a57e00607ea81cea06587a0ea1c4626f566b9fef36847",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "2dd3e0a55970a3dfe706de98828fee5b20d96342c96924bf093295f70e269b68"
+      }
+    },
+    {
+      "case": {
+        "id": "effect-live-error-first",
+        "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.1877150830000005,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-046/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "cd76cfbeb1312c56ea2a57e00607ea81cea06587a0ea1c4626f566b9fef36847",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "85545f965d8f454148bc541d917d440fd750eaee71856c49850b1bb0ef312790"
+      }
+    },
+    {
+      "case": {
+        "id": "effect-checkpoint-after",
+        "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8519696250000024,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-047/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "cd76cfbeb1312c56ea2a57e00607ea81cea06587a0ea1c4626f566b9fef36847",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "1d50e56ea9b56409005c32058c42c43fe6704c71b6cc6f0cfea73406651116e4",
+        "stderr": "1bdfb83fd89ec31ec6972f56bb5c3e343ca006936a6860e88bf3819a2c575905"
+      }
+    },
+    {
+      "case": {
+        "id": "short-state-invoke",
+        "expr": "FALSE /\\ x=0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.9695979589999979,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-048/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "55b9eb76537a76944412c193c71856928f217854e37ed27c7c40f2a3dcd4941e",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5715bf8fa8dce812c76332047ddff1b33a6654aa970caf5cd9df5255a0bd58c1",
+        "stderr": "a1fb5bde7bd69d5f3dc658d1aea726ae264214f18b223aad282bd6090408ddd0"
+      }
+    },
+    {
+      "case": {
+        "id": "short-state-suspend-false",
+        "expr": "FALSE /\\ x=0",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.839829709,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-049/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "55b9eb76537a76944412c193c71856928f217854e37ed27c7c40f2a3dcd4941e",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "54ebbe0658b7615699eb1cb026f9daf15f1d8831faefde61d5f539368381c2e1"
+      }
+    },
+    {
+      "case": {
+        "id": "short-state-live-error-first",
+        "expr": "FALSE /\\ x=0",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 1.2133042920000037,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-050/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "55b9eb76537a76944412c193c71856928f217854e37ed27c7c40f2a3dcd4941e",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "e2141486291e589bee0ba49920dcc94fff11f90b072151969bcd6d50b66f094d"
+      }
+    },
+    {
+      "case": {
+        "id": "short-state-checkpoint-after",
+        "expr": "FALSE /\\ x=0",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8144789160000059,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-051/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "55b9eb76537a76944412c193c71856928f217854e37ed27c7c40f2a3dcd4941e",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5715bf8fa8dce812c76332047ddff1b33a6654aa970caf5cd9df5255a0bd58c1",
+        "stderr": "f54a7a7bbb0154aa0e0050e859acf6310a487deafa2ac7f56c9302f9104d6954"
+      }
+    },
+    {
+      "case": {
+        "id": "model-value-invoke",
+        "expr": "Token",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.7110281660000055,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-052/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "922f4a94bcbfffa60121527606190c1956d6ff31ad6824b1b0ddf0d3656ba6c5",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "0a5c64f7f0637ad02271d64d2200098914c09c32c87f5b81ec77ebd3eb8dd21f",
+        "stderr": "f5521fc49729686f6f1a363b47af1b5e51ba4b2e5a1236c596974d2bdf02fef1"
+      }
+    },
+    {
+      "case": {
+        "id": "model-value-suspend-false",
+        "expr": "Token",
+        "liveness": false,
+        "suspended": false,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.7579944590000025,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-053/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "false",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "922f4a94bcbfffa60121527606190c1956d6ff31ad6824b1b0ddf0d3656ba6c5",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5b01bc19a9369ae2b4c437f261e5fc60ab2af375a7c1217a661f2e2b6ccd4480",
+        "stderr": "e734fa366f62a7a80cb474d377931d1927d126c55d45db4fbb249ce45a8dda69"
+      }
+    },
+    {
+      "case": {
+        "id": "model-value-live-error-first",
+        "expr": "Token",
+        "liveness": true,
+        "suspended": true,
+        "check_code": 2116,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.8886701249999902,
+      "events": [
+        "setup-complete",
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-054/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "2116"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "922f4a94bcbfffa60121527606190c1956d6ff31ad6824b1b0ddf0d3656ba6c5",
+        "Periodic.cfg": "c3c8cf9779c86880e7716f76d6a641618081f6340db0d638b708f301b61277e1",
+        "stdout": "dad1d77f2e052241200cbcf299233c17f8f155cadfecc270320110f4158c42f3",
+        "stderr": "9d2370d573ad6a94b5f39874eb0ed1d698fd29c5bbcedfd608921853dfd23eae"
+      }
+    },
+    {
+      "case": {
+        "id": "model-value-checkpoint-after",
+        "expr": "Token",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": true
+      },
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.7196266659999964,
+      "events": [
+        "setup-complete",
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-055/meta",
+        "0.0",
+        "true",
+        "false",
+        "true",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "922f4a94bcbfffa60121527606190c1956d6ff31ad6824b1b0ddf0d3656ba6c5",
+        "Periodic.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "25dd61a93133a43e75de3c7de78041ddbbf4426dde68aeb83fcfbfc182a2353e",
+        "stderr": "2ee67064c57bdc653ae157d8153daf1e1adb57a595d7b52010ba7b50914144eb"
+      }
+    },
+    {
+      "case": {
+        "id": "undefined",
+        "expr": "TRUE",
+        "role": "Missing",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.8267880829999967,
+      "events": [
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:2229"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-056/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "1943c5e338500a21a699643e1481525fac2c8b7029313ee193c74e96e9629ba4",
+        "stdout": "ba151a640fcd8b5a9bb0a573df839dad6b7d1ef2fb8163af2197721e264c293f",
+        "stderr": "11ca399277b487c35e60dc4bbe3058c8d7ac59bea094e66ef9a9bafed772576e"
+      }
+    },
+    {
+      "case": {
+        "id": "arity",
+        "expr": "TRUE",
+        "role": "HookArg",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.9029885420000028,
+      "events": [
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:2228"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-057/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "c97bd7082db6160b85920e9f5c0d3b23972d13de0292cf44825e1e51b1008d0a",
+        "stdout": "89d8216829ced263b2b6340afa23461945c789904af45e99ca5edf1a8529c98f",
+        "stderr": "e194bdf1db99daebffccfea5e65d69d7f768f02df39b348e56833314c7cb783c"
+      }
+    },
+    {
+      "case": {
+        "id": "constant-role",
+        "expr": "TRUE",
+        "role": "Token",
+        "liveness": false,
+        "suspended": true,
+        "check_code": 0,
+        "checkpoint": false
+      },
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.6283943330000028,
+      "events": [
+        "exception-class:java.lang.ClassCastException",
+        "exception-code:-1"
+      ],
+      "command": [
+        "/Users/jeff/code/dive-periodic-hook-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-hook-primary/classes:/Users/jeff/code/dive-periodic-hook-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "HookProbe",
+        "/private/tmp/dive-periodic-hook-primary/case-058/meta",
+        "0.0",
+        "true",
+        "false",
+        "false",
+        "true",
+        "0"
+      ],
+      "files_sha256": {
+        "Periodic.tla": "a4ea75b10fc38d393e9ed05cbd28149a4003461cc6e055ee3caffe9d46cc558d",
+        "Periodic.cfg": "74e6b2281011ebbc77be4201e517f42fb2558b0d2e8134f4edcad018924277a8",
+        "stdout": "3aeb7254e4a99a7f897d9f03afd8715f9b1073b6bed91df2bc5c1cf8b80c0363",
+        "stderr": "b5542b309779f83c9fcb2f3590c08800ba31b5e387a7d501af589143037122cc"
+      }
+    }
+  ],
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Actual pinned doPeriodicWork and configured hook evaluation with controlled liveness/queue/checkpoint callbacks; not a real clock schedule or checkpoint transaction."
+}

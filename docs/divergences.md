@@ -763,3 +763,7 @@ is separate from enclosing-module SANY/native admission and finite-model
 checking. Invalid primary artifacts stay uncredited; recursive, LOCAL/symbolic,
 action/temporal and unproved scope shapes remain named refusals. Neither profile
 inlines helpers or silently repairs the reference output.
+
+## Supplied pure periodic expressions (bounded diagnostic limitation)
+
+ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).

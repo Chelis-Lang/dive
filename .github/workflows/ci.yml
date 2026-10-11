@@ -116,6 +116,7 @@ jobs:
           python3 -I scripts/check-periodic-controller.py
           python3 -I scripts/check-runtime-ratio.py
           python3 -I scripts/check-periodic-lifecycle.py
+          python3 -I scripts/check-periodic-hook.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Verify complete test partitions
