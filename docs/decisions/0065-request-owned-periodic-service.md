@@ -34,3 +34,16 @@ This diagnostic closes whole-prefix and empty service composition only. No Holds
 ordinary temporal verdict, queue/count/schedule certificate or family upgrade.
 Candidate words require fresh independent memory/JSON replay. Ordinary `_PERIODIC`,
 checkpoint and effects stay refused. See the [Cargo-run user contract](../request-owned-periodic-service.md).
+
+## Controlled scheduling addendum
+
+The new candidate-before-hook control uses the explicit `dive-check/test-rendezvous`
+dev feature. A scoped thread-local guard is propagated only to its exploration
+thread. After an actual `BlockOut` is stored, the first returned worker signals
+the real timer and waits at most five seconds for its internally produced request.
+The guard supplies neither a Request nor a clock sample. Unwind/closed-lane
+controls restore scoped ownership and do not fabricate pending work. Default
+production/release dependencies and standalone trace builds exclude the feature.
+Workspace test feature unification is separately qualified, not ordinary schedule
+evidence. Natural timing/resource failures remain preserved alongside this
+controlled nonempty prefix and its fresh independent replay.

@@ -20,3 +20,16 @@ mutants. Fresh current source/gate/runtime receipts identify their own producer;
 prior ordinal receipts and source maps stay available in before-service history.
 
 The first complete workspace epoch (`development/gate0`) ran 1,045 tests: 1,044 passed and one new preappend fault control failed because it expected one empty service but observed four genuine timer requests. Natural timer count was never a promised contract. The replacement retains every actual request identity, rejects duplicate service, requires a genuine initial request and empty committed/appended ranges before the first graph callback, and forbids service after its deciding fault. The original failed source, logs and all 52 native rows remain unchanged.
+
+The second complete workspace epoch (`development/gate1`) also retained all
+1,045 results (1,044 passed, one failed): a width-3 infinite workload accumulated
+12,337 requests then returned the shared ResourceLimit. No candidate or success
+is inferred from that run. `development/finite65536` and `development/finite-workload`
+retain actual candidate selections followed by independent validation-work and
+purity-bound refusals. Their clean final-only primary controls remain separate.
+The stable small-model candidate regression instead uses an explicit test-only
+returned-prefix/timer rendezvous, a selected +Infinity ratio limit and no initial
+forced timer request. It never fabricates a request, source return or clock.
+Current recordings add IEEE ratio bits without changing historical null floats.
+Interpreter-3.9 strict-zip setup failure and its explicit equal-length/ordinary-zip
+repair remain in `development/python39-zip`; no native coverage derives from it.

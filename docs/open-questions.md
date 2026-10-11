@@ -58,3 +58,12 @@ states. The native snapshot can retain the original totals as explicit
 Recommendation: make retained totals the default for the default profile once
 resume controls prove uninterrupted counts/trace equivalence, and keep TLC reset
 under `--compat=tlc`. Evidence: `conformance/probes/native-checkpoint/README.md`.
+
+## Finite liveness runtime ratio (D-014, under consideration)
+
+The pinned zero-duration updater can produce NaN and the controlled controller
+skips later unforced checks for that value. Consider a separately named
+`--liveness-ratio=finite` option that defines a finite zero-duration policy. It
+is not implemented, no new default is approved, and the TLC-equivalent setting
+must preserve the recorded IEEE arithmetic. Component evidence and the native
+diagnostic ResourceLimit experiment are qualified in [D-014](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).

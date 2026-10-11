@@ -1,0 +1,33 @@
+{
+  "scope": "Clean final-only small finite candidate property; controlled native rendezvous is separate, no timer/schedule credit.",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "command": [
+    "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+    "-XX:ActiveProcessorCount=2",
+    "-Xmx1g",
+    "-cp",
+    "/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-fp",
+    "0",
+    "-seed",
+    "0",
+    "-cleanup",
+    "-lncheck",
+    "final",
+    "-metadir",
+    "/tmp/dive-request-service-small-candidate-primary/states",
+    "Service.tla"
+  ],
+  "exit": 13,
+  "seconds": 1.2175327089999999,
+  "artifact_sha256": {
+    "Service.tla": "e715d4cbe3aa176b40b13a1e58ba91f6aa2e49432aa0fdb83735559ef0ef73ef",
+    "Service.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+    "stdout": "1ea246ba795211a2e68954938371f402b4a3e6f8c87a9f28e6d484c6afed03d7",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

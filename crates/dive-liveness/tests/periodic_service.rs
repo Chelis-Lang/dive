@@ -9,8 +9,17 @@ use dive_liveness::{periodic_lifecycle, periodic_snapshot, phase_graph};
 use std::{sync::Arc, time::Duration};
 
 fn snapshot(init: &str, next: &str, hook: &str, live: &str) -> periodic_snapshot::Snapshot {
+    snapshot_with_libraries(init, next, hook, live, "Integers")
+}
+fn snapshot_with_libraries(
+    init: &str,
+    next: &str,
+    hook: &str,
+    live: &str,
+    libraries: &str,
+) -> periodic_snapshot::Snapshot {
     let source = format!(
-        "---- MODULE Service ----\nEXTENDS Integers\nVARIABLE x\nInit == {init}\nNext == {next}\nLive == {live}\nHook == {hook}\n====\n"
+        "---- MODULE Service ----\nEXTENDS {libraries}\nVARIABLE x\nInit == {init}\nNext == {next}\nLive == {live}\nHook == {hook}\n====\n"
     );
     let analysis =
         dive_sema::analyze_source("Service.tla", &source, &dive_sema::Options::default());
@@ -357,23 +366,28 @@ fn concrete_word(
 
 #[test]
 fn appended_request_candidate_precedes_hook_and_replays_against_fresh_binding() {
+    let next = "x'=IF x=0 THEN 1 ELSE 1";
     for width in [1, 3, 4, 8] {
-        let bound = snapshot("x=0", "\\E i \\in 1..1024: x'=x+1", "TRUE", "<>(x=2)");
-        let run = bound
-            .execute_service(
-                &options(width),
-                phase_graph::Limits::default(),
-                periodic_lifecycle::Options {
-                    force: true,
-                    progress_interval: i32::MAX,
-                    ..periodic_lifecycle::Options::default()
-                },
-                dive_check::progress::Options {
-                    interval: Duration::from_millis(1),
-                    force: true,
-                },
-            )
-            .expect("actual admitted service");
+        let bound = snapshot("x=0", next, "TRUE", "<>(x=2)");
+        let (run, rendezvous) = dive_check::progress::testing::with_returned_prefix_request(|| {
+            bound
+                .execute_service(
+                    &options(width),
+                    phase_graph::Limits::default(),
+                    periodic_lifecycle::Options {
+                        force: true,
+                        ratio_limit: f64::INFINITY,
+                        progress_interval: i32::MAX,
+                        ..periodic_lifecycle::Options::default()
+                    },
+                    dive_check::progress::Options {
+                        interval: Duration::from_millis(1),
+                        force: false,
+                    },
+                )
+                .expect("actual admitted service")
+        });
+        assert!(rendezvous, "actual returned-source/timer rendezvous");
         let run = run.lifecycle();
         record_service(&format!("candidate-w{width}"), run);
         let service = run.request_services().last().expect("deciding request");
@@ -403,7 +417,7 @@ fn appended_request_candidate_precedes_hook_and_replays_against_fresh_binding() 
             .find(|c| c.selection().candidate().is_some())
             .expect("candidate");
         let (states, back_to) = concrete_word(run.backend(), check);
-        let fresh = snapshot("x=0", "\\E i \\in 1..1024: x'=x+1", "TRUE", "<>(x=2)");
+        let fresh = snapshot("x=0", next, "TRUE", "<>(x=2)");
         assert!(
             !dive_trace::temporal::evaluate_lasso(
                 fresh.model(),
@@ -447,11 +461,10 @@ fn appended_request_candidate_precedes_hook_and_replays_against_fresh_binding() 
                 }
                 2 => {
                     bad.ending = Some(dive_trace::Ending::Lasso { back_to: 0 });
-                    let last = bad.states.last().expect("concrete selected state")["x"]
-                        .as_i64()
-                        .expect("bounded integer");
+                    // Every actual selected state has a legal successor x=1;
+                    // only the subsequent closing edge to initial x=0 is false.
                     bad.states.push(
-                        serde_json::from_value(serde_json::json!({"x":last+1}))
+                        serde_json::from_value(serde_json::json!({"x":1}))
                             .expect("valid forward successor"),
                     );
                     bad.labels.push(None);
@@ -479,7 +492,7 @@ fn appended_request_candidate_precedes_hook_and_replays_against_fresh_binding() 
             let path = std::path::PathBuf::from(directory);
             std::fs::create_dir_all(&path).expect("capture dir");
             let row = serde_json::json!({"width":width,"producer_profile":"Tlc","validator_profile":"Tlc","memory":"Valid","json":"Valid",
-                "wrong_property":outcomes[0],"wrong_init":outcomes[1],"wrong_closing_next":outcomes[2],"malformed_ending":outcomes[3],"model_proof":false,"ordinary_schedule_certified":false});
+                "wrong_property":outcomes[0],"wrong_init":outcomes[1],"wrong_closing_next":outcomes[2],"malformed_ending":outcomes[3],"model_proof":false,"ordinary_schedule_certified":false,"test_only_returned_prefix_rendezvous":true});
             std::fs::write(
                 path.join(format!("candidate-replay-w{width}.json")),
                 serde_json::to_vec_pretty(&row).expect("JSON"),
@@ -794,7 +807,8 @@ fn record_service(label: &str, run: &periodic_lifecycle::Run) {
         "request_sequence":s.request().sequence(),"request_millis":s.request().millis(),"request_forced":s.request().forced(),
         "submitted":s.submitted(),"committed":s.committed(),"graph_source":s.graph_source(),
         "initial_stats":stats(s.initial_stats()),"stats":stats(s.stats()),"pool":s.pool(),"predicate_workers":s.predicate_workers(),
-        "service_millis":s.time_millis(),"runtime_ratio":s.runtime_ratio(),"force":s.force(),
+        "service_millis":s.time_millis(),"runtime_ratio":s.runtime_ratio(),
+        "runtime_ratio_bits":[s.runtime_ratio().0.to_bits(),s.runtime_ratio().1.to_bits()],"force":s.force(),
         "resumed":s.resume_requested(),"outcome":format!("{:?}",s.outcome()),"model_proof":s.model_proof()
     })).collect::<Vec<_>>();
     let evaluations=run.service_evaluations().iter().map(|e|serde_json::json!({"request_sequence":e.request().sequence(),
@@ -805,7 +819,8 @@ fn record_service(label: &str, run: &periodic_lifecycle::Run) {
     let row = serde_json::json!({"label":label,"services":services,"evaluations":evaluations,"pauses":pauses,
         "legacy_ordinal_invocations":run.invocations().len(),"legacy_hook_evaluations":run.hook_evaluations().len(),
         "safety_eof":run.safety_eof().map(stats),"final_checks":run.final_checks().len(),"partial_checks":run.backend().checks().len(),
-        "stop":run.backend().stop().map(|s|s.error.to_string()),"model_proof":run.model_proof(),"ordinary_schedule_certified":false});
+        "stop":run.backend().stop().map(|s|s.error.to_string()),"model_proof":run.model_proof(),"ordinary_schedule_certified":false,
+        "test_only_returned_prefix_rendezvous":label.starts_with("candidate-"),"selected_policy_ratio_limit_positive_infinity":label.starts_with("candidate-")});
     std::fs::write(
         path.join(format!("{label}.json")),
         serde_json::to_vec_pretty(&row).expect("capture JSON"),

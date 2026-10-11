@@ -61,6 +61,8 @@ pub(crate) struct Lane {
     state: Mutex<State>,
     wake: Condvar,
     interval: Duration,
+    #[cfg(feature = "test-rendezvous")]
+    rendezvous: Option<Arc<testing::Rendezvous>>,
 }
 impl Lane {
     pub(crate) fn new(options: Options) -> Result<Arc<Self>, String> {
@@ -75,6 +77,8 @@ impl Lane {
             }),
             wake: Condvar::new(),
             interval: options.interval,
+            #[cfg(feature = "test-rendezvous")]
+            rendezvous: testing::current(),
         });
         if options.force {
             lane.publish(true);
@@ -105,6 +109,19 @@ impl Lane {
     pub(crate) fn timer(&self) {
         let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
         loop {
+            #[cfg(feature = "test-rendezvous")]
+            if let Some(rendezvous) = &self.rendezvous {
+                while !rendezvous.returned.load(Ordering::Acquire)
+                    && !state.closed
+                    && !state.cancelled
+                    && state.error.is_none()
+                {
+                    state = self
+                        .wake
+                        .wait(state)
+                        .unwrap_or_else(PoisonError::into_inner);
+                }
+            }
             while state.pending.is_some() && !state.closed && !state.cancelled {
                 state = self
                     .wake
@@ -144,6 +161,30 @@ impl Lane {
         self.wake.notify_all();
         Ok(request)
     }
+    /// Test-only scheduling after an actual expansion result has been stored.
+    #[cfg(feature = "test-rendezvous")]
+    pub(crate) fn returned_source_rendezvous(&self) {
+        let Some(rendezvous) = &self.rendezvous else {
+            return;
+        };
+        if rendezvous.returned.swap(true, Ordering::AcqRel) {
+            return;
+        }
+        self.wake.notify_all();
+        let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        let (state, _) = self
+            .wake
+            .wait_timeout_while(state, Duration::from_secs(5), |state| {
+                state.pending.is_none()
+                    && !state.closed
+                    && !state.cancelled
+                    && state.error.is_none()
+            })
+            .unwrap_or_else(PoisonError::into_inner);
+        rendezvous
+            .observed
+            .store(state.pending.is_some(), Ordering::Release);
+    }
     /// Disable new requests after an actual expansion cut without closing claim
     /// admission. Earlier unclaimed sources must still find the ordered winner.
     pub(crate) fn cancel_requests(&self) -> (bool, Option<Request>) {
@@ -160,6 +201,54 @@ impl Lane {
             .unwrap_or_else(PoisonError::into_inner)
             .closed = true;
         self.wake.notify_all();
+    }
+}
+
+/// Explicit test-only request scheduling, excluded from default builds.
+///
+/// This controls timer dispatch relative to a returned expansion. It provides
+/// neither natural-clock evidence nor an ordinary scheduling certificate.
+#[cfg(feature = "test-rendezvous")]
+pub mod testing {
+    use std::cell::RefCell;
+    use std::sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    };
+
+    pub(crate) struct Rendezvous {
+        pub(super) returned: AtomicBool,
+        pub(super) observed: AtomicBool,
+    }
+    thread_local! {
+        static CURRENT: RefCell<Option<Arc<Rendezvous>>> = const { RefCell::new(None) };
+    }
+    pub(crate) fn current() -> Option<Arc<Rendezvous>> {
+        CURRENT.with(|current| current.borrow().clone())
+    }
+    pub(crate) struct Restore(Option<Arc<Rendezvous>>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            CURRENT.with(|current| *current.borrow_mut() = self.0.take());
+        }
+    }
+    pub(crate) fn install(value: Option<Arc<Rendezvous>>) -> Restore {
+        Restore(CURRENT.with(|current| current.replace(value)))
+    }
+    /// Run a test with timer dispatch held until the first actual source return.
+    ///
+    /// That worker waits at most five seconds for the real producer timer to
+    /// publish its own request. The boolean reports whether that rendezvous
+    /// observed an actual pending request. No request or clock value is supplied
+    /// by the test, and ordinary runs without this guard remain unchanged.
+    pub fn with_returned_prefix_request<R>(callback: impl FnOnce() -> R) -> (R, bool) {
+        let rendezvous = Arc::new(Rendezvous {
+            returned: AtomicBool::new(false),
+            observed: AtomicBool::new(false),
+        });
+        let _restore = install(Some(rendezvous.clone()));
+        let result = callback();
+        (result, rendezvous.observed.load(Ordering::Acquire))
     }
 }
 
@@ -200,6 +289,33 @@ pub(crate) fn with_lane<R>(
 )]
 mod tests {
     use super::*;
+    #[test]
+    #[cfg(feature = "test-rendezvous")]
+    fn test_rendezvous_restores_scope_and_does_not_invent_requests() {
+        assert!(testing::current().is_none());
+        let ((), observed) = testing::with_returned_prefix_request(|| {
+            let lane = Lane::new(Options {
+                interval: Duration::from_millis(1),
+                force: false,
+            })
+            .expect("lane");
+            lane.close();
+            lane.returned_source_rendezvous();
+            assert!(lane.take().expect("closed lane").is_none());
+        });
+        assert!(!observed);
+        assert!(testing::current().is_none());
+    }
+    #[test]
+    #[cfg(feature = "test-rendezvous")]
+    #[allow(clippy::panic, reason = "controlled test scheduler unwind teardown")]
+    fn test_rendezvous_unwind_restores_scoped_guard() {
+        let failure = std::panic::catch_unwind(|| {
+            testing::with_returned_prefix_request(|| panic!("controlled rendezvous unwind"))
+        });
+        assert!(failure.is_err());
+        assert!(testing::current().is_none());
+    }
     #[test]
     fn actual_timer_can_request_while_a_claim_is_still_in_flight() {
         with_lane(

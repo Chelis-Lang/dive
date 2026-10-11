@@ -358,6 +358,10 @@ impl<S: Keyed> Expand<'_, S> {
             }
             let out = self.block(&set, range, &mut buf, &mut rng);
             *self.outs[b].lock().unwrap_or_else(PoisonError::into_inner) = Some(out);
+            #[cfg(feature = "test-rendezvous")]
+            if let Some(progress) = &self.progress {
+                progress.returned_source_rendezvous();
+            }
         }
         drop(set);
         self.buffers

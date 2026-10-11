@@ -521,3 +521,9 @@ Worker/controller outcomes and native owned publication remain separately
 measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
 
 | Request-owned service (#208, ADR0065) | Pin94d0c50 `ModelChecker.doPeriodicWork`, real `StateQueue.suspendAll/resumeAll`, owned configured PERIODIC body and real Worker graph writes | MIT | 18 empty + 9 written controlled method observations; failed query/setup/EOF-race epochs preserved. Native post-append request transaction is bounded diagnostic architecture, not ordinary schedule/count/model-proof parity. |
+
+The request-service test scheduler (`dive-check/test-rendezvous`) is dive's own
+explicitly selected testing mechanism, not a TLC port: it signals only after
+actual expansion output ownership and waits for the real producer timer. It is
+excluded from default production dependencies and supplies no ordinary parity
+authority (ADR 0065).

@@ -150,3 +150,13 @@ and count boundaries, checkpoint authority and independently admitted deciding
 witnesses before any CLI verdict is enabled. See [ADR 0065](decisions/0065-request-owned-periodic-service.md),
 [reference and native evidence](../conformance/probes/request-owned-service/README.md)
 and [the parity plan](design/tlc-parity-plan.md).
+
+The candidate-before-hook regression uses a small finite `x=0 -> 1 -> 1` model,
+a selected +Infinity ratio limit and an explicit test-only returned-prefix/timer
+rendezvous. That scheduler is a dev feature excluded from default release builds;
+it cannot certify natural timing. The original infinite experiment returned a
+shared ResourceLimit after 12,337 requests. Larger finite controls selected
+candidates but independent replay refused its unchanged 4,096-work/temporal-purity
+bounds; those failures remain evidence, not successful validation. Current
+Java-compatible zero-duration ratio arithmetic can yield NaN, suppressing later
+unforced liveness checks. See [D-014](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).

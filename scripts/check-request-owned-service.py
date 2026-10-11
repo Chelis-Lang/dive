@@ -70,7 +70,8 @@ if native.exists():
             assert all(row[k].startswith('Invalid(')for k in ['wrong_property','wrong_init','wrong_closing_next','malformed_ending'])
             assert 'Next'in row['wrong_closing_next'];continue
         assert row['legacy_ordinal_invocations']==row['legacy_hook_evaluations']==0
-        for service,pause in zip(row['services'],row['pauses'],strict=True):
+        assert len(row['services'])==len(row['pauses'])
+        for service,pause in zip(row['services'],row['pauses']):
             assert service['request_sequence']==pause['request_sequence']
             assert service['committed']==pause['frontier_appended']==pause['committed']
             assert service['stats']==pause['stats']and service['pool']==pause['pool']
@@ -78,3 +79,16 @@ if native.exists():
         if name.split('/')[-1].startswith('nonempty-safe-'):
             assert any(s['committed']['end']>s['committed']['start']for s in row['services'])
 print('Verified27 qualified controlled method rows/926 artifacts, paired final property controls and separate request-owned diagnostic contract')
+
+# The explicit test scheduler is not enabled by normal production dependencies.
+check=(ROOT/'crates/dive-check/Cargo.toml').read_text()
+live=(ROOT/'crates/dive-liveness/Cargo.toml').read_text()
+assert 'test-rendezvous = []' in check and 'default = ' not in check
+assert 'features = ["test-rendezvous"]' in live.split('[dev-dependencies]',1)[1]
+assert 'test-rendezvous' not in live.split('[dev-dependencies]',1)[0]
+assert '#[cfg(feature = "test-rendezvous")]' in (ROOT/'crates/dive-check/src/progress.rs').read_text()
+for label in ['finite-candidate-primary','finite-workload-primary','small-candidate-primary']:
+    directory=BASE/label
+    if directory.exists():
+        capture=load(directory/'capture.json');assert capture['oracle_sha256']==pin and capture['exit']==13
+        for name,digest in capture['artifact_sha256'].items():assert sha((directory/name).read_bytes())==digest,(label,name)
