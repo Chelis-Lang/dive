@@ -98,4 +98,48 @@ for directory, codes in (
         ):
             assert sha((location / name).read_bytes()) == row[field]
         assert f'STARTMSG {code}:1' in (location / 'stdout').read_text()
-print('verified clean255 vs unvalidated native12 and exact original changed source/matrix authority; current runtime controls are separate')
+current = BASE / 'current'
+index = json.loads((current / 'index.json').read_text())
+for name, digest in index['files_sha256'].items():
+    assert sha((current / name).read_bytes()) == digest, name
+source = json.loads((current / 'source-index.json').read_text())
+assert source['source_commit'] == '060489e7845b38b894d67b58c9a8c3a9fa18094c'
+assert len(source['files']) == 420
+for name, row in source['files'].items():
+    archive = (current / row['archive']).read_bytes()
+    assert sha(archive) == row['archive_sha256'], name
+    assert sha(gzip.decompress(archive)) == row['source_sha256'], name
+receipt = json.loads((current / 'receipt.json').read_text())
+assert receipt['runtime_producer']['source_commit'] == source['source_commit']
+assert receipt['workspace_gate_stages'] == 8
+assert (receipt['nextest_passed'], receipt['nextest_skipped']) == (1106, 0)
+results = json.loads((current / 'current-gate/results.json').read_text())
+assert len(results['stages']) == 8 and all(row['exit'] == 0 for row in results['stages'])
+log = (current / 'current-gate/2-nextest.log').read_text()
+assert '1106 tests run: 1106 passed' in log and '0 skipped' in log
+controls = json.loads((current / 'current-controls/receipt.json').read_text())
+assert len(controls['rows']) == 144 and len(controls['validation']) == 528
+original = [row for row in controls['validation'] if row['kind'] == 'original']
+mutants = [row for row in controls['validation'] if row['kind'] != 'original']
+assert len(original) == 132 and len(mutants) == 396
+assert sum(row['validation'] == 'valid' for row in original) == 96
+assert sum(row['evidence_scope'].startswith('decoder-shape') for row in original) == 36
+assert sum(row['evidence_scope'].startswith('decoder-shape') for row in mutants) == 108
+assert sum(row['evidence_scope'] == 'independent-semantic-rejection' for row in mutants) == 288
+for row in controls['validation']:
+    if row['evidence_scope'].startswith('decoder-shape'):
+        name = 'validate' if row['kind'] == 'original' else row['kind']
+        result = json.loads((current / 'current-controls' / row['case'] / (name + '.stdout')).read_text())
+        assert result['result'] == 'invalid' and result['failure']['check'] == 'shape'
+        assert result['failure']['state'] == 0
+        assert 'Attempted to compare record' in result['failure']['detail']
+assert receipt['shape_failures_have_no_semantic_or_certificate_credit'] is True
+assert (receipt['homogeneous_api_executions'], receipt['homogeneous_api_valid_originals'], receipt['homogeneous_api_invalid_mutants']) == (504, 216, 216)
+gates = json.loads((current / 'current-conformance/receipt.json').read_text())
+assert [(row['corpus'], row['expected_models'], row['workers'], row['exit']) for row in gates['rows']] == [
+    ('examples', 21, [1, 4, 8], 0), ('validation-smoke', 16, [1, 4, 8], 0),
+]
+assert len(json.loads((current / 'current-lazy/receipt.json').read_text())['rows']) == 54
+assert len(json.loads((current / 'current-cli-guide/receipt.json').read_text())['rows']) == 6
+assert json.loads((current / 'current-guide/receipt.json').read_text())['exit'] == 0
+print('verified historical failures and current060 gate/144 checks/whole132+396 selection; shape refusals receive no semantic credit')

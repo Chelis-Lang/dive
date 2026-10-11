@@ -1,0 +1,24 @@
+warning: 25 path(s) in corpus `examples` are not covered by any manifest (no goldens): specifications/CASPaxos/ (no manifest.json), specifications/Caesar/ (no manifest.json), specifications/DataPort/ (no manifest.json), specifications/HLC/ (no manifest.json), specifications/L1/ (no manifest.json), ...
+running dive against examples golden(s) of tlc-2026.10.06.014338 on 21 model(s) and 0 module(s), workers [1, 4, 8], SANY phase Full
+[1/21] agree         specifications/CigaretteSmokers/CigaretteSmokers.cfg
+[2/21] agree         specifications/DieHard/MCDieHarder.cfg
+[3/21] agree         specifications/DieHard/DieHard.cfg
+[4/21] agree         specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg
+[5/21] agree         specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg
+[6/21] agree         specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg
+[7/21] agree         specifications/Paxos/MCVoting.cfg
+[8/21] agree         specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg
+[9/21] agree         specifications/SpecifyingSystems/HourClock/HourClock.cfg
+[10/21] agree         specifications/SpecifyingSystems/HourClock/HourClock2.cfg
+[11/21] agree         specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg
+[12/21] agree         specifications/TwoPhase/MCTwoPhase.cfg
+[13/21] agree         specifications/Stones/Stones.cfg
+[14/21] agree         specifications/echo/MCEcho.cfg
+[15/21] agree         specifications/locks_auxiliary_vars/Peterson.cfg
+[16/21] agree         specifications/spanning/MC_spanning.cfg
+[17/21] agree         specifications/transaction_commit/TCommit.cfg
+[18/21] agree         specifications/transaction_commit/TwoPhase.cfg
+[19/21] agree         specifications/MultiCarElevator/ElevatorSafetySmall.cfg
+[20/21] agree         specifications/acp/ACP_NB_WRONG_TLC.cfg
+[21/21] agree         specifications/PaxosHowToWinATuringAward/MCVoting.cfg
+report: /Users/jeff/code/dive-view-normalization-artifacts/current-conformance/cm1/reports/20261011T075928426-dive-all.json

@@ -1,0 +1,9 @@
+from pathlib import Path
+import subprocess,json,hashlib,itertools
+r=Path('/Users/jeff/code/dive-view-normalization-work');a=Path('/Users/jeff/code/dive-view-normalization-artifacts/current-lazy');a.mkdir(exist_ok=False);b=a.parent/'current-binaries';producer=json.loads((b/'producer.json').read_text());sha=lambda v:hashlib.sha256(v).hexdigest();rows=[]
+for name,tlc,width in itertools.product(['filter','nested','cup','cap','diff','union','nested-filter','filter-function-range','filter-invalid-range'],[True,False],[1,4,8]):
+ ident=f'{name}-{"tlc"if tlc else"dive"}-w{width}';p=a/ident;p.mkdir();f=r/'conformance/probes/view-concrete-normalization/lazy-primary'/name/'LazyView.tla';cmd=[str(b/'dive'),'check',str(f),'--seed','7','--fp','0','--workers',str(width),'--store','exact','--output','json']+(['--compat=tlc']if tlc else[]);v=subprocess.run(cmd,capture_output=True,timeout=30);(p/'stdout').write_bytes(v.stdout);(p/'stderr').write_bytes(v.stderr);doc=json.loads(v.stdout);refused=name in ['cup','cap','diff','union'] orname=='filter-invalid-range';assert doc['output']==[]
+ if refused:assert v.returncode==3 and doc['verdict']=='unsupported'and 'deep normalization'in doc['message']and doc['counterexample']is None,(ident,doc)
+ else:assert v.returncode==0 and doc['verdict']=='success'and tuple(doc['statistics'][n]for n in['generated','distinct','depth'])==(2,1,1),(ident,doc)
+ rows.append(dict(case=ident,exit=v.returncode,verdict=doc['verdict'],source_sha256=sha(f.read_bytes()),config_sha256=sha(f.with_suffix('.cfg').read_bytes()),files_sha256={q.name:sha(q.read_bytes())for q in p.iterdir()}));print(ident,v.returncode,flush=True)
+(a/'receipt.json').write_text(json.dumps(dict(runtime_producer=producer,rows=rows,runner_sha256=sha(Path(__file__).read_bytes()),scope='memory checking; lazy set-operation caches are named refusals; no spill/archive admission claim'),indent=2)+'\n')

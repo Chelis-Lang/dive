@@ -1,0 +1,6 @@
+{
+  "registry_packages": 30,
+  "all_registry_versions_checksums_equal_root_lock": true,
+  "root_lock_sha256": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
+  "consumer_lock_sha256": "7f453079bd2f58f8f50559e5ded49e2370bc2c4e5400e829b09af539baf625f4"
+}
