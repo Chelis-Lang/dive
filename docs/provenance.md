@@ -511,6 +511,7 @@ search. The default formula kernel and independent Word implementation stay
 unchanged. Complete positive/negative fields and periodic/closing controls
 retain the old extra-negation mismatch; this is normalization fidelity only.
 
+
 Pure-runtime-name native recovery (ADR 0038, 2026-10-11) reuses dive's ordered name
 archive and the `dive-model` typed encounter-order fallback. It introduces no
 ported Java checkpoint codec. Clean `tlc2.TLC` safety runs with `-workers 1`,
