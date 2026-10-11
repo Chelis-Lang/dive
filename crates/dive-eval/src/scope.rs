@@ -113,6 +113,110 @@ impl Evaluator {
         self.operator_value_analysis(scope, value)
     }
 
+    /// Resolves an authoritative, bounded pure native operator actual.
+    ///
+    /// Only `Sequences!Len`, `Sequences!Head` and `FiniteSets!Cardinality`
+    /// are admitted. This is callback-free metadata inspection, not a purity
+    /// or truth certificate. Callers must prove the captured context, arity
+    /// and actual expression arguments independently. Configured targets and
+    /// replacements conservatively refuse, including a directly supplied
+    /// same native target; opaque, builtin and other native targets refuse.
+    /// Each target/configuration inspection charges `work` before access.
+    ///
+    /// # Errors
+    /// Invalid ownership/reference or exhausted inspection work.
+    pub fn scope_native_operator_analysis(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        work: &mut usize,
+    ) -> Result<Option<dive_ir::StdOp>> {
+        self.validate_scope(scope)?;
+        Self::operator_capture_step(work)?;
+        let value = match operator {
+            OpRef::Def(def) => {
+                self.admit_def(*def)?;
+                let target = self.core.redirect(*def);
+                self.admit_def(target)?;
+                self.admit_parent(scope, target)?;
+                self.core.op_value(&scope.env, operator)?
+            }
+            OpRef::Std(op) => crate::env::OpVal::Std(*op),
+            OpRef::Param(local) => {
+                let Some(frame) = scope.env.frame_up(local.up) else {
+                    return Ok(None);
+                };
+                let Some(Sv::Op(value)) = frame.slots.get(local.slot.index()) else {
+                    return Ok(None);
+                };
+                value.clone()
+            }
+            _ => return Ok(None),
+        };
+        self.native_operator_value(&value, work)
+    }
+
+    fn native_operator_value(
+        &self,
+        value: &crate::env::OpVal,
+        work: &mut usize,
+    ) -> Result<Option<dive_ir::StdOp>> {
+        use dive_ir::StdOp;
+        let native = match value {
+            crate::env::OpVal::Std(op) => *op,
+            crate::env::OpVal::Def {
+                def,
+                parent,
+                dynamic,
+            } => {
+                // Native calls have no lexical body. Do not discard a supplied
+                // foreign/opaque lexical or dynamic capture as irrelevant.
+                if parent.is_some() || dynamic.is_some() {
+                    return Ok(None);
+                }
+                Self::operator_capture_step(work)?;
+                let target = self.admit_def(*def)?;
+                if self.is_value_override(*def) {
+                    return Ok(None);
+                }
+                let Some(op) = target.std else {
+                    return Ok(None);
+                };
+                op
+            }
+            _ => return Ok(None),
+        };
+        if !matches!(
+            native,
+            StdOp::SequencesLen | StdOp::SequencesHead | StdOp::FiniteSetsCardinality
+        ) {
+            return Ok(None);
+        }
+        // Native values, like user Def values, do not retain configured origin.
+        for binding in &self.core.consts {
+            Self::operator_capture_step(work)?;
+            if let Some(crate::ConstBinding::Def(bound)) = binding {
+                let target = self.admit_def(self.core.redirect(*bound))?;
+                if target.std == Some(native) {
+                    return Ok(None);
+                }
+            }
+        }
+        for (index, target) in self.core.ir.defs().iter().enumerate() {
+            Self::operator_capture_step(work)?;
+            if target.std == Some(native) {
+                let def =
+                    DefId(u32::try_from(index).map_err(|_| {
+                        EvalError::resource_limit("native operator definition index")
+                    })?);
+                if self.is_value_override(def) || self.core.redirect(def) != def {
+                    return Ok(None);
+                }
+            }
+        }
+        Ok(Some(native))
+    }
+
     fn operator_value_analysis(
         &self,
         scope: &Scope,
@@ -255,6 +359,11 @@ impl Evaluator {
                         )
                     }
                     Sv::Op(operator) => {
+                        if self.native_operator_value(operator, work)?.is_some() {
+                            // The whitelist has no lexical body/captured callback.
+                            // Actual arguments still require independent proof.
+                            continue;
+                        }
                         let Some((def, source)) =
                             self.operator_value_analysis(&context_scope, operator.clone())?
                         else {

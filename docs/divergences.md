@@ -676,3 +676,9 @@ before hiding previous translation output. Full and body-only high-level
 rewriting refuse them by name, including modified-block grants. The retained
 missing-fairness reproduction and current source-span regression are distinct
 from reference CRC/Validator limitations. See the user log and issue #182.
+
+The subsequent bounded [native operator actual slice](native-temporal-operators.md)
+accepts Len/Head/Cardinality with separately proved constant/state arguments and
+stored-input admission. It changes no result default or schedule. Other native,
+configured/opaque/effectful and unsupported state-storage/error boundaries retain
+named refusals; all20 clean probe outcomes remain accounted for separately.

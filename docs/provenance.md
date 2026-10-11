@@ -578,3 +578,5 @@ facade before `mask_previous`; no Java executes in the product. The minimal
 old-output fairness-loss control is retained in
 `conformance/probes/pluscal-source-option-masking/`; full option parsing remains
 pending.
+
+| Bounded native temporal operator actuals | pinned `Tool.getOpContext`, `OpLambdaValue`, `Liveness.astToLive`, native `Sequences.Len/Head` and `FiniteSets.Cardinality`; commit94d0c50 | MIT | Metadata authority and actual scoped native dispatch; independent bounded admission/Word implementation. Raw20-selection reference failures remain separate; no new schedule/default. |

@@ -83,3 +83,7 @@ actual constant bindings and native redirects; its earlier construction/startup
 is outside the capture guard. Pure captures remain available. Pinned final/TLC
 selection retains its existing pre-binding effect admission. See the
 [configured RNG repair and backend evidence](../../conformance/probes/configured-random-admission/README.md).
+
+Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
+[Pure native temporal operator arguments](../native-temporal-operators.md), with
+executable CLI/Rust examples and retained refusal boundaries.

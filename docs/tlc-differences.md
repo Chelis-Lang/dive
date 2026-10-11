@@ -1979,3 +1979,13 @@ minimal source and both failed outputs are in
 `conformance/probes/pluscal-source-option-masking/`. Issue #182 remains open
 for source-option parsing and precedence; no stronger checksum default is
 adopted.
+
+### Bounded pure native operator arguments
+
+The explicit final TLC mode now accepts Len/Head/Cardinality operator actuals
+within its bounded pure constant/state slice. TLC13 and dive13 agree on the
+minimal `Use(F(_)) == []<>F(x); Live == Use(Head)` with `x=<<FALSE>>`.
+Configured/opaque/effectful targets still refuse. Concrete normalized set states,
+unknown deciding runtime error classes and ordinary periodic scheduling remain
+limitations. See [the guide](native-temporal-operators.md) and the complete
+20-control probe selection; this is bounded support, not family certification.

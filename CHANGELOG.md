@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
+  scoped constant/state calls with independent word/witness checks and
+  callback-free stored-input admission. Configured/opaque/effectful and
+  unsupported state-storage/error boundaries remain explicit; final TLC
+  scheduling remains separately scoped.
+
 
 - High-level PlusCal rewriting refuses unproved source-option declarations in
   the original file before masking old translation blocks, preventing silent

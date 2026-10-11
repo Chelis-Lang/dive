@@ -23,9 +23,9 @@
   },
   "schema_version": 1,
   "source_sha256": {
-    "crates/dive-eval/src/scope.rs": "10695d924523f746981f4d097a84dd997c3cf0f63696ec7389e87f8458cdfe13",
-    "crates/dive-liveness/src/plan.rs": "afb64cf4738bf319397e5f9ddee0dfb6cf7673e6db5c96ce0b73dcef168dab6b",
-    "crates/dive-trace/src/temporal.rs": "f413ba5be6057b98d6c0545c8b08a7021cb989291bc29227d0246336b0447c9a",
+    "crates/dive-eval/src/scope.rs": "ba8245c216fc3e6330afb8ff0ce434af2429fe33d2d54aecb95e45767c26bd0d",
+    "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
+    "crates/dive-trace/src/temporal.rs": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
     "crates/dive-api/tests/temporal_forwarding.rs": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",
     "crates/dive-api/tests/deferred_domains.rs": "e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2",
     "conformance/studies/temporal-scopes-53-map.json": "602f7d67b104b6c51b7fcda4238199806215218f82ee174235460ee7a82d0227"

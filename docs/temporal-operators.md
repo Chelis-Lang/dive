@@ -99,3 +99,7 @@ material producer had 46 agreements, 92 refusals and the same two timeouts.
 The seven added agreements are bounded final-mode evidence, not ordinary
 periodic-liveness or full-family certification. The source archive, raw reports
 and independent readback remain bound to that earlier executable.
+
+The subsequent bounded [native actual slice](native-temporal-operators.md) admits
+Len/Head/Cardinality separately. Earlier receipts below retain their original
+known-user source identity; they are not recredited as native-source runs.
