@@ -91,3 +91,28 @@ The [current pure-name publication checks](../native-checkpoint.md#current-pure-
 rerun pause/recovery, counter choices, spill cleanup and the executable Rust
 example on the combined runtime. They preserve the TLC runtime-name validator's
 explicit refusal and do not turn a native archive into an independent proof.
+
+Current native snapshots use structural format 2 (`DIVECP02`); earlier
+value-bearing archives refuse rather than guessing lost tuple/function identity.
+Recreate them with the current executable. Transient frontier data/index likewise
+use version 2; predecessor-only ID/ordinal files keep their existing format.
+The [migration example](../native-checkpoint.md#structural-format-migration)
+combines zero-byte queue/log budgets with opt-in stored trace transport and
+independent witness checking. This migration changes no mathematical store key
+or fingerprint and grants no additional archive or total-memory proof.
+## Additive disk membership library
+
+[`dive_store::seen::DiskSeen`](disk-seen-library.md) retains full fingerprint or
+canonical exact keys on disk with fallible operations and explicit owned cleanup.
+The original library-only receipt is separate from the later opt-in safety
+route below. Default ordinary seen sets remain resident; frontier/predecessor
+flags alone do not imply a seen-set or total RAM budget.
+
+
+## Transient disk seen-state membership
+
+[The opt-in safety route](disk-seen-safety.md) now retains full fingerprint or
+exact keys on disk with inline fallback and independent concrete witnesses.
+It can combine existing frontier/predecessor budgets, but is not a total-memory
+budget or checkpoint feature. Recovery, graphs and temporal combinations refuse
+before work; existing native archive contracts remain unchanged.

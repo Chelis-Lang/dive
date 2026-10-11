@@ -312,3 +312,9 @@ selected model is dropped; there are no disagreements or pending validations.
 The completed checks use one actual worker. This separate evidence does not
 increase strict temporal conformance. Ten finite-domain binding refusals and
 five graph-capture timeouts give concrete language/scaling targets.
+
+The [composed core receiving delivery](core-prefix-storage-composition.md) now has a separate
+1,346-test zero-skip gate and fresh selected release runtimes, with all 37
+required models agreeing at 1/4/8 workers. Component and failed producer
+identities remain separate; ordinary scheduling and full-family certification
+are still open.

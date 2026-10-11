@@ -5,6 +5,35 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Composed request/candidate diagnostics, disk safety and positioned replay,
+  bounded procedure checksum editing, and inductive tuple replay with fresh
+  release verification and maintained user/developer guides.
+
+- Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
+
+- Bounded Full PlusCal editing supports disjoint explicitly labelled sequential
+  procedures called from main. Typed call frames retain target ownership while
+  the original header preserves the last declaration's shared call vector
+  (ADR 0069). Call graphs, process-owned checksums and strict saved-frame witness
+  replay remain separate named boundaries; quotas and defaults are unchanged.
+
+- Bounded P `elsif` sequential-procedure Full checksums retain virtual Else
+  ownership and conditional continuation updates, with pinned stored-header
+  byte/CRC controls and unchanged resource budgets (ADR 0066). Artifact, model
+  and strict saved-frame replay qualifications remain separate.
+
+- Full PlusCal editing derives exact header AST/CRC for proved nested sequential
+  procedure If/With/Either/While transfers, with bounded typed expansion and
+  separate artifact/model/replay qualifications (ADR 0061). Unvisited While TRUE
+  tail assignments preserve reference creation order; split/comment token-line
+  conditions retain the conditional stored-header path. Public multiline
+  procedure generation remains named Unsupported.
+- Bounded Full PlusCal editing now derives exact header AST checksums for one
+  disjoint labelled sequential procedure, with ordinary calls/returns and
+  call-goto. This earlier increment retained nested transfers as refusals; the
+  later bounded nested continuation above lifts only its proved shapes. Wider
+  ownership remains unsupported; artifact admission and model proofs stay separate.
+
 - Independent whole-word replay can prove bounded tuple-preserving variable
   histories from Init and every Next branch; unknown history remains refused.
 - Strict independent whole-word replay admits proved tuple-only `Tail`,
@@ -14,6 +43,18 @@ All notable changes to this project are documented here. The project will follow
   round trips from construction-preserving value transport and independent
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
+
+- Opt-in bounded disk seen-state safety membership uses fallible ordered inline
+  admission, preserving concrete outcomes while reporting actual worker fallback,
+  positioned errors and explicit cleanup. Graph/recovery and unproved
+  Print/PrintT invariant-error reconstruction stay refused; pure replay uses
+  positioned fallible membership/insertion with frozen generated counts.
+
+- Add a fallible private-file seen-state library for full fingerprints and canonical exact keys, with bounded disk indexing/rehash, first-error poisoning and explicit audited cleanup. Ordinary checker admission remains pending (ADR 0063).
+- Structural storage format 2 keeps integer-domain tuple functions distinct from
+  tuple literals in frontier spill and native recovery. Mathematical keys and
+  fingerprints stay unchanged; older value-bearing archives refuse explicitly.
+
 - Opt-in `--trace-format representation-v2` preserves admitted stored mixed
   sets and nonliteral tuple/record functions with checked construction witnesses.
   Legacy version1 stays default; transport is not a semantic certificate and
@@ -29,6 +70,11 @@ All notable changes to this project are documented here. The project will follow
   from ordinary scheduling and checker verdicts.
 
 
+- Add a bounded request-owned periodic Rust diagnostic: real prefix append precedes a single configured-hook/controller service, including empty requests. Separate receipts retain actual counters and source identity; no ordinary temporal verdict or default/profile change.
+
+- Producer-owned request pauses publish the maximal returned contiguous source prefix through the shared safety/graph path, retaining later buffers without regeneration. Typed receipts distinguish graph publication from physical frontier append; no ordinary temporal verdict or schedule credit. See `docs/committed-periodic-prefix.md`.
+
+- Producer-owned progress requests pause actual expansion claims and join admitted work under real dispatch authority; privately retained receipts keep uncommitted output separate from logical/temporal graph publication. Runnable Rust diagnostics grant no ordinary schedule or model-proof credit.
 
 - Add a bounded configuration-owned periodic snapshot Rust diagnostic with prebinding startup admission, original role/body identities and exact ordinary-check refusal. It grants no ordinary schedule or temporal proof.
 
@@ -643,6 +689,9 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Positioned fallible disk membership and insertion for invariant-error replay,
+  with frozen generated counters, typed source/ordinal failure evidence and
+  original-error retention. Public disk role/mode restrictions remain (ADR0072).
 - Native bounded C/P PlusCal macro expansion, simultaneous argument/assignment-selector substitution, nested prior declarations, original macro call/definition locations, and finite process/fairness interactions. Enclosing-module admission rejects invalid reference outputs; expansion budgets return named resource results. Full procedure/name/options/rewrite/map parity remains pending.
 
 - Opt-in `dive check --lncheck final --lasso short`, using the bounded final
@@ -1098,3 +1147,5 @@ All notable changes to this project are documented here. The project will follow
 
 - Independent whole-word tuple replay follows fixed nested tuple aliases in
   `UNCHANGED`; conditional permutations remain refused.
+
+- Preserve complete storage, VIEW, and checkpoint recovery matrices as smaller CI test cases; retain timeout evidence and verify their compiled inventory without extending test budgets.

@@ -196,6 +196,18 @@ impl Evaluator {
             .unwrap_or_default()
     }
 
+    /// Whether this evaluator has executed a `Print` or `PrintT` event.
+    ///
+    /// This monotonic execution fact includes empty text, custom sinks and
+    /// nested quiet captures. Warnings and unexecuted definitions do not set it;
+    /// draining output does not reset it. It carries no replay certificate.
+    #[must_use]
+    pub fn has_print_event(&self) -> bool {
+        self.core
+            .printed
+            .load(::std::sync::atomic::Ordering::Relaxed)
+    }
+
     /// Releases captured output ([`capture::PrintCapture`]) through the
     /// sink, in the order given. A captured warning is kept only if no
     /// warning with its text was printed before in the run.

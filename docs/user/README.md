@@ -21,6 +21,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
 | Build a periodic backend | [Periodic controller](../ordinary-periodic-controller.md) | Callback ordering only; ordinary temporal verdicts remain unavailable |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
+| Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; the separate opt-in safety route is available |
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |
 | Interpret structured results | [Reports and errors](reports-and-errors.md) | Versioned schemas; exit zero alone is insufficient |
 
@@ -35,3 +36,6 @@ Concrete temporal state representation: [Stored successor values](../stored-succ
 - [Source-owned periodic backend diagnostic](../periodic-backend.md): pointer growth, explicit partial requests and real native-source stopping; no ordinary clock schedule or model-proof claim.
 
 - [Native clock/dispatch lifecycle diagnostic](../native-periodic-lifecycle.md): real pauses, internal timer observations and EOF checks; ordinary scheduling and model proof remain unsupported.
+
+- [Opt-in disk seen-state safety checking](disk-seen-safety.md): explicit bounded
+  retention, inline fallback, typed failure/cleanup facts and executable Rust example.

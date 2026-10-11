@@ -4,9 +4,16 @@ use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use std::path::Path;
 
-fn case(value: &str, name: &str, compat_tlc: bool, store: Store) {
+fn case(
+    value: &str,
+    name: &str,
+    compat_tlc: bool,
+    store: Store,
+    workers: usize,
+    chaos: Option<u64>,
+) {
     let directory = std::env::temp_dir().join(format!(
-        "dive-view-normalization-{}-{name}-{compat_tlc}-{store:?}",
+        "dive-view-normalization-{}-{name}-{compat_tlc}-{store:?}-{workers}-{chaos:?}",
         std::process::id()
     ));
     std::fs::create_dir(&directory).expect("private directory");
@@ -18,7 +25,15 @@ fn case(value: &str, name: &str, compat_tlc: bool, store: Store) {
         "INIT Init\nNEXT Next\nINVARIANT Inv\nVIEW Projection\nCHECK_DEADLOCK FALSE\n",
     )
     .expect("cfg");
-    verify(&file, &cfg, &directory, &[compat_tlc], &[store]);
+    verify(
+        &file,
+        &cfg,
+        &directory,
+        &[compat_tlc],
+        &[store],
+        &[workers],
+        &[chaos],
+    );
     std::fs::remove_dir_all(directory).expect("cleanup");
 }
 fn observables(mut report: serde_json::Value) -> serde_json::Value {
@@ -41,7 +56,15 @@ fn observables(mut report: serde_json::Value) -> serde_json::Value {
     clippy::too_many_lines,
     reason = "complete fixed recovery and independent witness controls"
 )]
-fn verify(file: &Path, cfg: &Path, directory: &Path, profiles: &[bool], stores: &[Store]) {
+fn verify(
+    file: &Path,
+    cfg: &Path,
+    directory: &Path,
+    profiles: &[bool],
+    stores: &[Store],
+    widths: &[usize],
+    schedules: &[Option<u64>],
+) {
     let mut ordinal = 0;
     for &compat_tlc in profiles {
         let spec = SpecModel::load(
@@ -55,8 +78,8 @@ fn verify(file: &Path, cfg: &Path, directory: &Path, profiles: &[bool], stores: 
         )
         .expect("independent model");
         for &store in stores {
-            for workers in [1, 4, 8] {
-                for chaos in [None, Some(19)] {
+            for &workers in widths {
+                for &chaos in schedules {
                     let request = CheckRequest {
                         file: file.to_path_buf(),
                         config: Some(cfg.to_path_buf()),
@@ -173,12 +196,73 @@ fn verify(file: &Path, cfg: &Path, directory: &Path, profiles: &[bool], stores: 
         }
     }
 }
-// Same original cross-product, partitionable before the unchanged180s bound.
-macro_rules! controls {
-    ($name:ident, $value:expr, $compat:expr, $store:expr) => {
+// Each width/schedule slice retains both checkpoints and all independent mutants.
+macro_rules! slice {
+    ($test:ident, $value:expr, $parent:expr, $compat:expr, $store:expr, $width:expr, $chaos:expr) => {
         #[test]
-        fn $name() {
-            case($value, stringify!($name), $compat, $store);
+        fn $test() {
+            case($value, $parent, $compat, $store, $width, $chaos);
+        }
+    };
+}
+macro_rules! controls {
+    ($parent:ident, $value:expr, $compat:expr, $store:expr) => {
+        mod $parent {
+            use super::*;
+            slice!(
+                w1_plain,
+                $value,
+                stringify!($parent),
+                $compat,
+                $store,
+                1,
+                None
+            );
+            slice!(
+                w1_chaos,
+                $value,
+                stringify!($parent),
+                $compat,
+                $store,
+                1,
+                Some(19)
+            );
+            slice!(
+                w4_plain,
+                $value,
+                stringify!($parent),
+                $compat,
+                $store,
+                4,
+                None
+            );
+            slice!(
+                w4_chaos,
+                $value,
+                stringify!($parent),
+                $compat,
+                $store,
+                4,
+                Some(19)
+            );
+            slice!(
+                w8_plain,
+                $value,
+                stringify!($parent),
+                $compat,
+                $store,
+                8,
+                None
+            );
+            slice!(
+                w8_chaos,
+                $value,
+                stringify!($parent),
+                $compat,
+                $store,
+                8,
+                Some(19)
+            );
         }
     };
 }

@@ -26,6 +26,7 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
                 for workers in [1, 4, 8] {
                     let report = check_file(&CheckRequest {
                         trace_encoding: TraceEncoding::default(),
+                        seen_disk: None,
                         frontier_memory_bytes: None,
                         frontier_directory: None,
                         predecessor_memory_bytes: None,

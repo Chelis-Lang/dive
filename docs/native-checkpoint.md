@@ -449,3 +449,43 @@ Print(i, TRUE)}` with `VIEW 0` completes without Print output. This does not
 admit callback-bearing values to spill or checkpoint archives; those paths
 still refuse them before writing. Lazy set-operation cache normalization and
 unknown providers remain named refusals.
+
+## Structural format migration
+
+Current archives use `DIVECP02` and identity schema 2. The structural value codec
+retains nonliteral integer-domain functions separately from literal tuples. This
+matters for application diagnostics even when the values are mathematically equal.
+Version-1 archives are rejected with `DIVE-S0400: native magic/schema mismatch`;
+a schema-1 payload inside a newer envelope also refuses. Recreate the archive
+from the specification with the current executable. There is no conversion that
+can reliably recover a literal bit discarded by an old writer.
+
+For a runnable representation control, from the repository root:
+
+```sh
+dive check conformance/probes/storage-tuple-function/specs/Witness/TupleStorage.tla --compat=tlc --seed 7 --fp 0 --workers 4 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --trace-format representation-v2 --checkpoint tuple.cp --checkpoint-after-levels 0 --checkpoint-counters retain --output json
+dive check conformance/probes/storage-tuple-function/specs/Witness/TupleStorage.tla --compat=tlc --workers 8 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --trace-format representation-v2 --recover tuple.cp --checkpoint-counters retain --output json
+```
+
+The intentional pause returns an incomplete resource stop after Init. Recovery
+reaches `Inv` at four generated/distinct states and depth four, retaining the
+stored function `s` and a concrete four-state witness. Version-2 trace transport
+is opt-in; independently validate that word against the specification. Neither
+the archive checksum nor transport flags certify it. These zero-byte budgets
+cover encoded active queues and resident predecessor logs separately; discovery,
+visited, candidate, archive and witness work remain outside both budgets.
+See [the complete migration controls](../conformance/probes/storage-tuple-function/README.md)
+and [ADR 0060](decisions/0060-structural-storage-format-two.md).
+
+The executable Rust example uses `CheckRequest::frontier_memory_bytes` and
+`predecessor_memory_bytes` independently, `TraceEncoding::RepresentationV2`,
+`checkpoint::Counters::Retain` and a separate `SpecModel` to validate the word:
+
+```sh
+cargo run --locked -p dive-api --example storage_tuple_function
+```
+
+The [example source](../crates/dive-api/examples/storage_tuple_function.rs)
+checks both the incomplete pause and successful transient cleanup, then removes
+its owned archive. A caller must still handle archive/search errors and supply
+only trusted local recovery bytes.

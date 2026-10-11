@@ -73,13 +73,26 @@ pub struct ConcreteSuccessor {
     pub label: String,
 }
 
-/// Producer-owned fact that all submitted jobs in one fixed source wave joined.
-/// This is not TLC's `StateQueue.suspendAll`, a clock sample or a model proof.
+/// Ordered source publication authority held at an observer callback.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PublicationKind {
+    /// Original ordered wave path. A later safety cut may leave other source
+    /// outputs absent; pool quiescence does not imply whole-wave completion.
+    OrderedWave,
+    /// Actual completed contiguous prefix committed under a request pause.
+    RequestPrefix,
+}
+
+/// Producer-owned pool-thread quiescence for a submitted source range. Every
+/// admitted job has returned and the pool is joined; some source IDs may remain
+/// unclaimed or have no returned output. This is not whole-wave completion,
+/// TLC's `StateQueue.suspendAll`, a clock sample or a model proof.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct SourceBarrier {
     workers: usize,
     first: u64,
     end: u64,
+    prefix: Option<(u64, u64, usize)>,
 }
 impl SourceBarrier {
     pub(crate) fn joined(workers: usize, first: u64, end: u64) -> Self {
@@ -87,14 +100,59 @@ impl SourceBarrier {
             workers,
             first,
             end,
+            prefix: None,
         }
+    }
+    pub(crate) fn joined_prefix(
+        workers: usize,
+        first: u64,
+        end: u64,
+        start: u64,
+        upto: u64,
+        predicates: usize,
+    ) -> Self {
+        Self {
+            workers,
+            first,
+            end,
+            prefix: Some((start, upto, predicates)),
+        }
+    }
+    /// Typed distinction between the original ordered wave and an actual
+    /// completed-prefix request transaction. Neither grants ordinary proof.
+    #[must_use]
+    pub fn publication(&self) -> PublicationKind {
+        if self.prefix.is_some() {
+            PublicationKind::RequestPrefix
+        } else {
+            PublicationKind::OrderedWave
+        }
+    }
+    /// Selected completed-prefix transaction, if publication is happening under
+    /// a request pause. The full submitted wave remains separately identified.
+    #[must_use]
+    pub fn published_prefix(&self) -> Option<std::ops::Range<u64>> {
+        self.prefix.map(|(start, end, _)| start..end)
+    }
+    /// Actual inline predicate width for a request-prefix transaction: zero
+    /// when no new-state invariant work was needed, otherwise one coordinator.
+    #[must_use]
+    pub fn prefix_predicate_workers(&self) -> Option<usize> {
+        self.prefix.map(|(_, _, width)| width)
+    }
+    /// Source observer publication occurs before the successful transaction's
+    /// trace/frontier append. An observer stop does not certify that append.
+    #[must_use]
+    pub fn frontier_append_pending(&self) -> bool {
+        true
     }
     /// Actual pool width, separate from logical committed-source counts.
     #[must_use]
     pub fn workers(&self) -> usize {
         self.workers
     }
-    /// First discovery identity whose jobs were submitted in the joined wave.
+    /// First identity in the submitted claimable range. It need not have a
+    /// returned output unless separately covered by actual publication.
     #[must_use]
     pub fn first_source(&self) -> u64 {
         self.first
@@ -180,6 +238,30 @@ pub struct CommittedSource<'a> {
 /// unsupported result, and successful callbacks certify only execution order.
 /// Consumers must meter their own work and retain any deciding typed error.
 pub trait SourceObserver: Send {
+    /// Opt in to producer-clock requests between actual expansion claims.
+    /// A joined request transaction can publish its returned contiguous source
+    /// prefix before the quiescence callback; later outputs stay speculative.
+    fn progress_requests(&self) -> Option<crate::progress::Options> {
+        None
+    }
+    /// An actual expansion cut cancels producer requests before metadata service.
+    /// This notification cannot fail or replace the existing ordered safety error.
+    /// Claims stay open to drain earlier unclaimed sources; this is not lane closure.
+    fn expansion_requests_cancelled(&mut self, _pending: Option<crate::progress::Request>) {}
+    /// Actual joined expansion pause after the returned contiguous prefix passes
+    /// ordered safety/graph publication and successful frontier append. An empty
+    /// prefix leaves the existing graph unchanged. Success resumes unclaimed
+    /// expansion work, not a Java queue or a model-completion claim.
+    ///
+    /// # Errors
+    /// A named diagnostic stop; no completed graph or temporal proof is exposed.
+    fn expansion_quiescent(
+        &mut self,
+        _receipt: ExpansionQuiescence,
+        _pause: &DispatchPause<'_>,
+    ) -> Result<(), String> {
+        Ok(())
+    }
     /// A newly enqueued initial state, before its initial invariants/implied checks.
     /// The counters describe the observed prefix; TLC's later error replay is
     /// separate and is not inferred by this interface.
@@ -233,6 +315,96 @@ pub trait SourceObserver: Send {
     /// # Errors
     /// Return the deciding consumer diagnostic; no completed graph is exposed.
     fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String>;
+}
+
+/// Real expansion-claim barrier and joined pool evidence after prefix publication.
+/// Completed IDs can be noncontiguous. Only `committed` records have passed
+/// ordered safety/publication and successful frontier append; later completed
+/// outputs remain speculative. This receipt still grants no ordinary proof.
+#[derive(Clone, Debug)]
+pub struct ExpansionQuiescence {
+    pub(crate) request: crate::progress::Request,
+    pub(crate) submitted: std::ops::Range<u64>,
+    pub(crate) completed: Vec<u64>,
+    pub(crate) claimed: Vec<u64>,
+    pub(crate) failed: Vec<u64>,
+    pub(crate) expanded_generated: u64,
+    pub(crate) logical: Stats,
+    pub(crate) committed: std::ops::Range<u64>,
+    pub(crate) logical_after: Stats,
+    pub(crate) predicate_workers: usize,
+}
+impl ExpansionQuiescence {
+    /// Producer-owned timer/initial-force request serviced under actual authority.
+    #[must_use]
+    pub fn request(&self) -> crate::progress::Request {
+        self.request
+    }
+    /// Source wave identities, including work not yet claimed.
+    #[must_use]
+    pub fn submitted(&self) -> std::ops::Range<u64> {
+        self.submitted.clone()
+    }
+    /// Returned source expansions, including earlier committed prefixes.
+    /// Completion alone does not imply ordered publication.
+    #[must_use]
+    pub fn completed(&self) -> &[u64] {
+        &self.completed
+    }
+    /// Actual source claims, including a skipped later source after a safety cut.
+    /// Claims and successful completed output are separate observations.
+    #[must_use]
+    pub fn claimed(&self) -> &[u64] {
+        &self.claimed
+    }
+    /// Completed expansion outputs that contain an actual deciding safety error.
+    /// Other completed outputs may still await invariant checks/publication.
+    #[must_use]
+    pub fn failed(&self) -> &[u64] {
+        &self.failed
+    }
+    /// Generated successors in retained expansion outputs, including speculative
+    /// later sources. This is not the logical stopping counter.
+    #[must_use]
+    pub fn expanded_generated(&self) -> u64 {
+        self.expanded_generated
+    }
+    /// Actual logical statistics preceding publication of this wave.
+    #[must_use]
+    pub fn logical_stats(&self) -> Stats {
+        self.logical
+    }
+    /// Newly published contiguous source IDs, or an empty range when the next
+    /// source has not returned. Their actual observer writes precede this receipt.
+    #[must_use]
+    pub fn committed(&self) -> std::ops::Range<u64> {
+        self.committed.clone()
+    }
+    /// Logical statistics after successful ordered prefix publication.
+    #[must_use]
+    pub fn committed_stats(&self) -> Stats {
+        self.logical_after
+    }
+    /// Sources whose successful transaction physically appended its winning
+    /// states to the next frontier. These are source IDs, not new-state IDs.
+    /// A stopping observer emits no successful append receipt.
+    #[must_use]
+    pub fn frontier_appended(&self) -> std::ops::Range<u64> {
+        self.committed.clone()
+    }
+    /// Coordinator invariant-predicate width for this publication (zero if
+    /// no newly discovered states required such work, one otherwise).
+    /// Expansion pool width remains separately reported by the pause.
+    #[must_use]
+    pub fn predicate_workers(&self) -> usize {
+        self.predicate_workers
+    }
+    /// This receipt grants no ordinary verdict credit. Actual ordered observer
+    /// writes are identified separately by `committed`.
+    #[must_use]
+    pub fn model_proof(&self) -> bool {
+        false
+    }
 }
 
 /// A fully explored behavior graph in the engine's discovery order.
@@ -656,11 +828,16 @@ pub fn explore_observed_with_evidence(
 }
 
 fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
+    #[cfg(feature = "test-rendezvous")]
+    let rendezvous = crate::progress::testing::current();
     std::thread::scope(|scope| {
         match std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(scope, run)
-        {
+            .spawn_scoped(scope, move || {
+                #[cfg(feature = "test-rendezvous")]
+                let _rendezvous = crate::progress::testing::install(rendezvous);
+                run()
+            }) {
             Ok(thread) => thread
                 .join()
                 .map_err(|_| "exploration thread panicked".to_owned()),
@@ -695,6 +872,9 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
         return Some(Exploration::Stopped(Box::new(crate::bare(
             verdict, opts, &model.ir,
         ))));
+    }
+    if opts.seen_disk.is_some() {
+        return Some(stopped(Verdict::Unsupported { feature: "disk seen-state retention with behavior graph/source capture is not implemented".into() }, model, opts));
     }
     None
 }
