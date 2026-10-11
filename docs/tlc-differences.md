@@ -367,6 +367,19 @@ VIEW/symmetry witnesses retain their existing semantics. See
 [the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
 and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
 
+
+**Native recovery admission update (D-007, 2026-10-11):** pure runtime string/name
+construction is admitted with the complete saved ordered name table. For
+`n' = n + 1 /\ s' = ToString(n + 1)`, the bounded recovery example reaches the
+same 4-state invariant violation as uninterrupted checking and clean pinned TLC.
+TLC encounter order uses a reported actual one-worker inline fallback; the
+canonical profile may use the parallel engine. Runtime effects/register reads
+and independent TLC witness replay of name history remain honest refusals. This
+removes dive's own checkpoint limitation, not a reference implementation defect.
+See `docs/native-checkpoint.md` and the source/raw control study at
+`conformance/probes/native-checkpoint-runtime-names/`.
+
+
 ## D-008: Results are data, and diagnostics are built for people and agents
 
 | | |

@@ -121,7 +121,7 @@ being checked. Symmetry with liveness and a general symmetry audit remain
 unsupported. Key recomputation preserves these settings, including the selected
 profile's value ordering, but cannot repair an invalid abstraction.
 
-An effectful VIEW/SYMMETRY body, runtime string construction, checker reads or
+An effectful VIEW/SYMMETRY body, checker reads or
 unused effectful startup definition or configuration alias to an effectful body
 returns an explicit `unsupported` result
 before startup output or archive creation. Pure native `Permutations` is supported;
@@ -180,8 +180,8 @@ MAX_COUNTER stops are resolved in logical successor order, not whichever
 worker reaches a local limit first. Any retained trace at a resource stop is
 partial path evidence, not an invariant violation or a completed-search proof.
 
-This supports pure finite safety only. Temporal graphs, runtime effects or name
-construction, checker reads and evaluator-driven deferred values remain refused
+This supports pure finite safety only. Temporal graphs, runtime effects,
+checker reads and evaluator-driven deferred values remain refused
 before effects in both profiles. The
 worker field reports pool width, not speedup or simultaneous useful work.
 The [parallel recovery study](../conformance/probes/native-checkpoint-parallel/README.md)
@@ -280,7 +280,7 @@ assert_eq!(resumed.to_json()["verdict"], "invariant-violation");
 [The spill recovery study](../conformance/probes/native-checkpoint-spill/README.md)
 keeps original admission refusals/source bytes separate from actual recovered
 searches, independent original/altered witnesses and failure controls. Effects,
-runtime names/checker reads, evaluator-driven deferred values, temporal graphs
+checker/register reads, evaluator-driven deferred values, temporal graphs
 and Java checkpoint byte interoperability remain excluded in both profiles.
 
 The transient-storage composition keeps that integrated worker/observer contract.
@@ -320,3 +320,96 @@ fresh current-source observations. The earlier 4,032-call campaign remains tied
 to its own executable and source. Local timings under machine contention and
 Linux CI results are distinct; this receipt does not claim a total RAM bound,
 Java archive interoperability or independent reachability certification.
+
+
+## Pure strings and recovery encounter order
+
+Pure string construction is supported in bounded native recovery. This minimal
+specification saves actual generated string values:
+
+```tla
+EXTENDS Naturals, TLC
+VARIABLE n, s
+Init == /\ n = 0 /\ s = "0"
+Next == /\ n < 4 /\ n' = n + 1 /\ s' = ToString(n + 1)
+Inv == n < 3
+```
+
+Run the complete [example input](../conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla):
+
+```sh
+dive check conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint strings.cp --checkpoint-after-levels 1 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --output json
+dive check conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla --compat=tlc --workers 8 --recover strings.cp --checkpoint-counters retain --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --output json
+```
+
+The pause is incomplete. Recovery with `retain` reaches the invariant violation
+with 4 generated and 4 distinct states at depth 4, matching uninterrupted search
+and clean pinned TLC. The default reset instead reports 4 generated, 4 distinct
+and 2 initial states for this boundary; `retain` keeps one initial state. Both
+retain the original concrete witness. The archive restores the complete ordered
+name table before binding, including names encountered during completed levels.
+`ToString`, supported string `Tail`/`SubSeq`/concatenation and other pure admitted
+native name constructors do not authorize runtime effects, randomness or
+checker/register reads.
+
+In TLC value or exploration order, this model uses **one actual inline worker**
+even if `--workers 8` or chaos scheduling is requested. The worker metadata names
+the runtime-name encounter-order reason. This is the existing typed sequential
+fallback, not a hidden parallel run. Canonical default order can use the
+requested deterministic pool. Worker width may change on recovery; the archive
+and source/profile/counter identity remain checked.
+
+Independent TLC witness validation still returns `unsupported` for this model:
+a witness does not prove the full preceding string-interning history. Native
+resume is trusted-local execution and must not count that refusal as an
+independent certificate or strict harness agreement. Canonical-profile concrete
+witnesses can be checked separately. Runtime effects and opaque/deferred values
+remain refused; byte/state/depth/counter bounds, no-overwrite commits and typed
+cleanup receipts are unchanged. The two transient budgets exclude visited
+states, candidate payloads, names, native archive work and reconstruction buffers;
+this is not a total-memory limit. See the [source and control study](../conformance/probes/native-checkpoint-runtime-names/README.md).
+
+
+The corresponding Rust request retains the same actual-worker and trust contract:
+
+```rust
+use dive_api::{CheckRequest, check_file_checkpoint, checkpoint};
+let model = CheckRequest {
+    file: "conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla".into(),
+    compat_tlc: true,
+    seed: Some(7), fp: Some(0), workers: Some(4),
+    frontier_memory_bytes: Some(0), predecessor_memory_bytes: Some(0),
+    ..CheckRequest::default()
+};
+let native = checkpoint::Request {
+    path: "strings-rust.cp".into(),
+    action: checkpoint::Action::PauseAfterLevels(1),
+    counters: checkpoint::Counters::Tlc,
+    config_source_sha256: None,
+};
+let paused = check_file_checkpoint(&model, &native)?.to_json();
+assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
+assert_eq!(paused["options"]["workers"]["used"], 1);
+let recovered = check_file_checkpoint(
+    &CheckRequest { workers: Some(8), ..model },
+    &checkpoint::Request {
+        action: checkpoint::Action::Recover,
+        counters: checkpoint::Counters::Retain,
+        ..native
+    },
+)?.to_json();
+assert_eq!(recovered["verdict"], "invariant-violation");
+assert_eq!(recovered["statistics"]["generated"], 4);
+assert_eq!(recovered["options"]["workers"]["requested"], 8);
+assert_eq!(recovered["options"]["workers"]["used"], 1);
+assert_eq!(recovered["checkpoint"]["transient_storage_cleanup_completed"], true);
+assert_eq!(recovered["options"]["checkpoint"]["independent_certificate"], false);
+# Ok::<(), dive_api::ApiError>(())
+```
+
+Malformed imported names never become a model verdict or witness. A startup-prefix
+mismatch or repeated token refuses before binding. A missing runtime token can
+retain statistics for the already validated discovery prefix: these are import
+facts with no generated continuation, not recovered-search completion. The
+receipt is absent on malformed admission. Coherent malicious rewrites remain
+outside the trusted-local archive contract; checksums do not authenticate them.

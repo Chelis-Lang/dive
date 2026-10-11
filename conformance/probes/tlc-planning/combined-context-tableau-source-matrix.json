@@ -1,7 +1,7 @@
 {
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Current bounded Full checksum, scoped temporal and spill integration; historical producer controls and interrupted gate remain separate; no full family certification",
+  "current_integration_scope": "Bounded Full checksum, scoped temporal, pure runtime-name recovery and published spill composition; independent frozen evidence preserved, no full family certification",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
@@ -136,5 +136,11 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  }
+  },
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+    "matrix_sha256": "5601877e5ccc9fd549f7dce885de5b7cd1619e8cec2c38e2d0f5464ac2e2bb68",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged."
 }

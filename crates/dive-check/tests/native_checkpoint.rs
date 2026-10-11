@@ -130,7 +130,7 @@ fn native_refuses_effects_and_identity_mismatch_without_a_verdict() {
             "INIT Init\nNEXT Next\n",
         ),
         (
-            "---- MODULE Checkpoint ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=ToString(1)\nNext == x' = x\n====\n",
+            "---- MODULE Checkpoint ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=RandomElement({1,2})\nNext == x' = x\n====\n",
             "INIT Init\nNEXT Next\n",
         ),
     ] {

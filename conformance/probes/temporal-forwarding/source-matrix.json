@@ -30,5 +30,5 @@
     "public evaluator constructor malformed contexts (#129)",
     "strict temporal scheduling/tableau/lasso certification"
   ],
-  "current_integration_scope": "Current Full checksum, scoped temporal and spill integration source integrity only; frozen raw producer studies remain separate and no full-family certification is claimed."
+  "current_integration_scope": "Source integrity of bounded Full checksum, scoped temporal, pure runtime-name recovery and published spill composition; historical producer studies remain separate."
 }

@@ -13,11 +13,11 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "311800047b815952e82f7c4757c1e36504c95a3c023b9f18515e755387c6f8e3",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "2b5774d5b5209501c2499b501b69dfd70889a82feb0d42addddc3123294b2c5d",
-    "docs/divergences.md": "47dd4f0b21c28626093d64d3a5cf1ff76e713d8b81ab034cb62072194f698c3e",
-    "docs/tlc-differences.md": "1a78f2da4a709af8d46e91896799689238787616adaf70aae2d58a32fbe9f3a0",
+    "docs/provenance.md": "ccad3ce6991b698ddf7f5d98c098c20e97ca1480deb04811e1474c2166cc83c5",
+    "docs/divergences.md": "9b0fb9876bb8d83350ce1676708b88eb496a260987872ddf092f3965247c84bf",
+    "docs/tlc-differences.md": "b5bdb420f01e26969b5492e4c23fdad8587473f66dec4bcf39a5aee4697b6203",
     "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
-    "CHANGELOG.md": "c436315ec8aa95ea9b726999ffcf2848fddbe4040bfaef6ec79cb5f3a0576bd9",
+    "CHANGELOG.md": "88c32d206ac85bcc73e3d0811c94429389f60ea509c9dd93ba392abfd00ef017",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
     "conformance/parity-features.json": "fe22040b4b1e94ebb63159bde0b10da8199ae7be9da7fb466595453f9cc02a4f",
@@ -738,5 +738,5 @@
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "8cf81138d5abd1724d798c5881a5e6d2473cccb4a06d3f46cc2dd7d4710c2eac",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": "c08074cf5e00aaeaa2df85f7b1010870b27c7f6753d1a6ecca6e2ecbae3cad47"
   },
-  "current_integration_scope": "Current Full checksum, scoped temporal and spill integration source integrity only; frozen raw producer studies remain separate and no full-family certification is claimed."
+  "current_integration_scope": "Source integrity of bounded Full checksum, scoped temporal, pure runtime-name recovery and published spill composition; historical producer studies remain separate."
 }

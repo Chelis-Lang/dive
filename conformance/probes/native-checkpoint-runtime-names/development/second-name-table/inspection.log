@@ -1,0 +1,22 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-runtime-strings-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.63s
+     Running tests/checkpoint_runtime_names.rs (/Users/jeff/code/dive-checkpoint-runtime-strings-target/debug/deps/checkpoint_runtime_names-14a1aed1d96a08c4)
+
+running 1 test
+test corrupt_name_tables_refuse_without_continuation_or_a_witness ... FAILED
+
+failures:
+
+---- corrupt_name_tables_refuse_without_continuation_or_a_witness stdout ----
+
+thread 'corrupt_name_tables_refuse_without_continuation_or_a_witness' (112495497) panicked at crates/dive-check/tests/checkpoint_runtime_names.rs:111:17:
+2: CheckResult { frontier: FrontierUsage { memory_bytes_per_queue: None, max_record_bytes: None, peak_retained_bytes: 0, retained_bytes: 0, spilled_bytes: 0, deciding_event_before_failure: None, failures: [] }, predecessor: PredecessorUsage { storage: Usage { retained_bytes: 48, peak_retained_bytes: 48, written_bytes: 0, records: 2, spilled: false }, failures: [], deciding_event_before_failure: None, cleanup_completed: true }, verdict: ResourceLimit { message: "DIVE-S0400: native checkpoint unknown native intern token" }, stats: Some(Stats { generated: 0, distinct: 2, left_on_queue: 0, depth: 0, initial_generated: 0 }), tlc_prints_stats: true, counterexample: None, collision: None, store: Fingerprint, fp_index: Some(0), tlc_fingerprints: false, var_names: ["n", "s"], tlc_var_order: [0, 1], output: [], warnings: [], notes: [], workers: Workers { requested: 8, used: 1, sequential: true, reason: Some("native checkpoint admission stopped before the worker pool started") }, elapsed: 126.322833ms }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    corrupt_name_tables_refuse_without_continuation_or_a_witness
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+
+error: test failed, to rerun pass `-p dive-check --test checkpoint_runtime_names`

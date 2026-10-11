@@ -1,0 +1,57 @@
+{
+  "ending": {
+    "kind": "invariant",
+    "name": "Inv"
+  },
+  "format": "dive-trace",
+  "length": 4,
+  "states": [
+    {
+      "action": null,
+      "values": {
+        "n": 0,
+        "s": "unset",
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 9 to line 5, col 89 of module RuntimeChoose>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 1,
+        "s": "1",
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 9 to line 5, col 89 of module RuntimeChoose>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 2,
+        "s": "2",
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 9 to line 5, col 89 of module RuntimeChoose>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 3,
+        "s": "3",
+        "x": 1
+      }
+    }
+  ],
+  "variables": [
+    "n",
+    "x",
+    "s"
+  ],
+  "version": 1
+}

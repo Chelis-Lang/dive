@@ -510,3 +510,10 @@ predicate is one atom, evaluated by negating the existing pure bounded action
 search. The default formula kernel and independent Word implementation stay
 unchanged. Complete positive/negative fields and periodic/closing controls
 retain the old extra-negation mismatch; this is normalization fidelity only.
+
+Pure-runtime-name native recovery (ADR 0038, 2026-10-11) reuses dive's ordered name
+archive and the `dive-model` typed encounter-order fallback. It introduces no
+ported Java checkpoint codec. Clean `tlc2.TLC` safety runs with `-workers 1`,
+`-seed` 0/7/14 and `-fp 0` provide the separately retained constructor/CHOOSE
+counterparts in `conformance/probes/native-checkpoint-runtime-names/tlc-primary/`.
+The independent TLC trace runtime-name refusal remains unchanged.

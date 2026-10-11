@@ -597,3 +597,12 @@ Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
+
+D-007 native recovery admits pure runtime string/name constructors, preserving
+saved encounter order and the typed actual inline fallback under TLC value or
+exploration order. Canonical order may use the deterministic pool. Effects,
+checker/register reads and independent TLC name-history witness proof remain
+explicitly unsupported; no archive certificate or total-memory claim is added.
+See `conformance/probes/native-checkpoint-runtime-names/README.md` and
+`docs/native-checkpoint.md#pure-strings-and-recovery-encounter-order`.

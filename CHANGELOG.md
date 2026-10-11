@@ -23,9 +23,17 @@ All notable changes to this project are documented here. The project will follow
   accepting-sink early witnesses, ordinary schedules and existing bounds remain
   explicit restrictions.
 
+- Native safety checkpoint/recovery admits pure string/name construction, retaining
+  the reported TLC inline encounter-order fallback and canonical parallel path.
+  Runtime effects/checker reads and independent TLC runtime-name witness proof
+  remain explicitly unsupported; queue/log budgets keep their separate scope.
+
 - Pure safety native checkpoint/recovery now composes with opt-in frontier and
   predecessor disk budgets, including deterministic parallel VIEW/symmetry
   recovery and explicit finalized transient cleanup evidence.
+- CI runs the complete workspace test suite in four disjoint partitions, with
+  unchanged test/job limits. The required workspace check fails if any
+  prerequisite fails, is cancelled or is skipped.
 
 - CI runs the complete workspace test suite in four disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
