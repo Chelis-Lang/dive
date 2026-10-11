@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "history_manifest_sha256": "a18f017c5fc0262f2ad634f9ad428eec4b57c82e9ff206469b7b6f87cce24177",
+  "scope": "Current actual contiguous prefix publication under producer-owned request quiescence. Source graph publication and physical frontier append are distinct; no ordinary clock/queue/count/verdict/family certificate.",
+  "source_sha256": {
+    "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
+    "crates/dive-store/tests/properties.rs": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
+    "crates/dive-check/src/progress.rs": "5eb33ca05e070773e584ddef66d491ea9855c71c5a25cdc98a8fcc17b9a34db3",
+    "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
+    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
+    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
+    "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
+    "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "8f0faeff0c78c7186c47a5dc3144cd66ea9a5877b1cbb1af7ff84e46cd0804aa",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "6b1ef7febf1db66b0a22597af46e82b866ab301bb09cabb123c75f2190797bfa",
+    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
+    "crates/dive-liveness/src/periodic_hook.rs": "45c5f06d3193178a7873e4fdbb68892345a487589c8a0a02615bd7010f7aac60",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
+    "crates/dive-api/examples/committed_prefix.rs": "221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb",
+    "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
+    "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
+    "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
+    "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
+    ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db"
+  },
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+}

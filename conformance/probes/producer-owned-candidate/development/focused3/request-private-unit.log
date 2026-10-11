@@ -1,0 +1,11 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.26s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_api-c4d06276412d5783)
+
+running 2 tests
+test periodic_candidate::tests::private_actual_selection_rejects_unwritten_missing_and_exhausted_authority ... ok
+test periodic_candidate::tests::actual_request_candidate_is_admitted_before_configured_false_hook ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.49s
+

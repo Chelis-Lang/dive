@@ -823,6 +823,12 @@ or model-proof credit.
 
 | `dive-liveness::periodic_hook` and lifecycle hook composition | `tlc2.tool.ModelChecker.doPeriodicWork` (hook after liveness before checkpoint/resume), `Tool.eval(SemanticNode)` (Context.Empty/Empty states/Clear), `BoolValue.equals`; pin94d0c50 | MIT | Complete59 actual method projections; supplied pure Pred composition only, configured snapshot binding and ordinary scheduling unclaimed |
 
+## Configuration-owned periodic snapshot (ADR 0057)
+
+`dive-model::periodic` and the diagnostic flag in the shared binder match pinned `tlc2.tool.impl.SpecProcessor` constructor snapshot timing and `processPeriodic` (1634–1650), with `tlc2.tool.Defns.snapshot`: substitutions precede snapshot, constant caching precedes role validation, selected original body and configured spelling remain distinct. Pin `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT); actual Java reflection reads metadata only. `dive-liveness::periodic_snapshot` prebinding grammar is a conservative native policy, not a port of TLC evaluation. Its structural nonconstant witness follows the shared `dive-model::LevelCx::try_level` cache authority rather than editable node/definition levels. All 38 primary controls and raw captures are retained in `conformance/probes/periodic-snapshot`; startup restrictions and Java-exception refusals earn no error-class parity credit.
+
+| Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |
+
 | Actual request-prefix publication (#204, ADR0062) | Pin94d0c50 local `tlc2.tool.Worker.run/doNext`, `ModelChecker.doNextCheckLiveness/doPeriodicWork`, inherited real `StateQueue.suspendAll`; complete24 controlled observations in `conformance/probes/committed-prefix` | MIT | Shared ordered-prefix transaction is a separate bounded design. Original Next-return, graph-write, error and cleanup boundaries retained; no ordinary clock/queue/count/model-proof parity asserted. |
 
 The #204 primary root-pointer observer queries `getPtr(fp, -1)`: authoritative
@@ -841,3 +847,9 @@ explicit native policy, not Java I/O-error equivalence. Unchanged canonical
 bytes and fingerprint keyers are borrowed once; no Boolean disk adapter or
 future candidate bulk resolve is introduced. Independent concrete replay does
 not read checker stores. Graph, recovery and parallel read views remain refused.
+
+## Producer-owned temporal candidate admission (ADR0070, #213)
+
+Pinned `LiveWorker` greedy component/postfix selection, `AbstractDiskGraph.getPath` and `LongVec.pack` at94d0c50 preserve product selection before contiguous fingerprint packing. Native source-value retention/audit and privately constructible admission are dive architecture, not Java queue/schedule proof. Only actual successful source callbacks supply original values; raw fingerprints are audited before deduplication and recursive writes. Freshly bound independent `dive-trace` validates lossless rehomed memory and serialized/parsed JSON, including original configured property claims. `conformance/probes/producer-owned-candidate` retains every initial mismatch/refusal and clean primary final controls; no ordinary scheduling/count/model-proof certification.
+
+Candidate delivery10af preserves full45-stage/1057-test source receipts, default release feature isolation,27 separately corrected public outcomes, fresh memory/JSON witness mutants and all37 required safety gate models at1/4/8. The original unparenthesized IF material workload correctly produced an incomplete successor (four pin exit75 controls); four separately parenthesized controls give exit13. Every failed observer/source/script epoch remains retained, with no ordinary scheduling or corpus/family gain claimed.

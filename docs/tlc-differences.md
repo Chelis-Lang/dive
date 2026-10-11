@@ -60,6 +60,8 @@ Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 
 **Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, `crates/dive-check/tests/invariance.rs` (every probe and a wide spec stopping with every kind of event, at 1–64 workers, under chaos, in both profiles and stores), and the harness worker-invariance reports in `docs/conformance.md`.
 
+---
+
 ## D-002: Randomness is always replayable
 
 | | |
@@ -171,6 +173,8 @@ and configured clean calls are captured separately in the
 - The first six draws of `-seed 0` reproduce the Examples golden of `SpanTreeRandom`: 79,550 distinct states and 1,357,252 generated (`tests/examples_random.rs`).
 - dive's streams replay identically at 1 to 8 threads and in any processing order (`tests/dive_mode.rs`).
 
+---
+
 ## D-003: Simulation is reproducible
 
 | | |
@@ -218,6 +222,8 @@ random operators in the spec, runtime effects and the other limits listed in
 `crates/dive-sim/README.md` remain unsupported. Existing Java RNG and stream
 controls live in `crates/dive-stdlib/tests/java_random.rs` and `dive_mode.rs`.
 
+---
+
 ## D-004: Integers are unbounded
 
 | | |
@@ -253,6 +259,8 @@ Measured on the pinned TLC:
 
 **Evidence.** Probe P1, harness fixture `Overflow`, ADR 0010 (owner decision of 2026-10-08), ADR 0012. The fixtures `Ov*`, `Ar*` and `ErrCardSubset`/`ErrIntvSize` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts, and dive's messages match them byte for byte.
 
+---
+
 ## D-005: Symmetry with liveness uses the full state space
 
 | | |
@@ -281,6 +289,8 @@ Measured on the pinned TLC, it goes wrong in both directions:
 Under `--symmetry-liveness=tlc` dive reproduces TLC's answers, both wrong ones included. A counterexample that comes from TLC's symmetry reduction and is not a real behaviour of the spec is labelled as such.
 
 **Evidence.** ADR 0010 (owner decision of 2026-10-08); ADR 0019 §4; probes `SymLiveMissed`, `SymLiveMissedNone`, `SymLiveSymProp` and `SymLiveWarn` in `crates/dive-liveness/tests/fixtures/tlc-probes/`; survey probe P4 (another checker raised a false liveness alarm under symmetry).
+
+---
 
 **Owner update, 2026-10-09.** The intended default is now `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` selects `=tlc`, including TLC's missed and false violations in the probes. Today these modes are planned; symmetry and temporal properties remain explicit refusals. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences.
 
@@ -334,6 +344,8 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
   - `ChooseIntern` and `ChooseInternUnused` (this example);
   - `PrintChoose`, `PrintSets` and `PrintFcns` (122 printed values in all, matched byte for byte).
 
+---
+
 ## D-007: Exhaustiveness claims can be unconditional
 
 | | |
@@ -359,6 +371,8 @@ See [predecessor storage](predecessor-storage.md) and ADR 0031.
 
 **Evidence.** Charter, soundness contract rule 4; zero/tiny-budget ordered and
 independent-witness controls in `crates/dive-api/tests/predecessor_spill.rs`.
+
+---
 
 **Checkpoint evidence (2026-10-10, staged).** The finite grid in
 `conformance/probes/native-checkpoint/` finishes uninterrupted at 5,123,201
@@ -472,6 +486,8 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 
 **Evidence.** ADR 0009, ADR 0011, `dive parse --output json`, `dive analyze --output json`, and probes M1 and M2 (diagnostic comparison in `docs/survey/competitive.md`).
 
+---
+
 **Bounded PlusCal multiline reports.** Sequential non-junction multiline
 expressions now generate with reference lexical changed-variable substitution.
 LF/CRLF, tabs, blank/comment lines and UTF-8 comments have separate retained
@@ -482,6 +498,8 @@ neither a checksum match nor a translation report claims a checked model.
 The input file is unchanged. See `docs/pluscal-multiline.md` and its complete
 primary/refusal history. D-020's fair-only source-detection weakness is preserved,
 not silently corrected.
+
+---
 
 ## D-009: Comparisons that TLC refuses although TLA+ answers them
 
@@ -536,11 +554,15 @@ results for defined comparisons that TLC stops with an evaluation error; the
 TLC counterpart remains implemented and tested. Set construction still follows
 TLC's normalization rules, so some heterogeneous set literals remain refusals.
 
+**Evidence.**
+
 - ADR 0012.
 - The fixtures in `crates/dive-value/tests/fixtures/` hold TLC's transcripts:
   - `AsymSetRecFirst`, `AsymSetTupleFirst`, `AsymEqTupleRec` and `AsymEqRecTuple`;
   - `ErrMemRcdTuple`, `ErrMemProductRec`, `ErrMemEnumStr` and `PrintMember`;
   - `RvFcnRcd1`–`RvFcnRcd8` and `RvCanonAsym`.
+
+---
 
 **VIEW normalization boundary (#188, 2026-10-11).** TLC normalizes every
 concrete variable before evaluating VIEW, including values the projection
@@ -608,6 +630,8 @@ With `INVARIANT InvAlpha InvZeta`, the pinned TLC reports `InvZeta` after 2 stat
 
 Both are registered as expected divergences in `conformance/expected-divergences.toml`, narrowed to the fields that differ. Under `--compat=tlc` both agree with TLC exactly (the CM1 conformance gate).
 
+---
+
 ## D-011: `TLCGet("config").worker` reports the logical worker count
 
 | | |
@@ -631,6 +655,8 @@ so that TLC is guaranteed to find a shortest counterexample. Run with `-workers 
 **Conformance.** Under `--compat=tlc` such a spec can behave differently at different worker counts, exactly as TLC does. The conformance harness therefore compares a spec that reads `TLCGet("config")`, run under `--compat=tlc` with more than one worker, with TLC's own result at the same worker count, on the verdict and the error class (ADR 0004, amendment of 2026-10-09). In the default profile the single-worker result applies at every worker count.
 
 **Evidence.** Harness worker-invariance report (`MCDieHardest`), ADR 0014 §7, ADR 0015. `MCDieHardest` at 1, 3, 4 and 8 workers agrees with TLC in both profiles: under `--compat=tlc`, at 3, 4 and 8 workers both TLC and dive fail the assumption (`TLC_ASSUMPTION_FALSE`).
+
+---
 
 ## D-012: Counterexamples are checked by an independent validator
 
@@ -659,6 +685,8 @@ valid: the 7-state trace validates
 **Periodic-word evidence.** Ten pinned liveness traces validate, including recurring fair actions, intermittent enabledness (`LvWFIntermittent`) and a fair disabled-action stutter (`LvStutterEnd`). A non-stuttering occurrence on the repeated cycle proves both weak and strong fairness; occurrences only in the prefix, stutters and empty subscripts do not. Without that certificate, weak fairness needs a disabled cycle position and strong fairness needs all cycle positions disabled. These are checked independently; incomplete covers remain refused. `LvStutterActionConstraint` demonstrates that TLC adds implicit stuttering even under `ACTION_CONSTRAINT x' # x`: the pinned oracle reports a one-state stuttering violation at `x = FALSE` (exit 13, 3 generated / 2 distinct / depth 2). dive permits that implicit stutter while checking constraints on generated transitions. Closing-edge and property-claim mutations are rejected (`crates/dive-trace/tests/lasso_claims.rs`; ADR 0018 §8). This validator does not yet enable liveness model checking.
 
 **Evidence.** ADR 0016 and its amendment 1. `dive-conformance trace-controls` runs TLC's own counterexamples through the validator: 12 of TLC's 15 safety counterexamples in the Examples goldens validate, and 3 are refused by name (two on evaluator operators not implemented yet, one whose `ALIAS` hides the variables). Every deliberately broken copy of them (a state dropped, two states swapped, a value changed, the trace cut short, the wrong invariant claimed) is rejected.
+
+---
 
 ## D-013: A deterministic short liveness counterexample
 
@@ -819,6 +847,8 @@ rejects this map before search; compat mode reproduces the reduced result.
 
 The approved interface is `--allow-io=env,files,exec`, with no categories granted by default. Environment and file access come first; process execution stays deferred. Even `--compat=tlc` requires explicit grants and reports restricted compatibility when relevant operators are refused. Granted access and external inputs are recorded in the run. Evidence: the current named refusals and the 22 host-access assumptions in CommunityModules `AllTests`; no granted-access measurements exist yet.
 
+---
+
 ## Under consideration
 
 ### Empty symmetry sets crash TLC
@@ -963,6 +993,8 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - the few messages whose text depends on Java objects dive does not have (a Java override used as a configuration name, a state variable used as a conjunct of `SPECIFICATION`).
 
   Models that check temporal properties, or use `SYMMETRY`, bind, but checking them is refused until liveness checking and symmetry are implemented.
+
+---
 
 Seeded trace validation certifies straight-line assignments behind unprimed guards. Quantified or multi-successor random actions remain unsupported even if their draws happen to match: a finite random-stream search cannot prove placement. The `RndWide` and `RndCoincidence` fixtures exercise these refusals (ADR 0016 amendment 2).
 
@@ -2343,7 +2375,20 @@ credit. Original verification-driver failures remain archived; corrected command
 accounting never changes their oracle or native bytes.
 The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
 
+
+The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
+
+## Native periodic hook boundary
+
+The [pure supplied-expression API](periodic-hook.md) now composes a bounded hook at real native dispatch pauses, with original FALSE comparison and evaluation errors. It does not bind configured `_PERIODIC` and does not enable ordinary checking. The complete59 actual-TLC controls retain even setup failures: an `_PERIODIC` constant name throws ClassCastException rather than a stable binding diagnostic. Native configured binding remains a named refusal, so no fabricated error-class agreement is claimed. Checkpoint/host effects, ordinary schedule and stopping-count parity remain pending; no result default changes.
+
 ### Configuration-owned periodic diagnostic limitation (#197)
+
+`_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. [User contract and executable example](configured-periodic-snapshot.md); [ADR 0057](decisions/0057-configured-periodic-snapshot.md). No ordinary-schedule or family certification is granted.
+
+### Progress-request/worker stopping boundary (#201)
+
+The [producer-clock Rust diagnostic](producer-progress-requests.md) now has a real expansion claim barrier and joined dispatch pause. It still cannot use an uncommitted expansion as a written temporal graph. Complete33 actual pinned method controls retain successful resume, early temporal/hook stops, evaluation errors, real EOF and failed Init. At widths1/4/8, early temporal2116 and false-hook2104 return with workers alive; later probe cleanup joins are not original runTLC behavior. A worker division-by-zero sets2179 with keepCallStack=true while runTLC itself returns0, so that return is not model-check success. These are measured method boundaries, not newly declared TLC bugs or ordinary native parity. Ordinary scheduling/count/checkpoint/model-proof authority remains unfinished.
 
 ### Actual committed request-prefix limitation (#204)
 
@@ -2371,3 +2416,9 @@ replay. Current disk mode returns named `unsupported`, with the initial error
 and stopping-prefix evidence retained. Remove disk flags to use the existing
 resident replay. This is dive's temporary limitation, not a TLC defect or a
 completed violation agreement. [Original paired observations](../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+
+### Producer-owned candidate admission: remaining ordinary schedule limitation
+
+The [Rust candidate API](producer-owned-temporal-candidate.md) now privately reconstructs actual request or EOF words and validates them against two freshly bound independent models. It cannot certify ordinary scheduling, TLC stopping counts, temporal absence or model completion. An absent witness means only no admitted candidate, never Holds. Pin94d0c50 final baselines retain `Live == <>(x=1)` with Init x0 and Next x1 as exit13: initial stuttering is legal without fairness. The original mistaken expectation0 remains in the evidence, with a distinct holding `<>(x=0)` exit0 control. This is not a newly declared TLC bug or default change; ordinary CLI scheduling and checkpoint composition stay refused.
+
+The candidate-admission delivery passes its45-stage/1057-test gate and admits12 actual EOF words via two independent routes;48 deliberately corrupted words fail both. Source-error history is retained: an unparenthesized IF material workload leaves one variable undefined (pin exit75), whereas the separately parenthesized workload gives exit13. This is ordinary TLA+ grouping, not a TLC bug or semantic divergence. The required37 safety gates at1/4/8 remain green; none of these results certifies ordinary temporal scheduling.

@@ -121,3 +121,5 @@ The [producer-owned request diagnostic](../producer-progress-requests.md) adds r
 [Committed request prefixes](../committed-periodic-prefix.md) publish actual returned contiguous work under the existing owned pause. The Cargo example and typed receipts distinguish expansion, graph publication and physical frontier append; ordinary temporal checking remains unsupported.
 
 The [request-owned service diagnostic](../request-owned-periodic-service.md) runs the actual configuration hook/controller once after successful prefix append, including genuinely empty requests. Its executable Cargo example and receipts remain nonproof; ordinary scheduling is unsupported.
+
+For original-value reconstruction and fresh independent memory/JSON replay of an actual diagnostic request/EOF candidate, see the [producer-owned candidate Rust guide](../producer-owned-temporal-candidate.md). This separate API does not enable ordinary periodic CLI checking or certify temporal absence/completion.

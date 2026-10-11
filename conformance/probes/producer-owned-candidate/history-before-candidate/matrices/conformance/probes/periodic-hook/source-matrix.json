@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Current supplied pure hook diagnostic only, not configured hook binding or ordinary schedule proof.",
+  "history_manifest_sha256": "3abf6a1851b0aca9efec90a9f2566a4c6b869240bfbb5a2c50860ed0a9ecc817",
+  "source_sha256": {
+    "crates/dive-liveness/src/periodic_hook.rs": "45c5f06d3193178a7873e4fdbb68892345a487589c8a0a02615bd7010f7aac60",
+    "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "8f0faeff0c78c7186c47a5dc3144cd66ea9a5877b1cbb1af7ff84e46cd0804aa",
+    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
+    "crates/dive-liveness/src/lib.rs": "095a1fd80ff33d6da05c7064ca1a7f564836bdb700eb3b66432afa73ec4cf7b3",
+    "crates/dive-liveness/tests/periodic_hook.rs": "89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4",
+    "crates/dive-api/examples/periodic_hook.rs": "529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574",
+    "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
+    "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
+    "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
+    "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
+    ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db"
+  },
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+}

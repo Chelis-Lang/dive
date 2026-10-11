@@ -1,0 +1,9 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.47s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_liveness-8177f3dcfe0a85f2)
+
+running 1 test
+test phase_l::concrete_audit_tests::candidate_audit_refuses_known_ambiguity_before_dedup_and_bounds_retention ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
+

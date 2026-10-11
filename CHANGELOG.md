@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
+
 - Bounded Full PlusCal editing supports disjoint explicitly labelled sequential
   procedures called from main. Typed call frames retain target ownership while
   the original header preserves the last declaration's shared call vector
@@ -164,6 +166,12 @@ All notable changes to this project are documented here. The project will follow
   mixed calls. Preserve false-success and false-violation controls; direct RNG
   calls and pure user replacements remain supported (#180).
 
+- Refuse configured VIEW with source-level random operators before binding/output
+  or safety search in both profiles, including native aliases, cfg-selected
+  native replacement targets and unused random definitions. Preserve the
+  equal-count/different-draw defect; pure VIEW and untransformed random checking
+  retain their supported implementations (#178).
+
 - Preserve pinned PlusCal CASE assignment parentheses and empty-Else TRUE
   conjuncts, with complete generated-module syntax-tree regressions.
 
@@ -224,6 +232,10 @@ All notable changes to this project are documented here. The project will follow
   prerequisite fails, is cancelled or is skipped.
 
 - CI runs the complete workspace test suite in eight disjoint partitions, with
+
+- CI runs the complete workspace test suite in four disjoint partitions, with
+  unchanged test/job limits. The required workspace check fails if any
+  prerequisite fails, is cancelled or is skipped.
 
 - CI runs the complete workspace test suite in four disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
@@ -373,6 +385,20 @@ All notable changes to this project are documented here. The project will follow
   original failures/source histories are retained. Exact-store proof, accepting-
   sink/initial replay, periodic schedules and ordinary strict CLI integration
   remain unsupported; fixed limits/defaults stay unchanged.
+
+- Add bounded ordered temporal execution callbacks and actual multiple-OOS/
+  tableau graph insertion, including immediate done-state re-enumeration.
+  Retain deciding source-prefix errors separately from speculative pool work,
+  typed failures and written graph evidence. Exact TLC SCC/lasso selection,
+  accepting-sink witnesses and periodic schedules remain named pending work;
+  ordinary strict liveness and resource defaults do not change.
+
+- Bounded concrete temporal graph stage: retain original accepted successor values
+  through the actual deterministic worker pool, commit one null-tableau OOS in
+  TLC slot order and expose persisted bin/PEM graph inputs. All graph results
+  remain explicit non-verdict evidence; wider tableau/schedule/lasso work remains
+  refused. Scoped capture admission rejects opaque effects and malformed IDs
+  before workers execute; fixed structural bounds are unchanged.
 
 - Add bounded diagnostic concrete phase-L receipts: TLC successor slots, first
   representatives, logical capacity history and ordered null-tableau bins with
