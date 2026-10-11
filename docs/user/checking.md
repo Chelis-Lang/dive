@@ -53,3 +53,10 @@ must never be treated as `success`.
 
 See [compatibility](compatibility.md), [storage](storage-recovery.md),
 [reports](reports-and-errors.md) and the [complete coverage ledger](../tlc-parity.md).
+
+A lazy filter ignored by VIEW does not require evaluating its predicate. The
+checker normalizes its stored bound set only. `x = {i \in Nat : Print(i,
+TRUE)}`, `Next == UNCHANGED x`, and `VIEW 0` finish with no Print output.
+Spilling or archiving that callback-bearing value still refuses explicitly;
+this support is limited to memory checking. Other unproved lazy representations
+remain unsupported.

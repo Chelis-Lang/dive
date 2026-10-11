@@ -145,3 +145,58 @@ fn incomplete_view_states_stop_before_concrete_key_normalization() {
         }
     }
 }
+
+#[test]
+fn lazy_view_normalization_visits_operands_without_forcing_predicates() {
+    // Clean pinned TLC: all six cases exit 0, generated=2/distinct=1/depth=1,
+    // with no Print output. SetPredValue.deepNormalize only visits inVal.
+    for value in [
+        "{i \\in Nat : Print(i, TRUE)}",
+        "Nat \\cup Nat",
+        "Nat \\cap Nat",
+        "Nat \\ Nat",
+        "UNION {Nat}",
+        "<<{i \\in Nat : Print(i, TRUE)}, 1>>",
+    ] {
+        let source = format!(
+            "---- MODULE LazyView ----\nEXTENDS Naturals,TLC\nVARIABLE x\nInit == x = {value}\nNext == UNCHANGED x\nV == 0\n====\n"
+        );
+        let analysis =
+            dive_sema::analyze_source("LazyView.tla", &source, &dive_sema::Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("lazy VIEW IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nVIEW V\nCHECK_DEADLOCK FALSE\n")
+            .into_config()
+            .expect("cfg");
+        for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                for width in [1, 4, 8] {
+                    for chaos in [None, Some(19)] {
+                        let mut options = CheckOptions::tlc(0, 7);
+                        options.profile = profile;
+                        options.eval = dive_eval::Options::for_profile(profile);
+                        options.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
+                        options.store = store;
+                        options.workers = width;
+                        options.chaos = chaos;
+                        let result = dive_check::check(&ir, &cfg, &options);
+                        if value.starts_with("Nat") || value.starts_with("UNION") {
+                            // These clean primary positives expose an additional
+                            // cache-normalization contract not proved here.
+                            assert!(
+                                matches!(&result.verdict, Verdict::Unsupported { feature } if feature.contains("deferred")),
+                                "{value}: {result:?}"
+                            );
+                            assert!(result.counterexample.is_none());
+                            assert_eq!(result.output, Vec::<String>::new());
+                            continue;
+                        }
+                        assert!(result.verdict.is_verdict(), "{value}: {result:?}");
+                        assert_eq!(result.output, Vec::<String>::new(), "{value}");
+                        let stats = result.stats.as_ref().expect("statistics");
+                        assert_eq!((stats.generated, stats.distinct, stats.depth), (2, 1, 1));
+                    }
+                }
+            }
+        }
+    }
+}

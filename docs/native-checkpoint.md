@@ -438,7 +438,14 @@ retagged as results of this combined producer.
 
 The configured key path deep-normalizes every concrete variable before VIEW,
 even when the projection ignores that variable. Recovered states use that
-same path. Unsupported normalization/deferred values refuse explicitly;
+same path. Unsupported normalization and unproved deferred values refuse explicitly;
 archive equivalence never establishes Init or Next, and counterexamples
 still contain concrete states. The [normalization controls](../conformance/probes/view-concrete-normalization/README.md) pair pure VIEW recovery with independent
 concrete witness and changed-Init/Next controls (#188).
+
+Memory checking can normalize the bound set of an evaluator-owned lazy filter
+before VIEW without running its predicate. For example, `x = {i \in Nat :
+Print(i, TRUE)}` with `VIEW 0` completes without Print output. This does not
+admit callback-bearing values to spill or checkpoint archives; those paths
+still refuse them before writing. Lazy set-operation cache normalization and
+unknown providers remain named refusals.

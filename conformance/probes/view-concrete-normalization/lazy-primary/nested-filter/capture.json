@@ -1,0 +1,24 @@
+{
+  "oracle_source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "exit": 0,
+  "flags": [
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-cleanup",
+    "-metadir",
+    "<private>"
+  ],
+  "files_sha256": {
+    "LazyView.tla": "5f36627177424f5c2f620f9b7f78ce95ecc3c22ef6a52768920dac71c6e6a3c6",
+    "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+    "stdout": "02b9f2bd611aa3af5ec5ef6d9e4887b3d25f48780927732dc4bf47bcfeee5f45",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

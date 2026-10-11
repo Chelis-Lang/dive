@@ -251,4 +251,14 @@ normalization/error-class cases refuse explicitly instead of guessing EC1000
 or reporting a model verdict. Paired primary/native evidence, compound
 controls, actual native recovery and independent concrete witness controls
 are retained in `conformance/probes/view-concrete-normalization/`. No random
-VIEW, lazy-value, full memory bound or checkpoint certificate claim is added.
+VIEW, full lazy-value family, full memory bound or checkpoint certificate claim is added.
+
+The first shared-key full gate at `15fda58d` exposed the original supported
+`ViewDeferred` memory-checking fixture: 1102/1103 tests passed. The test and
+complete failed epoch are preserved. The correction uses a callback-free
+`Any` downcast to the evaluator’s private filter representation, following
+`SetPredValue.deepNormalize`: visit only its bound set, never the predicate
+or captured environment. It retains the cumulative 32-million-node / 256-depth
+limits. Unknown providers and Cup/Cap/Diff/Union cache-normalization contracts
+remain refused. Existing spill admission still refuses the callback-bearing
+state rather than evaluate it.

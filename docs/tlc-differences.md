@@ -525,8 +525,14 @@ TLC error or a completed model verdict. Canonical comparison defaults retain
 the approved D-009 rules. Compound positive cases and original/recovered
 concrete witnesses are tested in both profiles, stores and worker settings.
 [Source-qualified before and current evidence](../conformance/probes/view-concrete-normalization/README.md)
-retain the old wrong result separately; full VIEW/random and deferred-value
-support remain outside this repair.
+retain the old wrong result separately. Memory VIEW also preserves TLC’s
+nonforcing normalization of evaluator-owned lazy filters: `x = {i \in Nat :
+Print(i, TRUE)}`, `Next == UNCHANGED x`, and `VIEW 0` complete with
+2 generated / 1 distinct / depth 1 and no Print output on the pinned primary.
+The checker visits the filter’s stored bound set without running its predicate.
+Unknown providers and lazy set-operation cache normalization remain refused;
+callback-bearing filters remain inadmissible to spill/checkpoint archives.
+Full VIEW/random and deferred-value family support remain outside this repair.
 
 ## D-010: The order in which sets are explored
 

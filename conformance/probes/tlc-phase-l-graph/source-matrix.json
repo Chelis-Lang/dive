@@ -46,7 +46,7 @@
     "crates/dive-check/src/engine.rs": "b08ed9456b4fa53d5fe3f75d890a5ac753e677d12da73a0a184f217e509dad9a",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
-    "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
+    "crates/dive-eval/src/lib.rs": "e3c1c11b05b42de9cccb3677816bdf540f00434eb56bdab8bcfc9651b77915da",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",

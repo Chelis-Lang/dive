@@ -57,3 +57,33 @@ leaving `y` unassigned. Init printing instead throws EC1000/exit255; Next emits
 EC2109/exit75 and its mixed value can also fail trace formatting. These raw
 streams remain unproved diagnostic interactions. Assignment admission is not
 a claim of exact mixed-state printing or error-class conformance.
+
+## Lazy normalization and preserved failed prerequisite
+
+`before/rejected-lazy-gate/` retains the complete `15fda58d` source-qualified
+full gate: 1102/1103 tests passed, zero skipped, and all seven other stages
+passed. The unchanged `empty_frontier_and_deferred_view_admission` test found
+that unconditional normalization must preserve memory VIEW over lazy filters.
+`before/15fda-current-authority/` retains its source/matrix bytes separately.
+
+`lazy-primary/` contains six clean primary controls and the exact pinned
+`SetPredValue`, `SetCupValue`, `SetCapValue`, `SetDiffValue` and `UnionValue`
+source bytes. All six initial controls finish with 2 generated / 1 distinct / depth 1 and no
+predicate Print output. The implemented filter path follows `SetPredValue`
+by visiting only its stored bound set through a direct `Any` downcast to the
+evaluator-owned representation. It does not call provider `kind`, `key`,
+`as_any`, `elements` or `member`; the unknown-provider negative asserts zero
+calls. Nested tuple filters share the existing depth/work budget.
+
+Lazy set operations also have a materialized-cache normalization contract;
+that broader representation remains explicitly refused here. Callback-bearing
+filters remain refused by spill and checkpoint admission. The supported memory
+filter fixture and truly invalid heterogeneous concrete set are different
+boundaries. Neither refusal may be interpreted as a completed model verdict.
+
+The additional `nested-filter` and `filter-function-range` primaries also
+complete with 2 / 1 / 1 and no Print output. `filter-invalid-range` preserves
+the pinned EC1000/exit255 when the filter’s stored function-set range contains
+the reverse heterogeneous set. The direct operand control asserts the valid
+stored range is normalized, the invalid range refuses, and neither path runs
+the predicate; accepting a filter cannot hide an invalid bound value.

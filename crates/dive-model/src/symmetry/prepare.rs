@@ -570,9 +570,20 @@ fn deep_normalize(
             }
         }
         Value::Set(set) if set.as_deferred().is_some() => {
-            return Err(BindError::unsupported(
-                "SYMMETRY deep normalization of deferred values",
-            ));
+            let operand = set
+                .as_deferred()
+                .and_then(|provider| {
+                    dive_eval::deferred_filter_normalization_operand(provider.as_ref())
+                })
+                .ok_or_else(|| {
+                    BindError::unsupported(
+                        "SYMMETRY deep normalization of unproved deferred values",
+                    )
+                })?;
+            // SetPredValue visits only inVal, never its predicate. Unknown
+            // providers and unproved lazy-operation caches remain refused
+            // without invoking any provider method.
+            deep_normalize(operand, ctx, depth + 1, work)?;
         }
         Value::Set(set) => {
             for (_, child) in set.components() {

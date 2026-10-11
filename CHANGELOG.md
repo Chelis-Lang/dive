@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+
+- Memory VIEW preserves nonforcing normalization of evaluator-owned lazy filters; unknown providers and unproved lazy-operation caches remain explicit refusals. Spill and checkpoint deferred-value admission is unchanged.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and
