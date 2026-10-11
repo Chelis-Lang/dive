@@ -805,3 +805,33 @@ capture/sink calls, separately from warnings. The disk error route refuses
 unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr`
 and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
 pre-review native run's single event is retained as failed output evidence.
+
+## Acyclic procedure-body checksum calls (#219)
+
+`checksum_transfers.rs` discovers source-owned procedure call vectors separately
+from main's LAST-header alias. `checksum.rs` emits each body vector then distinct
+main targets only on the last declaration. The matched source is pinned
+`pcal.ParseAlgorithm.GetProcedure` (reset/store shared vector) and `GetCall`
+(first source encounter/dedup), plus `AST.Procedure.toString`, at commit
+`94d0c507` (MIT). Target frame and current return-slot ownership still match the
+separate `PcalTranslate.ExplodeCall/ExplodeReturn` view; original post-generation
+header authority is not replaced with direct exploded xast. Native iterative
+acyclic admission and conservative pre-allocation reservations are dive's own
+controls, not Java algorithms or exact instruction counts. No runtime Java
+is delegated to. ADR0073 and the complete130-row declared study retain all old
+errors/refusals and the first ENOSPC capture separately.
+
+
+## Recursive sequential procedure Full checksum graphs (#223)
+
+`checksum_transfers.rs` retains bounded source-owned call vectors separately
+from `ParseAlgorithm.GetProcedure/GetCall` LAST-main alias. `PcalTranslate`
+`CopyAndExplodeLastStmt` and `ExplodeCallReturn` (1284–1490) provide self/cross-owner
+tail assignment/frame/local/entry order; `PcalTLAGen.GenAssign` supplies
+visited-assignment sorting. `AST.CallReturn.toString` supplies unmodified
+original header formatting. All source references use pinned commit `94d0c50`
+(MIT). Iterative finite graph admission/shared reservations are dive's design,
+not runtime unrolling or termination analysis. The 162 primary and separate
+exploded rows retain two generated/SANY-invalid artifacts without public credit.
+See [ADR0077](decisions/0077-recursive-procedure-header-checksums.md) and
+[the executable contract](pluscal-recursive-procedure-checksums.md).

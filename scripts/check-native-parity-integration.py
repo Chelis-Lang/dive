@@ -194,3 +194,14 @@ subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-p
 # Disjoint sequential-procedure checksum observations retain their frozen producer.
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-procedure-checksum-acceptance" / verifier)], check=True)
+
+# The complete acyclic checksum capture preserves source/error stages separately.
+subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance/verify.py")], check=True)
+
+# Acyclic procedure observations keep frozen source/runtime and repaired command epochs.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance" / verifier)], check=True)
+
+# Recursive checksum derivation keeps selected source, closed runtime and failure epochs portable.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/recursive-procedure-checksum-acceptance" / verifier)], check=True)

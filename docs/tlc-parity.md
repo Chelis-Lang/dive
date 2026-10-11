@@ -668,22 +668,14 @@ AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
 
-The first disk engine epoch refused invariant-error call-stack replay; its
-original refusal/error/count evidence remains historical and receives no replay credit.
 
+## Bounded recursive procedure header serialization
 
-Positioned invariant-error replay (#217, ADR0072) adds actual fallible membership
-and insertion to the existing inline disk INIT/NEXT safety route. Clean
-ReplayNew gives 2 generated/4 distinct/2 logically queued; later storage failures
-retain the original error and ordered prefix but confer no completion credit.
-The bound action-property probe does not lift public configured PROPERTY refusal.
-Disk parallel/capture/temporal/recovery and full error-class coverage remain
-pending; F-031 stays partial/audit-required. The original `881b75992d0ef5dc11539018da526e5e55066027` producer
-passed independent source, full-gate and runtime readback; the combined receiving
-branch still requires its own qualification. See [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
-
-The [composed core receiving delivery](core-prefix-storage-composition.md) now has a separate
-1,346-test zero-skip gate and fresh selected release runtimes, with all 37
-required models agreeing at 1/4/8 workers. Component and failed producer
-identities remain separate; ordinary scheduling and full-family certification
-are still open.
+Issue #223 / ADR0077 adds typed source-finite self/mutual call graphs and pinned
+shared nested CallReturn mutations. Exact original-header CRC, public enclosing
+CST/SANY/Validator, finite execution and independent replay remain separate.
+All 162 inputs preserve the prior130, reference errors and two primary-invalid
+artifacts without positive artifact credit. Source recursion is not runtime
+unrolling/termination proof. F-034/F-035 remain partial and audit-required;
+strict saved-frame replay #124 is unchanged. See
+[the maintained guide](pluscal-recursive-procedure-checksums.md).

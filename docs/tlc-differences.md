@@ -2373,65 +2373,37 @@ translator exit 255, separate development stage-probe exit 0 carrying the error,
 and native CLI exit 2. Those errors are not TLA grammar or checksum equivalence
 credit. Original verification-driver failures remain archived; corrected command
 accounting never changes their oracle or native bytes.
-The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
+
+The bounded acyclic procedure continuation also preserves TLC's call-list alias.
+For `Outer(p)` calling `Inner(p+1)`, with main calling `Outer(1)`, pinned stored
+header lists Outer=[Inner], Inner=[Outer], CRC `256207b7`. Reversing declarations
+lists Inner=[], Outer=[Inner,Outer], CRC `90b81514`. A runtime chain to Leaf has
+CRC `37b455c8` and its last header still records main's Outer call; an unused
+Outer-to-Inner procedure has CRC `6e37c648` while the last header stays empty.
+These measured checksum fields are not a recursion or reachability graph.
+The native Full editor now preserves those fields separately from actual body
+edges, admitting proved disjoint acyclic sequential calls. Real recursive,
+process-owned and scoped checksum contexts remain named unsupported results.
+Both profiles retain reference CRC behavior, including fair-header-only weak
+detection. [Runnable C/P and Rust examples](pluscal-acyclic-procedure-checksums.md)
+explain artifact/model boundaries and the unchanged strict saved-frame #124 gap.
 
 
-The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
+## D-008: Recursive procedure headers without a termination claim
 
-## Native periodic hook boundary
+The bounded editor now derives pinned Full headers for proved disjoint
+sequential recursive source programs. `Recur(n)` with a decreasing base case
+has paired C/P header CRC `72442bcc`; an unused recursive owner still serializes.
+Source call vectors and the LAST main alias stay distinct. Self tail calls keep
+the existing frame; cross-owner tail calls restore caller locals and replace
+its head before entering the target. Both profiles match the same checksum
+behavior; execution is never unrolled to compute a header.
 
-The [pure supplied-expression API](periodic-hook.md) now composes a bounded hook at real native dispatch pauses, with original FALSE comparison and evaluation errors. It does not bind configured `_PERIODIC` and does not enable ordinary checking. The complete59 actual-TLC controls retain even setup failures: an `_PERIODIC` constant name throws ClassCastException rather than a stable binding diagnostic. Native configured binding remains a named refusal, so no fabricated error-class agreement is claimed. Checkpoint/host effects, ordinary schedule and stopping-count parity remain pending; no result default changes.
-
-### Configuration-owned periodic diagnostic limitation (#197)
-
-`_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. [User contract and executable example](configured-periodic-snapshot.md); [ADR 0057](decisions/0057-configured-periodic-snapshot.md). No ordinary-schedule or family certification is granted.
-
-### Progress-request/worker stopping boundary (#201)
-
-The [producer-clock Rust diagnostic](producer-progress-requests.md) now has a real expansion claim barrier and joined dispatch pause. It still cannot use an uncommitted expansion as a written temporal graph. Complete33 actual pinned method controls retain successful resume, early temporal/hook stops, evaluation errors, real EOF and failed Init. At widths1/4/8, early temporal2116 and false-hook2104 return with workers alive; later probe cleanup joins are not original runTLC behavior. A worker division-by-zero sets2179 with keepCallStack=true while runTLC itself returns0, so that return is not model-check success. These are measured method boundaries, not newly declared TLC bugs or ordinary native parity. Ordinary scheduling/count/checkpoint/model-proof authority remains unfinished.
-
-### Actual committed request-prefix limitation (#204)
-
-The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
-
-### Ordinary disk seen-state safety (#212)
-
-D-007 now has an explicit ordinary safety route: `--seen-disk-entries N` stores
-full fingerprints or canonical exact keys on disk through Result operations.
-The original resident command remains default; admitted complete outcomes and
-concrete witnesses match that reference. Requested parallel widths currently
-use reported inline fallback, not advertised scaling. Entry/probe/summary limits
-and I/O/cleanup errors refuse completion. Configured PROPERTY/SPECIFICATION, graph, temporal, checkpoint/
-recovery and DFID combinations remain unsupported. Separate frontier and
-predecessor budgets can combine, without a total-RAM/crash/import claim.
-[Executable user/API guide](user/disk-seen-safety.md).
-
-
-The first disk slice refused invariant-evaluation error call-stack replay.
-That guard followed a real bug: `ReplayMembership` starts at `x=0` or `x=2`,
-visits `x=1` then the already-seen `x=2`, and divides by zero at `x=1`.
-Clean TLC and resident checking report 3 generated/3 distinct/1 queued; the
-failed disk attempt incorrectly reported 4 distinct/2 queued by reading an
-empty resident reference. Those [original observations](../conformance/probes/fallible-seen-engine/invariant-replay-before/)
-remain separate from the positioned implementation.
-
-The next increment queries and inserts actual disk keys through fallible
-operations in source/ordinal order. `ReplayNew` proves that successful replay
-can add distinct/queued states while generated stays frozen: clean TLC gives
-2 generated/4 distinct/2 queued, depth 2, exit 76. Storage/bound/cleanup failures
-retain the original error and diagnostic prefix while refusing completion;
-unknown error classes remain unverified. Public PROPERTY/SPECIFICATION,
-parallel disk/capture/temporal and recovery restrictions remain. See
-[the user guide](user/disk-seen-safety.md) and [source-bound replay study](../conformance/probes/fallible-invariant-replay/README.md).
-
-The disk error-replay continuation has a separate output refusal: clean
-`ReplayPrint` emits `"expand"` three times at 2 generated/4 distinct/2 queued,
-where the pre-review native run emitted it once. Actual Print/PrintT execution
-before or during reconstruction now yields a named unsupported result in both
-profiles, including empty events, Init-only printing, wrappers and configured
-aliases. The original error/counts/output remain diagnostic; neither a TLC
-class nor a counterexample certificate is claimed. Earlier resource/storage
-causes retain precedence. Warnings and unexecuted Print definitions do not
-trigger this event-based guard. Pure positioned replay is unchanged; resident
-memory replay's repeated-output contract is not extended here. Clean primary
-records and the original failed output are retained in the replay study.
+The zero-parameter `R1:call Recur(); return;` control has paired header CRC
+`3db87d9a` but TLC's generated TLA is rejected by SANY. Native raw equality is
+diagnostic-only: public editing emits no admitted replacement. Nonterminating
+recursion also earns no completion claim. Strict saved-frame replay stays
+pending under #124; canonical-only evidence is not strict TLC validation.
+Read [the C/P and Cargo guide](pluscal-recursive-procedure-checksums.md).
+Broader process/scoped/automatic-label/multiline procedure checksum contexts
+remain named refusals, not conformance successes.
