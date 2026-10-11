@@ -1,0 +1,18 @@
+from pathlib import Path
+import hashlib,json,subprocess
+W=Path('/Users/jeff/code/dive-pluscal-source-option-semantics-work');A=Path('/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts');B=W/'crates/dive-pluscal/source-option-semantics-acceptance'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+checked=json.loads((A/'candidate2/source-digests.json').read_text())
+for name,digest in checked.items():assert sha(W/name)==digest and sha(B/'uncommitted-producer-source'/name)==digest,name
+public=json.loads((B/'public-module-names/report.json').read_text());raw=json.loads((B/'stage-separated/report.json').read_text());finite=json.loads((B/'finite-models/report.json').read_text());gate=json.loads((B/'gates/report.json').read_text())
+assert gate['status']=='passed'and public['selected']==raw['selected']==752 and not public['summary'].get('disagree')and not raw['summary'].get('disagree')
+assert finite['selected']==24 and finite['worker_store_controls']==288 and finite['valid_witness_controls']==12 and finite['rejected_witness_mutants']==48
+binary={name:sha(A/'candidate2'/name)for name in ['context','cst','dive','dive-release','harness','exact-guide']};binary.update({name:sha(A/'adapter/pcal'/name)for name in ['SourceOptionProbe.class','OptionValidatorProbe.class']})
+base='6a6486fcae6c1296cf384c692228a5a2ddf9afa0'
+unchanged={}
+for name in subprocess.check_output(['git','ls-files'],cwd=W,text=True).splitlines():
+ if name.endswith('Cargo.toml')and name!='Cargo.toml'or name in ['rust-toolchain.toml','clippy.toml','.cargo/config.toml','deny.toml']:
+  blob=subprocess.check_output(['git','show',base+':'+name],cwd=W);assert hashlib.sha256(blob).hexdigest()==sha(W/name),name;unchanged[name]=sha(W/name)
+evidence={str(p.relative_to(W)):sha(p)for p in sorted(B.rglob('*'))if p.is_file()and p.name!='delivery.json'}
+r={'schema_version':1,'tracking_issue':182,'source_status':'uncommitted-frozen-during-gates-and-consumers','source_commit':None,'ancestor_commit':base,'final_commit_production_byte_equality_required':True,'gate_status':'passed','workspace_tests':719,'compile_jobs':2,'test_threads':2,'oracle_commit':'94d0c5070852b37b801bb8998c436383ab7ee37b','oracle_sha256':'7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d','selected':752,'raw_summary':raw['summary'],'public_summary':public['summary'],'guide_controls':13,'checksum_corruption_controls':6,'forged_report_controls':15,'requested_context_audits':496,'finite_models':24,'worker_store_profile_controls':288,'strict_valid_witnesses':12,'rejected_witness_mutants':48,'family_certified':False,'fair_header_crc_only_limits_source_identity':True,'ancestor_conformance_gate':{'cm1':20,'validation_smoke':16,'workers':[1,4,8],'harness_source':'ancestor frozen explicit-option delivery','cli_source':'current uncommitted frozen source-option producer','current_main_gate_required':True},'binary_sha256':binary,'checked_sources':checked,'unchanged_build_inputs':unchanged,'archived_evidence':evidence}
+(B/'delivery.json').write_text(json.dumps(r,indent=2)+'\n');print('Receipt:',len(checked),'production inputs,',len(evidence),'archived evidence files;',public['summary'])

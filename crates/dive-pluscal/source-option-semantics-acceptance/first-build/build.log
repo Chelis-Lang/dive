@@ -1,0 +1,26 @@
+   Compiling autocfg v1.5.1
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-sema)
+   Compiling num-traits v0.2.19
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.5.1
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-value)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-ir)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-config)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-eval)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-store)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-api)
+error[E0560]: struct `RewriteOptions` has no field named `replace_unverified`
+  --> crates/dive-api/examples/pluscal_source_context.rs:27:78
+   |
+27 | ...Options { replace_modified: true, replace_unverified: true, ..dive_api::RewriteOptions::default() };
+   |                                      ^^^^^^^^^^^^^^^^^^ `RewriteOptions` does not have this field
+   |
+   = note: available fields are: `checksums`, `max_bytes`, `normalize_newlines`
+
+For more information about this error, try `rustc --explain E0560`.
+error: could not compile `dive-api` (example "pluscal_source_context") due to 1 previous error

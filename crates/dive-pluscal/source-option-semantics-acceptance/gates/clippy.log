@@ -1,0 +1,69 @@
+   Compiling proc-macro2 v1.0.107
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-syntax)
+   Compiling serde_core v1.0.229
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+    Checking serde_json v1.0.151
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-sema)
+   Compiling serde_derive v1.0.229
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-value)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-config)
+   Compiling libc v0.2.190
+    Checking serde v1.0.229
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-store)
+    Checking cfg-if v1.0.5
+   Compiling getrandom v0.3.4
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-ir)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-eval)
+    Checking bitflags v2.13.2
+   Compiling zerocopy v0.8.62
+    Checking rand_core v0.9.5
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-liveness)
+    Checking rand_xorshift v0.4.0
+    Checking rand v0.9.5
+    Checking unarray v0.1.4
+    Checking ppv-lite86 v0.2.21
+    Checking regex-syntax v0.8.11
+    Checking rand_chacha v0.9.0
+    Checking errno v0.3.14
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-api)
+   Compiling rustix v1.1.5
+    Checking proptest v1.11.0
+    Checking terminal_size v0.4.4
+    Checking clap_lex v1.1.1
+    Checking typenum v1.20.1
+    Checking anstyle v1.0.14
+    Checking clap_builder v4.6.7
+    Checking hybrid-array v0.4.15
+   Compiling syn v2.0.119
+    Checking clap v4.6.7
+    Checking condtype v1.3.0
+    Checking regex-lite v0.1.9
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+   Compiling signal-hook v0.4.5
+    Checking winnow v1.0.4
+    Checking const-oid v0.10.2
+    Checking digest v0.11.3
+    Checking toml_parser v1.1.4+spec-1.1.0
+    Checking signal-hook-registry v1.4.8
+   Compiling divan-macros v0.1.21
+    Checking cpufeatures v0.3.1
+    Checking serde_spanned v1.1.2
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking toml v1.1.7+spec-1.1.0
+    Checking divan v0.1.21
+    Checking sha2 v0.11.0
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-conformance)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-bench)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-cli)
+    Checking xtask v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/xtask)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-sim)
+    Checking dive-lsp v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-lsp)
+    Checking dive-compile v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-compile)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 57.94s

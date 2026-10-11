@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "script_sha256": "991d373069ecbc738bd72bed3f9a8f5d08bb8069a1f52a5d527a8e8efc0adb9d",
+  "executed_comparator_sha256": "a2adfbd9f7b0bc3639e4ac1722fe45f4601cfd0cdae51b8b5608a6c5e8138d4c",
+  "selected": 15,
+  "requested_context_audits": 496,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "forged-proof",
+      "outcome": "rejected"
+    },
+    {
+      "id": "forged-artifact-admission",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-crc",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-serialized-ast",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-effective-fairness",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-effective-root",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-effective-labels",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-source-argument-span",
+      "outcome": "rejected"
+    },
+    {
+      "id": "wrong-source-argument",
+      "outcome": "rejected"
+    },
+    {
+      "id": "fabricated-success-refusal",
+      "outcome": "rejected"
+    },
+    {
+      "id": "public-forged-proof",
+      "outcome": "rejected"
+    },
+    {
+      "id": "public-forged-exhaustive",
+      "outcome": "rejected"
+    },
+    {
+      "id": "public-document-exit",
+      "outcome": "rejected"
+    },
+    {
+      "id": "public-unsupported-crc",
+      "outcome": "rejected"
+    },
+    {
+      "id": "public-inconsistent-context",
+      "outcome": "rejected"
+    }
+  ]
+}

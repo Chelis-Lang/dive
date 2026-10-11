@@ -237,6 +237,6 @@ pub fn translate_source(
         request,
         0,
         "artifact-analysis",
-        json!({"artifact":artifact,"module_source":generated,"analysis":analysis.to_json()}),
+        json!({"translation_options":artifact.option_context.effective,"requested_translation_options":request.limits,"option_context":artifact.option_context,"artifact":artifact,"module_source":generated,"analysis":analysis.to_json()}),
     )
 }

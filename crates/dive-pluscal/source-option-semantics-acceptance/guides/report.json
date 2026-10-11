@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "script_sha256": "76728d76f4e7700f328b2d8f447ab3b54c61ceb4d085b3f5b4d64fc1819cc8c2",
+  "selected": 13,
+  "family_certified": false,
+  "model_proved": false,
+  "rows": [
+    {
+      "id": "P-dive-translate",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "38587058005681d9078e257fe78a02a23a863960e83835cec538b4fb6b082f36",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/P/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "48233b5a919c9d84b610783a0b24a1690455961642ef62120ca694f3d70d7ca9",
+      "model_proved": false
+    },
+    {
+      "id": "P-dive-rewrite",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "38587058005681d9078e257fe78a02a23a863960e83835cec538b4fb6b082f36",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/P/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json",
+        "--rewrite"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "8889144f4f76777b220b3273ee3cbf8072896ba65697568e2c551f756c73c40d",
+      "model_proved": false
+    },
+    {
+      "id": "P-dive-cargo-example",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "38587058005681d9078e257fe78a02a23a863960e83835cec538b4fb6b082f36",
+      "binary_sha256": "6e3110dfacf4c456b83a9c46286c08d96ea8d64eb91825a7ef4f05b265f2d4c6",
+      "stdout_sha256": "6f61a133329136bc6f97db9e39689f22c898c59861163f6b3c50d71eb4620393",
+      "model_proved": false
+    },
+    {
+      "id": "P-tlc-translate",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "38587058005681d9078e257fe78a02a23a863960e83835cec538b4fb6b082f36",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/P/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "afc4a2b9de317080d27237289fce7d0864200852465795769dfc9d307df66db9",
+      "model_proved": false
+    },
+    {
+      "id": "P-tlc-rewrite",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "38587058005681d9078e257fe78a02a23a863960e83835cec538b4fb6b082f36",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/P/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json",
+        "--rewrite",
+        "--compat=tlc"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "966f40c6050f19b407c9fa9ad60a51130735116efb8a57934e8a812e5441550f",
+      "model_proved": false
+    },
+    {
+      "id": "P-tlc-cargo-example",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "38587058005681d9078e257fe78a02a23a863960e83835cec538b4fb6b082f36",
+      "binary_sha256": "6e3110dfacf4c456b83a9c46286c08d96ea8d64eb91825a7ef4f05b265f2d4c6",
+      "stdout_sha256": "5051722925073cc1c23ea10dd2bc105e4eafb98d4727a787db97bc917b03e4ba",
+      "model_proved": false
+    },
+    {
+      "id": "C-dive-translate",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "a24133315893b4ba7e840c462344001597f4f1ebaec51972de90181c16b6c6a4",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/C/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "20f0024be15401d365ea4d478b257d5047ac44a525b7995ef9211eca6501cb42",
+      "model_proved": false
+    },
+    {
+      "id": "C-dive-rewrite",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "a24133315893b4ba7e840c462344001597f4f1ebaec51972de90181c16b6c6a4",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/C/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json",
+        "--rewrite"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "a2752c8fe7e2aef7e03645081dca142c85e4152255f7f7396a311e0d24af06cf",
+      "model_proved": false
+    },
+    {
+      "id": "C-dive-cargo-example",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "a24133315893b4ba7e840c462344001597f4f1ebaec51972de90181c16b6c6a4",
+      "binary_sha256": "6e3110dfacf4c456b83a9c46286c08d96ea8d64eb91825a7ef4f05b265f2d4c6",
+      "stdout_sha256": "8c3eded33bb0e5960fb3c0c631d14021800aa0eab77844ec34409360f47ce957",
+      "model_proved": false
+    },
+    {
+      "id": "C-tlc-translate",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "a24133315893b4ba7e840c462344001597f4f1ebaec51972de90181c16b6c6a4",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/C/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "dbfbc173dd170487421bdda772f9fd7a98806da8a40f853c1ae634ef10192d6b",
+      "model_proved": false
+    },
+    {
+      "id": "C-tlc-rewrite",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "a24133315893b4ba7e840c462344001597f4f1ebaec51972de90181c16b6c6a4",
+      "command": [
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-artifacts/candidate2/dive-release",
+        "translate",
+        "/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal/source-option-semantics-acceptance/guides/C/SourceOptions.tla",
+        "-sf",
+        "--output",
+        "json",
+        "--rewrite",
+        "--compat=tlc"
+      ],
+      "binary_sha256": "dd83eb3f937e60ddf8a2df3eae0e3717d46a1f5a03bc3caf9bc3aba84c03dd6f",
+      "stdout_sha256": "f9a8a4813e2fbd86a382bccdb7e6fa16b7d8b1bab303bdb2cb50334aeea11b64",
+      "model_proved": false
+    },
+    {
+      "id": "C-tlc-cargo-example",
+      "outcome": "accepted-context-proved",
+      "source_sha256": "a24133315893b4ba7e840c462344001597f4f1ebaec51972de90181c16b6c6a4",
+      "binary_sha256": "6e3110dfacf4c456b83a9c46286c08d96ea8d64eb91825a7ef4f05b265f2d4c6",
+      "stdout_sha256": "b2a2bc8f19bf462e5b3b18773c965c7cdbd74cdffcd5ac39584c8bd61c11d01f",
+      "model_proved": false
+    },
+    {
+      "id": "rust-doc-exact",
+      "outcome": "compiled-and-executed",
+      "source_sha256": "8d97cc979440487023d487b55dbc0f1bb5f238feab7d3341bfceb4aeb44d172e",
+      "lock_sha256": "e4e895270c57d54e12847ba3ab28a309634c0e6e2013b1cc65491b61979b9a0d",
+      "stdout_sha256": "006073cd901fcfae6d4b73ad11dd3adbbc951b8bf6f6b90901e6f786f7468fe8",
+      "model_proved": false
+    }
+  ]
+}

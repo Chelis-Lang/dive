@@ -1,0 +1,458 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 75dc5d586..df7832fcb 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,4 +1,9 @@
+ # Changelog
++
++- Bounded PlusCal source fairness/label options now resolve requested and effective
++  settings with original declaration spans for native generation and Full CRC.
++  Unknown, malformed and conflicting contexts are refused; deciding declarations
++  inside previous translation blocks cannot be silently masked.
+ - Bounded finite-process Full checksums now retain explicit fairness and
+   automatic-label option context, with typed options in replacement reports.
+   Source option comments remain named refusals; duplicate CLI fairness flags
+diff --git a/conformance/parity-features.json b/conformance/parity-features.json
+index 96a2bff15..f1a475210 100644
+--- a/conformance/parity-features.json
++++ b/conformance/parity-features.json
+@@ -660,7 +660,7 @@
+       "phase": 8,
+       "pinned_source": "pcal/ParseAlgorithm.java",
+       "rust_evidence": "crates/dive-pluscal/src/lib.rs",
+-      "conformance_evidence": "docs/pluscal-process-procedures.md",
++      "conformance_evidence": "docs/pluscal-source-options.md",
+       "issues": [
+         126,
+         131,
+@@ -680,7 +680,7 @@
+         "F-019",
+         "F-024"
+       ],
+-      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Native bounded C/P macro expansion adds source-order simultaneous lexical/selector substitution with original call/definition origins and explicit expansion budgets; primary invalid artifacts remain uncredited and public CLI/API admission rejects them. Complete capture-first macro selections, enclosing-module CST/SANY and curated independent model/witness controls are recorded in docs/pluscal-macros.md. Unproved binders/procedures/name rewrites/full options/maps remain pending; no family certification. The bounded macro study accounts for 222 rows: 134 admitted token/CST/SANY artifacts, 48 rejections, 30 refusals, eight invalid-reference dispositions and two primary crashes. All 27 SANY-invalid primary outputs remain uncredited; 54 CLI and 54 direct API admission controls reject them in both profiles. Curated controls cover 132 finite models at 1/4/8 workers in fp/exact stores, 25 independently valid witnesses and 100 rejected mutants; all 44 comparator corruptions are rejected. No full family certification. Bounded native sequential procedure calls/returns retain 84 C/P rows: 48 admitted artifacts, 14 rejections, 20 named refusals, two invalid-reference dispositions. Four primary SANY-invalid modules stay uncredited. Forty-six complete model controls match clean TLC; 30 invariant witnesses reproduce exploration but remain pending strict encounter-order validation (#124). Default/canonical replay is separate qualified evidence, not strict TLC certification; full scopes/process stacks/recursion/options/maps pending. Native nonrecursive disjoint sequential procedure graphs retain 120 capture-first C/P rows: 68 artifacts, 19 rejections, 29 refusals, four invalid-reference dispositions; all eight SANY-invalid primary modules uncredited. Adjacent call/return head replacement and per-scope owners are source-backed; implicit fallthrough deadlocks and strict namespace/deadlock replay remain explicit. Full recursion/process/name/option/map contracts and certification pending. All 68 artifacts pass enclosing SANY/operator CST controls; 130 clean generated models reproduce verdict/count/depth at 1/4/8 in fp/exact stores (780 controls). The original strict campaign keeps 64 complete matches and 66 replay disagreements (62 invariant, four deadlock). Qualified default replay never confers strict credit. Native single finite process procedure ownership adds 112 capture-first C/P rows with slots, stack/pc and self-tail transfer evidence. Multiple-block/scoped renaming/fairness and strict #124 witness certification remain pending; artifact generation is nonproof. Detailed stage dispositions are in docs/pluscal-process-procedures.md; family stays partial/audit-required. The original 112 and supplemental 12/6 selections retain 130 source rows: 80 token/CST/SANY artifacts, ten matching rejections, 30 named refusals and ten invalid-reference diagnostic dispositions; all 14 invalid primary artifacts are uncredited, with 28 CLI and 28 direct API rejection controls. 130 model rows yield 66 complete matches and 64 strict pending witnesses, separately qualified 64 canonical valid and 256 invalid controls. No full family certification. Separate two-row algorithm-level --fair controls match global WF_vars(Next) artifacts/CST/SANY with four finite Init/Next rows; process-declared fairness and liveness execution remain uncredited. Aggregate process-procedure selection is 132 source rows, 82 artifacts and 134 model rows; original 130-row campaign remains retained. Native shared procedures across disjoint finite process blocks retain all166 capture-first C/P cases:94 admitted token artifacts,15 rejection matches,49 explicit refusals,8 invalid-reference diagnostics. All11 SANY-invalid primary outputs remain uncredited. Procedure normalization/storage is shared once with individually owned frames and global quotas; complete CST/SANY/count/witness campaigns remain separately reported. Scoped renaming/process-declared fairness and strict #124 namespace witness certification remain pending; no family certification. The separate 166-source shared-process-procedure increment admits 94 SANY/operator-CST artifacts, matches 15 source rejections, refuses 49 named cases and retains eight diagnostic invalid-reference rows; all eleven primary-invalid artifacts stay uncredited. Its 142 finite rows match verdicts/counts across 852 requested worker/store controls: 74 complete, 66 invariant and two deadlock strict replay-pending rows (#124). Separate canonical replay validates 68 witnesses and rejects 272 mutants with no strict TLC credit. Scoped renaming/process fairness and full historical options remain pending; family stays partial/audit-required. Bounded process-owned procedure fairness now retains source-ordered direct calls, declaration-ordered closure, per-caller WF/SF and +/- clauses, pinned -nof/-wf/-sf/-wfNext precedence and resource-limited formula construction. The original 328 and separately corrected 146 selections remain complete; six initial timeouts have separate retained larger-budget follow-ups. Generation is nonproof; SANY/CST and finite counts/strict pending/canonical replay stages remain separately accounted. Scoped renaming, sequential procedure modifiers and full historical formatter/checksum/map contracts remain pending; no family certification. Final #171 census: 480 captured rows / 474 unique sources, 302 admitted SANY/operator-CST artifact rows including six repeated follow-ups; 118 finite model rows / 708 worker-store controls, 59 complete and 59 strict witness-pending (#124). Separate canonical replay validates 59 witnesses and rejects 236 mutants without strict TLC credit. All six invalid primary artifacts and initial timeouts remain uncredited; full families stay partial/audit-required. Bounded sequential Full checksum requests now derive the reference CRC from proved native post-translation AST serialization; fair-only weakness is explicitly flagged. Complete capture/context rejections, raw historical failures, Full API/CLI/Validator corruption controls and separate finite model/witness checks do not certify full AST shapes, source integrity, exact generator formatting/file writes/maps or family parity. Final bounded Full CRC delivery: 216 retained inputs, 162 exact native post-translation serializations / 32 named refusals / 22 accounted rejections; each profile has 152 admitted rewritten modules / 24 rejections / 36 refusals / four primary-invalid rejections. All four SANY-invalid primary artifacts remain uncredited. All 304 SANY/Validator checks, 12 checksum corruptions, 37 forged reports and 512 budget controls pass; eight finite models / 48 width-store controls plus four strict valid witnesses / 16 rejected mutants are separately qualified. Literal supplied-body editing matches 158 primary documents without generator/admission credit. No full-family or checksum-integrity certification. Nested elsif/multiple-With and expression-layout CRC continuation retains all 320 source rows: 224 exact post-translation serializations, 14 named refusals, 82 accounted rejections; original failed separator/CST controls stay visible. Raw multiline CRC derivation is separate from named multiline-generation refusal and empty-Then layout refusal. Public admission, strict operator structure, checksum corruption and finite witness stages are documented in docs/pluscal-checksum-expressions.md; full shape/formatting/file/map parity remains pending. Final continuation Full campaign: 320 main rows, 86 admitted replacements per profile, 140 named refusals, 82 rejections and 12 rejected invalid-primary outputs; all sixteen SANY-invalid primary artifacts uncredited. All 172 SANY/Validator pairs, strict operator-CST comparisons, 12 corruptions, 37 forged reports and 512 budget controls pass. Twelve finite generated models yield 72 width/store controls, six independent strict witnesses and 24 rejected mutants. Two separate old-test boundary controls prove exact elsif bytes/CRC/operator structure plus macro refusal. Family remains partial/audit-required. Bounded non-junction sequential multiline generation is separately qualified in docs/pluscal-multiline.md; exact operator CST/SANY and checksum evidence is distinct from finite-model/witness checks. Junction/binder/macro/process/procedure layouts remain named refusals; no formatter/checksum-default or full-family certification. Finite-process Full checksum continuation proves declared-fairness post-Explode records against 224 retained inputs: raw 160 exact matches/36 parser rejections/28 named refusals, and 152 unique admitted rewritten modules per profile with strict whole-module CST/SANY/Validator controls. Forty-four finite safety models yield 528 width/store controls, 22 strict independent witnesses and 88 rejected mutants. Unproved process options/scoped names/calls remain explicit Full refusals; CRC equality is not source identity or model proof. Family remains partial/audit-required. Explicit process fairness/automatic-label Full CRC context is bounded, with configured/unconfigured Validator evidence and named source-option-comment refusal; see docs/pluscal-process-checksum-options.md. Family remains partial.",
++      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Native bounded C/P macro expansion adds source-order simultaneous lexical/selector substitution with original call/definition origins and explicit expansion budgets; primary invalid artifacts remain uncredited and public CLI/API admission rejects them. Complete capture-first macro selections, enclosing-module CST/SANY and curated independent model/witness controls are recorded in docs/pluscal-macros.md. Unproved binders/procedures/name rewrites/full options/maps remain pending; no family certification. The bounded macro study accounts for 222 rows: 134 admitted token/CST/SANY artifacts, 48 rejections, 30 refusals, eight invalid-reference dispositions and two primary crashes. All 27 SANY-invalid primary outputs remain uncredited; 54 CLI and 54 direct API admission controls reject them in both profiles. Curated controls cover 132 finite models at 1/4/8 workers in fp/exact stores, 25 independently valid witnesses and 100 rejected mutants; all 44 comparator corruptions are rejected. No full family certification. Bounded native sequential procedure calls/returns retain 84 C/P rows: 48 admitted artifacts, 14 rejections, 20 named refusals, two invalid-reference dispositions. Four primary SANY-invalid modules stay uncredited. Forty-six complete model controls match clean TLC; 30 invariant witnesses reproduce exploration but remain pending strict encounter-order validation (#124). Default/canonical replay is separate qualified evidence, not strict TLC certification; full scopes/process stacks/recursion/options/maps pending. Native nonrecursive disjoint sequential procedure graphs retain 120 capture-first C/P rows: 68 artifacts, 19 rejections, 29 refusals, four invalid-reference dispositions; all eight SANY-invalid primary modules uncredited. Adjacent call/return head replacement and per-scope owners are source-backed; implicit fallthrough deadlocks and strict namespace/deadlock replay remain explicit. Full recursion/process/name/option/map contracts and certification pending. All 68 artifacts pass enclosing SANY/operator CST controls; 130 clean generated models reproduce verdict/count/depth at 1/4/8 in fp/exact stores (780 controls). The original strict campaign keeps 64 complete matches and 66 replay disagreements (62 invariant, four deadlock). Qualified default replay never confers strict credit. Native single finite process procedure ownership adds 112 capture-first C/P rows with slots, stack/pc and self-tail transfer evidence. Multiple-block/scoped renaming/fairness and strict #124 witness certification remain pending; artifact generation is nonproof. Detailed stage dispositions are in docs/pluscal-process-procedures.md; family stays partial/audit-required. The original 112 and supplemental 12/6 selections retain 130 source rows: 80 token/CST/SANY artifacts, ten matching rejections, 30 named refusals and ten invalid-reference diagnostic dispositions; all 14 invalid primary artifacts are uncredited, with 28 CLI and 28 direct API rejection controls. 130 model rows yield 66 complete matches and 64 strict pending witnesses, separately qualified 64 canonical valid and 256 invalid controls. No full family certification. Separate two-row algorithm-level --fair controls match global WF_vars(Next) artifacts/CST/SANY with four finite Init/Next rows; process-declared fairness and liveness execution remain uncredited. Aggregate process-procedure selection is 132 source rows, 82 artifacts and 134 model rows; original 130-row campaign remains retained. Native shared procedures across disjoint finite process blocks retain all166 capture-first C/P cases:94 admitted token artifacts,15 rejection matches,49 explicit refusals,8 invalid-reference diagnostics. All11 SANY-invalid primary outputs remain uncredited. Procedure normalization/storage is shared once with individually owned frames and global quotas; complete CST/SANY/count/witness campaigns remain separately reported. Scoped renaming/process-declared fairness and strict #124 namespace witness certification remain pending; no family certification. The separate 166-source shared-process-procedure increment admits 94 SANY/operator-CST artifacts, matches 15 source rejections, refuses 49 named cases and retains eight diagnostic invalid-reference rows; all eleven primary-invalid artifacts stay uncredited. Its 142 finite rows match verdicts/counts across 852 requested worker/store controls: 74 complete, 66 invariant and two deadlock strict replay-pending rows (#124). Separate canonical replay validates 68 witnesses and rejects 272 mutants with no strict TLC credit. Scoped renaming/process fairness and full historical options remain pending; family stays partial/audit-required. Bounded process-owned procedure fairness now retains source-ordered direct calls, declaration-ordered closure, per-caller WF/SF and +/- clauses, pinned -nof/-wf/-sf/-wfNext precedence and resource-limited formula construction. The original 328 and separately corrected 146 selections remain complete; six initial timeouts have separate retained larger-budget follow-ups. Generation is nonproof; SANY/CST and finite counts/strict pending/canonical replay stages remain separately accounted. Scoped renaming, sequential procedure modifiers and full historical formatter/checksum/map contracts remain pending; no family certification. Final #171 census: 480 captured rows / 474 unique sources, 302 admitted SANY/operator-CST artifact rows including six repeated follow-ups; 118 finite model rows / 708 worker-store controls, 59 complete and 59 strict witness-pending (#124). Separate canonical replay validates 59 witnesses and rejects 236 mutants without strict TLC credit. All six invalid primary artifacts and initial timeouts remain uncredited; full families stay partial/audit-required. Bounded sequential Full checksum requests now derive the reference CRC from proved native post-translation AST serialization; fair-only weakness is explicitly flagged. Complete capture/context rejections, raw historical failures, Full API/CLI/Validator corruption controls and separate finite model/witness checks do not certify full AST shapes, source integrity, exact generator formatting/file writes/maps or family parity. Final bounded Full CRC delivery: 216 retained inputs, 162 exact native post-translation serializations / 32 named refusals / 22 accounted rejections; each profile has 152 admitted rewritten modules / 24 rejections / 36 refusals / four primary-invalid rejections. All four SANY-invalid primary artifacts remain uncredited. All 304 SANY/Validator checks, 12 checksum corruptions, 37 forged reports and 512 budget controls pass; eight finite models / 48 width-store controls plus four strict valid witnesses / 16 rejected mutants are separately qualified. Literal supplied-body editing matches 158 primary documents without generator/admission credit. No full-family or checksum-integrity certification. Nested elsif/multiple-With and expression-layout CRC continuation retains all 320 source rows: 224 exact post-translation serializations, 14 named refusals, 82 accounted rejections; original failed separator/CST controls stay visible. Raw multiline CRC derivation is separate from named multiline-generation refusal and empty-Then layout refusal. Public admission, strict operator structure, checksum corruption and finite witness stages are documented in docs/pluscal-checksum-expressions.md; full shape/formatting/file/map parity remains pending. Final continuation Full campaign: 320 main rows, 86 admitted replacements per profile, 140 named refusals, 82 rejections and 12 rejected invalid-primary outputs; all sixteen SANY-invalid primary artifacts uncredited. All 172 SANY/Validator pairs, strict operator-CST comparisons, 12 corruptions, 37 forged reports and 512 budget controls pass. Twelve finite generated models yield 72 width/store controls, six independent strict witnesses and 24 rejected mutants. Two separate old-test boundary controls prove exact elsif bytes/CRC/operator structure plus macro refusal. Family remains partial/audit-required. Bounded non-junction sequential multiline generation is separately qualified in docs/pluscal-multiline.md; exact operator CST/SANY and checksum evidence is distinct from finite-model/witness checks. Junction/binder/macro/process/procedure layouts remain named refusals; no formatter/checksum-default or full-family certification. Finite-process Full checksum continuation proves declared-fairness post-Explode records against 224 retained inputs: raw 160 exact matches/36 parser rejections/28 named refusals, and 152 unique admitted rewritten modules per profile with strict whole-module CST/SANY/Validator controls. Forty-four finite safety models yield 528 width/store controls, 22 strict independent witnesses and 88 rejected mutants. Unproved process options/scoped names/calls remain explicit Full refusals; CRC equality is not source identity or model proof. Family remains partial/audit-required. Explicit process fairness/automatic-label Full CRC context is bounded, with configured/unconfigured Validator evidence and named source-option-comment refusal; see docs/pluscal-process-checksum-options.md. Family remains partial. Source-option context generation/Full CRC continuation is bounded and documented in docs/pluscal-source-options.md; requested/effective settings are distinct, partial option errors and old-block masking refuse. Family remains partial; stage evidence is not certification.",
+       "additional_evidence": [
+         "docs/pluscal-parser.md",
+         "docs/decisions/0022-pluscal-source-parser.md",
+@@ -778,7 +778,7 @@
+       "phase": 9,
+       "pinned_source": "tlc2/TLC.java",
+       "rust_evidence": "crates/dive-api/src/lib.rs",
+-      "conformance_evidence": "docs/pluscal-rewriting.md",
++      "conformance_evidence": "docs/pluscal-source-options.md",
+       "issues": [
+         124,
+         131,
+@@ -881,7 +881,7 @@
+         "crates/dive-pluscal/procedure-fairness-acceptance/corrected-modifiers/comparison.json",
+         "docs/pluscal-process-checksums.md"
+       ],
+-      "coverage_note": " Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Native bounded C/P macro expansion adds source-order simultaneous lexical/selector substitution with original call/definition origins and explicit expansion budgets; primary invalid artifacts remain uncredited and public CLI/API admission rejects them. Complete capture-first macro selections, enclosing-module CST/SANY and curated independent model/witness controls are recorded in docs/pluscal-macros.md. Unproved binders/procedures/name rewrites/full options/maps remain pending; no family certification. The bounded macro study accounts for 222 rows: 134 admitted token/CST/SANY artifacts, 48 rejections, 30 refusals, eight invalid-reference dispositions and two primary crashes. All 27 SANY-invalid primary outputs remain uncredited; 54 CLI and 54 direct API admission controls reject them in both profiles. Curated controls cover 132 finite models at 1/4/8 workers in fp/exact stores, 25 independently valid witnesses and 100 rejected mutants; all 44 comparator corruptions are rejected. No full family certification. Bounded native sequential procedure calls/returns retain 84 C/P rows: 48 admitted artifacts, 14 rejections, 20 named refusals, two invalid-reference dispositions. Four primary SANY-invalid modules stay uncredited. Forty-six complete model controls match clean TLC; 30 invariant witnesses reproduce exploration but remain pending strict encounter-order validation (#124). Default/canonical replay is separate qualified evidence, not strict TLC certification; full scopes/process stacks/recursion/options/maps pending. Native nonrecursive disjoint sequential procedure graphs retain 120 capture-first C/P rows: 68 artifacts, 19 rejections, 29 refusals, four invalid-reference dispositions; all eight SANY-invalid primary modules uncredited. Adjacent call/return head replacement and per-scope owners are source-backed; implicit fallthrough deadlocks and strict namespace/deadlock replay remain explicit. Full recursion/process/name/option/map contracts and certification pending. All 68 artifacts pass enclosing SANY/operator CST controls; 130 clean generated models reproduce verdict/count/depth at 1/4/8 in fp/exact stores (780 controls). The original strict campaign keeps 64 complete matches and 66 replay disagreements (62 invariant, four deadlock). Qualified default replay never confers strict credit. Native single finite process procedure ownership adds 112 capture-first C/P rows with slots, stack/pc and self-tail transfer evidence. Multiple-block/scoped renaming/fairness and strict #124 witness certification remain pending; artifact generation is nonproof. Detailed stage dispositions are in docs/pluscal-process-procedures.md; family stays partial/audit-required. The original 112 and supplemental 12/6 selections retain 130 source rows: 80 token/CST/SANY artifacts, ten matching rejections, 30 named refusals and ten invalid-reference diagnostic dispositions; all 14 invalid primary artifacts are uncredited, with 28 CLI and 28 direct API rejection controls. 130 model rows yield 66 complete matches and 64 strict pending witnesses, separately qualified 64 canonical valid and 256 invalid controls. No full family certification. Separate two-row algorithm-level --fair controls match global WF_vars(Next) artifacts/CST/SANY with four finite Init/Next rows; process-declared fairness and liveness execution remain uncredited. Aggregate process-procedure selection is 132 source rows, 82 artifacts and 134 model rows; original 130-row campaign remains retained. Native shared procedures across disjoint finite process blocks retain all166 capture-first C/P cases:94 admitted token artifacts,15 rejection matches,49 explicit refusals,8 invalid-reference diagnostics. All11 SANY-invalid primary outputs remain uncredited. Procedure normalization/storage is shared once with individually owned frames and global quotas; complete CST/SANY/count/witness campaigns remain separately reported. Scoped renaming/process-declared fairness and strict #124 namespace witness certification remain pending; no family certification. The separate 166-source shared-process-procedure increment admits 94 SANY/operator-CST artifacts, matches 15 source rejections, refuses 49 named cases and retains eight diagnostic invalid-reference rows; all eleven primary-invalid artifacts stay uncredited. Its 142 finite rows match verdicts/counts across 852 requested worker/store controls: 74 complete, 66 invariant and two deadlock strict replay-pending rows (#124). Separate canonical replay validates 68 witnesses and rejects 272 mutants with no strict TLC credit. Scoped renaming/process fairness and full historical options remain pending; family stays partial/audit-required. Bounded process-owned procedure fairness now retains source-ordered direct calls, declaration-ordered closure, per-caller WF/SF and +/- clauses, pinned -nof/-wf/-sf/-wfNext precedence and resource-limited formula construction. The original 328 and separately corrected 146 selections remain complete; six initial timeouts have separate retained larger-budget follow-ups. Generation is nonproof; SANY/CST and finite counts/strict pending/canonical replay stages remain separately accounted. Scoped renaming, sequential procedure modifiers and full historical formatter/checksum/map contracts remain pending; no family certification. Final #171 census: 480 captured rows / 474 unique sources, 302 admitted SANY/operator-CST artifact rows including six repeated follow-ups; 118 finite model rows / 708 worker-store controls, 59 complete and 59 strict witness-pending (#124). Separate canonical replay validates 59 witnesses and rejects 236 mutants without strict TLC credit. All six invalid primary artifacts and initial timeouts remain uncredited; full families stay partial/audit-required. Bounded sequential Full checksum requests now derive the reference CRC from proved native post-translation AST serialization; fair-only weakness is explicitly flagged. Complete capture/context rejections, raw historical failures, Full API/CLI/Validator corruption controls and separate finite model/witness checks do not certify full AST shapes, source integrity, exact generator formatting/file writes/maps or family parity. Final bounded Full CRC delivery: 216 retained inputs, 162 exact native post-translation serializations / 32 named refusals / 22 accounted rejections; each profile has 152 admitted rewritten modules / 24 rejections / 36 refusals / four primary-invalid rejections. All four SANY-invalid primary artifacts remain uncredited. All 304 SANY/Validator checks, 12 checksum corruptions, 37 forged reports and 512 budget controls pass; eight finite models / 48 width-store controls plus four strict valid witnesses / 16 rejected mutants are separately qualified. Literal supplied-body editing matches 158 primary documents without generator/admission credit. No full-family or checksum-integrity certification. Nested elsif/multiple-With and expression-layout CRC continuation retains all 320 source rows: 224 exact post-translation serializations, 14 named refusals, 82 accounted rejections; original failed separator/CST controls stay visible. Raw multiline CRC derivation is separate from named multiline-generation refusal and empty-Then layout refusal. Public admission, strict operator structure, checksum corruption and finite witness stages are documented in docs/pluscal-checksum-expressions.md; full shape/formatting/file/map parity remains pending. Final continuation Full campaign: 320 main rows, 86 admitted replacements per profile, 140 named refusals, 82 rejections and 12 rejected invalid-primary outputs; all sixteen SANY-invalid primary artifacts uncredited. All 172 SANY/Validator pairs, strict operator-CST comparisons, 12 corruptions, 37 forged reports and 512 budget controls pass. Twelve finite generated models yield 72 width/store controls, six independent strict witnesses and 24 rejected mutants. Two separate old-test boundary controls prove exact elsif bytes/CRC/operator structure plus macro refusal. Family remains partial/audit-required. Bounded non-junction sequential multiline generation is separately qualified in docs/pluscal-multiline.md; exact operator CST/SANY and checksum evidence is distinct from finite-model/witness checks. Junction/binder/macro/process/procedure layouts remain named refusals; no formatter/checksum-default or full-family certification. Finite-process Full checksum continuation proves declared-fairness post-Explode records against 224 retained inputs: raw 160 exact matches/36 parser rejections/28 named refusals, and 152 unique admitted rewritten modules per profile with strict whole-module CST/SANY/Validator controls. Forty-four finite safety models yield 528 width/store controls, 22 strict independent witnesses and 88 rejected mutants. Unproved process options/scoped names/calls remain explicit Full refusals; CRC equality is not source identity or model proof. Family remains partial/audit-required. Explicit process fairness/automatic-label Full CRC context is bounded, with configured/unconfigured Validator evidence and named source-option-comment refusal; see docs/pluscal-process-checksum-options.md. Family remains partial."
++      "coverage_note": " Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Native bounded C/P macro expansion adds source-order simultaneous lexical/selector substitution with original call/definition origins and explicit expansion budgets; primary invalid artifacts remain uncredited and public CLI/API admission rejects them. Complete capture-first macro selections, enclosing-module CST/SANY and curated independent model/witness controls are recorded in docs/pluscal-macros.md. Unproved binders/procedures/name rewrites/full options/maps remain pending; no family certification. The bounded macro study accounts for 222 rows: 134 admitted token/CST/SANY artifacts, 48 rejections, 30 refusals, eight invalid-reference dispositions and two primary crashes. All 27 SANY-invalid primary outputs remain uncredited; 54 CLI and 54 direct API admission controls reject them in both profiles. Curated controls cover 132 finite models at 1/4/8 workers in fp/exact stores, 25 independently valid witnesses and 100 rejected mutants; all 44 comparator corruptions are rejected. No full family certification. Bounded native sequential procedure calls/returns retain 84 C/P rows: 48 admitted artifacts, 14 rejections, 20 named refusals, two invalid-reference dispositions. Four primary SANY-invalid modules stay uncredited. Forty-six complete model controls match clean TLC; 30 invariant witnesses reproduce exploration but remain pending strict encounter-order validation (#124). Default/canonical replay is separate qualified evidence, not strict TLC certification; full scopes/process stacks/recursion/options/maps pending. Native nonrecursive disjoint sequential procedure graphs retain 120 capture-first C/P rows: 68 artifacts, 19 rejections, 29 refusals, four invalid-reference dispositions; all eight SANY-invalid primary modules uncredited. Adjacent call/return head replacement and per-scope owners are source-backed; implicit fallthrough deadlocks and strict namespace/deadlock replay remain explicit. Full recursion/process/name/option/map contracts and certification pending. All 68 artifacts pass enclosing SANY/operator CST controls; 130 clean generated models reproduce verdict/count/depth at 1/4/8 in fp/exact stores (780 controls). The original strict campaign keeps 64 complete matches and 66 replay disagreements (62 invariant, four deadlock). Qualified default replay never confers strict credit. Native single finite process procedure ownership adds 112 capture-first C/P rows with slots, stack/pc and self-tail transfer evidence. Multiple-block/scoped renaming/fairness and strict #124 witness certification remain pending; artifact generation is nonproof. Detailed stage dispositions are in docs/pluscal-process-procedures.md; family stays partial/audit-required. The original 112 and supplemental 12/6 selections retain 130 source rows: 80 token/CST/SANY artifacts, ten matching rejections, 30 named refusals and ten invalid-reference diagnostic dispositions; all 14 invalid primary artifacts are uncredited, with 28 CLI and 28 direct API rejection controls. 130 model rows yield 66 complete matches and 64 strict pending witnesses, separately qualified 64 canonical valid and 256 invalid controls. No full family certification. Separate two-row algorithm-level --fair controls match global WF_vars(Next) artifacts/CST/SANY with four finite Init/Next rows; process-declared fairness and liveness execution remain uncredited. Aggregate process-procedure selection is 132 source rows, 82 artifacts and 134 model rows; original 130-row campaign remains retained. Native shared procedures across disjoint finite process blocks retain all166 capture-first C/P cases:94 admitted token artifacts,15 rejection matches,49 explicit refusals,8 invalid-reference diagnostics. All11 SANY-invalid primary outputs remain uncredited. Procedure normalization/storage is shared once with individually owned frames and global quotas; complete CST/SANY/count/witness campaigns remain separately reported. Scoped renaming/process-declared fairness and strict #124 namespace witness certification remain pending; no family certification. The separate 166-source shared-process-procedure increment admits 94 SANY/operator-CST artifacts, matches 15 source rejections, refuses 49 named cases and retains eight diagnostic invalid-reference rows; all eleven primary-invalid artifacts stay uncredited. Its 142 finite rows match verdicts/counts across 852 requested worker/store controls: 74 complete, 66 invariant and two deadlock strict replay-pending rows (#124). Separate canonical replay validates 68 witnesses and rejects 272 mutants with no strict TLC credit. Scoped renaming/process fairness and full historical options remain pending; family stays partial/audit-required. Bounded process-owned procedure fairness now retains source-ordered direct calls, declaration-ordered closure, per-caller WF/SF and +/- clauses, pinned -nof/-wf/-sf/-wfNext precedence and resource-limited formula construction. The original 328 and separately corrected 146 selections remain complete; six initial timeouts have separate retained larger-budget follow-ups. Generation is nonproof; SANY/CST and finite counts/strict pending/canonical replay stages remain separately accounted. Scoped renaming, sequential procedure modifiers and full historical formatter/checksum/map contracts remain pending; no family certification. Final #171 census: 480 captured rows / 474 unique sources, 302 admitted SANY/operator-CST artifact rows including six repeated follow-ups; 118 finite model rows / 708 worker-store controls, 59 complete and 59 strict witness-pending (#124). Separate canonical replay validates 59 witnesses and rejects 236 mutants without strict TLC credit. All six invalid primary artifacts and initial timeouts remain uncredited; full families stay partial/audit-required. Bounded sequential Full checksum requests now derive the reference CRC from proved native post-translation AST serialization; fair-only weakness is explicitly flagged. Complete capture/context rejections, raw historical failures, Full API/CLI/Validator corruption controls and separate finite model/witness checks do not certify full AST shapes, source integrity, exact generator formatting/file writes/maps or family parity. Final bounded Full CRC delivery: 216 retained inputs, 162 exact native post-translation serializations / 32 named refusals / 22 accounted rejections; each profile has 152 admitted rewritten modules / 24 rejections / 36 refusals / four primary-invalid rejections. All four SANY-invalid primary artifacts remain uncredited. All 304 SANY/Validator checks, 12 checksum corruptions, 37 forged reports and 512 budget controls pass; eight finite models / 48 width-store controls plus four strict valid witnesses / 16 rejected mutants are separately qualified. Literal supplied-body editing matches 158 primary documents without generator/admission credit. No full-family or checksum-integrity certification. Nested elsif/multiple-With and expression-layout CRC continuation retains all 320 source rows: 224 exact post-translation serializations, 14 named refusals, 82 accounted rejections; original failed separator/CST controls stay visible. Raw multiline CRC derivation is separate from named multiline-generation refusal and empty-Then layout refusal. Public admission, strict operator structure, checksum corruption and finite witness stages are documented in docs/pluscal-checksum-expressions.md; full shape/formatting/file/map parity remains pending. Final continuation Full campaign: 320 main rows, 86 admitted replacements per profile, 140 named refusals, 82 rejections and 12 rejected invalid-primary outputs; all sixteen SANY-invalid primary artifacts uncredited. All 172 SANY/Validator pairs, strict operator-CST comparisons, 12 corruptions, 37 forged reports and 512 budget controls pass. Twelve finite generated models yield 72 width/store controls, six independent strict witnesses and 24 rejected mutants. Two separate old-test boundary controls prove exact elsif bytes/CRC/operator structure plus macro refusal. Family remains partial/audit-required. Bounded non-junction sequential multiline generation is separately qualified in docs/pluscal-multiline.md; exact operator CST/SANY and checksum evidence is distinct from finite-model/witness checks. Junction/binder/macro/process/procedure layouts remain named refusals; no formatter/checksum-default or full-family certification. Finite-process Full checksum continuation proves declared-fairness post-Explode records against 224 retained inputs: raw 160 exact matches/36 parser rejections/28 named refusals, and 152 unique admitted rewritten modules per profile with strict whole-module CST/SANY/Validator controls. Forty-four finite safety models yield 528 width/store controls, 22 strict independent witnesses and 88 rejected mutants. Unproved process options/scoped names/calls remain explicit Full refusals; CRC equality is not source identity or model proof. Family remains partial/audit-required. Explicit process fairness/automatic-label Full CRC context is bounded, with configured/unconfigured Validator evidence and named source-option-comment refusal; see docs/pluscal-process-checksum-options.md. Family remains partial. Source-option context generation/Full CRC continuation is bounded and documented in docs/pluscal-source-options.md; requested/effective settings are distinct, partial option errors and old-block masking refuse. Family remains partial; stage evidence is not certification."
+     },
+     {
+       "id": "F-036",
+diff --git a/crates/dive-api/src/rewrite.rs b/crates/dive-api/src/rewrite.rs
+index ab622a404..d3f33137d 100644
+--- a/crates/dive-api/src/rewrite.rs
++++ b/crates/dive-api/src/rewrite.rs
+@@ -43,7 +43,7 @@ fn report(
+     stage: &str,
+     details: Value,
+ ) -> RewriteReport {
+-    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"translation_options":request.translation.limits,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
++    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"translation_options":request.translation.limits,"requested_translation_options":request.translation.limits,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
+     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
+         object.extend(extra);
+     }
+@@ -91,6 +91,21 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
+         Ok(selection) => selection,
+         Err(error) => return failure(file, request, "selection", &error),
+     };
++    let context =
++        match dive_pluscal::resolve_translation_options(source, &request.translation.limits) {
++            Ok(context) => context,
++            Err(error) => return failure(file, request, "source-options", &error.diagnostic),
++        };
++    if let (Some(previous), Some(declaration)) = (selection.previous, &context.source_declaration)
++        && declaration.span.start < previous.end
++        && declaration.span.end > previous.start
++    {
++        return failure(file, request, "source-options", &Diagnostic {
++                code: Code::Unsupported,
++                span: declaration.span,
++                message: "unsupported PlusCal source option declaration inside previous translation; masking would change the deciding context".into(),
++            });
++    }
+     let masked = dive_pluscal::rewrite::mask_previous(source, selection.previous);
+     let generated = translate_source(file, &masked, &request.translation);
+     if !generated.accepted() {
+@@ -140,7 +155,7 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
+         request,
+         0,
+         "replacement-analysis",
+-        json!({"algorithm_checksum_verified":plan.algorithm_checksum_verified,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
++        json!({"translation_options":context.effective,"option_context":context,"algorithm_checksum_verified":plan.algorithm_checksum_verified,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
+     )
+ }
+ /// Read a bounded UTF-8 module and return its in-memory replacement plan.
+diff --git a/crates/dive-api/src/translate.rs b/crates/dive-api/src/translate.rs
+index 6fbc6fe8c..115d842f9 100644
+--- a/crates/dive-api/src/translate.rs
++++ b/crates/dive-api/src/translate.rs
+@@ -237,6 +237,6 @@ pub fn translate_source(
+         request,
+         0,
+         "artifact-analysis",
+-        json!({"artifact":artifact,"module_source":generated,"analysis":analysis.to_json()}),
++        json!({"translation_options":artifact.option_context.effective,"requested_translation_options":request.limits,"option_context":artifact.option_context,"artifact":artifact,"module_source":generated,"analysis":analysis.to_json()}),
+     )
+ }
+diff --git a/crates/dive-pluscal/src/lib.rs b/crates/dive-pluscal/src/lib.rs
+index 03bea5f22..64dc4aa43 100644
+--- a/crates/dive-pluscal/src/lib.rs
++++ b/crates/dive-pluscal/src/lib.rs
+@@ -28,9 +28,10 @@ mod translation;
+ pub use parser::{Options, parse, parse_at};
+ use serde::{Deserialize, Serialize};
+ pub use translation::{
+-    AlgorithmChecksum, FairnessOption, InsertedLabel, ProcessTranslation, Translation,
+-    TranslationError, TranslationMap, TranslationOptions, TranslationStage, TranslationWarning,
+-    algorithm_checksum_at, translate, translate_at,
++    AlgorithmChecksum, FairnessOption, InsertedLabel, ProcessTranslation, SourceOptionArgument,
++    SourceOptionDeclaration, Translation, TranslationContext, TranslationError, TranslationMap,
++    TranslationOptions, TranslationStage, TranslationWarning, algorithm_checksum_at,
++    resolve_translation_options, source_options_span, translate, translate_at,
+ };
+ 
+ /// Stable native PlusCal diagnostic categories.
+diff --git a/crates/dive-pluscal/src/translate/checksum.rs b/crates/dive-pluscal/src/translate/checksum.rs
+index f965c6485..e2e321b8c 100644
+--- a/crates/dive-pluscal/src/translate/checksum.rs
++++ b/crates/dive-pluscal/src/translate/checksum.rs
+@@ -22,6 +22,8 @@ pub struct AlgorithmChecksum {
+     pub checksum: String,
+     /// The reference hashes only `fair` for a `--fair algorithm` header.
+     pub fair_header_crc_only: bool,
++    /// Requested and effective settings used for exact AST serialization.
++    pub option_context: super::TranslationContext,
+ }
+ fn unsupported(span: Span, detail: &str) -> TranslationError {
+     error(
+@@ -663,9 +665,8 @@ fn checksum_inline(
+             diagnostic,
+         }
+     })?;
+-    if let Some(span) = super::source_options_span(source) {
+-        return Err(unsupported(span, "source option declaration context"));
+-    }
++    let context = super::resolve_translation_options(source, options)?;
++    let options = &context.effective;
+     let algorithm = &parsed.algorithm;
+     if !algorithm.macros.is_empty()
+         || !algorithm.procedures.is_empty()
+@@ -743,6 +744,7 @@ fn checksum_inline(
+         w.text.as_bytes()
+     });
+     Ok(AlgorithmChecksum {
++        option_context: context,
+         serialized_ast: w.text,
+         checksum,
+         fair_header_crc_only: fair,
+diff --git a/crates/dive-pluscal/src/translate/emit.rs b/crates/dive-pluscal/src/translate/emit.rs
+index 729699848..8a75b9497 100644
+--- a/crates/dive-pluscal/src/translate/emit.rs
++++ b/crates/dive-pluscal/src/translate/emit.rs
+@@ -1264,6 +1264,7 @@ pub(super) fn generate(
+         ));
+     }
+     Ok(Translation {
++        option_context: super::TranslationContext::explicit(options),
+         tla: text,
+         mappings,
+         actions: model
+diff --git a/crates/dive-pluscal/src/translate/mod.rs b/crates/dive-pluscal/src/translate/mod.rs
+index da41a0da8..daec7fd9a 100644
+--- a/crates/dive-pluscal/src/translate/mod.rs
++++ b/crates/dive-pluscal/src/translate/mod.rs
+@@ -6,8 +6,13 @@ mod fairness;
+ mod labels;
+ mod lower;
+ mod macros;
++mod options;
+ mod procedures;
+ mod process;
++pub use options::{
++    SourceOptionArgument, SourceOptionDeclaration, TranslationContext, resolve_translation_options,
++    source_options_span,
++};
+ 
+ use crate::{Code, Diagnostic, Options, ast::Span};
+ use serde::{Deserialize, Serialize};
+@@ -159,6 +164,8 @@ pub struct Translation {
+     pub configuration: String,
+     /// Admitted process declarations; empty for sequential translation.
+     pub processes: Vec<ProcessTranslation>,
++    /// Requested and effective source/CLI settings used for this artifact.
++    pub option_context: TranslationContext,
+ }
+ 
+ fn error(
+@@ -177,39 +184,6 @@ fn error(
+     }
+ }
+ 
+-fn source_options_span(source: &str) -> Option<Span> {
+-    for (start, _) in source.match_indices("PlusCal") {
+-        if start > 0
+-            && !source[..start]
+-                .chars()
+-                .next_back()
+-                .is_some_and(char::is_whitespace)
+-        {
+-            continue;
+-        }
+-        let rest = &source[start + 7..];
+-        if !rest.starts_with(char::is_whitespace) {
+-            continue;
+-        }
+-        let next = rest.trim_start();
+-        let Some(tail) = next.strip_prefix("options") else {
+-            continue;
+-        };
+-        if tail
+-            .chars()
+-            .next()
+-            .is_some_and(|c| c.is_alphanumeric() || c == '_')
+-        {
+-            continue;
+-        }
+-        return Some(Span {
+-            start,
+-            end: start + 7 + rest.len() - next.len() + 7,
+-        });
+-    }
+-    None
+-}
+-
+ /// Translates a bounded sequential or disjoint finite-process current C/P algorithm.
+ /// Unproved process domains, procedure/macro interactions, historical modes and name
+ /// disambiguation fail before an artifact is returned. Expression validation and
+@@ -247,18 +221,15 @@ pub fn translate_at(
+                             diagnostic,
+                         }
+                     })?;
+-                if let Some(span) = source_options_span(source) {
+-                    return Err(error(
+-                        TranslationStage::Normalization, Code::Unsupported, span,
+-                        "unsupported PlusCal source option declaration; pass proved settings explicitly through the CLI/API",
+-                    ));
+-                }
++                let context = resolve_translation_options(source, options)?;
++                let options = &context.effective;
+                 let mut parsed = macros::expand(parsed, options)?;
+                 let mut translate = || {
+                     let inserted = labels::normalize(&mut parsed, options)?;
+                     let model = lower::normalize(&parsed, options)?;
+                     let mut artifact = emit::generate(&parsed, &model, options)?;
+                     artifact.inserted_labels = inserted;
++                    artifact.option_context = context.clone();
+                     Ok(artifact)
+                 };
+                 translate().map_err(|mut failure: TranslationError| {
+diff --git a/crates/dive-pluscal/tests/process_checksum.rs b/crates/dive-pluscal/tests/process_checksum.rs
+index 0f7cf6dba..eb6b3d0cf 100644
+--- a/crates/dive-pluscal/tests/process_checksum.rs
++++ b/crates/dive-pluscal/tests/process_checksum.rs
+@@ -168,18 +168,28 @@ fn process_ast_budgets_are_global_and_never_admit_partial_crc()
+ }
+ 
+ #[test]
+-fn source_option_comments_have_no_artifact_or_full_crc() -> Result<(), Box<dyn std::error::Error>> {
+-    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+-        .join("process-option-checksum-acceptance/validator-context");
+-    for name in ["weak", "strong", "labels", "root"] {
+-        let source = std::fs::read_to_string(root.join(format!("SourceOptions_{name}.tla")))?;
++fn source_option_comments_have_proved_artifact_and_full_crc()
++-> Result<(), Box<dyn std::error::Error>> {
++    let root =
++        Path::new(env!("CARGO_MANIFEST_DIR")).join("source-option-semantics-acceptance/primary-v2");
++    for name in ["weak", "strong", "labels", "root-last"] {
++        let id = format!("P_plain_{name}_cli_sf");
++        let source = std::fs::read_to_string(root.join(format!("{id}.tla")))?;
+         let selection = select_rewrite(&source, &RewriteOptions::default())?;
+         let region = selection.algorithm.start..selection.algorithm.end;
+-        let checksum =
+-            algorithm_checksum_at(&source, region.clone(), &TranslationOptions::default());
+-        assert!(checksum.is_err_and(|e| e.diagnostic.code == Code::Unsupported));
+-        let artifact = dive_pluscal::translate_at(&source, region, &TranslationOptions::default());
+-        assert!(artifact.is_err_and(|e| e.diagnostic.code == Code::Unsupported));
++        let options = TranslationOptions {
++            fairness: FairnessOption::Strong,
++            ..TranslationOptions::default()
++        };
++        let checksum = algorithm_checksum_at(&source, region.clone(), &options)?;
++        let expected = std::fs::read_to_string(root.join(format!("{id}.translated.ast")))?;
++        assert_eq!(checksum.serialized_ast, expected);
++        let artifact = dive_pluscal::translate_at(&source, region, &options)?;
++        assert!(artifact.option_context.source_declaration.is_some());
++        assert_eq!(
++            artifact.option_context.effective.fairness,
++            checksum.option_context.effective.fairness
++        );
+     }
+     Ok(())
+ }
+diff --git a/docs/decisions/0047-bounded-translation-block-editing.md b/docs/decisions/0047-bounded-translation-block-editing.md
+index 386996f2b..d5c9b25c4 100644
+--- a/docs/decisions/0047-bounded-translation-block-editing.md
++++ b/docs/decisions/0047-bounded-translation-block-editing.md
+@@ -189,3 +189,22 @@ serialization proof. Public AST equality, enclosing CST/SANY admission,
+ checksums/corruptions and finite safety/witness evidence remain separate.
+ No dependency/default/file-write/formatter contract changes.
+ The executable contract is `docs/pluscal-process-checksum-options.md`.
++
++## Source option semantics continuation (#182)
++
++Generation and Full AST serialization share one bounded native resolver for the
++first whole-file reference-recognized `PlusCal options` declaration. Requested
++settings, effective settings and original declaration/argument spans are reported
++separately. One source fairness argument overrides CLI/API fairness; supported
++label/root arguments override only their corresponding settings. No runtime
++Java dependency or dependency graph change is introduced.
++
++Pinned `trans.performTranslation` ignores `ProcessOptions` error statuses and can
++write output after partial application. Unknown/malformed/conflicting contexts
++remain explicitly unsupported; no artifact or invented checksum is returned.
++The original source context is resolved before high-level rewrite masking, and
++a deciding declaration overlapping the previous translation is refused.
++Unicode-adjacent keyword tests, broader historical options and bare-CR Full AST
++serialization remain bounded refusals. Full and supplied-body editing retain
++separate admission obligations. See `docs/pluscal-source-options.md`, D-021 and
++the complete retained source-option acceptance selections.
+diff --git a/docs/divergences.md b/docs/divergences.md
+index 11f8e13c9..814d7e5af 100644
+--- a/docs/divergences.md
++++ b/docs/divergences.md
+@@ -348,8 +348,9 @@ A clean pinned `pcal.trans -wf`/`-sf` or automatic-label translation can give
+ `PCAL_DIVERGENCE_EXISTS` in a fresh unconfigured Validator, but `NO_DIVERGENCE`
+ with the same settings. Declared-fairness `-nof` and fair-header cases retain
+ separate measured outcomes. Source `PlusCal options (...)` comments do carry
+-context into the reference Validator; native currently refuses that context by
+-name before generation/CRC instead of silently ignoring its semantics.
++context into the reference Validator; the source context continuation admits only proved fairness/label settings and
++refuses unknown/malformed/conflicting contexts before generation/CRC instead of
++silently ignoring their semantics.
+ 
+ No stronger checksum/default policy is adopted. Explicit typed/CLI options have
+ proved bounded process AST serialization; replacement reports record them.
+@@ -363,3 +364,10 @@ label settings now have stage-separated raw/full controls; procedure/macro ASTs,
+ scoped renaming and source-option declarations remain named Full refusals.
+ F-034/F-035 are still partial; CRC derivation, artifact admission and finite
+ model/witness checks do not certify the whole translator or liveness.
++
++D-021 source parsing study: pinned unknown/conflicting declarations can print
++`Unrecoverable error`, exit 0, and write a partially configured translation.
++Both primary syntax studies are retained under
++`crates/dive-pluscal/source-option-semantics-acceptance/prestudy/` before native
++implementation. Unknown/malformed/partial-error contexts remain named refusals;
++no silent corrected default or unsupported-success credit is adopted.
+diff --git a/docs/pluscal-process-checksum-options.md b/docs/pluscal-process-checksum-options.md
+index 6dac2695d..26d9f3db0 100644
+--- a/docs/pluscal-process-checksum-options.md
++++ b/docs/pluscal-process-checksum-options.md
+@@ -135,3 +135,8 @@ and exact stores (288 runs), with 12 strict independently valid witnesses and
+ Forty-four forged reports and 12 header/body/source corruptions are rejected or
+ retain the explicitly recorded D-020 weakness. Sixteen runnable CLI/Rust guide
+ controls and 32 named source-context surface refusals have separate receipts.
++
++The source-declaration continuation in [PlusCal source options](pluscal-source-options.md)
++proves a bounded fairness/label subset and keeps requested/effective context
++separate. Historical source-comment refusals and wrong-fairness captures above
++remain evidence of earlier producers, rather than current positive credit.
+diff --git a/docs/pluscal-rewriting.md b/docs/pluscal-rewriting.md
+index d5380549b..e23fa283b 100644
+--- a/docs/pluscal-rewriting.md
++++ b/docs/pluscal-rewriting.md
+@@ -144,3 +144,9 @@ and automatic-label options; see [process checksum options](pluscal-process-chec
+ It records the typed normalization context, refuses unproved in-source option
+ comments and does not claim that command-line settings survive in the pinned
+ header or that a CRC establishes source identity (D-020/D-021).
++
++Supported source fairness/label declarations and their precedence are documented
++in [PlusCal source options](pluscal-source-options.md). Original context is
++checked before old blocks are masked; a deciding declaration inside the old
++block is refused. Explicit/source settings, CRC derivation, artifact admission
++and model proofs remain separate.
+diff --git a/docs/provenance.md b/docs/provenance.md
+index ea5756b73..9121e3051 100644
+--- a/docs/provenance.md
++++ b/docs/provenance.md
+@@ -337,3 +337,5 @@ controls remain retained. This is artifact fidelity, not a semantic divergence.
+ | --- | --- | --- | --- |
+ | Native process option AST checksum (`dive-pluscal/translate/checksum.rs`) | `pcal.ParseAlgorithm.getAlgorithm` 377–394 (declared fairness precedes wf/sf defaults), `InnerAddLabels`, `AST.Process.toString`, `AST.Multiprocess.toString`, `PcalTranslate.Explode`; pinned `94d0c50` | MIT | Exact native post-translation bytes/CRC on retained source/option pairs; generator fairness suppression remains separate, all unproved source-option contexts refuse |
+ | Source-option preflight (`dive-pluscal/translate/mod.rs`) | `pcal.ParseAlgorithm.ProcessOptions`, `FindToken`; `pcal.trans.performTranslation`; `pcal.Validator.validate` | MIT | Conservative detection/refusal, not a port of option-comment parsing; retained original ignored-option wrong artifacts and configured/unconfigured primary evidence |
++
++| `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |
+diff --git a/docs/tlc-differences.md b/docs/tlc-differences.md
+index a97502735..a59e9caf5 100644
+--- a/docs/tlc-differences.md
++++ b/docs/tlc-differences.md
+@@ -1401,8 +1401,9 @@ preserved before the native source-context guard.
+ For proved finite process shapes, dive derives Full CRCs from the exact explicit
+ CLI/API options and reports `translation_options` on every replacement request.
+ The API has one fairness enum; the CLI rejects repeated/conflicting fairness
+-flags before loading. Native generation and Full derivation refuse unproved
+-source-option declarations by name. Store/replay explicit settings with the
++flags before loading. Native generation and Full derivation admit only the proved source fairness/label
++subset documented in [source options](pluscal-source-options.md); unknown,
++malformed, conflicting and other unproved source contexts refuse by name. Store/replay explicit settings with the
+ artifact and configure reference validation consistently. An unconfigured
+ Validator result never proves the source was edited.
+ 
+@@ -1415,6 +1416,26 @@ witness validation stay separate (D-008).
+ 
+ See [runnable option examples and limits](pluscal-process-checksum-options.md)
+ and `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`
+-for all primary/configured/unconfigured/native-before-guard evidence. General
+-source-option parsing, scoped serialization, exact formatting and file writes
+-remain pending rather than inferred from this bounded increment.
++for all primary/configured/unconfigured/native-before-guard evidence. Broader
++historical source-option parsing, scoped serialization, exact formatting and file
++writes remain pending rather than inferred from this bounded increment.
++
++### D-021 retained source-option errors and partial application
++
++The pinned translator also continues after some source-option errors. In the
++minimal C and P process controls, `PlusCal options (-wf, -sf)` prints an
++`Unrecoverable error`, exits **0**, writes a translation, and keeps the first
++weak-fairness setting. `PlusCal options (-unknown)` likewise exits 0 and writes
++a translation after reporting an unknown option. An unterminated declaration
++can accidentally consume a later `)` from the algorithm and apply a setting.
++The initial missing-label study and the corrected explicit-label study are both
++retained in `crates/dive-pluscal/source-option-semantics-acceptance/prestudy/`;
++the latter has 16 clean primary runs and carries no native conformance credit.
++
++The native continuation will refuse malformed, unknown or conflicting source
++options before artifact/CRC generation instead of silently accepting partial
++application. This is an explicit bounded unsupported disposition, **not** a
++new corrected checksum or fairness default. A source declaration overriding
++CLI fairness is intended reference behavior and is tested separately. Artifact
++acceptance still requires enclosing-module analysis; zero from the translator
++never proves model correctness or a usable artifact (D-008).
+diff --git a/docs/tlc-parity.md b/docs/tlc-parity.md
+index bb5466408..e8db7ac87 100644
+--- a/docs/tlc-parity.md
++++ b/docs/tlc-parity.md
+@@ -381,3 +381,11 @@ named unsupported after retained ignored-option failures; unconfigured reference
+ validation is qualified as D-021, with D-020 unchanged. See
+ [the runnable CLI/API contract](pluscal-process-checksum-options.md).
+ F-034/F-035 remain partial and audit-required; no denominator/certification change.
++
++Source-option context continuation (#182) uses the shared bounded first-declaration
++resolver for generation and Full checksum serialization, preserving requested and
++effective settings plus original spans. Unknown/malformed/conflicting option
++contexts and old-block context masking refuse explicitly. Native AST/CRC/CST,
++public admission, Validator and finite-model evidence remain separate. See
++[the runnable source options guide](pluscal-source-options.md). F-034/F-035 remain
++partial and audit-required; no certification or denominator change.

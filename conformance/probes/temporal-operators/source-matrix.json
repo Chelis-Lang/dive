@@ -1,6 +1,5 @@
 {
-  "schema_version": 1,
-  "scope": "Bounded known-user operator/formal forwarding with callback-free mandatory scoped capture projection and independent word/witness replay;18 clean primary/72 native outcomes,14 supported temporal projections; separate9b material140 census46/92/2, no ordinary/family/aggregate-memory upgrade",
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "production_source_sha256": {
     "crates/dive-eval/src/scope.rs": "10695d924523f746981f4d097a84dd997c3cf0f63696ec7389e87f8458cdfe13",
     "crates/dive-eval/src/finite.rs": "373ed0875be77cb6559351e4762b319156a557aad702b2a3e1cf5950e1a0c2cd",
@@ -11,11 +10,13 @@
     "crates/dive-api/tests/temporal_operators.rs": "5d631ac51b58cd58933997484251eab5dcb9dc811c631fdc3cb6195f454eecc6",
     "crates/dive-liveness/tests/temporal_operators.rs": "3e78bc3a46a3b15ca03232377f320505d528c214947f511fd3ab4d304f4aa43e"
   },
+  "schema_version": 1,
+  "scope": "Bounded known-user operator/formal forwarding with callback-free mandatory scoped capture projection and independent word/witness replay;18 clean primary/72 native outcomes,14 supported temporal projections; separate9b material140 census46/92/2, no ordinary/family/aggregate-memory upgrade",
   "source_sha256": {
     ".github/workflows/ci.yml": "47854f1912e22ac580780e9e1acf31c6b0e7f6d62b0994690476e6476ec0a56c",
     "AGENTS.md": "9b8082f037c29ef9bf8da65d06ecd60ecbbd89c0976780c07c5a7da0f71f103b",
-    "CHANGELOG.md": "7db335081a1f127718163550d251b73f3aefb3aac272b35e48de831603f19b4e",
-    "conformance/parity-features.json": "d31ab0916559073f88625db8e7bde2c4643abfe9c8d3c17c79aeea3ec902a59b",
+    "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+    "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
@@ -3144,14 +3145,13 @@
     "crates/dive-liveness/tests/temporal_operators.rs": "1b81654caf860d859c3b50b18b4991b50c7816657d4cb53c7a571478e989d05c",
     "crates/dive-trace/src/temporal.rs": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "4ecc42f11035f4d6fdfe6ce69627002fb1580faf0b8a5dddfbfb01c69282545a",
-    "docs/divergences.md": "48716fbb07d7e7c8f3f3a92ef1d19f0920276703d1480523a9ec312e69a687f9",
-    "docs/provenance.md": "1b6e308992cad056fba3a25464d798e432209ed6dee2cb4c68a794a7380c5283",
+    "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+    "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
     "docs/temporal-operators.md": "3aef14d6e6718257cf7df20b75c69a8910fbcdfad1071b5b5d262836479bedd9",
-    "docs/tlc-differences.md": "ce276597bf5f306a0d721189b07946a621dcddc98f798ac39b35fb3efff9cddf",
+    "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
     "docs/user/rust-api.md": "1c2c649dc326e61b87d06eaad3fc087d6e709470043704391d3464365a9e17fb",
     "docs/user/temporal.md": "d5fc34d3fbf6e6be09da79566b9120713d04070835e7de4b04ab18dac498b8c5",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-temporal-operators.py": "46cca16e943d19e6ac690b555a051d26891733c3cc481e0ce48634a82fbc172a"
-  },
-  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+  }
 }
