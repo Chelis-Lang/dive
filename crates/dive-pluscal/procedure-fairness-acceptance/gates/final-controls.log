@@ -1,0 +1,6 @@
+Rejected 39 full-document corruptions
+Rejected all 12 public admission controls
+Passed all 12 direct API invalid-artifact controls
+Passed four guide CLI controls
+Passed both executable guide API examples
+Rejected all60 timeout-row full-document corruptions

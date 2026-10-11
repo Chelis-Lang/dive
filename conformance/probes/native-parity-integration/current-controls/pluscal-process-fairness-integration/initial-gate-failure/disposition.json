@@ -1,0 +1,13 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "passed": 903,
+  "failed": 3,
+  "skipped": 0,
+  "exit_code": 100,
+  "scope": "Integration omitted two updated test files from frozen5d1 fairness increment. Exact older selection admits14 more oracle-verified artifacts; all existing token/span/invalid-reference assertions remain. Original failures are preserved; this is not a passing full gate.",
+  "logs_sha256": {
+    "dive-pluscal-process-fairness-current-gate-0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dive-pluscal-process-fairness-current-gate-1.log": "0b52660adb714be7cf078c2b4a7f92af2df1c323d1ac428d1f94a45c446a74b8",
+    "dive-pluscal-process-fairness-current-gate-2.log": "e1b72a8a908e02d09f39a51a7aa07b4bfc7032dd226366b88b617ef356b4a996"
+  }
+}

@@ -46,3 +46,25 @@ The owner explicitly asked that CI not grow bloated: perf and profiling work wil
 - **Stub crates cost little now** and make layering violations visible from day one.
 - **The gate stays fast.** The expensive conformance and perf work is opt-in by schedule or dispatch.
 - **Toolchain bumps are deliberate,** and touch both `rust-toolchain.toml` and `Cargo.toml`.
+
+## CI scheduling addendum (2026-10-11)
+
+Main run 38093242207 exhausted the 15-minute Workspace gate limit. Authorship
+and conformance passed; 202 of 894 tests had passed without a reported failure
+when the runner cancelled the workspace job. This is a scheduling defect, not
+evidence that the remaining tests passed. Issue #173 tracks the repair.
+
+The full nextest workspace suite now runs in four hash partitions on separate
+runners. No test selection, ignored-test policy or per-test timeout changes.
+Each partition retains the 15-minute job limit, fail-fast stays disabled, and
+the existing 60-second/three-period CI test limit remains intact. A separate
+Workspace checks job runs every remaining original check and verifies that
+the four partitions are disjoint and cover the unpartitioned test inventory.
+
+Workspace gate retains its required check name. It runs even if dependencies
+fail or are skipped, and explicitly requires success from authorship, workspace
+checks and the complete test matrix. Cancellation, skipped prerequisites and
+missing results fail closed. The conformance job remains unchanged.
+
+Local contributors still run the whole gate. Partition reproduction and
+coverage verification are documented in [CI scheduling](../developer/ci.md).

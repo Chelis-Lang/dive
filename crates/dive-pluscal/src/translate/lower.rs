@@ -109,11 +109,11 @@ pub(super) fn normalize(
     options: &TranslationOptions,
 ) -> Result<Model, TranslationError> {
     let algorithm = &parsed.algorithm;
-    if !algorithm.procedures.is_empty() {
-        return super::procedures::normalize(parsed, options);
-    }
     if let Body::Processes(processes) = &algorithm.body {
         return super::process::normalize(parsed, processes, options);
+    }
+    if !algorithm.procedures.is_empty() {
+        return super::procedures::normalize(parsed, options);
     }
     normalize_with_pc(parsed, options, false)
 }

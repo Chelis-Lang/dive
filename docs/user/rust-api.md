@@ -59,3 +59,9 @@ model result. The independent trace crate builds without the successor enumerato
 For exact type signatures and compiled examples run `cargo doc -p dive-api --no-deps`
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md) and [temporal guide](temporal.md).
+
+The [fair procedure guide](../pluscal-procedure-fairness.md) includes a compiled
+Rust caller using `TranslationRequest.limits.fairness`. Shared finite process
+procedures retain per-ID ownership; their admitted translation reports still
+carry `model_proved: false`. Read [PlusCal boundaries](pluscal.md) before
+interpreting a generated Spec as a checker result.

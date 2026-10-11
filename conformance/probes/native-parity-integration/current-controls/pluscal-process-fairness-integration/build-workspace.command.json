@@ -1,0 +1,14 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "cargo",
+    "build",
+    "--workspace",
+    "--release",
+    "--locked"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 342.08757615089417,
+  "log_sha256": "bfdb23ec3a7caee2a35b8a0265c8eb38c3f6d425006e2607f45cfde19bac18ad"
+}

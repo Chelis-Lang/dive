@@ -1,0 +1,21 @@
+{
+  "original": "crates/dive-pluscal/procedure-fairness-acceptance/check-api-admission.py",
+  "original_sha256": "1c50188f281f8f8bba9165c1231f94a909925ed4626731863cdd165437e1acb1",
+  "adapted_sha256": "a90e64e6b036baae2e1181b75ee04341bd06a300c69fe7440ab7728dee00fb1e",
+  "changes": [
+    {
+      "old": "BASE=Path(__file__).resolve().parent",
+      "new": "BASE=Path('/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/procedure-fairness-acceptance')"
+    },
+    {
+      "old": "out=BASE/'api-admission'",
+      "new": "out=Path('/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/api-admission')"
+    },
+    {
+      "old": "deps=args.target/'debug/deps';library=max(deps.glob('libdive_api-*.rlib'),key=lambda p:p.stat().st_mtime_ns)",
+      "new": "deps=args.target/'release/deps';libraries=list(deps.glob('libdive_api-*.rlib'));assert len(libraries)==1;library=libraries[0]"
+    }
+  ],
+  "assertions_weakened": false,
+  "historical_reports_changed": false
+}

@@ -1648,3 +1648,84 @@ exact-store, accepting-sink, recovery, effect or resource refusals. The separate
 replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
 alias targets are admitted through actual module contexts before any startup
 binding effect. See [the user guide](tlc-final-api.md).
+
+**PlusCal process procedure status (D-008):** one unfair finite process block
+can now call disjoint procedures in both syntaxes, including recursive and
+self-tail transfers. Slots and stack are owned by the process ID, while explicit
+source `stack` expressions remain as written by the reference. Invalid upstream
+artifacts, including empty self-tail conjunctions, are still rejected in both
+profiles. Multiple blocks with procedures, scoped rewriting/fairness and strict
+runtime-namespace witnesses remain named limitations; canonical witnesses do
+not certify TLC replay. See [process procedure use](pluscal-process-procedures.md).
+
+### Procedure names can collide with generated ProcSet (D-008 candidate)
+
+This minimal C-style PlusCal body uses a parameter named `ProcSet`:
+
+```tla
+--algorithm A {
+  variable x = 0;
+  procedure First(ProcSet = 0) { F: x := ProcSet; R: return; };
+  process (Worker = 1) { L: call First(2); E: skip; }
+}
+```
+
+The pinned translator exits **0**, declaring variable `ProcSet` and also emitting
+operator `ProcSet == {1}`. Clean SANY with `-error-codes` exits **4**, reporting
+the multiply-defined symbol. Naming the procedure itself `ProcSet` similarly
+produces a zero-exit translation with conflicting zero/one-argument operators.
+Both C/P versions are retained: four invalid primary artifacts in
+`crates/dive-pluscal/process-procedure-acceptance/names/primary`.
+
+Successful generation is not a usable artifact. Public native translation in
+both profiles rejects the enclosing module and claims neither acceptance nor
+proof. These rows earn diagnostic credit only; no automatic rename, corrected
+output option or new default has been adopted. Status: measured upstream
+artifact-generation defect, with source/raw/SANY and CLI/API rejection controls.
+
+**Later shared process procedure status (D-008):** multiple disjoint finite
+process blocks can now call the same procedures without sharing their frames.
+Slots and stack initialize once over all IDs; procedure actions execute for the
+calling ID. This lifts the earlier single-block limitation, while scoped
+renaming, cross-process locals and process-declared fairness remain refused.
+Both profiles reject invalid upstream artifacts; canonical witness checks
+still do not certify strict namespace replay. See
+[shared procedure use](pluscal-multiple-procedures.md) for executable C/P and
+Rust examples and the exact supported/refused contract.
+
+### Procedure local self in a constant-ID caller (D-008 candidate)
+
+```tla
+--algorithm A {
+  variable x = 0;
+  procedure First(a = 0) variable u = self; { F: x := u; R: return; };
+  process (One = 1) { L: call First(1); E: skip; }
+  process (Two = 2) { M: call First(2); N: skip; }
+}
+```
+
+Pinned translation exits **0**. Its Init binds `self` when initializing the
+procedure slot, but the constant-ID call actions initialize `u` with a free
+`self` instead of the caller's literal ID. Clean SANY exits **4** with two
+unknown-operator errors. Both C/P source/raw artifacts remain retained as
+`MultipleProcedure_*_local_self` in the shared procedure study. Native public
+admission rejects the enclosing artifacts in both profiles. No corrected
+initialization default or strict artifact credit has been adopted.
+
+The P-syntax empty-process control also retains a zero-exit translation with
+an empty process operator and a `"null"` initial program-counter label; SANY
+rejects the generated module. Native normalization refuses the empty body by
+name. These observations explain why successful translation is not enough for
+an admitted usable module; they are not silently repaired.
+
+**D-008 process-owned fairness update:** finite, disjoint process callers now
+receive WF/SF clauses for their reachable procedures in the pinned call order.
+`Entry: +` adds a strong-fairness clause under a weak caller; `Entry: -` guards
+that procedure's caller-owned pc location. Original `Entry+:` controls remain
+source grammar rejections; the corrected syntax was captured separately before
+implementation. `-nof` suppresses all fairness for process algorithms. Native
+formula construction and reachability have explicit bounds, returning a resource
+failure rather than silently dropping a clause. Generation does not prove
+liveness or remove strict #124 namespace replay restrictions. See
+[fair procedure use](pluscal-procedure-fairness.md) for runnable C/P and Rust
+examples and the complete supported/refused contract.

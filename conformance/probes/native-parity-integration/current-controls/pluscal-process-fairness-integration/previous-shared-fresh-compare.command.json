@@ -1,0 +1,20 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "python3",
+    "-I",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/multiple-procedure-acceptance/compare.py",
+    "--manifest",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/multiple-procedure-acceptance/primary/manifest.json",
+    "--inputs",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/multiple-procedure-acceptance/cases",
+    "--native",
+    "/Users/jeff/code/dive-process-fairness-current-artifacts/translate",
+    "--output",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/previous-shared-comparison.json"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 9.32469916343689,
+  "log_sha256": "04bb16d9ea12c21126705ce907b89d7babef98801bf4ac4c1514642ac596f688"
+}

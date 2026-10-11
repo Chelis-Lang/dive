@@ -192,14 +192,18 @@ contract and all existing byte/state/depth/identity bounds remain unchanged.
 
 ## Earlier parallel integrated verification
 
-The preserved source-bound [integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/verification.json)
-records 873 passing workspace tests, 144 recovery groups, 1,008 CLI runs,
+The earlier main source-bound [integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-pluscal-main-integration/verification.json)
+records 894 passing workspace tests, 144 recovery groups, 1,008 CLI runs,
 176 counter-limit controls and 36 record-codec controls. CM1's 21 models and
 ValidationTestSuite's 16 smoke models fully agree at 1/4/8 workers. The
 configured-key and parallel campaigns preserve concrete independently checked
 witnesses, stopping prefixes and original inline comparison executables.
 
-This receipt identifies its frozen runtime source and binary. Earlier inline
+This receipt identifies its frozen runtime source and binary after integration
+with the shipped sequential PlusCal and explicit final/short temporal CLI.
+The [earlier 873-test integration](../conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/verification.json)
+keeps its own source and executables; it is not evidence for this later source.
+Earlier inline
 receipts remain historical; their smaller source scope is not relabelled as
 parallel evidence. These controls do not certify temporal checkpointing, spill
 composition or the complete recovery feature family.

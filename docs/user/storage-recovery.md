@@ -71,3 +71,9 @@ Current source-bound spill/recovery and executable CLI/Rust example evidence is
 in the [combined recovery receipt](../../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json).
 It proves the listed finite-safety selection, not total-memory bounds, archive
 authenticity or complete TLC recovery interoperability.
+
+The [earlier main integrated verification](../native-checkpoint.md#earlier-parallel-integrated-verification)
+records worker-width, counter-prefix and independently checked concrete-witness
+controls on the shipped feature combination. These controls certify their
+declared fields; they do not certify temporal recovery or a complete archive
+feature family.

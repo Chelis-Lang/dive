@@ -1,0 +1,536 @@
+{
+  "schema_version": 1,
+  "reason": "Supplement earlier parameter/local ownership under member callers and explicit pc source expressions (#163 ADR0044)",
+  "generated_at": "2026-10-10T20:46:57Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+  "adapter_sha256": "de949ef751b0bb2c08466f6612410870618b46f3adaf22427d46d5f575dbfea9",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "pcal.trans",
+    "<selected-options>",
+    "<case.tla>"
+  ],
+  "validation_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "tla2sany.SANY",
+    "-error-codes",
+    "<case.tla>"
+  ],
+  "rows": [
+    {
+      "id": "ProcessProcedureExtra_C_member_parallel_args",
+      "input": "ProcessProcedureExtra_C_member_parallel_args.tla",
+      "input_sha256": "0b4389a32b965cc213c88e36f3da817ef073a2cb067b6082d4df0d874ea92a8c",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_parallel_args.translation.stdout.gz",
+        "stdout_sha256": "67ebc4401c2950f3df6d3be7b2b2c838253ecd685b8a7c5ec492bec42ec24500",
+        "stderr": "ProcessProcedureExtra_C_member_parallel_args.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_parallel_args.normalized.stdout.gz",
+        "stdout_sha256": "5d0413b0d3bd9170a699173732a13a00f1f804b920f4b9917ee77e585fbfe0df",
+        "stderr": "ProcessProcedureExtra_C_member_parallel_args.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_C_member_parallel_args.normalized.json",
+          "sha256": "dedf13a04b6c8807f588db8b4b9f9c65439411c2220bc272a2694003a5c3795a"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_C_member_parallel_args.translated.tla",
+        "sha256": "d54ae8730b6965ee3a23e357e6c49552ca0e28de522b7976c04a9dd1f0ea607f"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_C_member_parallel_args.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_parallel_args.sany.stdout.gz",
+        "stdout_sha256": "9769fbb30990d7942d8d71265c60048c2b860d29414d3a5bb560b0426382e0ea",
+        "stderr": "ProcessProcedureExtra_C_member_parallel_args.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_C_member_tail_two_locals",
+      "input": "ProcessProcedureExtra_C_member_tail_two_locals.tla",
+      "input_sha256": "c95d8eceed95cb993fa157309218e2ee77732e1b78696263d93467fe500cbc72",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_tail_two_locals.translation.stdout.gz",
+        "stdout_sha256": "c2c34582e2a83bb81b01405e1f2b9699a68c7b459a587f06c8e277b71d84b396",
+        "stderr": "ProcessProcedureExtra_C_member_tail_two_locals.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_tail_two_locals.normalized.stdout.gz",
+        "stdout_sha256": "4978fa4c0b887082f2554dad65913264dbf390694610e54e42ae09a5c06ce9fe",
+        "stderr": "ProcessProcedureExtra_C_member_tail_two_locals.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_C_member_tail_two_locals.normalized.json",
+          "sha256": "2666e93a6419c39a14da54cfae79daca6906aa5665b657404e53054ce5d1f710"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_C_member_tail_two_locals.translated.tla",
+        "sha256": "4aa22b86c54355ebbd94204a1c1ef99f74af2e805cdd409eda48a10e4f2db0ff"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_C_member_tail_two_locals.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_tail_two_locals.sany.stdout.gz",
+        "stdout_sha256": "d1ae43a8f7e83ac0bffed6157628d86ec646986ee0b4bd66ee076e9b56adb289",
+        "stderr": "ProcessProcedureExtra_C_member_tail_two_locals.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_C_member_two_locals",
+      "input": "ProcessProcedureExtra_C_member_two_locals.tla",
+      "input_sha256": "0b21a11f226828528ba9946ed2d33d4bcb8d4e8a7fccd7a2220d03a6beced0f1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_two_locals.translation.stdout.gz",
+        "stdout_sha256": "30059d8ee8365eb16cf38d608998a80422e959066d8e0576c24f8ee8313586f6",
+        "stderr": "ProcessProcedureExtra_C_member_two_locals.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_two_locals.normalized.stdout.gz",
+        "stdout_sha256": "009b23335ae26c62dbaa8b60c11a920a025aa03407e2b285676ce7952175441f",
+        "stderr": "ProcessProcedureExtra_C_member_two_locals.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_C_member_two_locals.normalized.json",
+          "sha256": "300101690eb3510368f542200224b57026564616eecea74e3627b3da4a7100ba"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_C_member_two_locals.translated.tla",
+        "sha256": "908661ab73abdd903f61523e763ec07d7fa398dd2c864247b94b9f13ec056b27"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_C_member_two_locals.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_two_locals.sany.stdout.gz",
+        "stdout_sha256": "e491ab954117a409bc96f45963906454c11e141d17f429cb247d01f4f5f2af15",
+        "stderr": "ProcessProcedureExtra_C_member_two_locals.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_C_member_two_params",
+      "input": "ProcessProcedureExtra_C_member_two_params.tla",
+      "input_sha256": "265fbaa10fd3113465c8027cc8f5d67b4870715e7c59503ad50df4e735c4ffb4",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_two_params.translation.stdout.gz",
+        "stdout_sha256": "831dcf2843f35ef08f477c7d21a518db95417a0b7a1d60bceaa128b09ce886e4",
+        "stderr": "ProcessProcedureExtra_C_member_two_params.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_two_params.normalized.stdout.gz",
+        "stdout_sha256": "d6c24109d6358682753d45f042cec2feed3534b02114af1cffd99ee5ea6471b9",
+        "stderr": "ProcessProcedureExtra_C_member_two_params.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_C_member_two_params.normalized.json",
+          "sha256": "9d43f77197466187e7dcc55c7b145ad18bd2b6d5158f6e1edc6dd2aa58d22d0f"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_C_member_two_params.translated.tla",
+        "sha256": "bfac675f3ed6ffa7b67e62376d0f7ed9e792fd2dfb064dd4b853b0d3c93cb2e9"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_C_member_two_params.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_member_two_params.sany.stdout.gz",
+        "stdout_sha256": "76798e6525964ee10a8fe6e6a9699fb28cfde59cbcbcbe3c2d23b8efdf52be51",
+        "stderr": "ProcessProcedureExtra_C_member_two_params.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_C_pc_indexed",
+      "input": "ProcessProcedureExtra_C_pc_indexed.tla",
+      "input_sha256": "d20f2187a8802ee442474c3c821dce62b31857e5f17ceef96489d4b0dad822c6",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_pc_indexed.translation.stdout.gz",
+        "stdout_sha256": "ebfcf1fac698260d8a8b3674738acd2e0d586ea53244f44be28e00fd4f0bced4",
+        "stderr": "ProcessProcedureExtra_C_pc_indexed.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_pc_indexed.normalized.stdout.gz",
+        "stdout_sha256": "f3abc07211181d63332ce1288219fbf4cb9f8e5fe8d673630b71cc1e1fa8d9f9",
+        "stderr": "ProcessProcedureExtra_C_pc_indexed.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_C_pc_indexed.normalized.json",
+          "sha256": "9239c301b924f31f02b3793b419a25e5295f68ff1b236c35188cb51f56ccbd8f"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_C_pc_indexed.translated.tla",
+        "sha256": "6818d1ede8856511007db74228cb7e1255b0366c7d5722590fefb8ca737a9a4f"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_C_pc_indexed.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_pc_indexed.sany.stdout.gz",
+        "stdout_sha256": "bee247becee0d9014d40d1676168d1d89c428701f481e85ca08d12f38aecd5b4",
+        "stderr": "ProcessProcedureExtra_C_pc_indexed.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_C_pc_whole",
+      "input": "ProcessProcedureExtra_C_pc_whole.tla",
+      "input_sha256": "cdade9ffccb11885617c4d0a6767afb6b24fefcd70a541b984651418c67b4dd1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_pc_whole.translation.stdout.gz",
+        "stdout_sha256": "1d780a7b58bb56693ae2338c99b7ad96713206b239b0233bc8ed46aa953b80c4",
+        "stderr": "ProcessProcedureExtra_C_pc_whole.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_pc_whole.normalized.stdout.gz",
+        "stdout_sha256": "e234363d993bda6386050f5bcc2276f77ab5f543d43a6f5899d96499dbbf6562",
+        "stderr": "ProcessProcedureExtra_C_pc_whole.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_C_pc_whole.normalized.json",
+          "sha256": "9a0b9de0d431a06edf0d319fdab4f54155edf0933a09c7a2d17280aea01e430a"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_C_pc_whole.translated.tla",
+        "sha256": "fda2c7e8dcf2b9ca13f4ac79e4ee817588954cc74caa299a2812773d1aa9f4cd"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_C_pc_whole.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_C_pc_whole.sany.stdout.gz",
+        "stdout_sha256": "be49cd04113e6c29e74158324b8e2575ee2ae88dbbb8516407d5990a76803d07",
+        "stderr": "ProcessProcedureExtra_C_pc_whole.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_P_member_parallel_args",
+      "input": "ProcessProcedureExtra_P_member_parallel_args.tla",
+      "input_sha256": "3b513277e7da49302933c443486c4d124d12dffe5e958564ec09cccc5e9c68a7",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_parallel_args.translation.stdout.gz",
+        "stdout_sha256": "10e3c2a71afe989a494cd837aae8fd04e573532dd67fab84c71ccff239de8a0a",
+        "stderr": "ProcessProcedureExtra_P_member_parallel_args.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_parallel_args.normalized.stdout.gz",
+        "stdout_sha256": "57088e7967f4b50ff61ac458714a2cb35b9f2e820723db7e3e8223fa60bca6dd",
+        "stderr": "ProcessProcedureExtra_P_member_parallel_args.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_P_member_parallel_args.normalized.json",
+          "sha256": "37e6379b3561dee648317d0394db451c96ee61a098ba13a9eff3b07b5284976e"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_P_member_parallel_args.translated.tla",
+        "sha256": "c4c9ba7cc006d90b0add8b78f551e8b5e58d36997898a12fab0f02bec91ef3eb"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_P_member_parallel_args.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_parallel_args.sany.stdout.gz",
+        "stdout_sha256": "48d88e8444543366b293d59255ae942b1dddbd7376a2d6c18c70bfbe35917fec",
+        "stderr": "ProcessProcedureExtra_P_member_parallel_args.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_P_member_tail_two_locals",
+      "input": "ProcessProcedureExtra_P_member_tail_two_locals.tla",
+      "input_sha256": "3c82d0b8966a73bed45f3a40befa7bc26039b72bbc1891fe1b46642bd93b3af0",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_tail_two_locals.translation.stdout.gz",
+        "stdout_sha256": "a44e7d063e97c66621cf912cc685b8040759d8fd2c9691a2664741891c747772",
+        "stderr": "ProcessProcedureExtra_P_member_tail_two_locals.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_tail_two_locals.normalized.stdout.gz",
+        "stdout_sha256": "af424ebbe356c3c46706fbf2fe9b8919accbb36e1c12cc621ef0f16c58fc2ab6",
+        "stderr": "ProcessProcedureExtra_P_member_tail_two_locals.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_P_member_tail_two_locals.normalized.json",
+          "sha256": "29344ba8372a239dc09c00d80aae9b20c669c0a4679277aa3a6337ef2944d1d6"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_P_member_tail_two_locals.translated.tla",
+        "sha256": "5c297a5a6202ec0a513ff89301151f8a587eb6c61671bc0ff029a408e08b4eec"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_P_member_tail_two_locals.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_tail_two_locals.sany.stdout.gz",
+        "stdout_sha256": "db0b8702710407424e688d479b8bc700fdea030c64959c187e5e45150bc67c30",
+        "stderr": "ProcessProcedureExtra_P_member_tail_two_locals.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_P_member_two_locals",
+      "input": "ProcessProcedureExtra_P_member_two_locals.tla",
+      "input_sha256": "5728e7bbc5faac78a6056ec3a33ec6fc666cee264f8f2e4912c36cad89331ce1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_two_locals.translation.stdout.gz",
+        "stdout_sha256": "631829950b3379473f18e15e1db7a95f36cf671c129f67a7bfd5a0be8b0ff2a7",
+        "stderr": "ProcessProcedureExtra_P_member_two_locals.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_two_locals.normalized.stdout.gz",
+        "stdout_sha256": "6dc02bf952439f01b2e6b67caeb96057bc74efec70cbee7099759eb4a1e3eb77",
+        "stderr": "ProcessProcedureExtra_P_member_two_locals.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_P_member_two_locals.normalized.json",
+          "sha256": "e36fc4dc6a49eaf5b1619f1aba6a2aacab59621c0bc26ff05f160fd8d7d09a84"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_P_member_two_locals.translated.tla",
+        "sha256": "4f6c7e6e0da33bde8a6c2c1e936c917ff9ac7132a07f889bfaace1c87bdecf28"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_P_member_two_locals.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_two_locals.sany.stdout.gz",
+        "stdout_sha256": "0c0a34da938751a99ec4a0dec659c16a350eedb660563b77e446a05dbb33f624",
+        "stderr": "ProcessProcedureExtra_P_member_two_locals.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_P_member_two_params",
+      "input": "ProcessProcedureExtra_P_member_two_params.tla",
+      "input_sha256": "9135d0c75d58767c850676c138009d1d4e339b1ba1538e0e1c043d414bb5bf69",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_two_params.translation.stdout.gz",
+        "stdout_sha256": "97e54d741e7ce11efe65fd7218f507837e20964615e0ebc2a9c6020a5e389ffb",
+        "stderr": "ProcessProcedureExtra_P_member_two_params.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_two_params.normalized.stdout.gz",
+        "stdout_sha256": "b09fb327413454f1e345af574f42457c2b3b76a665c4beefca1ae47b34bd051b",
+        "stderr": "ProcessProcedureExtra_P_member_two_params.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_P_member_two_params.normalized.json",
+          "sha256": "7d943784d83b32593a9812a036c2672c2df0185f0430b170810d0a9f8be8dcb0"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_P_member_two_params.translated.tla",
+        "sha256": "631b55b2c4d20836cc01c5dee972b151c8e1980e86499bacb93b29e0ebb72b0d"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_P_member_two_params.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_member_two_params.sany.stdout.gz",
+        "stdout_sha256": "c7fd5ec97ee90e86afa1200fc839b4e643a1201a3150086324853dce2b2b56e8",
+        "stderr": "ProcessProcedureExtra_P_member_two_params.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_P_pc_indexed",
+      "input": "ProcessProcedureExtra_P_pc_indexed.tla",
+      "input_sha256": "fbdfe7aee58d8b33f074767ef02a44898f390cf6f0fc049f2ef72c503d343864",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_pc_indexed.translation.stdout.gz",
+        "stdout_sha256": "fb50bdb9ac16c7807537451419a29036eb608a9f8d7389c530ea6245f0fff1c7",
+        "stderr": "ProcessProcedureExtra_P_pc_indexed.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_pc_indexed.normalized.stdout.gz",
+        "stdout_sha256": "84faf56bf9dd904304385c31c0fff82df60a511ef8c3504e824d588ef52795f5",
+        "stderr": "ProcessProcedureExtra_P_pc_indexed.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_P_pc_indexed.normalized.json",
+          "sha256": "7639a2d003e45a5b799eb47858f8ba93999b54462789bc0687e6654605c08ce9"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_P_pc_indexed.translated.tla",
+        "sha256": "872a86b42a8f45146cecb3b6b05101a5340aaee8ed63368a9ff1cafc7e3debd6"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_P_pc_indexed.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_pc_indexed.sany.stdout.gz",
+        "stdout_sha256": "5c7288451a9116e9fb020693db0c96645657ef732e5b2b49b55b4424dcd48387",
+        "stderr": "ProcessProcedureExtra_P_pc_indexed.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcessProcedureExtra_P_pc_whole",
+      "input": "ProcessProcedureExtra_P_pc_whole.tla",
+      "input_sha256": "e0942f5fbd12e2165165b17e1bf66f571a890af2667c94128ba69d915fa1c5c9",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_pc_whole.translation.stdout.gz",
+        "stdout_sha256": "739f8df42e8e7554d67381b76336e622f3b399f4b857befc32b2a47c4420cd1f",
+        "stderr": "ProcessProcedureExtra_P_pc_whole.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_pc_whole.normalized.stdout.gz",
+        "stdout_sha256": "fe123ad5281664cbec41cc0f06a1cce3e038a240deb7f7acc153e590c93b6e64",
+        "stderr": "ProcessProcedureExtra_P_pc_whole.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcessProcedureExtra_P_pc_whole.normalized.json",
+          "sha256": "f2f6b5dce327e26f5c110c2fb62f96667fc8c9ae47409d1b3555478b3c5c6608"
+        }
+      },
+      "translated": {
+        "path": "ProcessProcedureExtra_P_pc_whole.translated.tla",
+        "sha256": "c0c4e06f06066754110b35a910e5626f9e570e175ec07cb8a79a915316b751e1"
+      },
+      "config": {
+        "path": "ProcessProcedureExtra_P_pc_whole.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcessProcedureExtra_P_pc_whole.sany.stdout.gz",
+        "stdout_sha256": "b6148e0546712ce6f3f4784e9a5f27fa0463694bace067f8c522dff5f7945856",
+        "stderr": "ProcessProcedureExtra_P_pc_whole.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    }
+  ]
+}
