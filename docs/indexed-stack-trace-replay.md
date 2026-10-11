@@ -58,11 +58,29 @@ widens Random/VIEW admission or mixed-set transport boundaries.
 ## Evidence boundaries
 
 The immutable before census retains 40 selected procedure cases in both profiles:
-32 sequential originals Valid and32 altered words Invalid in each profile;
+32 sequential originals Valid and 32 altered words Invalid in each profile;
 eight process originals/mutants Unsupported in TLC order, and eight originals
 Valid/eight mutants Invalid in canonical order. Eight fresh clean primary process
 runs all report the same invariant/count/depth observations as the native checker.
-Final receiving replay/gate outcomes are recorded separately from that baseline
+The first implementation census retains the exact same 40 cases and both profiles:
+all 80 original words validate and all 80 altered words fail actual Next replay.
+Every complete checker report (apart from `elapsed_ms`) and every emitted version-2
+word is unchanged from the before census. A separate eight-process cross-product
+checks both profiles, fingerprint/exact stores, widths 1/4/8, chaos seeds 0/7 and
+both transports: 384 original words Valid and 384 semantic mutants Invalid.
+Strict checks still report actual inline width 1; canonical checks report their
+actual requested pool width. Another 80 process controls reject changed Init,
+indexed updates, return-frame PCs, final values and missing endings. Labels that
+name parameterized operators remain explicitly reported as not checked; these
+results certify the actual Next relation rather than those labels.
+
+The example's clean pinned TLC run and all four CLI variants agree on three
+generated/distinct states, queue zero and depth three. The actual Cargo example
+passes both profiles and transports. Two false-proof implementation mutations
+fail the negative tests. The preserved pre-freeze source sweep found one stale
+maintained-guide digest; its old envelope and corrected current-doc authority are
+separate from all runtime producers. The final full source gate and conformance
+qualification remain separate from these first implementation observations
 and from the original ADR 0071 producer. See [ADR 0081](decisions/0081-indexed-stack-range-replay.md).
 Issue #124 and F-029 remain partial until broader source-owned namespace histories
 are proved; this is a bounded admission rule rather than family certification.

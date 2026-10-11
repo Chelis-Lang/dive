@@ -15,7 +15,7 @@ widths, spill limits, witness mutation controls and required checks are unchange
 
 `selection.json` declares the original cross-products. The normal
 `scripts/check-test-partitions.py` census checks their actual compiled test names,
-rejects nine corrupted selections, and still proves the eight partitions are
+rejects nine corrupted selections; at producer `d21ea2c6` it proved eight partitions were
 disjoint and cover every non-ignored workspace test. This is CI scheduling
 maintenance; it does not expand supported model-checking behavior or parity.
 The earlier 1,346-test qualification retains its own producer and receipt;
@@ -37,3 +37,17 @@ files differ. The existing model runs retain that original producer. This
 test qualification makes no fresh runtime, family-parity or hermetic-build claim.
 The auxiliary focused Clippy log and unformatted split receipt are explicitly
 preparatory; the frozen full gate and final source packet qualify this source.
+
+## Sixteen-partition CI continuation
+
+Head `67719999` passed seven of eight test partitions, the workspace checks
+and conformance; partition 3 completed 109 of 226 selected tests before its
+15-minute job limit. The retained log includes the unfinished queue. Several
+checkpoint/filesystem tests took substantially longer on the Linux runner than
+on the local machine. No assertion failed.
+
+CI now distributes the same complete inventory across sixteen jobs. The census
+checks the actual workflow matrix and nextest denominator as well as disjoint
+coverage and all nine matrix corruption controls. Job and per-test timeouts,
+case IDs, assertions and original matrix selections are unchanged. This is a
+scheduling change; fresh gate and CI qualification remain required.

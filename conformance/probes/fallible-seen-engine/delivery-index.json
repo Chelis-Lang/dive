@@ -633,7 +633,7 @@
     "conformance/probes/fallible-seen-engine/current/cm1-corrected.stdout": "98ef1b68ced3d965015faac9cf8562ae7d9ceb880a99a752bb9007273058d012",
     "conformance/probes/fallible-seen-engine/current/cm1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "conformance/probes/fallible-seen-engine/current/cm1.stdout": "4f90a055a545a6edf043bb5e7fd60dc0ac6b5f1e638ab0543ca0c851ef2e6df3",
-    "conformance/probes/fallible-seen-engine/current/current-source.json": "2e48030407106a5dedd93a522215cfc57c8be06a42203cf58d9de33b2c07ba98",
+    "conformance/probes/fallible-seen-engine/current/current-source.json": "6f77f1cdf5d216aa258ce75c7efb229fa0083d8541f0819b83c9039ae0d6fb2e",
     "conformance/probes/fallible-seen-engine/current/extra-driver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "conformance/probes/fallible-seen-engine/current/extra-driver.stdout": "653dc5805953760f3eb1b09222b7741f4cb58cf8665f0feaca9cfd9089f868d3",
     "conformance/probes/fallible-seen-engine/current/extra-replay-corrected.py": "1068e11ae3b69e96096e8b07e5cf4408c8963cf9c671efe142227f47bf6df559",
@@ -4393,7 +4393,7 @@
     "conformance/probes/fallible-seen-engine/producer-git-objects/objects/fd558be58b62d959179bf75712b2fb568ffdf434.gz": "5863073da7f2539d89efd60025fe4a9b9651a2a1d21eed5a68b410942149e6d5",
     "conformance/probes/fallible-seen-engine/producer-git-objects/objects/ff0934cb6536e8510c024dc1b6281e2f76f73acb.gz": "b9638950163b8893c7ce1dbd762265884a2c7fdd0e9bac0d16882ed0b961175c",
     "docs/decisions/0068-fallible-disk-seen-safety.md": "9f3ba3bcba9d24308b59842ada037404b5b42f3a1d073d219225548656cfdf5b",
-    "docs/user/disk-seen-safety.md": "83189d58193a9ad771b07ea1cd18f83c10a81334a0f8747e968340c347b30034",
+    "docs/user/disk-seen-safety.md": "ec770383094a6ad0a1df9cc03f35caac22227013a98e189296df339099157a0c",
     "scripts/check-fallible-seen-engine.py": "845fab39b8a5adc76b86233d67ef57eda578819108bb71947e6b7cc93bd7c18d"
   },
   "metadata_receipt": "conformance/probes/fallible-seen-engine/current/metadata-controls/receipt.json",

@@ -23,9 +23,9 @@
     "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "d86906d82657e55fb89552377d0833de36b7f7c915a5e41b72a548233a4abeee",
-    ".github/workflows/ci.yml": "4afc0be2fe1c064de2bcde110c6e0a9eb80c166d2bc59a3c8d285a6059e52738",
-    "conformance/parity-features.json": "886c065a7e814dbd5f3ca6d7c01a45a2cd3c73030b0373e760c246bdcc4f20bf"
+    "AGENTS.md": "b55377857efa96d4c9a20d1ab42b0e8696fb347182fba59ba5ef013d41e69311",
+    ".github/workflows/ci.yml": "05dcd4b4dc41396c7c00acf95d5009b008db9c5bc7f4c4a24a0318bd400b9c5b",
+    "conformance/parity-features.json": "530a281d0043fabb9a428b1159f815aae5c4370e3a8de42909d15e87f56bc23e"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }
