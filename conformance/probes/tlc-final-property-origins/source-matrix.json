@@ -6,8 +6,8 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "e88094c58d25239e30c901b0976b296cbbada2300063db1e96022e5a65531855",
     "AGENTS.md": "83af23f94b4935c1341d6f542a4c262ef21a80b8d0668c83a619eff2322ddada",
-    "CHANGELOG.md": "aa924f0dee9bf413de990599901e8171407b958ad369cf99e2f30ba5c39a1334",
-    "conformance/parity-features.json": "bc45a7c20235d92db6b3070bd07abd8e8391c354635647362af741dfff05a227",
+    "CHANGELOG.md": "840ce0f5284f3cf3b55f48ac71b5aa706da575a07f1920fda83496ce0677d864",
+    "conformance/parity-features.json": "5d41126d1aed35ba36537ff683e9c7d7ed0d3befe1a3326286df57141f8c501d",
     "conformance/probes/tlc-final-property-origins/DESIGN.md": "aa5a122a7c7f071967dab07a00b9080313ce74dae1b51be2729a2321d0e41792",
     "conformance/probes/tlc-final-property-origins/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/tlc-final-property-origins/ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
@@ -313,12 +313,12 @@
     "crates/dive-model/src/model.rs": "49364d80e43f6427d0f3bc9879f8ec78975cde0c7a71dce9cfa06f9c7f21b32b",
     "crates/dive-model/src/spec.rs": "0b23f75dae433b3689758fbcabc1b5246f89b5d0a38b0dec12ffb49763970275",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "docs/divergences.md": "667b76b7d77f9d2d6cf2332988aa86cc7673e7f449b3bd2a3ef70c7fb857572c",
-    "docs/provenance.md": "f0dbf91ee0ea66f4413824ba6b210333f9d8aa788daee698bab3dcb0de90bfcd",
-    "docs/tlc-differences.md": "1c2e22888f8ec9ca5bbf6be2e1dd3f4489b90bd2613877443005317491c3f1b0",
+    "docs/divergences.md": "5c501b21c7571ce114239c278b11ef35a33ff8e4593b129ac2b4e3eeccedf388",
+    "docs/provenance.md": "a12896882bd5a6f4f762895dc7e4a345094ae23a0781bfa26cf8f982924ade8a",
+    "docs/tlc-differences.md": "dad0c166924b188c14651c50a55193765af733ae4c9be659245e755238f8bb31",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
-    "docs/user/temporal.md": "7cfc3a164171042f58808807c7b7cbd166d6ef70d0572e3d58d68257894fe925",
+    "docs/user/temporal.md": "3c50ece25590bd77f03e81932ff18a2c9f13f5127a5dace75ef79b7a3e11ca02",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"
   }
