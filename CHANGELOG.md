@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Explicit final TLC state admission accepts stored Enum/Raw sets, including
+  normalized sets nested in tuples, records and general functions. Callback-free
+  namespace/order checks and unchanged cumulative work/depth bounds precede
+  fingerprinting; cached deferred providers still refuse.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and

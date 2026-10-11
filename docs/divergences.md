@@ -692,3 +692,15 @@ Both primary syntax studies are retained under
 `crates/dive-pluscal/source-option-semantics-acceptance/prestudy/` before native
 implementation. Unknown/malformed/partial-error contexts remain named refusals;
 no silent corrected default or unsupported-success credit is adopted.
+
+## Stored successor admission (existing final-mode limitation)
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.

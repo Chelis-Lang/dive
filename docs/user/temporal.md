@@ -87,3 +87,5 @@ selection retains its existing pre-binding effect admission. See the
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
 [Pure native temporal operator arguments](../native-temporal-operators.md), with
 executable CLI/Rust examples and retained refusal boundaries.
+
+See [Stored successor values](../stored-successor-material.md) for concrete set/function admission, namespace/order requirements and provider refusals.

@@ -1986,9 +1986,10 @@ adopted.
 The explicit final TLC mode now accepts Len/Head/Cardinality operator actuals
 within its bounded pure constant/state slice. TLC13 and dive13 agree on the
 minimal `Use(F(_)) == []<>F(x); Live == Use(Head)` with `x=<<FALSE>>`.
-Configured/opaque/effectful targets still refuse. Concrete normalized set states,
-unknown deciding runtime error classes and ordinary periodic scheduling remain
-limitations. See [the guide](native-temporal-operators.md) and the complete
+Configured/opaque/effectful targets still refuse. Concrete normalized Enum/Raw
+set states now have callback-free stored-successor admission with preserved
+before/refusal evidence. Unknown deciding runtime error classes and ordinary
+periodic scheduling remain limitations. See [the guide](native-temporal-operators.md) and the complete
 20-control probe selection; this is bounded support, not family certification.
 
 for broader source-option parsing and precedence; the bounded proved subset
@@ -2015,3 +2016,15 @@ new corrected checksum or fairness default. A source declaration overriding
 CLI fairness is intended reference behavior and is tested separately. Artifact
 acceptance still requires enclosing-module analysis; zero from the translator
 never proves model correctness or a usable artifact (D-008).
+
+## Concrete successor representation boundary
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.

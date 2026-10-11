@@ -103,9 +103,11 @@ word proof keep their existing node/step/depth and finite-binding bounds. These
 are structural bounds, not aggregate memory or evaluation-time guarantees.
 
 `Cardinality(IF x THEN {1} ELSE {})` is supported for a boolean state variable.
-The separate concrete successor-set guard still refuses a model whose stored
-state variable itself is a TLC-normalized set, such as `x = {1}`. The complete
-controls retain those refusals alongside the successful boolean-state cases.
+The separate [stored-successor admission](stored-successor-material.md) now
+accepts authoritative normalized Raw/Enum set states such as `x = {1}`.
+The original native producer retains its three named refusals as historical
+evidence; a fresh complete20-case regression capture validates the newly
+admitted Cardinality cases at1/3/4/8 workers. Cached providers stay refused.
 `Head(<<>>)` and `Len(TRUE)` retain their actual pinned runtime failures and
 native unsupported outcomes; this increment earns no error-class agreement for
 them. Wrong arity and an action argument rejected by SANY remain reference

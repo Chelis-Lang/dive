@@ -588,3 +588,15 @@ alias while using full resolved extents for overlap admission.
 | Implementation | Reference | License | Evidence and limits |
 | --- | --- | --- | --- |
 | `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |
+
+## Stored successor representation admission
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.

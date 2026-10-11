@@ -49,10 +49,11 @@
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_execution.rs": "1c68ca035f661941925037c63d2e39b1cf95cab69996a52fa03a6f6c13944d15",
-    "crates/dive-liveness/src/phase_l.rs": "56d36f155456006b17f6498ce905a4b3372c8a3ed92dcd908c61889ecd009dec",
+    "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
   },
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged",
   "transient_recovery_integration": {
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",

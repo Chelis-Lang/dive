@@ -69,6 +69,7 @@
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "scripts/check-tlc-final.py": "6a543eca4ca83b62176e68072968ad155f3a86b52a057ff9f3d32e7082f496d3"
   },
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged",
   "transient_recovery_integration": {
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",

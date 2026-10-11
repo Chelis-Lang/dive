@@ -26,3 +26,5 @@ ADRs retain historical measurements separately. Read [current coverage](../sprin
 and the [maintained TLC differences log](../tlc-differences.md) for known limitations
 and approved better defaults. LSP, native compilation and distributed recovery
 are not exposed as completed functionality here.
+
+Concrete temporal state representation: [Stored successor values](../stored-successor-material.md).

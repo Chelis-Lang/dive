@@ -1,0 +1,146 @@
+[
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.187s\n\nOK\n"
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "........\n----------------------------------------------------------------------\nRan 8 tests in 1.777s\n\nOK\n"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/jeff/code/dive-successor-material-work/scripts/check-tlc-final-safety.py\", line 27, in <module>\n    for source,digest in current['source_sha256'].items():assert sha(ROOT/source)==digest,source\nAssertionError: CHANGELOG.md\n"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "exit": 0,
+    "stdout": "Verified complete15 conditional controls:11 complete projections/4 reference errors; all histories retained; no periodic or family certification\nVerified complete15 clean final TLC controls, including all four deciding reference errors\nVerified all60 historical native rows:40 supported final-only outcomes/20 named refusals; no reference-error or periodic credit\nVerified executable user API example and retained first compilation failure\nVerified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/jeff/code/dive-successor-material-work/scripts/check-tlc-temporal-if.py\", line 35, in <module>\n    for path,digest in json.loads((BASE/'source-matrix.json').read_text())['source_sha256'].items():assert sha(ROOT/path)==digest,path\nAssertionError: conformance/parity-features.json\n"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "exit": 0,
+    "stdout": "Verified all30 primary selections/120 native outcomes:80 supported final outcomes,40 named refusals; independent replay and all source histories retained, no periodic/family credit\nComplete unchanged140 census retained:6 agree/134 unsupported; earlier138 zero-native launcher failures remain separate history\nVerified fresh current Rust guide execution and916-test frozen Rust/Cargo gate identity; no periodic/family claim\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "exit": 0,
+    "stdout": "Verified complete18 primary/72 native scoped final outcomes and retained name/shape failures;56 temporal,8 safety,8refused; expanded-action and ordinary scheduling remain unclaimed\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "exit": 0,
+    "stdout": "Verified18 primary/72 native origin controls: separate configured, expanded Action and derived vectors; retained2 reference failures/8 native refusals; no ordinary or full-family credit\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "exit": 0,
+    "stdout": "Verified18 primary/72 native material pairs and all36 prior refusals/64 first-attempt outcomes; fresh replay and fixed50k/128 controls, no corpus/family/ordinary credit\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "exit": 0,
+    "stdout": "Verified18 clean primary/72 current native rows,14 exact temporal projections,72 original refusals, bounded independent captures/replay; prior9b140 census46/92/2 remains separate, no ordinary/family credit\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "exit": 0,
+    "stdout": "Verified20 clean rows/17 field projections/80 native observations:48 supported final outcomes,32 retained refusals/rejections; no ordinary/family/error upgrade\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "exit": 0,
+    "stdout": "Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.084s\n\nOK\n"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "exit": 0,
+    "stdout": "verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-tableau.py",
+    "exit": 0,
+    "stdout": "verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-action-order.py",
+    "exit": 0,
+    "stdout": "verified all 36 pinned direct controls, compiler failure and native before observations\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l.py",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/jeff/code/dive-successor-material-work/scripts/check-phase-l.py\", line 64, in <module>\n    if __name__=='__main__':main()\n  File \"/Users/jeff/code/dive-successor-material-work/scripts/check-phase-l.py\", line 57, in main\n    for path,digest in matrix['source_sha256'].items():assert hashlib.sha256(gzip.decompress((PROBE/'historical-delivery-source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path\nAssertionError: crates/dive-liveness/src/lib.rs\n"
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l-graph.py",
+    "exit": 0,
+    "stdout": "verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-phase-execution.py",
+    "exit": 0,
+    "stdout": "verified all26 execution rows:15 completed graph fields,3 no-OOS boundaries,8 retained failures;8 clean TLC precedence controls and preserved producer histories; no strict verdict claim\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final.py",
+    "exit": 0,
+    "stdout": "verified all30 reference rows/120 native outcomes:19 completed final projections,11 failures without error agreement; exact source histories retained; ordinary strict parity remains unclaimed\nverified complete140 historical refusal rows/138 raw subprocesses; no broad corpus credit\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-state-if-planning.py",
+    "exit": 0,
+    "stdout": "verified all24 current and18 historical conditional controls, original capture failure and native regressions\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-predecessor-spill.py",
+    "exit": 0,
+    "stdout": "verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-native-checkpoint.py",
+    "exit": 0,
+    "stdout": "verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 -I scripts/check-native-parity-integration.py",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/jeff/code/dive-successor-material-work/scripts/check-native-parity-integration.py\", line 34, in <module>\n    assert sha((ROOT / name).read_bytes()) == digest, name\nAssertionError: CHANGELOG.md\n"
+  }
+]
