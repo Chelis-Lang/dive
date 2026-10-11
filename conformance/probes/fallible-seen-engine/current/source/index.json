@@ -1,0 +1,1886 @@
+{
+  "producer_commit": "da0f857161c57b52e8cb1d6c18ef0cebb0021ea4",
+  "scope": "Complete compiled Rust/Cargo inputs; exact Git/live/archive authority, not authenticity.",
+  "inputs": {
+    "Cargo.lock": {
+      "sha256": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4.gz"
+    },
+    "Cargo.toml": {
+      "sha256": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538.gz"
+    },
+    "crates/dive-api/Cargo.toml": {
+      "sha256": "3ff682272044a869f39687d4a8b8608445ae6fadcd80f6755004a9a8b879b392",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3ff682272044a869f39687d4a8b8608445ae6fadcd80f6755004a9a8b879b392.gz"
+    },
+    "crates/dive-api/examples/committed_prefix.rs": {
+      "sha256": "221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb.gz"
+    },
+    "crates/dive-api/examples/disk_seen_safety.rs": {
+      "sha256": "096bde308ba03df15ef0078f550514d8a6c41517952bdea0dbe5798804e05984",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/096bde308ba03df15ef0078f550514d8a6c41517952bdea0dbe5798804e05984.gz"
+    },
+    "crates/dive-api/examples/native_sequence_operator.rs": {
+      "sha256": "a4625d55b5ff6566581a53f34731813cc385fa3b6b8f492672cac89fb4892acd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a4625d55b5ff6566581a53f34731813cc385fa3b6b8f492672cac89fb4892acd.gz"
+    },
+    "crates/dive-api/examples/native_temporal_operator.rs": {
+      "sha256": "2040b4e5a29c36fd77577a32ed3ac01e7190a3185be6eab91a0d11373d586e45",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2040b4e5a29c36fd77577a32ed3ac01e7190a3185be6eab91a0d11373d586e45.gz"
+    },
+    "crates/dive-api/examples/partial_temporal_checks.rs": {
+      "sha256": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115.gz"
+    },
+    "crates/dive-api/examples/periodic_backend.rs": {
+      "sha256": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2.gz"
+    },
+    "crates/dive-api/examples/periodic_controller.rs": {
+      "sha256": "98456933a303463479c020bcf0bbc085c5c379801eeca8554c8f65371624690f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/98456933a303463479c020bcf0bbc085c5c379801eeca8554c8f65371624690f.gz"
+    },
+    "crates/dive-api/examples/periodic_hook.rs": {
+      "sha256": "529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574.gz"
+    },
+    "crates/dive-api/examples/periodic_lifecycle.rs": {
+      "sha256": "d30b8f527e83a9d55d6deadfc640e8cf8be64f43d5d5d91b70b9666d749635c2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d30b8f527e83a9d55d6deadfc640e8cf8be64f43d5d5d91b70b9666d749635c2.gz"
+    },
+    "crates/dive-api/examples/periodic_snapshot.rs": {
+      "sha256": "f860e45ba4eb3645d038b36972c2d16156aa734133448866797799a16b4a0e21",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f860e45ba4eb3645d038b36972c2d16156aa734133448866797799a16b4a0e21.gz"
+    },
+    "crates/dive-api/examples/pluscal_multiline.rs": {
+      "sha256": "cb940e77e7e2dd83c41ecd85f7cc4cbe099e7b1a34077e86d83a09b8c75af8de",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cb940e77e7e2dd83c41ecd85f7cc4cbe099e7b1a34077e86d83a09b8c75af8de.gz"
+    },
+    "crates/dive-api/examples/pluscal_process_checksum.rs": {
+      "sha256": "a90b68a283ce4d1d98ce2f45a17cd6adbf007bb8444288af815a4348d60841eb",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a90b68a283ce4d1d98ce2f45a17cd6adbf007bb8444288af815a4348d60841eb.gz"
+    },
+    "crates/dive-api/examples/pluscal_process_options.rs": {
+      "sha256": "4b51e471090deeb4b3efd2e894d3e46d332266c374d478ce46603d169394c3bc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4b51e471090deeb4b3efd2e894d3e46d332266c374d478ce46603d169394c3bc.gz"
+    },
+    "crates/dive-api/examples/pluscal_source_context.rs": {
+      "sha256": "c00f1315cbc0217b7f1538c5d122de63251332e82a629a194d380c9bb79efc70",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c00f1315cbc0217b7f1538c5d122de63251332e82a629a194d380c9bb79efc70.gz"
+    },
+    "crates/dive-api/examples/pluscal_source_cst.rs": {
+      "sha256": "8775de899878f528920241c0c1447bcba091e779fd8a13e21df5a5f9d1009734",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8775de899878f528920241c0c1447bcba091e779fd8a13e21df5a5f9d1009734.gz"
+    },
+    "crates/dive-api/examples/progress_requests.rs": {
+      "sha256": "8af00b2814388ecd00a57191dfeb771c983c5132ce6357f5be0449ab3a6683b4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8af00b2814388ecd00a57191dfeb771c983c5132ce6357f5be0449ab3a6683b4.gz"
+    },
+    "crates/dive-api/examples/storage_tuple_function.rs": {
+      "sha256": "6a30f89fc4728795a60e4a1b1ac2326e35955d3d4bf9131f5038f1f502c160f0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6a30f89fc4728795a60e4a1b1ac2326e35955d3d4bf9131f5038f1f502c160f0.gz"
+    },
+    "crates/dive-api/examples/stored_successor_material.rs": {
+      "sha256": "43d3a84122b73c44ec4b077d1578d81692bb60c5174f0f12ee4e6b4cad77fada",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/43d3a84122b73c44ec4b077d1578d81692bb60c5174f0f12ee4e6b4cad77fada.gz"
+    },
+    "crates/dive-api/examples/trace_representation.rs": {
+      "sha256": "c87c4a66bfb10fe68002d4c8fe59e4de1bdc1188ed6a3870cab56e9a3682aa06",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c87c4a66bfb10fe68002d4c8fe59e4de1bdc1188ed6a3870cab56e9a3682aa06.gz"
+    },
+    "crates/dive-api/examples/view_random.rs": {
+      "sha256": "d4ebe1c3a0cc38c0cc884609c506c1bcb93ff33fda82cc30959a59788e2e6bfc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d4ebe1c3a0cc38c0cc884609c506c1bcb93ff33fda82cc30959a59788e2e6bfc.gz"
+    },
+    "crates/dive-api/src/analyze.rs": {
+      "sha256": "aaeb74b50ecf6b114afbed23825ba57998ad0ead1b029a0e6caacb8b22aec245",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/aaeb74b50ecf6b114afbed23825ba57998ad0ead1b029a0e6caacb8b22aec245.gz"
+    },
+    "crates/dive-api/src/check.rs": {
+      "sha256": "82a72e6a07d26718ea299408886c86bdb687d389d66b65d50e00723d131724b1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/82a72e6a07d26718ea299408886c86bdb687d389d66b65d50e00723d131724b1.gz"
+    },
+    "crates/dive-api/src/check_tlc_temporal.rs": {
+      "sha256": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09.gz"
+    },
+    "crates/dive-api/src/config.rs": {
+      "sha256": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140.gz"
+    },
+    "crates/dive-api/src/dfid.rs": {
+      "sha256": "9d6722ad518383875d82c78b74d73332eeb360bbff11ed9adfcbbbe880d2fa3a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9d6722ad518383875d82c78b74d73332eeb360bbff11ed9adfcbbbe880d2fa3a.gz"
+    },
+    "crates/dive-api/src/lib.rs": {
+      "sha256": "ed3a5a3d85a998956b9948c50e4b52773f2e758ae0d91558d896a2c683b0cf3c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ed3a5a3d85a998956b9948c50e4b52773f2e758ae0d91558d896a2c683b0cf3c.gz"
+    },
+    "crates/dive-api/src/rewrite.rs": {
+      "sha256": "f02243906001a42421a3edd87b766ddabf5b4183c3d4a87574a24e7a2a767ba5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f02243906001a42421a3edd87b766ddabf5b4183c3d4a87574a24e7a2a767ba5.gz"
+    },
+    "crates/dive-api/src/simulate.rs": {
+      "sha256": "13fce60c1a7ea0e23ed6e012b7e03d5d5489d14382a0f50cf7434d1fc89b8e3a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/13fce60c1a7ea0e23ed6e012b7e03d5d5489d14382a0f50cf7434d1fc89b8e3a.gz"
+    },
+    "crates/dive-api/src/temporal.rs": {
+      "sha256": "c8c99b58aa6ba735befe3b8fa61ce42f3a7cfd9cc31e89401c2c0dc10b36141e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c8c99b58aa6ba735befe3b8fa61ce42f3a7cfd9cc31e89401c2c0dc10b36141e.gz"
+    },
+    "crates/dive-api/src/tlc_temporal.rs": {
+      "sha256": "01cc114e46c925713d99b2b10f8d5090c2e1997238edc8ce435813f9eef6c064",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/01cc114e46c925713d99b2b10f8d5090c2e1997238edc8ce435813f9eef6c064.gz"
+    },
+    "crates/dive-api/src/tlc_temporal_admission.rs": {
+      "sha256": "3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36.gz"
+    },
+    "crates/dive-api/src/tlc_temporal_safety.rs": {
+      "sha256": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde.gz"
+    },
+    "crates/dive-api/src/trace.rs": {
+      "sha256": "37a1579781c3a157297f585a0d96f8943f11623222df19854490230dd4a428dc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/37a1579781c3a157297f585a0d96f8943f11623222df19854490230dd4a428dc.gz"
+    },
+    "crates/dive-api/src/translate.rs": {
+      "sha256": "ec7787cf58ba6ec0e834a78d90575ece990ae3880980b79e175b1437116de8ee",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ec7787cf58ba6ec0e834a78d90575ece990ae3880980b79e175b1437116de8ee.gz"
+    },
+    "crates/dive-api/tests/config_name_order.rs": {
+      "sha256": "c3e321adf31de8f6a07c95ed3b55ce2221fef223f17ea673b3713c2fc327edff",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c3e321adf31de8f6a07c95ed3b55ce2221fef223f17ea673b3713c2fc327edff.gz"
+    },
+    "crates/dive-api/tests/configured_random.rs": {
+      "sha256": "371c1430cae7be30b83666cf3e3fb34cea7220cc761ccc82f1953a2b09db276e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/371c1430cae7be30b83666cf3e3fb34cea7220cc761ccc82f1953a2b09db276e.gz"
+    },
+    "crates/dive-api/tests/constructor_covers.rs": {
+      "sha256": "93522bde45d99d0458d5c182795f660fd748d5a427519a85075461279f0f6eb0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/93522bde45d99d0458d5c182795f660fd748d5a427519a85075461279f0f6eb0.gz"
+    },
+    "crates/dive-api/tests/deferred_domains.rs": {
+      "sha256": "e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2.gz"
+    },
+    "crates/dive-api/tests/dfid.rs": {
+      "sha256": "7eea9612d003606d929d7ce4edf2081b600ca2900d143768f66933684eb7c324",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7eea9612d003606d929d7ce4edf2081b600ca2900d143768f66933684eb7c324.gz"
+    },
+    "crates/dive-api/tests/disk_seen.rs": {
+      "sha256": "a89398b2eed332f1e3015c2d870da6516644df5ab2888b60d38bf2c463f4ed2b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a89398b2eed332f1e3015c2d870da6516644df5ab2888b60d38bf2c463f4ed2b.gz"
+    },
+    "crates/dive-api/tests/frontier_spill.rs": {
+      "sha256": "5bd814a5ed5070e6e99b498ef022f15dbc30e00d9924a2f46ba0b45883c95d0e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5bd814a5ed5070e6e99b498ef022f15dbc30e00d9924a2f46ba0b45883c95d0e.gz"
+    },
+    "crates/dive-api/tests/lazy_domains.rs": {
+      "sha256": "50721caee92624fdb7f06e92afcee6ecdd2ae7207bc9e543218be3669ff70e80",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/50721caee92624fdb7f06e92afcee6ecdd2ae7207bc9e543218be3669ff70e80.gz"
+    },
+    "crates/dive-api/tests/material_capture.rs": {
+      "sha256": "7ec0877aa600d513a5a1ae97440f7155dcef525282038f68094c9141dbcb5d7a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7ec0877aa600d513a5a1ae97440f7155dcef525282038f68094c9141dbcb5d7a.gz"
+    },
+    "crates/dive-api/tests/multiline.rs": {
+      "sha256": "5deac2c6c42fcf6fc71782233a25b26846b1e9c9b1303d32bc4bdcfb27636384",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5deac2c6c42fcf6fc71782233a25b26846b1e9c9b1303d32bc4bdcfb27636384.gz"
+    },
+    "crates/dive-api/tests/native_checkpoint.rs": {
+      "sha256": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224.gz"
+    },
+    "crates/dive-api/tests/native_checkpoint_keys.rs": {
+      "sha256": "f33a97ea9eadf6e97f04913a400a2c91a7c2a37efdb93c9ac06fb6e2ea6e16f9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f33a97ea9eadf6e97f04913a400a2c91a7c2a37efdb93c9ac06fb6e2ea6e16f9.gz"
+    },
+    "crates/dive-api/tests/native_checkpoint_runtime_effects.rs": {
+      "sha256": "2b0cc869de3d131de195f8e9258ff7db62a39d57ab9dd9dbe74935292dd749b0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2b0cc869de3d131de195f8e9258ff7db62a39d57ab9dd9dbe74935292dd749b0.gz"
+    },
+    "crates/dive-api/tests/native_checkpoint_runtime_names.rs": {
+      "sha256": "867580615733841bec19646567f048be47a42656621498d1158382d297efb354",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/867580615733841bec19646567f048be47a42656621498d1158382d297efb354.gz"
+    },
+    "crates/dive-api/tests/native_checkpoint_spill.rs": {
+      "sha256": "8b70e8e24ade2ed3d5e4d19c914df73501b1799270c5d4ed7570dad35e493fd3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8b70e8e24ade2ed3d5e4d19c914df73501b1799270c5d4ed7570dad35e493fd3.gz"
+    },
+    "crates/dive-api/tests/native_sequence_operators.rs": {
+      "sha256": "7be79eecca064864b6b142dcc18e239edb9c2b7b226c0262c4ab2d17e7616303",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7be79eecca064864b6b142dcc18e239edb9c2b7b226c0262c4ab2d17e7616303.gz"
+    },
+    "crates/dive-api/tests/native_temporal_operators.rs": {
+      "sha256": "1a34e849f2c19b954965fccf5888e37a7caa7f30029620b9d8056fac22b43fa6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1a34e849f2c19b954965fccf5888e37a7caa7f30029620b9d8056fac22b43fa6.gz"
+    },
+    "crates/dive-api/tests/pluscal_source_context.rs": {
+      "sha256": "fcddf361acfec54c57a9b430edc8536778ff9dd893308128c26f0a3881bf44c6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/fcddf361acfec54c57a9b430edc8536778ff9dd893308128c26f0a3881bf44c6.gz"
+    },
+    "crates/dive-api/tests/predecessor_spill.rs": {
+      "sha256": "81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e.gz"
+    },
+    "crates/dive-api/tests/primed_covers.rs": {
+      "sha256": "161080c295760649478e3e9aa3eddbc5d0639349aa718f6c34944dfa9d526b78",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/161080c295760649478e3e9aa3eddbc5d0639349aa718f6c34944dfa9d526b78.gz"
+    },
+    "crates/dive-api/tests/rewrite.rs": {
+      "sha256": "24df7f430a88b524a29a5f5efacad2c707bc849c3d7378615b26414136f6b7e0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/24df7f430a88b524a29a5f5efacad2c707bc849c3d7378615b26414136f6b7e0.gz"
+    },
+    "crates/dive-api/tests/simulate.rs": {
+      "sha256": "0507b5c3424a7a27c578c210b8dca145f8318e79f9313653450ad3c775ccb744",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0507b5c3424a7a27c578c210b8dca145f8318e79f9313653450ad3c775ccb744.gz"
+    },
+    "crates/dive-api/tests/storage_tuple_function.rs": {
+      "sha256": "f12c7045b5411fdd291d96602e0e6a342d5c4c5e7cf6f4a015a1825a988431c2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f12c7045b5411fdd291d96602e0e6a342d5c4c5e7cf6f4a015a1825a988431c2.gz"
+    },
+    "crates/dive-api/tests/stored_successor_material.rs": {
+      "sha256": "2726af525686a0a64b6c3db8be1008e5263245b732f13dcceba49618320bf2c8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2726af525686a0a64b6c3db8be1008e5263245b732f13dcceba49618320bf2c8.gz"
+    },
+    "crates/dive-api/tests/symmetry_trace.rs": {
+      "sha256": "44ac65ca5d403f4e6ca383cb9f12bc95e9d0dc4557c3ce9a131238e572973058",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/44ac65ca5d403f4e6ca383cb9f12bc95e9d0dc4557c3ce9a131238e572973058.gz"
+    },
+    "crates/dive-api/tests/temporal.rs": {
+      "sha256": "3cf964304e1b676dc03cd80c6f3973c9966470cce8eb3cbbb325e484d04f60e7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3cf964304e1b676dc03cd80c6f3973c9966470cce8eb3cbbb325e484d04f60e7.gz"
+    },
+    "crates/dive-api/tests/temporal_evidence.rs": {
+      "sha256": "e995e0109b0f71260568a2cad5d7a65186fd57194103e283bd69f1e9d194f46e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e995e0109b0f71260568a2cad5d7a65186fd57194103e283bd69f1e9d194f46e.gz"
+    },
+    "crates/dive-api/tests/temporal_forwarding.rs": {
+      "sha256": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60.gz"
+    },
+    "crates/dive-api/tests/temporal_operators.rs": {
+      "sha256": "5d631ac51b58cd58933997484251eab5dcb9dc811c631fdc3cb6195f454eecc6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5d631ac51b58cd58933997484251eab5dcb9dc811c631fdc3cb6195f454eecc6.gz"
+    },
+    "crates/dive-api/tests/tlc_final_safety.rs": {
+      "sha256": "a97c26810bac5d0bf6340ac85fee3ca0b6623cd73926638d2e75e827fe37d9c1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a97c26810bac5d0bf6340ac85fee3ca0b6623cd73926638d2e75e827fe37d9c1.gz"
+    },
+    "crates/dive-api/tests/tlc_final_scopes.rs": {
+      "sha256": "5dfbc92a044a815773f1fea9fd61db55e4a4b9ff1bded2a38435907f6dd8d00e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5dfbc92a044a815773f1fea9fd61db55e4a4b9ff1bded2a38435907f6dd8d00e.gz"
+    },
+    "crates/dive-api/tests/tlc_property_origins.rs": {
+      "sha256": "0304413dd5b2b96cb256a6754996402d37b2209699a15d4c85398d6f78fc5fd0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0304413dd5b2b96cb256a6754996402d37b2209699a15d4c85398d6f78fc5fd0.gz"
+    },
+    "crates/dive-api/tests/tlc_state_if.rs": {
+      "sha256": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82.gz"
+    },
+    "crates/dive-api/tests/tlc_temporal.rs": {
+      "sha256": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2.gz"
+    },
+    "crates/dive-api/tests/tlc_temporal_if.rs": {
+      "sha256": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7.gz"
+    },
+    "crates/dive-api/tests/trace_controls.rs": {
+      "sha256": "060007fe9567612c601cb31ea13541749d1469f817a9da1413dab4ff8dd7ed25",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/060007fe9567612c601cb31ea13541749d1469f817a9da1413dab4ff8dd7ed25.gz"
+    },
+    "crates/dive-api/tests/trace_random.rs": {
+      "sha256": "049f0ddb34923f8d0a50c80853237b0cb587c390dcb6a9689f55f6cb14df5193",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/049f0ddb34923f8d0a50c80853237b0cb587c390dcb6a9689f55f6cb14df5193.gz"
+    },
+    "crates/dive-api/tests/trace_representation.rs": {
+      "sha256": "6f2e60a860c43a5a0d3274c9a87cc42d9f5e2972071a59511ad0e9d6790a1a7b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6f2e60a860c43a5a0d3274c9a87cc42d9f5e2972071a59511ad0e9d6790a1a7b.gz"
+    },
+    "crates/dive-api/tests/trace_runtime_names.rs": {
+      "sha256": "ffd9245dcecc15fbccc42034f5a762df022a1df6e5271a33bf974b96954a7792",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ffd9245dcecc15fbccc42034f5a762df022a1df6e5271a33bf974b96954a7792.gz"
+    },
+    "crates/dive-api/tests/translation.rs": {
+      "sha256": "3db9809eab97a5f3fe539cdeae9c0e7564a4e7f5a5a6a2846ddce14876d02232",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3db9809eab97a5f3fe539cdeae9c0e7564a4e7f5a5a6a2846ddce14876d02232.gz"
+    },
+    "crates/dive-api/tests/view_normalization.rs": {
+      "sha256": "484e88c8eed19585f16ddd941056e6c00da917c4165ddb4c731dcd14741812b0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/484e88c8eed19585f16ddd941056e6c00da917c4165ddb4c731dcd14741812b0.gz"
+    },
+    "crates/dive-api/tests/view_random.rs": {
+      "sha256": "21f4350ae586e9ce34071f35f1cf20c5d9ce64c0c402a69a0af6e389339db216",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/21f4350ae586e9ce34071f35f1cf20c5d9ce64c0c402a69a0af6e389339db216.gz"
+    },
+    "crates/dive-bench/Cargo.toml": {
+      "sha256": "a46c4b4ff2d98fb05ca82bbf98a9b01f449eac4a99e81ce515398ab9ab08e579",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a46c4b4ff2d98fb05ca82bbf98a9b01f449eac4a99e81ce515398ab9ab08e579.gz"
+    },
+    "crates/dive-bench/src/lib.rs": {
+      "sha256": "b38aa59a23579d9391a663f7986b8541f3daf870e56bd4a74403705600e76bc5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b38aa59a23579d9391a663f7986b8541f3daf870e56bd4a74403705600e76bc5.gz"
+    },
+    "crates/dive-bench/src/main.rs": {
+      "sha256": "4712d8720c3b7a14ba25a202615062e159d39f7055eb3110d4afbf3cfc2e3c88",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4712d8720c3b7a14ba25a202615062e159d39f7055eb3110d4afbf3cfc2e3c88.gz"
+    },
+    "crates/dive-check/Cargo.toml": {
+      "sha256": "eec393f8a0d26fee9b6b928558e62965801d20a8e660645c384fcfa637da8bcd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/eec393f8a0d26fee9b6b928558e62965801d20a8e660645c384fcfa637da8bcd.gz"
+    },
+    "crates/dive-check/src/capture.rs": {
+      "sha256": "c0da499fcba3afeff4e2d9ddec3dee9cc78a3217eb53f5262b9bcd9c16236baa",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c0da499fcba3afeff4e2d9ddec3dee9cc78a3217eb53f5262b9bcd9c16236baa.gz"
+    },
+    "crates/dive-check/src/capture/pure.rs": {
+      "sha256": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b.gz"
+    },
+    "crates/dive-check/src/checkpoint.rs": {
+      "sha256": "295d1a3641f579ff2101114bce67b9e966a677b153b5a6ead6d8e994c4e23d17",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/295d1a3641f579ff2101114bce67b9e966a677b153b5a6ead6d8e994c4e23d17.gz"
+    },
+    "crates/dive-check/src/class.rs": {
+      "sha256": "2c48df9482bcec4f5857b256fe139712c2e71e687c8cae3a37ba1a3ca19bf419",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2c48df9482bcec4f5857b256fe139712c2e71e687c8cae3a37ba1a3ca19bf419.gz"
+    },
+    "crates/dive-check/src/dfid.rs": {
+      "sha256": "87c53b44fb1b9bf233bba7d041a8d9f2daba7c612220237163d95ce3e3cd66b1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/87c53b44fb1b9bf233bba7d041a8d9f2daba7c612220237163d95ce3e3cd66b1.gz"
+    },
+    "crates/dive-check/src/dfid/pure.rs": {
+      "sha256": "a9aa4e794da488968d5ef7f82130f8f643295b94d5d8651a123f25bbff8fa5ac",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a9aa4e794da488968d5ef7f82130f8f643295b94d5d8651a123f25bbff8fa5ac.gz"
+    },
+    "crates/dive-check/src/engine.rs": {
+      "sha256": "c8ffc3c203340d463808ef5c449950c8fd941827b78e03a84b03eb3a12b0bbb3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c8ffc3c203340d463808ef5c449950c8fd941827b78e03a84b03eb3a12b0bbb3.gz"
+    },
+    "crates/dive-check/src/frontier.rs": {
+      "sha256": "af82a47583221da076247645732ae63016c11a197c874bbef5127105183cfa5b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/af82a47583221da076247645732ae63016c11a197c874bbef5127105183cfa5b.gz"
+    },
+    "crates/dive-check/src/host.rs": {
+      "sha256": "0117b05d07092c72a24d0a4a14e5e9ab2dcb353aec6f89d82b9906dca459b7a7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0117b05d07092c72a24d0a4a14e5e9ab2dcb353aec6f89d82b9906dca459b7a7.gz"
+    },
+    "crates/dive-check/src/lib.rs": {
+      "sha256": "340de9c403f8555c2da938f2dbc8d5c7d8d2c43deb6b9f91bc2e760e26fb349e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/340de9c403f8555c2da938f2dbc8d5c7d8d2c43deb6b9f91bc2e760e26fb349e.gz"
+    },
+    "crates/dive-check/src/options.rs": {
+      "sha256": "465c062e0cad32230c7b28adb47b134b0cf7289cef09ef63117af70080df498f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/465c062e0cad32230c7b28adb47b134b0cf7289cef09ef63117af70080df498f.gz"
+    },
+    "crates/dive-check/src/parallel.rs": {
+      "sha256": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5.gz"
+    },
+    "crates/dive-check/src/pool.rs": {
+      "sha256": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7.gz"
+    },
+    "crates/dive-check/src/progress.rs": {
+      "sha256": "4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5.gz"
+    },
+    "crates/dive-check/src/render.rs": {
+      "sha256": "83797f3bfa8f03dc5cd9956834d972710771af004321c296ce2b89aa7c265fb3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/83797f3bfa8f03dc5cd9956834d972710771af004321c296ce2b89aa7c265fb3.gz"
+    },
+    "crates/dive-check/src/result.rs": {
+      "sha256": "f54c19b8f0e2ae1c1e85a1b7f9269d45b9cf56b1e4b855090b6a31227d02784c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f54c19b8f0e2ae1c1e85a1b7f9269d45b9cf56b1e4b855090b6a31227d02784c.gz"
+    },
+    "crates/dive-check/src/seen.rs": {
+      "sha256": "636a0c45143d1ad918748dcdca64baf26ccd178b3abc97962d708a9b58f74095",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/636a0c45143d1ad918748dcdca64baf26ccd178b3abc97962d708a9b58f74095.gz"
+    },
+    "crates/dive-check/src/seen/tests.rs": {
+      "sha256": "236b32451c5ec0f0f3415eb34ba6886b7659d866db903a55fe0b454d5e7c5923",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/236b32451c5ec0f0f3415eb34ba6886b7659d866db903a55fe0b454d5e7c5923.gz"
+    },
+    "crates/dive-check/tests/capture.rs": {
+      "sha256": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb.gz"
+    },
+    "crates/dive-check/tests/checkpoint_keys.rs": {
+      "sha256": "d029dd778f340115a87a5473067027a20227f484d69f22e9016583454aceafa1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d029dd778f340115a87a5473067027a20227f484d69f22e9016583454aceafa1.gz"
+    },
+    "crates/dive-check/tests/checkpoint_runtime_names.rs": {
+      "sha256": "27f8b9429a0b6e837c60f4fed2bc0777b4c2f36a2ab070079c662de094d85756",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/27f8b9429a0b6e837c60f4fed2bc0777b4c2f36a2ab070079c662de094d85756.gz"
+    },
+    "crates/dive-check/tests/configured_random.rs": {
+      "sha256": "cdd5a393df9085e1dc014effa030e48d0e1810839eecdcba41a58c20bb572cc1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cdd5a393df9085e1dc014effa030e48d0e1810839eecdcba41a58c20bb572cc1.gz"
+    },
+    "crates/dive-check/tests/dfid.rs": {
+      "sha256": "b2a3b3516f50dc599148a7c02eb101d1fe61289fb7574976ce27e796622e7b45",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b2a3b3516f50dc599148a7c02eb101d1fe61289fb7574976ce27e796622e7b45.gz"
+    },
+    "crates/dive-check/tests/disk_seen.rs": {
+      "sha256": "67a77f1a9c2a3b699d7559c112bfca295dc2dfb3ff95bde4ccf667c077fd87db",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/67a77f1a9c2a3b699d7559c112bfca295dc2dfb3ff95bde4ccf667c077fd87db.gz"
+    },
+    "crates/dive-check/tests/errors.rs": {
+      "sha256": "b9eb848366586962e65ba912c32589d3b83fffc3a72eeb535406c32d47922b98",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b9eb848366586962e65ba912c32589d3b83fffc3a72eeb535406c32d47922b98.gz"
+    },
+    "crates/dive-check/tests/fingerprints.rs": {
+      "sha256": "50eacc1b93b6f2f147750c9ca7c7ed3eb2fdd89e7bb7d215242b7e116d3e7a97",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/50eacc1b93b6f2f147750c9ca7c7ed3eb2fdd89e7bb7d215242b7e116d3e7a97.gz"
+    },
+    "crates/dive-check/tests/frontier_spill.rs": {
+      "sha256": "87d1522f1fabfb86cecb8f70d27fe569754f8696ff7d04c4e9be2faec698d82d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/87d1522f1fabfb86cecb8f70d27fe569754f8696ff7d04c4e9be2faec698d82d.gz"
+    },
+    "crates/dive-check/tests/invariance.rs": {
+      "sha256": "7aeb969a21707e06500820616198f6344c65a6f93787f1bea9de5f36816a6a83",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7aeb969a21707e06500820616198f6344c65a6f93787f1bea9de5f36816a6a83.gz"
+    },
+    "crates/dive-check/tests/native_checkpoint.rs": {
+      "sha256": "7252610cdd157ddc3b2c6cbcc3b20adb4f5979c3ced851ad3671d4f8eed694df",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7252610cdd157ddc3b2c6cbcc3b20adb4f5979c3ced851ad3671d4f8eed694df.gz"
+    },
+    "crates/dive-check/tests/observed.rs": {
+      "sha256": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261.gz"
+    },
+    "crates/dive-check/tests/observer_barrier.rs": {
+      "sha256": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e.gz"
+    },
+    "crates/dive-check/tests/probes.rs": {
+      "sha256": "f7a77ca64e61391c677fe9848e6747472b52f12856c371cd8f422e735a561397",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f7a77ca64e61391c677fe9848e6747472b52f12856c371cd8f422e735a561397.gz"
+    },
+    "crates/dive-check/tests/public_ir.rs": {
+      "sha256": "5c309a3ba87bfbc573f94b60a38ac5a5eb658f01562578c0eb3f1f1345d781d8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5c309a3ba87bfbc573f94b60a38ac5a5eb658f01562578c0eb3f1f1345d781d8.gz"
+    },
+    "crates/dive-check/tests/symmetry.rs": {
+      "sha256": "5667383cd7d13a69b9b684369243a93ac3c107d3aaad417bad417a05cc17d571",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5667383cd7d13a69b9b684369243a93ac3c107d3aaad417bad417a05cc17d571.gz"
+    },
+    "crates/dive-check/tests/tlc_module.rs": {
+      "sha256": "011fac22aaae25e44033d8b41e1cb1ef3f4d2258d4a3c84e22ece03ec2f4a98f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/011fac22aaae25e44033d8b41e1cb1ef3f4d2258d4a3c84e22ece03ec2f4a98f.gz"
+    },
+    "crates/dive-check/tests/view_normalization.rs": {
+      "sha256": "8e7f9149aeaca6a2afe23e3bd37e7035e2219ccdef07701d3b1b7130551fea1e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8e7f9149aeaca6a2afe23e3bd37e7035e2219ccdef07701d3b1b7130551fea1e.gz"
+    },
+    "crates/dive-check/tests/view_random.rs": {
+      "sha256": "6e74240835d6ed96f58a080afa5c5522581480a9545507c2016469904044f3c6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6e74240835d6ed96f58a080afa5c5522581480a9545507c2016469904044f3c6.gz"
+    },
+    "crates/dive-check/tests/view_random_stream.rs": {
+      "sha256": "8a60aaed996f2a96952dbf20ba0446772b8ed06615ca736472ef21d4d33c2be9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8a60aaed996f2a96952dbf20ba0446772b8ed06615ca736472ef21d4d33c2be9.gz"
+    },
+    "crates/dive-cli/Cargo.toml": {
+      "sha256": "629f94f5352a999e441c5e6d0ba423980094cdf9c789ec7a0efbf2f3214a56be",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/629f94f5352a999e441c5e6d0ba423980094cdf9c789ec7a0efbf2f3214a56be.gz"
+    },
+    "crates/dive-cli/src/main.rs": {
+      "sha256": "afd16f424cdcb84b69cc40fd06ab58fb61f8b6b2de999bd873a088a29795a1d8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/afd16f424cdcb84b69cc40fd06ab58fb61f8b6b2de999bd873a088a29795a1d8.gz"
+    },
+    "crates/dive-cli/src/translate.rs": {
+      "sha256": "6b8cbcf754494482fe08d63b42edf040b64eb259e68d9ed428e8d3d900f485b6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6b8cbcf754494482fe08d63b42edf040b64eb259e68d9ed428e8d3d900f485b6.gz"
+    },
+    "crates/dive-cli/tests/cli.rs": {
+      "sha256": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31.gz"
+    },
+    "crates/dive-compile/Cargo.toml": {
+      "sha256": "08da1f80cc70636c34c7cfe149e3ba9cc45b0dd3ed979c35f40c2d3670ea7e1e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/08da1f80cc70636c34c7cfe149e3ba9cc45b0dd3ed979c35f40c2d3670ea7e1e.gz"
+    },
+    "crates/dive-compile/src/lib.rs": {
+      "sha256": "9a51802e50d247de08cbb3db1457ba73a6d596295c3b4c3f72dfabaeb08de2bf",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9a51802e50d247de08cbb3db1457ba73a6d596295c3b4c3f72dfabaeb08de2bf.gz"
+    },
+    "crates/dive-config/Cargo.toml": {
+      "sha256": "a394e1bf43c57c4de9ee856d64b89df94751887d9ff0a67291049539fc1b3c70",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a394e1bf43c57c4de9ee856d64b89df94751887d9ff0a67291049539fc1b3c70.gz"
+    },
+    "crates/dive-config/src/diagnostics.rs": {
+      "sha256": "b893c1edd4b34de08fec43987fae472e230e6221165f15f0ec5c89f1526ab15c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b893c1edd4b34de08fec43987fae472e230e6221165f15f0ec5c89f1526ab15c.gz"
+    },
+    "crates/dive-config/src/lib.rs": {
+      "sha256": "bd975b114393170c76cb211166f7fcb09c8838ba241308d4999eb4a2c751def1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bd975b114393170c76cb211166f7fcb09c8838ba241308d4999eb4a2c751def1.gz"
+    },
+    "crates/dive-config/src/model.rs": {
+      "sha256": "2ee1ab5f76099f2237ed3bbc92e64f178e0dd1dde0154c94a4c7e995bca28e1e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2ee1ab5f76099f2237ed3bbc92e64f178e0dd1dde0154c94a4c7e995bca28e1e.gz"
+    },
+    "crates/dive-config/src/parser.rs": {
+      "sha256": "5a11894be8550d440a83281f8587cb0781584788fe9dfdd51b58d8e12223fe98",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5a11894be8550d440a83281f8587cb0781584788fe9dfdd51b58d8e12223fe98.gz"
+    },
+    "crates/dive-config/src/value.rs": {
+      "sha256": "f3d6e9f0a0a531a1f222c8ca0d69c4e9e681f6ecdea3187434c4258eb3d5bf50",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f3d6e9f0a0a531a1f222c8ca0d69c4e9e681f6ecdea3187434c4258eb3d5bf50.gz"
+    },
+    "crates/dive-config/tests/robustness.rs": {
+      "sha256": "19f75d72bc035f25d52c3fb2113bde72aea7e0786138ab930c3800dec2fc3e8f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/19f75d72bc035f25d52c3fb2113bde72aea7e0786138ab930c3800dec2fc3e8f.gz"
+    },
+    "crates/dive-config/tests/tlc_oracle.rs": {
+      "sha256": "70a022d0e76fe8e78525b901e5d4ec01c7cfb88858a59402567ac99d4cef8b09",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/70a022d0e76fe8e78525b901e5d4ec01c7cfb88858a59402567ac99d4cef8b09.gz"
+    },
+    "crates/dive-conformance/Cargo.toml": {
+      "sha256": "8edf25a6fe71ad212c35e771c0fbb6f2146247da5e270a71bde266399cfdbbe8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8edf25a6fe71ad212c35e771c0fbb6f2146247da5e270a71bde266399cfdbbe8.gz"
+    },
+    "crates/dive-conformance/src/cache.rs": {
+      "sha256": "31349c7e001bde508cae946295cbf7deb56401a53053dc0e647eedc58cdd7bbc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/31349c7e001bde508cae946295cbf7deb56401a53053dc0e647eedc58cdd7bbc.gz"
+    },
+    "crates/dive-conformance/src/compare.rs": {
+      "sha256": "832fc30f7f9f02689b79def460330c0187bea789f02e066b9ec90775e2abf101",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/832fc30f7f9f02689b79def460330c0187bea789f02e066b9ec90775e2abf101.gz"
+    },
+    "crates/dive-conformance/src/config.rs": {
+      "sha256": "b11c7ee37e825e8c932112a8bf237665e69d5554c2f627967ff59ec62d64857a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b11c7ee37e825e8c932112a8bf237665e69d5554c2f627967ff59ec62d64857a.gz"
+    },
+    "crates/dive-conformance/src/corpus.rs": {
+      "sha256": "cf112152609b372f98f8a760f25e27200cc3a4e5047a3a50c396ee0b8e1b5948",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cf112152609b372f98f8a760f25e27200cc3a4e5047a3a50c396ee0b8e1b5948.gz"
+    },
+    "crates/dive-conformance/src/dive.rs": {
+      "sha256": "8ad9f02117015c110e67f00636f81fd66f8f7956203444266c3fe6d80528dfb8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8ad9f02117015c110e67f00636f81fd66f8f7956203444266c3fe6d80528dfb8.gz"
+    },
+    "crates/dive-conformance/src/divergence.rs": {
+      "sha256": "56250b7c00d3d74daa1ab91a63ae3b4ece391f7e8fd3c33910e575fd4069d0f6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/56250b7c00d3d74daa1ab91a63ae3b4ece391f7e8fd3c33910e575fd4069d0f6.gz"
+    },
+    "crates/dive-conformance/src/error.rs": {
+      "sha256": "8dc23b01f675812510ec1d7cd52f963adab0cf92c79f119b2a182b6fd37b8aed",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8dc23b01f675812510ec1d7cd52f963adab0cf92c79f119b2a182b6fd37b8aed.gz"
+    },
+    "crates/dive-conformance/src/fetch.rs": {
+      "sha256": "cca3bcc20a2c16e99e799e1b5c6879a7ab4947d404706ae8481ff37ee353a2ba",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cca3bcc20a2c16e99e799e1b5c6879a7ab4947d404706ae8481ff37ee353a2ba.gz"
+    },
+    "crates/dive-conformance/src/final_study.rs": {
+      "sha256": "93146beb527672239f8023f011d85980189b9dadfc416ec894c9bb14bec0abb8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/93146beb527672239f8023f011d85980189b9dadfc416ec894c9bb14bec0abb8.gz"
+    },
+    "crates/dive-conformance/src/golden.rs": {
+      "sha256": "a9449901c0e7a5328e995456c14617a876c90007233360f5740421cef02e6eb0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a9449901c0e7a5328e995456c14617a876c90007233360f5740421cef02e6eb0.gz"
+    },
+    "crates/dive-conformance/src/hash.rs": {
+      "sha256": "2c78d3e5e54a76654486bcc90268b3a384f3b5ed2fee0170e387dc404aef00de",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2c78d3e5e54a76654486bcc90268b3a384f3b5ed2fee0170e387dc404aef00de.gz"
+    },
+    "crates/dive-conformance/src/implementation.rs": {
+      "sha256": "b9e338454787a6fd5b9eecfdbd3d31eddb2e2e171f1732ed0350112a9ef780e7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b9e338454787a6fd5b9eecfdbd3d31eddb2e2e171f1732ed0350112a9ef780e7.gz"
+    },
+    "crates/dive-conformance/src/lib.rs": {
+      "sha256": "1ad41a82cbcb78536bff36ad5e5390642660e80b387167044ed6245f0d25e710",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1ad41a82cbcb78536bff36ad5e5390642660e80b387167044ed6245f0d25e710.gz"
+    },
+    "crates/dive-conformance/src/main.rs": {
+      "sha256": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a.gz"
+    },
+    "crates/dive-conformance/src/oracle.rs": {
+      "sha256": "dded11a92f9cfa2586f1effd2a6b8e541c0e03bf6ac3cf8d82a54a9ba4c2dac2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/dded11a92f9cfa2586f1effd2a6b8e541c0e03bf6ac3cf8d82a54a9ba4c2dac2.gz"
+    },
+    "crates/dive-conformance/src/pipeline.rs": {
+      "sha256": "6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4.gz"
+    },
+    "crates/dive-conformance/src/process.rs": {
+      "sha256": "2e521bc8756fe77f9dc55ba7fe83e7d1a734974347c4c5f69baf5ac6981361f9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2e521bc8756fe77f9dc55ba7fe83e7d1a734974347c4c5f69baf5ac6981361f9.gz"
+    },
+    "crates/dive-conformance/src/report.rs": {
+      "sha256": "747e9f20ce5cf520175fca79c303c43037c7de0381107ae28ecdc37dfb346382",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/747e9f20ce5cf520175fca79c303c43037c7de0381107ae28ecdc37dfb346382.gz"
+    },
+    "crates/dive-conformance/src/sany.rs": {
+      "sha256": "331242635a55832bd49f644d25e85b360bf1c742ec6f98a1f69b03a73b03408f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/331242635a55832bd49f644d25e85b360bf1c742ec6f98a1f69b03a73b03408f.gz"
+    },
+    "crates/dive-conformance/src/tlc/codes.rs": {
+      "sha256": "76411492b3ebd98403dd66e8e2fc60d8043257ca2d8d757d4cf50c5ff08c6464",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/76411492b3ebd98403dd66e8e2fc60d8043257ca2d8d757d4cf50c5ff08c6464.gz"
+    },
+    "crates/dive-conformance/src/tlc/messages.rs": {
+      "sha256": "264b97b6a9fb3daab2fe97572ea63fd8b861662acabf7ef9f7450355f5131b05",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/264b97b6a9fb3daab2fe97572ea63fd8b861662acabf7ef9f7450355f5131b05.gz"
+    },
+    "crates/dive-conformance/src/tlc/mod.rs": {
+      "sha256": "5c7f9837483192aaa974760feddf273940ab4dfa876b65cbb0310f67d1717826",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5c7f9837483192aaa974760feddf273940ab4dfa876b65cbb0310f67d1717826.gz"
+    },
+    "crates/dive-conformance/src/tlc/result.rs": {
+      "sha256": "0f37a6fa603559faaf697fddfdd264dfe81ea38aef55ffa0104d5574357b61b0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0f37a6fa603559faaf697fddfdd264dfe81ea38aef55ffa0104d5574357b61b0.gz"
+    },
+    "crates/dive-conformance/src/trace_check.rs": {
+      "sha256": "e1f1db49f1a331fe90dbc372780be00b7d3a1da53ad311cd23ac945a6f0420a4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e1f1db49f1a331fe90dbc372780be00b7d3a1da53ad311cd23ac945a6f0420a4.gz"
+    },
+    "crates/dive-conformance/src/upstream.rs": {
+      "sha256": "7a212060831d16510b2efd94a5de914bda44b2af24681bea913fbea550de51ff",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7a212060831d16510b2efd94a5de914bda44b2af24681bea913fbea550de51ff.gz"
+    },
+    "crates/dive-conformance/src/util.rs": {
+      "sha256": "8b3b408fcf31fab7b3bc96507b4f51a3d4023bc16828b4771c53d6bd34f15c67",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8b3b408fcf31fab7b3bc96507b4f51a3d4023bc16828b4771c53d6bd34f15c67.gz"
+    },
+    "crates/dive-conformance/tests/cache_concurrency.rs": {
+      "sha256": "029cd395a00dc14074ccf1eee27375577997c99dd0b1a5d053626701e1658da4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/029cd395a00dc14074ccf1eee27375577997c99dd0b1a5d053626701e1658da4.gz"
+    },
+    "crates/dive-conformance/tests/fixtures.rs": {
+      "sha256": "09b3dcb9bf4ad6c636a98e1a46eb82075971f6748cfcca6e929acf8589b03b68",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/09b3dcb9bf4ad6c636a98e1a46eb82075971f6748cfcca6e929acf8589b03b68.gz"
+    },
+    "crates/dive-conformance/tests/pipeline_totals.rs": {
+      "sha256": "865eed9f6ce7dd0b4833301025795d3128a06625b6872d0a23d710186649a66d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/865eed9f6ce7dd0b4833301025795d3128a06625b6872d0a23d710186649a66d.gz"
+    },
+    "crates/dive-conformance/tests/review_findings.rs": {
+      "sha256": "72c2ad75f95accfd7fc6c3d7eb5534b43b73c54ebf197e281fd8d62a086319e2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/72c2ad75f95accfd7fc6c3d7eb5534b43b73c54ebf197e281fd8d62a086319e2.gz"
+    },
+    "crates/dive-conformance/tests/trace_check.rs": {
+      "sha256": "d5f4c3b6d522188a46e3e6336ca8b8f4502bbfab44c01a778f47b5b59b410999",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d5f4c3b6d522188a46e3e6336ca8b8f4502bbfab44c01a778f47b5b59b410999.gz"
+    },
+    "crates/dive-eval/Cargo.toml": {
+      "sha256": "331aee101db6cf5874891ae7096751b783e8766660b683970e6aaf3e8977228d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/331aee101db6cf5874891ae7096751b783e8766660b683970e6aaf3e8977228d.gz"
+    },
+    "crates/dive-eval/examples/assume_corpus.rs": {
+      "sha256": "567417045c75be255665c89cf3885c62ede3f19aa260ef4a7287f84f72706813",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/567417045c75be255665c89cf3885c62ede3f19aa260ef4a7287f84f72706813.gz"
+    },
+    "crates/dive-eval/examples/next_corpus.rs": {
+      "sha256": "d7f4ebd003bdfcdd4684429fb53ef7f56726be3cea82dbc70f922fc3910f3cd0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d7f4ebd003bdfcdd4684429fb53ef7f56726be3cea82dbc70f922fc3910f3cd0.gz"
+    },
+    "crates/dive-eval/src/bounded_domain.rs": {
+      "sha256": "52eb8593c882ab6bb1b3366dfd1944f83f15e0c4af005bddcaec9e38e6238d79",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/52eb8593c882ab6bb1b3366dfd1944f83f15e0c4af005bddcaec9e38e6238d79.gz"
+    },
+    "crates/dive-eval/src/capture.rs": {
+      "sha256": "ab1c4740b874334a896344a4e96f420fa261fc5ad44e3b027701d7011e3506fd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ab1c4740b874334a896344a4e96f420fa261fc5ad44e3b027701d7011e3506fd.gz"
+    },
+    "crates/dive-eval/src/community.rs": {
+      "sha256": "c9076c149146c81741968082e0d99c51cea60f7924d3e5e33bccf01688b95139",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c9076c149146c81741968082e0d99c51cea60f7924d3e5e33bccf01688b95139.gz"
+    },
+    "crates/dive-eval/src/context.rs": {
+      "sha256": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9.gz"
+    },
+    "crates/dive-eval/src/core.rs": {
+      "sha256": "ea43d29af78a56cc11f02e1b1c2962d718cf58b92d9806fef0beb21bd368318b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ea43d29af78a56cc11f02e1b1c2962d718cf58b92d9806fef0beb21bd368318b.gz"
+    },
+    "crates/dive-eval/src/env.rs": {
+      "sha256": "c70065ff3d84edfbef196a32e138386e00cbc9d319142022db8c2c5d784e5ef8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c70065ff3d84edfbef196a32e138386e00cbc9d319142022db8c2c5d784e5ef8.gz"
+    },
+    "crates/dive-eval/src/error.rs": {
+      "sha256": "0f6ebbc117b55dbe9a6ddb0183a179dd42a8f72d4e82741677ffcf7b71112175",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0f6ebbc117b55dbe9a6ddb0183a179dd42a8f72d4e82741677ffcf7b71112175.gz"
+    },
+    "crates/dive-eval/src/eval.rs": {
+      "sha256": "94c7128c90a6a9d6f7cb83ec551113d325471bce13d53e484f90d37c59ae2632",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/94c7128c90a6a9d6f7cb83ec551113d325471bce13d53e484f90d37c59ae2632.gz"
+    },
+    "crates/dive-eval/src/finite.rs": {
+      "sha256": "878db3b36e94111afb9933cb39f5e983a05c3de80c44574d350cedd1a5af164b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/878db3b36e94111afb9933cb39f5e983a05c3de80c44574d350cedd1a5af164b.gz"
+    },
+    "crates/dive-eval/src/host.rs": {
+      "sha256": "2f5c4b857c7311aaedb0f072c57a3e2cad062f9c06c17453812e4e40b5da200e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2f5c4b857c7311aaedb0f072c57a3e2cad062f9c06c17453812e4e40b5da200e.gz"
+    },
+    "crates/dive-eval/src/lazy.rs": {
+      "sha256": "025bc037cca1feeed67753171ea296c40c39ce3829a721dc39c4f292d2c157b9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/025bc037cca1feeed67753171ea296c40c39ce3829a721dc39c4f292d2c157b9.gz"
+    },
+    "crates/dive-eval/src/lib.rs": {
+      "sha256": "e3c1c11b05b42de9cccb3677816bdf540f00434eb56bdab8bcfc9651b77915da",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e3c1c11b05b42de9cccb3677816bdf540f00434eb56bdab8bcfc9651b77915da.gz"
+    },
+    "crates/dive-eval/src/next.rs": {
+      "sha256": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20.gz"
+    },
+    "crates/dive-eval/src/options.rs": {
+      "sha256": "fc53ccefcbcff476ff13bf5718e3c4a20e54e38d5348885009efdd299859e77b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/fc53ccefcbcff476ff13bf5718e3c4a20e54e38d5348885009efdd299859e77b.gz"
+    },
+    "crates/dive-eval/src/scope.rs": {
+      "sha256": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a.gz"
+    },
+    "crates/dive-eval/src/std.rs": {
+      "sha256": "9883781a87c4fbd933eba7b52ebf4a98ce69f399e444f71b76dfb1c1fc7f1f57",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9883781a87c4fbd933eba7b52ebf4a98ce69f399e444f71b76dfb1c1fc7f1f57.gz"
+    },
+    "crates/dive-eval/src/tla_cmp.rs": {
+      "sha256": "9df452630a1910c4770563d279d75366e10d13f02705eba2d9811575d90dc588",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9df452630a1910c4770563d279d75366e10d13f02705eba2d9811575d90dc588.gz"
+    },
+    "crates/dive-eval/src/tlc_enum.rs": {
+      "sha256": "4c07e8acd051cf52b353004f81c06ef692856a28567c3ba8a183bdc6974ab12b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4c07e8acd051cf52b353004f81c06ef692856a28567c3ba8a183bdc6974ab12b.gz"
+    },
+    "crates/dive-eval/tests/bounded_domains.rs": {
+      "sha256": "5d592458a78d99f1db0db7400e5d4eca5dfc85a3ff706aeace75829d44864ee6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5d592458a78d99f1db0db7400e5d4eca5dfc85a3ff706aeace75829d44864ee6.gz"
+    },
+    "crates/dive-eval/tests/contexts.rs": {
+      "sha256": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab.gz"
+    },
+    "crates/dive-eval/tests/harness/mod.rs": {
+      "sha256": "b55c73e335ea185e6f2d264061f825c1b6ab0b5ea39d1bfec9066d025be6f278",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b55c73e335ea185e6f2d264061f825c1b6ab0b5ea39d1bfec9066d025be6f278.gz"
+    },
+    "crates/dive-eval/tests/harness/model.rs": {
+      "sha256": "8324d16c07d21f0e2646443a0adfa1ef0e0ba0443a52261025d959ea505bff11",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8324d16c07d21f0e2646443a0adfa1ef0e0ba0443a52261025d959ea505bff11.gz"
+    },
+    "crates/dive-eval/tests/next_examples.rs": {
+      "sha256": "4e936c3ffa0482bd33b099ff6ed60afea882e3e65a719d8905761f93f60179f8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4e936c3ffa0482bd33b099ff6ed60afea882e3e65a719d8905761f93f60179f8.gz"
+    },
+    "crates/dive-eval/tests/next_probes.rs": {
+      "sha256": "4d73e1014868dac5ef948942f57d3513834e29fdb8078e53f488f85ee7c5fb24",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4d73e1014868dac5ef948942f57d3513834e29fdb8078e53f488f85ee7c5fb24.gz"
+    },
+    "crates/dive-eval/tests/options.rs": {
+      "sha256": "a023bc8dc32e8bfd194ef8778501e98b692ea21dbc81e46a0ef8c1a79e7678a1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a023bc8dc32e8bfd194ef8778501e98b692ea21dbc81e46a0ef8c1a79e7678a1.gz"
+    },
+    "crates/dive-eval/tests/properties.rs": {
+      "sha256": "6c61553199f1a19cc21ca75ebb76f7cd48d2bcf5d51087e6a0f66f842a96a7d9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6c61553199f1a19cc21ca75ebb76f7cd48d2bcf5d51087e6a0f66f842a96a7d9.gz"
+    },
+    "crates/dive-eval/tests/tlc_fixtures.rs": {
+      "sha256": "0fb2fdd4e104d4c0295312c77356104347d30d3c393bba0fb6b436512cc820ca",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0fb2fdd4e104d4c0295312c77356104347d30d3c393bba0fb6b436512cc820ca.gz"
+    },
+    "crates/dive-ir/Cargo.toml": {
+      "sha256": "8259c459a3ffa5ec773585f9e425f65dcaf127361f43d1d9f57baef0750dd15e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8259c459a3ffa5ec773585f9e425f65dcaf127361f43d1d9f57baef0750dd15e.gz"
+    },
+    "crates/dive-ir/examples/action_oracle.rs": {
+      "sha256": "9c6a1c90a8c5e8847dc2497c9088ce27c1cb40b417c94531f33437d0faaed1dd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9c6a1c90a8c5e8847dc2497c9088ce27c1cb40b417c94531f33437d0faaed1dd.gz"
+    },
+    "crates/dive-ir/examples/lower_corpus.rs": {
+      "sha256": "97a0989cb2b462b96e6a6119532ae87ef2021b0a51ad5de8f16fb88c37fd2a2d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/97a0989cb2b462b96e6a6119532ae87ef2021b0a51ad5de8f16fb88c37fd2a2d.gz"
+    },
+    "crates/dive-ir/examples/var_order_oracle.rs": {
+      "sha256": "c95c78b7fd4807c09c2017dce8ed5c611372aa0c9f321b18ff86d5b4163a620e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c95c78b7fd4807c09c2017dce8ed5c611372aa0c9f321b18ff86d5b4163a620e.gz"
+    },
+    "crates/dive-ir/src/actions.rs": {
+      "sha256": "6990b10221ff2f55afd1f6c0b77da0f9b5654e991753cdff011ab75015ed72f7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6990b10221ff2f55afd1f6c0b77da0f9b5654e991753cdff011ab75015ed72f7.gz"
+    },
+    "crates/dive-ir/src/analysis.rs": {
+      "sha256": "2b5739fa3b1d3567f69471c75e7e236ef7acb2f289456a9432be4e3869915a15",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2b5739fa3b1d3567f69471c75e7e236ef7acb2f289456a9432be4e3869915a15.gz"
+    },
+    "crates/dive-ir/src/effects.rs": {
+      "sha256": "33f61feff31612edd03eeb4f6b3700f2ea649972e1b7e584b7ac27dfffe19dc5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/33f61feff31612edd03eeb4f6b3700f2ea649972e1b7e584b7ac27dfffe19dc5.gz"
+    },
+    "crates/dive-ir/src/expr.rs": {
+      "sha256": "a94ad963eef670df1041cc35d8b5a4f5b5a3f9d75472f557ec5453b31e5c8eb5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a94ad963eef670df1041cc35d8b5a4f5b5a3f9d75472f557ec5453b31e5c8eb5.gz"
+    },
+    "crates/dive-ir/src/ids.rs": {
+      "sha256": "9e5bdad6ac6e9ce397049f5d573a99d435c0ad6141c7c4112fcacb6c354981f2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9e5bdad6ac6e9ce397049f5d573a99d435c0ad6141c7c4112fcacb6c354981f2.gz"
+    },
+    "crates/dive-ir/src/intern.rs": {
+      "sha256": "3346c7cf90faf0b81b02e64e2ce4101ce0e19d6cf059f146c6f7c7a8234f9e1f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3346c7cf90faf0b81b02e64e2ce4101ce0e19d6cf059f146c6f7c7a8234f9e1f.gz"
+    },
+    "crates/dive-ir/src/lib.rs": {
+      "sha256": "67274bb14dae84c4d96231f1c6b622223eebe7323665c8cafd1a6735012e21ab",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/67274bb14dae84c4d96231f1c6b622223eebe7323665c8cafd1a6735012e21ab.gz"
+    },
+    "crates/dive-ir/src/lower.rs": {
+      "sha256": "ae3b4ef29e843755c6e6c74cec209d13a28b08b3cc88c21f328674b75d830c4f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ae3b4ef29e843755c6e6c74cec209d13a28b08b3cc88c21f328674b75d830c4f.gz"
+    },
+    "crates/dive-ir/src/origin.rs": {
+      "sha256": "023cb96b9ab71f4eae24f9c7803ff8cde6c14c8e64cde3471813e8a67043b6f8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/023cb96b9ab71f4eae24f9c7803ff8cde6c14c8e64cde3471813e8a67043b6f8.gz"
+    },
+    "crates/dive-ir/src/pretty.rs": {
+      "sha256": "32bec5f71a615a146cda2f2e4dcb10ab04f95c354e0315164b003fcd5dacd05d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/32bec5f71a615a146cda2f2e4dcb10ab04f95c354e0315164b003fcd5dacd05d.gz"
+    },
+    "crates/dive-ir/src/std_op.rs": {
+      "sha256": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8.gz"
+    },
+    "crates/dive-ir/src/validate.rs": {
+      "sha256": "9c4204c89c40424929bfb82ca8d9d2b454a8b1e8abcbd99f530e52fcdad2e8d9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9c4204c89c40424929bfb82ca8d9d2b454a8b1e8abcbd99f530e52fcdad2e8d9.gz"
+    },
+    "crates/dive-ir/tests/actions.rs": {
+      "sha256": "9cfbae04ff0d6a84eb7b1d84c0c1ba69bb3fdfe9636f2cc99d40b717d4d3d015",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9cfbae04ff0d6a84eb7b1d84c0c1ba69bb3fdfe9636f2cc99d40b717d4d3d015.gz"
+    },
+    "crates/dive-ir/tests/common/action_oracle.rs": {
+      "sha256": "d631e768d71cd1038faf220f7055aea90c972053cbd199691c646e5a53d79aa6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d631e768d71cd1038faf220f7055aea90c972053cbd199691c646e5a53d79aa6.gz"
+    },
+    "crates/dive-ir/tests/common/mod.rs": {
+      "sha256": "d8b65b9a8ad4b41a4090fc68d658e1f26e0702365eb2fe41c765f6c583379d37",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d8b65b9a8ad4b41a4090fc68d658e1f26e0702365eb2fe41c765f6c583379d37.gz"
+    },
+    "crates/dive-ir/tests/common/var_order.rs": {
+      "sha256": "5febc8e67729a67182fcda930564322c98b6da8586e3f5460d121ec41d937704",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5febc8e67729a67182fcda930564322c98b6da8586e3f5460d121ec41d937704.gz"
+    },
+    "crates/dive-ir/tests/corpus.rs": {
+      "sha256": "2516697616d48d783c837441012a117a8e30ee2f25fcdaaf6e2416712779b139",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2516697616d48d783c837441012a117a8e30ee2f25fcdaaf6e2416712779b139.gz"
+    },
+    "crates/dive-ir/tests/lower.rs": {
+      "sha256": "efe143bdda9b7514092b54c2f92310da6215f5dfb2038c6463ae95e884f35bca",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/efe143bdda9b7514092b54c2f92310da6215f5dfb2038c6463ae95e884f35bca.gz"
+    },
+    "crates/dive-ir/tests/var_order.rs": {
+      "sha256": "e483170856c7e190428a94fa3a349b5af30d1e1a2fae6c08ff996e13b8e1756a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e483170856c7e190428a94fa3a349b5af30d1e1a2fae6c08ff996e13b8e1756a.gz"
+    },
+    "crates/dive-liveness/Cargo.toml": {
+      "sha256": "bae732c71316c4e9127682c0672c535fa88971faaefafc33de01cddf7dafbc21",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bae732c71316c4e9127682c0672c535fa88971faaefafc33de01cddf7dafbc21.gz"
+    },
+    "crates/dive-liveness/examples/tlc_final_report.rs": {
+      "sha256": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335.gz"
+    },
+    "crates/dive-liveness/src/analyze.rs": {
+      "sha256": "d3516ea7ff3e71e98cb51b5084a445e226989cb66531e025a076507357431061",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d3516ea7ff3e71e98cb51b5084a445e226989cb66531e025a076507357431061.gz"
+    },
+    "crates/dive-liveness/src/formula.rs": {
+      "sha256": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d.gz"
+    },
+    "crates/dive-liveness/src/formula/recurrence.rs": {
+      "sha256": "55f606e9d799271eae4049294a5463781111e954804deb69185151f090dc59d2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/55f606e9d799271eae4049294a5463781111e954804deb69185151f090dc59d2.gz"
+    },
+    "crates/dive-liveness/src/graph.rs": {
+      "sha256": "8cea3f72c5f09640807d91924c2a0d835fc22d6ddc2bf452b19675ebe4fc64dd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8cea3f72c5f09640807d91924c2a0d835fc22d6ddc2bf452b19675ebe4fc64dd.gz"
+    },
+    "crates/dive-liveness/src/lib.rs": {
+      "sha256": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063.gz"
+    },
+    "crates/dive-liveness/src/periodic.rs": {
+      "sha256": "2bd9ed572999c8189ee00371e40124cf03c010f6e91ba5c573db3478033c1553",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2bd9ed572999c8189ee00371e40124cf03c010f6e91ba5c573db3478033c1553.gz"
+    },
+    "crates/dive-liveness/src/periodic_backend.rs": {
+      "sha256": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b.gz"
+    },
+    "crates/dive-liveness/src/periodic_hook.rs": {
+      "sha256": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1.gz"
+    },
+    "crates/dive-liveness/src/periodic_lifecycle.rs": {
+      "sha256": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d.gz"
+    },
+    "crates/dive-liveness/src/periodic_snapshot.rs": {
+      "sha256": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd.gz"
+    },
+    "crates/dive-liveness/src/phase_execution.rs": {
+      "sha256": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998.gz"
+    },
+    "crates/dive-liveness/src/phase_graph.rs": {
+      "sha256": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39.gz"
+    },
+    "crates/dive-liveness/src/phase_l.rs": {
+      "sha256": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0.gz"
+    },
+    "crates/dive-liveness/src/plan.rs": {
+      "sha256": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0.gz"
+    },
+    "crates/dive-liveness/src/product.rs": {
+      "sha256": "8a9db0c2bf9e5ba97cec24ed0673b3fbfb144272bd3f40b9a17de30077f3a462",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8a9db0c2bf9e5ba97cec24ed0673b3fbfb144272bd3f40b9a17de30077f3a462.gz"
+    },
+    "crates/dive-liveness/src/search.rs": {
+      "sha256": "bcb53fa1a88e4778bf9912d5e0df9bf7a2544f09425b1daa79224d13c145f7da",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bcb53fa1a88e4778bf9912d5e0df9bf7a2544f09425b1daa79224d13c145f7da.gz"
+    },
+    "crates/dive-liveness/src/tlc_final.rs": {
+      "sha256": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629.gz"
+    },
+    "crates/dive-liveness/src/tlc_plan.rs": {
+      "sha256": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9.gz"
+    },
+    "crates/dive-liveness/src/tlc_scc.rs": {
+      "sha256": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c.gz"
+    },
+    "crates/dive-liveness/src/tlc_tableau.rs": {
+      "sha256": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2.gz"
+    },
+    "crates/dive-liveness/src/tlc_witness.rs": {
+      "sha256": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc.gz"
+    },
+    "crates/dive-liveness/tests/analyze.rs": {
+      "sha256": "245bc942b2c43ee03a6e3b56a9b74800e74e4711118530411d61b822896a7854",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/245bc942b2c43ee03a6e3b56a9b74800e74e4711118530411d61b822896a7854.gz"
+    },
+    "crates/dive-liveness/tests/components.rs": {
+      "sha256": "82332d0e349eab62e52edf2f57b61ffb96606578774a30fbbb628276ccc4eaac",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/82332d0e349eab62e52edf2f57b61ffb96606578774a30fbbb628276ccc4eaac.gz"
+    },
+    "crates/dive-liveness/tests/fixtures/periodic_cases.rs": {
+      "sha256": "db419fdcbda4cb093c55d1b3b6e719f8202b5d301668d339b259c7800bec0a32",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/db419fdcbda4cb093c55d1b3b6e719f8202b5d301668d339b259c7800bec0a32.gz"
+    },
+    "crates/dive-liveness/tests/fixtures/runtime_ratio_cases.rs": {
+      "sha256": "18184aec92541fb2f5bc7f2955feb8bc5d746cd71356d9653b399b7b162885d8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/18184aec92541fb2f5bc7f2955feb8bc5d746cd71356d9653b399b7b162885d8.gz"
+    },
+    "crates/dive-liveness/tests/lassos.rs": {
+      "sha256": "395555a5bef99a4f3809bf769761cbd0cebcd07436d69f3af06bff6dc57c9945",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/395555a5bef99a4f3809bf769761cbd0cebcd07436d69f3af06bff6dc57c9945.gz"
+    },
+    "crates/dive-liveness/tests/partial_execution.rs": {
+      "sha256": "de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1.gz"
+    },
+    "crates/dive-liveness/tests/periodic.rs": {
+      "sha256": "5f2dd7aa739b01c601867ca3f5898a38923edda0e11bd64ff5f4265406066973",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5f2dd7aa739b01c601867ca3f5898a38923edda0e11bd64ff5f4265406066973.gz"
+    },
+    "crates/dive-liveness/tests/periodic_backend.rs": {
+      "sha256": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1.gz"
+    },
+    "crates/dive-liveness/tests/periodic_hook.rs": {
+      "sha256": "89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4.gz"
+    },
+    "crates/dive-liveness/tests/periodic_lifecycle.rs": {
+      "sha256": "053969cbbb1b1d46f73a9e9731cf6a49c35155f2bcc0aa8cb67a59f667b9bb8e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/053969cbbb1b1d46f73a9e9731cf6a49c35155f2bcc0aa8cb67a59f667b9bb8e.gz"
+    },
+    "crates/dive-liveness/tests/periodic_snapshot.rs": {
+      "sha256": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2.gz"
+    },
+    "crates/dive-liveness/tests/phase_execution.rs": {
+      "sha256": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f.gz"
+    },
+    "crates/dive-liveness/tests/phase_graph.rs": {
+      "sha256": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5.gz"
+    },
+    "crates/dive-liveness/tests/phase_l.rs": {
+      "sha256": "b333f4afd393931661befbd22724cb3716848901a4a256e9f5e62b3d9da9f1ea",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b333f4afd393931661befbd22724cb3716848901a4a256e9f5e62b3d9da9f1ea.gz"
+    },
+    "crates/dive-liveness/tests/phase_l_material.rs": {
+      "sha256": "a4ef88418f021c4ec4bf39c7312c7e380ca3ae7d587b3b69e51728e875f53632",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a4ef88418f021c4ec4bf39c7312c7e380ca3ae7d587b3b69e51728e875f53632.gz"
+    },
+    "crates/dive-liveness/tests/planning.rs": {
+      "sha256": "28a5583a595f64a69318189e69309ed36c7413d45dc0670a87ea63bb2b012275",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/28a5583a595f64a69318189e69309ed36c7413d45dc0670a87ea63bb2b012275.gz"
+    },
+    "crates/dive-liveness/tests/product.rs": {
+      "sha256": "07fc2bd2794103b22286b5a9d60b7054ad3ab9552e4b9ca3a224de9a54690f28",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/07fc2bd2794103b22286b5a9d60b7054ad3ab9552e4b9ca3a224de9a54690f28.gz"
+    },
+    "crates/dive-liveness/tests/recurrences.rs": {
+      "sha256": "a4eabc282d872fa7e436ac9be5d5bc94bb29276bccd66fb2eacf8f3c038d068c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a4eabc282d872fa7e436ac9be5d5bc94bb29276bccd66fb2eacf8f3c038d068c.gz"
+    },
+    "crates/dive-liveness/tests/runtime_ratio.rs": {
+      "sha256": "619f7b6a8d7c8ddd0662464f4c217770868819bbf0df22dac1a189c6f2ff6c01",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/619f7b6a8d7c8ddd0662464f4c217770868819bbf0df22dac1a189c6f2ff6c01.gz"
+    },
+    "crates/dive-liveness/tests/state_if_planning.rs": {
+      "sha256": "55ad0d33538327413106c5c1ec9144f0f64e24e38e2041c3af0b0067ee811418",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/55ad0d33538327413106c5c1ec9144f0f64e24e38e2041c3af0b0067ee811418.gz"
+    },
+    "crates/dive-liveness/tests/tableau.rs": {
+      "sha256": "38fe85f345bb15c1a238cff26564c82cc6b32c1ad29b5a256d2209f4d2661496",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/38fe85f345bb15c1a238cff26564c82cc6b32c1ad29b5a256d2209f4d2661496.gz"
+    },
+    "crates/dive-liveness/tests/temporal_operators.rs": {
+      "sha256": "edd838753d66ab1baae8c7966f2dd57cf4b7e9110f91145d7becc8d3d4b5dd32",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/edd838753d66ab1baae8c7966f2dd57cf4b7e9110f91145d7becc8d3d4b5dd32.gz"
+    },
+    "crates/dive-liveness/tests/tlc_final.rs": {
+      "sha256": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30.gz"
+    },
+    "crates/dive-liveness/tests/tlc_final_scopes.rs": {
+      "sha256": "e1343c6c7a9d17aa8e79e4f4f58502134e437cfbf97cddf7624160e1beffac2c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e1343c6c7a9d17aa8e79e4f4f58502134e437cfbf97cddf7624160e1beffac2c.gz"
+    },
+    "crates/dive-liveness/tests/tlc_partial_scc.rs": {
+      "sha256": "cbe25041e2ec98c10930865d7d7159d46ba712fe864d8316f97413f773fcbf93",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cbe25041e2ec98c10930865d7d7159d46ba712fe864d8316f97413f773fcbf93.gz"
+    },
+    "crates/dive-liveness/tests/tlc_planning.rs": {
+      "sha256": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1.gz"
+    },
+    "crates/dive-liveness/tests/tlc_scc.rs": {
+      "sha256": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2.gz"
+    },
+    "crates/dive-liveness/tests/tlc_tableau.rs": {
+      "sha256": "26bfdee43c9abe5c769b1d5bbad76e71e9c8241b2dcea293532a58f0d038cdd2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/26bfdee43c9abe5c769b1d5bbad76e71e9c8241b2dcea293532a58f0d038cdd2.gz"
+    },
+    "crates/dive-liveness/tests/tlc_temporal_if.rs": {
+      "sha256": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe.gz"
+    },
+    "crates/dive-lsp/Cargo.toml": {
+      "sha256": "371430424a9b2f9a2bd45f94537de523439c1570ac3217b4530aeb56af83a739",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/371430424a9b2f9a2bd45f94537de523439c1570ac3217b4530aeb56af83a739.gz"
+    },
+    "crates/dive-lsp/src/lib.rs": {
+      "sha256": "3d217a1ce161e4ea6179afd12b3d12f12c4294ed395124cb79def60ce2138857",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3d217a1ce161e4ea6179afd12b3d12f12c4294ed395124cb79def60ce2138857.gz"
+    },
+    "crates/dive-model/Cargo.toml": {
+      "sha256": "f8d189f687c8f04e88fdc470c35d0375889ead08f9d582a218ad1321971276c7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f8d189f687c8f04e88fdc470c35d0375889ead08f9d582a218ad1321971276c7.gz"
+    },
+    "crates/dive-model/examples/model_oracle.rs": {
+      "sha256": "986539df1082e6dbdedfb10ac97538c8e90ce7ffc5162465f74f36e7cf7fb5f4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/986539df1082e6dbdedfb10ac97538c8e90ce7ffc5162465f74f36e7cf7fb5f4.gz"
+    },
+    "crates/dive-model/examples/model_show.rs": {
+      "sha256": "20c2e7034a460e215a50b0bbf4fe97235514caa7f612389dedbfb91d34fa8fd2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/20c2e7034a460e215a50b0bbf4fe97235514caa7f612389dedbfb91d34fa8fd2.gz"
+    },
+    "crates/dive-model/src/actions.rs": {
+      "sha256": "7c6aa489b90769de21c35c88ff697ffd0eb1fa7bbf4cc81ec7a3ba837f85d7aa",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7c6aa489b90769de21c35c88ff697ffd0eb1fa7bbf4cc81ec7a3ba837f85d7aa.gz"
+    },
+    "crates/dive-model/src/bind.rs": {
+      "sha256": "c776bf58522bc1817a28e05f631372cc172f8b998859ee341833497f899f9c7f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c776bf58522bc1817a28e05f631372cc172f8b998859ee341833497f899f9c7f.gz"
+    },
+    "crates/dive-model/src/error.rs": {
+      "sha256": "be69e8dc4baa1620e6dc97b26fcc236f1011d047257d611ae830493b3a052951",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/be69e8dc4baa1620e6dc97b26fcc236f1011d047257d611ae830493b3a052951.gz"
+    },
+    "crates/dive-model/src/intern.rs": {
+      "sha256": "70b56acff6780c88a063674be0341185d220791e791062b854e701c215c46308",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/70b56acff6780c88a063674be0341185d220791e791062b854e701c215c46308.gz"
+    },
+    "crates/dive-model/src/level.rs": {
+      "sha256": "a81d8d0bb86c23927090143d007827b860133f27e355ff2e110a683eb7ed3d9b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a81d8d0bb86c23927090143d007827b860133f27e355ff2e110a683eb7ed3d9b.gz"
+    },
+    "crates/dive-model/src/lib.rs": {
+      "sha256": "d178738a24ce92bd4439edc5d04f28443ff39771f0185f4ce40dd54ea13c4861",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d178738a24ce92bd4439edc5d04f28443ff39771f0185f4ce40dd54ea13c4861.gz"
+    },
+    "crates/dive-model/src/model.rs": {
+      "sha256": "49364d80e43f6427d0f3bc9879f8ec78975cde0c7a71dce9cfa06f9c7f21b32b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/49364d80e43f6427d0f3bc9879f8ec78975cde0c7a71dce9cfa06f9c7f21b32b.gz"
+    },
+    "crates/dive-model/src/periodic.rs": {
+      "sha256": "7f0c20c1b8d4d8d4d04936eb18b194579c2458f193e6061a1899a87dac4df1dd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7f0c20c1b8d4d8d4d04936eb18b194579c2458f193e6061a1899a87dac4df1dd.gz"
+    },
+    "crates/dive-model/src/random_view.rs": {
+      "sha256": "7a6fef1c331bc0b29e5cae5dbfbfa03dbc3e7ad52e4166900ca1412356c7d115",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7a6fef1c331bc0b29e5cae5dbfbfa03dbc3e7ad52e4166900ca1412356c7d115.gz"
+    },
+    "crates/dive-model/src/reach.rs": {
+      "sha256": "c255813c738b4df0d84bdb2542ccf84d942e9549d3172fbafd79d9c59e2094cb",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c255813c738b4df0d84bdb2542ccf84d942e9549d3172fbafd79d9c59e2094cb.gz"
+    },
+    "crates/dive-model/src/spec.rs": {
+      "sha256": "7b000e0371510d25cbc718b285bf5ce5d08163c5c6aea2ab7053a4e9c20de6d0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7b000e0371510d25cbc718b285bf5ce5d08163c5c6aea2ab7053a4e9c20de6d0.gz"
+    },
+    "crates/dive-model/src/symmetry.rs": {
+      "sha256": "4c036fdf4abbe974305e5c16b0822965193aa2decd138f9a535d9c7832c9db2b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4c036fdf4abbe974305e5c16b0822965193aa2decd138f9a535d9c7832c9db2b.gz"
+    },
+    "crates/dive-model/src/symmetry/prepare.rs": {
+      "sha256": "0d8fcecd1ac7107cd0c3ed84c04ed7dd99ba080bf3f8fb8bc26f41105b455ad7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0d8fcecd1ac7107cd0c3ed84c04ed7dd99ba080bf3f8fb8bc26f41105b455ad7.gz"
+    },
+    "crates/dive-model/src/tables.rs": {
+      "sha256": "53fefd2d9fc2f6f2050125b80b20955b2961fa5b8f12b643b79777ee3963a89a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/53fefd2d9fc2f6f2050125b80b20955b2961fa5b8f12b643b79777ee3963a89a.gz"
+    },
+    "crates/dive-model/src/tlc_names.rs": {
+      "sha256": "09eef68e94ff57243a77392bbcabe0c9d0b97856e7554fb424ebce621ee1c87d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/09eef68e94ff57243a77392bbcabe0c9d0b97856e7554fb424ebce621ee1c87d.gz"
+    },
+    "crates/dive-model/src/walk.rs": {
+      "sha256": "4bec4456e51904d5e25316f311e41f2f0ff5357343a1cca88da583a4ee09f810",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4bec4456e51904d5e25316f311e41f2f0ff5357343a1cca88da583a4ee09f810.gz"
+    },
+    "crates/dive-model/tests/api.rs": {
+      "sha256": "090971bc878e806c4da6849da06b8a2e9c63dcd655ae15014478b748891d9d3b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/090971bc878e806c4da6849da06b8a2e9c63dcd655ae15014478b748891d9d3b.gz"
+    },
+    "crates/dive-model/tests/common/mod.rs": {
+      "sha256": "e4d2dc5ff04a0fb2c25003e3e09284bd644a35c66a2cc467d6801e9d8f060931",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e4d2dc5ff04a0fb2c25003e3e09284bd644a35c66a2cc467d6801e9d8f060931.gz"
+    },
+    "crates/dive-model/tests/common/oracle.rs": {
+      "sha256": "08d1a57ff269e5ff1c53133a63cca7ecbf4a31c48a4d04e7039ae6cb552036ff",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/08d1a57ff269e5ff1c53133a63cca7ecbf4a31c48a4d04e7039ae6cb552036ff.gz"
+    },
+    "crates/dive-model/tests/deferred_normalization.rs": {
+      "sha256": "8938afcda7e9ccadf8b59b3163013fd6c65d749057b26307d0f8de1529e60c32",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8938afcda7e9ccadf8b59b3163013fd6c65d749057b26307d0f8de1529e60c32.gz"
+    },
+    "crates/dive-model/tests/random_view_values.rs": {
+      "sha256": "2bc15a6e5f25fad86dfe9aa2028a568c732e397c330793370aceb5927a57ec5d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2bc15a6e5f25fad86dfe9aa2028a568c732e397c330793370aceb5927a57ec5d.gz"
+    },
+    "crates/dive-model/tests/roles.rs": {
+      "sha256": "701e8f314cc0c44c7cb0487423c4ec14a59f0a073c3533b6cb6275aa9a6c5730",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/701e8f314cc0c44c7cb0487423c4ec14a59f0a073c3533b6cb6275aa9a6c5730.gz"
+    },
+    "crates/dive-model/tests/startup.rs": {
+      "sha256": "f4ab2ba86e747ccb2ff23f68b3f95047898be4277bf8d28e0eea378f440af5b3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f4ab2ba86e747ccb2ff23f68b3f95047898be4277bf8d28e0eea378f440af5b3.gz"
+    },
+    "crates/dive-model/tests/symmetry.rs": {
+      "sha256": "ab8180f31d0bd1a61fc72da45c15c57dbf27be9ac5bc6e935f582f5d710400f5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ab8180f31d0bd1a61fc72da45c15c57dbf27be9ac5bc6e935f582f5d710400f5.gz"
+    },
+    "crates/dive-model/tests/symmetry_declaration.rs": {
+      "sha256": "0c83cf0373578e60425217304d34a4a89cf647fbfb1230982a83e78402709f02",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0c83cf0373578e60425217304d34a4a89cf647fbfb1230982a83e78402709f02.gz"
+    },
+    "crates/dive-pluscal/Cargo.toml": {
+      "sha256": "260740fbcda35afebf6419d3fb9fd96e27475cd2bf52ef6820cb3947d20e663b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/260740fbcda35afebf6419d3fb9fd96e27475cd2bf52ef6820cb3947d20e663b.gz"
+    },
+    "crates/dive-pluscal/examples/algorithm_checksum.rs": {
+      "sha256": "bd41bd2e0092b6b8b5038e1fd28db6659d38d401da51b27d787dddc5b6cd665b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bd41bd2e0092b6b8b5038e1fd28db6659d38d401da51b27d787dddc5b6cd665b.gz"
+    },
+    "crates/dive-pluscal/examples/parse.rs": {
+      "sha256": "4fccf43beae8307f18a696a1fccd5f417ac64ec59720d4ef84bb7ca4814731aa",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4fccf43beae8307f18a696a1fccd5f417ac64ec59720d4ef84bb7ca4814731aa.gz"
+    },
+    "crates/dive-pluscal/examples/rewrite.rs": {
+      "sha256": "202a46b28e819ac2862a65fb2444d2bd42d4013bee38e0b189e4574f4fa9384a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/202a46b28e819ac2862a65fb2444d2bd42d4013bee38e0b189e4574f4fa9384a.gz"
+    },
+    "crates/dive-pluscal/examples/translate.rs": {
+      "sha256": "51017ff9b577c6abe5457904ab0f2c1a783b98eb2e1b2f22daeee9277125c460",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/51017ff9b577c6abe5457904ab0f2c1a783b98eb2e1b2f22daeee9277125c460.gz"
+    },
+    "crates/dive-pluscal/src/ast.rs": {
+      "sha256": "af02e1ec11f62fb3194ed7bbe862ccce46baa1bbdd9160eeea551f316562a984",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/af02e1ec11f62fb3194ed7bbe862ccce46baa1bbdd9160eeea551f316562a984.gz"
+    },
+    "crates/dive-pluscal/src/lexer.rs": {
+      "sha256": "1a483800acb8d2c1c2d7d978294c085ae0dda446337fec2971498c4d09136bdb",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1a483800acb8d2c1c2d7d978294c085ae0dda446337fec2971498c4d09136bdb.gz"
+    },
+    "crates/dive-pluscal/src/lib.rs": {
+      "sha256": "4d104f846390bfc110a23d6d475eda88021d249f08a2f6f363f1fe8d3f578c64",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4d104f846390bfc110a23d6d475eda88021d249f08a2f6f363f1fe8d3f578c64.gz"
+    },
+    "crates/dive-pluscal/src/parser.rs": {
+      "sha256": "9b59c15440497e0d378a2a3c273b0c139255053499c36766976763dc03ada183",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9b59c15440497e0d378a2a3c273b0c139255053499c36766976763dc03ada183.gz"
+    },
+    "crates/dive-pluscal/src/rewrite.rs": {
+      "sha256": "628c11a4aff940d99cfe8b202da8c528a618a7b9b72efd7b919c6ab3311ea0d1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/628c11a4aff940d99cfe8b202da8c528a618a7b9b72efd7b919c6ab3311ea0d1.gz"
+    },
+    "crates/dive-pluscal/src/translate/checksum.rs": {
+      "sha256": "12f1920bfa624f889f0d77d2c2295e60b10ac1fd159fe26489e4b5a50ea2694e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/12f1920bfa624f889f0d77d2c2295e60b10ac1fd159fe26489e4b5a50ea2694e.gz"
+    },
+    "crates/dive-pluscal/src/translate/emit.rs": {
+      "sha256": "cfc0f00e4ec02382b97981f2fe4a382c1531fda869845a4501130a5f45b60390",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/cfc0f00e4ec02382b97981f2fe4a382c1531fda869845a4501130a5f45b60390.gz"
+    },
+    "crates/dive-pluscal/src/translate/fairness.rs": {
+      "sha256": "99e97afd07ddc9ed928b32f1b01da73df3e20bc2139242539e09a0e885907ffe",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/99e97afd07ddc9ed928b32f1b01da73df3e20bc2139242539e09a0e885907ffe.gz"
+    },
+    "crates/dive-pluscal/src/translate/labels.rs": {
+      "sha256": "358e48d9c744ebb8ab5391ae3e8c6cd95c4ceed8989f79fd5f7235af204e0280",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/358e48d9c744ebb8ab5391ae3e8c6cd95c4ceed8989f79fd5f7235af204e0280.gz"
+    },
+    "crates/dive-pluscal/src/translate/lower.rs": {
+      "sha256": "33355306a5fcafa555f883bc924d3c529d419fa592ff673bf361cb7b25e953e0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/33355306a5fcafa555f883bc924d3c529d419fa592ff673bf361cb7b25e953e0.gz"
+    },
+    "crates/dive-pluscal/src/translate/macros.rs": {
+      "sha256": "7ceae215d7e6ce4ceaa35e1895004bb767d38a6247dec471bf496f93bcf00541",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7ceae215d7e6ce4ceaa35e1895004bb767d38a6247dec471bf496f93bcf00541.gz"
+    },
+    "crates/dive-pluscal/src/translate/mod.rs": {
+      "sha256": "5644251083214d99836d996da9d9fe6e309240846f052add4acaa74dbe8cb6e3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5644251083214d99836d996da9d9fe6e309240846f052add4acaa74dbe8cb6e3.gz"
+    },
+    "crates/dive-pluscal/src/translate/options.rs": {
+      "sha256": "e86267ff380b9ae4abe0e04dc1e4c61c8afa80b5bce9a2565f5ed1a151b3b357",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e86267ff380b9ae4abe0e04dc1e4c61c8afa80b5bce9a2565f5ed1a151b3b357.gz"
+    },
+    "crates/dive-pluscal/src/translate/procedures.rs": {
+      "sha256": "880bc1c353c74c25ed443f2f95222a7e438fea8b8fd93da487e7882049062635",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/880bc1c353c74c25ed443f2f95222a7e438fea8b8fd93da487e7882049062635.gz"
+    },
+    "crates/dive-pluscal/src/translate/process.rs": {
+      "sha256": "762cd1047fe9b0f5da09ea28c075ff3f1f6db68ca693af5c2c4e68611a4deb7a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/762cd1047fe9b0f5da09ea28c075ff3f1f6db68ca693af5c2c4e68611a4deb7a.gz"
+    },
+    "crates/dive-pluscal/tests/algorithm_checksum.rs": {
+      "sha256": "a5229b533b1ce49eb0501a77d37c87356786390de3c926084ec50b20e0b151c8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a5229b533b1ce49eb0501a77d37c87356786390de3c926084ec50b20e0b151c8.gz"
+    },
+    "crates/dive-pluscal/tests/checksum_cst.rs": {
+      "sha256": "d6fbada16b0d898683ce1f07f3c7bdfda444f04660d691b72c34c76be6e6ba25",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d6fbada16b0d898683ce1f07f3c7bdfda444f04660d691b72c34c76be6e6ba25.gz"
+    },
+    "crates/dive-pluscal/tests/checksum_expressions.rs": {
+      "sha256": "120c1599424c412be2401a26b628ff45b4da1046f0d1c90c7805b4adb1c36d55",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/120c1599424c412be2401a26b628ff45b4da1046f0d1c90c7805b4adb1c36d55.gz"
+    },
+    "crates/dive-pluscal/tests/fairness.rs": {
+      "sha256": "4c777115ef4b3bc85dece08b74e35677b6a78cfb4597e69d69d144b669abfbee",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4c777115ef4b3bc85dece08b74e35677b6a78cfb4597e69d69d144b669abfbee.gz"
+    },
+    "crates/dive-pluscal/tests/macros.rs": {
+      "sha256": "9ccd8725b1209104f1bdf895806c7a17c1ee6a3db19ddbc4f8f1ef2a5a63fd1c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9ccd8725b1209104f1bdf895806c7a17c1ee6a3db19ddbc4f8f1ef2a5a63fd1c.gz"
+    },
+    "crates/dive-pluscal/tests/multiple.rs": {
+      "sha256": "46d5f592734f81a5c3ecfab5e562e31edd83465e1ed7dcff4df34e0c9a475f83",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/46d5f592734f81a5c3ecfab5e562e31edd83465e1ed7dcff4df34e0c9a475f83.gz"
+    },
+    "crates/dive-pluscal/tests/multiple_procedures.rs": {
+      "sha256": "017fcb6c9064b38136281083db4d968058368378b61b797468e524e7514a37ae",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/017fcb6c9064b38136281083db4d968058368378b61b797468e524e7514a37ae.gz"
+    },
+    "crates/dive-pluscal/tests/normalization.rs": {
+      "sha256": "91e591918e5dcd577b1fd7fb567903d11e4602be1854b8c5c9d37f26c8b80a67",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/91e591918e5dcd577b1fd7fb567903d11e4602be1854b8c5c9d37f26c8b80a67.gz"
+    },
+    "crates/dive-pluscal/tests/oracle.rs": {
+      "sha256": "12e453abe8d6dae9d656cfda6d7d5f06b71d205e4d79cdaeb2e75e3f17cd0f13",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/12e453abe8d6dae9d656cfda6d7d5f06b71d205e4d79cdaeb2e75e3f17cd0f13.gz"
+    },
+    "crates/dive-pluscal/tests/parser.rs": {
+      "sha256": "21f852a4161af6f71b562f49b221c2a6726e186ac5cc57f6ec0701377289afb7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/21f852a4161af6f71b562f49b221c2a6726e186ac5cc57f6ec0701377289afb7.gz"
+    },
+    "crates/dive-pluscal/tests/procedure_fairness.rs": {
+      "sha256": "5da8f5b96240c17e6f7bfc7058025b88f46084e92f58fc1766b429780ff46d02",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5da8f5b96240c17e6f7bfc7058025b88f46084e92f58fc1766b429780ff46d02.gz"
+    },
+    "crates/dive-pluscal/tests/procedure_graph.rs": {
+      "sha256": "fa9f648322915f93345711059179117d0293fd25edf8437a4545014919d0ae57",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/fa9f648322915f93345711059179117d0293fd25edf8437a4545014919d0ae57.gz"
+    },
+    "crates/dive-pluscal/tests/procedures.rs": {
+      "sha256": "847d64f3924c3a2fd44b1eaabe8c8cceb7e25cfee94d8d23fb61f57f5c0573d3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/847d64f3924c3a2fd44b1eaabe8c8cceb7e25cfee94d8d23fb61f57f5c0573d3.gz"
+    },
+    "crates/dive-pluscal/tests/process_checksum.rs": {
+      "sha256": "10a5f6c95a66f73e91fb500ce8645343595b4b548a5599960ce111d681416690",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/10a5f6c95a66f73e91fb500ce8645343595b4b548a5599960ce111d681416690.gz"
+    },
+    "crates/dive-pluscal/tests/process_procedures.rs": {
+      "sha256": "66798a5584348f9c07e4cf18ce5c86978d4a6fa0dd24635c86b015c89820b555",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/66798a5584348f9c07e4cf18ce5c86978d4a6fa0dd24635c86b015c89820b555.gz"
+    },
+    "crates/dive-pluscal/tests/processes.rs": {
+      "sha256": "2ef21b2992c79bd7f29e9e35978b83f18f3d61b2df5d270a630f5b2f63203a75",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2ef21b2992c79bd7f29e9e35978b83f18f3d61b2df5d270a630f5b2f63203a75.gz"
+    },
+    "crates/dive-pluscal/tests/recursive_procedures.rs": {
+      "sha256": "0ff80096fc1e20168b0565cb3fdaadd463fec6122608807ce7cd940448af8f6c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0ff80096fc1e20168b0565cb3fdaadd463fec6122608807ce7cd940448af8f6c.gz"
+    },
+    "crates/dive-pluscal/tests/rewrite.rs": {
+      "sha256": "b2bd4b0f9e1d25be1eb0669101127ce5a37fedda0ab0a37f34ada9b100e762c3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b2bd4b0f9e1d25be1eb0669101127ce5a37fedda0ab0a37f34ada9b100e762c3.gz"
+    },
+    "crates/dive-pluscal/tests/source_option_header.rs": {
+      "sha256": "f6796204e252f7d792a7aa58a3936e8ef642f97fca35a79c8f6ce152ea056b17",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f6796204e252f7d792a7aa58a3936e8ef642f97fca35a79c8f6ce152ea056b17.gz"
+    },
+    "crates/dive-pluscal/tests/source_options.rs": {
+      "sha256": "c4c68f1a8e4d50d376ae8adc2030f952a651478da188904e167ced0e308492f7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c4c68f1a8e4d50d376ae8adc2030f952a651478da188904e167ced0e308492f7.gz"
+    },
+    "crates/dive-pluscal/tests/translation.rs": {
+      "sha256": "36773cdc935ac20ac27dbfb45eaf0aeb0a056f820225ed7a88b4fe92c3192be1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/36773cdc935ac20ac27dbfb45eaf0aeb0a056f820225ed7a88b4fe92c3192be1.gz"
+    },
+    "crates/dive-sema/Cargo.toml": {
+      "sha256": "5a95df9b70bab8c3c1034636bd22e3586fae114b266bae737bd9f17bcdd7f0a1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5a95df9b70bab8c3c1034636bd22e3586fae114b266bae737bd9f17bcdd7f0a1.gz"
+    },
+    "crates/dive-sema/examples/acceptance.rs": {
+      "sha256": "b775432a21b62235eb9597e522cc5279fc7a741640c13bad8ec56357f1a3f312",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b775432a21b62235eb9597e522cc5279fc7a741640c13bad8ec56357f1a3f312.gz"
+    },
+    "crates/dive-sema/src/builtins.rs": {
+      "sha256": "b2de409028401690f87d34f71bdfc78706806e1d821ea31520b89490a9b4914c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b2de409028401690f87d34f71bdfc78706806e1d821ea31520b89490a9b4914c.gz"
+    },
+    "crates/dive-sema/src/diagnostics.rs": {
+      "sha256": "388c69703493cbf1c8ab66bb76a3dadb0f8a64ed81500c94fc3b8707f33c85b2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/388c69703493cbf1c8ab66bb76a3dadb0f8a64ed81500c94fc3b8707f33c85b2.gz"
+    },
+    "crates/dive-sema/src/generate/cst.rs": {
+      "sha256": "bdbebc661ce21b515e810a90dd737df3735674e8468c6a03d96c1021229dae6d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bdbebc661ce21b515e810a90dd737df3735674e8468c6a03d96c1021229dae6d.gz"
+    },
+    "crates/dive-sema/src/generate/expr.rs": {
+      "sha256": "bbc9fbacc0ddb1834772f912527950bbafb66a44b5ab2da0bf5506b8157e1ab2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bbc9fbacc0ddb1834772f912527950bbafb66a44b5ab2da0bf5506b8157e1ab2.gz"
+    },
+    "crates/dive-sema/src/generate/inst.rs": {
+      "sha256": "17f9fcc0c91350f09d58a1e79687a580639952f1d2bc98f7f908a6d7882c71e5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/17f9fcc0c91350f09d58a1e79687a580639952f1d2bc98f7f908a6d7882c71e5.gz"
+    },
+    "crates/dive-sema/src/generate/mod.rs": {
+      "sha256": "0437a2023d94fccafa5bc42a06487ace53600585bb42a8074947acb027a1200c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0437a2023d94fccafa5bc42a06487ace53600585bb42a8074947acb027a1200c.gz"
+    },
+    "crates/dive-sema/src/generate/proof.rs": {
+      "sha256": "844d5b3f993454dbfeae2d861b5f6f70d1cc1d715ed39a9509e76ddf73d436ce",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/844d5b3f993454dbfeae2d861b5f6f70d1cc1d715ed39a9509e76ddf73d436ce.gz"
+    },
+    "crates/dive-sema/src/generate/select.rs": {
+      "sha256": "5403744e8e068b54252d44d3492fd5d819c13ac7a1733a248ddf4d25ee091309",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5403744e8e068b54252d44d3492fd5d819c13ac7a1733a248ddf4d25ee091309.gz"
+    },
+    "crates/dive-sema/src/hashtable.rs": {
+      "sha256": "c2d1d8956225d2cf1cdd2a5aba9d0fc8401b6564449759bcf7f6e29d7edb4fab",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c2d1d8956225d2cf1cdd2a5aba9d0fc8401b6564449759bcf7f6e29d7edb4fab.gz"
+    },
+    "crates/dive-sema/src/level.rs": {
+      "sha256": "891c90736789809af57ab4c413aaf60c90337d550e5d1fc55157314982c419f9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/891c90736789809af57ab4c413aaf60c90337d550e5d1fc55157314982c419f9.gz"
+    },
+    "crates/dive-sema/src/lib.rs": {
+      "sha256": "4f46a7931218af68c022e9e5d5893f0b7aeb884cfa39edd6ab4f012de54d585e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4f46a7931218af68c022e9e5d5893f0b7aeb884cfa39edd6ab4f012de54d585e.gz"
+    },
+    "crates/dive-sema/src/loader.rs": {
+      "sha256": "78dda0fe840328b27e42df94960533ba53c466814cfd800a14280b9489db6ca4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/78dda0fe840328b27e42df94960533ba53c466814cfd800a14280b9489db6ca4.gz"
+    },
+    "crates/dive-sema/src/model.rs": {
+      "sha256": "159844b34061f4cd136a7b127684fbca674f0ce7fb240b5e5e945ee019de33fd",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/159844b34061f4cd136a7b127684fbca674f0ce7fb240b5e5e945ee019de33fd.gz"
+    },
+    "crates/dive-sema/src/pcal_check.rs": {
+      "sha256": "aa2915596b8c2e99091dc9a33944d85b65a79d7547b63424fb74ff89fb71a120",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/aa2915596b8c2e99091dc9a33944d85b65a79d7547b63424fb74ff89fb71a120.gz"
+    },
+    "crates/dive-sema/src/stdlib.rs": {
+      "sha256": "808f51c2e3755d4f6edc2e00306f55da45b9c4c850f4dc0becd8abb1c8d09a38",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/808f51c2e3755d4f6edc2e00306f55da45b9c4c850f4dc0becd8abb1c8d09a38.gz"
+    },
+    "crates/dive-sema/tests/sany_cases.rs": {
+      "sha256": "3d92c9f4d86cc53f00210deb82c94d5a53aa877c13c6dcdf89943679a4304a17",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3d92c9f4d86cc53f00210deb82c94d5a53aa877c13c6dcdf89943679a4304a17.gz"
+    },
+    "crates/dive-sim/Cargo.toml": {
+      "sha256": "082313861e5b9b7e6e9fe05fcfb3e3a0a5227c02bcdc965f48accc8b93b25c1c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/082313861e5b9b7e6e9fe05fcfb3e3a0a5227c02bcdc965f48accc8b93b25c1c.gz"
+    },
+    "crates/dive-sim/src/lib.rs": {
+      "sha256": "9fe15d463835f05ac903da0f1db0cac5ee2751cb97c6a483512bd08b188b0cd1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9fe15d463835f05ac903da0f1db0cac5ee2751cb97c6a483512bd08b188b0cd1.gz"
+    },
+    "crates/dive-sim/tests/bounds.rs": {
+      "sha256": "376932a955acddb4305a8ee32723c4fb93b5c64e39b928a61621c52a79e627e3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/376932a955acddb4305a8ee32723c4fb93b5c64e39b928a61621c52a79e627e3.gz"
+    },
+    "crates/dive-sim/tests/comparison.rs": {
+      "sha256": "a2cc7e8b6d4b8da4b9e881f56a3bb38f0d62989f52b9aac1eee27cbee1a3fb7a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a2cc7e8b6d4b8da4b9e881f56a3bb38f0d62989f52b9aac1eee27cbee1a3fb7a.gz"
+    },
+    "crates/dive-stdlib/Cargo.toml": {
+      "sha256": "f35a366fdaac1fdf3c25f6ef73f149b62506320ff679a30518992604ebd27942",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f35a366fdaac1fdf3c25f6ef73f149b62506320ff679a30518992604ebd27942.gz"
+    },
+    "crates/dive-stdlib/src/host.rs": {
+      "sha256": "41a1df60ffacc2acc6a8501adc7ac5340121df725afc21da40657c87fccb52ac",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/41a1df60ffacc2acc6a8501adc7ac5340121df725afc21da40657c87fccb52ac.gz"
+    },
+    "crates/dive-stdlib/src/lib.rs": {
+      "sha256": "9b71fb118fdee68a00c8c64613429f62911c27c5d25f3e230b8dbc50d652cd82",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/9b71fb118fdee68a00c8c64613429f62911c27c5d25f3e230b8dbc50d652cd82.gz"
+    },
+    "crates/dive-stdlib/src/random/lcg.rs": {
+      "sha256": "21be45a21b319ea7b4be847bb98b6316d8338910b8eb6b604a7884ce5dc39937",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/21be45a21b319ea7b4be847bb98b6316d8338910b8eb6b604a7884ce5dc39937.gz"
+    },
+    "crates/dive-stdlib/src/random/mod.rs": {
+      "sha256": "39e476371696a70060ba5e5452e47e0aa53f2140392892acab3d478cbd7a86c5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/39e476371696a70060ba5e5452e47e0aa53f2140392892acab3d478cbd7a86c5.gz"
+    },
+    "crates/dive-stdlib/src/random/ops.rs": {
+      "sha256": "ad1ee019fd5691269ef14b1ac71569aea6b9dc49ba6f0210a6a32b7075e44f9d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ad1ee019fd5691269ef14b1ac71569aea6b9dc49ba6f0210a6a32b7075e44f9d.gz"
+    },
+    "crates/dive-stdlib/src/random/primes.rs": {
+      "sha256": "afd93a430847beeab602212824641c34073c0911177c0e1808aaf081d8381f97",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/afd93a430847beeab602212824641c34073c0911177c0e1808aaf081d8381f97.gz"
+    },
+    "crates/dive-stdlib/src/random/seeding.rs": {
+      "sha256": "dbde66af6fb4f3230751e336272586f3add1b303996b4ca1a38a83c2a8e6c179",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/dbde66af6fb4f3230751e336272586f3add1b303996b4ca1a38a83c2a8e6c179.gz"
+    },
+    "crates/dive-stdlib/src/random/source.rs": {
+      "sha256": "8a90e85f3c836e9721bf5fb071f113c16431e32007f03d162ce3af443f029ea7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8a90e85f3c836e9721bf5fb071f113c16431e32007f03d162ce3af443f029ea7.gz"
+    },
+    "crates/dive-stdlib/tests/dive_mode.rs": {
+      "sha256": "2b469fec9e182377b9d00a56cf1eca4807a758a9d21fa084285f509bd9c91bcc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2b469fec9e182377b9d00a56cf1eca4807a758a9d21fa084285f509bd9c91bcc.gz"
+    },
+    "crates/dive-stdlib/tests/examples_random.rs": {
+      "sha256": "46150e28841e8e5660efc88cf78e6c56bb426332a940c6056e67dfc94ce7c122",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/46150e28841e8e5660efc88cf78e6c56bb426332a940c6056e67dfc94ce7c122.gz"
+    },
+    "crates/dive-stdlib/tests/java_random.rs": {
+      "sha256": "2432601660cf266a3b97b88b850ae6369e783576c6ee7c1b6e72189754db0c1c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2432601660cf266a3b97b88b850ae6369e783576c6ee7c1b6e72189754db0c1c.gz"
+    },
+    "crates/dive-stdlib/tests/tlc_random.rs": {
+      "sha256": "8be45d14f45d4c32c96d414e771d9dcb6b17ebc5ac553de40bda8151443b8e64",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8be45d14f45d4c32c96d414e771d9dcb6b17ebc5ac553de40bda8151443b8e64.gz"
+    },
+    "crates/dive-store/Cargo.toml": {
+      "sha256": "fe4d637a42e4226ce4356d840d36bc1c05f66f637f34bce351cc94dd6305906e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/fe4d637a42e4226ce4356d840d36bc1c05f66f637f34bce351cc94dd6305906e.gz"
+    },
+    "crates/dive-store/benches/store.rs": {
+      "sha256": "c98774e7a638975e38fa5c969a947422b96d46eb6ef0123ba26b424d46baa8b4",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c98774e7a638975e38fa5c969a947422b96d46eb6ef0123ba26b424d46baa8b4.gz"
+    },
+    "crates/dive-store/examples/disk_seen.rs": {
+      "sha256": "68718c51520b9027dbfabcc6ead8ce217e4b59641e0ba20b8c4e79d502fbce90",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/68718c51520b9027dbfabcc6ead8ce217e4b59641e0ba20b8c4e79d502fbce90.gz"
+    },
+    "crates/dive-store/examples/memory.rs": {
+      "sha256": "ca22200146d025ac8673febf18104dbd68f9351b2d4fb22a8011f4d58512db8c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ca22200146d025ac8673febf18104dbd68f9351b2d4fb22a8011f4d58512db8c.gz"
+    },
+    "crates/dive-store/src/collision.rs": {
+      "sha256": "a233f9a991c7dd91602a2f3343be73795e9871aa9d670ff1e305921af22e2479",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a233f9a991c7dd91602a2f3343be73795e9871aa9d670ff1e305921af22e2479.gz"
+    },
+    "crates/dive-store/src/error.rs": {
+      "sha256": "79c26928ecf4bf78dc2bd356f8115007f6784369d16a6aa033f0713b58a0210f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/79c26928ecf4bf78dc2bd356f8115007f6784369d16a6aa033f0713b58a0210f.gz"
+    },
+    "crates/dive-store/src/exact.rs": {
+      "sha256": "be75a40eaad82dc0730ef7d64e472fd75829e14b61cec1aaf2b66eea6d28952f",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/be75a40eaad82dc0730ef7d64e472fd75829e14b61cec1aaf2b66eea6d28952f.gz"
+    },
+    "crates/dive-store/src/fpset.rs": {
+      "sha256": "160f1dbea729f6e91443226a3a3b20d511fafa23834b53e57cf3cf08cc738b4c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/160f1dbea729f6e91443226a3a3b20d511fafa23834b53e57cf3cf08cc738b4c.gz"
+    },
+    "crates/dive-store/src/frontier.rs": {
+      "sha256": "debe908d9d329657b7d0cb21027d9f4a96db700f2ed9e385e9aa1ef30c2aeb4c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/debe908d9d329657b7d0cb21027d9f4a96db700f2ed9e385e9aa1ef30c2aeb4c.gz"
+    },
+    "crates/dive-store/src/lib.rs": {
+      "sha256": "37905146ce4b2ff57411dbe5ce9dbf67092ef85bcf87c17de367f6eb457a26fa",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/37905146ce4b2ff57411dbe5ce9dbf67092ef85bcf87c17de367f6eb457a26fa.gz"
+    },
+    "crates/dive-store/src/predecessor.rs": {
+      "sha256": "d5de7427a8a1ade65a61bb44ab9281e4c494a509a248232f82bc02d5cec3c2e5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d5de7427a8a1ade65a61bb44ab9281e4c494a509a248232f82bc02d5cec3c2e5.gz"
+    },
+    "crates/dive-store/src/seen.rs": {
+      "sha256": "5576e4f432f78ab4f5a38bfe87322144a9d7fb46b6d417b7370e8c6855059308",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5576e4f432f78ab4f5a38bfe87322144a9d7fb46b6d417b7370e8c6855059308.gz"
+    },
+    "crates/dive-store/src/seen/files.rs": {
+      "sha256": "ce64cdbfa5fa80c4b2610a21e01ac2f0efac38e3ffa1ef950b42f1062fb9e82a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ce64cdbfa5fa80c4b2610a21e01ac2f0efac38e3ffa1ef950b42f1062fb9e82a.gz"
+    },
+    "crates/dive-store/src/seen/tests.rs": {
+      "sha256": "bccf616fe7dbbe798760f8f44b30bc33d8d116845e528a821058e895a94085c6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/bccf616fe7dbbe798760f8f44b30bc33d8d116845e528a821058e895a94085c6.gz"
+    },
+    "crates/dive-store/src/set.rs": {
+      "sha256": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a.gz"
+    },
+    "crates/dive-store/src/spill.rs": {
+      "sha256": "991d8530de7ef1c38d16e183a227fc452aff6a9fad248d48e2714d74543d54e8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/991d8530de7ef1c38d16e183a227fc452aff6a9fad248d48e2714d74543d54e8.gz"
+    },
+    "crates/dive-store/src/state.rs": {
+      "sha256": "d824226bb5f5b20c0cd81f282996b8ef26d420bf185d629114eb783f387548ad",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d824226bb5f5b20c0cd81f282996b8ef26d420bf185d629114eb783f387548ad.gz"
+    },
+    "crates/dive-store/src/trace.rs": {
+      "sha256": "3df7a6b8f467346733c961998dc75729f2f5685917453c6c7106db7952f33f72",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3df7a6b8f467346733c961998dc75729f2f5685917453c6c7106db7952f33f72.gz"
+    },
+    "crates/dive-store/tests/collision_tlc.rs": {
+      "sha256": "829e540c106d1119ac69364d889bb2d870aa8c5fbf4144c3a36524610b22324a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/829e540c106d1119ac69364d889bb2d870aa8c5fbf4144c3a36524610b22324a.gz"
+    },
+    "crates/dive-store/tests/properties.rs": {
+      "sha256": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972.gz"
+    },
+    "crates/dive-store/tests/state_fingerprint.rs": {
+      "sha256": "5470de6b2dbc55a044cde3b3d2dbdff57bcc77856d18b795c0cd604cf205faaa",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/5470de6b2dbc55a044cde3b3d2dbdff57bcc77856d18b795c0cd604cf205faaa.gz"
+    },
+    "crates/dive-store/tests/tlc_state_fingerprints.rs": {
+      "sha256": "d4625b8eebdc45b743586e4c801ef96ffe79fa95fb65099f8098db89e27d8fe7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d4625b8eebdc45b743586e4c801ef96ffe79fa95fb65099f8098db89e27d8fe7.gz"
+    },
+    "crates/dive-syntax/Cargo.toml": {
+      "sha256": "92ba71ebfcf384bec881e48c2dc2326c0fb4fe685d0331acfe318c8c9002ebdc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/92ba71ebfcf384bec881e48c2dc2326c0fb4fe685d0331acfe318c8c9002ebdc.gz"
+    },
+    "crates/dive-syntax/examples/acceptance.rs": {
+      "sha256": "2f7c6a1872405cbc61fb737455410659645aaa10de76dc43b2062fa4c523c1eb",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2f7c6a1872405cbc61fb737455410659645aaa10de76dc43b2062fa4c523c1eb.gz"
+    },
+    "crates/dive-syntax/examples/profile.rs": {
+      "sha256": "23f75937976f3221f8972a15dfa150853b93de7e0a5234f84f02913d22517a17",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/23f75937976f3221f8972a15dfa150853b93de7e0a5234f84f02913d22517a17.gz"
+    },
+    "crates/dive-syntax/src/ast.rs": {
+      "sha256": "6fc958cae453f5684148e3fd182d2e0707093fa4b38518b62e216601d45c5d52",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6fc958cae453f5684148e3fd182d2e0707093fa4b38518b62e216601d45c5d52.gz"
+    },
+    "crates/dive-syntax/src/diagnostics.rs": {
+      "sha256": "f0dbe1570b6880a6acaa528f81fbf342fd4d5b415238ac672564a023ba20a877",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/f0dbe1570b6880a6acaa528f81fbf342fd4d5b415238ac672564a023ba20a877.gz"
+    },
+    "crates/dive-syntax/src/kind.rs": {
+      "sha256": "247bf6355ff6b99dc47d617e5ba6e7dfca64b6104087f1ea2399748cfbf736a6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/247bf6355ff6b99dc47d617e5ba6e7dfca64b6104087f1ea2399748cfbf736a6.gz"
+    },
+    "crates/dive-syntax/src/lexer.rs": {
+      "sha256": "1249f874c73a1225b2201f832219eecbb330d5af3211a809548da8075beb5712",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1249f874c73a1225b2201f832219eecbb330d5af3211a809548da8075beb5712.gz"
+    },
+    "crates/dive-syntax/src/lib.rs": {
+      "sha256": "6221a1b9e1c273b272702a45553108488bd3177b0963f1a54971a9d4b8abc8fa",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6221a1b9e1c273b272702a45553108488bd3177b0963f1a54971a9d4b8abc8fa.gz"
+    },
+    "crates/dive-syntax/src/ops.rs": {
+      "sha256": "df036c3a7e42c31ca6e25084da73fb367498689aaf108c71cb4321ce31571409",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/df036c3a7e42c31ca6e25084da73fb367498689aaf108c71cb4321ce31571409.gz"
+    },
+    "crates/dive-syntax/src/parser/expr.rs": {
+      "sha256": "01a1694d5fa08f81e5152e62efdb340c3017223a6682d2725eaa36d15826aad6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/01a1694d5fa08f81e5152e62efdb340c3017223a6682d2725eaa36d15826aad6.gz"
+    },
+    "crates/dive-syntax/src/parser/mod.rs": {
+      "sha256": "dae05d88fcc9418dc036bc1911638afcfad8c0f56127dc270ebdebc6637739c3",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/dae05d88fcc9418dc036bc1911638afcfad8c0f56127dc270ebdebc6637739c3.gz"
+    },
+    "crates/dive-syntax/src/parser/module.rs": {
+      "sha256": "8af3762aa28f6beea096c9d9a85a5130684803679cae321f89aa468a117cbeca",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8af3762aa28f6beea096c9d9a85a5130684803679cae321f89aa468a117cbeca.gz"
+    },
+    "crates/dive-syntax/src/parser/proof.rs": {
+      "sha256": "3ba418e773dcb9387aca765b03593a43d343b77fcca3bdf1b56f4a12c0e50543",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3ba418e773dcb9387aca765b03593a43d343b77fcca3bdf1b56f4a12c0e50543.gz"
+    },
+    "crates/dive-syntax/src/tokens.rs": {
+      "sha256": "111f6cfc64c3a9ac906e39e8232322feb334b33cc3a0ebfcca2daedfed7f45c0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/111f6cfc64c3a9ac906e39e8232322feb334b33cc3a0ebfcca2daedfed7f45c0.gz"
+    },
+    "crates/dive-syntax/src/tree.rs": {
+      "sha256": "aab5d4143e7a7e1fb3946d48bd7cb5a4f7c2d79a4cf4e31789a3bab1b90a352d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/aab5d4143e7a7e1fb3946d48bd7cb5a4f7c2d79a4cf4e31789a3bab1b90a352d.gz"
+    },
+    "crates/dive-syntax/tests/ast.rs": {
+      "sha256": "0d1319c2796de8d38a68c3b276eb1392b3d2710bc549a6c3ae07d01fc7928a58",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0d1319c2796de8d38a68c3b276eb1392b3d2710bc549a6c3ae07d01fc7928a58.gz"
+    },
+    "crates/dive-syntax/tests/corpus.rs": {
+      "sha256": "c7c0fb3fca33479cd770647cfc3be2d6b1e40c695d7ebc3cd31f934d8e2b78b8",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c7c0fb3fca33479cd770647cfc3be2d6b1e40c695d7ebc3cd31f934d8e2b78b8.gz"
+    },
+    "crates/dive-syntax/tests/roundtrip.rs": {
+      "sha256": "076e33648afdf91926597dc1a83d97853588ce16a0ffdc0ebf93a8824ab8d86e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/076e33648afdf91926597dc1a83d97853588ce16a0ffdc0ebf93a8824ab8d86e.gz"
+    },
+    "crates/dive-syntax/tests/sany_cases.rs": {
+      "sha256": "6bb3d05ee7691233d908547f75a2e29e2ce956c395d34bd231c0e090aa718354",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6bb3d05ee7691233d908547f75a2e29e2ce956c395d34bd231c0e090aa718354.gz"
+    },
+    "crates/dive-syntax/tests/structure.rs": {
+      "sha256": "4634d4f6eb0844826568ad23dcad27deb7d2590a787c4e5c3168f43da47866d5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4634d4f6eb0844826568ad23dcad27deb7d2590a787c4e5c3168f43da47866d5.gz"
+    },
+    "crates/dive-trace/Cargo.toml": {
+      "sha256": "ab0e260666252dfc81451f2dc97c4ff4917710513431357c15585630c294edf6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/ab0e260666252dfc81451f2dc97c4ff4917710513431357c15585630c294edf6.gz"
+    },
+    "crates/dive-trace/src/exists.rs": {
+      "sha256": "7a01615da0834f5b2109e37a6910067ade76ebb62acc0413acf337e398457a4e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7a01615da0834f5b2109e37a6910067ade76ebb62acc0413acf337e398457a4e.gz"
+    },
+    "crates/dive-trace/src/format.rs": {
+      "sha256": "392c6996d38dc3621308ff1476f70de05b755c2c0bfa52e952ff833af007b337",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/392c6996d38dc3621308ff1476f70de05b755c2c0bfa52e952ff833af007b337.gz"
+    },
+    "crates/dive-trace/src/lib.rs": {
+      "sha256": "8a716c057d95dbaff9388e6e26dcaeb818f926282ab83641827933a690255b64",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/8a716c057d95dbaff9388e6e26dcaeb818f926282ab83641827933a690255b64.gz"
+    },
+    "crates/dive-trace/src/mutate.rs": {
+      "sha256": "aa6e32ad4cbfa151c73442fd5d467d62d1c2fa65de44f3f587acaf8abafbbba2",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/aa6e32ad4cbfa151c73442fd5d467d62d1c2fa65de44f3f587acaf8abafbbba2.gz"
+    },
+    "crates/dive-trace/src/random_position.rs": {
+      "sha256": "c27d46d114a51eb8a08d49271e892c8638b95a3d62bb5bd732555e79de134ad5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c27d46d114a51eb8a08d49271e892c8638b95a3d62bb5bd732555e79de134ad5.gz"
+    },
+    "crates/dive-trace/src/temporal.rs": {
+      "sha256": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a.gz"
+    },
+    "crates/dive-trace/src/tlc.rs": {
+      "sha256": "7826b7410a48b048eb42eddbd14dbd60baedbd7a0b480d9f6265f7a0c468d772",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7826b7410a48b048eb42eddbd14dbd60baedbd7a0b480d9f6265f7a0c468d772.gz"
+    },
+    "crates/dive-trace/src/trace.rs": {
+      "sha256": "32e947976ddfa867733875b23727046068dae17ca70f7c0fa114f6ba93a948d1",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/32e947976ddfa867733875b23727046068dae17ca70f7c0fa114f6ba93a948d1.gz"
+    },
+    "crates/dive-trace/src/validate.rs": {
+      "sha256": "42062c8702af59262928db0848218c9baa5d1caff923db742832007f6b5ecc1c",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/42062c8702af59262928db0848218c9baa5d1caff923db742832007f6b5ecc1c.gz"
+    },
+    "crates/dive-trace/src/value_json.rs": {
+      "sha256": "542bf14995c70cf9c0e1aac4e142c2d032068b9eefdea6d3d8e0b6d93384c940",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/542bf14995c70cf9c0e1aac4e142c2d032068b9eefdea6d3d8e0b6d93384c940.gz"
+    },
+    "crates/dive-trace/src/value_repr.rs": {
+      "sha256": "1cadc977b7380680942c4e09843e10ca24e55bf0cc40259ea90ffaed4e2fac08",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1cadc977b7380680942c4e09843e10ca24e55bf0cc40259ea90ffaed4e2fac08.gz"
+    },
+    "crates/dive-trace/tests/configured_random_stream.rs": {
+      "sha256": "d85c74f8566e1791f187131b0907e6f1d4fcc4914b3ddb44df0c702be613e683",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/d85c74f8566e1791f187131b0907e6f1d4fcc4914b3ddb44df0c702be613e683.gz"
+    },
+    "crates/dive-trace/tests/contexts.rs": {
+      "sha256": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81.gz"
+    },
+    "crates/dive-trace/tests/exists.rs": {
+      "sha256": "af4980283af5bbe7596244c31ad47bb4a4622038c808ff5e7a5d78fff425ec46",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/af4980283af5bbe7596244c31ad47bb4a4622038c808ff5e7a5d78fff425ec46.gz"
+    },
+    "crates/dive-trace/tests/lasso_claims.rs": {
+      "sha256": "07c6d2f39cf44051e2e58f252940dff9ed8056cd06a905dfaeb8b1bdcdd07262",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/07c6d2f39cf44051e2e58f252940dff9ed8056cd06a905dfaeb8b1bdcdd07262.gz"
+    },
+    "crates/dive-trace/tests/runtime_names.rs": {
+      "sha256": "83a50fc76fc1569e502b059d48dae4a4d5b692bec937d38f87f09e1aac1db552",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/83a50fc76fc1569e502b059d48dae4a4d5b692bec937d38f87f09e1aac1db552.gz"
+    },
+    "crates/dive-trace/tests/temporal.rs": {
+      "sha256": "519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16.gz"
+    },
+    "crates/dive-trace/tests/value_representation.rs": {
+      "sha256": "4e110f536553416bf359e3c71991212dbb21d006183c7e331bd3f34e17b7742b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4e110f536553416bf359e3c71991212dbb21d006183c7e331bd3f34e17b7742b.gz"
+    },
+    "crates/dive-trace/tests/view_random_stream.rs": {
+      "sha256": "3fc37e507e595edb704f7e1da1e2bbd7822938fb4f00dea7d81b4260e0f367d0",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/3fc37e507e595edb704f7e1da1e2bbd7822938fb4f00dea7d81b4260e0f367d0.gz"
+    },
+    "crates/dive-value/Cargo.toml": {
+      "sha256": "36d929ff3ae5d7928dbf54cd5e4e2431f3d016652016a9d7553cc2acc17ea950",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/36d929ff3ae5d7928dbf54cd5e4e2431f3d016652016a9d7553cc2acc17ea950.gz"
+    },
+    "crates/dive-value/benches/values.rs": {
+      "sha256": "6001e53ff5880be81e25b7228b0d9d58fe85f565d7447cb4d1e16540cd2e77d9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6001e53ff5880be81e25b7228b0d9d58fe85f565d7447cb4d1e16540cd2e77d9.gz"
+    },
+    "crates/dive-value/src/atom.rs": {
+      "sha256": "7b1b1ea221427ca354c7255ed9f21172497b3b0b80e43fa59aaa960411aa4681",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/7b1b1ea221427ca354c7255ed9f21172497b3b0b80e43fa59aaa960411aa4681.gz"
+    },
+    "crates/dive-value/src/codec.rs": {
+      "sha256": "89a94f87b12fe8845ca3a227d9b0073e54863e134a5a57fa431a0ae9e42098df",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/89a94f87b12fe8845ca3a227d9b0073e54863e134a5a57fa431a0ae9e42098df.gz"
+    },
+    "crates/dive-value/src/ctx.rs": {
+      "sha256": "0ef314edf7762d91c4ae754a6ec65c68e3c5a13ef904897e6028ee9270effdaf",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0ef314edf7762d91c4ae754a6ec65c68e3c5a13ef904897e6028ee9270effdaf.gz"
+    },
+    "crates/dive-value/src/depth.rs": {
+      "sha256": "faa0e44a3355c31f1563a671d1ae0ab570ca9944c02728075c065ff2e4f85261",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/faa0e44a3355c31f1563a671d1ae0ab570ca9944c02728075c065ff2e4f85261.gz"
+    },
+    "crates/dive-value/src/enumerate.rs": {
+      "sha256": "0fc7a1459c081948597ba80f54af447d4383b471deb7441c7761b1f12394bbbf",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0fc7a1459c081948597ba80f54af447d4383b471deb7441c7761b1f12394bbbf.gz"
+    },
+    "crates/dive-value/src/error.rs": {
+      "sha256": "fa03fa03cb03a9264b561e5814c9005d1f6fd5fb23cea35db971ae208981dd92",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/fa03fa03cb03a9264b561e5814c9005d1f6fd5fb23cea35db971ae208981dd92.gz"
+    },
+    "crates/dive-value/src/fp64.rs": {
+      "sha256": "2e2665cde0ef4c37f93c9f4736f8726c55a3aac328d86d7c080c8bc0feffd3c7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2e2665cde0ef4c37f93c9f4736f8726c55a3aac328d86d7c080c8bc0feffd3c7.gz"
+    },
+    "crates/dive-value/src/int.rs": {
+      "sha256": "54588d318fcdc9794e73cee52edb9079e0c0e0c6b75d4eb93f130ce9a90d0756",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/54588d318fcdc9794e73cee52edb9079e0c0e0c6b75d4eb93f130ce9a90d0756.gz"
+    },
+    "crates/dive-value/src/json.rs": {
+      "sha256": "88aef610b05b31e531ed499bc893960f188304c9df2c6df891f48f32126d1774",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/88aef610b05b31e531ed499bc893960f188304c9df2c6df891f48f32126d1774.gz"
+    },
+    "crates/dive-value/src/lib.rs": {
+      "sha256": "997c30a3583685945c282e97c1c6d9da0c698a275d3bf437705cc2d490e65197",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/997c30a3583685945c282e97c1c6d9da0c698a275d3bf437705cc2d490e65197.gz"
+    },
+    "crates/dive-value/src/ops.rs": {
+      "sha256": "b2ad57656085ea309b9acb5f5a590225be492e2db2dcbcea08ecb4c2d3179b79",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/b2ad57656085ea309b9acb5f5a590225be492e2db2dcbcea08ecb4c2d3179b79.gz"
+    },
+    "crates/dive-value/src/order.rs": {
+      "sha256": "2da335d220317453868a2c586bb8ce393b064957de30fca4b5c0fb0259386557",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/2da335d220317453868a2c586bb8ce393b064957de30fca4b5c0fb0259386557.gz"
+    },
+    "crates/dive-value/src/pprint.rs": {
+      "sha256": "4737cfa4c4901475663cbdff988e5dbb17d6cc5d4da077a6a88f21a9563d9d31",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4737cfa4c4901475663cbdff988e5dbb17d6cc5d4da077a6a88f21a9563d9d31.gz"
+    },
+    "crates/dive-value/src/print.rs": {
+      "sha256": "c867a8d30f74019c9400ac1ce9acb3d3102a6ac17b131b9c1e837f4ae7817f1b",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c867a8d30f74019c9400ac1ce9acb3d3102a6ac17b131b9c1e837f4ae7817f1b.gz"
+    },
+    "crates/dive-value/src/stream.rs": {
+      "sha256": "6524acab0ce8c766533c6fcc0a299d3b213b964446e9fa0492a83a4bfb00cc8a",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6524acab0ce8c766533c6fcc0a299d3b213b964446e9fa0492a83a4bfb00cc8a.gz"
+    },
+    "crates/dive-value/src/tlc.rs": {
+      "sha256": "c57e23a7d9d450599165ae2cf35578a2e0023007e4c116d428004f201fb54b35",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/c57e23a7d9d450599165ae2cf35578a2e0023007e4c116d428004f201fb54b35.gz"
+    },
+    "crates/dive-value/src/value.rs": {
+      "sha256": "1ede615d986d1fcf8470aa0651158c042a5575ea40d31db1ec0621f94926e98d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1ede615d986d1fcf8470aa0651158c042a5575ea40d31db1ec0621f94926e98d.gz"
+    },
+    "crates/dive-value/tests/codec.rs": {
+      "sha256": "07387677b53dd7bec341484ed5f8c0bafc98f5a26892300cbbabd0af67c1d57d",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/07387677b53dd7bec341484ed5f8c0bafc98f5a26892300cbbabd0af67c1d57d.gz"
+    },
+    "crates/dive-value/tests/common/mod.rs": {
+      "sha256": "4a7063465eb19f6e5b8ab8471e53a095299d70988f4982fbcd89bf1ab71a1438",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4a7063465eb19f6e5b8ab8471e53a095299d70988f4982fbcd89bf1ab71a1438.gz"
+    },
+    "crates/dive-value/tests/layout.rs": {
+      "sha256": "210b24a477b8701dda478a23cc306d007dec1626222134f7f25951f08260b8ff",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/210b24a477b8701dda478a23cc306d007dec1626222134f7f25951f08260b8ff.gz"
+    },
+    "crates/dive-value/tests/limits.rs": {
+      "sha256": "191a522696024c3ac8adb679b66373735d9421a394c606aaf025ebe4f9b374dc",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/191a522696024c3ac8adb679b66373735d9421a394c606aaf025ebe4f9b374dc.gz"
+    },
+    "crates/dive-value/tests/properties.rs": {
+      "sha256": "a1e2fdb670bd6fb2b403bb883dcadcd60909ee03248acbb3baae858057644fa7",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a1e2fdb670bd6fb2b403bb883dcadcd60909ee03248acbb3baae858057644fa7.gz"
+    },
+    "crates/dive-value/tests/review_adversarial.rs": {
+      "sha256": "df781a7bf71d1379f6ab787bdcca5225a7f5cac9bbc2eb20223687d5d2dbfe18",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/df781a7bf71d1379f6ab787bdcca5225a7f5cac9bbc2eb20223687d5d2dbfe18.gz"
+    },
+    "crates/dive-value/tests/tlc_differential.rs": {
+      "sha256": "6ed886834eb2c68e9bd97072739f39ee910d23e68751bfd3732c7474f0018cf6",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/6ed886834eb2c68e9bd97072739f39ee910d23e68751bfd3732c7474f0018cf6.gz"
+    },
+    "xtask/Cargo.toml": {
+      "sha256": "a80ad02ad30366f7e67fae0289c144824a2b0b6d5ef026d2c03a008a68c7207e",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/a80ad02ad30366f7e67fae0289c144824a2b0b6d5ef026d2c03a008a68c7207e.gz"
+    },
+    "xtask/src/features.rs": {
+      "sha256": "4479feaaf3c8e015be79e3f0e87b9e0a633f753d45bf966ede771211fa356fa5",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/4479feaaf3c8e015be79e3f0e87b9e0a633f753d45bf966ede771211fa356fa5.gz"
+    },
+    "xtask/src/layering.rs": {
+      "sha256": "1dd773541e4e272f73aa67a2deaf629d9ede1881a1ba67c0fe087db9053dab97",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/1dd773541e4e272f73aa67a2deaf629d9ede1881a1ba67c0fe087db9053dab97.gz"
+    },
+    "xtask/src/main.rs": {
+      "sha256": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9",
+      "archive": "conformance/probes/fallible-seen-engine/current/source/0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9.gz"
+    }
+  }
+}

@@ -92,3 +92,23 @@ word. Memory replay is unchanged. Positioned fallible replay reads and exact
 TLC error-counter continuation remain a future increment; no refusal earns
 agreement. Missing/invalid ordinary roles preserve existing binder effect order,
 separate from explicitly rejected configured role/mode combinations.
+
+## Verification receipt (2026-10-11)
+
+Producer `da0f857161c57b52e8cb1d6c18ef0cebb0021ea4` closed the eight-stage
+local gate with 1,268 tests passing and zero skipped. The unchanged two-job,
+two-test-thread run took 1,068.6 seconds; unchanged Linux partition/time limits
+remain separate from this measurement. Current raw/source receipts retain all
+384 original resident runs, 576 disk runs and 64 fresh resident references,
+144 independently valid words and 864 rejected mutants. The independent
+selection explicitly distinguishes a real VIEW violation from symmetry-only
+SymOrder. Seven focused fault controls pass; the focused run filters 26 other
+tests without replacing the complete zero-skip gate.
+
+Four actual CLI and four compiled Rust-guide outputs disclose inline fallback
+and cleanup. Required resident CM1/ValidationTestSuite controls pass at 1/4/8
+workers; they establish no new disk-corpus or parallel-disk coverage. The first
+CM1 driver invocation's absent default binary path is retained separately from
+the passing explicit-binary invocation. Full selection, semantic comparisons,
+error-class qualification and all immutable failure epochs remain in the
+[source-bound evidence](../../conformance/probes/fallible-seen-engine/README.md).

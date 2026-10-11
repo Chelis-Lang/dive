@@ -124,3 +124,13 @@ Pinned TLC and the resident reference report 3 generated, 3 distinct and 1 queue
 The preserved failed disk epoch reported 4 distinct and 2 queued. Current disk
 checking explicitly refuses that boundary; it never consults an empty resident
 set as an answer. [Source and original raw observations](../../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+
+The [current source-bound controls](../../conformance/probes/fallible-seen-engine/current/)
+include real VIEW and symmetry counterexamples, separately checked by the
+independent validator at both profiles/stores and requested 1/4/8 workers. They
+retain 144 Valid original words and 864 rejected mutants. The actual VIEW case
+has its own configured `VIEW`; a symmetry-only control is never counted as VIEW
+evidence. The 384 original memory runs remain unchanged, and the 576 disk runs
+compare every existing concrete result field while checking the added disk and
+fallback metadata separately. These controls establish the bounded examples,
+not general storage-family certification.

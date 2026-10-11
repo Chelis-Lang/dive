@@ -47,3 +47,44 @@ Current disk mode refuses the actual invariant-error replay boundary by name,
 preserves its original error and diagnostic word, and audits cleanup. The
 ordinary memory path and its call-stack replay remain unchanged; no supported
 matrix case is removed to conceal this refusal.
+
+## Closed current producer
+
+The corrected implementation is frozen at
+`da0f857161c57b52e8cb1d6c18ef0cebb0021ea4`. Its eight-stage gate passed
+1,268 tests with zero skips. The two-job/two-test-thread run took 1,068.6 seconds;
+nextest took 714.4 seconds. Timeouts and assertions remain unchanged. This local
+aggregate duration is not a Linux partition timing claim.
+
+The current executable campaign retains all 384 original memory runs, 64 fresh
+resident references and 576 disk runs. Apart from elapsed time, the memory
+reports match the pre-implementation producer exactly. Disk comparisons allow
+only elapsed time, requested/actual workers and the explicitly added disk option
+and receipt fields; all remaining concrete outcomes, counts, trace, existing
+storage and collision fields are compared. The eight clean primary runs match
+verdict exit, counts and depth; the nested GENERAL evaluation error still reports
+`verified: false` and earns no exact error-class credit.
+
+The independent consumer checks 144 original words as Valid and 864 mutants as
+Invalid. These comprise 36 runs each of EarlyInvariant, SymOrder, SymViolation
+and PureViewViolation across both profiles/stores and requested 1/4/8 workers
+with no-chaos/0/7 scheduling and both transient spill budgets zero. SymOrder is
+**symmetry-only**: its older test name mentions VIEW but grants no VIEW witness
+credit. The added PureViewViolation configuration actually declares VIEW and has
+its own clean primary/raw source. The original success-only PureView matrix is
+retained separately.
+
+Another 60 CLI controls retain resident error replay, the 36 explicit disk replay
+refusals, four runnable guide commands, tiny entry limits and pre-effect configured
+role refusals. All seven selected storage fault controls pass (26 other tests are
+filtered in that focused run). The complete gate above has zero skips. The real
+Cargo guide and CM1's 21 models plus ValidationTestSuite's 16 models pass at
+1/4/8 workers. The first CM1 invocation selected zero models because its default
+binary path was absent; its raw failure is retained, and the corrected invocation
+passes with explicit immutable executable paths.
+
+`current/` keeps these source archives, raw reports, exact commands and receipt
+hashes separate from the failed b07 epoch. Run
+`python3 -I scripts/check-fallible-seen-engine.py` for portable readback. This
+bounded INIT/NEXT slice grants no F-031 family certification, parallel disk-read
+authority, graph/recovery support, durability or total-memory guarantee.
