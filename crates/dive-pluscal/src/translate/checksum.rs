@@ -229,6 +229,7 @@ impl Writer {
         parsed: &macros::Expanded,
         process: &Process,
         labels: &[&Label],
+        options: &TranslationOptions,
     ) -> Result<(), TranslationError> {
         self.indent("")?;
         self.push("[name   |-> \"")?;
@@ -236,7 +237,15 @@ impl Writer {
         self.push("\",")?;
         self.newline()?;
         self.push(" fairness |-> \"")?;
-        self.push(match process.fairness {
+        // ParseAlgorithm 377–394 records declared fairness even under -nof;
+        // wf/sf only supply missing declarations. Generator suppression is a
+        // separate contract and must not alter the serialized source AST.
+        let fairness = match (process.fairness, options.fairness) {
+            (Fairness::Unfair, FairnessOption::Weak) => Fairness::Weak,
+            (Fairness::Unfair, FairnessOption::Strong) => Fairness::Strong,
+            (declared, _) => declared,
+        };
+        self.push(match fairness {
             Fairness::Unfair => "unfair",
             Fairness::Weak => "wf",
             Fairness::Strong => "sf",
@@ -282,6 +291,7 @@ impl Writer {
         &mut self,
         parsed: &macros::Expanded,
         processes: &[Process],
+        options: &TranslationOptions,
     ) -> Result<(), TranslationError> {
         // ParseAlgorithm appends modifiers in lexical encounter order. Arena
         // construction can allocate children before parents; preserve source
@@ -295,7 +305,7 @@ impl Writer {
         self.sequence(processes, |writer, process| {
             let start = labels.partition_point(|label| label.span.start < process.span.start);
             let end = labels.partition_point(|label| label.span.start < process.span.end);
-            writer.process(parsed, process, &labels[start..end])
+            writer.process(parsed, process, &labels[start..end], options)
         })
     }
     fn expression(
@@ -600,8 +610,8 @@ impl Writer {
 /// Serialize proved bounded sequential and finite-process checksum shapes.
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// macros, procedures, branch-internal labels and unproved process option normalization
-/// are refused. Native generation/admission
+/// macros, procedures and branch-internal labels are refused. Admitted process
+/// fairness and automatic-label options retain the pinned parser precedence. Native generation/admission
 /// remains separate. A scoped worker provides a 16 MiB stack.
 ///
 /// # Errors
@@ -666,18 +676,10 @@ fn checksum_inline(
             "macros, procedures or definitions",
         ));
     }
-    if matches!(algorithm.body, Body::Processes(_))
-        && (options.fairness != FairnessOption::Declared || options.insert_missing_labels)
-    {
-        return Err(unsupported(
-            algorithm.span,
-            "unproved process checksum fairness/automatic-label options",
-        ));
-    }
     let mut parsed = macros::expand(parsed, options)?;
     labels::normalize(&mut parsed, options)?;
     // The existing admission pass proves no identifier fixups are required.
-    let model = lower::normalize(&parsed, options)?;
+    lower::normalize(&parsed, options)?;
     let sequential = matches!(parsed.algorithm.body, Body::Sequential(_));
     let mut w = Writer {
         positions: token_positions(&parsed)?,
@@ -726,9 +728,9 @@ fn checksum_inline(
             w.indent(" body  |-> ")?;
             w.labelled(&parsed, &groups)?;
         }
-        Body::Processes(_) => {
+        Body::Processes(processes) => {
             w.indent(" procs |-> ")?;
-            w.processes(&parsed, &model.processes)?;
+            w.processes(&parsed, processes, options)?;
         }
     }
     w.push("]")?;

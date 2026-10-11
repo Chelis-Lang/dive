@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "script_sha256": "72ced2742ca4bdc23a934201b41260d1644970e33eb680ee120f50dd0474204a",
+  "guide_sha256": "47f91dbcfaffc82b625bd58d53fb5d2b952f959bbc9c98dbda5934802c823574",
+  "native_sha256": "972104782466db0e129571874570fac7286b5f8a3c7745d332862565da8075de",
+  "api_sha256": "2bda9045ad09d7bc67654f387cf29a873792cd918fe4535641084c666a581914",
+  "cargo_source": "crates/dive-api/examples/pluscal_process_options.rs",
+  "cargo_source_sha256": "ef5d6ba0b12a08de86516759d5edbca202494529ab819c997b8ab1dd58e99d53",
+  "controls": 16,
+  "rows": [
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "fairness": "-wf",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "57e01ac73abbb70248746eb9044317a90acbba911b53ad6abcf796e2c5fccfd6"
+    },
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "fairness": "-wf",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "57e01ac73abbb70248746eb9044317a90acbba911b53ad6abcf796e2c5fccfd6"
+    },
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "fairness": "-nof",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "88f7351a255551d829b91490911d0f8d0001a9b9bfcf221efe66df2847d9eeac"
+    },
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "fairness": "-nof",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "88f7351a255551d829b91490911d0f8d0001a9b9bfcf221efe66df2847d9eeac"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "fairness": "-wf",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "846ee427d0ef53c9dc60609116984c4e6ec0659f4d6da6e46240b81158781dd0"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "fairness": "-wf",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "846ee427d0ef53c9dc60609116984c4e6ec0659f4d6da6e46240b81158781dd0"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "fairness": "-nof",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "23152717266b14e33f38e13e82a757fb3d9c77bfa3e9a41c6cc8c6805f8915c1"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "fairness": "-nof",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "23152717266b14e33f38e13e82a757fb3d9c77bfa3e9a41c6cc8c6805f8915c1"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "fairness": "-wf",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "51e6cd41478dfbfd75173c30affe324a5fd3f67eceedcb5e32604e5758469e88"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "fairness": "-wf",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "51e6cd41478dfbfd75173c30affe324a5fd3f67eceedcb5e32604e5758469e88"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "fairness": "-nof",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "b508a5eda44e2242fbe5e5479098c7eafab5fc07b6d25f24e3cd6c74343b0942"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "fairness": "-nof",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "b508a5eda44e2242fbe5e5479098c7eafab5fc07b6d25f24e3cd6c74343b0942"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "fairness": "-wf",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "424e30d04b2ffcd0b15c90f81369ed434e4aee81cdcdd1ed72df5efe1b13d9d4"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "fairness": "-wf",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "424e30d04b2ffcd0b15c90f81369ed434e4aee81cdcdd1ed72df5efe1b13d9d4"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "fairness": "-nof",
+      "surface": "cli",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "90bb7c4bb389a57d93ec1b8a2c33f6dbad7b666fe551227042dd05c277af9e8d"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "fairness": "-nof",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof",
+      "stdout_sha256": "90bb7c4bb389a57d93ec1b8a2c33f6dbad7b666fe551227042dd05c277af9e8d"
+    }
+  ]
+}

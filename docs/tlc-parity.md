@@ -623,3 +623,11 @@ Bounded sequential non-junction multiline PlusCal generation is now tracked in
 `docs/pluscal-multiline.md` and its complete capture. Raw AST CRC, generated
 operator trees/admission and finite model/witness evidence remain separate.
 F-034/F-035 remain partial and audit-required; all unproved contexts refuse.
+
+Explicit finite-process fairness/automatic-label Full checksum settings now have
+separate pinned parser/name/translated AST, public module admission, configured
+Validator and finite safety/witness evidence. Source option comments remain
+named unsupported after retained ignored-option failures; unconfigured reference
+validation is qualified as D-021, with D-020 unchanged. See
+[the runnable CLI/API contract](pluscal-process-checksum-options.md).
+F-034/F-035 remain partial and audit-required; no denominator/certification change.

@@ -1161,3 +1161,19 @@ fn final_temporal_if_retains_exported_forwarding_refusal() -> Result<(), Box<dyn
     }
     Ok(())
 }
+
+#[test]
+fn translate_rejects_multiple_fairness_flags_before_loading() {
+    for (first, second) in [("-wf", "-sf"), ("-nof", "-wfNext"), ("-wf", "-wf")] {
+        let output = dive(&[
+            "translate",
+            "missing-option-control.tla",
+            first,
+            second,
+            "--rewrite",
+        ]);
+        assert_eq!(output.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&output.stderr).contains("select only one"));
+        assert_eq!(output.stdout, [] as [u8; 0]);
+    }
+}

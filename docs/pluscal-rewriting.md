@@ -197,3 +197,9 @@ result before native generation or algorithm CRC derivation. Use supported
 explicit CLI/API settings. This refusal prevents silently dropping source fairness
 or label options; it does not change supplied-body editing's separate nonproof
 contract. Evidence: `crates/dive-pluscal/source-option-acceptance/`.
+
+Bounded finite process Full serialization now accepts proved explicit fairness
+and automatic-label options; see [process checksum options](pluscal-process-checksum-options.md).
+It records the typed normalization context, refuses unproved in-source option
+comments and does not claim that command-line settings survive in the pinned
+header or that a CRC establishes source identity (D-020/D-021).

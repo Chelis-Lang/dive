@@ -114,3 +114,9 @@ The counts above belong to the immutable process-checksum producer identified
 in the study delivery receipt. They are retained producer evidence; combining
 this code with later temporal, capture or recovery changes requires fresh
 source-bound controls and the current required conformance selection.
+
+The next bounded option increment now also derives process Full CRCs with
+explicit fairness/automatic-label settings. See [the option guide](pluscal-process-checksum-options.md)
+for supported combinations, exact CLI/API distinctions, configured Validator
+evidence and the source-option-comment refusal. The original selection above
+remains its own immutable producer history.

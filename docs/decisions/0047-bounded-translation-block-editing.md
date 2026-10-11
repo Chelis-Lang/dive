@@ -172,3 +172,29 @@ proved, native translation and algorithm checksum derivation return Unsupported
 before an artifact or CRC. Twenty clean spacing controls and four declarations
 retain the original ignored-context failures. Historical surface captures are
 qualified in `crates/dive-pluscal/source-option-acceptance/README.md`.
+
+## Addendum: explicit process checksum option context
+
+Pinned `ParseAlgorithm` process fairness is captured before generator suppression.
+Declared `fair`/`fair+` fields survive `-nof` in the checksum AST; only an
+otherwise-unfair process receives `-wf`/`-sf` defaults. Serialization therefore
+uses the admitted normalized source process list with this parser precedence,
+not the generator's effective fairness list. Automatic labels retain the
+existing global insertion/name-collision pass and budgets. No AST option is
+guessed from generated text.
+
+The raw clean selection retains invalid simultaneous command-line choices,
+which have no typed API enum counterpart. CLI fairness selection is unique,
+including repeated flags. Rewrite reports retain `translation_options` for
+failed and admitted requests. Reference Validator controls are configured with
+those same options, separately from unconfigured/source-comment controls.
+
+The pinned header omits command-line settings; source `PlusCal options`
+comments have separate parser precedence. Native currently refuses that
+source context before normalization/generation or CRC rather than silently
+ignoring it. D-021 records the reference interoperability limitation, D-020
+remains unchanged, and scoped names/calls/layouts still require their own
+serialization proof. Public AST equality, enclosing CST/SANY admission,
+checksums/corruptions and finite safety/witness evidence remain separate.
+No dependency/default/file-write/formatter contract changes.
+The executable contract is `docs/pluscal-process-checksum-options.md`.

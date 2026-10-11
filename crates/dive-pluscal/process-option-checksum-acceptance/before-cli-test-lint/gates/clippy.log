@@ -1,0 +1,32 @@
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-sema)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-config)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-pluscal)
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-ir)
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-syntax)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-eval)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-store)
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-api)
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-conformance)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-process-option-checksum-work/crates/dive-cli)
+error: used `assert!` to check that a value is empty
+   --> crates/dive-cli/tests/cli.rs:703:9
+    |
+703 |         assert!(output.stdout.is_empty());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+    = note: `-D clippy::assert-is-empty` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::assert_is_empty)]`
+help: use `assert_eq!` to show the value on failure
+    |
+703 -         assert!(output.stdout.is_empty());
+703 +         assert_eq!(output.stdout, [] as [u8; 0]);
+    |
+
+error: could not compile `dive-cli` (test "cli") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
