@@ -1317,6 +1317,11 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                         successors: &successors,
                         stats: counters,
                         pool_generated,
+                        barrier: crate::capture::SourceBarrier::joined(
+                            pool.threads(),
+                            first_id + wave_start as u64,
+                            first_id + wave_end as u64,
+                        ),
                     };
                     if let Some(observer) = &mut search.observer
                         && let Err(message) = observer.source(observation)

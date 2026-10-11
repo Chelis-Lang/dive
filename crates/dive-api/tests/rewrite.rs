@@ -49,13 +49,34 @@ fn explicit_partial_replacement_is_admitted_without_proof() {
     assert!(nested.accepted());
     assert_eq!(nested.to_json()["algorithm_checksum_verified"], true);
     assert_eq!(nested.to_json()["model_proved"], false);
-    let unsupported = SOURCE.replace(
+    let macro_source = SOURCE.replace(
         "begin L:x:=1;",
         "macro M() begin x:=1; end macro; begin L:M();",
     );
+    let macro_report = rewrite_source("R.tla", &macro_source, &RewriteRequest::default());
+    assert!(macro_report.accepted(), "{}", macro_report.to_json());
+    let macro_doc = macro_report.to_json();
+    assert_eq!(macro_doc["algorithm_checksum_verified"], true);
+    assert_eq!(macro_doc["model_proved"], false);
+    assert_eq!(
+        macro_doc["replacement"]["algorithm_checksum"]["serialized_ast"],
+        include_str!(
+            "../../dive-pluscal/macro-checksum-acceptance/api-regression/primary/InvokedMacroApiRewrite.translated.ast"
+        )
+    );
+    let unsupported = SOURCE.replace("begin L:", "define F == 1 end define; begin L:");
     let refused = rewrite_source("R.tla", &unsupported, &RewriteRequest::default());
     assert!(!refused.accepted());
-    assert_eq!(refused.to_json()["stage"], "replacement");
+    let document = refused.to_json();
+    assert_eq!(document["stage"], "native-generation");
+    assert_eq!(document["result"], "unsupported");
+    assert_eq!(
+        document["generation"]["diagnostic"]["message"],
+        "unsupported PlusCal translation: define-block name binding"
+    );
+    assert_eq!(document["model_proved"], false);
+    assert_eq!(document["exhaustive"], false);
+    assert!(document.get("replacement").is_none());
 }
 #[test]
 fn failed_generation_and_bad_old_checksum_do_not_return_replacement() {

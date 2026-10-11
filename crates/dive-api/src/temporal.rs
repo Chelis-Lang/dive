@@ -46,7 +46,8 @@ impl ValidatedCounterexample {
     pub fn candidate(&self) -> &Candidate {
         &self.candidate
     }
-    /// Lossless JSON trace data, including the complete false-property set.
+    /// Independently admitted JSON trace data and the complete false-property set.
+    /// Tagged values retain the trace format's documented representation limits.
     #[must_use]
     pub fn document(&self) -> &TraceDoc {
         &self.document
@@ -99,7 +100,7 @@ pub enum Error {
         /// Independent validation details.
         report: ValidationReport,
     },
-    /// A value could not be represented in the lossless trace document.
+    /// A value could not be represented in the tagged trace document.
     Document(String),
     /// The evaluation thread failed to start or panicked.
     Thread(String),
@@ -150,7 +151,7 @@ pub enum Stage {
     Analysis(dive_liveness::analyze::Stage),
     /// Independent validation, including binding a fresh validation model.
     Validation,
-    /// Conversion to the lossless trace document.
+    /// Conversion to the tagged trace document.
     Document,
     /// A thread failure prevented recovery of execution evidence.
     Unknown,

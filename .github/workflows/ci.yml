@@ -111,6 +111,7 @@ jobs:
           python3 -I scripts/check-stored-successor-census.py
           python3 -I scripts/check-native-sequence-operators.py
           python3 -I scripts/check-tlc-partial-scc.py
+          python3 -I scripts/check-periodic-backend.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Verify complete test partitions

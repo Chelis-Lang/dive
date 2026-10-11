@@ -49,6 +49,8 @@ pub enum Error {
     Capture(Box<dive_check::CheckResult>),
     /// A worker failure lost execution evidence.
     Execution(String),
+    /// Explicit partial diagnostic stopped at a candidate; not a certified violation.
+    PartialCandidate,
     /// An internal receipt/graph inconsistency; never an empty language.
     Input(String),
 }
@@ -57,6 +59,7 @@ impl Error {
     #[must_use]
     pub fn code(&self) -> &'static str {
         match self {
+            Self::PartialCandidate => "DIVE-L0054",
             Self::Phase(e) => e.error.code(),
             Self::Limit(_) => "DIVE-L0050",
             Self::Input(_) => "DIVE-L0051",
@@ -68,6 +71,9 @@ impl Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::PartialCandidate => {
+                f.write_str("source checkpoint found an unvalidated temporal candidate")
+            }
             Self::Phase(e) => e.error.fmt(f),
             Self::Limit(e) => write!(f, "phase-L graph resource limit: {e}"),
             Self::Capture(e) => write!(f, "phase-L safety capture stopped: {:?}", e.verdict),

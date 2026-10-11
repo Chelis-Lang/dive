@@ -4,9 +4,16 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Trace JSON documentation now distinguishes tagged value kinds and document
+  round trips from construction-preserving value transport and independent
+  validation. Mixed record/tuple set decoding limitations remain tracked in #190;
+  this clarification does not change admission or validation behavior.
+
 - Periodic backend runtime-fraction arithmetic matches 196 actual pinned updater
   observations, including wrapping and NaN/zero behavior. It remains separate
   from ordinary scheduling and checker verdicts.
+
+- Source-owned periodic backend diagnostics retain pinned pointer-bucket growth/check-size snapshots, private joined-wave facts and first-candidate stopping. Original work bounds and independent replay remain required; ordinary periodic checking and partial Holds remain unsupported. See `docs/periodic-backend.md`.
 
 - Bounded partial temporal SCC/source-checkpoint diagnostics retain written-record authority and candidate fields under shared graph limits; successful partial checks never certify temporal completion.
 - Fixed-arity `Append` operator arguments in explicit bounded final TLC checking,
@@ -28,6 +35,16 @@ All notable changes to this project are documented here. The project will follow
 
 
 - Memory VIEW preserves nonforcing normalization of evaluator-owned lazy filters; unknown providers and unproved lazy-operation caches remain explicit refusals. Spill and checkpoint deferred-value admission is unchanged.
+
+- PlusCal embedded selection follows pinned line-first marker ownership; a later
+  unfair algorithm cannot replace an earlier fair one. Same-line priority and
+  split/tab/space separators have paired primary controls (#192).
+- Bounded nonrecursive PlusCal macros support Full post-expansion AST CRCs.
+  Single-line substitutions retain logical serialization positions; multiline
+  actuals and substituted junction columns are refused. Embedded algorithm
+  comment decoration preserves original spans; standalone parsing still requires EOF.
+  Generated declarations precede trailing user definitions; unknown names still
+  reject and invalid caller ranges carry bounded UTF-8 diagnostics.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and
