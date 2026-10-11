@@ -1,6 +1,6 @@
 # Pure native temporal operator arguments
 
-The bounded final TLC mode accepts `Len`, `Head`, and `Cardinality` as directly
+The bounded final TLC mode accepts `Len`, `Head`, `Cardinality`, and fixed-arity `Append` as directly
 supplied operator arguments, including pure wrapper, relay, `LET`, and named
 `INSTANCE` contexts. Native authority comes from the admitted IR's `Def.std`
 metadata or an explicit `StdOp`, never the operator's spelling. Ordinary periodic
@@ -83,8 +83,8 @@ word or graph does not certify a model. See the [final API guide](tlc-final-api.
 The independent word evaluator supports both profiles; this explicit final TLC
 facade continues to refuse the default profile and exact temporal storage.
 
-The native actuals accept exactly one ordinary expression argument at constant
-or state level. The original call and captured scope stay intact for evaluation;
+The unary native actuals accept exactly one ordinary expression argument at constant
+or state level; [Append](native-sequence-operators.md) admits exactly two. The original call and captured scope stay intact for evaluation;
 the implementation does not invent a native operator body. Every supplied
 operator actual is inspected even when unused. Configured targets, redirected
 or value-overridden native targets, and an explicitly supplied same configured

@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "scope": "actual parseLiveness shared object identity, tag visit count, normalization, OOS bins and numbered tableau; diagnostic projection only, no model proof",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Pin exact native sequence actual tag normalization grouping and tableau fields before widening the supported whitelist",
+  "timestamp": "2026-10-11T05:26:45.739886+00:00",
+  "source_sha256": {
+    "IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
+    "capture-projection.py": "f99879f6e312a0842c87366cc31674b01ccd1009bb2bdc0a885fe4c10e72365d"
+  },
+  "selection_sha256": "cca73d1be56d80e1a975d9bc71d160b2326bb29c35b11a17f0a09a20473801d7",
+  "compiler": {
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "1334d283577904b6789a1285529620191a4d6abe6e8119522ced33661e9dd778"
+  },
+  "rows": [
+    {
+      "name": "SequenceTailStateHolds",
+      "model_source_sha256": {
+        "models/SequenceTailStateHolds/SequenceTailStateHolds.tla": "0b96a5c8a36daf8b8a515ead4ff5c1b962d64507b3245588d2131cb05c88cdea",
+        "models/SequenceTailStateHolds/SequenceTailStateHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0d6788a3c63610e901441cecac60f2a744be9632064d9363e6ebb93e83de8539"
+    },
+    {
+      "name": "SequenceTailStateFails",
+      "model_source_sha256": {
+        "models/SequenceTailStateFails/SequenceTailStateFails.tla": "f8ad336a556f4cff5d355fc2d83faaacaac4f87929f4312d277181738382d66b",
+        "models/SequenceTailStateFails/SequenceTailStateFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8e510cc8fae8b1eff298d146555856af1b6a661dcb91dbae033526dc6fa5c84e"
+    },
+    {
+      "name": "SequenceTailConstantHolds",
+      "model_source_sha256": {
+        "models/SequenceTailConstantHolds/SequenceTailConstantHolds.tla": "f78519861ee541f09f7450be7173689c2ec26c5a494e0f493df12f5d201378ff",
+        "models/SequenceTailConstantHolds/SequenceTailConstantHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5f26105d4a2a0787214949949a3f41d41600188691a8441c04fa82560032c5ca"
+    },
+    {
+      "name": "SequenceTailConstantFails",
+      "model_source_sha256": {
+        "models/SequenceTailConstantFails/SequenceTailConstantFails.tla": "9856cb306a0636aa50361e715a25e7a75d6e115e533a13bb9f39520ded827781",
+        "models/SequenceTailConstantFails/SequenceTailConstantFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "98ba7108784c0e32d3e8830aa5b271a1157a772e2e1a2bb002f89e022973c98a"
+    },
+    {
+      "name": "SequenceTailLetHolds",
+      "model_source_sha256": {
+        "models/SequenceTailLetHolds/SequenceTailLetHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailLetHolds/SequenceTailLetHolds.tla": "294010a42eddc201fc618fe002648e35ca0913fbb980711b0758c239a5cf8bb8"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "64d3b4afc0a8f81c00de75c67e4e147299d255bbf2649f36baa8c7dcda09256c"
+    },
+    {
+      "name": "SequenceTailLetFails",
+      "model_source_sha256": {
+        "models/SequenceTailLetFails/SequenceTailLetFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailLetFails/SequenceTailLetFails.tla": "d0e523da112085f35a9ad455c92c138f377b4799cac081b48aa4cd27f055fed2"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9bbd72d91c93d4c78852cb9e4647f435094a5fd923dce679b3cc3c04a9e71152"
+    },
+    {
+      "name": "SequenceTailInstanceHolds",
+      "model_source_sha256": {
+        "models/SequenceTailInstanceHolds/SequenceTailInstanceHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailInstanceHolds/SequenceTailInstanceHolds.tla": "923cee6082e46e6bf63acaa8d588577300f4f612d4e23e5947f1716356372937"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2f8c5f850eb7bf9374510e35722e7f153f3b50123d48eccce451d1a3253e3e24"
+    },
+    {
+      "name": "SequenceTailInstanceFails",
+      "model_source_sha256": {
+        "models/SequenceTailInstanceFails/SequenceTailInstanceFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailInstanceFails/SequenceTailInstanceFails.tla": "6c904435c53852b7d0a2841ffe89a60d9d26ffd058da4078163a66c8ed31b86d"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b7bc15e61020322b31737f2e1d25b7d6f22ba355e6d6e65635c9056181a121ec"
+    },
+    {
+      "name": "SequenceAppendStateHolds",
+      "model_source_sha256": {
+        "models/SequenceAppendStateHolds/SequenceAppendStateHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendStateHolds/SequenceAppendStateHolds.tla": "1542d4d29d98c1b9a22227c15f7381432eb7e6ee322949a3efa795c362e7b79c"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5cae3dec62d63a0d34d712c0ee9c6e97c4fef28e3110f83869a9587417a28a03"
+    },
+    {
+      "name": "SequenceAppendStateFails",
+      "model_source_sha256": {
+        "models/SequenceAppendStateFails/SequenceAppendStateFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendStateFails/SequenceAppendStateFails.tla": "d0e38ad1c74a23c922a559b89bf3b31b909d27026a072bc4ebcae3f4c43e6a10"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "bb84fea30712209edce02540232b2574029c2b7c2c990c336f30d2563d0534cd"
+    },
+    {
+      "name": "SequenceAppendConstantHolds",
+      "model_source_sha256": {
+        "models/SequenceAppendConstantHolds/SequenceAppendConstantHolds.tla": "ac872fb918d0e05e64fca711243a5f10bcfa93dc3b0d68cebf3e4c67f7e22712",
+        "models/SequenceAppendConstantHolds/SequenceAppendConstantHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8f59dfc7840641720bdcaae71be80fca23f2fe1b9595e262e60f103b97696321"
+    },
+    {
+      "name": "SequenceAppendConstantFails",
+      "model_source_sha256": {
+        "models/SequenceAppendConstantFails/SequenceAppendConstantFails.tla": "c48fcd9d50cb5b6e450031ee8f42954c61fa2db6eb73b58c2a0a7f012f554c45",
+        "models/SequenceAppendConstantFails/SequenceAppendConstantFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "56d01a8047a1dadfbb7c7c45874cf8d2645c595cad7e211611c890c4f1a46ec7"
+    },
+    {
+      "name": "SequenceAppendLetHolds",
+      "model_source_sha256": {
+        "models/SequenceAppendLetHolds/SequenceAppendLetHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendLetHolds/SequenceAppendLetHolds.tla": "dea77271962d3bc167bd8e52ed03294f23a4ca0d9a5b5b3a615bf3da22bac8cc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b446ba9ce614c67e21d4db5a8bf8ee6bb2483b44dff77121a6b64294debb2039"
+    },
+    {
+      "name": "SequenceAppendLetFails",
+      "model_source_sha256": {
+        "models/SequenceAppendLetFails/SequenceAppendLetFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendLetFails/SequenceAppendLetFails.tla": "9ec1de5a770432fad4c34ec2c4022f09a91caa6fc7f82e81e8e6e5759a48bf59"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "43b454813951b6db4e0ea1cf81606ceb7f1589ae9a9f2d7e1648377aedb164f5"
+    },
+    {
+      "name": "SequenceAppendInstanceHolds",
+      "model_source_sha256": {
+        "models/SequenceAppendInstanceHolds/SequenceAppendInstanceHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendInstanceHolds/SequenceAppendInstanceHolds.tla": "f7bd57e903b1d767464d22f27f58fc3226273c92db660089783b8a154e0236f8"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "fd7e81f895ae231dfe4bf674f03aa1a6cc43dab82e185d25b2703ff7198948f3"
+    },
+    {
+      "name": "SequenceAppendInstanceFails",
+      "model_source_sha256": {
+        "models/SequenceAppendInstanceFails/SequenceAppendInstanceFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendInstanceFails/SequenceAppendInstanceFails.tla": "7b15543a8029ff51eece800cb0d73b58e3d490ba34887ef9cf7c23f1456d2f88"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1ac73255ec418e79b992c779272a62a3e4e5a432fc30c0bad734ca960de36af2"
+    },
+    {
+      "name": "SequenceSubSeqStateHolds",
+      "model_source_sha256": {
+        "models/SequenceSubSeqStateHolds/SequenceSubSeqStateHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceSubSeqStateHolds/SequenceSubSeqStateHolds.tla": "3afa46b28d4c20dfe55e06da83bd7200b7c9287035db3d33aa6f34771c5ead78"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "66200038c6325d05c2665bdc62e5ea66accffb750d26b929baf2f83c7df50fb0"
+    },
+    {
+      "name": "SequenceSubSeqStateFails",
+      "model_source_sha256": {
+        "models/SequenceSubSeqStateFails/SequenceSubSeqStateFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceSubSeqStateFails/SequenceSubSeqStateFails.tla": "18513f8769b5c26ee744b493a5d0ae2e6907e633b3c4cd8df8ce1673cad55161"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e9fcdeb6fa8402f53a47e3d42d8775a2924e5a1f247f1687e964d7a2eed33bd4"
+    },
+    {
+      "name": "SequenceSubSeqConstantHolds",
+      "model_source_sha256": {
+        "models/SequenceSubSeqConstantHolds/SequenceSubSeqConstantHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceSubSeqConstantHolds/SequenceSubSeqConstantHolds.tla": "4bdcff131aa62617063a51ce198b5e9d0211a3cc0aba81396a70046a09cb4229"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e45cc4c338ea431c0de0b1b6ce577083dc428d60157b9487b442cfdb57bd997a"
+    },
+    {
+      "name": "SequenceSubSeqConstantFails",
+      "model_source_sha256": {
+        "models/SequenceSubSeqConstantFails/SequenceSubSeqConstantFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceSubSeqConstantFails/SequenceSubSeqConstantFails.tla": "ff630458992da9d6103d2fccb47f2e8a8bba07e9075259fdcb36844dac6b8dc9"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "43805f9403b0fd7d84e74524869072b2056be46dede6bc4e264d12217a4636b5"
+    },
+    {
+      "name": "SequenceSubSeqLetHolds",
+      "model_source_sha256": {
+        "models/SequenceSubSeqLetHolds/SequenceSubSeqLetHolds.tla": "e72e29fae61df194044f1be4916742c756165ce37f1b804e259c066748a31872",
+        "models/SequenceSubSeqLetHolds/SequenceSubSeqLetHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a45f1a596d2bdb1b5d7e14247d31bc96132ad08792566bbe20300daf9414b9eb"
+    },
+    {
+      "name": "SequenceSubSeqLetFails",
+      "model_source_sha256": {
+        "models/SequenceSubSeqLetFails/SequenceSubSeqLetFails.tla": "707f831238b230da7633b7052a10f40b82321df6aed0440da2624f50c5cdadd5",
+        "models/SequenceSubSeqLetFails/SequenceSubSeqLetFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "79f2c10350dfa5aeec767097067b1037c1ed9fd236ad3b72640585342dc89b77"
+    },
+    {
+      "name": "SequenceSubSeqInstanceHolds",
+      "model_source_sha256": {
+        "models/SequenceSubSeqInstanceHolds/SequenceSubSeqInstanceHolds.tla": "5ea34c4fa57990aaf29dd013754a81d45aa2eb30686efe3d59b8a1f4ca9b164f",
+        "models/SequenceSubSeqInstanceHolds/SequenceSubSeqInstanceHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6db94ad25601d922199d128891d5e3085c6a692e26cf11deb2d61246cc25f5ad"
+    },
+    {
+      "name": "SequenceSubSeqInstanceFails",
+      "model_source_sha256": {
+        "models/SequenceSubSeqInstanceFails/SequenceSubSeqInstanceFails.tla": "95a60928e86f6e84566f5ae2a6a46e9930c849836206774e7f829037cbfac11e",
+        "models/SequenceSubSeqInstanceFails/SequenceSubSeqInstanceFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "114034f2dd10a4318e8d5f7fb919be947a549ee4b0968999ec4191cd2dfa7960"
+    },
+    {
+      "name": "SequenceTailWrongArity",
+      "model_source_sha256": {
+        "models/SequenceTailWrongArity/SequenceTailWrongArity.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailWrongArity/SequenceTailWrongArity.tla": "adc3c9d5463392837f5e5220cf41b3ea3beb3d981fd9b6ef3a6523b6b8677533"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0883d2088487360ee4be05fb01e3ec2e295631a97aa30167d35135afb424dfb7"
+    },
+    {
+      "name": "SequenceAppendWrongArity",
+      "model_source_sha256": {
+        "models/SequenceAppendWrongArity/SequenceAppendWrongArity.tla": "0c8d1c394aadbd48826b8704a224a63a013f37b8db13809423c4ee858e472930",
+        "models/SequenceAppendWrongArity/SequenceAppendWrongArity.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "dedd8872c50d456a4fcdb340cc4f93e49ed098e883d06faefbe64abef7fb3d20"
+    },
+    {
+      "name": "SequenceSubSeqWrongArity",
+      "model_source_sha256": {
+        "models/SequenceSubSeqWrongArity/SequenceSubSeqWrongArity.tla": "ef28776bad6209926a24aef6a8d0fb5fe2769b87938a90a69d84b128668c9a2c",
+        "models/SequenceSubSeqWrongArity/SequenceSubSeqWrongArity.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d7bec38bad55585a0df9b1f4a5b7975ff3ca11196595d8069b0b2d0e2c6b3817"
+    },
+    {
+      "name": "SequenceTailEmptyError",
+      "model_source_sha256": {
+        "models/SequenceTailEmptyError/SequenceTailEmptyError.tla": "e22bf3bb5e77e26b96afcad718e4d0115885d6508ed63512d2f694b922b9b0a0",
+        "models/SequenceTailEmptyError/SequenceTailEmptyError.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c3f07e65473f1713146d39823bc975641d0c4922dd9c6823cea903603570e98f"
+    },
+    {
+      "name": "SequenceTailTypeError",
+      "model_source_sha256": {
+        "models/SequenceTailTypeError/SequenceTailTypeError.tla": "1e1fd72ed84ef153bfa7f53fe5c491cb9a2490e51d49108aeeb2b42ad5d1ebf2",
+        "models/SequenceTailTypeError/SequenceTailTypeError.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f567627e3679f90e3ffd02d98d9251f7aad1a945212ea097724e84081b9a64dd"
+    },
+    {
+      "name": "SequenceAppendTypeError",
+      "model_source_sha256": {
+        "models/SequenceAppendTypeError/SequenceAppendTypeError.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceAppendTypeError/SequenceAppendTypeError.tla": "18d87b6bdc146eb796d1cf1e4840d55d7eff82fa61ebb46d93c645dc77f4e389"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "84c3e113eab361d3bdacd8e598fc1386aa10606284d3bbf93d874ece027451a1"
+    },
+    {
+      "name": "SequenceSubSeqTypeError",
+      "model_source_sha256": {
+        "models/SequenceSubSeqTypeError/SequenceSubSeqTypeError.tla": "153a3c449eec99929cd844986fc067c82f8645996d087ad6197259ccc004cd4d",
+        "models/SequenceSubSeqTypeError/SequenceSubSeqTypeError.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2bc96604ef138891fc1a4fbf9f52299218cdee758143ef0cdf7a3866d435b6eb"
+    },
+    {
+      "name": "SequenceTailActionActual",
+      "model_source_sha256": {
+        "models/SequenceTailActionActual/SequenceTailActionActual.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailActionActual/SequenceTailActionActual.tla": "dc7aabd7658dc76c2f9545fae9a5f54632497a2a3f172df94236b9b926b23023"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "54bd326153afb2e4907589833933ef62df0c4fe9517d6518303d1e8ecb3a0e7b"
+    },
+    {
+      "name": "SequenceTailUnusedEffect",
+      "model_source_sha256": {
+        "models/SequenceTailUnusedEffect/SequenceTailUnusedEffect.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/SequenceTailUnusedEffect/SequenceTailUnusedEffect.tla": "5d87c9f6c32ae617acecd1bf3b25fd3a6e29c8dc9a5cc6dfc90780e2373ca2cd"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a7e5b90e5117a51b406333299220eb7c91c21e9bf79c4ba5d683f83fbf96dc7c"
+    }
+  ]
+}

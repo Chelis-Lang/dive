@@ -1,0 +1,87 @@
+[
+  {
+    "command": "cargo fmt --all --check",
+    "exit": 0,
+    "wall_seconds": 6.274182958
+  },
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "exit": 0,
+    "wall_seconds": 0.6123053330000001
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "exit": 0,
+    "wall_seconds": 6.447714291999999
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "exit": 0,
+    "wall_seconds": 1.3319233340000025
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "exit": 0,
+    "wall_seconds": 1.1975662079999978
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "exit": 0,
+    "wall_seconds": 0.32512637499999997
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "exit": 0,
+    "wall_seconds": 1.957892791999999
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "exit": 0,
+    "wall_seconds": 0.8895601249999991
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "exit": 0,
+    "wall_seconds": 1.139706375000003
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "exit": 0,
+    "wall_seconds": 2.175500833000001
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "exit": 0,
+    "wall_seconds": 1.6961290000000027
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "exit": 0,
+    "wall_seconds": 1.0839183329999997
+  },
+  {
+    "command": "python3 -I scripts/check-stored-successor-material.py",
+    "exit": 0,
+    "wall_seconds": 1.4126630829999982
+  },
+  {
+    "command": "python3 -I scripts/check-native-sequence-operators.py",
+    "exit": 0,
+    "wall_seconds": 0.9146374590000015
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "exit": 0,
+    "wall_seconds": 0.49436575000000005
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "exit": 0,
+    "wall_seconds": 1.013690375000003
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "exit": 1,
+    "wall_seconds": 0.46801258300000015
+  }
+]

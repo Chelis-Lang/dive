@@ -1,0 +1,1 @@
+Focused API build: error[E0609], no field `message` on Box<dive_api::tlc_temporal::Failure>, line226. Actual typed field is error; replace with Display via to_string. No tests executed, exit101.

@@ -2060,3 +2060,11 @@ Session bounds and separate50k/128 context bounds are unchanged. Pinned
 [stored-state guide](stored-successor-material.md) and
 [paired source/evidence](../conformance/probes/stored-successor-material/README.md).
 Ordinary schedules and whole-family parity remain partial.
+
+### Bounded native Append forwarding limitation
+
+Explicit final TLC checking now admits pure fixed-arity `Append` operator actuals
+with both expression scopes preserved. The pinned 33-case sequence selection
+retains all Tail/SubSeq refusals: their string overloads can intern names, so
+tuple-only examples do not authorize those natives. Ordinary scheduling and
+deciding type-error parity remain pending. See [the Append guide](native-sequence-operators.md).

@@ -614,3 +614,5 @@ and refuses unknown startup/guard draw positions. `TLCTrace.printTrace` and
 strict trace-printing refusal, not ported or certified. Clean raw primary and
 current native producer identities are separated in
 `conformance/probes/configured-random-stream/`. Licence: MIT reference semantics.
+
+| Pure native `Append` temporal operator actual admission | `tlc2.module.Sequences.Append`, pinned `94d0c50`; actual arity and processLiveness projections under `conformance/probes/native-sequence-operators` | MIT | Existing native evaluator unchanged; bounded operand/context proof retains original calls and independent word/witness replay; Tail/SubSeq remain refused |

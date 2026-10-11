@@ -176,6 +176,7 @@ python3 -I scripts/check-native-temporal-operators.py
 python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
 
 python3 -I scripts/check-stored-successor-material.py
+python3 -I scripts/check-native-sequence-operators.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

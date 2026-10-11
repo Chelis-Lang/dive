@@ -89,3 +89,6 @@ Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described i
 executable CLI/Rust examples and retained refusal boundaries.
 
 See [Stored successor values](../stored-successor-material.md) for concrete set/function admission, namespace/order requirements and provider refusals.
+
+[Fixed-arity Append operator arguments](../native-sequence-operators.md) retain
+both operand scopes; Tail/SubSeq runtime-name admission remains pending.

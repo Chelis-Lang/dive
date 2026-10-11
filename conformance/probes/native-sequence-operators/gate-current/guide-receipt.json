@@ -1,0 +1,19 @@
+{
+  "compile_exit": 0,
+  "run_exit": 0,
+  "source_sha256": "4e9c0d87960a23db788873a04c711d5c22d856d9e0bb3421d3c47c8c8d9553a7",
+  "binary_sha256": "04f0c711efe852f73738024c33bce69be1dba57387203d2b137a621b7f8f0c93",
+  "library_sha256": {
+    "/Users/jeff/code/dive-native-tail-target/debug/deps/libdive_api-857cac71e6113dcb.rlib": "db78d55bc7f5faded062a09a203adf0bf9a01780a16810283cd0601d19fe4a95",
+    "/Users/jeff/code/dive-native-tail-target/debug/deps/libdive_sema-0efaed705228539b.rlib": "182eed185572d31024b99c37f27f8f8949b8d0976f6af51b4698525106bc3ee7",
+    "/Users/jeff/code/dive-native-tail-target/debug/deps/libdive_ir-e5ea21f8e1048863.rlib": "04c21e6d648d903c860cea9e07064f53f8849e8405722b4209b1899602c71b6d",
+    "/Users/jeff/code/dive-native-tail-target/debug/deps/libdive_config-f4d648a33e713ac6.rlib": "f3bbbf97aef840be1b1f0b2d92f5d6160e066b3b60bea8f1fcba2ca6b7788569",
+    "/Users/jeff/code/dive-native-tail-target/debug/deps/libdive_check-99acadda98227a2f.rlib": "7e5f31645d99dfee402cd2cefecd91eb2bb1e94617f96eda5b2eb1a6bc966886",
+    "/Users/jeff/code/dive-native-tail-target/debug/deps/libdive_trace-5d84a28c79caa588.rlib": "3b95fcb7caafdf76783a74a99f10051372d4e29fa416581bf61459d7707ff53b"
+  },
+  "artifact_sha256": {
+    "guide-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "guide-run.stdout": "538f5a1a8e6c49dfdaf37cc9ee5c0b0d08332f618b47246445013f45ce0a9af3",
+    "guide-run.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

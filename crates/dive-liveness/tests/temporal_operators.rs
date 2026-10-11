@@ -129,6 +129,12 @@ fn exact_operator_fields() {
     );
     complete_fields("temporal-operators", "capture.json", 10, 2);
     complete_fields(
+        "native-sequence-operators",
+        "capture-projection.json",
+        9,
+        24,
+    );
+    complete_fields(
         "native-temporal-operators",
         "capture-projection.json",
         17,
@@ -167,6 +173,12 @@ fn complete_fields(
             &dive_sema::Options::default(),
         )
         .expect("file");
+        if family == "native-sequence-operators" && !analyzed.accepted() {
+            assert!(name.contains("WrongArity") || name == "SequenceTailActionActual");
+            assert_ne!(row["exit"], 0, "retained primary rejection");
+            refused += 1;
+            continue;
+        }
         if family == "native-temporal-operators" && !analyzed.accepted() {
             assert!(name == "NativeLenActionRefusal" || name == "NativeWrongArity");
             assert_ne!(row["exit"], 0, "retained primary semantic rejection");
@@ -180,6 +192,14 @@ fn complete_fields(
         let model =
             dive_model::bind(ir, &config, &dive_model::BindOptions::tlc()).expect("binding");
         let projection = dive_liveness::tlc_plan::lower_model(&model, Limits::default());
+        if family == "native-sequence-operators" && !name.contains("Append") {
+            refused += 1;
+            assert!(
+                projection.is_err(),
+                "{name} runtime-name/native capture stays refused"
+            );
+            continue;
+        }
         if family == "native-temporal-operators" && row["exit"] != 0 {
             refused += 1;
             if name == "NativePrintUnused" {

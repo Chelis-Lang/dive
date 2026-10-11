@@ -1,0 +1,172 @@
+[
+  {
+    "command": "cargo fmt --all --check",
+    "exit": 0,
+    "wall_seconds": 5.833806
+  },
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "exit": 0,
+    "wall_seconds": 0.4225670000000008
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "exit": 0,
+    "wall_seconds": 4.328945166999999
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "exit": 0,
+    "wall_seconds": 1.5324475
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "exit": 0,
+    "wall_seconds": 1.3917212499999998
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "exit": 0,
+    "wall_seconds": 0.6136644999999987
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "exit": 0,
+    "wall_seconds": 1.9597430829999993
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "exit": 0,
+    "wall_seconds": 1.8169200000000032
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "exit": 0,
+    "wall_seconds": 1.5202381659999986
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "exit": 0,
+    "wall_seconds": 2.4962687919999986
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "exit": 0,
+    "wall_seconds": 1.8944770829999982
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "exit": 0,
+    "wall_seconds": 0.9293670000000027
+  },
+  {
+    "command": "python3 -I scripts/check-stored-successor-material.py",
+    "exit": 0,
+    "wall_seconds": 1.3338285830000025
+  },
+  {
+    "command": "python3 -I scripts/check-native-sequence-operators.py",
+    "exit": 0,
+    "wall_seconds": 1.1069320830000002
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "exit": 0,
+    "wall_seconds": 0.3884664999999998
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "exit": 0,
+    "wall_seconds": 1.483935834000004
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "exit": 0,
+    "wall_seconds": 0.3997640830000009
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-tableau.py",
+    "exit": 0,
+    "wall_seconds": 0.6682523339999946
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-action-order.py",
+    "exit": 0,
+    "wall_seconds": 0.5113191669999964
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l.py",
+    "exit": 0,
+    "wall_seconds": 0.4502332500000037
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l-graph.py",
+    "exit": 0,
+    "wall_seconds": 0.5718751670000017
+  },
+  {
+    "command": "python3 -I scripts/check-phase-execution.py",
+    "exit": 0,
+    "wall_seconds": 0.6030645420000056
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final.py",
+    "exit": 0,
+    "wall_seconds": 0.684759249999999
+  },
+  {
+    "command": "python3 -I scripts/check-state-if-planning.py",
+    "exit": 0,
+    "wall_seconds": 0.23917545899999482
+  },
+  {
+    "command": "python3 -I scripts/check-predecessor-spill.py",
+    "exit": 0,
+    "wall_seconds": 0.6119686250000029
+  },
+  {
+    "command": "python3 -I scripts/check-native-checkpoint.py",
+    "exit": 0,
+    "wall_seconds": 0.7524360409999957
+  },
+  {
+    "command": "python3 -I scripts/check-native-parity-integration.py",
+    "exit": 0,
+    "wall_seconds": 6.915098917000002
+  },
+  {
+    "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+    "exit": 0,
+    "wall_seconds": 79.041722666
+  },
+  {
+    "command": "cargo nextest run --workspace --locked --test-threads 2",
+    "exit": 0,
+    "wall_seconds": 877.66937175
+  },
+  {
+    "command": "cargo test --workspace --doc --locked",
+    "exit": 0,
+    "wall_seconds": 20.398083209000106
+  },
+  {
+    "command": "RUSTDOCFLAGS=\"-D warnings\" cargo doc --workspace --no-deps --locked",
+    "exit": 0,
+    "wall_seconds": 47.41989391699997
+  },
+  {
+    "command": "cargo xtask check-layering",
+    "exit": 0,
+    "wall_seconds": 1.1587704579999354
+  },
+  {
+    "command": "cargo build -p dive-trace --locked",
+    "exit": 0,
+    "wall_seconds": 10.320845208000037
+  },
+  {
+    "command": "cargo deny --locked check",
+    "exit": 0,
+    "wall_seconds": 1.6628982909999195
+  }
+]
