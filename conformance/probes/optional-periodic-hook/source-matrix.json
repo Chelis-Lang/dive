@@ -17,10 +17,10 @@
     "crates/dive-liveness/src/periodic_snapshot.rs": "be9c91a82acf5ed7d903fa2bba7eb48129be5bdf9ea34f4451d0ab066423ccf4",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
     "crates/dive-liveness/tests/optional_periodic_snapshot.rs": "c09983216f180e18b945370a6357223cf5fc79ba88cc416a3ce92836fbb614e2",
-    "docs/optional-periodic-hook.md": "6521fb6e5d4bc03d3d4b10ea592208bf46975086d60d456830a3ed5c76b1bbb9",
+    "docs/optional-periodic-hook.md": "579410a054dbb8212f757d12f46bdb320124121167e8c9318fbc7a7926515016",
     "docs/decisions/0074-optional-configured-periodic-hook.md": "993d14c3e88492456ec1452c88f08913e7ee69bb3d098d57f453cb8a4c2c321c",
-    "scripts/check-optional-periodic-hook.py": "f3f11c8a3ec9f9cf5ba2f1aba424081c7c7f5e2ac982a3170c5334b59276667b",
-    "conformance/parity-features.json": "580a67f63ce18f96baab7c5770e6d8bc03b6c239ddd4e0f40ae6d5073a4a6b5a",
+    "scripts/check-optional-periodic-hook.py": "f10b54bf8570fd19f5abac4cdcfe974ce8c46cc8dfde8c0579964721799d296e",
+    "conformance/parity-features.json": "2b5d05b7eb4c215a154dfaffae73d2ea1138dbb23dd03dbfebf75dcd9a200176",
     "AGENTS.md": "6ee1d6588c2e6c4b63a8c97bff73e2a865432fe49dd2223ba97072e81b0d5630",
     ".github/workflows/ci.yml": "305d6d2185eeb3aecd3cb7976b11c0f102551da37fc0deabe217baa467d4f688"
   }

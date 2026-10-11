@@ -22,7 +22,7 @@
     "scripts/check-producer-owned-candidate.py": "a7af848ec98959f6f99820c1147825cd5eecaf8f3a974a8e3fd57bc9f3613033",
     "AGENTS.md": "6ee1d6588c2e6c4b63a8c97bff73e2a865432fe49dd2223ba97072e81b0d5630",
     ".github/workflows/ci.yml": "305d6d2185eeb3aecd3cb7976b11c0f102551da37fc0deabe217baa467d4f688",
-    "conformance/parity-features.json": "580a67f63ce18f96baab7c5770e6d8bc03b6c239ddd4e0f40ae6d5073a4a6b5a"
+    "conformance/parity-features.json": "2b5d05b7eb4c215a154dfaffae73d2ea1138dbb23dd03dbfebf75dcd9a200176"
   },
   "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof."
 }

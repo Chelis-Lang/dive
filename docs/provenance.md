@@ -551,3 +551,11 @@ Optional-hook Init precedence includes a separate unmodified full TLC invocation
 GENERAL1000 contains inner2179, then nested-expression2103 decides exit75. This is
 not substituted with the selected direct doInit2179 exception surface. Original
 failed assertion/source and both primary stages remain retained.
+
+The clean e553 optional producer has 46 closed gate stages/1,067 zero-skip tests,
+479 exact compiler inputs including 50 embedded literal payloads, 46 default-library
+runtime rows, 12 independently Valid EOF words and 48 strict Invalid mutants through
+both memory/JSON routes. Default feature isolation, executable Cargo guide,
+mandatory API controls and 37 safety models at 1/4/8 are separate receipts. Historical
+matrix hashes remain tied to their original archived sources; the failed packaging
+assumption is retained. No ordinary schedule/model/family certification follows.

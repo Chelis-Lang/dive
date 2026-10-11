@@ -71,4 +71,41 @@ ledger=load(ROOT/'conformance/parity-features.json')
 f=next(f for f in ledger['families']if f['id']=='F-023')
 assert f['implementation_status']=='missing'and f['certification']=='audit-required'
 assert 220 in f['issues']
+closed=load(BASE/'gate-current/after.json')
+compiled=load(BASE/'gate-current/before.json')
+assert closed['all_steps_passed']and closed['build_inputs_unchanged']and closed['expected_steps']==46
+assert len(compiled['source_sha256'])==479
+assert len(compiled['literal_include_sources'])==50 and not compiled['unresolved_include_macros']
+for path,digest in compiled['source_sha256'].items():
+    assert sha(gzip.decompress((BASE/'gate-current/source'/(path+'.gz')).read_bytes()))==digest,path
+runtime=BASE/'gate-current/runtime-current'
+steps=load(runtime/'runtime-steps.json')
+assert len(steps)==15 and all(step['exit']==0 for step in steps)
+selection=load(runtime/'selection.json')
+manifest=load(runtime/'native-manifest.json')
+assert len(selection['rows'])==len(manifest['rows'])==46
+assert {row['id']for row in selection['rows']}=={row['file'].removesuffix('.json')for row in manifest['rows']}
+words=mutants=0
+for row in manifest['rows']:
+    path=runtime/'native-current'/row['file'];assert sha(path.read_bytes())==row['sha256']
+    outcome=load(path)
+    assert outcome['model_proof']is False and outcome['ordinary_schedule_certified']is False
+    if outcome['execution_retained']:
+        assert outcome['selected_role']['configured']==('Hook'if '_PERIODIC'in outcome['configuration']else None)
+    if 'document'in outcome:
+        words+=1
+        assert 'validation: Valid'in outcome['memory_validation']and 'validation: Valid'in outcome['json_validation']
+        for mutant in outcome['mutants']:
+            mutants+=1
+            assert 'validation: Invalid'in mutant['memory_validation']and 'validation: Invalid'in mutant['json_validation']
+assert words==12 and mutants==48
+history=load(BASE/'history-production-e553/manifest.json')
+for path,digest in history['matrices_sha256'].items():
+    assert sha((BASE/'history-production-e553/matrices'/path).read_bytes())==digest,path
+for digest,path in history['source_archive_paths'].items():
+    assert sha(gzip.decompress((ROOT/path).read_bytes()))==digest,path
+for line in(runtime/'default-release-build.log').read_text().splitlines():
+    try: artifact=json.loads(line)
+    except json.JSONDecodeError: continue
+    if artifact.get('reason')=='compiler-artifact':assert 'test-rendezvous'not in artifact.get('features',[])
 print('Verified26 original optional-role primary rows/141 invocation hashes, immutable focused/history sources and genuine-absence nonproof contract')

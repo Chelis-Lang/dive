@@ -32,3 +32,20 @@ public4 + binding5 + private3 tests, executable Cargo guide and clippy all pass.
 retains GENERAL1000 containing2179 followed by deciding2103/exit75. Direct doInit
 exception and full model-check deciding classification are different surfaces,
 not a TLC bug or a production change. No failed epoch is relabelled as successful.
+
+`gate-current/` is the separately closed clean e553 producer: all 46 full gate
+steps pass, with 1,067 tests and zero skipped. Its 479 Git/live/gzip compiler inputs
+include all 50 literal embedded payloads and no unresolved include macros.
+The 15 release/runtime stages retain 46 declared rows: 12 EOF words independently
+Valid in memory and JSON, 48 corrupted words Invalid in both routes, genuine
+absence/present-hook failures and two preexecution refusals. Controlled actual
+RequestPrefix unit checks remain separate dev-feature evidence; the default
+release feature sets exclude that scheduler. The Cargo guide, unchanged mandatory
+API controls, and 21 CM1 plus 16 ValidationTestSuite models pass at 1/4/8 workers.
+
+`history-production-e553/` preserves exact pre-delivery matrices and their source
+archives. Sixteen intentionally historical paths keep their original producer
+hashes, rather than being relabelled as e553. The first failed packaging reader
+that assumed otherwise remains in `development/failed-metadata-history0/`.
+These receipts earn no ordinary temporal/model/family certification or corpus gain.
+See the [delivery index](delivery-index.json) for exact artifacts and binaries.

@@ -1,0 +1,192 @@
+[
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "exit": 0,
+    "log_sha256": "618af096267c5da2a817c6cde0a6c58de0da7e5d02e8701b17f35546f79cecf6"
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "exit": 0,
+    "log_sha256": "d9393d383ada531b0883286fb6af65e8330060ffc56abbbe58b9d70e53bfa9a5"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "exit": 0,
+    "log_sha256": "ae3238c455225f84957e96f89fd80a5e05b67e255e8a6ac4126f4daf44755406"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "exit": 0,
+    "log_sha256": "5beb88844459a1f54ad70a0a4e37a5a62e0add877f72f425224983171a4bc7fe"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "exit": 0,
+    "log_sha256": "1137f8ddc0ffa3700abaae37d845680dfe412015ee048b9207517f6d89dd07d6"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "exit": 0,
+    "log_sha256": "cad44c573c40ba14799244a5ac73aaa01019924eb602e265b9f6b3854e5c7f7e"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "exit": 0,
+    "log_sha256": "1299e7b3bbfde60bb74a1b90a91273d1ca263d1226f86758d547b9c59bbe0bc7"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "exit": 0,
+    "log_sha256": "3d179a815cd5b45ec0cf865eb404ce6ef24bb97da8196197efb2d8276d1d3c19"
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "exit": 0,
+    "log_sha256": "bbd248ae76566b62fc2d2fb91ee2242e67c7d505e292f142dfc10849878e2f0a"
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "exit": 0,
+    "log_sha256": "d42dcea7efa805297f9699ca129a0e042fe11c69b4cc75adc1a40b2cd882334e"
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "exit": 0,
+    "log_sha256": "2b360275230677a1b5877c14230be9d9bd2ede7417039dd4f5db1525a3aca315"
+  },
+  {
+    "command": "python3 -I scripts/check-stored-successor-material.py",
+    "exit": 0,
+    "log_sha256": "421b9b40aeddd9efc6776008b05b14c1efe65eec8c5f2ee74380cd3ebad7d662"
+  },
+  {
+    "command": "python3 -I scripts/check-native-sequence-operators.py",
+    "exit": 0,
+    "log_sha256": "cc98199c7cb15839e728968ec4144e62aa90bb6a8f3cfc8895e22d15a3abaddc"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-partial-scc.py",
+    "exit": 0,
+    "log_sha256": "e34b9b02b5cac4dfa28467e7f4a5008ffe2da50222fe8b12902a1dac1d26efd8"
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-backend.py",
+    "exit": 0,
+    "log_sha256": "b00fca9fb83c1c15b3a868b70c0e1f04afa614582d648b27e2328412f36b0520"
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-controller.py",
+    "exit": 0,
+    "log_sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268"
+  },
+  {
+    "command": "python3 -I scripts/check-runtime-ratio.py",
+    "exit": 0,
+    "log_sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8"
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-lifecycle.py",
+    "exit": 0,
+    "log_sha256": "7873a88afaacc1db96f3989269d4d6893ac5098d72e4c6592b9d3a25b46314ae"
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-hook.py",
+    "exit": 0,
+    "log_sha256": "b0ecb5319c42f6a612a5fb9faa1e6e53fd177b04b9f4b6f8074fa013f5987da0"
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-snapshot.py",
+    "exit": 0,
+    "log_sha256": "24d96cdd23eedb14202dd8ca8169d5e90ae80f55d400bfd939ca487f02ee0939"
+  },
+  {
+    "command": "python3 -I scripts/check-progress-queue.py",
+    "exit": 0,
+    "log_sha256": "8d8677cc057922e8acf88ac4c39253002ad37dd48aedce941a6ac4cb0434b982"
+  },
+  {
+    "command": "python3 -I scripts/check-committed-prefix.py",
+    "exit": 0,
+    "log_sha256": "26a7c52cc32a99346269ee76d2ecd32675e8f0c46e44caf74a456761f098300c"
+  },
+  {
+    "command": "python3 -I scripts/check-request-owned-service.py",
+    "exit": 0,
+    "log_sha256": "009a60d896430ec99e92bf49385cd878d3138e14e55a8c80e84044b862f4ceb0"
+  },
+  {
+    "command": "python3 -I scripts/check-producer-owned-candidate.py",
+    "exit": 0,
+    "log_sha256": "1b426ca849cde60eed74a5c4100c771ed1de7e50462ccfade274b256bae0f083"
+  },
+  {
+    "command": "python3 -I scripts/check-optional-periodic-hook.py",
+    "exit": 0,
+    "log_sha256": "109d0565ad29800382a8fb4254de652e947b762dc10d95f2586366dff2de271e"
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "exit": 0,
+    "log_sha256": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398"
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "exit": 0,
+    "log_sha256": "eb60f9bd0c6db873d2d7d02543af30846bdc2eadf4252f1169f6043c8ca48163"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "exit": 0,
+    "log_sha256": "45ed7acf1403a7088c901e166377c2f3f6f5f5206f4a1db0281fcee1613282d0"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-tableau.py",
+    "exit": 0,
+    "log_sha256": "38e9b3082a2513ee7cd2f332e2b5bb2f047983e3cdcf9ca7f3fb6b468940e3d6"
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-action-order.py",
+    "exit": 0,
+    "log_sha256": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846"
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l.py",
+    "exit": 0,
+    "log_sha256": "223f270f665f0f493efc50396debfd091f5c86363caeb497c5ef9380675289fd"
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l-graph.py",
+    "exit": 0,
+    "log_sha256": "bc12843c5295b3585808f521be63b39df1493379d0405d6eaa79d49925ef2ea3"
+  },
+  {
+    "command": "python3 -I scripts/check-phase-execution.py",
+    "exit": 0,
+    "log_sha256": "1bd2ccddffd138892fa11f45a2d2a629a5e5ebd3dd47eacf0888cec35c2cdd6f"
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final.py",
+    "exit": 0,
+    "log_sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+  },
+  {
+    "command": "python3 -I scripts/check-state-if-planning.py",
+    "exit": 0,
+    "log_sha256": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f"
+  },
+  {
+    "command": "python3 -I scripts/check-predecessor-spill.py",
+    "exit": 0,
+    "log_sha256": "ee736a7259a65e8ad0d492c9862671fa464cef3fe4ec7c9dd7f170bc726e32ed"
+  },
+  {
+    "command": "python3 -I scripts/check-native-checkpoint.py",
+    "exit": 0,
+    "log_sha256": "0543c1c6a230798d4642392e1387501de782bd568eee6b8053b78f4dd3d9e8f1"
+  },
+  {
+    "command": "python3 -I scripts/check-native-parity-integration.py",
+    "exit": 0,
+    "log_sha256": "4e40a5438664e3ab921ae0044b6f37170c2dcfc781e68136ee7751aa858ec4b9"
+  }
+]

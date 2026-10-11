@@ -113,3 +113,13 @@ nested-expression2103/exit75. The native diagnostic retains that actual deciding
 class with requested width4/used1 before the pool, and starts no request lane.
 Both [raw surfaces](../conformance/probes/optional-periodic-hook/README.md) remain
 separate; a method exception is not substituted for a run's deciding class.
+
+The clean e553 producer passes the full gate (1,067 tests, zero skipped) and all
+46 declared release/runtime rows. Twelve concrete EOF words validate through
+both fresh replay routes; all 48 corrupted words are Invalid through both.
+Controlled RequestPrefix evidence is separate from default release binaries,
+which exclude the test-only scheduler. Required safety conformance remains green
+on 21 CM1 and 16 ValidationTestSuite models at 1, 4 and 8 workers. The
+[source-bound delivery](../conformance/probes/optional-periodic-hook/delivery-index.json)
+archives embedded compiler fixtures as well as Rust/Cargo inputs. These checks
+do not establish ordinary scheduling, stopping-count equivalence or temporal Holds.
