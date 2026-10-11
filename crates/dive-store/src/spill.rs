@@ -10,8 +10,8 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-const DATA_MAGIC: &[u8; 8] = b"DIVEFQ01";
-const INDEX_MAGIC: &[u8; 8] = b"DIVEFI01";
+const DATA_MAGIC: &[u8; 8] = b"DIVEFQ02";
+const INDEX_MAGIC: &[u8; 8] = b"DIVEFI02";
 const HEADER: usize = 32;
 /// Maximum encoded record read into one reader or writer workspace: 64 MiB.
 /// Larger states refuse spill mode, rather than allocate an unbounded buffer.
@@ -431,6 +431,24 @@ mod tests {
             }
             fs::write(file, bytes).unwrap();
             assert!(q.read(0).is_err(), "case{case}");
+            q.close().unwrap();
+            fs::remove_dir(p).unwrap();
+        }
+    }
+    #[test]
+    fn old_value_bearing_frontier_versions_refuse_without_payload_guessing() {
+        for (file, magic) in [("states", b"DIVEFQ01"), ("index", b"DIVEFI01")] {
+            let (p, mut q) = queue();
+            let path = q.disk.as_ref().unwrap().directory.join(file);
+            let mut bytes = fs::read(&path).unwrap();
+            bytes[..8].copy_from_slice(magic);
+            fs::write(path, bytes).unwrap();
+            let failure = q.read(0).expect_err("version one refuses");
+            assert_eq!(failure.code, "DIVE-S0200");
+            assert_eq!(
+                failure.message,
+                "frontier version: unsupported or corrupt frontier format"
+            );
             q.close().unwrap();
             fs::remove_dir(p).unwrap();
         }

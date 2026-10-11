@@ -2168,3 +2168,21 @@ constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
 interval encoding controls retain the concrete violation but emit no transport
 or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
 this does not certify arbitrary stored representations.
+
+### Native tuple-function storage repair (#195)
+
+This was a dive defect, not a TLC defect. For `s=[i \in 1..1 |-> 1]`, the
+pinned TLC run reports `Attempted to apply function with integer domain to the
+non-integer argument "a"` when Next evaluates `s["a"]`. The old frontier/recovery
+path instead reported a tuple-index error because it discarded the representation
+bit. Both had one generated/distinct state, depth one and TLC exit 75; the clean
+message stream carries EC1000 then 2103. Memory and predecessor-only storage
+already retained the correct function diagnostic.
+
+Structural storage format 2 now retains this distinction, including nested
+functions, in both profiles. CP01/FQ01/FI01 imports explicitly refuse; users must
+recreate old archives. This is not a result-changing default or a new divergence:
+mathematical canonical keys and fingerprints are unchanged. Native error metadata
+still reports `verified: false` for this ported diagnostic site; representation
+matching does not certify every error class. Independent transported-witness
+checks remain separate. See [the full evidence](../conformance/probes/storage-tuple-function/README.md).

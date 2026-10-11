@@ -675,3 +675,15 @@ refusals remain separate from semantic replay. Existing 21/16 conformance gates
 and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
 checks all 443 producing workspace Rust/Cargo inputs against archived and Git
 bytes; earlier source and runtime histories are not relabelled.
+
+### Structural storage format 2 (#195)
+
+The pinned `tlc2/value/impl/TupleValue` and `FcnRcdValue` application/write
+contracts at `94d0c50` (MIT) retain distinct concrete classes despite mathematical
+function equality. The native `codec::encode_step`/decoder use separate tuple
+and tuple-function tags; this is dive's own versioned format, not Java byte
+interoperability. Canonical encoding and FP64 remain unchanged. CP02/FQ02/FI02
+admission and preserved predecessor-only format are documented in ADR 0060.
+Paired minimal raw reference/memory/spill/recovery evidence is in
+`conformance/probes/storage-tuple-function/`; equal error exits alone receive no
+representation-conformance credit.

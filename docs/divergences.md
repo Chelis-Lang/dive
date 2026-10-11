@@ -736,5 +736,5 @@ preserves admitted forward stored sets and nonliteral tuple/record functions
 through checked constructor witnesses and independent replay. This changes no
 comparison, construction or Random/VIEW shape policy. A transported word is not
 a certificate. Reverse construction, arbitrary deferred/symbolic values and
-trusted-storage tuple bit loss (#195) remain separate. See
+trusted-storage tuple bit loss (#195) is repaired by explicitly versioned structural storage format 2; older ambiguous archives refuse. See
 [the schema and bounded CLI/API guide](trace-representation.md).

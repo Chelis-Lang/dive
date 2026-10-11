@@ -26,7 +26,13 @@
 //!
 //! Encoding and decoding are iterative, so any nesting depth is safe.
 //!
-//! # Format (version 1)
+//! The structural tuple/function distinction was ambiguous in version 1: both
+//! used `0x08`. Persisted value-bearing formats must reject old archives, since
+//! the missing literal bit cannot be inferred. Raw old `0x08` decodes only as a
+//! literal tuple; it is not a migration of an old tuple-domain function.
+//! Canonical keys deliberately keep `0x08` for both equal representations.
+//!
+//! # Structural format (version 2)
 //!
 //! | Tag | Value | Payload |
 //! |---|---|---|
@@ -35,7 +41,8 @@
 //! | `0x03` | integer outside `i64` range | sign byte, varint length, magnitude bytes (little-endian) |
 //! | `0x04` | string | varint token |
 //! | `0x05` | model value | varint token |
-//! | `0x08` | tuple | varint `n`, `n` values |
+//! | `0x08` | literal tuple (also the unchanged canonical-key tuple tag) | varint `n`, `n` values |
+//! | `0x0A` | nonliteral tuple-domain function | varint `n`, `n` values |
 //! | `0x10` | normalized set | varint `n`, `n` values in the set's order |
 //! | `0x12` | unnormalized set | `isNorm` byte, varint `n`, `n` values as constructed |
 //! | `0x14` | `lo..hi` | two integers |
@@ -96,6 +103,7 @@ mod tag {
     pub const STR: u8 = 0x04;
     pub const MODEL: u8 = 0x05;
     pub const TUPLE: u8 = 0x08;
+    pub const TUPLEFCN: u8 = 0x0A;
     pub const SET: u8 = 0x10;
     pub const RAW: u8 = 0x12;
     pub const INTERVAL: u8 = 0x14;
@@ -346,6 +354,14 @@ pub fn encode(v: &Value, ctx: Ctx, out: &mut Vec<u8>) -> Result<()> {
     Ok(())
 }
 
+fn tuple_tag(f: &Fcn) -> u8 {
+    if f.is_tuple_literal() {
+        tag::TUPLE
+    } else {
+        tag::TUPLEFCN
+    }
+}
+
 #[allow(
     clippy::many_single_char_names,
     reason = "short names mirror the format table: value, set, function, order"
@@ -425,7 +441,7 @@ fn encode_step<'a>(
             let o = order_bit(f.order());
             match &f.0.repr {
                 FcnRepr::Tuple(e) => {
-                    out.push(tag::TUPLE);
+                    out.push(tuple_tag(f));
                     write_len(out, e.len());
                     stack.extend(e.iter().rev().map(Frame::Ref));
                 }
@@ -631,6 +647,7 @@ impl Build {
         let mut next = || items.next().unwrap_or(Value::FALSE);
         match self.tag & !1 {
             tag::TUPLE => Value::Fcn(Fcn::tuple(items.collect())),
+            tag::TUPLEFCN => Value::Fcn(Fcn::tuple_fcn(items.collect())),
             tag::SET => Value::Set(Set::from_sorted(order, items.collect())),
             tag::RAW => {
                 let v = Value::set_raw(items.collect(), ctx);
@@ -747,6 +764,7 @@ pub fn decode<A: FnMut(u32) -> Option<Atom>>(input: &mut &[u8], atoms: &mut A) -
                         None
                     }
                     tag::TUPLE
+                    | tag::TUPLEFCN
                     | tag::SET
                     | tag::RAW
                     | tag::RCDSET

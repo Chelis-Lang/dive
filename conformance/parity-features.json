@@ -349,9 +349,12 @@
       "additional_evidence": [
         "crates/dive-check/tests/frontier_spill.rs",
         "crates/dive-api/tests/frontier_spill.rs",
-        "docs/frontier-storage.md"
+        "docs/frontier-storage.md",
+        "crates/dive-api/tests/storage_tuple_function.rs",
+        "docs/decisions/0060-structural-storage-format-two.md",
+        "conformance/probes/storage-tuple-function/README.md"
       ],
-      "implementation_notes": "Additional forced predecessor-spill evidence preserves both fingerprint/exact stores and concrete witnesses. Core status unchanged; broader interaction certification remains audit-required."
+      "implementation_notes": "Additional forced predecessor-spill evidence preserves both fingerprint/exact stores and concrete witnesses. Core status unchanged; broader interaction certification remains audit-required. Structural storage2 preserves tuple-function identity across value-bearing spill/recovery and explicitly rejects ambiguous version1. Canonical keys/FP and predecessor-only format unchanged; this additional evidence does not certify the whole family."
     },
     {
       "id": "F-015",
@@ -909,9 +912,12 @@
         "crates/dive-store/src/predecessor.rs",
         "crates/dive-api/tests/predecessor_spill.rs",
         "docs/predecessor-storage.md",
-        "scripts/check-predecessor-spill.py"
+        "scripts/check-predecessor-spill.py",
+        "crates/dive-api/tests/storage_tuple_function.rs",
+        "docs/decisions/0060-structural-storage-format-two.md",
+        "conformance/probes/storage-tuple-function/README.md"
       ],
-      "implementation_notes": "Separately budgeted fixed-record predecessor spill preserves concrete safety replay; seen sets, candidate vectors, reconstructed paths and graph/SCC retention remain resident. No checkpoint or total-memory claim."
+      "implementation_notes": "Separately budgeted fixed-record predecessor spill preserves concrete safety replay; seen sets, candidate vectors, reconstructed paths and graph/SCC retention remain resident. No checkpoint or total-memory claim. Structural storage2 preserves tuple-function identity across value-bearing spill/recovery and explicitly rejects ambiguous version1. Canonical keys/FP and predecessor-only format unchanged; this additional evidence does not certify the whole family."
     },
     {
       "id": "F-032",
@@ -942,14 +948,18 @@
         "conformance/probes/native-checkpoint-parallel/README.md",
         "crates/dive-check/tests/native_checkpoint.rs",
         "conformance/probes/native-checkpoint-spill/README.md",
-        "crates/dive-api/tests/native_checkpoint_spill.rs"
+        "crates/dive-api/tests/native_checkpoint_spill.rs",
+        "crates/dive-api/tests/storage_tuple_function.rs",
+        "docs/decisions/0060-structural-storage-format-two.md",
+        "conformance/probes/storage-tuple-function/README.md"
       ],
       "evidence_updates": [
         "Pure VIEW and safety symmetry snapshots recompute configured live-search keys while preserving concrete discoveries, parents and names; actual recovery equality and independent equivalent-key witness negatives cover both profiles/stores. Archive trust remains local; runtime/temporal/graph/spill/parallel recovery and full-family certification remain pending.",
         "Before binding, configured context aliases resolve to actual definition IDs; effectful local replacements refuse without output/archive while pure aliases remain admitted. Preserved pre-repair and current raw matrices are distinct; issue #164 is a native admission defect, not reference behavior.",
         "Pure finite safety recovery uses ordered completed-level pool barriers and resumes the actual saved level, including changed worker widths and inline-equivalent native counter/record stopping prefixes. Boundary-zero pauses report actual1 before pool startup. Runtime/temporal/graph/spill recovery and full family certification remain pending.",
         "Pure finite safety native recovery reconstructs frontier/log transient stores in ordered discovery position, independently or together. Zero/tiny budgets exclude native archive/discovery workspace; no aggregate-memory claim. Configured VIEW/symmetry, actual widths, counter reset/Retain, concrete independent witnesses, corruption and typed cleanup failures remain required. Runtime/temporal/graph and full family certification are pending."
-      ]
+      ],
+      "implementation_notes": " Structural storage2 preserves tuple-function identity across value-bearing spill/recovery and explicitly rejects ambiguous version1. Canonical keys/FP and predecessor-only format unchanged; this additional evidence does not certify the whole family."
     },
     {
       "id": "F-033",
