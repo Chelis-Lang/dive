@@ -588,3 +588,5 @@ alias while using full resolved extents for overlap admission.
 | Implementation | Reference | License | Evidence and limits |
 | --- | --- | --- | --- |
 | `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |
+
+| Periodic backend controller (`dive-liveness/src/periodic.rs`) | `tlc2/tool/ModelChecker.java` `doPeriodicWork`, commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | All296 actual method callback/force/code/effect controls; controlled queue/SCC/checkpoint/ratio callbacks. Clock-ratio math, graph authority and ordinary verdicts remain unproved. |

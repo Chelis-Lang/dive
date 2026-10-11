@@ -140,7 +140,7 @@
     "crates/dive-eval/src/scope.rs": "ba8245c216fc3e6330afb8ff0ce434af2429fe33d2d54aecb95e45767c26bd0d",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
-    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
+    "crates/dive-liveness/src/lib.rs": "19b5f04237b98adb1bd3af8333374ea29a15da3c7a4be4b3e07bb8cd20ebe71e",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
     "crates/dive-liveness/src/phase_l.rs": "56d36f155456006b17f6498ce905a4b3372c8a3ed92dcd908c61889ecd009dec",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",

@@ -90,3 +90,9 @@ selection retains its existing pre-binding effect admission. See the
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
 [Pure native temporal operator arguments](../native-temporal-operators.md), with
 executable CLI/Rust examples and retained refusal boundaries.
+
+Backend authors can use the [periodic-work controller](../ordinary-periodic-controller.md)
+to preserve pinned suspension, force, PERIODIC and checkpoint callback order.
+Its successful invocation is not a model verdict and does not enable ordinary
+strict temporal checking. Actual graph-growth, clock and checkpoint authority
+remain separate integration obligations.
