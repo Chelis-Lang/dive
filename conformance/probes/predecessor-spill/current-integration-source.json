@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",
@@ -13,7 +13,7 @@
     "crates/dive-api/src/check.rs": "fb504620a8d0de1d00c3b7309ad615cb109682fe5fa4e877c2e6c8e99b73b038",
     "crates/dive-api/tests/predecessor_spill.rs": "81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e",
     "crates/dive-api/tests/symmetry_trace.rs": "ac3b5ff2758b1b124e421a8672d36e5b5e0ba7b8250d734ebd394ae8351ccfb4",
-    "crates/dive-check/src/capture.rs": "e315ddd656cb83704d428fcde88376f9d341c5f4f5deb9ff44a148b803d24c86",
+    "crates/dive-check/src/capture.rs": "d37e585e14ee0c606de70d7412fff0709bcb4dc161fc01b15dc3a9070426039a",
     "crates/dive-check/src/dfid.rs": "4e6b75ba922f6c8559f0643ae45252c31d7f6b8835bef7cc111191be537b9d15",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
     "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",

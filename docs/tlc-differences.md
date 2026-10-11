@@ -1775,3 +1775,6 @@ See the [user/API guide](partial-temporal-checks.md) and
 No new result-changing default or family certification is claimed.
 
 The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
+
+
+The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.

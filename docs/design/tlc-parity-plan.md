@@ -143,3 +143,6 @@ product evidence to promote a refusal. Periodic schedule and strict integrated
 error/stopping coverage remain separate obligations.
 
 The #189 [source-qualified backend](../periodic-backend.md) supplies actual node-pointer bucket/snapshot and joined source-wave facts for explicit partial requests. The next ordinary integration must compose the separate callback controller and elapsed-ratio kernel with real triggering/queue-finish/suspension/PERIODIC/checkpoint/stop authority, preserving each original OOS/PEM update/error boundary. Never use identities, file bytes, partial success or a caller boolean as a replacement for those contracts; the ordinary CLI remains refused.
+
+
+P4/#189 lifecycle increment connects actual dispatch-mutex authority and internally sampled controller/ratio polling to source-owned graph growth, with mandatory final SCCs at actual EOF. Commit-boundary timing is explicitly narrower than ordinary TLC scheduling; no Holds/ordinary verdict or family credit. PERIODIC/checkpoint and exact stop/clock/replay contracts remain pending.

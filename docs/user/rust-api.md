@@ -79,3 +79,6 @@ Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described i
 executable CLI/Rust examples and retained refusal boundaries.
 
 The [source-owned periodic backend](../periodic-backend.md) is a separate `dive_liveness::periodic_backend::execute` diagnostic. Its Cargo-owned example binds a real model and retains source-growth/check snapshots, actual caller limits and joined native-wave evidence. A candidate remains unvalidated and no outcome certifies ordinary temporal checking.
+
+
+The [native clock/dispatch lifecycle](../native-periodic-lifecycle.md) adds `dive_liveness::periodic_lifecycle::execute`, with a Cargo-owned example. It polls only at committed source boundaries under real dispatch authority and checks SCCs at actual EOF; it grants no ordinary temporal verdict.

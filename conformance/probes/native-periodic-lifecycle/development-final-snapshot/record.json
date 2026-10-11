@@ -1,0 +1,5 @@
+{
+  "exit": 101,
+  "reason": "First actual EOF check tried to record a size snapshot before any timer had initialized pointer_sizes; fixed by source-owned EOF pointer projection before final loops.",
+  "log_sha256": "eec5eb1aac9af5a1b1338814049e15f07e9a2a9259e705ced6a959bb99af4b9e"
+}

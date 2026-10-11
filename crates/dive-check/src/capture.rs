@@ -106,6 +106,52 @@ impl SourceBarrier {
     }
 }
 
+/// Borrowed authority held while the actual pool dispatch mutex is paused.
+/// This is distinct from a copied joined-wave receipt and from Java queue
+/// suspension. It cannot be constructed, cloned or retained by an observer.
+pub struct DispatchPause<'a> {
+    workers: usize,
+    generation: u64,
+    authority: std::marker::PhantomData<&'a mut ()>,
+}
+impl DispatchPause<'_> {
+    pub(crate) fn new(workers: usize, generation: u64) -> Self {
+        Self {
+            workers,
+            generation,
+            authority: std::marker::PhantomData,
+        }
+    }
+    /// Actual running pool width, including the coordinator.
+    #[must_use]
+    pub fn workers(&self) -> usize {
+        self.workers
+    }
+    /// Last actually dispatched job generation; no job is running in this pause.
+    #[must_use]
+    pub fn generation(&self) -> u64 {
+        self.generation
+    }
+}
+/// Successful safety EOF after the pool has joined and closed. This is not a
+/// temporal check or proof; a source's zero queue counter cannot create it.
+pub struct ExplorationEnd {
+    stats: Stats,
+    workers: Workers,
+}
+impl ExplorationEnd {
+    /// Actual completed exploration counters.
+    #[must_use]
+    pub fn stats(&self) -> Stats {
+        self.stats
+    }
+    /// Actual closed-pool execution evidence.
+    #[must_use]
+    pub fn workers(&self) -> &Workers {
+        &self.workers
+    }
+}
+
 /// One logically committed source after all of its ordinary safety checks.
 /// Speculative pool work can include later sources; only `stats` describes the
 /// logical commit prefix. This is execution evidence, not a temporal proof.
@@ -155,6 +201,31 @@ pub trait SourceObserver: Send {
     /// # Errors
     /// Return the deciding consumer diagnostic; expansion has not begun.
     fn initial_complete(&mut self, _stats: Stats) -> Result<(), String> {
+        Ok(())
+    }
+    /// Opt in to holding actual pool dispatch authority during source callbacks.
+    /// The default preserves the existing observer behavior.
+    fn requires_dispatch_pause(&self) -> bool {
+        false
+    }
+    /// A source callback under the real pool dispatch pause. The callback must
+    /// not reenter the pool; no worker or new job can execute until it returns.
+    ///
+    /// # Errors
+    /// Retain a deciding consumer diagnostic before later source commits.
+    fn paused_source(
+        &mut self,
+        source: CommittedSource<'_>,
+        _pause: &DispatchPause<'_>,
+    ) -> Result<(), String> {
+        self.source(source)
+    }
+    /// Successful actual safety EOF after the pool closes. Never called after
+    /// assumption, Init, source, safety, worker or resource failure.
+    ///
+    /// # Errors
+    /// A final consumer check failed; no completed graph is exposed.
+    fn exploration_complete(&mut self, _end: &ExplorationEnd) -> Result<(), String> {
         Ok(())
     }
     /// A complete source before later sources' safety stopping events are chosen.
@@ -637,7 +708,7 @@ fn explore_inner(
     opts: &CheckOptions,
     limits: Limits,
     parallel: bool,
-    observer: Option<&mut dyn SourceObserver>,
+    mut observer: Option<&mut dyn SourceObserver>,
 ) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
@@ -705,8 +776,8 @@ fn explore_inner(
             return Exploration::Stopped(Box::new(result));
         }
     }
-    let outcome = if observer.is_some() {
-        engine::search_graph_observed(model, opts, &host, limits, observer)
+    let outcome = if let Some(consumer) = observer.as_mut() {
+        engine::search_graph_observed(model, opts, &host, limits, Some(&mut **consumer))
     } else if parallel {
         engine::search_graph_parallel(model, opts, &host, limits)
     } else {
@@ -723,6 +794,18 @@ fn explore_inner(
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
         return Exploration::Stopped(Box::new(result));
+    }
+    if let (Some(consumer), Some(stats)) = (observer, result.stats) {
+        let end = ExplorationEnd {
+            stats,
+            workers: result.workers.clone(),
+        };
+        if let Err(message) = consumer.exploration_complete(&end) {
+            result.verdict = Verdict::Unsupported {
+                feature: format!("ordered completion observer: {message}"),
+            };
+            return Exploration::Stopped(Box::new(result));
+        }
     }
     match (outcome.graph, result.stats) {
         (Some(graph), Some(stats)) => Exploration::Complete(Box::new(Complete {

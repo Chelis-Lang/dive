@@ -1,0 +1,6845 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "source_sha256": {
+    "PeriodicProbe.java": "273f86e5a7c2b496e69922e0af3132400f7a923357ece9156b00804d1ed68ca3",
+    "capture.py": "6c01f113f6760ee0753bfe0c995b2af2f482b29588a0604caee590d84db257f4"
+  },
+  "scope": "Actual pinned ModelChecker.doPeriodicWork branch/order projection with controlled callback outcomes and observed ratio-update arguments. This is not actual graph growth, checkpoint persistence or full ordinary scheduling conformance.",
+  "rows": [
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "2086bed1140f470c2629d631f5c15e8aef26ecfaaee7ade69d91e600e4f112d3"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "9be61b09467cb8fe759c1f98d22978a91c9dcf2a36637268d47f68b4c37fbaad"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "955bcb14f24b7efbfda0fef81bccb64fd90532a69867b734a1a76617ecb06094"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a9dab848fc96023c7f4ac1dfda71a0e6426d328b4b4051d799a8512b9d837eee",
+      "stderr_sha256": "aef8c4cc0a6243a42a813b365bc72695a3794664fa7bac00dd0e81989ef2a1cc"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "1c0a8c02d29e31578450cc4bb7b1c255930e52b217e8436dd26c0ddaa6b35dac"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "1fa9885a6060fbc274cb123cd821ae84b374e501eba0a1fb3d07054b57c04adb"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "fcdcc76ab9c70842da2030c29ef9f55fc842d2adc67869592056cccbb22c399a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "26d43de5cade464d7bfba131b28a6186d6ecc41947510d1c94bf9f45bde98477",
+      "stderr_sha256": "210898c9064d2afe6cbfa96c1c305aba0d48d5ba7370bbd369bc43dcd18f496c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "3b1bb649004b9e212423a9a4f065e5ecfaaea576e6a642d0291b49be10000621"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "c997e25bc572d13302699d95b4cbb505de2d07af19ac615a830f83f20548ef2f",
+      "stderr_sha256": "fea03555bf882109b6bd5e53d06090600d4e4f42d3a632ae4d3a7e49656cfe35"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "276de10c4ea218c48551712e8cd29afa5047b5b401a9d33a75cc219a7a4b6f8f"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "b55f4f58fff3481c1f641f4b88ca2a7c3da0a779c49ab145298eb196ebf8213c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "6ea00c3f5e52873f65a5027b01e21cb23e6a5b0baab10a5f959657162e40795c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "602763554942a86cff6267e0c69ff19941128d2f9d81ff5f265ae6f2803b083a",
+      "stderr_sha256": "2e8ad8aac9834ef4e375dbca22584c9d3d541dc84f54f0d4f6e1bb00b7152e28"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "7d0bfd38a13a0ad6577610c0f4dcacf8b6f8fb8a5da64aa0eebc7eb3acdb891e"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "852ee49f7484cce936ce0d3c3bafa3d8648ff737bc9d61cfe21cff4dedcde226",
+      "stderr_sha256": "4138f54f6547eb6919e4117682c6e7632d9e29b9e4ba09b3aa71c1d44b443289"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "e1a0eeae0df7fa6b08181e4d58f437ac0f3c60e9b1ee8b637779a691f9670a76"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "dca7c18fa5b5d85ee2abd1b80a1b9f9d7c40274799d3c8b9fb6f756c4106615f"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "e332d03b81d1b1832583a7b147e5ee4181c1aaeda662ec5c2c688a503ee3f0bb"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "299495d870adf4b7b09a492e034a3b7f16d525389506c53e0707041a07cff000",
+      "stderr_sha256": "276ca08d8aef27015a8830d14ccd58339ab41d46dfd1ef461f8d569ebd7ba7a6"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "887cfe7f5d65d91ed071906513311d5e677d67209db0741bbc508d1b9632c0cf"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "b38c0b7495b7f365f728de5a5ef15645b1cb2b90910acc3d0f2e593a04f22727",
+      "stderr_sha256": "98b73783cce307388f24b1b0cb96dcb3e4531c7306b53480a8b85b3ba0572fc3"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "ef2fd688f12c25fd657f9f8b88dde5dd796e0f4e5f98ee0e3c79d3c16145b55e"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "a4b611961a09e7636b352c0e21d38c835837ba0d8b7eb33422fcc60b0b198898"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "8f2116b21e220ac2e416ac948c461031bf070fb2254f86e4de848a18f06bc2c5"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "f58a59ff04fd75a05a07eb80e43ac53a4867119541a7c99833e0fc01d544ef69"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "a11067c96dc452527039120ca315fc5e3d3cf152ae9f929d006e8812dff43288"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a9dab848fc96023c7f4ac1dfda71a0e6426d328b4b4051d799a8512b9d837eee",
+      "stderr_sha256": "a8374da32d3d1f797d5d13bf8bd5b3d8e5fb403e7a3ab06a2d96e7392223e8e7"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "60c0364b96fa8d089b582fcf276b56cf18abebde1e22eb40883c8b36e0650b21"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "60cb9683e2e0445b93e0101d4a37b064a5438c6ef104efb20b0784bddeb30b9f"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "d17c7c384436194168c1b4b09974b492cecdb355531857d70f14dae9e24f19e0"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "26d43de5cade464d7bfba131b28a6186d6ecc41947510d1c94bf9f45bde98477",
+      "stderr_sha256": "6b19255b981ab7052474af764e334bed38f35d3dd01e1964344095e64f99c8a4"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "20d518d1ae456353a418e9ba216734adf2d94f62abd97adcc90c71464694caca"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "c997e25bc572d13302699d95b4cbb505de2d07af19ac615a830f83f20548ef2f",
+      "stderr_sha256": "b948433defa1432a00e8ce34f0760faf6c5ad85e7ccfc0983e20d5a4f8c42089"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "dc3e987f87a47c2fc45e6f18caf0b63dd8007b5d048fd1b70549d3545977418a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "837e7084920c970ef7e586540aee2fc428a2f39c8c4163339cc946f12ee67334"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "e73bf81a5488df96d9bdcf00bcbde38ff1a79fdb3e5d0aaed7c534d367b4aa42"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "602763554942a86cff6267e0c69ff19941128d2f9d81ff5f265ae6f2803b083a",
+      "stderr_sha256": "2b5c1fd4a5ee96bf88c228c6f9ba246a65a201a89daf47027fbea23b99d7b1fc"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "8bf005edbe032bc0a6147a80da2f28b62255ce6a3527e484d413cfb339c3b387"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "852ee49f7484cce936ce0d3c3bafa3d8648ff737bc9d61cfe21cff4dedcde226",
+      "stderr_sha256": "92cbf83693f243d734cd0dd6fbc3311ebf715a928b8fc376f90d46b1f544a14d"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "77fac3d087de1ab6d41d6cc25d9461f64ca23a54268d382fe4df5aad299aecc1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "10bec4531c5d9daad0338b0399f9ed8d1ee170ba6b0ef91c3bcb5dc495c891f8"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "42e38caa6f2efebf3ed3c15bd8ce2f2d5e37501382caa8e3716f408d4e2e4112"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "299495d870adf4b7b09a492e034a3b7f16d525389506c53e0707041a07cff000",
+      "stderr_sha256": "cbcdc82ae4634deb0edc37ca1a4b7f6fa01df96e7a2527556d88ea16fd38f8e1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "21bbb48904b39eb0ee7d6b19727bcff0a87e68979292f1470884bf403d6c8bb5"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "b38c0b7495b7f365f728de5a5ef15645b1cb2b90910acc3d0f2e593a04f22727",
+      "stderr_sha256": "cc1f0783128bf06f69ddd8333e11b68b655f2a720a5a9e9db38f974a0e1e22d1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "8c394672654dbf384e7e41d55aa35b2090721cca362d77b1c0928414b30d5c84"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "fa9e19fa4012a7c0e8e5962820cf1b497bbf30e1efbddfd319cd54664c130a73"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "5a0045356ecccb3876e51834368946197ea42f92d48dffea22cb25759978c197"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "1fb394059fda1ede2bffaf4896cef7629f2de9a3a76f127e89640a26506f233d"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "671eccebae62d085c8ea93dd0b98ec6f6f53b86c9e681c2c348d835345faa42e"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a9dab848fc96023c7f4ac1dfda71a0e6426d328b4b4051d799a8512b9d837eee",
+      "stderr_sha256": "e02513064b3a091f13478e1e38f55750ad8a983a13cd3d1c4b8cfff1d625727a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "69643d0dd979458e08f0d7ad54b5b6c81535c69680b46252526a5cd6bb6eec1a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "d983c1e2f159da7449b69a3dde23d702fd4ccf7165f51631c36768f4994b055e"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "fb715cc1780baf35bdba3be7d36ab486c29292bf57087d07d628fa6927ffe761"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "26d43de5cade464d7bfba131b28a6186d6ecc41947510d1c94bf9f45bde98477",
+      "stderr_sha256": "527b75f66b926f4ba2330e671ee4ccfcbadb439b67fc6720189c71696d754a2c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "d2a634f02881d4fea287171ae7d319d0442c9d8546b0ba87f4525b67ca440253"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "c997e25bc572d13302699d95b4cbb505de2d07af19ac615a830f83f20548ef2f",
+      "stderr_sha256": "e2ebc9e095682cbdb5ee38cdd932ef239264f80babd16a01387fd70ad258940c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "afe7dc7a940a1e4f2c8d8509b2828c9eb5cec29675a79a440429b3819b83cf9f"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "fb7e3ae1448bb000ac36c70d251a0c4d9f741c2e0c1fb80532fd67ef78accc10"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "400037b8bbca458c1e067a9da46eea59b155cc880024f061146c9a32ed7941dd"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "602763554942a86cff6267e0c69ff19941128d2f9d81ff5f265ae6f2803b083a",
+      "stderr_sha256": "7134076e9cbe46f32364c0ba9fee6f8bd9bd67cf1f9fef16532dcff1f2f01ce0"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "f50ba3f3bea39c8fd33b1ac8f6c86f9125967eeacddadb96ed139a23eea294e0"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "852ee49f7484cce936ce0d3c3bafa3d8648ff737bc9d61cfe21cff4dedcde226",
+      "stderr_sha256": "005fd911075e5d05046139fcb882c68441e22ce683474646016af85d2350c2ca"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "dd7e0bf35dc9273a785372f574151c68cc17070c2cc94c6206527ab2e9b20f5b"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "15a2d74f6ddfac74b407ffb6a7924badbe2d9dbf12bdbceb1fc8e5b1c9d5f3d1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "d42a4846518efebc15ed002ae4558ebd6f0f2e09fd163baa236a29237132bb78"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "299495d870adf4b7b09a492e034a3b7f16d525389506c53e0707041a07cff000",
+      "stderr_sha256": "5edb640251148faa062c30c853efb2f38759e3146ba43e25022d80e95a7ece1c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "c836d2cc5fbe2dcf986bd39f2b4273c6c07db590f27f705dfbb16b7dd473287a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "b38c0b7495b7f365f728de5a5ef15645b1cb2b90910acc3d0f2e593a04f22727",
+      "stderr_sha256": "c545f79185baf970918a7f8738e4163bb67ec7f890b7d6179b68580a9ead114c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "53f73e347ecbf046c93716de6a85b8e65e6032441616a3ca991abb7a4c1cab73"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "516b24f6571f197720ca3eb0acf78307b4f5e0f637c2c8239b65313fceae18fd"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "725a5d20f568e3210aea5abcd3689cb70828ade72164387e11b73e89ee959156"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "d4739cae41e736fa0bffdbe9c6e215f4ae6bba393bc5fec691f94c100e508017"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "8f7074d3368d5a1191f64f94f4503708a7d3995afab38f3ab8d327694e0d40ec"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a9dab848fc96023c7f4ac1dfda71a0e6426d328b4b4051d799a8512b9d837eee",
+      "stderr_sha256": "8824b8dc6bcba692d3f25dcdbc7eb13d1a7b2dcf15158e39aa8686d786fe2f42"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "22a8b13a49d7e3ef13976469bc0138d1439be504ccb8b4a57f0c256f98c358e9"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "7d770c0567f963d43b0c2fa4f625191cf4626321b16089b5049b12d3cd7264eb"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "07250341e8a73214519d9e78ca67be21418ea75f8c34aafc976cb585b7da4231"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "26d43de5cade464d7bfba131b28a6186d6ecc41947510d1c94bf9f45bde98477",
+      "stderr_sha256": "ea3ba3fe1c1173ea99c9869b972e2a10f66dc31cb48dc516d91e3a0d703149f2"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "e6236775015f0e4a4f64aeace11522bd3fcef15ca4afd857335d3f5b33146f1b"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "c997e25bc572d13302699d95b4cbb505de2d07af19ac615a830f83f20548ef2f",
+      "stderr_sha256": "86f1ca99b9358467d5376464f2dffdd082b2979c96bde38ebb43c13ed1169702"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "e3183f5e4a0053ffb86e4d6a16cdaeb4f2b61312bf867b12d7fe48fe0ecd3726"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e966f214046806048db31832aefaffabb7ddc2872464b090d7b4472adf5febd6",
+      "stderr_sha256": "676ef14f5002eaa69c7d8f4df997be9645e2926a4868cc044cbcbd01ce35e5e3"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "7c3456352b6f4f9b066c20ad39fa4394d2f8756cc9b6cae7e1bfda6259ec1388"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "602763554942a86cff6267e0c69ff19941128d2f9d81ff5f265ae6f2803b083a",
+      "stderr_sha256": "7a799d4e4740d9aef28a8d5235feb385ba7a3aeb360b090bd90760045d6b3e01"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "3d5e08715b8df64e7734a419d714de60ccf2b16461ba683c0c254c4a1fd3183c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "852ee49f7484cce936ce0d3c3bafa3d8648ff737bc9d61cfe21cff4dedcde226",
+      "stderr_sha256": "6c82870ebec0087c7abdf12cefe293537496f5fecba47359701cf680d88a0c3c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "5f13f374e0346ed0e6f040c1003b992014126216b8cd07f3ed32cfc945abe455"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "5e2c86ce424d66f312b8ca68a3376b04e489e959f3ad67c33c3f352ba45f3141"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "6684541386333d80be4450faaa74740da2b1f5d1a1fa64ab8686565d839011ac"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "299495d870adf4b7b09a492e034a3b7f16d525389506c53e0707041a07cff000",
+      "stderr_sha256": "baaa0da8811fc628d3bf6b81b3aa6c7625c6f29af7a45be62fedadd77a687e07"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "87db9acbc4d2e72fe20af2ebb96006fc6dcf0875754570c22f96f5a1da36af01"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "b38c0b7495b7f365f728de5a5ef15645b1cb2b90910acc3d0f2e593a04f22727",
+      "stderr_sha256": "49b23af0afd8e56476b760be36e6517ead4e5f39101f6d3add2875630b568a91"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "eede1fb25b3b06fe9a61bb6c431c428118f373572ebaf9ac245fec35dfe402b5"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "48f8641b6b85ce804bd7d6b8227e4e090e4ee65f9a890d922d33a315fe664da9",
+      "stderr_sha256": "62d5fc2a44352178bdce4be4d2bdabeb1fdcf8ce78e11ed90523a5a0409d479e"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "478b4932d37e95de6b727e89a2833d1032862c51e33128887ba020d14bf0714a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "43f96fb56155c6f688dd1c277330e0d4659effdc729d2c10c7e2c7949c1f5de7"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "04df8ae61658b35d74e589f90ede90f99fe022aa757200bb6bbd76f9f8286bd0"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "5f5117340105dbccf3cfa759ac05077a0188e27bc8c9fb835c76ec678ebc180d",
+      "stderr_sha256": "3e33b51d624e9cb6892951ba6c0c7e746029edb2a437e07a6497a46464f619c2"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "56ba9211677a8a71bcc0c73cc396ed6d6804564990bbffbd034a756d987551fb"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "c3869c4419c0f7f678a9d77f806cdce234c2b3dd1d4117c0cb5023b4b8d4e28b"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "df196b7fadecd92cae877fb36b79ee014a22d8449024257f0f495ef4f549f17d"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0a92033df798d70018cc3f98c1650c58bf3d5cbde508f6bacbf5e42bbcd6d69b",
+      "stderr_sha256": "c1d667e837c3a542c41c1cb571966f794e3895c924efbf73b2f91491fd477a1f"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "92a5086efd2a4cb855d5067c7875ce9ef7a788536bac24400e71edb72da45ebd"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "4833f607bb86f73477c3887243f8295232e049c9a05d71dd5e4e2a39d46d3536",
+      "stderr_sha256": "9ed65ddecb78b0f92721b455d231a9dc2c22c2d932b4040ec8361e7c5d805306"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "26ed1052495e743d4794d5395a15548fd8f56bce80cf2ffa62c045f9678374db"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "cab1fd3c2c88680d4749965742623fe5ecb3041fbaee7eb125bbb158d7171be8"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "6cadc765a4c0a114623b93af80e0ea93c4364ed31382a2e6368d03f96228cb27"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bb289eaa22300491cad199d9acc594cf57326ef4068fc6beb95d029570f43c84",
+      "stderr_sha256": "d6565583e62cf4be85ae7db1d2ee3fb40c8d95adadbe7f1d63fbabacc3ab282c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "a4eefc146cb4b15b20df48d2f3c47feebf48312038905b4d812bfbddf54a5fc1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6aee24eca2a4866de5af1f5a9af0585ed53033793956ac02630dfb833dd0a457",
+      "stderr_sha256": "ceeeda3a6f8afde447a9d20295a4fd1943774fa557c4f502789aade0d8ba9bb2"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "5c3ca311e539366c6c2d4b49c1af6eada88dd8f540955ee66958df9b4d2b2fec"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "314d6e7c9af70849da7acf0d82f5ee8af0b6308ddb59d7f5093ef9d9627386df",
+      "stderr_sha256": "336fffda041dbd5f18e4e745ab9d006186f4352720f10a459c6e7025c5563257"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "e490917306313714a057f8b3bc2b8bb0da4d8a71bbaff312f86006c5232e5f9a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "44f65fbea008e126324c911542d470a5738239e318bcf69642ba623c008c2028",
+      "stderr_sha256": "bd748aa2aed4f48aba7f888975ec748fcda750e353f21df85feff49543003eb7"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "01509075f04c6345fec86589c73e7bb3e4de41465705429a7035cdb367300c7b"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "cb10e59168613376eb8550afc322d342711f7d5ca21342fc8d10cbad0451e731",
+      "stderr_sha256": "2e5ae2f2311671f839cd0354fe13b787a5d4758828fedc8982b784d47bfc9520"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "d915bfcae950254aa7b71363d8e13f9c93e930c16a3192f51138f166879a07bd"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "314d6e7c9af70849da7acf0d82f5ee8af0b6308ddb59d7f5093ef9d9627386df",
+      "stderr_sha256": "ec93625c61cf2803c7d831e8c0f2455a7dca21fa6f85a83294903dcc15dbbe70"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "9d024810acdfcb4a3e0ac5abccc1088ff7ae0aa30ea40b595c28ed03bac26bbd"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "a61a3bb71edb89bc9f66fd354c28868c4ab541e406f754086df9066c004d7d33"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "52e6301903a57006fed23e743c0672e3380da331d4216d93e0eb8b13275b92ac"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "5f5117340105dbccf3cfa759ac05077a0188e27bc8c9fb835c76ec678ebc180d",
+      "stderr_sha256": "d40c26cbbe1be65d189da07117622c07620d61cb68a758b78697f68af747300c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "26a2443dd21d9981808bd5ebc3ce8f6990de570e95581dfb0bcb0a69ee8ba1b1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "c23cfab6e88d6bf95b46cace401cb3851a5e3b33fa215617ce675700c5ee2455"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "a7b6209e61d0c18c60d2b6d04b2c885286e47856e876eb3b9f86841c1c8df1a9"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0a92033df798d70018cc3f98c1650c58bf3d5cbde508f6bacbf5e42bbcd6d69b",
+      "stderr_sha256": "aff79f204320a9d00d2e80fac0b2a8ca812c34596afdabc0d74a6b7b65872739"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "a4ec14a9f23d313a9e3a9420e78a295ceef3c7ac362a84d122d01e5e1c3e235a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "4833f607bb86f73477c3887243f8295232e049c9a05d71dd5e4e2a39d46d3536",
+      "stderr_sha256": "e1fdc1c9266ab39a87ccbbd72c9d8ac9efd9b57be182231e3cc29699a9155cb1"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "b8088fc7f080a346976d525969705e9fb9f7dab2734aea2838b66bc67ecc2932"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "59a29c556e2b6f2c7e80cc5fd4ee2b14bf2f9c7091246d76586bc03393cbebe9"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "8f0282a9696f56c9485afb70083d8ddde776ea599f175a4dd699b7d79441853a"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bb289eaa22300491cad199d9acc594cf57326ef4068fc6beb95d029570f43c84",
+      "stderr_sha256": "47c549462c83e31e83ac8a6d848d6789c10a5c2d31b193a81d476ebee979e6ce"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "f3e3fdc689724725573709ae290df9e22913f32899cf4f7c61415457b10a15e0"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6aee24eca2a4866de5af1f5a9af0585ed53033793956ac02630dfb833dd0a457",
+      "stderr_sha256": "89443fef81bf56066805002776b0f093b3f0d646af4d12996356513ac415b928"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "45f571f37f67c0a6dcf54dc52731a25177e160993c20ab7558f702b0264d0279"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "314d6e7c9af70849da7acf0d82f5ee8af0b6308ddb59d7f5093ef9d9627386df",
+      "stderr_sha256": "86a85d5fcfc68f90bc4f6b258cbddfc1401e9db68801ec12b25e96ee4e16d241"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "ad2359ecf57ccb15ba0dbe9fb1f9c30721b51cef2f79c65ebc4ac3595c497ed2"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "44f65fbea008e126324c911542d470a5738239e318bcf69642ba623c008c2028",
+      "stderr_sha256": "a342f8b8d5d39dcb95193d442214e02af504df702497b85642bc08123e229fa4"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "db07107c0ceb0b751d2e2f478c838f89c45e7c6b3a534b6af6f8fbb8d39f186c"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "cb10e59168613376eb8550afc322d342711f7d5ca21342fc8d10cbad0451e731",
+      "stderr_sha256": "f7a16fbf3cd55f160a00f4d5e71d0d989ac54a8639f9cca29e8e6e94c8daf785"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "476ecf32d5a329b84ea11f0616b3d351ad6f5017227768fd5593dab0ddd7fbb4"
+    },
+    {
+      "case": {
+        "liveness": false,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "314d6e7c9af70849da7acf0d82f5ee8af0b6308ddb59d7f5093ef9d9627386df",
+      "stderr_sha256": "5b888b561f42a6aa63614431fd69c57ed9126baa1945388c62ac6164325a6250"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "eebb54e493f9d126cde3845bf9e5f2f518112606f7f83110b4fbb34f482c8183",
+      "stderr_sha256": "c21016c1d056d8605d4fe205cd1d8450be1179f1f52bfe541608be9412d61628"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "eebb54e493f9d126cde3845bf9e5f2f518112606f7f83110b4fbb34f482c8183",
+      "stderr_sha256": "1c1b2f426398f6f0bc9467d6733780ca3bb0ca3c4f777cc526c081702943f6a3"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "a26ff8120fee58f65bf19b08e229e05e9ec322c4a94078ea4d04a4962f006df6"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "be30d1c972430a7bf374a9bee5352e8ce0ce7700fe8acb679072e3e180373cea",
+      "stderr_sha256": "009ea4d9a05d5a6b287b6340630780484df5baeffb94e07761cba83d67587b9a"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "14557f79181470a1073889a0607a778e8d18d7b300836c261f7b9527696855c9"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "d50b8e3263e315f2a95b5bcffa9d6bb9fa61b104796de917c588bd96c489a53f",
+      "stderr_sha256": "e463310c44547a199a4a992ce137691de28e5ef3c61e3be38f01298b7ea26617"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "2a7bf29826c169a825f318587a84d044c332a98e3691efd94701f2a11ec9054d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:1",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "70e24e7eddbc615fd032abb469bad02a2296321f6a7b3963b69b27333f6ba291",
+      "stderr_sha256": "23ac2452e0257fe0ad3d7627382bb75cc0f694f3f39240b053117b567644a887"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "a9a8af62b3d404caecabe1e4b387de551c5f5e6552299d476b05f35ddaa04ea9"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "674d8ec42501b7a037cfaab65c243efd80b09e422c484c8663032783301a8398",
+      "stderr_sha256": "4bb58db220c015f89b0db1a90fdd18db7033d763e1f62e3af0e93698a85526e4"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "56030224931310a3ea2ba74af15940bd816492bbb0d9bc0b7785bde4620f4156"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "d50b8e3263e315f2a95b5bcffa9d6bb9fa61b104796de917c588bd96c489a53f",
+      "stderr_sha256": "440fbf9be5845b50718a4d049a5384cd43970ec2450b7f362d939de2aaa4f72f"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "91e08fdfc6d87ea6f9d7696e82b2c571487d4d68a736fdc13caa9c6cc32d7bb7"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e79a088065e21516f3cec7e625c172b3e8051a82c1fa81ae0eab50ec0c2ec9bc",
+      "stderr_sha256": "218a6172f25f66b31559803dca0d9e9ca0ef15b3eb078c52b13e81b87e6fa4e8"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "607cd50ba8665028f79015b6c4179cb74de47154842c1b999b3c2cd6bb0d3c21"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e982cb355390fa6ee0991e7eb49285753b848581986d0e0187d69ef29b11811a",
+      "stderr_sha256": "3b23255749004f0e448d80474c7a6584835f67f58ea4719aa6edee267853d2b3"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "24260d3e00386ffcaebac3f81cc1e38db580cde002d7a137eff248fee5cd647a"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "087e7afb04a0b7c5ed5a9e5dcd5053951bf7692f40e50c8e6d842fbc7bbb6656"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "2c08a6566a445dda240ce48b83a1d91dcf7ea55725a6fc9dfba83eb0129f21cb"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "6f48e2f7f3853c412218cee3ea3800f07863ef21394cb79fb541d3377c05c8db",
+      "stderr_sha256": "fac4711e3f216e951722c2d9430d54add1e29751a7be7fb0fdb78e6745838343"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "1fc96915ef388b189869652d8e4a276d3fea8ea374e1d16ae8ec2e116e23d558"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "907fb771abad668294de3d354f709afae77f874b32cb77f353ad1860abb41f75",
+      "stderr_sha256": "d906f1a703de95d3782df8d659f4dc16d8a92dc971aa5f08e19be79885caf68d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "7b3da041f7583561da90c60f1f88220cc9340375c040f096a5bf7e1c7be1d90d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "f0daafcc8d31299770331e095b3d24a9a17fc03cbc3939a201d7fb24af1601ad"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "63a7d80c81a1d49a6c81747710ae72e00efa9234562cebaecbcfdcf4566754f2"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "80431e19623ca650285fdd983df784483bdb58f55844a9135f433be53a977546",
+      "stderr_sha256": "c6e31aad761702810b7f9ba7a228b65e3926160521549a304155975450415077"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "1765328a37feae469fee2359bce3cd43b2270af606e982eaaa17ece8f7b7a943"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "be30d1c972430a7bf374a9bee5352e8ce0ce7700fe8acb679072e3e180373cea",
+      "stderr_sha256": "8f437d9749b1f23404741cb7c51b59b70002d84bff655de0a86cb1ee60d24647"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "4c15cac7e9592570b0c4a40e80ca33134eda9da78f03b6c6a75b07f2953fe028"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "d50b8e3263e315f2a95b5bcffa9d6bb9fa61b104796de917c588bd96c489a53f",
+      "stderr_sha256": "c2370c20838015ce472f05a5157d41bd8f15e059835fbae77214a7507b486795"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "f847a1950878e19c2b728003e410e40296b5b3e856399337457a2007585a1fd0"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "d719734bbf921ce1ae71c2e7a42163f0030f2e38405c574867d61bd0ef35e3d3",
+      "stderr_sha256": "271923fb4d35c9ccd1913a6105014c5abc5f93319c898389b23bce98a4041602"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "10920638772b2f84dd1f6824ae4e9be902e42a7ed96c26037bc0c10c356dbf9f"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "674d8ec42501b7a037cfaab65c243efd80b09e422c484c8663032783301a8398",
+      "stderr_sha256": "0c89d212a3ecf096529a050b149d95846a9eb354af90998320da8d8e1a44ac21"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "9a94933828ea9ae563ce6627ced7ceaab51d0449a4c5bfe68533dad70622f637"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "d50b8e3263e315f2a95b5bcffa9d6bb9fa61b104796de917c588bd96c489a53f",
+      "stderr_sha256": "21f9723db9757eeecd09b09afa37fdc5d2ca1db20805611638fb36a18227e215"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "0b0383c431e888031cbec7f4a581ce641c0dd276f98725d89f1b74df0ab34e0c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e79a088065e21516f3cec7e625c172b3e8051a82c1fa81ae0eab50ec0c2ec9bc",
+      "stderr_sha256": "595258540e17a06788a9c55ccb337d4ba2c61bf32ac5b7231d68ed1af9755483"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "44da64e3c2d193d598fdb98564d35b353c5c1dbac588ddc40f9d523bffaefa8d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e982cb355390fa6ee0991e7eb49285753b848581986d0e0187d69ef29b11811a",
+      "stderr_sha256": "022b47a9f95b327f555594c797beab1a323d5d8de87e2f4977eee7d882623cb8"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "9f5a90ebd0ab17bedb53c901688474d0b6b2aa393e071ab590ab0c3afbe2853c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "c0b94a35b6b74f388ba1711a01faa0cfae528a7c08c4fdbb02565e0d522b8681"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "61ff6689664b2679984348465fa0887af184c891de4fcce13a0e35718b40b420"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "6f48e2f7f3853c412218cee3ea3800f07863ef21394cb79fb541d3377c05c8db",
+      "stderr_sha256": "85d984d77afc58d214eb23857da382fa033c1f38ee222d1416143af2c589a414"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "f3899fe7a254564b405f910c94140d3c8ea921a039892534b3b31cd53608106e"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:1",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9a01e24cf3116ede3adfb7e34f597dbcb66e77b644647fff12183d826aa38e23",
+      "stderr_sha256": "b8fec1e614cc29eb8981af603624bc27d6254e77a3a92bb08e4c59cdaf6ef119"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "1e32f5f77f3ee3e21dd52af5516f35f114857dc2ae206339546ba41f9012a87d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "8de239d6193380a82b1d798cc93e1345ea6bc4f1fdfcfdd14fa4cf592556c793"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "eebb54e493f9d126cde3845bf9e5f2f518112606f7f83110b4fbb34f482c8183",
+      "stderr_sha256": "522516489836dd920b839757995a59613c2a2d84cd86eb782ee8558cde83f8fd"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "eebb54e493f9d126cde3845bf9e5f2f518112606f7f83110b4fbb34f482c8183",
+      "stderr_sha256": "173a037500b04dd8774d23639da32eb1734d317266f55d876c94def493955161"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "5229cff8a77fda2e6bbe28b9b180268e5269729bfd97a97f57ed405efd1f61dc"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "c0a1b36737542097e3c0f78d3feee2564fccf9393774888327025b95cf4bec39",
+      "stderr_sha256": "f295e2d3dcc79075e75ad23bc79799d2675a8f402f0860ca45110ff2ba4a9691"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "4227864d7f39b16362d1009e98a74b6f4946b5541ef1f9b6ec3f38ff3b54aef3"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "18a095e67ec07b9df2c0f872b3b94039367515c89d49f8a775e0e860efc2e35c",
+      "stderr_sha256": "d527e5da0267aa920646792569f57c299b847c5b2bae3a34347f451a8f591d22"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "e5369f68c768dc37ebe558f2108baa2d282df4b09e0ec1cb8a090272e7745dae"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "eb22dcdcc4fcd5be662ace376ba4120a37ca6f4853d34e11955b3fd3c964569c",
+      "stderr_sha256": "dd82b9a9d7fe4eddea2ad8e8d1ec37e5ee51abf76920f186646050eca8abd407"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "b969afa317edf04d9dcaa4074abf33753622dacfd1adf9a085ee6aa27d382bca"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "77565701d7a4764ecf08af98242399317d0c6198d06efdca928050675fb5ec98",
+      "stderr_sha256": "2cee3e8359d879502bf13058958dd2f6e04c29daf35c3661c60bcbf951132a34"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "676de878cf105fb9f939fede1e40c960517f5dfa8214926a2d21c65084b87ec4"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "18a095e67ec07b9df2c0f872b3b94039367515c89d49f8a775e0e860efc2e35c",
+      "stderr_sha256": "4e6f8ddb4eab166a35eb4c05becd8a63ca40ebcf32a360186c68c921d2c5e34c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "da9ce488d79454d4555b4d9103a6129839aa408b6c20b7735cdf3275b4f719a6"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e79a088065e21516f3cec7e625c172b3e8051a82c1fa81ae0eab50ec0c2ec9bc",
+      "stderr_sha256": "a7c6e8d610ebcf5dc78a32f729b6927c9853bc248bd7a819ca5cb26413277cfb"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "b3b738f7d0c8dd8a68fd212b71f3740b907b04d3449e0ae27d1803443be713b1"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e982cb355390fa6ee0991e7eb49285753b848581986d0e0187d69ef29b11811a",
+      "stderr_sha256": "906b11b28e04df1e6d338b90bcdc2450ae44e302d8e9d643c028a9a39e0a06f2"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "1d82be14cf6de8a013895ccfe937d60710a5d154784720d086cfbc475f0b6baa"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "c48253d747facabd4bd1d328a078aa3af681c8d9e8184981ff8c7251ec6b5437"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "442fc85adeb676d08aac215331b141985ae647346e52930e14039095a59844e6"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "6f48e2f7f3853c412218cee3ea3800f07863ef21394cb79fb541d3377c05c8db",
+      "stderr_sha256": "a9f265cdd3cd2948916446022fae632075e44469c905495c94d59a0a0286a6c5"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "b3c488f0acb11af2247bc0c2fab7564e7ab7ae970f2066951d892c04d53e008d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "907fb771abad668294de3d354f709afae77f874b32cb77f353ad1860abb41f75",
+      "stderr_sha256": "21dde3e074a8cc0a95c0acfca75e4ffb0fb9af691606ea1a73d944f89dcde7fa"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "e01bd2a2212a2c86fd3f7c996ed4dec549868a9448b0342cd312940eb7f959f8"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "c7cfd3743048a9137113fcd7930f0f73031b3be6175f96c3cbd20098be56d7cd"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "ad1a990ed7310c534ab21ae432b82a344f388fe8b608452b2ce5d8eafb92d7ce"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "16c680fa0b3103470cccdeb10b0766a3b4ced2eac4835af5ecb7c905e18dd4d7",
+      "stderr_sha256": "61b07981887eb8f1a6b446e306f368f52c7dddee38a888699644606cc4774d37"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "6f9c61f6914ce6b58b4415a0acc1099cbb111362477307a3a32cb5124923746a"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "c0a1b36737542097e3c0f78d3feee2564fccf9393774888327025b95cf4bec39",
+      "stderr_sha256": "64eeb03f3888c5e40042b1ca4b4be410bfe8e456eeec340efd56dc39b6b11800"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "ef3bf16cce70877352e0d5549e2e24c9bcfaa1ff243a3d8e7b5d33f2991d420f"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "18a095e67ec07b9df2c0f872b3b94039367515c89d49f8a775e0e860efc2e35c",
+      "stderr_sha256": "96f258a5eb1a9d3fb12f41cdf990cb41609266f50d5e7d576a1b215aaa3cbc6a"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "03643a0d329e665b601edfebb07992bf82b90cafdeac0be2bb0ecf850dc00ca5"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "eb22dcdcc4fcd5be662ace376ba4120a37ca6f4853d34e11955b3fd3c964569c",
+      "stderr_sha256": "b35670e4708cbdb55daaa2de2da364a79510c14598df8b9e82773ccb0140f6dc"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "ea57d61f2afe592a8abd0d7ef0b59e700301b90baeae92273fb0082133daffaa"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "77565701d7a4764ecf08af98242399317d0c6198d06efdca928050675fb5ec98",
+      "stderr_sha256": "e51d09a2820b4f838a57a77b8663dd7020d2acc5e295bfecc1d45ed8626cc218"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "9c5c457fdf65c87939aabc5ae0ac4188cf3fef503ed525ef3ae6462d0569e346",
+      "stderr_sha256": "834a49327992927f643dcb1d99f931bab12b2337481c96e6abd866d32b40cb1b"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "18a095e67ec07b9df2c0f872b3b94039367515c89d49f8a775e0e860efc2e35c",
+      "stderr_sha256": "87dc147b7a1dd7172e4e8c8413117ad973a4c3e2d5608dcc08d8532c99190778"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "79bbfc2a0815560cc79fc5a6b9594e3249a1b825c5301826e7e7b4bcd8c54e60"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e79a088065e21516f3cec7e625c172b3e8051a82c1fa81ae0eab50ec0c2ec9bc",
+      "stderr_sha256": "e10b504516b45acd89825f2a6e29ae0d74d28fa3bdb3f39e81f09dbd539e4e33"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "9ccb8cd5b688757a99835f7947deec9510164da0b82d54180de125e634dee798"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "e982cb355390fa6ee0991e7eb49285753b848581986d0e0187d69ef29b11811a",
+      "stderr_sha256": "7dbb34e7b6fed4b826c148a4788908e3a124783dc0827c36de75d9b0ee7847c1"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "11b89aac3a13c1d6873057bed5a0211e4778d62a0658e69826bf7cb03089dc6e"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "907ea50d8a8f8c0dab3136ff5dd877fd8714371d120c194c1b25782e5da04a34"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "20283b403fc484ca2932b3b60f79b2976b1f53c22008ae97c61864f313e8ca09"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "6f48e2f7f3853c412218cee3ea3800f07863ef21394cb79fb541d3377c05c8db",
+      "stderr_sha256": "6b9157a54e56086b3abcbf82a0c9efebaae2cb629d96fca1f05145132a95ad97"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "3f64cba72a9a9b5caede7450382466bb0ba99ce19b3080e35d75ec00d0f832b4"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "907fb771abad668294de3d354f709afae77f874b32cb77f353ad1860abb41f75",
+      "stderr_sha256": "f541914a7ec02ae5d9e0e456d7cd63f9e12472b3a453dff69673977c94d871af"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "bee7036b4b8845680e98547fe70ad13b95f2c2ffe15d29c141d681ebcbc12995",
+      "stderr_sha256": "fc270a02a7fa296a2820f805442cb4fe9b77bd01b049c749a04aba270f850d3c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "25a212b08dc1484cb3cce451b06c17b9331f2af4b13927d1301b43a679b7cd8b",
+      "stderr_sha256": "dea756fc597bca2162e90eaa469927be5d104ff6c47297901a86f014c51723cf"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "498ca7014c86bbb05ee19a27c903c977103e04390f1ef2ff3a1c9dd4304026ec"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "c66dbe6bab7ee2650bb3fa4c322ec8800b393ec6e70a2a0bad63259ec211b5ab"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "56f8dc5a9cb4d7b75eb8744ebac88e69a434605c724b9da74b3b491a664d83f0"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "5f5117340105dbccf3cfa759ac05077a0188e27bc8c9fb835c76ec678ebc180d",
+      "stderr_sha256": "e6fc195c3b33e68fffb17060422deffeeb2c68d00fa8390b7ff2c2e787f9fa3c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "db983a66ca762337df82baec2b7080e13ba8eabd1fdca0d6dbe9a47101fb3956"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "9180ec1ea3c90dcac018dc08e963cd5cc5cec7ecc42c8a0201e02eb8561f19e0"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "997d8e210e8020152e4b8e19350604d435077b89041ef3e67e5d184cad2ccb5e"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0a92033df798d70018cc3f98c1650c58bf3d5cbde508f6bacbf5e42bbcd6d69b",
+      "stderr_sha256": "7ac0e47aeb6457312af36a1957fa562d93cbaad20be809499f4c247c061f14d7"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "5caaba4f758745afa3092d5bb39d65a7ddecf259040fbab271fc8bbaa2b62d89"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "4833f607bb86f73477c3887243f8295232e049c9a05d71dd5e4e2a39d46d3536",
+      "stderr_sha256": "ffa30e1f06d51af9c679e77864e238f2f14c17975e2cf818fe633672047126c8"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "82ed512266794a26a365a3fa3d5a399f0f23fb137ad6e646325dedda68e27c71"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "5261d7ef4193fff047c6c6a76a72035cf0a0445d2c5c7e6082661ad89b75605e"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "32e2529dc8a0b409c398e0573c8e500ae5cdac576bfa9798da3d921e1311933c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "51a162670c85ad55de44033c12d352e6309a408ea1d4aeaa4e24779eb3ebbb8f",
+      "stderr_sha256": "30d322b0a15e66929b3a214b044a8808cc9bcb4c3d124587f8649f28aeaceacb"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "340d5f5b180400db56c2b2afd308ba23264bb538b144c327a24511de7afe0dcd"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "cabc50c3261cd04c427c8312761ca854bd875fe51c3a4139d54e7dac6b610daf",
+      "stderr_sha256": "deafdffeba2ef6535a0cb69f919ce4347560e3a3f53e7045ac072d0858096e2c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "fd5405cf67cb66a3718e230db814d309f0464ed082c5c293b6426ed0b966e4b6"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a2c749bee2ff8a97a83aa4ea53b267692ba1b0af326e9e1c6bebecab8c385dec",
+      "stderr_sha256": "d1383c8696e3cddbef04d2536909c667b9f2cfa15b8471b6e3df8e2ba356f834"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "468dd831950df6dca9e714aa669c5a51733ca1ca37ba851c75dacac48cd5801a"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0cd020ca1fea5f71be627f0614f8936cca51acdafc0abff78b3e1bf704996d6e",
+      "stderr_sha256": "e86f765b5610c0eadd6a4fa80c3f6208d34ae6a06f4057f78f1bb110c2d613aa"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "bb43287127c4f24f6664efbc5bd0d84d852616273c662ef3c61ee6ee14a16338"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "4d4a0abdfbdfd9ec6305b576fc8ce374daf679afd1473fcbbf7ad6f37cfc4ae7",
+      "stderr_sha256": "a9a0928efe0816f31f602431fae25c458a04aca112c8549ea50b15d8f9d77f60"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "c25168228da08cf9ec99b02b5695e01857c908af07a4da44a3416f610f2126ac"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": false,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a2c749bee2ff8a97a83aa4ea53b267692ba1b0af326e9e1c6bebecab8c385dec",
+      "stderr_sha256": "d6488fd75a028f660b457b241412276b07a4c616635a0e9538d21698608c8c9b"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "16735cc5fad76ae6e40a93c865f211253102d2f36738afb7f8e036bbdc2ce41b"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "ratio-update:0",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0bb8c2d2f85172af924d625c75ee9c373ae2ca78d61ef03d7baa16992c4ae19c",
+      "stderr_sha256": "2db2307b410015ea7137e46118d00d344da2840aef0f9ce79391e73f316c57c8"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "22abda30123873b271b2c626bfa2a73a798c99b871ef9cf00174f491d9590b5c"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "5f5117340105dbccf3cfa759ac05077a0188e27bc8c9fb835c76ec678ebc180d",
+      "stderr_sha256": "23ec496ff634af62e149382b02b90b04758b932d89cd55b7d67adebef52c4660"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "73559e8e561129a88e4a44b7226560e65c01684fe4ce3cd6092f051c07451d96"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "f2f2c4b27ea0b10b116b9a0afdad151288d9f00c4437a1f662c4802230e1b37d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "0a2f2f651aee37765d158f5a729bf1e4bad0414904b61e562263e69465ce79c3"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0a92033df798d70018cc3f98c1650c58bf3d5cbde508f6bacbf5e42bbcd6d69b",
+      "stderr_sha256": "61f8d4838db06ae53ad01fa6a6f26152af86162fb7191e570a576be362ca4f09"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "32cbd595dc3407834061956b24973281b03e21122da71cf99579df7a9d74a0a1"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "4833f607bb86f73477c3887243f8295232e049c9a05d71dd5e4e2a39d46d3536",
+      "stderr_sha256": "47e540d9fd441bcd51f5837b687b45d96f3897735085b70688d1bba41813e085"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "b3317802b349a0b18164d1f0b1736aff18057634ef895d891b4c6f72ad828226",
+      "stderr_sha256": "6c11c7dc12af7f7121e1a6a7eb50eb8a67388f81276ec1f4da4bb69cd04cfd8a"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "801071c81da5427ea0f4aa0b15338cef45f60527729d91a361642e9df94b883f"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "843c9e4fa6766c38c352654695684f9a9de000838fd971f6e540cf1b5de75623"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "51a162670c85ad55de44033c12d352e6309a408ea1d4aeaa4e24779eb3ebbb8f",
+      "stderr_sha256": "fc67475ed8f57deb7569fc23039d9e5145e0f5b0108601d9f14f35fc20043531"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "4c1e29b6c5cfc88994cb070af8f29ba6474d91311ebe51bb019c15bafd778dd3"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "resume",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "cabc50c3261cd04c427c8312761ca854bd875fe51c3a4139d54e7dac6b610daf",
+      "stderr_sha256": "a5fabc1f54c2a7c72bff4c85d530cd30078ec29f104861fb2448d67ebdcec011"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "001adf1f37c112683fa1e92f5f8259dbb9e7ad4291080a848de4961701211a37"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": false,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a2c749bee2ff8a97a83aa4ea53b267692ba1b0af326e9e1c6bebecab8c385dec",
+      "stderr_sha256": "6c412565af1e20d43acb3ffe29827c53e497c7574ebcf15665f05fd420037821"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "5a0a99025fcb24a0179ac9fd02463cdd4690e7cc79c94ff7175f1ec07c8ed2f9"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "none",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "0cd020ca1fea5f71be627f0614f8936cca51acdafc0abff78b3e1bf704996d6e",
+      "stderr_sha256": "59fd4e66c06371958e07566fd9b63c511c912eae3afabec7a9dbf2876cc43084"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "81b0eec02a47ece61f797790baa5b84f2ce43f1135a120bdbd35eb3de203c116"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "true",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "checkpoint",
+        "result:0",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "4d4a0abdfbdfd9ec6305b576fc8ce374daf679afd1473fcbbf7ad6f37cfc4ae7",
+      "stderr_sha256": "3e2407fe360a8fb64f3c9f2e5cb75068bb2a2f7e0c4fdc1e150446ef106ffe0d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": false,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "result:0",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "6f65ce948d66b9e38f895127a2cb6aab160b728b9d66b4574e7831f0d300c61b",
+      "stderr_sha256": "09dd0b83b8736005a8b042bb91585842ac407f5436d9b2f1a0daeca57da0bfc1"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 0
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a2c749bee2ff8a97a83aa4ea53b267692ba1b0af326e9e1c6bebecab8c385dec",
+      "stderr_sha256": "15d04bfbcb89f3e3bd7a9e4dc42f987a3c52a0c27ffb6893dc8d3ced70222a76"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:false",
+        "result:2116",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "ef343934735e29989147233bbafdd48b470425e61f56419861fdb6e2d4f97f22",
+      "stderr_sha256": "08093683194bfb3275dfd852272079c8ac126fef2932cc6005478fc83d365ffe"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.0",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "result:2116",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "ee71c55913e060ae45aa5227468e3865141d63d6341d4a80f075d92daed76a55",
+      "stderr_sha256": "d6a97c14d3e30462fbb00d3216c10e22c01ca807b63f1b26bc916350cbb9cb85"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "18a095e67ec07b9df2c0f872b3b94039367515c89d49f8a775e0e860efc2e35c",
+      "stderr_sha256": "98f7f6f258e8a66aa83eb907e21a90b023fdd47cc03a04780f2177536890585d"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.2",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "result:2116",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "ee71c55913e060ae45aa5227468e3865141d63d6341d4a80f075d92daed76a55",
+      "stderr_sha256": "6fe9f2c20881f8b49c54f0d0200e249add6f8512d29ca0b1d54e7a7652ea882f"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "ratio-update:0",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "a3e9c22d5a0e4b7e808c67ee5c868b95cc9e5c907f28f724bf67928620b6c8ca",
+      "stderr_sha256": "35de57402d135198dbdc61ea12448b67870f1aade6ff837d5972a5757d3823e2"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "0.9",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "suspend",
+        "check-force:true",
+        "result:2116",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "a9266ca50cbd7e65540581d9ce87bd96a7038fdf75e44268dd021003356bfd02",
+      "stderr_sha256": "8cdcb31190e3650315469bf40db4762fe13d89e6739e1a33b75e80cd021121e2"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "NaN",
+        "growth": true,
+        "force": false,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "result:2104",
+        "force-retained:false"
+      ],
+      "stdout_sha256": "18a095e67ec07b9df2c0f872b3b94039367515c89d49f8a775e0e860efc2e35c",
+      "stderr_sha256": "cc75f10ebe8d004bec98f176f4702a146e79dd55eb3eea66634ec6f6a0439f90"
+    },
+    {
+      "case": {
+        "liveness": true,
+        "ratio": "NaN",
+        "growth": true,
+        "force": true,
+        "checkpoint": true,
+        "periodic": "false",
+        "suspended": true,
+        "check_code": 2116
+      },
+      "exit": 0,
+      "timeout": false,
+      "events": [
+        "start",
+        "growth",
+        "suspend",
+        "check-force:true",
+        "result:2116",
+        "force-retained:true"
+      ],
+      "stdout_sha256": "ee71c55913e060ae45aa5227468e3865141d63d6341d4a80f075d92daed76a55",
+      "stderr_sha256": "20d357e53f787cf90b19871cbebf514d0e56ba8ee7eb632832db5a5f039bd1e8"
+    }
+  ],
+  "family_certified": false
+}

@@ -1,0 +1,38 @@
+python3 scripts/test-validation-import.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.155s
+
+OK
+python3 -I scripts/test-frontend-campaign.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 4.658s
+
+OK
+python3 -I scripts/check-tlc-final-safety.py
+Verified all nine clean safety-route captures and seven exact pre-route source matrices; resource stops and empty temporal obligations do not certify a temporal product
+Verified complete successful before-limits source/gate receipt; new limits controls are separate producer evidence
+python3 -I scripts/check-tlc-state-if.py
+Verified complete15 conditional controls:11 complete projections/4 reference errors; all histories retained; no periodic or family certification
+Verified complete15 clean final TLC controls, including all four deciding reference errors
+Verified all60 historical native rows:40 supported final-only outcomes/20 named refusals; no reference-error or periodic credit
+Verified executable user API example and retained first compilation failure
+Verified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained
+python3 -I scripts/check-tlc-temporal-if.py
+Verified25 complete tag/tableau controls:20 projections/5 preserved failures;25 clean outcomes and15/10 diagnostic final rows, no new verdict or periodic credit
+python3 -I scripts/check-tlc-temporal-if-final.py
+Verified all30 primary selections/120 native outcomes:80 supported final outcomes,40 named refusals; independent replay and all source histories retained, no periodic/family credit
+Complete unchanged140 census retained:6 agree/134 unsupported; earlier138 zero-native launcher failures remain separate history
+Verified fresh current Rust guide execution and916-test frozen Rust/Cargo gate identity; no periodic/family claim
+python3 -I scripts/check-tlc-final-scopes.py
+Verified complete18 primary/72 native scoped final outcomes and retained name/shape failures;56 temporal,8 safety,8refused; expanded-action and ordinary scheduling remain unclaimed
+python3 -I scripts/check-tlc-property-origins.py
+Verified18 primary/72 native origin controls: separate configured, expanded Action and derived vectors; retained2 reference failures/8 native refusals; no ordinary or full-family credit
+python3 -I scripts/check-material-capture.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-periodic-lifecycle-work/scripts/check-material-capture.py", line 85, in <module>
+    for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():material_source(path,d)
+  File "/Users/jeff/code/dive-periodic-lifecycle-work/scripts/check-material-capture.py", line 14, in material_source
+    assert FROZEN_MATERIAL_MAP[path]==digest,path
+AssertionError: crates/dive-check/src/capture/pure.rs

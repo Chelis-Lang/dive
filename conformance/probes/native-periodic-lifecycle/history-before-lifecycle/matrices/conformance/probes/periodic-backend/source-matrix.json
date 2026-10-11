@@ -1,0 +1,19 @@
+{
+  "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
+  "source_sha256": {
+    "crates/dive-check/src/capture.rs": "e315ddd656cb83704d428fcde88376f9d341c5f4f5deb9ff44a148b803d24c86",
+    "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
+    "crates/dive-check/src/parallel.rs": "1b81bf965fbceeed02bdb9fc0f18caf090805c6858a28d759845784edfb62fc4",
+    "crates/dive-check/tests/observer_barrier.rs": "49e522ea7f2a784da2fc89ff550f0561842a9394ca2b655e0a2b4a277fde75fa",
+    "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
+    "crates/dive-liveness/src/phase_execution.rs": "88d16a365dd9971f2c993486928419ef12c606e1e42d862306d8a3b21a78085d",
+    "crates/dive-liveness/src/phase_graph.rs": "dc30cae82223c36725651d74faf854ae174456d92fe575cedc638cced4dc77e6",
+    "crates/dive-liveness/src/lib.rs": "bb45366dc970022ba9f45e32df8d1b9dc8f2a4886407b867ef4414f2b9a648d3",
+    "crates/dive-liveness/tests/periodic_backend.rs": "c185ce63795a5fa6c3cd5cf3dee1bbbee294e08ddf6606417bdb87ac7d2ec9c1",
+    "crates/dive-api/examples/periodic_backend.rs": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
+    "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
+    "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
+    "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
+    "conformance/parity-features.json": "088facfd50aec392de9003365c4d81a94649e7080543c207c014998ec6b285d5"
+  }
+}

@@ -170,6 +170,9 @@ python3 -I scripts/check-stored-successor-material.py
 python3 -I scripts/check-native-sequence-operators.py
 python3 -I scripts/check-tlc-partial-scc.py
 python3 -I scripts/check-periodic-backend.py
+python3 -I scripts/check-periodic-controller.py
+python3 -I scripts/check-runtime-ratio.py
+python3 -I scripts/check-periodic-lifecycle.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

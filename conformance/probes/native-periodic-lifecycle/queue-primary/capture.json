@@ -1,0 +1,27 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "scope": "actual pinned DiskStateQueue queue suspend/resume/finish with real worker threads; no model-checking verdict or ordinary schedule certification",
+  "steps": [
+    {
+      "command": [
+        "/tmp/claude-501/-Users-jeff-code-dive/7ef721df-a0bf-48ac-94b6-f7c0c8e766e7/scratchpad/jdk/jdk-17.0.20.1+1/Contents/Home/bin/javac",
+        "-cp",
+        "/Users/jeff/code/dive-shipping-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "QueueProbe.java"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/tmp/claude-501/-Users-jeff-code-dive/7ef721df-a0bf-48ac-94b6-f7c0c8e766e7/scratchpad/jdk/jdk-17.0.20.1+1/Contents/Home/bin/java",
+        "-ea",
+        "-cp",
+        "/Users/jeff/code/dive-shipping-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar:.",
+        "QueueProbe",
+        "/tmp/dive-state-queue-primary/queues"
+      ],
+      "exit": 0
+    }
+  ]
+}

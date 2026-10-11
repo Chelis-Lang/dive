@@ -1,0 +1,37 @@
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-lifecycle-work/crates/dive-check)
+error: adding items after statements is confusing, since items exist from the start of the scope
+   --> crates/dive-check/src/pool.rs:120:9
+    |
+120 |         struct Reset<'a>(&'a AtomicBool);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#items_after_statements
+    = note: `-D clippy::items-after-statements` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::items_after_statements)]`
+
+error: adding items after statements is confusing, since items exist from the start of the scope
+   --> crates/dive-check/src/pool.rs:121:9
+    |
+121 | /         impl Drop for Reset<'_> {
+122 | |             fn drop(&mut self) {
+123 | |                 self.0.store(false, Ordering::Release);
+124 | |             }
+125 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#items_after_statements
+
+error: could not compile `dive-check` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: this assertion is always `false`
+   --> crates/dive-check/src/pool.rs:245:37
+    |
+245 |                 pool.with_pause(|_| assert!(false, "controlled failure"))
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: replace this with `panic!()` or `unreachable!()`
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assertions_on_constants
+    = note: `-D clippy::assertions-on-constants` implied by `-D clippy::all`
+    = help: to override `-D clippy::all` add `#[allow(clippy::assertions_on_constants)]`
+
+error: could not compile `dive-check` (lib test) due to 3 previous errors

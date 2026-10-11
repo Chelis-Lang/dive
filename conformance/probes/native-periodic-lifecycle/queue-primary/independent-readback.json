@@ -1,0 +1,24 @@
+{
+  "observations": 72,
+  "widths": [
+    1,
+    4,
+    8
+  ],
+  "repeats": 8,
+  "scenarios": [
+    "resume",
+    "finished-before",
+    "finished-during"
+  ],
+  "all_exact": true,
+  "artifacts_sha256": {
+    "stage0.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stage0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "capture.json": "7fe5221c71310d136f8714b9207923494aba71e4ed6ef2f18dc39a4faf357fff",
+    "QueueProbe.class": "1e809f1cd6262fa6a5e3c62f6b929dde72b0e721dbe1eca9c08c8210a35d6dae",
+    "stage1.stdout": "a350aa63b5b60f219fe4d098347ba5e4308b802d8890ce1ebaeb5416abd90848",
+    "stage1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "QueueProbe.java": "cc0011a4fd68bb4f2f83fe36675a08da78d748cd8aa5f0f3490b163378d1f51c"
+  }
+}

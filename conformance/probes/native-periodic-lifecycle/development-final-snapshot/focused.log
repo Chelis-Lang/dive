@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/periodic_lifecycle.rs (/Users/jeff/code/dive-periodic-lifecycle-target/debug/deps/periodic_lifecycle-ff0b633bd3b9af4f)
+
+running 1 test
+test eof_runs_real_final_scc_even_if_no_timer_check_occurred ... FAILED
+
+failures:
+
+---- eof_runs_real_final_scc_even_if_no_timer_check_occurred stdout ----
+
+thread '<unnamed>' (120846837) panicked at crates/dive-liveness/src/phase_execution.rs:518:56:
+index out of bounds: the len is 0 but the index is 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'eof_runs_real_final_scc_even_if_no_timer_check_occurred' (120846832) panicked at crates/dive-liveness/tests/periodic_lifecycle.rs:21:39:
+actual EOF
+
+
+failures:
+    eof_runs_real_final_scc_even_if_no_timer_check_occurred
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p dive-liveness --test periodic_lifecycle`
