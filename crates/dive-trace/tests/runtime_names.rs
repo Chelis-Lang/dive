@@ -669,3 +669,93 @@ fn inductive_shape_admission_does_not_make_forged_initial_or_successor_values_va
         }
     }
 }
+
+#[test]
+fn fixed_unchanged_tuple_projections_keep_actual_variable_identity() {
+    for definitions in [
+        "vars == <<x,s>>",
+        "vars == <<x,<<s>>>>",
+        "Pack(v) == <<x,v>>\nvars == Pack(s)",
+        "vars == LET Pack(v) == <<x,v>> IN Pack(s)",
+    ] {
+        let source = format!(
+            "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\n{definitions}\nInit == x=0 /\\ s = <<0,1>>\nNext == (x=0 /\\ x'=1 /\\ s'=Tail(s)) \\/ (x#0 /\\ UNCHANGED vars)\nInv == x=0\n====\n"
+        );
+        let model = tuple_replay_model(&source, "");
+        for final_x in [1, 99] {
+            let word = TraceDoc::behavior(vec![
+                json!({"x":0,"s":{"seq":[0,1]}}),
+                json!({"x":final_x,"s":{"seq":[1]}}),
+            ])
+            .expect("actual tuple states")
+            .with_ending(Ending::Invariant("Inv".to_owned()));
+            let actual = validate_doc(&model, &word, &[], None).0.validation;
+            if final_x == 1 {
+                assert_eq!(actual, Validation::Valid, "{definitions}");
+            } else {
+                assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}");
+            }
+        }
+    }
+}
+
+#[test]
+fn unchanged_conditional_permutation_is_not_a_variable_invariant() {
+    // Equality of this tuple can swap a tuple variable with a string. The
+    // actual supplied word satisfies Next, but cannot justify a tuple-only
+    // whole-history certificate. No inferred invariant may trust the word.
+    let source = "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s,t\nvars == IF x=1 THEN <<s,t>> ELSE <<t,s>>\nInit == x=0 /\\ s = <<0,1>> /\\ t=\"text\"\nNext == (x=0 /\\ x'=1 /\\ s'=Tail(s) /\\ t'=t) \\/ (x=1 /\\ x'=2 /\\ UNCHANGED vars)\nInv == x<2\n====\n";
+    let word = TraceDoc::behavior(vec![
+        json!({"x":0,"s":{"seq":[0,1]},"t":"text"}),
+        json!({"x":1,"s":{"seq":[1]},"t":"text"}),
+        json!({"x":2,"s":"text","t":{"seq":[1]}}),
+    ])
+    .expect("concrete conditional permutation")
+    .with_ending(Ending::Invariant("Inv".to_owned()));
+    let model = tuple_replay_model(source, "");
+    assert_eq!(
+        validate_doc(&model, &word, &[], None).0.validation,
+        Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+    );
+    let analysis =
+        dive_sema::analyze_source("TupleReplay.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let canonical = dive_model::bind(
+        Arc::new(dive_ir::lower(&analysis).expect("IR")),
+        &dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\n")
+            .into_config()
+            .expect("cfg"),
+        &dive_model::BindOptions::default(),
+    )
+    .expect("canonical binding");
+    assert_eq!(
+        validate_doc(&canonical, &word, &[], None).0.validation,
+        Validation::Valid
+    );
+}
+
+#[test]
+fn unchanged_projection_rejects_wrong_parameter_identity_and_excessive_depth() {
+    use std::fmt::Write as _;
+    let mut deep = String::from("P0 == <<x,s>>\n");
+    for index in 1..80 {
+        writeln!(deep, "P{index} == P{}", index - 1).expect("writing to String");
+    }
+    deep.push_str("vars == P79");
+    for definitions in ["Pack(v) == <<x,v>>\nvars == Pack(x)".to_owned(), deep] {
+        let source = format!(
+            "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\n{definitions}\nInit == x=0 /\\ s = <<0,1>>\nNext == (x=0 /\\ x'=1 /\\ s'=Tail(s)) \\/ (x#0 /\\ UNCHANGED vars)\nInv == x=0\n====\n"
+        );
+        let model = tuple_replay_model(&source, "");
+        let word = TraceDoc::behavior(vec![
+            json!({"x":0,"s":{"seq":[0,1]}}),
+            json!({"x":1,"s":{"seq":[1]}}),
+        ])
+        .expect("successful prefix is not evidence of all-branch preservation")
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+        assert_eq!(
+            validate_doc(&model, &word, &[], None).0.validation,
+            Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+        );
+    }
+}

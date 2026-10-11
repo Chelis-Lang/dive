@@ -139,19 +139,7 @@ impl Proof<'_> {
                     && self.obligation(*other, scope, var, next, hypotheses, depth + 1)
             }
             Expr::Unchanged(body) if next && hypotheses.contains(&var) => {
-                self.target(*body, var, false)
-                    || match self
-                        .model
-                        .ir
-                        .nodes()
-                        .get(body.index())
-                        .map(|node| &node.expr)
-                    {
-                        Some(Expr::Tuple(items)) => {
-                            items.iter().any(|id| self.target(*id, var, false))
-                        }
-                        _ => false,
-                    }
+                self.projection(*body, scope, var, depth + 1)
             }
             Expr::Def(id) => self.definition(*id, &[], scope, var, next, hypotheses, depth),
             Expr::Apply {
@@ -176,6 +164,77 @@ impl Proof<'_> {
             }
             _ => false,
         }
+    }
+
+    // Equality of a fixed tuple entails equality at each fixed projection.
+    // A conditional/permutation can move a variable to another position, so
+    // merely finding that variable in every branch is not sufficient.
+    fn projection(&mut self, expr: ExprId, scope: &Scope, var: VarId, depth: usize) -> bool {
+        if self.fuel == 0 || depth > 64 {
+            return false;
+        }
+        self.fuel -= 1;
+        let ev = &self.model.evaluator;
+        let Some(node) = self.model.ir.nodes().get(expr.index()) else {
+            return false;
+        };
+        match &node.expr {
+            Expr::Var {
+                var: actual,
+                primed: false,
+            } => *actual == var,
+            Expr::Tuple(items) => items
+                .iter()
+                .any(|item| self.projection(*item, scope, var, depth + 1)),
+            Expr::Def(id) => self.projection_definition(*id, &[], scope, var, depth),
+            Expr::Apply {
+                callee: OpRef::Def(id),
+                args,
+            } => self.projection_definition(*id, args, scope, var, depth),
+            Expr::Local(slot) => match ev.scope_slot(scope, *slot) {
+                dive_eval::SlotView::Lazy(body, entered) => {
+                    self.projection(body, &entered, var, depth + 1)
+                }
+                _ => false,
+            },
+            Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(scope, *decl) {
+                dive_eval::SlotView::Lazy(body, entered) => {
+                    self.projection(body, &entered, var, depth + 1)
+                }
+                _ => false,
+            },
+            Expr::Let { body, .. } => ev
+                .scope_let(scope, expr)
+                .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1)),
+            Expr::Subst { body, .. } => ev
+                .scope_subst(scope, expr)
+                .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1)),
+            _ => false,
+        }
+    }
+
+    fn projection_definition(
+        &mut self,
+        id: dive_ir::DefId,
+        args: &[Arg],
+        scope: &Scope,
+        var: VarId,
+        depth: usize,
+    ) -> bool {
+        let ev = &self.model.evaluator;
+        let id = ev.redirected(id);
+        let Some(def) = self.model.ir.defs().get(id.index()) else {
+            return false;
+        };
+        if def.recursive
+            || def.std.is_some()
+            || ev.is_value_override(id)
+            || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
+        {
+            return false;
+        }
+        ev.scope_apply(scope, id, args)
+            .is_ok_and(|entered| self.projection(def.body, &entered, var, depth + 1))
     }
 
     #[allow(
