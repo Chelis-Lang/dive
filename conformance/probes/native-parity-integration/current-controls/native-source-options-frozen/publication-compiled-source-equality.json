@@ -1,0 +1,7 @@
+{
+  "gate_source_commit": "ba024b780252c6e7235ec03db1f2ed1a87cc1b59",
+  "unchanged_rust_cargo_toolchain_inputs": 863,
+  "markdown_example_body_exact": true,
+  "excluded_crate_doc_header": "//! Run bounded final liveness checking with a pure native operator argument.",
+  "current_changes": "Documentation, generated source integrity maps and closed evidence only; historical source/runtime identities retained."
+}
