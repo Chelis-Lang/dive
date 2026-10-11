@@ -4,10 +4,10 @@
   "schema_version": 1,
   "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
+    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
-    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
+    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",

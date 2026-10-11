@@ -3,10 +3,10 @@
   "base_commit": "f3c00c9b702ad1c196367338325b98e1a3a322df",
   "scope": "Combined ordered observed pool with bounded source waves and current checkpoint/admission; original execution source retained separately; no strict verdict certification; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
+    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
-    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
+    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "095a1fd80ff33d6da05c7064ca1a7f564836bdb700eb3b66432afa73ec4cf7b3",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",

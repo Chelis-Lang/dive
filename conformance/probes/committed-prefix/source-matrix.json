@@ -8,10 +8,10 @@
   "source_sha256": {
     "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
     "crates/dive-store/tests/properties.rs": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
-    "crates/dive-check/src/progress.rs": "4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5",
+    "crates/dive-check/src/progress.rs": "5eb33ca05e070773e584ddef66d491ea9855c71c5a25cdc98a8fcc17b9a34db3",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
-    "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
-    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
+    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
+    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
     "crates/dive-liveness/src/periodic_lifecycle.rs": "8f0faeff0c78c7186c47a5dc3144cd66ea9a5877b1cbb1af7ff84e46cd0804aa",
