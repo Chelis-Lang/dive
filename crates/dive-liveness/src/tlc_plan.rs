@@ -3,11 +3,13 @@
 //! This module does not construct TLC tableaux, execute graph checks, select
 //! witnesses, or certify a model. Input formulas must already contain the
 //! caller's pure, correctly bound predicates and expanded fairness. Predicate
-//! occurrences get distinct tags before rewriting; truth-equivalent predicates
-//! are never merged. The existing independent word interpreter can evaluate
+//! visits get fresh tags before rewriting. Repeated visits to one supplied arena
+//! node retain the last tag at every reference, matching TLC object sharing;
+//! separately constructed truth-equivalent predicates are never merged. The existing independent word interpreter can evaluate
 //! every intermediate stage using the retained occurrence-to-input mapping.
 
 use crate::formula::{Atom, AtomKind, Formula, FormulaError, Limits, Node};
+use std::collections::BTreeMap;
 
 /// A supplied temporal formula and the identity of its input table.
 #[derive(Clone, Copy, Debug)]
@@ -63,7 +65,8 @@ pub struct Projection {
     /// are retained separately in [`BoundProjection::configured_properties`].
     pub properties: Vec<String>,
     /// Predicate occurrence mapping; arena atom indices index this table.
-    /// TLC's tag is the table index plus one.
+    /// TLC's tag is the table index plus one. Repeated visits of one input
+    /// arena node leave earlier unused tag slots, as in TLC's mutable tag pass.
     pub occurrences: Vec<Occurrence>,
     /// Combined fairness AND negated properties, tagged before rewriting.
     /// `None` means both input lists were empty.
@@ -144,6 +147,11 @@ impl std::error::Error for ProjectionError {}
 struct Build {
     nodes: Vec<Node>,
     occurrences: Vec<Occurrence>,
+    // Each input arena node is one reference object. Repeated visits assign a
+    // fresh tag but replace every reference to that object with its final tag.
+    // Mapping entries/references are bounded by already charged input/import
+    // terms; this is not an aggregate metadata-byte budget.
+    shared_atoms: BTreeMap<(usize, usize), Vec<usize>>,
     terms: usize,
     steps: usize,
     limits: Limits,
@@ -227,6 +235,24 @@ impl Build {
                 self.room(1)?;
                 let index = self.occurrences.len();
                 self.occurrences.push(Occurrence { input, atom: *a });
+                let key = (input, i);
+                let count = self.shared_atoms.get(&key).map_or(0, Vec::len);
+                for at in 0..count {
+                    self.step(depth)?;
+                    let reference = self
+                        .shared_atoms
+                        .get(&key)
+                        .and_then(|references| references.get(at))
+                        .copied()
+                        .ok_or(FormulaError::Reference("TLC shared predicate tag".into()))?;
+                    if let Node::Atom(previous) = &mut self.nodes[reference] {
+                        previous.index = index;
+                    }
+                }
+                self.shared_atoms
+                    .entry(key)
+                    .or_default()
+                    .push(self.nodes.len());
                 Node::Atom(Atom {
                     kind: a.kind,
                     index,
@@ -381,6 +407,7 @@ impl Build {
                     .map(|c| self.dnf(c, depth + 1))
                     .collect::<Result<Vec<_>, _>>()?;
                 let mut columns = Vec::new();
+                let mut single = Vec::new();
                 let mut total = 1usize;
                 for c in converted {
                     match &self.nodes[c] {
@@ -391,13 +418,18 @@ impl Build {
                                 .filter(|n| *n <= 2_147_483_647)
                                 .ok_or(FormulaError::Limit("TLC DNF cardinality"))?;
                             columns.push(cs.clone());
+                            single.push(c);
                         }
                         Node::And(cs) => {
                             for &c in cs {
                                 columns.push(vec![c]);
+                                single.push(c);
                             }
                         }
-                        _ => columns.push(vec![c]),
+                        _ => {
+                            columns.push(vec![c]);
+                            single.push(c);
+                        }
                     }
                 }
                 // Charge the whole prospective cartesian output before allocating it.
@@ -412,7 +444,10 @@ impl Build {
                     .ok_or(FormulaError::Limit("TLC planning work"))?;
                 self.steps += terms;
                 if total == 1 {
-                    return self.junction(true, columns.into_iter().flatten().collect());
+                    // LNConj.toDNF returns new LNConj(nes) for total=1.
+                    // Unlike the expanded product, it keeps a singleton
+                    // LNDisj factor intact until flattenSingleJunctions.
+                    return self.junction(true, single);
                 }
                 let mut branches = Vec::with_capacity(total);
                 for position in 0..total {
@@ -652,6 +687,7 @@ pub fn process(
     let mut b = Build {
         nodes: Vec::new(),
         occurrences: Vec::new(),
+        shared_atoms: BTreeMap::new(),
         terms: 0,
         steps: 0,
         limits,

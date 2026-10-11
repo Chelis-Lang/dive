@@ -46,6 +46,7 @@ fn real_model_final_witness_is_independently_certified_at_each_width() {
             assert_eq!(report.selection(), "tlc");
             assert_eq!(report.options().workers, workers);
             match report.outcome() {
+                Outcome::Safety(_) => panic!("temporal model incorrectly routed to safety"),
                 Outcome::Holds(e) => {
                     assert_eq!(name, "FinalSafe");
                     assert_eq!(e.execution.capture.workers.used, workers);
