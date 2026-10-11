@@ -101,13 +101,13 @@ fn independent(name: &str, compat: bool) -> SpecModel {
     )
     .expect("independent model")
 }
-fn verify(name: &str, compat: bool) {
+fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedules: &[Option<u64>]) {
     let directory = directory();
     let mut serial = 0;
     let model = (name == "Witness").then(|| independent(name, compat));
-    for store in [Store::Fingerprint, Store::Exact] {
-        for workers in [1, 4, 8] {
-            for chaos in [None, Some(13)] {
+    for &store in stores {
+        for &workers in widths {
+            for &chaos in schedules {
                 let base = CheckRequest {
                     store,
                     workers: Some(workers),
@@ -195,22 +195,44 @@ fn verify(name: &str, compat: bool) {
     }
     std::fs::remove_dir_all(directory).expect("cleanup");
 }
-#[test]
-fn apply_tlc() {
-    verify("Apply", true);
+// Each test owns one unchanged store/width/schedule slice of the original matrix.
+macro_rules! slice {
+    ($test:ident, $source:expr, $compat:expr, $store:expr, $width:expr, $chaos:expr) => {
+        #[test]
+        fn $test() {
+            verify($source, $compat, &[$store], &[$width], &[$chaos]);
+        }
+    };
 }
-#[test]
-fn apply_dive() {
-    verify("Apply", false);
+macro_rules! widths {
+    ($source:expr, $compat:expr, $store:expr) => {
+        slice!(w1_plain, $source, $compat, $store, 1, None);
+        slice!(w1_chaos, $source, $compat, $store, 1, Some(13));
+        slice!(w4_plain, $source, $compat, $store, 4, None);
+        slice!(w4_chaos, $source, $compat, $store, 4, Some(13));
+        slice!(w8_plain, $source, $compat, $store, 8, None);
+        slice!(w8_chaos, $source, $compat, $store, 8, Some(13));
+    };
 }
-#[test]
-fn witness_tlc() {
-    verify("Witness", true);
+macro_rules! controls {
+    ($parent:ident, $source:expr, $compat:expr) => {
+        mod $parent {
+            use super::*;
+            mod fingerprint {
+                use super::*;
+                widths!($source, $compat, Store::Fingerprint);
+            }
+            mod exact {
+                use super::*;
+                widths!($source, $compat, Store::Exact);
+            }
+        }
+    };
 }
-#[test]
-fn witness_dive() {
-    verify("Witness", false);
-}
+controls!(apply_tlc, "Apply", true);
+controls!(apply_dive, "Apply", false);
+controls!(witness_tlc, "Witness", true);
+controls!(witness_dive, "Witness", false);
 
 #[test]
 fn actual_older_ambiguous_archive_refuses_without_search() {

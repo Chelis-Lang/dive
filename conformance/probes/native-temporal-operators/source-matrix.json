@@ -7,7 +7,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
     "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
-    "CHANGELOG.md": "21a56f29416e5bc78d1bf9a48b3e1d3155b082d2a51ce8683714e228dc20c899",
+    "CHANGELOG.md": "707c72d6f06f60645608e1e332d4e8ccf0bca8aaa5cf01759ca760a45247ed5b",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
     "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67",

@@ -633,7 +633,7 @@
     "conformance/probes/fallible-seen-engine/current/cm1-corrected.stdout": "98ef1b68ced3d965015faac9cf8562ae7d9ceb880a99a752bb9007273058d012",
     "conformance/probes/fallible-seen-engine/current/cm1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "conformance/probes/fallible-seen-engine/current/cm1.stdout": "4f90a055a545a6edf043bb5e7fd60dc0ac6b5f1e638ab0543ca0c851ef2e6df3",
-    "conformance/probes/fallible-seen-engine/current/current-source.json": "8b0073699b8f1ed08226ab15fc8a81b022b3dbec01a77cd9b6717f295c43892b",
+    "conformance/probes/fallible-seen-engine/current/current-source.json": "3bbbd89caa3c5761b448a367053a86026254d925c9de383cfa1faf149332be73",
     "conformance/probes/fallible-seen-engine/current/extra-driver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "conformance/probes/fallible-seen-engine/current/extra-driver.stdout": "653dc5805953760f3eb1b09222b7741f4cb58cf8665f0feaca9cfd9089f868d3",
     "conformance/probes/fallible-seen-engine/current/extra-replay-corrected.py": "1068e11ae3b69e96096e8b07e5cf4408c8963cf9c671efe142227f47bf6df559",

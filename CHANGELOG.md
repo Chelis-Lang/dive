@@ -1147,3 +1147,5 @@ All notable changes to this project are documented here. The project will follow
 
 - Independent whole-word tuple replay follows fixed nested tuple aliases in
   `UNCHANGED`; conditional permutations remain refused.
+
+- Preserve complete storage, VIEW, and checkpoint recovery matrices as smaller CI test cases; retain timeout evidence and verify their compiled inventory without extending test budgets.

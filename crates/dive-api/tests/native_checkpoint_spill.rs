@@ -60,7 +60,14 @@ fn observable(mut value: serde_json::Value) -> serde_json::Value {
     clippy::too_many_lines,
     reason = "one complete recovery/independent-witness matrix per source case"
 )]
-fn recovery_case(name: &str, profiles: &[bool], family: u8) {
+fn recovery_case(
+    name: &str,
+    profiles: &[bool],
+    family: u8,
+    stores: &[Store],
+    widths: &[usize],
+    schedules: &[Option<u64>],
+) {
     assert!((1..=3).contains(&family));
     let directory = directory();
     let mut serial = 0;
@@ -81,9 +88,9 @@ fn recovery_case(name: &str, profiles: &[bool], family: u8) {
                 },
             )
             .expect("independent model");
-            for store in [Store::Fingerprint, Store::Exact] {
-                for workers in [1, 4, 8] {
-                    for chaos in [None, Some(19)] {
+            for &store in stores {
+                for &workers in widths {
+                    for &chaos in schedules {
                         let req = CheckRequest {
                             compat_tlc,
                             store,
@@ -247,95 +254,110 @@ fn storage(v: &serde_json::Value, family: u8, frontier: &Path, predecessor: &Pat
     );
 }
 
-#[test]
-fn cpview_dive_frontier_spill_recovery() {
-    recovery_case("CpView", &[false], 1);
+// Each test owns one unchanged store/width/schedule slice of the original matrix.
+macro_rules! slice {
+    ($test:ident, $source:expr, $compat:expr, $family:expr, $store:expr, $width:expr, $chaos:expr) => {
+        #[test]
+        fn $test() {
+            recovery_case(
+                $source,
+                &[$compat],
+                $family,
+                &[$store],
+                &[$width],
+                &[$chaos],
+            );
+        }
+    };
 }
-
-#[test]
-fn cpview_dive_predecessor_spill_recovery() {
-    recovery_case("CpView", &[false], 2);
+macro_rules! widths {
+    ($source:expr, $compat:expr, $family:expr, $store:expr) => {
+        slice!(w1_plain, $source, $compat, $family, $store, 1, None);
+        slice!(w1_chaos, $source, $compat, $family, $store, 1, Some(19));
+        slice!(w4_plain, $source, $compat, $family, $store, 4, None);
+        slice!(w4_chaos, $source, $compat, $family, $store, 4, Some(19));
+        slice!(w8_plain, $source, $compat, $family, $store, 8, None);
+        slice!(w8_chaos, $source, $compat, $family, $store, 8, Some(19));
+    };
 }
-
-#[test]
-fn cpview_dive_both_spill_recovery() {
-    recovery_case("CpView", &[false], 3);
+macro_rules! controls {
+    ($parent:ident, $source:expr, $compat:expr, $family:expr) => {
+        mod $parent {
+            use super::*;
+            mod fingerprint {
+                use super::*;
+                widths!($source, $compat, $family, Store::Fingerprint);
+            }
+            mod exact {
+                use super::*;
+                widths!($source, $compat, $family, Store::Exact);
+            }
+        }
+    };
 }
-
-#[test]
-fn cpview_tlc_frontier_spill_recovery() {
-    recovery_case("CpView", &[true], 1);
-}
-
-#[test]
-fn cpview_tlc_predecessor_spill_recovery() {
-    recovery_case("CpView", &[true], 2);
-}
-
-#[test]
-fn cpview_tlc_both_spill_recovery() {
-    recovery_case("CpView", &[true], 3);
-}
-
-#[test]
-fn cpsymview_dive_frontier_spill_recovery() {
-    recovery_case("CpSymView", &[false], 1);
-}
-
-#[test]
-fn cpsymview_dive_predecessor_spill_recovery() {
-    recovery_case("CpSymView", &[false], 2);
-}
-
-#[test]
-fn cpsymview_dive_both_spill_recovery() {
-    recovery_case("CpSymView", &[false], 3);
-}
-
-#[test]
-fn cpsymview_tlc_frontier_spill_recovery() {
-    recovery_case("CpSymView", &[true], 1);
-}
-
-#[test]
-fn cpsymview_tlc_predecessor_spill_recovery() {
-    recovery_case("CpSymView", &[true], 2);
-}
-
-#[test]
-fn cpsymview_tlc_both_spill_recovery() {
-    recovery_case("CpSymView", &[true], 3);
-}
-
-#[test]
-fn cpsymconcrete_dive_frontier_spill_recovery() {
-    recovery_case("CpSymConcrete", &[false], 1);
-}
-
-#[test]
-fn cpsymconcrete_dive_predecessor_spill_recovery() {
-    recovery_case("CpSymConcrete", &[false], 2);
-}
-
-#[test]
-fn cpsymconcrete_dive_both_spill_recovery() {
-    recovery_case("CpSymConcrete", &[false], 3);
-}
-
-#[test]
-fn cpsymconcrete_tlc_frontier_spill_recovery() {
-    recovery_case("CpSymConcrete", &[true], 1);
-}
-
-#[test]
-fn cpsymconcrete_tlc_predecessor_spill_recovery() {
-    recovery_case("CpSymConcrete", &[true], 2);
-}
-
-#[test]
-fn cpsymconcrete_tlc_both_spill_recovery() {
-    recovery_case("CpSymConcrete", &[true], 3);
-}
+controls!(cpview_dive_frontier_spill_recovery, "CpView", false, 1);
+controls!(cpview_dive_predecessor_spill_recovery, "CpView", false, 2);
+controls!(cpview_dive_both_spill_recovery, "CpView", false, 3);
+controls!(cpview_tlc_frontier_spill_recovery, "CpView", true, 1);
+controls!(cpview_tlc_predecessor_spill_recovery, "CpView", true, 2);
+controls!(cpview_tlc_both_spill_recovery, "CpView", true, 3);
+controls!(
+    cpsymview_dive_frontier_spill_recovery,
+    "CpSymView",
+    false,
+    1
+);
+controls!(
+    cpsymview_dive_predecessor_spill_recovery,
+    "CpSymView",
+    false,
+    2
+);
+controls!(cpsymview_dive_both_spill_recovery, "CpSymView", false, 3);
+controls!(cpsymview_tlc_frontier_spill_recovery, "CpSymView", true, 1);
+controls!(
+    cpsymview_tlc_predecessor_spill_recovery,
+    "CpSymView",
+    true,
+    2
+);
+controls!(cpsymview_tlc_both_spill_recovery, "CpSymView", true, 3);
+controls!(
+    cpsymconcrete_dive_frontier_spill_recovery,
+    "CpSymConcrete",
+    false,
+    1
+);
+controls!(
+    cpsymconcrete_dive_predecessor_spill_recovery,
+    "CpSymConcrete",
+    false,
+    2
+);
+controls!(
+    cpsymconcrete_dive_both_spill_recovery,
+    "CpSymConcrete",
+    false,
+    3
+);
+controls!(
+    cpsymconcrete_tlc_frontier_spill_recovery,
+    "CpSymConcrete",
+    true,
+    1
+);
+controls!(
+    cpsymconcrete_tlc_predecessor_spill_recovery,
+    "CpSymConcrete",
+    true,
+    2
+);
+controls!(
+    cpsymconcrete_tlc_both_spill_recovery,
+    "CpSymConcrete",
+    true,
+    3
+);
 
 #[test]
 fn storage_failures_do_not_create_a_pause_or_certify_recovery() {

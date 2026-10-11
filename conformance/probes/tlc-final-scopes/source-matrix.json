@@ -38,7 +38,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
     "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
-    "CHANGELOG.md": "21a56f29416e5bc78d1bf9a48b3e1d3155b082d2a51ce8683714e228dc20c899",
+    "CHANGELOG.md": "707c72d6f06f60645608e1e332d4e8ccf0bca8aaa5cf01759ca760a45247ed5b",
     "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",

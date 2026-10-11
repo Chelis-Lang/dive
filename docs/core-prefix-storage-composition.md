@@ -51,3 +51,13 @@ change the qualified Rust/Cargo or literal fixture bytes. Ordinary temporal
 scheduling, general procedure-stack replay, recovery/distributed interactions
 and complete TLC semantic families remain uncertified. No family or overall
 percentage is promoted by these selected passing runs.
+
+## CI test scheduling
+
+The first PR head timed out in two test partitions after compilation. The
+[retained matrix census](../conformance/probes/ci-storage-matrices/README.md)
+records those failures and the subsequent test-only split. All 768 original
+cases and their assertions remain; 336 smaller tests replace 34 large matrices.
+This improves work distribution across the existing eight CI jobs without
+changing production behavior, test bounds, or any conformance requirement.
+The original 1,346-test epoch above remains tied to its original source.
