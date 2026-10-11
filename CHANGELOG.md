@@ -11,11 +11,17 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Explicit bounded final TLC results retain configured PROPERTY names, original
+  expanded temporal Action names, and derived role labels separately in the
+  Rust API and schema-2 JSON. Conjunctions preserve repeated original names;
+  original witness claims, ordinary schema 1, scheduling and bounds are unchanged.
+  See `docs/tlc-property-origins.md`.
+
 - Scoped explicit final temporal checking preserves local LET derived role
   names separately from formal argument forwarding, and exact cardinality-one
   DNF shape. Caller contexts and original witness claims have pinned field and
-  fresh replay controls; expanded-action names and ordinary schedules remain
-  incomplete. See `docs/tlc-final-scopes.md`.
+  fresh replay controls. The later property-origin increment adds expanded Action
+  names separately; ordinary schedules remain incomplete. See `docs/tlc-final-scopes.md`.
 
 - Explicit final/TLC checking admits proven direct temporal conditionals with
   pinned shared-guard tags, exact particles and independent counterexample replay.

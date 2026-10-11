@@ -474,3 +474,5 @@ predicate is one atom, evaluated by negating the existing pure bounded action
 search. The default formula kernel and independent Word implementation stay
 unchanged. Complete positive/negative fields and periodic/closing controls
 retain the old extra-negation mismatch; this is normalization fidelity only.
+
+| Expanded temporal Action origins in `dive-model` and final-only API/JSON | `tlc2/tool/impl/SpecProcessor.java`, `processConfigProps`: unchanged `configName` passed into every implied-temporal `new Action`, independently of mutable derived `name`; pin `94d0c50` | MIT | Complete18 actual primary projections retain configured, expanded Action and derived role vectors separately;16 complete/2 exported-formal failures. Metadata only, unchanged witness/scheduling contract. |

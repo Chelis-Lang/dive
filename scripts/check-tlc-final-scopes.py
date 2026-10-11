@@ -5,6 +5,9 @@ ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/tlc-final-scopes'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 load=lambda p:json.loads(p.read_text())
+FROZEN=ROOT/'conformance/probes/tlc-final-property-origins/frozen-scoped-producer'
+def scoped_producer_source(path,digest):
+ assert hashlib.sha256(gzip.decompress((FROZEN/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 selection=load(BASE/'selection.json')
 assert len(selection)==18 and len({r['name']for r in selection})==18
 
@@ -57,7 +60,7 @@ for r in m['rows']:
 n=BASE/'native-current';m=load(n/'capture.json');assert m['source_and_binary_unchanged']is True
 assert m['selection_sha256']==sha(BASE/'selection.json')
 assert [(r['model'],r['requested_workers'])for r in m['rows']]==[(r['name'],w)for r in selection for w in [1,3,4,8]]
-for path,d in m['source_sha256'].items():assert sha(ROOT/path)==d,path
+for path,d in m['source_sha256'].items():scoped_producer_source(path,d)
 refs={r['name']:r for r in c['rows']};final_refs={r['name']:r for r in f['rows']};counts={}
 for r in m['rows']:
  b=n/f"{r['model']}-{r['requested_workers']}"
@@ -91,7 +94,7 @@ assert 'multiple different versions of crate' in (failed/'compile.stderr').read_
 example=BASE/'user-example-controls';em=load(example/'receipt.json')
 assert em['compile_exit']==em['run_exit']==0 and em['source_and_binary_unchanged']is True
 assert sha(BASE/'user-example.rs')==em['source_sha256']
-for path,d in em['crate_source_sha256'].items():assert sha(ROOT/path)==d,path
+for path,d in em['crate_source_sha256'].items():scoped_producer_source(path,d)
 for path,d in em['files'].items():assert sha(example/path)==d,path
 assert (example/'stdout').read_text().strip()=='["P", "Q"]'
 for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path

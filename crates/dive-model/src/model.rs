@@ -120,6 +120,8 @@ pub struct Model {
     pub temporals: Vec<Named>,
     /// Temporal properties to check (liveness).
     pub implied_temporals: Vec<Named>,
+    /// Binder-recorded original names of TLC implied-temporal Actions.
+    pub(crate) implied_temporal_action_names: Vec<String>,
     /// Original configured PROPERTY formulas, before TLC's role splitting.
     /// These retain configuration names for complete counterexample claims;
     /// the role vectors above keep TLC's evaluation/checking order unchanged.
@@ -225,7 +227,21 @@ impl Model {
             self.evaluator
                 .validate_predicate(&action.scope(), action.expr())?;
         }
+        if self.implied_temporal_action_names.len() != self.implied_temporals.len() {
+            return Err(dive_eval::EvalError::unsupported(
+                "invalid temporal property-origin metadata (DIVE-EVAL-C001)",
+            ));
+        }
         Ok(())
+    }
+
+    /// Original configuration names on TLC's expanded implied-temporal Actions,
+    /// recorded in role order by the binder. A conjunctive `P` can yield
+    /// `P;P`; these are distinct from configured claims and derived labels.
+    /// Rebind caller-edited role vectors before using this binding snapshot.
+    #[must_use]
+    pub fn implied_temporal_action_names(&self) -> &[String] {
+        &self.implied_temporal_action_names
     }
 
     /// Original configured property claims, or the temporal roles for a model

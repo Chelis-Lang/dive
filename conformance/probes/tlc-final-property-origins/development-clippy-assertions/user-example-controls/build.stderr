@@ -1,0 +1,19 @@
+    Updating crates.io index
+     Locking 45 packages to highest Rust 1.99.0 compatible versions
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-syntax)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-sema)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-config)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-store)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-ir)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-pluscal)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-final-origins-work/crates/dive-api)
+   Compiling dive-origin-guide-example v0.0.0 (/tmp/dive-final-origins-user-example-project)
+    Finished `dev` profile [unoptimized] target(s) in 17.41s

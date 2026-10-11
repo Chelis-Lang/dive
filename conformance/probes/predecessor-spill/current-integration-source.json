@@ -8,7 +8,7 @@
     }
   ],
   "schema_version": 1,
-  "scope": "combined native frontier and predecessor storage; no total-memory claim",
+  "scope": "combined native frontier and predecessor storage; no total-memory claim; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
     "crates/dive-api/src/check.rs": "fb504620a8d0de1d00c3b7309ad615cb109682fe5fa4e877c2e6c8e99b73b038",
     "crates/dive-api/tests/predecessor_spill.rs": "81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e",

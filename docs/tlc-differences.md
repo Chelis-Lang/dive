@@ -1691,6 +1691,17 @@ See [the user guide](tlc-temporal-if.md) and
 Bounded final scope evidence (#134) now distinguishes configured names from
 local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
 Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
-refusals. Original expanded-action attribution is still a missing native field,
-not an approved result-changing default. Ordinary periodic scheduling remains
+refusals. The additive property-origin increment below exposes original
+expanded Action names separately; its metadata is not a new result-changing
+default or ordinary liveness certificate. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
+### Current identity metadata limitation and evidence
+
+The final-only JSON and Rust API expose three distinct temporal identity vectors:
+configured properties, original expanded Actions and derived role labels. A
+conjunction can have one configured `P`, two Action names `P`, and two source
+location labels. Those labels are not interchangeable. This is a matching
+metadata contract, not a new divergence or ordinary liveness certification.
+Exported temporal-formal INSTANCE cases still refuse when the pinned reference
+fails before producing that projection. See [the identity guide](tlc-property-origins.md).

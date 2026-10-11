@@ -521,3 +521,13 @@ Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
+### Expanded temporal identity evidence (#134)
+
+Completed bounded final TLC results now preserve the original name on each
+expanded temporal Action separately from original configured claims and derived
+role labels. This matches the pinned binder and adds no semantic divergence.
+Conjunctive `PROPERTY P` can expose Action names `P;P` while the trace claims `P`
+once. The complete18 source-bound selection retains two exported-formal failures
+as refusals; ordinary schedules and broad family certification remain pending.
+See [the identity guide](tlc-property-origins.md).

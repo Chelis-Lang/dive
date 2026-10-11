@@ -1,0 +1,8 @@
+{
+  "scope": "Original failed new test assumed diagnostic BoundProjection carried private origin authority; native18 field matrix passed. Keep diagnostic construction unchanged; final Session rejects stale role quantity.",
+  "files": {
+    "source/crates/dive-api/tests/tlc_property_origins.rs": "17ea53f47b7e34775e72af78c7f0791565704519e06a5d037ad7e9d549302d59",
+    "source/crates/dive-model/src/model.rs": "49364d80e43f6427d0f3bc9879f8ec78975cde0c7a71dce9cfa06f9c7f21b32b",
+    "focused.log": "fd9e3eb12f2177cc5cc64d85677bf7f11506d66925f7019fddf7d0cb8e6d589b"
+  }
+}
