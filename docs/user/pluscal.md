@@ -139,9 +139,8 @@ C/P and Cargo examples and separate artifact/count/strict-replay qualifications.
 
 
 Full editing also supports bounded [disjoint sequential procedure headers](../pluscal-multiple-procedure-checksums.md)
-with main-only calls and globally disjoint parameter/local names. Target-specific
+with globally disjoint parameter/local names. The [acyclic call continuation](../pluscal-acyclic-procedure-checksums.md) also supports bounded procedure-body calls. Target-specific
 frames and return slots remain separate from the reference header's shared
 last-declaration call vector. The guide includes executable C/P and Cargo-owned
-Rust examples. Procedure-to-procedure, recursive, process-owned and scoped
-checksum shapes remain explicit refusals; no artifact checksum certifies a model
+Rust examples. Recursive, process-owned and scoped checksum shapes remain explicit refusals; no artifact checksum certifies a model
 or a strict saved-frame witness.

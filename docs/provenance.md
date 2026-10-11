@@ -729,3 +729,18 @@ they are native admission controls, not Java runtime instructions or allocation
 measurements. No Java runtime is delegated to. See ADR 0069 and the complete
 98-row declared study; raw original-header bytes are not exploded-xast, artifact
 or model-proof credit.
+
+## Acyclic procedure-body checksum calls (#219)
+
+`checksum_transfers.rs` discovers source-owned procedure call vectors separately
+from main's LAST-header alias. `checksum.rs` emits each body vector then distinct
+main targets only on the last declaration. The matched source is pinned
+`pcal.ParseAlgorithm.GetProcedure` (reset/store shared vector) and `GetCall`
+(first source encounter/dedup), plus `AST.Procedure.toString`, at commit
+`94d0c507` (MIT). Target frame and current return-slot ownership still match the
+separate `PcalTranslate.ExplodeCall/ExplodeReturn` view; original post-generation
+header authority is not replaced with direct exploded xast. Native iterative
+acyclic admission and conservative pre-allocation reservations are dive's own
+controls, not Java algorithms or exact instruction counts. No runtime Java
+is delegated to. ADR0073 and the complete130-row declared study retain all old
+errors/refusals and the first ENOSPC capture separately.

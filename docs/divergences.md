@@ -785,3 +785,13 @@ retain the pinned header behavior, unchanged global quotas and D-020 weakness.
 Invalid `-fair` commands are command-stage uncredited controls, not language
 rejection or exit-equivalence credit. Artifact and strict saved-frame replay
 remain separately qualified. See [the runnable guide](pluscal-multiple-procedure-checksums.md).
+
+D-008 acyclic sequential procedure Full checksum continuation (ADR0073) separates
+actual body edges from the reference LAST-header main-call alias. The clean
+130-row C/P selection retains the original98 and adds32 acyclic shapes;
+original-header/CRC, exploded frames, public artifact and replay evidence remain
+separate. Real recursive/process/scoped graphs and other unproved checksum
+shapes remain named refusals with no Full replacement. Shared quotas and
+D-020 fair-header weakness are unchanged. See
+[the executable guide](pluscal-acyclic-procedure-checksums.md); F-034/F-035 remain
+partial and strict saved-frame replay stays qualified under #124.

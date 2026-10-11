@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Bounded Full PlusCal checksums support disjoint acyclic sequential procedure-body
+  calls, preserving each owner's source call vector separately from the reference
+  last-header main alias (ADR0073). Actual recursion remains a named refusal;
+  shared budgets, CRC policy and strict saved-frame witness qualifications remain
+  unchanged. The guide includes executable C/P and Cargo-owned Rust examples.
+
 - Bounded Full PlusCal editing supports disjoint explicitly labelled sequential
   procedures called from main. Typed call frames retain target ownership while
   the original header preserves the last declaration's shared call vector

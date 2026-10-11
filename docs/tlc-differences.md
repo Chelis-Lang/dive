@@ -2266,3 +2266,17 @@ translator exit 255, separate development stage-probe exit 0 carrying the error,
 and native CLI exit 2. Those errors are not TLA grammar or checksum equivalence
 credit. Original verification-driver failures remain archived; corrected command
 accounting never changes their oracle or native bytes.
+
+The bounded acyclic procedure continuation also preserves TLC's call-list alias.
+For `Outer(p)` calling `Inner(p+1)`, with main calling `Outer(1)`, pinned stored
+header lists Outer=[Inner], Inner=[Outer], CRC `256207b7`. Reversing declarations
+lists Inner=[], Outer=[Inner,Outer], CRC `90b81514`. A runtime chain to Leaf has
+CRC `37b455c8` and its last header still records main's Outer call; an unused
+Outer-to-Inner procedure has CRC `6e37c648` while the last header stays empty.
+These measured checksum fields are not a recursion or reachability graph.
+The native Full editor now preserves those fields separately from actual body
+edges, admitting proved disjoint acyclic sequential calls. Real recursive,
+process-owned and scoped checksum contexts remain named unsupported results.
+Both profiles retain reference CRC behavior, including fair-header-only weak
+detection. [Runnable C/P and Rust examples](pluscal-acyclic-procedure-checksums.md)
+explain artifact/model boundaries and the unchanged strict saved-frame #124 gap.

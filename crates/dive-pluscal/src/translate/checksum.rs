@@ -255,29 +255,49 @@ impl Writer {
         self.push("\", ")?;
         self.newline()?;
         self.push("minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |->")?;
-        // ParseAlgorithm.GetProcedure stores the static vector by reference.
-        // Each GetProcedure resets the static vector. The last declaration
-        // shares that vector with main's subsequent distinct call targets.
+        // Each procedure retains its own distinct body targets in parse order.
+        // LAST additionally aliases main's subsequent calls. This serialization
+        // is separate from the typed source-owned graph used for cycle admission.
+        let owner = parsed
+            .algorithm
+            .procedures
+            .iter()
+            .position(|p| p.name.text == procedure.name.text)
+            .ok_or_else(|| unsupported(procedure.span, "missing called-vector source owner"))?;
+        let own_count = self.header.body_called.get(owner).map_or(0, Vec::len);
         let last = parsed
             .algorithm
             .procedures
             .last()
             .is_some_and(|p| p.name.text == procedure.name.text);
         self.push("<<")?;
-        if last {
-            for index in 0..self.header.main_called.len() {
-                if index > 0 {
-                    self.push(", ")?;
-                }
-                let owner = self.header.main_called[index];
-                let called =
-                    parsed.algorithm.procedures.get(owner).ok_or_else(|| {
-                        unsupported(procedure.span, "missing called-vector owner")
-                    })?;
-                self.push("\"")?;
-                self.push(&called.name.text)?;
-                self.push("\"")?;
+        let mut first = true;
+        let count = own_count.saturating_add(if last {
+            self.header.main_called.len()
+        } else {
+            0
+        });
+        for index in 0..count {
+            let target = if index < own_count {
+                self.header.body_called[owner][index]
+            } else {
+                self.header.main_called[index - own_count]
+            };
+            if index >= own_count && self.header.body_called[owner].contains(&target) {
+                continue;
             }
+            if !first {
+                self.push(", ")?;
+            }
+            first = false;
+            let called = parsed
+                .algorithm
+                .procedures
+                .get(target)
+                .ok_or_else(|| unsupported(procedure.span, "missing called-vector target"))?;
+            self.push("\"")?;
+            self.push(&called.name.text)?;
+            self.push("\"")?;
         }
         self.push(">>,")?;
         self.newline()?;
@@ -993,8 +1013,9 @@ impl Writer {
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
 /// recursive/process-owned procedures and branch-internal labels are refused.
-/// Explicitly labelled disjoint sequential procedures support main calls, returns
-/// and adjacent call-goto, including proved nested If/With/Either and While shared
+/// Explicitly labelled disjoint sequential procedures support main and acyclic
+/// procedure-body calls, returns and adjacent call-goto, including proved nested
+/// If/With/Either and While shared
 /// vectors, with exact original/header AST ownership.
 /// Pure bounded nonrecursive
 /// macros use single-line substitutions; multiline arguments and substituted
@@ -1064,26 +1085,6 @@ fn checksum_inline(
                 algorithm.span,
                 "checksum requires explicitly labelled sequential procedures without definitions/macros",
             ));
-        }
-        // Parsed procedure bodies are disjoint and in source order. Resolve
-        // each call once instead of rescanning the arena for every owner.
-        for statement in &parsed.statements {
-            if !matches!(statement.kind, StatementKind::Call { .. }) {
-                continue;
-            }
-            let index = algorithm
-                .procedures
-                .partition_point(|p| p.body.span.start <= statement.span.start);
-            if let Some(procedure) = index
-                .checked_sub(1)
-                .and_then(|i| algorithm.procedures.get(i))
-                .filter(|p| statement.span.end <= p.body.span.end)
-            {
-                return Err(unsupported(
-                    procedure.span,
-                    "procedure call graph/recursion checksum",
-                ));
-            }
         }
         if parsed
             .statements

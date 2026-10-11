@@ -28,6 +28,8 @@ pub(super) enum Node {
 #[derive(Default)]
 pub(super) struct Plan {
     pub blocks: BTreeMap<(usize, usize), Vec<Node>>,
+    /// Source-owned edges, without the LAST declaration's main-header alias.
+    pub body_called: Vec<Vec<usize>>,
     pub main_called: Vec<usize>,
 }
 type Groups = Vec<(String, Vec<StmtId>)>;
@@ -192,11 +194,23 @@ impl Builder<'_> {
         nodes.push(self.update(&entry)?);
         Ok(nodes)
     }
-    fn collect_main_called(&mut self) -> Result<(), TranslationError> {
+    fn collect_calls(&mut self) -> Result<(), TranslationError> {
         let parsed = self.parsed;
-        // GetProcedure resets a static vector but stores it by reference. Main
-        // calls append only to the last declaration's vector, in parse order.
-        self.charge(parsed.statements.len(), 0)?;
+        // GetProcedure resets a static vector but stores it by reference. Keep
+        // body ownership apart from main's later LAST-header alias: the latter
+        // can look cyclic even when the actual procedure call graph is a DAG.
+        self.charge(
+            parsed.algorithm.procedures.len(),
+            parsed
+                .algorithm
+                .procedures
+                .len()
+                .saturating_mul(std::mem::size_of::<Vec<usize>>()),
+        )?;
+        self.plan.body_called = (0..parsed.algorithm.procedures.len())
+            .map(|_| Vec::new())
+            .collect();
+        self.charge(parsed.statements.len().saturating_mul(2), 0)?;
         let calls = parsed
             .statements
             .iter()
@@ -205,40 +219,111 @@ impl Builder<'_> {
         let sorting = usize::try_from(calls.bit_width()).unwrap_or(usize::MAX);
         self.charge(
             calls.saturating_mul(sorting.saturating_add(3)),
-            calls.saturating_mul(std::mem::size_of::<(usize, &str)>()),
+            calls.saturating_mul(std::mem::size_of::<(Span, &str)>()),
         )?;
         let mut targets: Vec<_> = parsed
             .statements
             .iter()
             .filter_map(|s| {
                 if let StatementKind::Call { name, .. } = &s.kind {
-                    Some((s.span.start, name.text.as_str()))
+                    Some((s.span, name.text.as_str()))
                 } else {
                     None
                 }
             })
             .collect();
-        targets.sort_by_key(|(start, _)| *start);
-        for (_, name) in targets {
-            self.charge(
-                parsed
-                    .algorithm
-                    .procedures
-                    .len()
-                    .saturating_add(self.plan.main_called.len()),
-                0,
-            )?;
-            let owner = parsed
-                .algorithm
-                .procedures
-                .iter()
-                .position(|p| p.name.text == name)
-                .ok_or_else(|| unsupported(parsed.algorithm.span, "missing called-vector owner"))?;
-            if !self.plan.main_called.contains(&owner) {
-                self.charge(1, std::mem::size_of::<usize>())?;
-                self.plan.main_called.push(owner);
+        targets.sort_by_key(|(span, _)| span.start);
+        for (span, name) in targets {
+            self.record_call(span, name)?;
+        }
+        Ok(())
+    }
+    fn record_call(&mut self, span: Span, name: &str) -> Result<(), TranslationError> {
+        let procedures = &self.parsed.algorithm.procedures;
+        let count = procedures.len();
+        let search = usize::try_from(count.bit_width()).unwrap_or(usize::MAX);
+        self.charge(count.saturating_add(search).saturating_add(1), 0)?;
+        let procedures = &self.parsed.algorithm.procedures;
+        let target = procedures
+            .iter()
+            .position(|p| p.name.text == name)
+            .ok_or_else(|| unsupported(span, "missing called-vector target"))?;
+        let index = procedures.partition_point(|p| p.body.span.start <= span.start);
+        let owner = index
+            .checked_sub(1)
+            .filter(|&i| span.end <= procedures[i].body.span.end);
+        let count = owner.map_or(self.plan.main_called.len(), |i| {
+            self.plan.body_called[i].len()
+        });
+        self.charge(count, 0)?;
+        let called = owner.map_or(&self.plan.main_called, |i| &self.plan.body_called[i]);
+        let duplicate = called.contains(&target);
+        if !duplicate {
+            self.charge(1, std::mem::size_of::<usize>())?;
+            match owner {
+                Some(i) => self.plan.body_called[i].push(target),
+                None => self.plan.main_called.push(target),
             }
         }
+        Ok(())
+    }
+    fn check_cycles(&mut self) -> Result<(), TranslationError> {
+        let owners = self.plan.body_called.len();
+        self.charge(owners, 0)?;
+        let edges = self.plan.body_called.iter().map(Vec::len).sum::<usize>();
+        // Reserve adjacency visits, indegrees and the entire bounded work queue
+        // before allocation. This proves static acyclicity; it never unrolls calls.
+        self.charge(
+            owners
+                .saturating_mul(3)
+                .saturating_add(edges.saturating_mul(2)),
+            owners
+                .saturating_mul(2)
+                .saturating_mul(std::mem::size_of::<usize>()),
+        )?;
+        let mut incoming = vec![0usize; owners];
+        for called in &self.plan.body_called {
+            for &target in called {
+                incoming[target] = incoming[target].saturating_add(1);
+            }
+        }
+        let mut pending = Vec::with_capacity(owners);
+        pending.extend(
+            incoming
+                .iter()
+                .enumerate()
+                .filter_map(|(i, &degree)| (degree == 0).then_some(i)),
+        );
+        let mut visited = 0;
+        while let Some(&owner) = pending.get(visited) {
+            visited += 1;
+            for &target in &self.plan.body_called[owner] {
+                incoming[target] = incoming[target].checked_sub(1).ok_or_else(|| {
+                    unsupported(
+                        self.parsed.algorithm.span,
+                        "invalid procedure graph indegree",
+                    )
+                })?;
+                if incoming[target] == 0 {
+                    pending.push(target);
+                }
+            }
+        }
+        if visited != owners {
+            return Err(unsupported(
+                self.parsed.algorithm.span,
+                "recursive sequential procedure checksum call graph",
+            ));
+        }
+        // Writer emits source-owned vectors, then distinct main targets only
+        // on LAST. Reserve those comparisons without confusing them with edges.
+        let last = self.plan.body_called.last().map_or(0, Vec::len);
+        self.charge(
+            owners
+                .saturating_mul(owners)
+                .saturating_add(last.saturating_mul(self.plan.main_called.len())),
+            0,
+        )?;
         Ok(())
     }
     fn returning(&mut self) -> Result<Vec<Node>, TranslationError> {
@@ -536,6 +621,8 @@ pub(super) fn build(
         procedure_entries: Vec::new(),
         transfer_spans: Vec::new(),
     };
+    builder.collect_calls()?;
+    builder.check_cycles()?;
     // Reserve the complete scan, owned spans and comparison-sort work before
     // allocating the index. Work units are a conservative translation policy,
     // not a count of machine instructions or exact Rust allocator calls.
@@ -595,6 +682,5 @@ pub(super) fn build(
     builder.procedure_owner = None;
     let (_, main_groups) = builder.groups(main)?;
     builder.labelled(&main_groups, "Done", true, 0)?;
-    builder.collect_main_called()?;
     Ok(builder.plan)
 }
