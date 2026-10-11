@@ -661,7 +661,8 @@
       "issues": [
         66,
         140,
-        185
+        185,
+        189
       ],
       "acceptance": "Every accepted lncheck variant has matching enable/stop behavior; test TLC wall-clock decisions separately from deterministic level-boundary defaults, recording volatile fields.",
       "interactions": [
@@ -678,9 +679,14 @@
         "conformance/probes/tlc-partial-scc/README.md",
         "crates/dive-liveness/tests/tlc_partial_scc.rs",
         "crates/dive-liveness/tests/partial_execution.rs",
-        "docs/partial-temporal-checks.md"
+        "docs/partial-temporal-checks.md",
+        "conformance/probes/periodic-backend/README.md",
+        "crates/dive-liveness/src/periodic_backend.rs",
+        "crates/dive-liveness/tests/periodic_backend.rs",
+        "crates/dive-check/tests/observer_barrier.rs",
+        "docs/periodic-backend.md"
       ],
-      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Bounded source-produced partial SCC checkpoints skip unwritten records and preserve original OOS/PEM/traversal/candidate order. Shared graph quota and independent witness mutants are staged diagnostics only; no partial Holds, ordinary clock schedule, stopping-count or family credit."
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Bounded source-produced partial SCC checkpoints skip unwritten records and preserve original OOS/PEM/traversal/candidate order. Shared graph quota and independent witness mutants are staged diagnostics only; no partial Holds, ordinary clock schedule, stopping-count or family credit. Source-qualified pointer-table sizes, last-check snapshots and actual joined native-wave receipts now drive explicit bounded checkpoint requests, stopping real capture at first candidate. All32 clean projections at four widths plus retained Java IO faults qualify only graph-growth/backend diagnostics, not ordinary clock/ratio/queue/checkpoint or model verdict authority; F-023 remains missing/uncertified."
     },
     {
       "id": "F-024",

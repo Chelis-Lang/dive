@@ -7,7 +7,7 @@
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
-    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
+    "crates/dive-liveness/src/lib.rs": "bb45366dc970022ba9f45e32df8d1b9dc8f2a4886407b867ef4414f2b9a648d3",
     "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
     "scripts/check-tlc-planning.py": "d5c5859e82d3b8c8389bb12c3131b71650d4867f1a17c7c035e227d10daf024e",
     "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
@@ -29,5 +29,6 @@
     "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
   },
   "source_refresh_scope": "Append metadata-only current source qualification; prior matrix/raw executions are preserved in native-sequence-operators/historical-current-authorities and development-initial/gate-public-ir-source-binding; no historical execution gain.",
-  "scope": "; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately"
+  "scope": "; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit."
 }

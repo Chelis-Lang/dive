@@ -73,6 +73,39 @@ pub struct ConcreteSuccessor {
     pub label: String,
 }
 
+/// Producer-owned fact that all submitted jobs in one fixed source wave joined.
+/// This is not TLC's `StateQueue.suspendAll`, a clock sample or a model proof.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct SourceBarrier {
+    workers: usize,
+    first: u64,
+    end: u64,
+}
+impl SourceBarrier {
+    pub(crate) fn joined(workers: usize, first: u64, end: u64) -> Self {
+        Self {
+            workers,
+            first,
+            end,
+        }
+    }
+    /// Actual pool width, separate from logical committed-source counts.
+    #[must_use]
+    pub fn workers(&self) -> usize {
+        self.workers
+    }
+    /// First discovery identity whose jobs were submitted in the joined wave.
+    #[must_use]
+    pub fn first_source(&self) -> u64 {
+        self.first
+    }
+    /// Exclusive last submitted discovery identity; later sources may be speculative.
+    #[must_use]
+    pub fn end_source(&self) -> u64 {
+        self.end
+    }
+}
+
 /// One logically committed source after all of its ordinary safety checks.
 /// Speculative pool work can include later sources; only `stats` describes the
 /// logical commit prefix. This is execution evidence, not a temporal proof.
@@ -90,6 +123,9 @@ pub struct CommittedSource<'a> {
     /// Generated successors actually evaluated speculatively in this pool level.
     /// This is not a TLC stopping counter and may exceed the logical prefix.
     pub pool_generated: u64,
+    /// Actual submitted generation/check jobs joined before this callback.
+    /// It does not assert every source in the wave was logically committed.
+    pub barrier: SourceBarrier,
 }
 
 /// An explicitly supplied consumer at the ordered initialization/source seam.
@@ -111,6 +147,14 @@ pub trait SourceObserver: Send {
         _ordinal: u64,
         _stats: Stats,
     ) -> Result<(), String> {
+        Ok(())
+    }
+    /// Successful initialization after all initial invariants/implied checks,
+    /// before the worker pool exists. Never called after an Init failure.
+    ///
+    /// # Errors
+    /// Return the deciding consumer diagnostic; expansion has not begun.
+    fn initial_complete(&mut self, _stats: Stats) -> Result<(), String> {
         Ok(())
     }
     /// A complete source before later sources' safety stopping events are chosen.

@@ -4,7 +4,7 @@
   "scope": "Additive bounded final temporal identity fields, source-bound primary/native/example controls; unchanged witness/default/limits/ordinary contract; all family statuses partial",
   "source_sha256": {
     "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
-    "crates/dive-liveness/src/phase_execution.rs": "7508947abdfbc5751b14cb39a63a498869166970d3ae49a1053a3fb6bcd39f34",
+    "crates/dive-liveness/src/phase_execution.rs": "88d16a365dd9971f2c993486928419ef12c606e1e42d862306d8a3b21a78085d",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-model/src/bind.rs": "c827daddd6babeffcc89af03a10df37ed00c26a746f6d9e22026d987a1d49485",
     "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
@@ -14,15 +14,15 @@
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
     "scripts/check-tlc-final-scopes.py": "670faf49e11ce31ca8fbf08f4f828a24aec3a92d8f612abf635fd6d6e9cbb988",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
-    "docs/user/temporal.md": "6b6e902289d0e0f6cf77840b962b3da142ee6ce342d0be28fe86f53a8f01eb5f",
-    "docs/provenance.md": "7ce0e8cd7168ec4ae3efcdc36ae2a6d4b0f4f48a0bc13e56a376d6d5e08fe327",
+    "docs/user/temporal.md": "672081ee9ccd4c6bbe1d7972d274377d94b06e09fc240346887c47afa1f663f5",
+    "docs/provenance.md": "e18d01814ca858158abf347000ea483211f58e46be7020808bde25ad3f0581d4",
     "docs/divergences.md": "a1f1ec8676ce8b6d7199da8172f8263e916260bd18f515dcf3312e38dc41da0d",
-    "docs/tlc-differences.md": "44031059826748274129204b37e8aab424fb0d4876137fdd0631bab1432ecfa0",
+    "docs/tlc-differences.md": "5eca158dcaaa66af9c68b1c57dd5686b615b4b46e2cec2a8044f1b3c2c3b267a",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "conformance/parity-features.json": "154ff770c744c1491900c905feaf183b97645aed91aca6731dd40f7bfe1d784c",
-    "CHANGELOG.md": "719d8b21b437d84bc45233f50217a4711eb52b7a61fd01f6a5ae2c55fca9b340",
-    "AGENTS.md": "9d9b4abe7d74842391f45e7ee1a4c1235080aae51e506acfa838758d47264cf5",
-    ".github/workflows/ci.yml": "12380cbc91e91e6fc651818716afed7fa57e421d928ef3dd12306d6e4f20ae69",
+    "conformance/parity-features.json": "088facfd50aec392de9003365c4d81a94649e7080543c207c014998ec6b285d5",
+    "CHANGELOG.md": "70afb914577fc0a6c5ed837fc6671fcbac2d3a6cf32146ce6f95648feb1347ac",
+    "AGENTS.md": "63333d9c749afe7f38c19f20d72c3f54fbe611da15e42a53aea0d126ed4cadc0",
+    ".github/workflows/ci.yml": "36004bb7ea149e555df301433d528eddfe8c3ce1214c4e9ee89b4ac717c5f1d4",
     "conformance/probes/tlc-final-property-origins/SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
     "conformance/probes/tlc-final-property-origins/SccInspector.java": "51f13e335d269a23f9f263d8bce5060862891929ec184e6e40a11aef8bacd83c",
     "conformance/probes/tlc-final-property-origins/capture-native.py": "f815169bcb507a758f87f71c215980dc5147aecd92ed73b1072370adaff9c054",
@@ -322,5 +322,6 @@
     "conformance/probes/tlc-final-property-origins/gate-current/post-document-controls.log": "0a9f31640e57c92dde0c8644d24849294bcbc76686030301601952a8389b72f7"
   },
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
-  "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch."
+  "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit."
 }

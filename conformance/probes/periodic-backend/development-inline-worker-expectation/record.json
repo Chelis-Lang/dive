@@ -1,0 +1,6 @@
+{
+  "exit": 101,
+  "source_sha256": "2e4e31d4b41ecd355868774f40a08e8ba72d4e902281b9064b8e2d095cd3355b",
+  "log_sha256": "384e847002f44070c4298b2bbe6e2fc69ed0778b9076be77bcd514149da85989",
+  "reason": "Existing failed Init reports one inline search worker before pool, not zero. Preserve existing worker lifecycle."
+}

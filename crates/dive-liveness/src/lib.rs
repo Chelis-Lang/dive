@@ -47,3 +47,6 @@ pub mod tlc_witness;
 
 /// Constructed-model final-only pinned SCC/lasso analysis; candidates require validation.
 pub mod tlc_final;
+
+/// Source-owned pointer growth and explicit partial-check stopping receipts.
+pub mod periodic_backend;

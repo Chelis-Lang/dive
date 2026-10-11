@@ -1,0 +1,16 @@
+[
+  "conformance/probes/predecessor-spill/current-integration-source.json",
+  "conformance/probes/tlc-phase-execution/source-matrix.json",
+  "conformance/probes/tlc-phase-l-graph/source-matrix.json",
+  "conformance/probes/native-checkpoint/current-integration-source.json",
+  "conformance/probes/tlc-final-check/source-matrix.json",
+  "conformance/probes/tlc-state-if/source-matrix.json",
+  "conformance/probes/tlc-final-scopes/source-matrix.json",
+  "conformance/probes/tlc-partial-scc/source-matrix.json",
+  "conformance/probes/tlc-final-property-origins/source-matrix.json",
+  "conformance/probes/tlc-temporal-if/source-matrix.json",
+  "conformance/probes/native-parity-integration/current-source.json",
+  "conformance/probes/tlc-temporal-if-final/source-matrix.json",
+  "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
+  "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json"
+]

@@ -89,3 +89,5 @@ The [partial SCC diagnostic guide](../partial-temporal-checks.md) describes the
 separate Rust checkpoint API. A partial check can return a candidate requiring
 fresh independent replay, but never temporal Holds or an ordinary schedule
 certificate. Original graph/partial inspection bounds remain shared.
+
+Rust backend authors can inspect source-owned graph growth and explicit partial stopping with the [periodic backend diagnostic](../periodic-backend.md). This API does not enable ordinary clock scheduling, Java queue suspension, partial Holds or a model-checking verdict.

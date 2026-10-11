@@ -564,3 +564,5 @@ the deterministic worker pool, with width/chaos and cross-width concrete-result
 controls and inline-equivalent native counter stopping prefixes. This remains
 staged evidence: runtime/temporal/graph/spill recovery, broader persistence
 interactions and full certification remain pending.
+
+The source-qualified [periodic backend](periodic-backend.md) now derives pointer-table growth and per-OOS last-check snapshots from actual commits, with private joined-wave facts and first-candidate stopping. Thirty-two clean primary projections match at1/3/4/8 workers; four actual Java IO failures remain uncredited reference errors. These explicit-prefix diagnostics do not implement an ordinary clock schedule, Java queue suspension or a temporal verdict. F-023 stays missing/audit-required; no family or corpus certification gain.
