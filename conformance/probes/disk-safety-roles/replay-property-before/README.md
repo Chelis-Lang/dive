@@ -20,3 +20,10 @@ error/site/class, count, exact word, output, store, transaction and cleanup
 comparisons at both profiles/stores. Temporal/effectful/Print refusals remain
 selected. This evaluation-error word is diagnostic evidence, not an independent
 violation certificate.
+
+The next frozen526 gate passed every offline check and complete partition
+inventory, then Clippy refused the expanded assertion function's125lines.
+That complete source/gate epoch remains preserved. The subsequent correction
+moves the same public comparison assertions into a helper without dropping or
+weakening an assertion, changing production code or changing resource limits.
+No successful nextest/full-gate run is claimed for526.
