@@ -5,7 +5,7 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
+    "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
@@ -15,5 +15,10 @@
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
   },
   "historical_execution_slice": "execution",
-  "current_integration_scope": "Current integrity after parallel checkpoint integration; original26 execution observations retain original source archives and earn no new runtime credit."
+  "current_integration_scope": "Current integrity after parallel checkpoint integration; original26 execution observations retain original source archives and earn no new runtime credit.",
+  "transient_recovery_integration": {
+    "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
+    "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
+    "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
+  }
 }

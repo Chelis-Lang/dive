@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-10-10T23:47:31.672684",
+  "epoch": 1791672451.672695,
+  "load_average": [
+    19.1318359375,
+    26.779296875,
+    33.9765625
+  ],
+  "cpus": 8,
+  "source_commit": "7872bf687ad0b40fd90f7d186f963ec05e621070",
+  "compile_jobs": 2,
+  "nextest_threads": 2
+}

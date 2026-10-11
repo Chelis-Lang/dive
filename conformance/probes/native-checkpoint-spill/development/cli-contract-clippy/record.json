@@ -1,0 +1,5 @@
+{
+  "source_commit": "757b72c64864f2e5cf534c6b96482a3683e462b3",
+  "source_sha256": "084084d49def63f936004e99c902a76303ce30e77393a08a88b62496de35c451",
+  "reason": "Clippy assert_is_empty requires assert_eq!(stdout, empty bytes) for test diagnostic output; no assertion or runtime behavior changed"
+}

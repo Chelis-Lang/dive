@@ -1,6 +1,6 @@
 {
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "current_integration_scope": "Checkpoint spill publication, process-procedure fairness and partitioned CI; current source integrity with separately frozen execution receipts, no full family certification",
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
   "historical_integrations": [
@@ -91,7 +91,7 @@
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
+    "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
@@ -118,5 +118,10 @@
     "scripts/check-state-if-planning.py": "b0784fa99a951eefbd39cc2584cfc73888606ecb010864d1354d17e7dfff7b6e",
     "scripts/check-tlc-planning.py": "d5c5859e82d3b8c8389bb12c3131b71650d4867f1a17c7c035e227d10daf024e",
     "scripts/check-tlc-tableau.py": "20f4901fc85e0b0a88bff61150b5813fde1453faa2e97db2d4953d6a38722897"
+  },
+  "transient_recovery_integration": {
+    "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
+    "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
+    "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
   }
 }
