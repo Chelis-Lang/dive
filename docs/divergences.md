@@ -606,3 +606,10 @@ checker/register reads and independent TLC name-history witness proof remain
 explicitly unsupported; no archive certificate or total-memory claim is added.
 See `conformance/probes/native-checkpoint-runtime-names/README.md` and
 `docs/native-checkpoint.md#pure-strings-and-recovery-encounter-order`.
+
+D-008 checksum continuation retains strict generated-operator CST comparison,
+including an initially missing empty-Else TRUE conjunct now reproduced exactly.
+Multiline CRC derivation does not lift the named multiline-generation refusal;
+empty-Then layout also refuses explicitly. All 320 primary controls and original
+failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
+remains compatibility reproduction only; no stronger checksum default.

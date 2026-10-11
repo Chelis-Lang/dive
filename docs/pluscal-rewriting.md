@@ -79,10 +79,14 @@ PlusCal translation or formatting parity.
 Full serialization supports sequential declarations, default initialization,
 assignment (including parallel/selectors), skip/goto, await/assert/print, if/else,
 either, single-binding with and while, including proved C block wrappers and
-label normalization. Expressions must occupy one line and contain no ASCII
-column-sensitive `/\` or `\/` junction tokens. The separately measured Unicode
-expression controls include `∧`, `≤`, `≠` and `∈`. Definitions, macros, procedures, processes, scoped name fixes, elsif,
-multiple with binders, branch-internal labels, labelled C wrappers and unproved
+label normalization. Nested `elsif`, multiple `with` binders, multiline
+expressions and normalized ASCII junction columns have proved raw CRC
+derivation. Multiline expression generation remains a named refusal;
+[the expression guide](pluscal-checksum-expressions.md) gives executable C/P
+and Rust examples and precise newline/column/refusal limits. The separately
+measured Unicode expression controls include `∧`, `≤`, `≠` and `∈`. Definitions,
+macros, procedures, processes, scoped name fixes, branch-internal labels,
+labelled C wrappers and unproved
 proof-step-shaped expression tokens are named refusals. Use `--checksums tla`
 explicitly when generation is supported but full serialization is not; that
 policy disables rather than invents the missing checksum.

@@ -517,3 +517,16 @@ ported Java checkpoint codec. Clean `tlc2.TLC` safety runs with `-workers 1`,
 `-seed` 0/7/14 and `-fp 0` provide the separately retained constructor/CHOOSE
 counterparts in `conformance/probes/native-checkpoint-runtime-names/tlc-primary/`.
 The independent TLC trace runtime-name refusal remains unchanged.
+
+The separate checksum-expression increment additionally ports
+`ParseAlgorithm.GetIf` / `InnerGetWith` nesting and optional C trailing
+separator behavior, `TLAExpr.normalize` first-token minimum columns and
+`TLAExpr.toString` line/token grouping, and `trans.removeTabs` eight-column
+expansion (Java UTF-16 columns), all at the same `94d0c50` pin. Native flat
+branch/binder serialization and source position indexing are iterative bounded
+adaptations. The complete original/corrected/layout/separator selections, initial
+parser disagreements and separate SANY-invalid artifacts are retained in
+`crates/dive-pluscal/checksum-expression-acceptance/`. No Java delegation,
+name-fix/process/procedure serialization or stronger checksum default is added.
+
+| `dive-pluscal` empty-Else generation (`translate/emit.rs`) | `pcal.PcalTLAGen.GenIf` empty Else TRUE before identity updates; `ParseAlgorithm.GetIf`/`GetStmtSeq` P empty branches and C nonempty bodies; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Retained original operator-CST mismatch and complete paired empty/explicit-Skip/elsif controls. Empty Then generation remains explicitly unsupported. |

@@ -41,9 +41,17 @@ fn explicit_partial_replacement_is_admitted_without_proof() {
     assert!(full.accepted());
     assert_eq!(full.to_json()["algorithm_checksum_verified"], true);
     assert_eq!(full.to_json()["model_proved"], false);
-    let unsupported = SOURCE.replace(
+    let conditional = SOURCE.replace(
         "L:x:=1;",
         "L:if x=0 then x:=1; elsif x=1 then x:=2; else skip; end if;",
+    );
+    let nested = rewrite_source("R.tla", &conditional, &RewriteRequest::default());
+    assert!(nested.accepted());
+    assert_eq!(nested.to_json()["algorithm_checksum_verified"], true);
+    assert_eq!(nested.to_json()["model_proved"], false);
+    let unsupported = SOURCE.replace(
+        "begin L:x:=1;",
+        "macro M() begin x:=1; end macro; begin L:M();",
     );
     let refused = rewrite_source("R.tla", &unsupported, &RewriteRequest::default());
     assert!(!refused.accepted());

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "selected": 16,
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "script_sha256": "adf6d8ef15a078fd3da3f6e976b670c503f788be01f7b874cdb1b9bc22f61b3b",
+  "family_certified": false,
+  "model_proved": false,
+  "rows": [
+    {
+      "id": "C_terminal-empty",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_terminal-empty-else",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_empty-first",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_empty-middle",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_fair_terminal-empty",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_fair_terminal-empty-else",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_fair_empty-first",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "C_fair_empty-middle",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "P_terminal-empty",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "P_terminal-empty-else",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "P_empty-first",
+      "artifact_sha256": "a85aa9cb23a3525904a08c4c12c1c223f67ca73144778ac54bc7586d5d8f589b",
+      "exit_code": 0,
+      "outcome": "sany-accepted"
+    },
+    {
+      "id": "P_empty-middle",
+      "artifact_sha256": "49bf51b1934e71dfd40f8ccc13a5ae1be2023cc3519b42f1b47b659e0cec083b",
+      "exit_code": 0,
+      "outcome": "sany-accepted"
+    },
+    {
+      "id": "P_fair_terminal-empty",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "P_fair_terminal-empty-else",
+      "outcome": "primary-source-rejected"
+    },
+    {
+      "id": "P_fair_empty-first",
+      "artifact_sha256": "8e41bfb61a3a6c0582e3d37695b9db2ad63ee67bf96b508c2c5f28cd332057a1",
+      "exit_code": 0,
+      "outcome": "sany-accepted"
+    },
+    {
+      "id": "P_fair_empty-middle",
+      "artifact_sha256": "6e97c56a9134e16f1f57fa8d7d03970fcf62920c8c67f28cc7492c1ce35a546c",
+      "exit_code": 0,
+      "outcome": "sany-accepted"
+    }
+  ]
+}
