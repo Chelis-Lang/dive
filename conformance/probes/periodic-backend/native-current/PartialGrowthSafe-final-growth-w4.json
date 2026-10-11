@@ -1,0 +1,131 @@
+{
+  "checkpoints": [
+    {
+      "after": [
+        {
+          "last": 1,
+          "size": 1
+        }
+      ],
+      "barrier": null,
+      "before": [
+        {
+          "last": 1,
+          "size": 1
+        }
+      ],
+      "candidate_check": null,
+      "decision": "Skipped",
+      "growth_due": false,
+      "model_proof": false,
+      "sources": 0,
+      "stats": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "queue": 1
+      }
+    },
+    {
+      "after": [
+        {
+          "last": 1,
+          "size": 2
+        }
+      ],
+      "barrier": {
+        "end": 1,
+        "first": 0,
+        "workers": 4
+      },
+      "before": [
+        {
+          "last": 1,
+          "size": 2
+        }
+      ],
+      "candidate_check": null,
+      "decision": "Skipped",
+      "growth_due": true,
+      "model_proof": false,
+      "sources": 1,
+      "stats": {
+        "depth": 2,
+        "distinct": 2,
+        "generated": 2,
+        "initial_generated": 1,
+        "queue": 1
+      }
+    },
+    {
+      "after": [
+        {
+          "last": 1,
+          "size": 2
+        }
+      ],
+      "barrier": {
+        "end": 2,
+        "first": 1,
+        "workers": 4
+      },
+      "before": [
+        {
+          "last": 1,
+          "size": 2
+        }
+      ],
+      "candidate_check": null,
+      "decision": "Skipped",
+      "growth_due": true,
+      "model_proof": false,
+      "sources": 2,
+      "stats": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "queue": 1
+      }
+    },
+    {
+      "after": [
+        {
+          "last": 1,
+          "size": 3
+        }
+      ],
+      "barrier": {
+        "end": 3,
+        "first": 2,
+        "workers": 4
+      },
+      "before": [
+        {
+          "last": 1,
+          "size": 3
+        }
+      ],
+      "candidate_check": null,
+      "decision": "Skipped",
+      "growth_due": true,
+      "model_proof": false,
+      "sources": 3,
+      "stats": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "queue": 0
+      }
+    }
+  ],
+  "complete_safety": true,
+  "graph_inspections": 39,
+  "inspections": 35,
+  "model_proof": false,
+  "name": "PartialGrowthSafe-final-growth",
+  "stop": null,
+  "workers": 4
+}
