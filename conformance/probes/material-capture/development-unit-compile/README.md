@@ -1,0 +1,1 @@
+The first unit regression accessed private Ir.exprs; cargo test compilation returned101 with E0616 at pure.rs362/363. Zero unit tests executed. Source preserved before changing the adversarial arena mutation to public serde roundtrip; this is not a native model observation.

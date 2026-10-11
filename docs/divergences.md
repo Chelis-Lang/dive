@@ -531,3 +531,9 @@ Conjunctive `PROPERTY P` can expose Action names `P;P` while the trace claims `P
 once. The complete18 source-bound selection retains two exported-formal failures
 as refusals; ordinary schedules and broad family certification remain pending.
 See [the identity guide](tlc-property-origins.md).
+
+Callback-free captured concrete values now have a bounded matching admission
+in explicit final mode; this resolves a native limitation, not a new divergence.
+Stored representations, context/name authority, fixed recursive work/depth and
+deferred/opaque refusals are documented in [the guide](material-capture.md).
+No ordinary scheduling or whole-corpus certification is implied.

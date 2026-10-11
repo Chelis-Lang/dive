@@ -95,7 +95,7 @@
     "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
-    "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
+    "crates/dive-check/src/capture/pure.rs": "73195b6094279104f3bb2d90ec146878d493c07bb22d61790aaddce1c8972276",
     "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",

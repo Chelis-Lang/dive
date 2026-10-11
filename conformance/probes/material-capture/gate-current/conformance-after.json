@@ -1,0 +1,33 @@
+{
+  "source_and_binaries_unchanged": true,
+  "rows": [
+    {
+      "corpus": "examples",
+      "model_count": 21,
+      "workers": [
+        1,
+        4,
+        8
+      ],
+      "exit": 0,
+      "wall_seconds": 70.091443292
+    },
+    {
+      "corpus": "validation-smoke",
+      "model_count": 16,
+      "workers": [
+        1,
+        4,
+        8
+      ],
+      "exit": 0,
+      "wall_seconds": 1.1302645840000025
+    }
+  ],
+  "artifact_sha256": {
+    "examples-gate.log": "24ce20e7a6f581da36c7adaf56b4a11c9e82e0de8185fc36deec63c24fab267e",
+    "examples-reports/20261011T020150771-dive-all.json": "566d061ba6b8275b5e91975527f28c4a564b2f815f0d5bc75b04ac10e862cc16",
+    "validation-smoke-gate.log": "b9a44633646cc16586eaccdb1c3ec32d279c1611df18df7e4d324be696d06db0",
+    "validation-smoke-reports/20261011T020151884-dive-all.json": "f9b879452b93e6a3035f7cd632a8232cdee68aca7167f91d4a05e93286934016"
+  }
+}

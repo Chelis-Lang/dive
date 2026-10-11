@@ -67,3 +67,7 @@ The [expanded property identity guide](../tlc-property-origins.md) explains
 configured-before-split names, expanded original Action names and derived role
 labels exposed by completed bounded final TLC results. These metadata fields
 do not replace independent witness replay or add ordinary scheduling support.
+
+Stored scalar and composite action/constant captures are described in the
+[concrete capture guide](../material-capture.md), with runnable CLI/Rust examples,
+recursive admission limits and deferred/provider refusals.

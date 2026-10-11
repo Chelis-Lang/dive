@@ -11,6 +11,14 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Explicit bounded final TLC checking admits callback-free stored strings/model
+  atoms, tuples, records, functions and Enum/Raw sets in captured scopes and
+  configured constants. Actual context resolution discharges potential OPEN
+  dependence; opaque/effectful/computed providers and fixed recursive admission
+  limits still refuse. Supplied stored sets/records/general functions must match
+  the evaluator ordering profile; tuple domains remain profile independent.
+  See `docs/material-capture.md`.
+
 - Explicit bounded final TLC results retain configured PROPERTY names, original
   expanded temporal Action names, and derived role labels separately in the
   Rust API and schema-2 JSON. Conjunctions preserve repeated original names;

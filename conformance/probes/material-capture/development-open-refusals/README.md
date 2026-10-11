@@ -1,0 +1,1 @@
+Initial material-only dispatch admits32/64 selected runs but refuses32 configured/nested-constant rows. Complete selection/raw source retained before scoped OPEN dispatch repair; these refusals earn no completed contract credit.
