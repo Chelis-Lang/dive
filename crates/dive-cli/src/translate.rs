@@ -21,6 +21,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
     let mut editing_flag = false;
     let mut file = None;
     let mut json = false;
+    let mut fairness_selected = false;
     let mut arguments = args.iter();
     while let Some(argument) = arguments.next() {
         match argument.as_str() {
@@ -51,10 +52,19 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                 };
                 request.limits.label_root.clone_from(root);
             }
-            "-nof" => request.limits.fairness = dive_api::TranslationFairness::None,
-            "-wf" => request.limits.fairness = dive_api::TranslationFairness::Weak,
-            "-sf" => request.limits.fairness = dive_api::TranslationFairness::Strong,
-            "-wfNext" => request.limits.fairness = dive_api::TranslationFairness::Next,
+            "-nof" | "-wf" | "-sf" | "-wfNext" => {
+                if fairness_selected {
+                    let _ = writeln!(err, "error: select only one of -nof, -wf, -sf and -wfNext");
+                    return ExitCode::from(2);
+                }
+                fairness_selected = true;
+                request.limits.fairness = match argument.as_str() {
+                    "-nof" => dive_api::TranslationFairness::None,
+                    "-wf" => dive_api::TranslationFairness::Weak,
+                    "-sf" => dive_api::TranslationFairness::Strong,
+                    _ => dive_api::TranslationFairness::Next,
+                };
+            }
             "--output" => match arguments.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,

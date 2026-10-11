@@ -63,6 +63,20 @@ Ordinary periodic scheduling remains unavailable.
 For caller-context forwarding and property names, see the
 [scoped final guide](../tlc-final-scopes.md).
 
+The [expanded property identity guide](../tlc-property-origins.md) explains
+configured-before-split names, expanded original Action names and derived role
+labels exposed by completed bounded final TLC results. These metadata fields
+do not replace independent witness replay or add ordinary scheduling support.
+
+Stored scalar and composite action/constant captures are described in the
+[concrete capture guide](../material-capture.md), with runnable CLI/Rust examples,
+recursive admission limits and deferred/provider refusals.
+
+Pure user operator formals in bounded explicit final TLC mode retain local and
+INSTANCE scopes; see [operator arguments](../temporal-operators.md). Native,
+configured-origin-ambiguous, recursive and opaque targets remain named refusals.
+
+
 Configured native random replacements are refused before graph capture, including
 `CONSTANT C <- RandomElement`. A supplied bound model is checked through its
 actual constant bindings and native redirects; its earlier construction/startup

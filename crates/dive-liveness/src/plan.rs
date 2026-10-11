@@ -355,17 +355,17 @@ impl Lower<'_> {
         let ev = &self.model.evaluator;
         let def = self.checked_definition(expr, def)?;
         let d = self.model.ir.def(def);
-        if d.recursive
-            || d.std.is_some()
-            || ev.is_value_override(def)
-            || d.params.iter().any(|p| p.arity != 0)
-        {
+        if d.recursive || d.std.is_some() || ev.is_value_override(def) {
             return Err(self.refused(expr, "recursive/overridden/higher-order temporal call"));
         }
         let mut constant = true;
         for arg in args {
             let Arg::Expr { expr: arg, .. } = arg else {
-                return Err(self.refused(expr, "operator argument in temporal call"));
+                if let Arg::Op { op, .. } = arg {
+                    self.operator_context(expr, op, scope, depth + 1)?;
+                }
+                constant = false;
+                continue;
             };
             let level = self.scoped_level(*arg, scope, depth + 1)?;
             // A pure value/action helper may read an action argument in
@@ -408,6 +408,57 @@ impl Lower<'_> {
         }
     }
 
+    fn operator_context(
+        &mut self,
+        expr: ExprId,
+        operator: &OpRef,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<(), PlanningError> {
+        self.step()?;
+        let (def, analysis) = self
+            .model
+            .evaluator
+            .scope_operator_analysis(scope, operator)
+            .map_err(|e| self.refused(expr, e.to_string()))?
+            .ok_or_else(|| self.refused(expr, "opaque/recursive/higher-order operator capture"))?;
+        let mut remaining = self.limits.expansion_steps.saturating_sub(self.steps);
+        let captures = self
+            .model
+            .evaluator
+            .scope_operator_captures(&analysis, &mut remaining);
+        self.steps = self.limits.expansion_steps - remaining;
+        let captures = captures
+            .map_err(|e| self.refused(expr, e.to_string()))?
+            .ok_or_else(|| self.refused(expr, "opaque captured operator context"))?;
+        for (body, captured) in captures {
+            self.forwarded_context(body, &captured, depth + 1)?;
+        }
+        self.forwarded_context(self.model.ir.def(def).body, &analysis, depth + 1)
+    }
+
+    fn parameter_call(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        local: dive_ir::LocalRef,
+        args: &[Arg],
+        depth: usize,
+    ) -> Result<(DefId, Scope), PlanningError> {
+        self.operator_context(expr, &OpRef::Param(local), scope, depth + 1)?;
+        for arg in args {
+            let Arg::Expr { expr: body, .. } = arg else {
+                return Err(self.refused(expr, "higher-order operator actual"));
+            };
+            self.forwarded_context(*body, scope, depth + 1)?;
+        }
+        self.model
+            .evaluator
+            .scope_apply_param(scope, local, args)
+            .ok_or_else(|| self.refused(expr, "opaque operator parameter"))?
+            .map_err(|e| self.refused(expr, e.to_string()))
+    }
+
     // Admission proof for a temporal expression argument. Keep its lexical
     // scope; do not force it as a constant or trust a formal's static level.
     // This walk does not interpret temporal truth or materialize binders.
@@ -442,6 +493,9 @@ impl Lower<'_> {
                 return Err(self.refused(e, "effectful forwarded temporal context"));
             }
             match &n.expr {
+                Expr::Unbound(_) | Expr::Unevaluable(_) => {
+                    return Err(self.refused(e, "unbound/unevaluable operator capture"));
+                }
                 Expr::Local(r) => match ev.scope_slot(&sc, *r) {
                     SlotView::Value(_) | SlotView::AnalysisBound => continue,
                     SlotView::Lazy(body, inner) => {
@@ -504,10 +558,17 @@ impl Lower<'_> {
                 _ => None,
             };
             if let Some((op, args)) = call {
-                if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
-                    return Err(self.refused(e, "higher-order forwarded temporal argument"));
+                for arg in args {
+                    if let Arg::Op { op, .. } = arg {
+                        self.operator_context(e, op, &sc, depth + 1)?;
+                    }
                 }
                 match op {
+                    OpRef::Param(local) => {
+                        let (def, called) = self.parameter_call(e, &sc, local, args, depth + 1)?;
+                        todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
                     OpRef::Def(d) => {
                         let d = self.checked_definition(e, d)?;
                         let def = ir.def(d);
@@ -525,16 +586,37 @@ impl Lower<'_> {
                             ));
                             continue;
                         }
+                        if def.std.is_some_and(|op| {
+                            op.impure()
+                                || op.creates_runtime_names()
+                                || matches!(
+                                    op.support(),
+                                    dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
+                                )
+                        }) {
+                            return Err(
+                                self.refused(e, "native callback/runtime-name operator capture")
+                            );
+                        }
                         if def.std == Some(StdOp::TlcTLCGet) {
                             return Err(
                                 self.refused(e, "checker introspection in temporal argument")
                             );
                         }
                     }
-                    OpRef::Std(StdOp::TlcTLCGet)
-                    | OpRef::Param(_)
-                    | OpRef::Const(_)
-                    | OpRef::Subst(_) => {
+                    OpRef::Std(op)
+                        if op.impure()
+                            || op.creates_runtime_names()
+                            || matches!(
+                                op.support(),
+                                dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
+                            ) =>
+                    {
+                        return Err(
+                            self.refused(e, "native callback/runtime-name operator capture")
+                        );
+                    }
+                    OpRef::Std(StdOp::TlcTLCGet) | OpRef::Const(_) | OpRef::Subst(_) => {
                         return Err(self.refused(e, "opaque/checker forwarded temporal operator"));
                     }
                     _ => {}
@@ -573,6 +655,13 @@ impl Lower<'_> {
             .get(expr.index())
             .ok_or_else(|| self.refused(expr, "missing scoped expression"))?;
         match &node.expr {
+            Expr::Apply {
+                callee: OpRef::Param(local),
+                args,
+            } => {
+                let (def, called) = self.parameter_call(expr, scope, *local, args, depth + 1)?;
+                return self.scoped_level(ir.def(def).body, &called, depth + 1);
+            }
             Expr::Subst { body, .. } => {
                 let sc = ev
                     .scope_subst(scope, expr)
@@ -854,7 +943,13 @@ impl Lower<'_> {
                         }
                         def.std
                     }
-                    OpRef::Param(_) | OpRef::Const(_) | OpRef::Subst(_) => {
+                    OpRef::Param(local) => {
+                        let (def, called) =
+                            self.parameter_call(e, &scope, local, args, depth + 1)?;
+                        todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
+                    OpRef::Const(_) | OpRef::Subst(_) => {
                         return Err(self.refused(e, "dynamically bound predicate operator"));
                     }
                     _ => None,
@@ -963,6 +1058,14 @@ impl Lower<'_> {
                     result => return result,
                 }
             }
+        }
+        if let Expr::Apply {
+            callee: OpRef::Param(local),
+            args,
+        } = &node.expr
+        {
+            let (def, called) = self.parameter_call(expr, scope, *local, args, depth + 1)?;
+            return self.expr(ir.def(def).body, &called, depth + 1);
         }
         let level = self.scoped_level(expr, scope, depth)?;
         if self.tlc_shape

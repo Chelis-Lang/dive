@@ -118,3 +118,83 @@ from the innermost Then/Else pair, not from any earlier branch. Native P parsing
 now rejects that empty terminal pair. All 16 supplemental sources and four
 original disagreements remain retained; the active old gate was interrupted
 and the old 304-row campaign completed before creating the corrected producer.
+
+## Addendum: bounded non-junction multiline generation
+
+`PcalTLAGen.AddSubscriptsToExpr` retains lexical changed-variable substitution;
+`addExprToTLA` transports normalized lines and indentation. The next generator
+slice admits sequential expressions without junction-list tokens: significant
+token order and existing lexical substitutions define the same operator tree
+when whitespace is normalized. Multiline `/\`, `\/`, Unicode/alias junctions,
+binders, macro declarations and process/procedure contexts remain named refusals.
+Neither layout-sensitive grouping nor substitution ownership is guessed.
+
+Complete primary and original-refusal captures precede admission. Significant
+whole-module CST equality, pinned SANY acceptance, Full/body CRC and Validator
+corruptions qualify artifacts separately from finite model/witness controls.
+Invalid primary output is not admitted or counted as successful conformance.
+Global source/token/node/depth/action/output/document budgets are unchanged.
+No new dependency edge, formatter contract, checksum default or D-020 correction
+is introduced. The executable user contract is `docs/pluscal-multiline.md`.
+
+## Addendum: bounded declared-fairness process AST serialization
+
+Native `AST.Multiprocess`/`Process` templates preserve source-ordered process
+records, declarations, ID expressions, labels and declared fairness metadata.
+`VectorToSeqQuotedString` owns the exact modifier list formatting. Statement
+arena allocation order is not source encounter order, so label metadata is
+indexed once by source offset and partitioned by owning process span. Existing
+finite-domain/name/normalization admission and global budgets remain prerequisites.
+Non-default process fairness/automatic-label options, scoped renaming, definitions,
+macros/procedures and internal branch labels remain named Full refusals until
+post-Explode serialization is proved. Java remains development-only.
+
+The complete retained raw selection and failed parent/source histories precede
+admission. Public Full admission independently requires exact AST bytes/CRC,
+whole-module operator CST equality, SANY and Validator controls. Supplied-body
+editing and finite model/witness checks remain separate. Both profiles retain
+the D-020 fair-header-only weakness; no new checksum policy, formatter or
+filesystem contract is adopted. No dependency graph change is needed.
+The executable user contract is `docs/pluscal-process-checksums.md`.
+
+Additional owner/name controls exposed an inherited singleton identity spelling
+gap. The narrow `PcalTLAGen.GenLabeledStmt`/`GenIf`/`GenEither` rule emits
+`UNCHANGED name` above five Java UTF-16 units and `name' = name` otherwise.
+Original whole-operator CST failure, five/six controls and default-initializer
+name-conflict refusals are retained before the repair; no semantic/default
+change is introduced. Modifier vectors remain partitioned by source owner.
+
+### Source option context guard
+
+Source `PlusCal options (...)` declarations can change effective fairness or label
+insertion outside the explicit typed request. Until this context is parsed and
+proved, native translation and algorithm checksum derivation return Unsupported
+before an artifact or CRC. Twenty clean spacing controls and four declarations
+retain the original ignored-context failures. Historical surface captures are
+qualified in `crates/dive-pluscal/source-option-acceptance/README.md`.
+
+## Addendum: explicit process checksum option context
+
+Pinned `ParseAlgorithm` process fairness is captured before generator suppression.
+Declared `fair`/`fair+` fields survive `-nof` in the checksum AST; only an
+otherwise-unfair process receives `-wf`/`-sf` defaults. Serialization therefore
+uses the admitted normalized source process list with this parser precedence,
+not the generator's effective fairness list. Automatic labels retain the
+existing global insertion/name-collision pass and budgets. No AST option is
+guessed from generated text.
+
+The raw clean selection retains invalid simultaneous command-line choices,
+which have no typed API enum counterpart. CLI fairness selection is unique,
+including repeated flags. Rewrite reports retain `translation_options` for
+failed and admitted requests. Reference Validator controls are configured with
+those same options, separately from unconfigured/source-comment controls.
+
+The pinned header omits command-line settings; source `PlusCal options`
+comments have separate parser precedence. Native currently refuses that
+source context before normalization/generation or CRC rather than silently
+ignoring it. D-021 records the reference interoperability limitation, D-020
+remains unchanged, and scoped names/calls/layouts still require their own
+serialization proof. Public AST equality, enclosing CST/SANY admission,
+checksums/corruptions and finite safety/witness evidence remain separate.
+No dependency/default/file-write/formatter contract changes.
+The executable contract is `docs/pluscal-process-checksum-options.md`.

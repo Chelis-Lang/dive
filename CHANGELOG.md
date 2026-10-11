@@ -5,6 +5,16 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- High-level PlusCal rewriting refuses unproved source-option declarations in
+  the original file before masking old translation blocks, preventing silent
+  loss of requested fairness under either checksum policy.
+
+- Bounded finite-process Full checksums now retain explicit fairness and
+  automatic-label option context, with typed options in replacement reports.
+  Source option comments remain named refusals; duplicate CLI fairness flags
+  are rejected before loading. Pinned Validator context limitations are documented.
+
+
 - Refuse configured native random replacements before startup/output/search in
   both profiles and all capture routes, including source-visible/configured
   mixed calls. Preserve false-success and false-violation controls; direct RNG
@@ -25,11 +35,31 @@ All notable changes to this project are documented here. The project will follow
   LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
   resource bounds and ordinary periodic scheduling restrictions stay unchanged.
 
+- Explicit bounded final TLC checking supports proved pure user operator formals,
+  retained LET/INSTANCE scopes and constant/state/temporal actuals. Independent
+  periodic and serialized witness replay retain original attribution. Native,
+  recursive/higher-order, configured-origin-ambiguous and effectful callbacks
+  still refuse without raising resource limits. See `docs/temporal-operators.md`.
+
+- Explicit bounded final TLC checking admits callback-free stored strings/model
+  atoms, tuples, records, functions and Enum/Raw sets in captured scopes and
+  configured constants. Actual context resolution discharges potential OPEN
+  dependence; opaque/effectful/computed providers and fixed recursive admission
+  limits still refuse. Supplied stored sets/records/general functions must match
+  the evaluator ordering profile; tuple domains remain profile independent.
+  See `docs/material-capture.md`.
+
+- Explicit bounded final TLC results retain configured PROPERTY names, original
+  expanded temporal Action names, and derived role labels separately in the
+  Rust API and schema-2 JSON. Conjunctions preserve repeated original names;
+  original witness claims, ordinary schema 1, scheduling and bounds are unchanged.
+  See `docs/tlc-property-origins.md`.
+
 - Scoped explicit final temporal checking preserves local LET derived role
   names separately from formal argument forwarding, and exact cardinality-one
   DNF shape. Caller contexts and original witness claims have pinned field and
-  fresh replay controls; expanded-action names and ordinary schedules remain
-  incomplete. See `docs/tlc-final-scopes.md`.
+  fresh replay controls. The later property-origin increment adds expanded Action
+  names separately; ordinary schedules remain incomplete. See `docs/tlc-final-scopes.md`.
 
 - Explicit final/TLC checking admits proven direct temporal conditionals with
   pinned shared-guard tags, exact particles and independent counterexample replay.
@@ -45,11 +75,11 @@ All notable changes to this project are documented here. The project will follow
 - Pure safety native checkpoint/recovery now composes with opt-in frontier and
   predecessor disk budgets, including deterministic parallel VIEW/symmetry
   recovery and explicit finalized transient cleanup evidence.
-- CI runs the complete workspace test suite in four disjoint partitions, with
+- CI runs the complete workspace test suite in eight disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
   prerequisite fails, is cancelled or is skipped.
 
-- CI runs the complete workspace test suite in four disjoint partitions, with
+- CI runs the complete workspace test suite in eight disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
   prerequisite fails, is cancelled or is skipped.
 
@@ -60,6 +90,16 @@ All notable changes to this project are documented here. The project will follow
 
 - TLC-shaped temporal planning preserves eager state-conditional conversion
   failures, typed TLC errors and source-order fallback before graph work.
+
+
+- Native PlusCal translation and algorithm CRC derivation explicitly refuse unproved source `PlusCal options (...)` declarations before returning an artifact.
+
+- Bounded finite-process Full checksum derivation for declared-fairness and
+  source-owned modifier records, independently checked against reference AST
+  bytes and admitted operator trees. Unproved option/name/call shapes remain
+  named refusals. Runnable CLI/API examples separate CRC equality, artifact
+  admission and model proof. Singleton identity clauses now follow the
+  reference five-unit UTF-16 spelling threshold; original CST failure retained.
 
 
 - Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
@@ -933,3 +973,6 @@ All notable changes to this project are documented here. The project will follow
   and exact last-visit tag holes, with numbered-particle/edge and independent
   periodic-word controls. This source-level repair does not yet lift the staged
   final temporal-IF refusal or certify ordinary periodic scheduling (#170).
+
+- Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.
+

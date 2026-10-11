@@ -69,12 +69,14 @@ flag. See the [final API guide](tlc-final-api.md) for exact bounds and errors.
 * Derived role labels come from TLC's implied-temporal name vector: source spans,
   `Saved`, `Identity` or the resolved INSTANCE name `J!Claim`.
 
-Native planning/execution currently expose the first and third fields. They are
-compared exactly with the pin. Java's expanded action-name vector remains a
-reference-only obligation; this slice does not invent that missing native field
-from a configured spelling. Equal formula truth, counts or witnesses cannot
-substitute for correct field attribution. Issue #134 remains open for that
-representation obligation.
+This original scoped slice exposed configured properties and derived role labels,
+with exact pinned comparisons. The additive [property-origin increment](tlc-property-origins.md)
+now also exposes original expanded Action names in completed final temporal Rust
+and schema-2 JSON results. All three vectors remain separate; equal formula truth,
+counts or witnesses cannot substitute for correct field attribution. Original
+scope captures retain their own producer and do not acquire the later field
+retroactively. Ordinary scheduled checking and full family certification remain
+unfinished.
 
 ## Evidence and restrictions
 

@@ -2,8 +2,9 @@
 
 `dive translate --rewrite` now derives both reference CRCs for supported
 sequential `elsif` and multiple-`with` translations. The bounded serializer
-also reproduces multiline expression ASTs, but generation of multiline
-expressions remains a named refusal. CRC derivation, generated-module
+also reproduces multiline expression ASTs. Bounded non-junction sequential
+multiline generation is now described in [the multiline guide](pluscal-multiline.md);
+unproved junction/substitution layouts remain named refusals. CRC derivation, generated-module
 admission and model checking are separate results.
 
 Save the P-style example as `ChecksumNested.tla`:
@@ -64,7 +65,7 @@ The report retains the exact serialized AST used for CRC derivation. The input
 file is unchanged; `--write` remains unsupported. The default profile preserves
 the source's first newline style; `--compat=tlc` normalizes LF.
 
-The following retained multiline example is a generation refusal. Save it as
+The following multiline junction example remains a generation refusal. Save it as
 `ChecksumLines.tla`:
 
 ```tla
@@ -73,8 +74,8 @@ EXTENDS Integers
 (* --algorithm A
 variable x = 0;
 begin
-  L: x := 1 +
-          2;
+  L: await /\ TRUE
+           /\ x = 0;
   E: skip;
 end algorithm; *)
 ====

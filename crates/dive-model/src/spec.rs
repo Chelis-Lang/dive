@@ -97,7 +97,7 @@ impl Binder<'_> {
                         .scope(d)
                         .map_err(|e| BindError::unsupported(e.to_string()))?;
                     let body = self.ir().def(d).body;
-                    self.props(name.clone(), body, scope.clone(), None)?;
+                    self.props(name.clone(), &name, body, scope.clone(), None)?;
                     self.configured_properties.push(Named {
                         name,
                         pred: Pred::new(body, scope),
@@ -790,19 +790,26 @@ impl Binder<'_> {
     // -------------------------------------------------------------------
 
     /// `processConfigProps(name, configName, pred, c, subs)`. TLC also names
-    /// the `Action`s it creates after `configName`; dive keeps the names TLC
-    /// reports (`name`).
+    /// the `Action`s it creates after `configName`; record that original
+    /// name separately from the derived labels TLC reports (`name`).
     #[allow(clippy::too_many_lines, reason = "one arm per case of TLC's method")]
-    fn props(&mut self, name: String, e: ExprId, scope: Scope, wrap: Option<ExprId>) -> R<()> {
+    fn props(
+        &mut self,
+        name: String,
+        config_name: &str,
+        e: ExprId,
+        scope: Scope,
+        wrap: Option<ExprId>,
+    ) -> R<()> {
         let ir = self.t.ir.clone();
         match ir.expr(e) {
             Expr::Subst { body, .. } => {
                 let s = self.subst_scope(&scope, e)?;
-                return self.props(name, *body, s, Some(wrap.unwrap_or(e)));
+                return self.props(name, config_name, *body, s, Some(wrap.unwrap_or(e)));
             }
             Expr::Let { body, .. } => {
                 let s = self.let_scope(&scope, e)?;
-                return self.props(name, *body, s, wrap);
+                return self.props(name, config_name, *body, s, wrap);
             }
             _ => {}
         }
@@ -813,7 +820,7 @@ impl Binder<'_> {
                     if !ir.def(d).params.is_empty() {
                         return Err(BindError::tlc(Ec::TlcConfigOpNoArgs, &[&op_name]));
                     }
-                    return self.props(op_name, ir.def(d).body, s, wrap);
+                    return self.props(op_name, config_name, ir.def(d).body, s, wrap);
                 }
                 Found::Value(Value::Bool(true)) => return Ok(()),
                 Found::Value(Value::Bool(false)) => {
@@ -835,7 +842,7 @@ impl Binder<'_> {
                     } else {
                         name
                     };
-                    return self.props(name, x, s, wrap);
+                    return self.props(name, config_name, x, s, wrap);
                 }
                 Found::Value(v) => {
                     let shown = self.show(&v);
@@ -856,7 +863,7 @@ impl Binder<'_> {
                 if wrap.is_none()
                     && let Some((d, s, op_name)) = self.inline_scope(callee, args, &scope)?
                 {
-                    return self.props(op_name, ir.def(d).body, s, wrap);
+                    return self.props(op_name, config_name, ir.def(d).body, s, wrap);
                 }
             }
             Expr::Quant {
@@ -881,7 +888,7 @@ impl Binder<'_> {
                         for s in scopes {
                             // The bindings, over the scope with its substitutions.
                             let s = self.rebase_bindings(&scope, &s, e)?;
-                            self.props(n.clone(), body, s, wrap)?;
+                            self.props(n.clone(), config_name, body, s, wrap)?;
                         }
                         return Ok(());
                     }
@@ -900,7 +907,7 @@ impl Binder<'_> {
             } => {
                 for &i in items {
                     let n = self.node_string(i);
-                    self.props(n, i, scope.clone(), wrap)?;
+                    self.props(n, config_name, i, scope.clone(), wrap)?;
                 }
                 return Ok(());
             }
@@ -924,10 +931,12 @@ impl Binder<'_> {
                         pred.location = w;
                     }
                     self.implied_temporals.push(Named { name, pred });
+                    self.implied_temporal_action_names
+                        .push(config_name.to_owned());
                 }
                 return Ok(());
             }
-            Expr::Selected(a) => return self.props(name, *a, scope, wrap),
+            Expr::Selected(a) => return self.props(name, config_name, *a, scope, wrap),
             _ => {}
         }
         let level = self.level(e, &scope)?;
@@ -937,7 +946,11 @@ impl Binder<'_> {
         }
         match level {
             0 | 1 => self.implied_inits.push(Named { name, pred }),
-            3 => self.implied_temporals.push(Named { name, pred }),
+            3 => {
+                self.implied_temporals.push(Named { name, pred });
+                self.implied_temporal_action_names
+                    .push(config_name.to_owned());
+            }
             _ => {
                 let loc = self.node_string(e);
                 let ec = match ir.expr(e) {

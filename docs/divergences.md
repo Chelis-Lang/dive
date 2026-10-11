@@ -610,7 +610,69 @@ See `conformance/probes/native-checkpoint-runtime-names/README.md` and
 
 D-008 checksum continuation retains strict generated-operator CST comparison,
 including an initially missing empty-Else TRUE conjunct now reproduced exactly.
-Multiline CRC derivation does not lift the named multiline-generation refusal;
-empty-Then layout also refuses explicitly. All 320 primary controls and original
+The checksum-only producer did not lift multiline-generation refusal. The later
+bounded non-junction sequential generator is documented in `docs/pluscal-multiline.md`;
+multiline junction/macro/process/procedure layouts and empty-Then generation still
+refuse explicitly. All 320 primary controls and original
 failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
 remains compatibility reproduction only; no stronger checksum default.
+
+### Expanded temporal identity evidence (#134)
+
+Completed bounded final TLC results now preserve the original name on each
+expanded temporal Action separately from original configured claims and derived
+role labels. This matches the pinned binder and adds no semantic divergence.
+Conjunctive `PROPERTY P` can expose Action names `P;P` while the trace claims `P`
+once. The complete18 source-bound selection retains two exported-formal failures
+as refusals; ordinary schedules and broad family certification remain pending.
+See [the identity guide](tlc-property-origins.md).
+
+Callback-free captured concrete values now have a bounded matching admission
+in explicit final mode; this resolves a native limitation, not a new divergence.
+Stored representations, context/name authority, fixed recursive work/depth and
+deferred/opaque refusals are documented in [the guide](material-capture.md).
+No ordinary scheduling or whole-corpus certification is implied.
+
+
+D-008 finite-process Full checksum continuation: declared-fairness records and
+source-owned modifier lists have native post-Explode byte/CRC controls in
+`crates/dive-pluscal/process-checksum-acceptance/`. Exact-CST/SANY/Validator
+admission and finite model/witness stages remain separate. Unproved process
+options/calls/name scopes stay Full refusals in both profiles. D-020 remains
+reference reproduction only; no stronger checksum default or family certificate.
+
+Pure operator-formal forwarding now has bounded explicit-final TLC admission;
+this resolves a native refusal rather than adding a result-changing default.
+Known user targets preserve caller scopes and are inspected even when unused;
+opaque/native/recursive/higher-order and configured-origin-ambiguous targets
+remain refused. Clean accepted INSTANCE operator-formal controls are separate
+from older exported temporal-expression failures2213. Full periodic/corpus/family
+parity is unclaimed; see [the operator guide](temporal-operators.md).
+
+## D-021: PlusCal option context is absent from checksum headers (candidate)
+
+A clean pinned `pcal.trans -wf`/`-sf` or automatic-label translation can give
+`PCAL_DIVERGENCE_EXISTS` in a fresh unconfigured Validator, but `NO_DIVERGENCE`
+with the same settings. Declared-fairness `-nof` and fair-header cases retain
+separate measured outcomes. Source `PlusCal options (...)` comments do carry
+context into the reference Validator; native currently refuses that context by
+name before generation/CRC instead of silently ignoring its semantics.
+
+No stronger checksum/default policy is adopted. Explicit typed/CLI options have
+proved bounded process AST serialization; replacement reports record them.
+D-020's fair-only CRC weakness remains. See [D-021 user evidence](tlc-differences.md#d-021-pluscal-checksums-need-the-generation-options),
+[option use](pluscal-process-checksum-options.md), and all clean configured,
+unconfigured and original ignored-option native captures in
+`crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
+
+D-008 process checksum options update: supported explicit fairness and inserted
+label settings now have stage-separated raw/full controls; procedure/macro ASTs,
+scoped renaming and source-option declarations remain named Full refusals.
+F-034/F-035 are still partial; CRC derivation, artifact admission and finite
+model/witness checks do not certify the whole translator or liveness.
+
+D-021 native masking repair: original bounded source declarations are checked
+before hiding previous translation output. Full and body-only high-level
+rewriting refuse them by name, including modified-block grants. The retained
+missing-fairness reproduction and current source-span regression are distinct
+from reference CRC/Validator limitations. See the user log and issue #182.
