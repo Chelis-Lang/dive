@@ -1,0 +1,182 @@
+COMMAND ["cargo", "fmt", "--all", "--check"]
+COMMAND ["python3", "scripts/test-validation-import.py"]
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.146s
+
+OK
+COMMAND ["python3", "-I", "scripts/test-frontend-campaign.py"]
+........
+----------------------------------------------------------------------
+Ran 8 tests in 3.655s
+
+OK
+COMMAND ["python3", "-I", "scripts/check-parity-ledger.py"]
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+COMMAND ["python3", "-I", "scripts/test-parity-ledger.py"]
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.120s
+
+OK
+COMMAND ["python3", "-I", "scripts/check-tlc-planning.py"]
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+COMMAND ["python3", "-I", "scripts/check-tlc-tableau.py"]
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+COMMAND ["python3", "-I", "scripts/check-temporal-action-order.py"]
+verified all 36 pinned direct controls, compiler failure and native before observations
+COMMAND ["python3", "-I", "scripts/check-phase-l.py"]
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+COMMAND ["python3", "-I", "scripts/check-phase-l-graph.py"]
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+COMMAND ["python3", "-I", "scripts/check-phase-execution.py"]
+verified all26 execution rows:15 completed graph fields,3 no-OOS boundaries,8 retained failures;8 clean TLC precedence controls and preserved producer histories; no strict verdict claim
+COMMAND ["python3", "-I", "scripts/check-tlc-final.py"]
+verified all30 reference rows/120 native outcomes:19 completed final projections,11 failures without error agreement; exact source histories retained; ordinary strict parity remains unclaimed
+verified complete140 historical refusal rows/138 raw subprocesses; no broad corpus credit
+COMMAND ["python3", "-I", "scripts/check-state-if-planning.py"]
+verified all24 current and18 historical conditional controls, original capture failure and native regressions
+COMMAND ["python3", "-I", "scripts/check-predecessor-spill.py"]
+verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes
+COMMAND ["python3", "-I", "scripts/check-native-checkpoint.py"]
+verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration
+COMMAND ["python3", "-I", "scripts/check-view-normalization.py"]
+verified clean255 vs unvalidated native12 and exact original changed source/matrix authority; current runtime controls are separate
+COMMAND ["python3", "-I", "scripts/check-native-parity-integration.py"]
+verified 45 immutable slice source histories and distinct combined source hashes; no family certification
+verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants
+Verified frozen550 complete1076 zero-skip gate and524 explicit-option cases;640 complete CST/SANY/Validator pairs; no family certification
+COMMAND ["python3", "-I", "scripts/check-tlc-final.py"]
+verified all30 reference rows/120 native outcomes:19 completed final projections,11 failures without error agreement; exact source histories retained; ordinary strict parity remains unclaimed
+verified complete140 historical refusal rows/138 raw subprocesses; no broad corpus credit
+COMMAND ["python3", "-I", "scripts/check-tlc-final-safety.py"]
+Verified all nine clean safety-route captures and seven exact pre-route source matrices; resource stops and empty temporal obligations do not certify a temporal product
+Verified complete successful before-limits source/gate receipt; new limits controls are separate producer evidence
+COMMAND ["python3", "-I", "scripts/check-tlc-state-if.py"]
+Verified complete15 conditional controls:11 complete projections/4 reference errors; all histories retained; no periodic or family certification
+Verified complete15 clean final TLC controls, including all four deciding reference errors
+Verified all60 historical native rows:40 supported final-only outcomes/20 named refusals; no reference-error or periodic credit
+Verified executable user API example and retained first compilation failure
+Verified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained
+COMMAND ["python3", "-I", "scripts/check-tlc-temporal-if.py"]
+Verified25 complete tag/tableau controls:20 projections/5 preserved failures;25 clean outcomes and15/10 diagnostic final rows, no new verdict or periodic credit
+COMMAND ["python3", "-I", "scripts/check-tlc-temporal-if-final.py"]
+Verified all30 primary selections/120 native outcomes:80 supported final outcomes,40 named refusals; independent replay and all source histories retained, no periodic/family credit
+Complete unchanged140 census retained:6 agree/134 unsupported; earlier138 zero-native launcher failures remain separate history
+Verified fresh current Rust guide execution and916-test frozen Rust/Cargo gate identity; no periodic/family claim
+COMMAND ["python3", "-I", "scripts/check-tlc-final-scopes.py"]
+Verified complete18 primary/72 native scoped final outcomes and retained name/shape failures;56 temporal,8 safety,8refused; expanded-action and ordinary scheduling remain unclaimed
+COMMAND ["python3", "-I", "scripts/check-tlc-property-origins.py"]
+Verified18 primary/72 native origin controls: separate configured, expanded Action and derived vectors; retained2 reference failures/8 native refusals; no ordinary or full-family credit
+COMMAND ["python3", "-I", "scripts/check-material-capture.py"]
+Verified18 primary/72 native material pairs and all36 prior refusals/64 first-attempt outcomes; fresh replay and fixed50k/128 controls, no corpus/family/ordinary credit
+COMMAND ["python3", "-I", "scripts/check-temporal-operators.py"]
+Verified18 clean primary/72 current native rows,14 exact temporal projections,72 original refusals, bounded independent captures/replay; prior9b140 census46/92/2 remains separate, no ordinary/family credit
+Verified closed768 complete140 census source/artifact authority; nonzero harness exit retained, no current producer or family certification
+COMMAND ["python3", "-I", "scripts/check-native-temporal-operators.py"]
+Verified20 clean rows/17 field projections/80 native observations:48 supported final outcomes,32 retained refusals/rejections; no ordinary/family/error upgrade
+COMMAND ["python3", "-I", "crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py"]
+Verified original 318 source inputs, 26 unchanged build inputs, 28410 evidence files and 412 focused integration inputs; no current runtime or family certification
+COMMAND ["python3", "-I", "scripts/check-test-partitions.py"]
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-view-random-stream-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+{"selected_tests": 1106, "ignored_tests": 0, "hash_partitions": [138, 150, 157, 135, 147, 133, 133, 113], "disjoint_and_complete": true}
+COMMAND ["python3", "-I", "scripts/test-workspace-gate.py"]
+125 prerequisite combinations and four malformed argument lists passed

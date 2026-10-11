@@ -521,9 +521,20 @@ states and reported an invariant violation with unprintable `s`; that output
 has no independent trace certificate. The repaired path performs the same
 normalization. Its current strict response to this unproved error-message/class
 boundary is named `unsupported`, with no counterexample, rather than a guessed
-TLC error or a completed model verdict. Canonical comparison defaults retain
-the approved D-009 rules. Compound positive cases and original/recovered
-concrete witnesses are tested in both profiles, stores and worker settings.
+TLC error or a completed model verdict. The current default profile also
+refuses this reversed mixed set: approved D-009 comparisons do not yet cover
+this concrete normalization boundary. A forward mixed set can finish checking,
+but its emitted canonical JSON set order is rejected by the trace decoder in
+both profiles. Such an output is not an independently validated word.
+[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) tracks these
+normalization and structured-decoding gaps. The full current selection retains
+132 original candidates and 396 mutants: 96 originals validate and 288 mutants
+are semantically rejected; the remaining 36 originals and 108 mutants fail
+decoder shape admission and receive no certificate or semantic-rejection
+credit. These include 24 emitted forward-mixed words and 12 supplied
+default-reverse candidates; the supplied candidates are not checker witnesses.
+The separate homogeneous recovery matrix retains 504 executions, 216 valid
+original/recovered witnesses and 216 semantically rejected altered witnesses.
 [Source-qualified before and current evidence](../conformance/probes/view-concrete-normalization/README.md)
 retain the old wrong result separately. Memory VIEW also preserves TLC’s
 nonforcing normalization of evaluator-owned lazy filters: `x = {i \in Nat :

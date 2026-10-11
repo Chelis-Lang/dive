@@ -87,3 +87,51 @@ the pinned EC1000/exit255 when the filter’s stored function-set range contains
 the reverse heterogeneous set. The direct operand control asserts the valid
 stored range is normalized, the invalid range refuses, and neither path runs
 the predicate; accepting a filter cannot hide an invalid bound value.
+
+## Current source-qualified delivery
+
+[current/receipt.json](current/receipt.json) binds the fresh release campaign
+to `060489e7845b38b894d67b58c9a8c3a9fa18094c`. All 420 compiled inputs
+are archived and hashed, independently of later documentation-only delivery
+commits. The full local gate passes all eight stages and 1106 tests with zero
+skips; the unchanged lazy VIEW test that failed the earlier prerequisite now
+passes. Two test threads took 809.528 seconds for nextest execution; no
+180-second per-test bound or 15-minute CI job bound changed.
+
+The fresh campaign preserves all 144 checker selections, 132 original
+candidates and 396 altered candidates across both profiles/stores, widths
+1/4/8 and chaos scheduling. It records 120 checker violations and 24 named
+refusals, including the reversed mixed set in both profiles. The approved
+D-009 comparison option does not yet cover this normalization boundary.
+
+Independent validation gives 96 valid originals and 288 semantic mutant
+rejections. The remaining 36 originals and 108 mutants are `invalid` at
+decoder shape admission; they receive no semantic replay, rejection or
+certificate credit. Twenty-four originals are checker-emitted forward-mixed
+words whose canonical JSON set order the decoder rejects in both profiles.
+The other twelve are separately supplied default-reverse candidates with the
+same mathematical values, not checker witnesses. No checker report in these
+cases contains a `Valid` claim. [Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190)
+tracks this remaining default-normalization and structured-decoding limitation.
+
+The separate homogeneous API campaign retains all 504 ordinary/pause/recovery
+executions, 216 independently valid original/recovered witnesses and 216
+semantically rejected altered witnesses. Both profiles/stores, widths1/4/8,
+chaos schedules and reset/retain counters remain covered. All 21 CM1 and 16
+ValidationTestSuite smoke models fully agree at widths1/4/8. The release
+lazy-value campaign retains 54 cases, including named lazy-operation cache
+refusals. Six runnable CLI guide commands and the compiled Rust recovery
+guide pass; the Rust guide independently validates the concrete resumed
+VIEW/symmetry witness with both transient storage budgets zero. Archives
+remain trusted-local continuation data, not authenticated reachability proofs.
+
+`current/runner-history/` preserves unsuccessful launcher expectations and
+the discovered decoder boundary. The original default-reverse expectation
+was not met; the whole selection was retained with actual classifications.
+The conformance wrapper initially parsed stdout while model rows are written
+to stderr; the completed21-model agree report is preserved, and a corrected
+launcher recaptured both required selections. A nested filter containing a
+lazy union is explicitly refused rather than treated as a filter-only
+positive. The Rust consumer also retains its initial typed-path compiler
+error and lock correction. No implementation, original test assertion,
+oracle result or timeout was changed to obtain these passes.

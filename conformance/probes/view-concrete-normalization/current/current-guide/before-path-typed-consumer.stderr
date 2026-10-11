@@ -1,0 +1,49 @@
+   Compiling syn v3.0.6
+   Compiling serde_json v1.0.151
+   Compiling libc v0.2.190
+   Compiling zmij v1.0.23
+   Compiling crypto-common v0.2.2
+   Compiling serde_derive v1.0.229
+   Compiling block-buffer v0.12.1
+   Compiling const-oid v0.10.2
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling serde v1.0.229
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-ir)
+   Compiling digest v0.11.3
+   Compiling cpufeatures v0.3.1
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.11.0
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-store)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-sim)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-trace)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-api)
+   Compiling dive-view-normalization-guide v0.0.0 (/Users/jeff/code/dive-view-normalization-artifacts/current-guide/consumer)
+error[E0308]: arguments to this function are incorrect
+  --> src/main.rs:29:12
+   |
+29 | let spec = dive_api::trace::SpecModel::load(
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 |     "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla",
+   |     ------------------------------------------------------------------------- expected `&Path`, found `&str`
+31 |     "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg",
+   |     ------------------------------------------------------------------------- expected `&Path`, found `&str`
+   |
+   = note: expected reference `&Path`
+              found reference `&'static str`
+   = note: expected reference `&Path`
+              found reference `&'static str`
+note: associated function defined here
+  --> /Users/jeff/code/dive-view-normalization-work/crates/dive-api/src/trace.rs:93:12
+   |
+93 |     pub fn load(spec: &Path, cfg: &Path, opts: &TraceOptions) -> Result<Self, ApiError> {
+   |            ^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `dive-view-normalization-guide` (bin "dive-view-normalization-guide") due to 1 previous error

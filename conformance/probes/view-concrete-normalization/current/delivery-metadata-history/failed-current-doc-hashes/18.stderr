@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-normalization-work/scripts/check-tlc-final-safety.py", line 27, in <module>
+    for source,digest in current['source_sha256'].items():assert sha(ROOT/source)==digest,source
+AssertionError: docs/tlc-differences.md

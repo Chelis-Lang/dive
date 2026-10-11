@@ -1,0 +1,34 @@
+['cargo', 'fmt', '--all', '--check'] 0
+['python3', 'scripts/test-validation-import.py'] 0
+['python3', '-I', 'scripts/test-frontend-campaign.py'] 0
+['python3', '-I', 'scripts/check-parity-ledger.py'] 0
+['python3', '-I', 'scripts/test-parity-ledger.py'] 0
+['python3', '-I', 'scripts/check-tlc-planning.py'] 0
+['python3', '-I', 'scripts/check-tlc-tableau.py'] 0
+['python3', '-I', 'scripts/check-temporal-action-order.py'] 0
+['python3', '-I', 'scripts/check-phase-l.py'] 0
+['python3', '-I', 'scripts/check-phase-l-graph.py'] 0
+['python3', '-I', 'scripts/check-phase-execution.py'] 0
+['python3', '-I', 'scripts/check-tlc-final.py'] 0
+['python3', '-I', 'scripts/check-state-if-planning.py'] 0
+['python3', '-I', 'scripts/check-predecessor-spill.py'] 0
+['python3', '-I', 'scripts/check-native-checkpoint.py'] 0
+['python3', '-I', 'scripts/check-view-normalization.py'] 0
+['python3', '-I', 'scripts/check-native-parity-integration.py'] 1
+['python3', '-I', 'scripts/check-tlc-final.py'] 0
+['python3', '-I', 'scripts/check-tlc-final-safety.py'] 1
+['python3', '-I', 'scripts/check-tlc-state-if.py'] 0
+['python3', '-I', 'scripts/check-tlc-temporal-if.py'] 0
+['python3', '-I', 'scripts/check-tlc-temporal-if-final.py'] 1
+['python3', '-I', 'scripts/check-tlc-final-scopes.py'] 1
+['python3', '-I', 'scripts/check-tlc-property-origins.py'] 1
+['python3', '-I', 'scripts/check-material-capture.py'] 1
+['python3', '-I', 'scripts/check-temporal-operators.py'] 1
+['python3', '-I', 'scripts/check-native-temporal-operators.py'] 1
+['python3', '-I', 'crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py'] 0
+['python3', '-I', 'scripts/check-test-partitions.py'] 0
+['python3', '-I', 'scripts/test-workspace-gate.py'] 0
+Traceback (most recent call last):
+  File "/tmp/dive-view-normalization-final-metadata-checks.py", line 13, in <module>
+    (a/'receipt.json').write_text(json.dumps(dict(runtime_source_commit=p['source_commit'],compiled_live_and_git_source_equality=proof,rows=rows,scope='Delivery docs/evidence/Python verification only; compiled060 source and full gate are unchanged'),indent=2)+'\n');assert all(row['exit']==0 for row in rows)
+AssertionError

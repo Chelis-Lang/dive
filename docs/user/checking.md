@@ -60,3 +60,12 @@ TRUE)}`, `Next == UNCHANGED x`, and `VIEW 0` finish with no Print output.
 Spilling or archiving that callback-bearing value still refuses explicitly;
 this support is limited to memory checking. Other unproved lazy representations
 remain unsupported.
+
+The current D-009 comparison improvements do not make every mixed structure
+normalizable. A reversed heterogeneous set may refuse even in the default
+profile. A forward heterogeneous set can produce a checker report whose
+canonical structured trace then fails decoder shape admission in both profiles.
+Treat that report as an unvalidated witness; checking counts or a displayed
+trace do not confer independent validation. See [the measured selection and
+refusals](../../conformance/probes/view-concrete-normalization/README.md) and
+[follow-up #190](https://github.com/Chelis-Lang/dive/issues/190).
