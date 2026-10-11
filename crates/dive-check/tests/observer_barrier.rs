@@ -33,6 +33,9 @@ struct Observer {
     sources: usize,
     fail_complete: bool,
     width: usize,
+    eof: usize,
+    pause: bool,
+    fail_eof: bool,
 }
 impl SourceObserver for Observer {
     fn initial(
@@ -50,6 +53,28 @@ impl SourceObserver for Observer {
         self.complete.push(stats);
         if self.fail_complete {
             Err("stop-before-pool".into())
+        } else {
+            Ok(())
+        }
+    }
+    fn requires_dispatch_pause(&self) -> bool {
+        self.pause
+    }
+    fn paused_source(
+        &mut self,
+        source: CommittedSource<'_>,
+        pause: &capture::DispatchPause<'_>,
+    ) -> Result<(), String> {
+        assert_eq!(pause.workers(), self.width);
+        assert!(pause.generation() > 0 || self.width == 1);
+        self.source(source)
+    }
+    fn exploration_complete(&mut self, end: &capture::ExplorationEnd) -> Result<(), String> {
+        assert_eq!(end.stats().left_on_queue, 0);
+        assert_eq!(end.workers().used, self.width);
+        self.eof += 1;
+        if self.fail_eof {
+            Err("failed-final-check".into())
         } else {
             Ok(())
         }
@@ -100,6 +125,7 @@ fn complete_initialization_is_once_before_real_wave_and_never_after_failed_init(
                 assert!(matches!(r, Exploration::Stopped(_)));
                 assert_eq!(o.complete.len(), 0);
                 assert_eq!(o.sources, 0);
+                assert_eq!(o.eof, 0);
             }
         }
         let src = "---- MODULE Barrier ----\nVARIABLE x\nInit == x \\in {0,1,2}\nNext == UNCHANGED x\nInv == TRUE\n====\n";
@@ -154,7 +180,68 @@ fn generation_and_source_failures_keep_the_real_callback_prefix() {
             assert_eq!(observer.roots, roots);
             assert_eq!(observer.complete.len(), completions);
             assert_eq!(observer.sources, 0);
+            assert_eq!(observer.eof, 0);
             assert_eq!(stop.workers.used, if completions == 0 { 1 } else { width });
         }
+    }
+}
+
+#[test]
+fn actual_dispatch_pause_and_eof_are_not_prefix_inferences() {
+    for width in [1, 3, 4, 8] {
+        for fail_eof in [false, true] {
+            let opts = CheckOptions {
+                workers: width,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let m = model(
+                "---- MODULE Barrier ----\nVARIABLE x\nInit == x \\in {0,1,2}\nNext == UNCHANGED x\nInv == TRUE\n====\n",
+                &opts,
+            );
+            let mut observer = Observer {
+                width,
+                pause: true,
+                fail_eof,
+                ..Default::default()
+            };
+            let result = capture::explore_observed_with_evidence(
+                &m,
+                &opts,
+                capture::Limits::default(),
+                &mut observer,
+            )
+            .expect("capture");
+            assert_eq!(observer.eof, 1);
+            assert_eq!(observer.sources, 3);
+            assert_eq!(matches!(result, Exploration::Complete(_)), !fail_eof);
+            if let Exploration::Stopped(stop) = result {
+                assert_eq!(stop.stats.expect("EOF counters").left_on_queue, 0);
+                assert_eq!(stop.workers.used, width);
+            }
+        }
+        let opts = CheckOptions {
+            workers: width,
+            ..CheckOptions::tlc(0, 0)
+        };
+        let m = model(
+            "---- MODULE Barrier ----\nVARIABLE x\nInit == x=0\nNext == x'=1\nInv == x=0\n====\n",
+            &opts,
+        );
+        let mut observer = Observer {
+            width,
+            pause: true,
+            ..Default::default()
+        };
+        assert!(matches!(
+            capture::explore_observed_with_evidence(
+                &m,
+                &opts,
+                capture::Limits::default(),
+                &mut observer
+            ),
+            Ok(Exploration::Stopped(_))
+        ));
+        assert_eq!(observer.eof, 0);
     }
 }

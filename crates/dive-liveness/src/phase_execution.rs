@@ -379,6 +379,7 @@ struct Observer<'a> {
     periodic_checks: Vec<Checkpoint>,
     pointer_sizes: Vec<u64>,
     last_sizes: Vec<u64>,
+    lifecycle: Option<crate::periodic_lifecycle::State>,
 }
 fn charge(
     total: &mut usize,
@@ -615,6 +616,178 @@ impl Observer<'_> {
         result?;
         if candidate.is_some() {
             return Err(Error::PartialCandidate);
+        }
+        Ok(())
+    }
+    fn lifecycle_poll(
+        &mut self,
+        source: &CommittedSource<'_>,
+        pause: &capture::DispatchPause<'_>,
+        state: &mut crate::periodic_lifecycle::State,
+    ) -> Result<(), Error> {
+        let now = crate::periodic_lifecycle::time_millis()?;
+        let elapsed = now.wrapping_sub(state.last);
+        if elapsed < 0 {
+            return Err(Error::Execution(
+                "native progress clock moved backwards".into(),
+            ));
+        }
+        if elapsed < i64::from(state.options.progress_interval) && !state.force {
+            return Ok(());
+        }
+        self.partial_charge(Some(1))?;
+        state.last = now;
+        let ratio_before = state.ratio;
+        let force_before = state.force;
+        let mut policy = crate::periodic::Policy {
+            check_liveness: true,
+            runtime_ratio: state.ratio,
+            ratio_limit: state.options.ratio_limit,
+            force_liveness: state.force,
+            checkpoint: false,
+            periodic: false,
+        };
+        let mut hooks = NativeHooks {
+            observer: self,
+            state,
+            source,
+            pause,
+            resumed: false,
+        };
+        let outcome = crate::periodic::run(&mut policy, &mut hooks);
+        hooks.state.ratio = policy.runtime_ratio;
+        hooks.state.force = policy.force_liveness;
+        hooks
+            .state
+            .invocations
+            .push(crate::periodic_lifecycle::Invocation {
+                source: source.id,
+                stats: source.stats,
+                workers: pause.workers(),
+                generation: pause.generation(),
+                now,
+                ratio_before,
+                ratio_after: policy.runtime_ratio,
+                force_before,
+                force_after: policy.force_liveness,
+                resume_requested: hooks.resumed,
+                outcome: outcome.as_ref().map(|o| *o).map_err(|e| format!("{e:?}")),
+            });
+        match outcome {
+            Ok(crate::periodic::Outcome::Complete) => Ok(()),
+            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(Error::PartialCandidate),
+            Ok(crate::periodic::Outcome::PeriodicAssumptionFalse) => {
+                Err(Error::Input("unadmitted PERIODIC callback".into()))
+            }
+            Err(crate::periodic::Error::Callback(e)) => Err(e),
+            Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
+                "native liveness clock moved backwards".into(),
+            )),
+        }
+    }
+    fn lifecycle_final(
+        &mut self,
+        state: &mut crate::periodic_lifecycle::State,
+        end: &capture::ExplorationEnd,
+    ) -> Result<(), Error> {
+        state.eof = Some(end.stats());
+        self.pointer_sizes = self.pointer_counts()?;
+        for group in 0..self.groups.len() {
+            for pem in 0..self.groups[group].pems.len() {
+                // Reserve projection metadata before clones/retention, using the
+                // original shared graph meter rather than a fresh SCC allowance.
+                let records = &self.groups[group];
+                let edge_count = records
+                    .nodes
+                    .iter()
+                    .try_fold(0usize, |n, x| n.checked_add(x.transitions.len()));
+                let cells = records
+                    .nodes
+                    .len()
+                    .checked_mul(records.pems[pem].ae_state.len())
+                    .and_then(|n| {
+                        edge_count?
+                            .checked_mul(records.pems[pem].ae_action.len().checked_add(1)?)?
+                            .checked_add(n)
+                    })
+                    .and_then(|n| {
+                        records
+                            .nodes
+                            .len()
+                            .checked_mul(
+                                self.tableaux[group]
+                                    .as_ref()
+                                    .map_or(0, |t| t.promises.len()),
+                            )?
+                            .checked_add(n)
+                    });
+                self.partial_charge(
+                    records
+                        .nodes
+                        .len()
+                        .checked_mul(3)
+                        .and_then(|n| n.checked_add(edge_count?))
+                        .and_then(|n| n.checked_add(cells?))
+                        .and_then(|n| n.checked_add(records.roots.len()))
+                        .and_then(|n| n.checked_add(1)),
+                )?;
+                let records = &self.groups[group];
+                let (graph, labels) = project_inputs_inner(
+                    records,
+                    pem,
+                    self.limits.graph,
+                    self.tableaux[group].as_ref(),
+                    false,
+                )?;
+                let identities = records
+                    .nodes
+                    .iter()
+                    .map(|n| crate::tlc_witness::Identity {
+                        fingerprint: n.fingerprint,
+                        tableau: n.tableau,
+                    })
+                    .collect::<Vec<_>>();
+                let remaining = self
+                    .limits
+                    .graph
+                    .steps
+                    .checked_sub(self.steps)
+                    .ok_or(Error::Limit("final SCC cumulative inspections"))?;
+                let selection = crate::tlc_witness::select(
+                    &graph,
+                    &labels,
+                    &identities,
+                    crate::product::Limits {
+                        steps: remaining,
+                        ..self.limits.graph
+                    },
+                )
+                .map_err(|e| match e {
+                    crate::tlc_scc::Error::Limit(_) => {
+                        Error::Limit("final SCC cumulative inspections")
+                    }
+                    other => Error::Input(format!("final SCC selection: {other}")),
+                })?;
+                self.partial_charge(
+                    selection
+                        .traversal
+                        .inspections
+                        .checked_add(selection.candidate.as_ref().map_or(0, |c| c.inspections)),
+                )?;
+                let candidate = selection.candidate.is_some();
+                state
+                    .final_checks
+                    .push(crate::periodic_lifecycle::FinalCheck {
+                        group,
+                        pem,
+                        selection,
+                    });
+                if candidate {
+                    self.record_check_size(group);
+                    return Err(Error::PartialCandidate);
+                }
+            }
+            self.record_check_size(group);
         }
         Ok(())
     }
@@ -1216,6 +1389,81 @@ impl Observer<'_> {
         })
     }
 }
+struct NativeHooks<'a, 'model, 'source, 'pause> {
+    observer: &'a mut Observer<'model>,
+    state: &'a mut crate::periodic_lifecycle::State,
+    source: &'a CommittedSource<'source>,
+    pause: &'a capture::DispatchPause<'pause>,
+    resumed: bool,
+}
+impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
+    type Error = Error;
+    fn growth_due(&mut self) -> Result<bool, Error> {
+        self.observer.pointer_sizes = self.observer.pointer_counts()?;
+        Ok(self
+            .observer
+            .pointer_sizes
+            .iter()
+            .zip(&self.observer.last_sizes)
+            .any(|(size, last)| {
+                Growth {
+                    size: *size,
+                    last: *last,
+                }
+                .due(self.state.options.backend.threshold)
+            }))
+    }
+    fn suspend_workers(&mut self) -> Result<bool, Error> {
+        if self.pause.workers() != self.source.barrier.workers() {
+            return Err(Error::Input("dispatch pause/source pool mismatch".into()));
+        }
+        Ok(true)
+    }
+    fn check_liveness(&mut self, forced: bool) -> Result<i32, Error> {
+        let saved = self.observer.periodic;
+        self.observer.periodic = Some(Policy {
+            force: forced,
+            ..self.state.options.backend
+        });
+        let result = self
+            .observer
+            .periodic_check(self.source.stats, Some(self.source.barrier));
+        self.observer.periodic = saved;
+        match result {
+            Ok(()) => Ok(0),
+            Err(Error::PartialCandidate) => Ok(2116),
+            Err(e) => Err(e),
+        }
+    }
+    fn time_millis(&mut self) -> Result<i64, Error> {
+        crate::periodic_lifecycle::time_millis()
+    }
+    fn update_runtime_ratio(&mut self, elapsed: i64) -> Result<f64, Error> {
+        crate::periodic::calculate_runtime_ratio(
+            self.state.ratio,
+            self.state.start,
+            crate::periodic_lifecycle::time_millis()?,
+            self.state.options.progress_interval,
+            elapsed,
+        )
+        .map_err(|_| Error::Execution("negative native liveness elapsed time".into()))
+    }
+    fn periodic_is_false(&mut self) -> Result<bool, Error> {
+        Err(Error::Input(
+            "PERIODIC is not admitted by native lifecycle".into(),
+        ))
+    }
+    fn checkpoint(&mut self) -> Result<(), Error> {
+        Err(Error::Input(
+            "checkpoint transaction is not admitted by native lifecycle".into(),
+        ))
+    }
+    fn resume_workers(&mut self) -> Result<(), Error> {
+        self.resumed = true;
+        Ok(())
+    }
+}
+
 impl SourceObserver for Observer<'_> {
     fn initial(
         &mut self,
@@ -1234,10 +1482,44 @@ impl SourceObserver for Observer<'_> {
         self.retain(result)
     }
     fn initial_complete(&mut self, stats: Stats) -> Result<(), String> {
-        let result = self.periodic_check(stats, None);
+        let result = if self.lifecycle.is_some() {
+            Ok(())
+        } else {
+            self.periodic_check(stats, None)
+        };
+        self.retain(result)
+    }
+    fn requires_dispatch_pause(&self) -> bool {
+        self.lifecycle.is_some()
+    }
+    fn paused_source(
+        &mut self,
+        source: CommittedSource<'_>,
+        pause: &capture::DispatchPause<'_>,
+    ) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return self.source(source);
+        };
+        let result = self
+            .source_inner(&source)
+            .and_then(|()| self.lifecycle_poll(&source, pause, &mut state));
+        self.lifecycle = Some(state);
+        self.retain(result)
+    }
+    fn exploration_complete(&mut self, end: &capture::ExplorationEnd) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return Ok(());
+        };
+        let result = self.lifecycle_final(&mut state, end);
+        self.lifecycle = Some(state);
         self.retain(result)
     }
     fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String> {
+        if self.lifecycle.is_some() {
+            return self.retain(Err(Error::Input(
+                "native lifecycle requires dispatch-pause authority".into(),
+            )));
+        }
         let result = self.source_inner(&source).and_then(|()| {
             if self.periodic.is_some() {
                 self.periodic_check(source.stats, Some(source.barrier))
@@ -1267,8 +1549,8 @@ pub fn execute(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Complete, Box<Failure>> {
-    execute_inner(model, options, limits, false, None)
-        .map(|(execution, _, _, _, _)| execution)
+    execute_inner(model, options, limits, false, None, None, None)
+        .map(|(execution, _, _, _, _, _)| execution)
         .map_err(|failure| failure.failure)
 }
 
@@ -1290,8 +1572,8 @@ pub fn execute_partial(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<PartialExecution, Box<PartialFailure>> {
-    execute_inner(model, options, limits, true, None).map(
-        |(execution, checks, inspections, graph_inspections, _)| PartialExecution {
+    execute_inner(model, options, limits, true, None, None, None).map(
+        |(execution, checks, inspections, graph_inspections, _, _)| PartialExecution {
             execution,
             checks,
             inspections,
@@ -1306,8 +1588,8 @@ pub(crate) fn execute_periodic_backend(
     limits: Limits,
     policy: Policy,
 ) -> crate::periodic_backend::Run {
-    match execute_inner(model, options, limits, true, Some(policy)) {
-        Ok((complete, checks, inspections, graph_inspections, checkpoints)) => {
+    match execute_inner(model, options, limits, true, Some(policy), None, None) {
+        Ok((complete, checks, inspections, graph_inspections, checkpoints, _)) => {
             crate::periodic_backend::Run {
                 complete: Some(complete),
                 failure: None,
@@ -1334,7 +1616,73 @@ pub(crate) fn execute_periodic_backend(
     }
 }
 
-type ExecutionParts = (Complete, Vec<PartialCheck>, usize, usize, Vec<Checkpoint>);
+pub(crate) fn execute_periodic_lifecycle(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+) -> crate::periodic_lifecycle::Run {
+    let mut failed_state = None;
+    let outcome = execute_inner(
+        model,
+        options,
+        limits,
+        true,
+        Some(policy.backend),
+        Some(policy),
+        Some(&mut failed_state),
+    );
+    let (backend, state) = match outcome {
+        Ok((complete, checks, inspections, graph_inspections, checkpoints, state)) => (
+            crate::periodic_backend::Run {
+                complete: Some(complete),
+                failure: None,
+                checks,
+                inspections,
+                graph_inspections,
+                checkpoints,
+                options: options.clone(),
+                policy: policy.backend,
+                limits,
+            },
+            state,
+        ),
+        Err(failure) => (
+            crate::periodic_backend::Run {
+                complete: None,
+                failure: Some(failure.failure),
+                checks: failure.checks,
+                inspections: failure.inspections,
+                graph_inspections: failure.graph_inspections,
+                checkpoints: failure.periodic_checks,
+                options: options.clone(),
+                policy: policy.backend,
+                limits,
+            },
+            failed_state,
+        ),
+    };
+    let (invocations, final_checks, eof) = state.map_or_else(
+        || (Vec::new(), Vec::new(), None),
+        |s| (s.invocations, s.final_checks, s.eof),
+    );
+    crate::periodic_lifecycle::Run {
+        backend,
+        options: policy,
+        invocations,
+        final_checks,
+        eof,
+    }
+}
+
+type ExecutionParts = (
+    Complete,
+    Vec<PartialCheck>,
+    usize,
+    usize,
+    Vec<Checkpoint>,
+    Option<crate::periodic_lifecycle::State>,
+);
 
 #[allow(
     clippy::too_many_lines,
@@ -1346,6 +1694,8 @@ fn execute_inner(
     limits: Limits,
     partial: bool,
     periodic: Option<Policy>,
+    lifecycle: Option<crate::periodic_lifecycle::Options>,
+    lifecycle_failure: Option<&mut Option<crate::periodic_lifecycle::State>>,
 ) -> Result<ExecutionParts, Box<PartialFailure>> {
     let early = |error| {
         Box::new(PartialFailure {
@@ -1384,6 +1734,10 @@ fn execute_inner(
     model
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
+    let lifecycle = lifecycle
+        .map(crate::periodic_lifecycle::State::new)
+        .transpose()
+        .map_err(early)?;
     let session = Session::new(model, options.fp_index, 1, limits.phase_l)
         .map_err(|error| early(Error::Phase(error)))?;
     if session.orders().is_empty() {
@@ -1436,6 +1790,7 @@ fn execute_inner(
         successor_origins: BTreeMap::new(),
         periodic,
         periodic_checks: Vec::new(),
+        lifecycle,
         pointer_sizes: Vec::new(),
         last_sizes: if periodic.is_some() {
             vec![1; group_count]
@@ -1464,6 +1819,9 @@ fn execute_inner(
                     None,
                 ),
             };
+            if let Some(output) = lifecycle_failure {
+                *output = observer.lifecycle.take();
+            }
             return Err(Box::new(PartialFailure {
                 checks: std::mem::take(&mut observer.partial_checks),
                 inspections: observer.partial_steps,
@@ -1498,6 +1856,7 @@ fn execute_inner(
         observer.partial_steps,
         observer.steps,
         observer.periodic_checks,
+        observer.lifecycle,
     ))
 }
 
