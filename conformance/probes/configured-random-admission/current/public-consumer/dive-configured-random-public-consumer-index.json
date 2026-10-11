@@ -1,0 +1,15 @@
+{
+  "producer_commit": "475ef10ce38f3c45037ea90437b9d12e326b3916",
+  "source_sha256": "058e9e9d4c2450722c59da5177b684c02881d4db434b509a59881ecf84df58c5",
+  "executable_sha256": "427b35c3e483e98e51a1b74c73dde32273ee6e1366e3a17499160c3103489182",
+  "linked_rlib_sha256": {
+    "dive_api": "31bdfde9921a7d309a7a1cb719d266d9a1149a361296b3a0bbaba43ad6518b1a",
+    "dive_check": "f35c6afab016e6b8b205aed3958dbdfafc0ba704029d5d7ed3bbfc77c8a30996",
+    "dive_config": "d52358345ef8868d8d85387bb5a82b76a3f2ebb9db0846a1f2f0c99c8353d662",
+    "dive_eval": "c68e80f3863e27f3648976ddecd4280d217d5c5273d5ddf02f36574ab64a2bf4",
+    "dive_ir": "e49935ea56f17c5acceb8aa0179ad238db9deaff1299f50cc8321967d41a937c",
+    "dive_model": "9b2ae7d349295582f6df3e12bfc9a611f42c6fae0f23c261abfec94d530be520",
+    "dive_sema": "77fd325ccd4f6f59c9a296ab4cc9d003bffec5960f49341029985ea6a8c6cc6f",
+    "dive_store": "4686a1bb75fc4988cde38a957e153830c87482e9a423a573dc7adfb99daa3841"
+  }
+}

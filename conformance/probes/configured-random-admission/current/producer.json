@@ -1,0 +1,9 @@
+{
+  "producer_commit": "475ef10ce38f3c45037ea90437b9d12e326b3916",
+  "producer_tree": "22307448e10a7b496f820028a474470a9987e967",
+  "binaries": {
+    "dive": "7a5de692bbf91e8bc23acf72633f3ce7231b2d4f8eb6f5d47d04a46e57166cb4",
+    "dive-conformance": "7f03e92acd356724efd26006f377db98311b680e5bafbb7034384a1eae4accf6"
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)"
+}
