@@ -1,0 +1,25 @@
+{
+  "source_commit": "2c2ebda3940109fae34a033749b63a8560f8834c",
+  "scope": "Failed current integrity stage caught test formatting after manifest refresh; runtime producer source/bytes are retained separately, hashes are not relaxed",
+  "files_sha256": {
+    "current-source.json": "e84dac833e7d57d97d5006e4ddc8099755ce9f68a1f37c3b1d78074db62d043e",
+    "fullgate.log": "79492863e107d4071da737f12120fefc5291ae799680ab031d8b0e316a7ac3bb",
+    "gate/fmt-0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gate/index.json": "f33d1a4062d75dc723b0a107829bf81a1545c4bd1e3fdad0baa92829b4cd4b7c",
+    "gate/python-0.log": "648c532f35a25a286750350463e18cb6e17530a2eeed719c5b3bbc0c61824862",
+    "gate/python-1.log": "965ed2cacc8cf0a60582c684a73d570c02abb2111fc7c1d4fbc29f4b95b2eecc",
+    "gate/python-10.log": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88",
+    "gate/python-11.log": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f",
+    "gate/python-12.log": "ee736a7259a65e8ad0d492c9862671fa464cef3fe4ec7c9dd7f170bc726e32ed",
+    "gate/python-13.log": "0543c1c6a230798d4642392e1387501de782bd568eee6b8053b78f4dd3d9e8f1",
+    "gate/python-14.log": "49b4ec066a684ae254d83e13f899e4d4a64911001e56dcd80b9515f4ddddbc76",
+    "gate/python-2.log": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398",
+    "gate/python-3.log": "ddd5f8059fc5b24146e4748baab54d20f1de6cb39caac8a946d19ada570466e7",
+    "gate/python-4.log": "45ed7acf1403a7088c901e166377c2f3f6f5f5206f4a1db0281fcee1613282d0",
+    "gate/python-5.log": "38e9b3082a2513ee7cd2f332e2b5bb2f047983e3cdcf9ca7f3fb6b468940e3d6",
+    "gate/python-6.log": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846",
+    "gate/python-7.log": "223f270f665f0f493efc50396debfd091f5c86363caeb497c5ef9380675289fd",
+    "gate/python-8.log": "bc12843c5295b3585808f521be63b39df1493379d0405d6eaa79d49925ef2ea3",
+    "gate/python-9.log": "1bd2ccddffd138892fa11f45a2d2a629a5e5ebd3dd47eacf0888cec35c2cdd6f"
+  }
+}

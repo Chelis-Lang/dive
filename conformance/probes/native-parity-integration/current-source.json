@@ -826,7 +826,7 @@
     "crates/dive-api/tests/tlc_temporal.rs": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
     "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
     "crates/dive-api/tests/trace_controls.rs": "060007fe9567612c601cb31ea13541749d1469f817a9da1413dab4ff8dd7ed25",
-    "crates/dive-api/tests/trace_random.rs": "9601c14a40e15420272744afac429f11ee65a0ddc7ca522d0177510259241d4c",
+    "crates/dive-api/tests/trace_random.rs": "049f0ddb34923f8d0a50c80853237b0cb587c390dcb6a9689f55f6cb14df5193",
     "crates/dive-api/tests/trace_runtime_names.rs": "ffd9245dcecc15fbccc42034f5a762df022a1df6e5271a33bf974b96954a7792",
     "crates/dive-api/tests/translation.rs": "8b723731cc303ef022ed85e4a4dc4a3583d055695ee3d39afdd2dc1c8eb42b82",
     "crates/dive-bench/Cargo.toml": "a46c4b4ff2d98fb05ca82bbf98a9b01f449eac4a99e81ce515398ab9ab08e579",
