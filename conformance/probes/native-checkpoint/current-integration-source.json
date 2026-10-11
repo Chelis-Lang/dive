@@ -61,7 +61,7 @@
     "crates/dive-check/src/lib.rs": "293ae68cd721b78fd0950462a6e574830487158e19b693607e5ca800b2c90897",
     "crates/dive-cli/src/main.rs": "5fa883e1593e5adf259e47dd921661d1917449143e22b725e173d3dcdcfed709",
     "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",
-    "crates/dive-model/src/lib.rs": "73b984b00e543d30f63dc7f1f6e83fdbdeb0792d2e0e6b84c17393993a66942a",
+    "crates/dive-model/src/lib.rs": "d178738a24ce92bd4439edc5d04f28443ff39771f0185f4ce40dd54ea13c4861",
     "crates/dive-value/src/codec.rs": "e22184034c70471f8395358965ebc6dae9f42ca6bab2b547158a25b490d790f3",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd"
   },
