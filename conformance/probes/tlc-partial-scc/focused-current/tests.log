@@ -1,0 +1,30 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.14s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-native-tail-target/debug/deps/dive_liveness-be7ab067520fd24c)
+
+running 2 tests
+test phase_graph::written_controls::actual_pinned_unwritten_duplicates_and_no_rewrite_are_retained ... ok
+test phase_execution::partial_origin_tests::placeholder_requires_actual_matching_committed_successor_slot ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/partial_execution.rs (/Users/jeff/code/dive-native-tail-target/debug/deps/partial_execution-79f3e1b247f9a39e)
+
+running 4 tests
+test repeated_partial_checks_share_the_original_graph_steps_budget ... ok
+test foreign_roles_effects_and_partial_bounds_remain_named_failures ... ok
+test actual_partial_candidates_require_independent_memory_json_and_mutant_replay ... ok
+test actual_source_prefixes_match_complete_pinned_partial_selection ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests/tlc_partial_scc.rs (/Users/jeff/code/dive-native-tail-target/debug/deps/tlc_partial_scc-43b7b44f2c820573)
+
+running 4 tests
+test partial_dimensions_and_limits_refuse_instead_of_claiming_holds ... ok
+test supplied_unwritten_adjacency_cannot_shortcut_a_real_written_prefix ... ok
+test unfinished_roots_and_targets_do_not_become_empty_completed_components ... ok
+test all_three_node_write_masks_match_independent_floyd_acceptance ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+

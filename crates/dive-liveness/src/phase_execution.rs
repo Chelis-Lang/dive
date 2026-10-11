@@ -150,6 +150,207 @@ pub struct RecursiveWork {
     /// Recursive source expansions begun, including failed expansions.
     pub expansions: usize,
 }
+
+/// Actual first stored successor slot introducing an unfinished null-tableau record.
+/// The producer retains this authority; callers cannot manufacture it.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SuccessorOrigin {
+    source: usize,
+    source_fingerprint: u64,
+    successor: usize,
+    slot: usize,
+    ordinal: Option<u64>,
+}
+impl SuccessorOrigin {
+    /// Original logical committed source index.
+    #[must_use]
+    pub fn source(&self) -> usize {
+        self.source
+    }
+    /// Original source fingerprint, distinct from the introduced record.
+    #[must_use]
+    pub fn source_fingerprint(&self) -> u64 {
+        self.source_fingerprint
+    }
+    /// Position within the actual retained slot-order successor vector.
+    #[must_use]
+    pub fn successor(&self) -> usize {
+        self.successor
+    }
+    /// Actual `SetOfStates` table slot.
+    #[must_use]
+    pub fn slot(&self) -> usize {
+        self.slot
+    }
+    /// Original generator ordinal; absent for first-admitted implicit stutter.
+    #[must_use]
+    pub fn ordinal(&self) -> Option<u64> {
+        self.ordinal
+    }
+}
+fn validate_origin(group: &Group, node: &Node, origin: &SuccessorOrigin) -> Result<(), Error> {
+    let successor = group
+        .commits
+        .get(origin.source)
+        .filter(|c| c.source == origin.source && c.fingerprint == origin.source_fingerprint)
+        .and_then(|c| c.receipt.successors.get(origin.successor))
+        .ok_or_else(|| Error::Input("unfinished record source-slot provenance".into()))?;
+    if node.tableau != -1
+        || successor.fingerprint != node.fingerprint
+        || successor.slot != origin.slot
+        || successor.ordinal != origin.ordinal
+    {
+        return Err(Error::Input(
+            "unfinished record source-slot provenance".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn retained_origins(
+    records: &Group,
+    group: usize,
+    origins: &BTreeMap<(usize, usize), SuccessorOrigin>,
+) -> Result<Vec<Option<SuccessorOrigin>>, Error> {
+    records
+        .nodes
+        .iter()
+        .enumerate()
+        .map(|(id, node)| {
+            let origin = origins.get(&(group, id));
+            if let Some(origin) = origin {
+                validate_origin(records, node, origin)?;
+            }
+            Ok(origin.cloned())
+        })
+        .collect()
+}
+
+/// One check of actual committed records, never an exploration completion.
+#[derive(Clone, Debug)]
+pub struct PartialCheck {
+    sources: usize,
+    group: usize,
+    pem: usize,
+    written: Vec<bool>,
+    successor_origins: Vec<Option<SuccessorOrigin>>,
+    identities: Vec<crate::tlc_witness::Identity>,
+    selection: crate::tlc_witness::PartialSelection,
+}
+impl PartialCheck {
+    /// Number of entire ordered source callbacks committed before this check.
+    #[must_use]
+    pub fn sources(&self) -> usize {
+        self.sources
+    }
+    /// Original OOS index.
+    #[must_use]
+    pub fn group(&self) -> usize {
+        self.group
+    }
+    /// Original PEM index within this OOS.
+    #[must_use]
+    pub fn pem(&self) -> usize {
+        self.pem
+    }
+    /// Original registered record identities, without compaction.
+    #[must_use]
+    pub fn identities(&self) -> &[crate::tlc_witness::Identity] {
+        &self.identities
+    }
+    /// Actual write status at this checkpoint, separate from discovery.
+    #[must_use]
+    pub fn written(&self) -> &[bool] {
+        &self.written
+    }
+    /// Producer-derived first successor-slot provenance for null-tableau records.
+    /// Initial/tableau registrations have no such origin; absence is not proof.
+    #[must_use]
+    pub fn successor_origins(&self) -> &[Option<SuccessorOrigin>] {
+        &self.successor_origins
+    }
+    /// Pinned SCC/candidate fields; candidates require independent validation.
+    #[must_use]
+    pub fn selection(&self) -> &crate::tlc_witness::PartialSelection {
+        &self.selection
+    }
+    /// Absence of a candidate never certifies a partial model check.
+    #[must_use]
+    pub fn model_proof(&self) -> bool {
+        false
+    }
+}
+
+/// Actual safety execution with diagnostic partial checks after source commits.
+/// This does not select an ordinary clock schedule or certify temporal holds.
+#[derive(Clone, Debug)]
+pub struct PartialExecution {
+    execution: Complete,
+    checks: Vec<PartialCheck>,
+    inspections: usize,
+    graph_inspections: usize,
+}
+impl PartialExecution {
+    /// Underlying actual safety exploration and graph construction.
+    #[must_use]
+    pub fn execution(&self) -> &Complete {
+        &self.execution
+    }
+    /// Ordered checks, including successful partial checks followed by growth.
+    #[must_use]
+    pub fn checks(&self) -> &[PartialCheck] {
+        &self.checks
+    }
+    /// Cumulative projection/retention reservations and completed selection work.
+    #[must_use]
+    pub fn inspections(&self) -> usize {
+        self.inspections
+    }
+    /// Shared graph/partial-work charge, bounded by the single `graph.steps` quota.
+    /// Session predicate/value work has its own unchanged Phase-L limits.
+    #[must_use]
+    pub fn graph_inspections(&self) -> usize {
+        self.graph_inspections
+    }
+    /// No ordinary schedule or complete temporal-model proof is certified.
+    #[must_use]
+    pub fn model_proof(&self) -> bool {
+        false
+    }
+}
+
+/// A stopped diagnostic run, retaining previous partial checks without success.
+#[derive(Clone, Debug)]
+pub struct PartialFailure {
+    /// Original deciding execution failure and prefix evidence.
+    pub failure: Box<Failure>,
+    checks: Vec<PartialCheck>,
+    inspections: usize,
+}
+impl std::fmt::Display for PartialFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.failure.error.fmt(f)
+    }
+}
+impl std::error::Error for PartialFailure {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.failure.error)
+    }
+}
+impl PartialFailure {
+    /// Checks that actually finished before the deciding failure.
+    #[must_use]
+    pub fn checks(&self) -> &[PartialCheck] {
+        &self.checks
+    }
+    /// Work charged before failure, including projection reservations.
+    /// A failing SCC/witness stage can have additional unreported work; this is
+    /// not an exact count of all inspections through that failing stage.
+    #[must_use]
+    pub fn inspections(&self) -> usize {
+        self.inspections
+    }
+}
 struct Observer<'a> {
     model: &'a Model,
     session: Session<'a>,
@@ -167,6 +368,10 @@ struct Observer<'a> {
     steps: usize,
     sources: usize,
     last_commit_work: Option<CommitWork>,
+    partial: bool,
+    partial_checks: Vec<PartialCheck>,
+    partial_steps: usize,
+    successor_origins: BTreeMap<(usize, usize), SuccessorOrigin>,
 }
 fn charge(
     total: &mut usize,
@@ -181,6 +386,123 @@ fn charge(
     Ok(())
 }
 impl Observer<'_> {
+    fn partial_charge(&mut self, amount: Option<usize>) -> Result<(), Error> {
+        charge(
+            &mut self.steps,
+            amount,
+            self.limits.graph.steps,
+            "combined graph/partial SCC inspections",
+        )?;
+        self.partial_steps = self
+            .partial_steps
+            .checked_add(amount.ok_or(Error::Limit("combined graph/partial SCC inspections"))?)
+            .ok_or(Error::Limit("combined graph/partial SCC inspections"))?;
+        Ok(())
+    }
+    fn partial_check(&mut self) -> Result<(), Error> {
+        if !self.partial {
+            return Ok(());
+        }
+        for group in 0..self.groups.len() {
+            for pem in 0..self.groups[group].pems.len() {
+                self.partial_charge(Some(self.groups[group].nodes.len()))?;
+                let records = &self.groups[group];
+                let edges = records
+                    .nodes
+                    .iter()
+                    .try_fold(0usize, |n, node| n.checked_add(node.transitions.len()));
+                let model = &records.pems[pem];
+                let cells = model
+                    .ae_state
+                    .len()
+                    .checked_add(
+                        self.tableaux[group]
+                            .as_ref()
+                            .map_or(0, |t| t.promises.len()),
+                    )
+                    .and_then(|n| n.checked_mul(records.nodes.len()))
+                    .and_then(|n| {
+                        model
+                            .ae_action
+                            .len()
+                            .checked_add(1)
+                            .and_then(|a| a.checked_mul(edges?))
+                            .and_then(|a| a.checked_add(n))
+                    });
+                // Reserve retained identities/write bits and supplied adjacency
+                // before cloning or projecting. Actual acceptance/SCC/witness
+                // work is charged separately below on the same cumulative meter.
+                self.partial_charge(
+                    records
+                        .nodes
+                        .len()
+                        .checked_mul(4)
+                        .and_then(|n| n.checked_add(edges?))
+                        .and_then(|n| n.checked_add(records.roots.len()))
+                        .and_then(|n| n.checked_add(cells?)),
+                )?;
+                let records = &self.groups[group];
+                let (graph, labels) = project_inputs_inner(
+                    records,
+                    pem,
+                    self.limits.graph,
+                    self.tableaux[group].as_ref(),
+                    true,
+                )?;
+                let successor_origins = retained_origins(records, group, &self.successor_origins)?;
+                let written = records.nodes.iter().map(|n| n.written).collect::<Vec<_>>();
+                let identities = records
+                    .nodes
+                    .iter()
+                    .map(|n| crate::tlc_witness::Identity {
+                        fingerprint: n.fingerprint,
+                        tableau: n.tableau,
+                    })
+                    .collect::<Vec<_>>();
+                let remaining = self
+                    .limits
+                    .graph
+                    .steps
+                    .checked_sub(self.steps)
+                    .ok_or(Error::Limit("partial SCC cumulative inspections"))?;
+                let limits = crate::product::Limits {
+                    steps: remaining,
+                    ..self.limits.graph
+                };
+                let selection = crate::tlc_witness::select_partial(
+                    &graph,
+                    &labels,
+                    &identities,
+                    &written,
+                    limits,
+                )
+                .map_err(|error| match error {
+                    crate::tlc_scc::Error::Limit(_) => {
+                        Error::Limit("partial SCC cumulative inspections")
+                    }
+                    other => Error::Input(format!("partial SCC selection: {other}")),
+                })?;
+                self.partial_charge(Some(selection.inspections()))?;
+                let accepting = selection.candidate().is_some();
+                self.partial_checks.push(PartialCheck {
+                    sources: self.sources,
+                    group,
+                    pem,
+                    written,
+                    successor_origins,
+                    identities,
+                    selection,
+                });
+                // One logical LiveWorker stops at the first deciding OOS/PEM.
+                // This diagnostic continues later source commits deliberately;
+                // it does not claim the actual ordinary stopping schedule.
+                if accepting {
+                    return Ok(());
+                }
+            }
+        }
+        Ok(())
+    }
     fn recursive_work(&self) -> RecursiveWork {
         RecursiveWork {
             generated: self.recursive_generated,
@@ -426,6 +748,26 @@ impl Observer<'_> {
                     self.limits.graph.steps,
                     "execution graph inspections",
                 )?;
+                if self.partial
+                    && !self.groups[group]
+                        .records
+                        .contains_key(&(next.fingerprint, -1))
+                {
+                    // Only an actual stored slot may introduce this unfinished
+                    // record; never invent adjacency or concrete bin results.
+                    self.partial_charge(Some(1))?;
+                    let (target, _) = self.register(group, next.fingerprint, -1)?;
+                    self.successor_origins.insert(
+                        (group, target),
+                        SuccessorOrigin {
+                            source: self.sources,
+                            source_fingerprint: fp,
+                            successor: slot,
+                            slot: next.slot,
+                            ordinal: next.ordinal,
+                        },
+                    );
+                }
                 let written = self.groups[group]
                     .records
                     .get(&(next.fingerprint, -1))
@@ -767,11 +1109,15 @@ impl SourceObserver for Observer<'_> {
         _ordinal: u64,
         _stats: Stats,
     ) -> Result<(), String> {
-        let result = self.initial_inner(state);
+        let result = self
+            .initial_inner(state)
+            .and_then(|()| self.partial_check());
         self.retain(result)
     }
     fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String> {
-        let result = self.source_inner(&source);
+        let result = self
+            .source_inner(&source)
+            .and_then(|()| self.partial_check());
         self.retain(result)
     }
 }
@@ -794,20 +1140,67 @@ pub fn execute(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Complete, Box<Failure>> {
+    execute_inner(model, options, limits, false)
+        .map(|(execution, _, _, _)| execution)
+        .map_err(|failure| failure.failure)
+}
+
+/// Execute actual ordered graph commits and check each partial source prefix.
+///
+/// This diagnostic checks after initial registrations and whole source callbacks.
+/// It deliberately continues after candidates to observe graph growth, so neither
+/// its checks nor a completed safety search imply ordinary temporal completion.
+/// No caller-supplied graph, done mask or claimed validation flag is accepted.
+/// Candidates must be independently replayed before any violation certification.
+/// Existing fixed graph limits apply; repeated checks share a cumulative work
+/// ceiling. This is not the pinned wall-clock schedule.
+///
+/// # Errors
+/// Original execution/admission errors, partial SCC failures and fixed limits,
+/// retaining all previously completed checks and actual stopping evidence.
+pub fn execute_partial(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+) -> Result<PartialExecution, Box<PartialFailure>> {
+    execute_inner(model, options, limits, true).map(
+        |(execution, checks, inspections, graph_inspections)| PartialExecution {
+            execution,
+            checks,
+            inspections,
+            graph_inspections,
+        },
+    )
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "preserve original execution error/prefix facts with optional partial checks"
+)]
+fn execute_inner(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    partial: bool,
+) -> Result<(Complete, Vec<PartialCheck>, usize, usize), Box<PartialFailure>> {
     let early = |error| {
-        Box::new(Failure {
-            error,
-            stats: None,
-            workers: Some(Workers {
-                requested: options.workers,
-                used: 0,
-                sequential: false,
-                reason: Some("parameter/ownership/planning check before execution".into()),
+        Box::new(PartialFailure {
+            checks: Vec::new(),
+            inspections: 0,
+            failure: Box::new(Failure {
+                error,
+                stats: None,
+                workers: Some(Workers {
+                    requested: options.workers,
+                    used: 0,
+                    sequential: false,
+                    reason: Some("parameter/ownership/planning check before execution".into()),
+                }),
+                groups: Vec::new(),
+                phase_work: phase_l::Progress::default(),
+                recursive_work: RecursiveWork::default(),
+                last_commit_work: None,
             }),
-            groups: Vec::new(),
-            phase_work: phase_l::Progress::default(),
-            recursive_work: RecursiveWork::default(),
-            last_commit_work: None,
         })
     };
     if options.workers == 0 || options.workers > limits.workers || options.workers > 64 {
@@ -860,6 +1253,10 @@ pub fn execute(
         steps: 0,
         sources: 0,
         last_commit_work: None,
+        partial,
+        partial_checks: Vec::new(),
+        partial_steps: 0,
+        successor_origins: BTreeMap::new(),
     };
     let captured =
         capture::explore_observed_with_evidence(model, options, limits.capture, &mut observer);
@@ -882,29 +1279,38 @@ pub fn execute(
                     None,
                 ),
             };
-            return Err(Box::new(Failure {
-                error,
-                stats,
-                workers,
-                recursive_work: observer.recursive_work(),
-                last_commit_work: observer.last_commit_work,
-                groups: observer.groups,
-                phase_work: observer.session.progress().clone(),
+            return Err(Box::new(PartialFailure {
+                checks: std::mem::take(&mut observer.partial_checks),
+                inspections: observer.partial_steps,
+                failure: Box::new(Failure {
+                    error,
+                    stats,
+                    workers,
+                    recursive_work: observer.recursive_work(),
+                    last_commit_work: observer.last_commit_work,
+                    groups: observer.groups,
+                    phase_work: observer.session.progress().clone(),
+                }),
             }));
         }
     };
-    Ok(Complete {
-        capture: captured,
-        recursive_work: observer.recursive_work(),
-        last_commit_work: observer.last_commit_work,
-        groups: observer.groups,
-        configured_properties: observer.session.configured_properties().to_vec(),
-        expanded_property_names: observer.session.expanded_property_names().to_vec(),
-        role_names: observer.session.role_names().to_vec(),
-        phase_work: observer.session.progress().clone(),
-        limits: limits.graph,
-        tableaux: observer.tableaux,
-    })
+    Ok((
+        Complete {
+            capture: captured,
+            recursive_work: observer.recursive_work(),
+            last_commit_work: observer.last_commit_work,
+            groups: observer.groups,
+            configured_properties: observer.session.configured_properties().to_vec(),
+            expanded_property_names: observer.session.expanded_property_names().to_vec(),
+            role_names: observer.session.role_names().to_vec(),
+            phase_work: observer.session.progress().clone(),
+            limits: limits.graph,
+            tableaux: observer.tableaux,
+        },
+        observer.partial_checks,
+        observer.partial_steps,
+        observer.steps,
+    ))
 }
 
 #[allow(
@@ -917,10 +1323,24 @@ fn project_inputs(
     limits: crate::product::Limits,
     tableau: Option<&Tableau>,
 ) -> Result<(Graph, Acceptance), Error> {
+    project_inputs_inner(group, pem, limits, tableau, false)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "retain original registered/write identities for final and partial projection"
+)]
+fn project_inputs_inner(
+    group: &Group,
+    pem: usize,
+    limits: crate::product::Limits,
+    tableau: Option<&Tableau>,
+    partial: bool,
+) -> Result<(Graph, Acceptance), Error> {
     let nodes = &group.nodes;
     let roots = &group.roots;
     let pems = &group.pems;
-    if nodes.iter().any(|n| !n.written) {
+    if !partial && nodes.iter().any(|n| !n.written) {
         return Err(Error::Input(
             "unwritten product node after execution".into(),
         ));
@@ -1011,6 +1431,9 @@ fn project_inputs(
             nodes
                 .iter()
                 .map(|node| {
+                    if partial && !node.written {
+                        return Ok(false);
+                    }
                     node.state
                         .get(*bin)
                         .copied()
@@ -1054,4 +1477,91 @@ fn project_inputs(
 
 fn bounded(n: Option<usize>, maximum: usize, name: &'static str) -> Result<usize, Error> {
     n.filter(|n| *n <= maximum).ok_or(Error::Limit(name))
+}
+
+#[cfg(test)]
+mod partial_origin_tests {
+    use super::{Group, Node, SuccessorOrigin, validate_origin};
+    use crate::{phase_graph::Commit, phase_l};
+
+    #[test]
+    fn placeholder_requires_actual_matching_committed_successor_slot() {
+        let node = Node {
+            fingerprint: 71,
+            tableau: -1,
+            state: Vec::new(),
+            transitions: Vec::new(),
+            written: false,
+        };
+        let origin = SuccessorOrigin {
+            source: 0,
+            source_fingerprint: 21,
+            successor: 0,
+            slot: 9,
+            ordinal: Some(8),
+        };
+        let mut group = Group::default();
+        assert!(validate_origin(&group, &node, &origin).is_err());
+        group.commits.push(Commit {
+            source: 0,
+            fingerprint: 21,
+            receipt: phase_l::Receipt {
+                multiplier: 1,
+                capacity: 16,
+                successors: vec![phase_l::Representative {
+                    slot: 9,
+                    fingerprint: 71,
+                    state: Vec::new().into(),
+                    ordinal: Some(8),
+                    label: None,
+                }],
+                checks: Vec::new(),
+                graph_insertion: false,
+            },
+            graph_insertion: true,
+        });
+        assert!(validate_origin(&group, &node, &origin).is_ok());
+        for edited in [
+            SuccessorOrigin {
+                source: 1,
+                ..origin.clone()
+            },
+            SuccessorOrigin {
+                source_fingerprint: 22,
+                ..origin.clone()
+            },
+            SuccessorOrigin {
+                successor: 1,
+                ..origin.clone()
+            },
+            SuccessorOrigin {
+                slot: 10,
+                ..origin.clone()
+            },
+            SuccessorOrigin {
+                ordinal: None,
+                ..origin
+            },
+        ] {
+            assert!(validate_origin(&group, &node, &edited).is_err());
+        }
+        let invented = Node {
+            fingerprint: 72,
+            ..node
+        };
+        assert!(
+            validate_origin(
+                &group,
+                &invented,
+                &SuccessorOrigin {
+                    source: 0,
+                    source_fingerprint: 21,
+                    successor: 0,
+                    slot: 9,
+                    ordinal: Some(8),
+                }
+            )
+            .is_err()
+        );
+    }
 }

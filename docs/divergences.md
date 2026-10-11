@@ -568,3 +568,16 @@ Bounded final native forwarding additionally admits `Append` with exactly two
 constant/state expression operands. Tail/SubSeq runtime-name admission remains
 refused, not a default change; see `docs/native-sequence-operators.md` and the
 complete source-bound controls. No new D-ID or family certification applies.
+
+## Bounded partial temporal SCC diagnostics (#185)
+
+Native ordered source commits now have a separate bounded partial-check API.
+It skips unfinished records, retains original root/EA/OOS/PEM order and candidate
+identities, and charges projection/SCC/witness work against the existing shared
+graph quota. Successful partial checks never mean temporal `Holds`; ordinary
+strict checking remains refused until real clock/quiescence/error/stop-count
+contracts are implemented. The complete32 explicit-prefix projections and8
+repeated forced original checks are diagnostics, not ordinary schedule runs.
+See the [user/API guide](partial-temporal-checks.md) and
+[complete controls](../conformance/probes/tlc-partial-scc/README.md).
+No new result-changing default or family certification is claimed.

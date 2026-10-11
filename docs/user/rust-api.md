@@ -47,6 +47,7 @@ requests and internal failures.
 | `trace::SpecModel` | Independent implementation/witness replay |
 | `temporal::check` | Explicit bounded final/short backend with private validated violations |
 | `check_file_checkpoint` | Bounded actual native safety pause/recovery |
+| `dive_liveness::phase_execution::execute_partial` | Low-level written-record/SCC diagnostics; no partial temporal Holds or ordinary schedule proof |
 
 Request fields make profile and module resolution explicit. Rust APIs do not
 implicitly adopt the CLI's environment-variable parsing. Reports preserve actual

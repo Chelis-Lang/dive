@@ -1,0 +1,194 @@
+[
+  {
+    "name": "PartialRoots-p0",
+    "model": "PartialRoots",
+    "sources": 0,
+    "obligation": "all-initial-roots-undone"
+  },
+  {
+    "name": "PartialRoots-p1",
+    "model": "PartialRoots",
+    "sources": 1,
+    "obligation": "all-initial-roots-undone"
+  },
+  {
+    "name": "PartialRoots-p2",
+    "model": "PartialRoots",
+    "sources": 2,
+    "obligation": "all-initial-roots-undone"
+  },
+  {
+    "name": "PartialRoots-p3",
+    "model": "PartialRoots",
+    "sources": 3,
+    "obligation": "all-initial-roots-undone"
+  },
+  {
+    "name": "PartialChild-p0",
+    "model": "PartialChild",
+    "sources": 0,
+    "obligation": "done-root-undone-child"
+  },
+  {
+    "name": "PartialChild-p1",
+    "model": "PartialChild",
+    "sources": 1,
+    "obligation": "done-root-undone-child"
+  },
+  {
+    "name": "PartialChild-p2",
+    "model": "PartialChild",
+    "sources": 2,
+    "obligation": "done-root-undone-child"
+  },
+  {
+    "name": "PartialChild-p3",
+    "model": "PartialChild",
+    "sources": 3,
+    "obligation": "done-root-undone-child"
+  },
+  {
+    "name": "PartialSelf-p0",
+    "model": "PartialSelf",
+    "sources": 0,
+    "obligation": "finished-self-cycle"
+  },
+  {
+    "name": "PartialSelf-p1",
+    "model": "PartialSelf",
+    "sources": 1,
+    "obligation": "finished-self-cycle"
+  },
+  {
+    "name": "PartialSelf-p2",
+    "model": "PartialSelf",
+    "sources": 2,
+    "obligation": "finished-self-cycle"
+  },
+  {
+    "name": "PartialSelf-p3",
+    "model": "PartialSelf",
+    "sources": 3,
+    "obligation": "finished-self-cycle"
+  },
+  {
+    "name": "PartialLater-p0",
+    "model": "PartialLater",
+    "sources": 0,
+    "obligation": "later-committed-cycle"
+  },
+  {
+    "name": "PartialLater-p1",
+    "model": "PartialLater",
+    "sources": 1,
+    "obligation": "later-committed-cycle"
+  },
+  {
+    "name": "PartialLater-p2",
+    "model": "PartialLater",
+    "sources": 2,
+    "obligation": "later-committed-cycle"
+  },
+  {
+    "name": "PartialLater-p3",
+    "model": "PartialLater",
+    "sources": 3,
+    "obligation": "later-committed-cycle"
+  },
+  {
+    "name": "PartialEA-p0",
+    "model": "PartialEA",
+    "sources": 0,
+    "obligation": "EA-false-root-enqueue"
+  },
+  {
+    "name": "PartialEA-p1",
+    "model": "PartialEA",
+    "sources": 1,
+    "obligation": "EA-false-root-enqueue"
+  },
+  {
+    "name": "PartialEA-p2",
+    "model": "PartialEA",
+    "sources": 2,
+    "obligation": "EA-false-root-enqueue"
+  },
+  {
+    "name": "PartialEA-p3",
+    "model": "PartialEA",
+    "sources": 3,
+    "obligation": "EA-false-root-enqueue"
+  },
+  {
+    "name": "PartialMultiple-p0",
+    "model": "PartialMultiple",
+    "sources": 0,
+    "obligation": "multiple-OOS"
+  },
+  {
+    "name": "PartialMultiple-p1",
+    "model": "PartialMultiple",
+    "sources": 1,
+    "obligation": "multiple-OOS"
+  },
+  {
+    "name": "PartialMultiple-p2",
+    "model": "PartialMultiple",
+    "sources": 2,
+    "obligation": "multiple-OOS"
+  },
+  {
+    "name": "PartialMultiple-p3",
+    "model": "PartialMultiple",
+    "sources": 3,
+    "obligation": "multiple-OOS"
+  },
+  {
+    "name": "PartialRevisit-p0",
+    "model": "PartialRevisit",
+    "sources": 0,
+    "obligation": "dynamic-tableau-done-revisit"
+  },
+  {
+    "name": "PartialRevisit-p1",
+    "model": "PartialRevisit",
+    "sources": 1,
+    "obligation": "dynamic-tableau-done-revisit"
+  },
+  {
+    "name": "PartialRevisit-p2",
+    "model": "PartialRevisit",
+    "sources": 2,
+    "obligation": "dynamic-tableau-done-revisit"
+  },
+  {
+    "name": "PartialRevisit-p3",
+    "model": "PartialRevisit",
+    "sources": 3,
+    "obligation": "dynamic-tableau-done-revisit"
+  },
+  {
+    "name": "PartialGrowthSafe-p0",
+    "model": "PartialGrowthSafe",
+    "sources": 0,
+    "obligation": "successful-check-then-growth"
+  },
+  {
+    "name": "PartialGrowthSafe-p1",
+    "model": "PartialGrowthSafe",
+    "sources": 1,
+    "obligation": "successful-check-then-growth"
+  },
+  {
+    "name": "PartialGrowthSafe-p2",
+    "model": "PartialGrowthSafe",
+    "sources": 2,
+    "obligation": "successful-check-then-growth"
+  },
+  {
+    "name": "PartialGrowthSafe-p3",
+    "model": "PartialGrowthSafe",
+    "sources": 3,
+    "obligation": "successful-check-then-growth"
+  }
+]

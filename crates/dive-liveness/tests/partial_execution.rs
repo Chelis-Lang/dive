@@ -1,0 +1,490 @@
+//! Actual source-commit partial checks and fresh independent witness controls.
+#![allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "adversarial test assertions"
+)]
+use dive_check::CheckOptions;
+use dive_liveness::{phase_execution, phase_graph::Limits};
+use std::sync::Arc;
+fn model(source: &str, config: &str, opts: &CheckOptions) -> dive_model::Model {
+    bind(source, config, opts).expect("binding")
+}
+fn bind(
+    source: &str,
+    config: &str,
+    opts: &CheckOptions,
+) -> Result<dive_model::Model, Box<dive_model::Failure>> {
+    let name = source.split_whitespace().nth(2).expect("module");
+    let analysis = dive_sema::analyze_source(
+        &format!("{name}.tla"),
+        source,
+        &dive_sema::Options::default(),
+    );
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg = dive_config::parse(config)
+        .into_config()
+        .expect("configuration");
+    dive_model::bind(
+        ir,
+        &cfg,
+        &dive_model::BindOptions {
+            eval: opts.eval,
+            no_deadlock: opts.no_deadlock,
+            host: None,
+        },
+    )
+}
+
+fn field<'a>(row: &'a serde_json::Value, key: &str) -> &'a str {
+    row["fields"][key].as_str().expect(key)
+}
+fn identity(id: &dive_liveness::tlc_witness::Identity) -> String {
+    format!("{}:{}", id.fingerprint, id.tableau)
+}
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "retain all complete primary fields and original scope identities"
+)]
+fn actual_source_prefixes_match_complete_pinned_partial_selection() {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/probes/tlc-partial-scc");
+    let reference: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(base.join("capture.json")).expect("capture"))
+            .expect("JSON");
+    let rows = reference["rows"].as_array().expect("rows");
+    assert_eq!(rows.len(), 32);
+    let mut compared = 0;
+    for name in [
+        "PartialRoots",
+        "PartialChild",
+        "PartialSelf",
+        "PartialLater",
+        "PartialEA",
+        "PartialMultiple",
+        "PartialRevisit",
+        "PartialGrowthSafe",
+    ] {
+        let dir = base.join("models").join(name);
+        let source = std::fs::read_to_string(dir.join(format!("{name}.tla"))).expect("source");
+        let config = std::fs::read_to_string(dir.join(format!("{name}.cfg"))).expect("cfg");
+        for workers in [1, 3, 4, 8] {
+            let opts = CheckOptions {
+                workers,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let m = model(&source, &config, &opts);
+            let run = phase_execution::execute_partial(&m, &opts, Limits::default()).expect(name);
+            assert!(!run.model_proof());
+            assert_eq!(run.execution().capture.workers.used, workers);
+            let maximum =
+                usize::try_from(run.execution().capture.stats.distinct).expect("tiny corpus");
+            for prefix in 0..4usize {
+                let row = rows
+                    .iter()
+                    .find(|r| r["name"] == format!("{name}-p{prefix}"))
+                    .expect("complete row");
+                assert_eq!(row["exit"], 0);
+                let actual = prefix.min(maximum);
+                let checks: Vec<_> = run
+                    .checks()
+                    .iter()
+                    .filter(|c| c.sources() == actual)
+                    .collect();
+                assert!(!checks.is_empty(), "{name}:{prefix}");
+                let first = checks.iter().find(|c| c.selection().candidate().is_some());
+                let mut expected_first = None;
+                for group in 0..run.execution().groups.len() {
+                    for pem in 0..run.execution().pem_count(group).expect("actual PEM") {
+                        let key = format!("scc.g{group}.pem{pem}.component.");
+                        let deciding = row["fields"]
+                            .as_object()
+                            .expect("reference fields")
+                            .iter()
+                            .any(|(k, v)| {
+                                k.starts_with(&key) && k.ends_with(".accepting") && v == "true"
+                            });
+                        if deciding && expected_first.is_none() {
+                            expected_first = Some((group, pem));
+                        }
+                    }
+                }
+                assert_eq!(
+                    first.map(|c| (c.group(), c.pem())),
+                    expected_first,
+                    "{name}:{prefix}: first deciding OOS/PEM"
+                );
+                assert_eq!(
+                    first.is_some(),
+                    field(row, "partial_check_code") == "2116",
+                    "{name}:{prefix}"
+                );
+                for check in checks {
+                    let key = format!("scc.g{}.pem{}", check.group(), check.pem());
+                    let ids = check.identities();
+                    assert_eq!(check.successor_origins().len(), ids.len());
+                    for (id, origin) in check.successor_origins().iter().enumerate() {
+                        if let Some(origin) = origin {
+                            let group = &run.execution().groups[check.group()];
+                            let commit = group
+                                .commits
+                                .iter()
+                                .find(|c| c.source == origin.source())
+                                .expect("actual original source");
+                            let stored = &commit.receipt.successors[origin.successor()];
+                            assert_eq!(commit.fingerprint, origin.source_fingerprint());
+                            assert_eq!(stored.fingerprint, ids[id].fingerprint);
+                            assert_eq!(stored.slot, origin.slot());
+                            assert_eq!(stored.ordinal, origin.ordinal());
+                        }
+                    }
+                    let t = check.selection().traversal();
+                    assert!(!check.model_proof());
+                    assert!(t.discovery.iter().all(|i| check.written()[*i]));
+                    let discovery = t
+                        .discovery
+                        .iter()
+                        .map(|i| identity(&ids[*i]))
+                        .collect::<Vec<_>>();
+                    let expected = field(row, &format!("{key}.events"))
+                        .split(';')
+                        .filter_map(|e| {
+                            let parts: Vec<_> = e.split(':').collect();
+                            (parts.len() == 5 && parts[0] == "put" && parts[4].starts_with("link"))
+                                .then(|| format!("{}:{}", parts[1], parts[2]))
+                        })
+                        .collect::<Vec<_>>();
+                    assert_eq!(discovery, expected, "{name}:{prefix}:{key}");
+                    assert_eq!(
+                        t.components.len().to_string(),
+                        field(row, &format!("{key}.components")),
+                        "{name}:{prefix}:{key}"
+                    );
+                    for (c, component) in t.components.iter().enumerate() {
+                        let k = format!("{key}.component.{c}");
+                        assert_eq!(
+                            identity(&ids[component.anchor]),
+                            field(row, &format!("{k}.anchor"))
+                        );
+                        assert_eq!(
+                            component
+                                .members
+                                .iter()
+                                .map(|i| identity(&ids[*i]))
+                                .collect::<Vec<_>>()
+                                .join(";"),
+                            field(row, &format!("{k}.pop_order"))
+                        );
+                        assert_eq!(
+                            component.accepting.to_string(),
+                            field(row, &format!("{k}.accepting"))
+                        );
+                    }
+                    if let Some(c) = check.selection().candidate() {
+                        let k = format!("{key}.component.{}", t.accepting.expect("component"));
+                        assert_eq!(
+                            identity(&ids[c.postfix_end]),
+                            field(row, &format!("{k}.postfix_end"))
+                        );
+                        assert_eq!(
+                            c.cycle_stack
+                                .iter()
+                                .map(|i| identity(&ids[*i]))
+                                .collect::<Vec<_>>()
+                                .join(";"),
+                            field(row, &format!("{k}.cycle_stack_forward"))
+                        );
+                        assert_eq!(
+                            c.closure_reverse
+                                .iter()
+                                .map(u64::to_string)
+                                .collect::<Vec<_>>()
+                                .join(";"),
+                            field(row, &format!("{k}.closure_reverse"))
+                        );
+                        let reverse = c
+                            .prefix_reverse
+                            .iter()
+                            // Actual AbstractDiskGraph.getPath exposes concrete
+                            // fingerprints, not alternating product identities.
+                            .map(|i| ids[*i].fingerprint.to_string())
+                            .collect::<Vec<_>>()
+                            .join(";");
+                        assert_eq!(reverse, field(row, &format!("{k}.prefix_reverse")));
+                    }
+                }
+                compared += 1;
+            }
+        }
+    }
+    assert_eq!(compared, 128);
+}
+#[test]
+fn foreign_roles_effects_and_partial_bounds_remain_named_failures() {
+    let opts = CheckOptions {
+        workers: 4,
+        ..CheckOptions::tlc(0, 0)
+    };
+    let src = "---- MODULE Guard ----\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n";
+    let cfg = "INIT Init\nNEXT Next\nPROPERTY Live\n";
+    for names in [false, true] {
+        let mut m = model(src, cfg, &opts);
+        let other = model(src, cfg, &opts);
+        if names {
+            m.names = other.names;
+        } else {
+            m.ir = other.ir;
+        }
+        let fail =
+            phase_execution::execute_partial(&m, &opts, Limits::default()).expect_err("foreign");
+        assert!(fail.checks().is_empty());
+        assert_eq!(fail.failure.workers.expect("admission").used, 0);
+        assert_eq!(m.take_output(), Vec::<String>::new());
+    }
+    let mut m = model(src, cfg, &opts);
+    m.implied_temporals[0].pred.expr = dive_ir::ExprId(u32::MAX);
+    let fail =
+        phase_execution::execute_partial(&m, &opts, Limits::default()).expect_err("invalid role");
+    assert!(fail.checks().is_empty());
+    assert_eq!(fail.failure.workers.expect("admission").used, 0);
+    let effect = "---- MODULE Effect ----\nEXTENDS TLC\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(PrintT(TRUE))\n====\n";
+    let m = model(effect, cfg, &opts);
+    let fail = phase_execution::execute_partial(&m, &opts, Limits::default()).expect_err("effect");
+    assert!(fail.checks().is_empty());
+    assert_eq!(fail.failure.workers.expect("admission").used, 0);
+    assert_eq!(m.take_output(), Vec::<String>::new());
+    let m = model(src, cfg, &opts);
+    let limit = Limits {
+        graph: dive_liveness::product::Limits {
+            steps: 0,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let fail = phase_execution::execute_partial(&m, &opts, limit).expect_err("bound");
+    assert!(fail.checks().is_empty());
+    assert_eq!(m.take_output(), Vec::<String>::new());
+}
+
+fn concrete_word(
+    run: &phase_execution::PartialExecution,
+    check: &phase_execution::PartialCheck,
+) -> (Vec<dive_eval::next::StateVals>, usize) {
+    use std::collections::BTreeMap;
+    let c = check.selection().candidate().expect("candidate");
+    let ids = check.identities();
+    let g = &run.execution().groups[check.group()];
+    let representatives: BTreeMap<_, _> = g
+        .commits
+        .iter()
+        .map(|commit| {
+            (
+                commit.fingerprint,
+                run.execution().capture.graph.states[commit.source].clone(),
+            )
+        })
+        .collect();
+    let mut prefix = Vec::new();
+    for i in c.prefix_reverse.iter().rev() {
+        let fp = ids[*i].fingerprint;
+        if prefix.last() != Some(&fp) {
+            prefix.push(fp);
+        }
+    }
+    let anchor = ids[c.anchor].fingerprint;
+    assert_eq!(prefix.last(), Some(&anchor));
+    let back = prefix.len() - 1;
+    let mut reverse = c.closure_reverse.clone();
+    for i in c.cycle_stack.iter().rev() {
+        let fp = ids[*i].fingerprint;
+        if reverse.last() != Some(&fp) {
+            reverse.push(fp);
+        }
+    }
+    reverse.dedup();
+    if reverse.last() == Some(&anchor) {
+        reverse.pop();
+    }
+    prefix.extend(reverse.into_iter().rev());
+    (
+        prefix
+            .into_iter()
+            .map(|fp| representatives[&fp].clone())
+            .collect(),
+        back,
+    )
+}
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep fresh independent word, memory, JSON and claim/initial/closing mutations together"
+)]
+fn actual_partial_candidates_require_independent_memory_json_and_mutant_replay() {
+    use dive_trace::{Ending, Trace, Validation};
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/probes/tlc-partial-scc");
+    let mut validated = 0;
+    for name in [
+        "PartialRoots",
+        "PartialChild",
+        "PartialSelf",
+        "PartialLater",
+        "PartialEA",
+        "PartialMultiple",
+        "PartialRevisit",
+        "PartialGrowthSafe",
+    ] {
+        let dir = base.join("models").join(name);
+        let source = std::fs::read_to_string(dir.join(format!("{name}.tla"))).expect("source");
+        let config = std::fs::read_to_string(dir.join(format!("{name}.cfg"))).expect("cfg");
+        let opts = CheckOptions::tlc(0, 0);
+        let m = model(&source, &config, &opts);
+        let run = phase_execution::execute_partial(&m, &opts, Limits::default())
+            .expect("source-produced checks");
+        let fresh = model(&source, &config, &opts);
+        for check in run
+            .checks()
+            .iter()
+            .filter(|c| c.selection().candidate().is_some())
+        {
+            let (states, back_to) = concrete_word(&run, check);
+            let independent = fresh
+                .implied_temporals
+                .iter()
+                .map(|property| {
+                    dive_trace::temporal::evaluate_lasso(&fresh, &property.pred, &states, back_to)
+                        .expect("independent periodic word")
+                })
+                .collect::<Vec<_>>();
+            assert!(
+                independent.iter().any(|positions| !positions[0]),
+                "{name}: actual violated word"
+            );
+            let trace = Trace {
+                labels: vec![None; states.len()],
+                length: Some(states.len()),
+                states,
+                ending: Ending::Lasso { back_to },
+                properties: vec!["Live".into()],
+            };
+            assert_eq!(
+                dive_trace::validate(&fresh, &trace, None).validation,
+                Validation::Valid,
+                "{name}:{}",
+                check.sources()
+            );
+            let doc = trace.to_doc(&fresh).expect("document");
+            let json = serde_json::to_vec(&doc.to_json()).expect("JSON");
+            let decoded =
+                dive_trace::TraceDoc::from_json(&serde_json::from_slice(&json).expect("JSON"))
+                    .expect("decoded");
+            assert_eq!(
+                dive_trace::validate_doc(&fresh, &decoded, &[], None)
+                    .0
+                    .validation,
+                Validation::Valid
+            );
+            let mut wrong = decoded.clone();
+            wrong.properties = vec!["Forged".into()];
+            assert_ne!(
+                dive_trace::validate_doc(&fresh, &wrong, &[], None)
+                    .0
+                    .validation,
+                Validation::Valid
+            );
+            let mut wrong = decoded.clone();
+            wrong.states[0] = serde_json::from_value(serde_json::json!({"x":99})).expect("state");
+            assert_ne!(
+                dive_trace::validate_doc(&fresh, &wrong, &[], None)
+                    .0
+                    .validation,
+                Validation::Valid
+            );
+            let mut wrong = decoded;
+            wrong.ending = Some(Ending::Lasso {
+                back_to: usize::MAX,
+            });
+            assert_ne!(
+                dive_trace::validate_doc(&fresh, &wrong, &[], None)
+                    .0
+                    .validation,
+                Validation::Valid
+            );
+            validated += 1;
+        }
+        if name == "PartialGrowthSafe" {
+            let states = run.execution().capture.graph.states.clone();
+            let values = dive_trace::temporal::evaluate_lasso(
+                &fresh,
+                &fresh.implied_temporals[0].pred,
+                &states,
+                states.len() - 1,
+            )
+            .expect("independent completed example word");
+            assert!(values[0]);
+        }
+        assert!(!run.model_proof());
+    }
+    assert!(validated >= 7);
+}
+#[test]
+fn repeated_partial_checks_share_the_original_graph_steps_budget() {
+    let src = "---- MODULE Budget ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x<2 /\\ x'=x+1\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nLive == <>(x=2)\n====\n";
+    let cfg = "SPECIFICATION Spec\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n";
+    let opts = CheckOptions::tlc(0, 0);
+    let m = model(src, cfg, &opts);
+    let full =
+        phase_execution::execute_partial(&m, &opts, Limits::default()).expect("safe graph growth");
+    assert!(
+        full.checks()
+            .iter()
+            .all(|c| c.selection().candidate().is_none())
+    );
+    assert!(full.inspections() <= full.graph_inspections());
+    let original = phase_execution::execute(
+        &m,
+        &opts,
+        Limits {
+            graph: dive_liveness::product::Limits {
+                steps: full.inspections(),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
+    .expect("original graph quota");
+    assert!(!original.model_proof());
+    let failure = phase_execution::execute_partial(
+        &m,
+        &opts,
+        Limits {
+            graph: dive_liveness::product::Limits {
+                steps: full.inspections(),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
+    .expect_err("partial and original graph work share one quota");
+    assert!(matches!(
+        failure.failure.error,
+        dive_liveness::phase_graph::Error::Limit(_)
+    ));
+    assert!(failure.inspections() <= full.inspections());
+    let complete = phase_execution::execute_partial(
+        &m,
+        &opts,
+        Limits {
+            graph: dive_liveness::product::Limits {
+                steps: full.graph_inspections(),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
+    .expect("exact shared quota");
+    assert_eq!(complete.graph_inspections(), full.graph_inspections());
+    assert!(!complete.model_proof());
+}
