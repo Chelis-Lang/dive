@@ -1,0 +1,9 @@
+{
+  "scope": "New metadata helper initially compared CLI fp spelling directly with report fingerprint spelling. Corrected to assert the precise documented mapping, without omitting store metadata. No production/oracle changes.",
+  "exit": 1,
+  "files_sha256": {
+    "source.py": "6693f596002d3fcc98971769bc0d5c4862fd91956b4799146b737168fed7b352",
+    "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": "f8f41ab84dc00144b2a5b34d335b98a0d4ed130e5cd2aded20bbb03420ba298d"
+  }
+}

@@ -114,3 +114,21 @@ every string, model atom and record field spelling **and token** to match the
 supplied Model's interner, without installing names. The low-level value writer
 checks its coherent source-token resolver; a different receiving table may refuse.
 These checks establish structural admission only, never Init/Next/ending truth.
+
+## Current scoped evidence
+
+The separately source-bound [current receipt](../conformance/probes/trace-representation-v2/current/receipt.json)
+records 72 version-2 checks across the three fixtures, both profiles/stores,
+1/4/8 workers and chaos19. Independent replay accepts all 72 originals and
+rejects all 216 altered Init/middle/final words. All 72 matching version-1 checks
+remain recorded; their 24 mixed-value shape refusals receive no replay credit.
+Twelve interval controls retain the actual checker violation while reporting
+unsupported v2 encoding, a null trace and no semantic certificate. The compiled
+Rust guide and the existing 21-model/16-model conformance selections pass at
+1/4/8 workers. These counts prove this bounded selection, not every stored shape.
+
+The corrected source passed all eight local gate stages and 1,159 tests with
+zero skipped at two compile jobs/test threads. Its complete local gate took
+about 649 seconds; that is not a claim about Linux CI completion time. The
+249f Clippy failure and later green92e/nested-Raw counterexample stay immutable
+and separate from this final producer.

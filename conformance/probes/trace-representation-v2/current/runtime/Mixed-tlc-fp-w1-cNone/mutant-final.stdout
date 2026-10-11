@@ -1,0 +1,1 @@
+{"command":"validate-trace","failure":{"check":"next","detail":"the step into this state does not satisfy the next-state relation line 5, col 9 to line 5, col 36 of module Transport","state":3},"length":4,"notes":[],"result":"invalid","schema_version":1}

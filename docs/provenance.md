@@ -666,3 +666,12 @@ normalization reservation; receiving Model tokens are checked separately. The
 green92e full gate and its later nested-Raw writer/reader counterexample are retained
 in `conformance/probes/trace-representation-v2/before-decoder-admission-gate/`.
 No value/storage/comparison algorithm is replaced by the admission correction.
+
+The corrected e6 stored-transport producer has its own full 1,159-test/eight-stage
+gate, fresh release binary identity, 72 independently valid version-2 words and
+216 altered-word rejections in
+`conformance/probes/trace-representation-v2/current/`. Twelve interval encoding
+refusals remain separate from semantic replay. Existing 21/16 conformance gates
+and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
+checks all 443 producing workspace Rust/Cargo inputs against archived and Git
+bytes; earlier source and runtime histories are not relabelled.

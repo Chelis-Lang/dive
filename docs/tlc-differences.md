@@ -2160,4 +2160,11 @@ Init/Next/ending validation. The transport does not alter comparison semantics,
 reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
 and unproved witness shapes remain explicit transport refusals. The
 [guide and schema](trace-representation.md) specify limits and migration.
-Historical shape failures remain excluded from certificate credit.
+Historical shape failures remain excluded from certificate credit. The separate
+current v2 selection proves 72 independently valid words and 216 semantic mutant
+rejections; 24 matching legacy mixed-value shape failures stay explicit. The
+Model-based writer checks existing name tokens before emission, and fresh owned
+constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
+interval encoding controls retain the concrete violation but emit no transport
+or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
+this does not certify arbitrary stored representations.

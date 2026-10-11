@@ -47,3 +47,14 @@ counterexample: encoder success followed by same-context decoder refusal in both
 profiles. A corrected encoder uses owned reconstruction plus exact shape before
 emission. Outer Model-based writer controls also reject unknown or mismatched
 Atom tokens without interning; neither earlier execution is retagged as the fix.
+
+`current/` preserves the corrected e6 producer's full eight-stage gate
+(1,159 passed, zero skipped), fresh release build, 72 v2/72 v1 CLI controls,
+72 independently valid words/216 semantic mutants, 12 unsupported interval
+transport receipts, the compiled Rust guide and CM1/VTS at 1/4/8 workers.
+`current/source/index.json` reuses byte-identical older archives explicitly and
+stores only changed e6 source separately. `current-source.json` qualifies current
+Rust/Cargo integrity independently of the original runtime/gate epoch; later
+metadata is not retagged as an execution. Run
+`python3 -I scripts/check-trace-representation.py` to verify the retained selection.
+All 24 legacy mixed-value shape failures remain excluded from replay credit.

@@ -67,3 +67,12 @@ default with its existing observed failures; it is not silently retagged as
 lossless. See the [schema, runnable CLI/Rust guide and limits](../trace-representation.md).
 Reverse construction, arbitrary deferred/symbolic values and Random/VIEW shape
 extensions remain unsupported. No prior shape failure earns new replay credit.
+
+The current v2 selection separately records 72 independently valid originals
+and 216 semantic altered-word rejections, including both profiles, both stores
+and 1/4/8 workers. An encoder may still refuse the stored shape: inspect
+`counterexample.trace_encoding`, whose `semantic_validation` remains false even
+when encoding succeeds. Unknown/mismatched receiving-model name tokens and
+constructor-changing nested Raw representations refuse before Model-based
+emission. Read the [current scope and evidence](../trace-representation.md#current-scoped-evidence)
+without treating transport admission as a certificate.
