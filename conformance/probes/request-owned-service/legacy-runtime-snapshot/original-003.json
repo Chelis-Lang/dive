@@ -1,0 +1,17 @@
+{
+  "index": 3,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "configured": "Hook",
+    "definition": 95,
+    "expression": 670,
+    "result": {
+      "value": "TRUE"
+    },
+    "selected": "Hook",
+    "startup_output": [],
+    "status": "selected"
+  },
+  "selection": "original"
+}

@@ -33,3 +33,16 @@ forced timer request. It never fabricates a request, source return or clock.
 Current recordings add IEEE ratio bits without changing historical null floats.
 Interpreter-3.9 strict-zip setup failure and its explicit equal-length/ordinary-zip
 repair remain in `development/python39-zip`; no native coverage derives from it.
+
+## Closed current delivery
+
+[Delivery index](delivery-index.json) binds exact production
+`9654b903fa9c917498f7475d14dd63a64fbf25f8`: 424 Git/live/gzip build-input
+pairs, all 44 gate stages, 1,047 Rust tests with zero skipped, actual default
+release feature/cfg isolation, three immutable executables and the runnable
+Cargo guide. The separate gate/runtime native epochs each retain 52 rows,
+12 independently reconstructed memory/JSON-valid words and 48 strict-invalid
+mutants; they are not summed model coverage. All 21 CM1 and 16 validation-smoke
+models agree at 1/4/8 workers. These required gates check safety conformance;
+they do not certify ordinary periodic scheduling. Historical failures remain
+unmodified and current natural/controlled timer evidence remains labelled.
