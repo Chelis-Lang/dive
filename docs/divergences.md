@@ -589,11 +589,13 @@ is a dive defect, not approved reference divergence. Pure VIEW and untransformed
 random checking remain supported; transformed-fingerprint seeding and independent
 replay remain pending in both profiles.
 
-**Configured-only RNG classifier follow-up:** `CONSTANT C(_)` with
-`C <- RandomElement`, even without VIEW, currently misses the ordinary
-source-node RNG classifier. At seed7/fingerprint0/worker1, clean pinned TLC
-produces `x = 0,80,94,100`; preserved old native produces `0,74,75,35` while
-both report four generated/distinct states and depth four. This is a native
-defect awaiting a separate configured-stream repair, not an accepted divergence
-or evidence of untransformed RNG equivalence. The source and outputs remain
-[separately preserved](../conformance/probes/view-random-seeding/no-view-configured-follow-up/index.json).
+**D-002 configured native RNG limitation (#180):** `.cfg` native random
+replacement targets now refuse before binding/output/search, even without VIEW
+or alongside visible random calls. Callback-free module-context/native-override
+matching is deliberately conservative. The old route produced both false
+violations and false success, despite equal counts on the original trace probe.
+All four native random families are covered; direct source-call randomness and
+pure user cfg replacements retain their supported paths. No compatibility flag
+permits this unproved route. Bound-context stream classification/scheduling and
+independent replay remain separate pending obligations. [Minimal before/current
+controls](../conformance/probes/configured-random-admission/README.md).

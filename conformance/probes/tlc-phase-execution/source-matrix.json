@@ -15,7 +15,7 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "6d8f8a8ca38593f586a97f1920941644ed62535963bc561b3dc38ef812e4eb6a",
+    "crates/dive-check/src/engine.rs": "0f9d832edf11573a7e486ef1472bb02c2dabaa16e7467b18e6a45309d1b27542",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
@@ -39,5 +39,11 @@
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
     "matrix_sha256": "33c585c781f6db0e281382cf142cb699467a9d224c32569b1a3f46ccf5854050",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
-  }
+  },
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "07ab4efb69a0d7c6f2a36185bcecdf8aabac21e7b0c33e323984968f696b6a2b",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
 }

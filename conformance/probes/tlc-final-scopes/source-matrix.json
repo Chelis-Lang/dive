@@ -13,14 +13,14 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "7830b7cc577f66b540f8d0d24519160954801f366c5c7e84ad60b889e9a2297f",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "a9b9cf17e82f4ee7ff6c100387d7738772fe21338b13d40042ac1c17926a409c",
-    "docs/divergences.md": "0317fd84c79d6f69c8945c8426663cad40f66c465cbf1f932dc64281621ce3d7",
-    "docs/tlc-differences.md": "613828ae05c70bdf40e4148d746050095b63e2539a678bf8a0c25715e2958d1e",
+    "docs/provenance.md": "34d648daefca84c6851d884e55a58e7dd3c7c89b1b3e6b47180b2a00e63cd1ab",
+    "docs/divergences.md": "547ae8a1ab15393a7a4f94ec569b0cf61d3bf4f1657c152964a8504cd4da6315",
+    "docs/tlc-differences.md": "1fc5d7bad92fdad5850e3cd28aea0d730d502ac4c94c339adf1be8c04f6a951b",
     "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
-    "CHANGELOG.md": "9db84717d6d090c21a492ad33dbf25d91eba96c7d6af67777e04273aeb5b615f",
+    "CHANGELOG.md": "d0435c2a418c34d2e678db9969557af05536972e5783610d5043abca27a869c0",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
-    "conformance/parity-features.json": "9faeee18bf1288f95f83c56d5d68b955f62612d23f3fdafc2c2d3d1944edb373",
+    "conformance/parity-features.json": "3372bc7ea1589c29cfe8d83c2e00501fee47a8562928441a0a6268312c46503f",
     "conformance/probes/tlc-final-scopes/user-example.rs": "55e7d30f20f1d138feb6a5a12de045d9a53896d0f9bc992ac7fbda07daca6f1b",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
@@ -749,5 +749,11 @@
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
     "matrix_sha256": "1f6aeddc5abd2a1611ef9c7cc4bac31cb5fe37ad9c4edd318fbce23fca8c51a9",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
-  }
+  },
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "70d97009a5474a051cad3b148456b004751a6d4163e74b8833024a49aec5d441",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
 }

@@ -510,3 +510,11 @@ RHS names through `Module.context` and the source native names installed by
 callback-free admission, not an emulation of successful substitution binding.
 The original node-only guard missed `CONSTANT C(_)` / `C <- RandomElement`;
 its failed no-work controls and interrupted gate are preserved separately.
+
+Configured native RNG admission (#180) conservatively matches `.cfg` RHS
+module-context aliases and source-native override names before binding. Reference
+selection authority is `SpecProcessor.processConstants`/`processModuleOverrides`
+at pinned `94d0c50`; this callback-free refusal is dive admission design, not a
+ported/proven stream algorithm. Bound-context scheduling and `Worker.run` per-state
+stream seeding remain pending. Both concrete wrong-verdict probes are preserved
+in `conformance/probes/configured-random-admission/README.md`.

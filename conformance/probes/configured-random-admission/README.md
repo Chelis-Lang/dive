@@ -1,0 +1,65 @@
+# Configured native RNG admission (#180)
+
+Ordinary safety checking refuses `.cfg` native random replacements before
+binding, startup output or search, in both profiles. The pre-effect scan matches
+RHS names through module contexts and source-native override authority. It covers
+`RandomElement`, `RandomSubset`, `RandomSetOfSubsets` and the typed native
+`RandomSubsetSet` helper, including source-visible/configured mixed calls and
+transitive constant substitutions. Matching all contexts is conservative: unused,
+shadowed or malformed native target matches can refuse before a binding error.
+No flag enables the unproved route. Pure user replacements and direct source RNG
+calls without native configured targets retain their supported implementations.
+
+This is a native soundness repair, not a TLC divergence or a stream port. The
+actual bound target must eventually drive both inline scheduling and per-state
+RNG selection, with independent concrete trace replay. Recovery frames must use
+that same authority. No seeded recovery, transformed-fingerprint RNG or parity
+certification claim is made here.
+
+## Before controls
+
+The frozen [primary/native source and outputs](../view-random-seeding/no-view-configured-follow-up/index.json)
+have identical four-state counts but different concrete draws at seed 7/fp 0:
+TLC `0,80,94,100`; native `0,74,75,35`. The bounded four-state model makes the
+soundness consequence explicit:
+
+```tla
+EXTENDS Naturals, TLC
+CONSTANT C(_)
+VARIABLES n,x
+Init == n=0 /\ x=0
+Next == n<3 /\ n'=n+1 /\ x'=C(1..100)
+Inv == x # 80
+```
+
+Use `CONSTANT C <- RandomElement`, `INIT Init`, `NEXT Next`, `INVARIANT Inv`
+and `CHECK_DEADLOCK FALSE`. The [missed-violation control](../view-random-seeding/no-view-configured-follow-up/missed-violation/index.json)
+has TLC violation at x80 but native false success. Setting `Inv == x # 74`
+produces [the false-violation control](../view-random-seeding/no-view-configured-follow-up/false-violation/index.json):
+TLC succeeds; native reports a violation at x74. Both immutable old and newer
+root executable observations retain separate exact source/binary identities.
+
+The [baseline public checker regression](before/regression.log) ran against
+production parent `a3b1ee365335e64c04f9109fe839443da6b0dc8d` and failed the strict
+Unsupported/no-work assertion before the repair. Its exact test source is retained.
+The first expanded test attempted to use `RandomSubsetSet` as an exported source
+name; binding correctly reported undefined identifier 2224. That failed source/log
+is retained under `development/undefined-native-helper/`. Its native-authority
+control now uses admitted public typed IR, without changing implementation,
+oracles, parser behavior or the strict refusal assertion.
+
+## Current controls and scope
+
+Checker negatives: 288 settings across both profiles, both stores, widths 1/4/8
+and chaos off/19. They include both wrong-verdict models, startup/Init effects,
+mixed visible/configured calls, natural/instantiated/typed targets, all native
+families and a transitive constant target. Every negative requires exact named
+Unsupported, requested width retained but used zero, and no counts, collision,
+output, warnings or counterexample. Pure configured replacement has 24 positive
+settings; existing direct RNG/pure VIEW and pre-bind VIEW/RNG controls stay intact.
+Public file/API negatives cover another 48 settings with startup effects.
+
+Source authority refresh is separate from these runtime observations. Original
+receipts and producer/source maps stay immutable; the before-authorities archive
+preserves their exact bytes before current integrity maps are recomputed. Fresh
+full-gate, executable and conformance receipts will be recorded separately.

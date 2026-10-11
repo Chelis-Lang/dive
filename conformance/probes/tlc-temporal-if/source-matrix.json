@@ -9,7 +9,7 @@
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "9faeee18bf1288f95f83c56d5d68b955f62612d23f3fdafc2c2d3d1944edb373"
+    "conformance/parity-features.json": "3372bc7ea1589c29cfe8d83c2e00501fee47a8562928441a0a6268312c46503f"
   },
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
@@ -30,5 +30,11 @@
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-temporal-if/source-matrix.json",
     "matrix_sha256": "83718cac0f955eb8e9d530ad869ebea2bc9ce6098b768707717947194baa15d2",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
-  }
+  },
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-temporal-if/source-matrix.json",
+    "matrix_sha256": "c4db812c9f80f09736cef76abc33ab565c40108ef2d0d455b8c0a3f56e1662a1",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
 }

@@ -203,7 +203,8 @@
       "conformance_evidence": "crates/dive-eval/tests/tlc_fixtures.rs",
       "issues": [
         61,
-        178
+        178,
+        180
       ],
       "acceptance": "All executable definitions in the 20 standard modules, their active overrides and supported/error cases; unsupported Reals or other non-executable expressions match TLC rejection instead of fabricating values.",
       "interactions": [
@@ -214,10 +215,13 @@
       ],
       "additional_evidence": [
         "crates/dive-check/tests/view_random.rs",
-        "conformance/probes/view-random-seeding/README.md"
+        "conformance/probes/view-random-seeding/README.md",
+        "crates/dive-check/tests/configured_random.rs",
+        "conformance/probes/configured-random-admission/README.md"
       ],
       "evidence_updates": [
-        "Source-wide VIEW/RNG guard refuses before binding/output/search: equal counts in the retained seed7/fp0 control concealed wrong concrete draws. Unused definitions/native aliases conservatively refuse; transformed seeding/replay remains uncertified. Status stays partial."
+        "Source-wide VIEW/RNG guard refuses before binding/output/search: equal counts in the retained seed7/fp0 control concealed wrong concrete draws. Unused definitions/native aliases conservatively refuse; transformed seeding/replay remains uncertified. Status stays partial.",
+        "Configured native RNG targets conservatively refuse before binding/output/search, including mixed visible/configured RNG calls. False-success and false-violation controls retained; bound-context stream scheduling and replay remain pending; no status/certification credit."
       ]
     },
     {
@@ -352,7 +356,8 @@
       "conformance_evidence": "docs/design/m6-plan.md",
       "issues": [
         66,
-        178
+        178,
+        180
       ],
       "acceptance": "Match VIEW identity, representative order and printed views; prove closing transitions or retain sufficient concrete lifting evidence. Do not construct a false temporal word from quotient representatives.",
       "interactions": [
@@ -363,10 +368,13 @@
       ],
       "additional_evidence": [
         "crates/dive-check/tests/view_random.rs",
-        "conformance/probes/view-random-seeding/README.md"
+        "conformance/probes/view-random-seeding/README.md",
+        "crates/dive-check/tests/configured_random.rs",
+        "conformance/probes/configured-random-admission/README.md"
       ],
       "evidence_updates": [
-        "Source-wide VIEW/RNG guard refuses before binding/output/search: equal counts in the retained seed7/fp0 control concealed wrong concrete draws. Unused definitions/native aliases conservatively refuse; transformed seeding/replay remains uncertified. Status stays partial."
+        "Source-wide VIEW/RNG guard refuses before binding/output/search: equal counts in the retained seed7/fp0 control concealed wrong concrete draws. Unused definitions/native aliases conservatively refuse; transformed seeding/replay remains uncertified. Status stays partial.",
+        "Configured native RNG targets conservatively refuse before binding/output/search, including mixed visible/configured RNG calls. False-success and false-violation controls retained; bound-context stream scheduling and replay remain pending; no status/certification credit."
       ]
     },
     {

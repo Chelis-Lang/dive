@@ -9,7 +9,7 @@
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
-    "conformance/parity-features.json": "9faeee18bf1288f95f83c56d5d68b955f62612d23f3fdafc2c2d3d1944edb373"
+    "conformance/parity-features.json": "3372bc7ea1589c29cfe8d83c2e00501fee47a8562928441a0a6268312c46503f"
   },
   "history_sha256": {
     "current-integration-before-admission/conformance/probes/native-checkpoint/current-integration-source.json": "ee158aed604043a2f9395ae8ed49f2fffedba871844832c5f8f2b691e3c49ec0",
@@ -1013,5 +1013,11 @@
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-state-if/source-matrix.json",
     "matrix_sha256": "52b59f69332f5ebd6e77d8d4699a28dd6da117727173ad067783623293290335",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
-  }
+  },
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-state-if/source-matrix.json",
+    "matrix_sha256": "28140fb5ede5125b4f670cfdc13ff1cb511d3dc541320b327471c86b5b105c98",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
 }

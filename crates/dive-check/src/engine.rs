@@ -275,21 +275,27 @@ pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
 // evaluating any body. All matching aliases/modules are conservative here:
 // a malformed or shadowed cfg may be refused before its binding diagnostic.
 pub(crate) fn uses_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    uses_random(ir)
-        || cfg.constants.iter().any(|entry| {
-            let dive_config::ConstantEntry::Substitution { target, .. } = entry else {
-                return false;
-            };
-            ir.modules().iter().any(|module| {
-                module.context.iter().any(|(name, symbol)| {
-                    name == &target.text
-                        && matches!(symbol, dive_ir::Symbol::Def(id)
+    uses_random(ir) || configured_random_target(ir, cfg)
+}
+
+// The target alone is an independent admission authority. A visible random
+// node does not prove the selected replacement has the inline/per-state
+// stream routes needed by the current engine (#180).
+pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
+    cfg.constants.iter().any(|entry| {
+        let dive_config::ConstantEntry::Substitution { target, .. } = entry else {
+            return false;
+        };
+        ir.modules().iter().any(|module| {
+            module.context.iter().any(|(name, symbol)| {
+                name == &target.text
+                    && matches!(symbol, dive_ir::Symbol::Def(id)
                             if ir.def(*id).std.is_some_and(random_op))
-                })
-            }) || ir.defs().iter().any(|def| {
-                def.source.is_none() && def.name == target.text && def.std.is_some_and(random_op)
             })
+        }) || ir.defs().iter().any(|def| {
+            def.source.is_none() && def.name == target.text && def.std.is_some_and(random_op)
         })
+    })
 }
 
 /// TLC's level of a state at BFS level `n` (initial states are level 1).

@@ -286,6 +286,20 @@ pub(crate) fn run_check_with_checkpoint(
             ir,
         );
     }
+    // Source-only scheduling and per-state stream selection miss a native
+    // replacement that is selected by configuration rather than an IR call.
+    // This has produced both false success and false violation (#180). Until
+    // bound-context authority drives both routes, refuse before any startup
+    // effect, even if a different source node already references randomness.
+    if engine::configured_random_target(ir, cfg) {
+        return bare(
+            Verdict::Unsupported {
+                feature: "configured native random replacements need bound-context stream classification and independent replay".into(),
+            },
+            opts,
+            ir,
+        );
+    }
     let mut notes = Vec::new();
     let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {

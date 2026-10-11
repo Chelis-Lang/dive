@@ -104,7 +104,7 @@
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "6d8f8a8ca38593f586a97f1920941644ed62535963bc561b3dc38ef812e4eb6a",
+    "crates/dive-check/src/engine.rs": "0f9d832edf11573a7e486ef1472bb02c2dabaa16e7467b18e6a45309d1b27542",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
@@ -147,5 +147,11 @@
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
     "matrix_sha256": "c20212646f2a9d34c2fbe657706f99c7fd22bef78ad96e6e696db005cd53b563",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
-  }
+  },
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+    "matrix_sha256": "2f8ca814f3462b02eb3996bf1511a76101cc16d961c8f978debbf27f6de7f578",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
 }

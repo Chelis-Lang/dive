@@ -11,7 +11,8 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > goldens. Rust callers can use bounded final temporal checking with
 > independently validated counterexamples. Pure safety symmetry now retains
 > concrete validated traces; unsupported symmetry interactions and ordinary
-> temporal checking still refuse. See [`docs/sprint-status.md`](docs/sprint-status.md)
+> temporal checking still refuse. Configured native random replacements refuse
+> before startup until their stream authority is proved. See [`docs/sprint-status.md`](docs/sprint-status.md)
 > for measured coverage and the remaining roadmap.
 
 

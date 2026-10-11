@@ -39,5 +39,11 @@
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
     "matrix_sha256": "08357c5a81b91e8b4242f628ea7c5e93c41d67f1daa75d2a653913a70a227502",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
-  }
+  },
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
+    "matrix_sha256": "a8ea6f2123283db04704731573496525cb18a11b51566b7f2ebe7c2dcafa6264",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
 }

@@ -1788,14 +1788,21 @@ refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
 
-### Native limitation: configured-only random replacement stream
+### Native limitation: configured native random replacement stream (#180)
 
-A `.cfg` can select `CONSTANT C <- RandomElement` even when the module only
-calls `C(1..100)`. The ordinary native RNG classifier currently scans source
-calls and misses that replacement. Without VIEW, the minimal seed7/fp0 model
-has TLC concrete values `0,80,94,100` and old native values `0,74,75,35`, despite
-matching verdict/counts/depth. This is a dive defect, not an improved default.
-The VIEW admission repair refuses that combination before startup; correcting
-the untransformed configured stream remains a separate obligation. Avoid
-configured-only RNG replacements until that path is proved. [Minimal source,
-clean primary and native raw evidence](../conformance/probes/view-random-seeding/no-view-configured-follow-up/index.json).
+A `.cfg` can select `CONSTANT C <- RandomElement` when the module only calls
+`C(1..100)`. The unfinished native classifier missed that authority: at
+seed 7/fingerprint 0, TLC draws `0,80,94,100`, while the old native trace
+contains `0,74,75,35`. Counts alone did not expose it. On a bounded four-state
+model, `Inv == x # 74` gives TLC success but a native false violation; changing
+it to `x # 80` gives a real TLC violation but a native false success.
+
+Ordinary safety checking now refuses configured native random targets before
+binding, output or search in both profiles. The callback-free scan resolves
+matching module contexts and native replacement names, including mixed visible
+and configured calls; it may conservatively refuse unused, shadowed or malformed
+matches. There is no flag that restores this unproved behavior. Direct source
+random calls without native cfg replacements, and pure user replacements, retain
+their supported paths. Correct bound-context inline scheduling/per-state seeding
+and independent concrete replay remain pending; this is a dive defect repair,
+not a new default or a TLC limitation. [Exact before and current evidence](../conformance/probes/configured-random-admission/README.md).
