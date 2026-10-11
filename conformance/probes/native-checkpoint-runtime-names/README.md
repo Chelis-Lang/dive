@@ -46,3 +46,41 @@ states and archive/reconstruction work remain outside them. Historical source
 maps are archived before current integrity maps are refreshed. Fresh source
 integrity is not recertification of old runtime captures or a complete recovery
 family claim.
+
+## Frozen completed verification (2026-10-11)
+
+[The delivery receipt](delivery.json) separates runtime producer
+`d1102e5d6eb66898259f061949ab031ab6cfa334` from verification source
+`2e079670d9c232f83304fe1d38b146972c442d2b`. All 626 Rust/Cargo/toolchain
+inputs and all 254 recorded production inputs are byte-identical across those
+commits; metadata packaging does not retag the executions. The immutable native
+executable SHA-256 is
+`bcbd0c2fd63008f142929f00bb93fb2006a79cacd574bc5ba25dce0931277b2b`.
+Exact producer bytes and historical authorities are archived separately.
+
+The complete CLI selection passed all 1,440 groups and 7,920 executions: five
+inputs, four transient storage families, both profiles and stores, widths 1/4/8,
+ordinary/chaos scheduling and boundaries 0/1/2, with retained/reset recovery and
+independent positive/negative witness controls. Original regression selection
+remains 576 groups/4,032 executions plus 96 failure controls. All 15 clean pinned
+TLC primary runs and all five concrete native/primary trace comparisons passed.
+The exact CLI and Rust guide consumers passed. CM1's 21 models and VTS's 16 models
+fully agreed at widths 1/4/8. Reproduce raw capture with `capture_recovery.py`,
+primary correspondence with `compare_primary.py`, and verify the retained raw
+bytes with `python3 -I conformance/probes/native-checkpoint-runtime-names/verify.py`.
+
+The full local gate passed 928/928 tests with zero skipped and every remaining
+gate stage. At two build/test threads, nextest took 2,140 seconds and the full
+gate took 2,911 seconds under unrelated host virtualization and swap pressure;
+no process was changed. New case/profile wrappers took 112–132 seconds, below
+the unchanged 180-second per-test bound. This is correctness evidence, not a
+performance claim or a measured Linux CI duration. The four CI test partitions
+select the complete disjoint inventory (242/226/244/216); no check, case or timeout
+was dropped. Initial failed test expectations remain in `development/`.
+
+F-032 stays partial. Random state, other runtime effects, checker/register reads,
+temporal recovery, Java checkpoint byte interchange and independent TLC
+runtime-name witness replay are not admitted by this increment. Encoded queue
+and resident predecessor budgets remain separate from names, visited/candidate
+state and archive/reconstruction allocations; no aggregate memory bound, archive
+authentication or complete recovery-family certificate is claimed.
