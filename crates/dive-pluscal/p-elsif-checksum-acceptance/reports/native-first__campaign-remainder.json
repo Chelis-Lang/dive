@@ -1,0 +1,153 @@
+{
+  "source_commit": "37ace0360d4d9ae89f358161602f71898178b793",
+  "planned_stages": 8,
+  "completed": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/verification-driver-repair/replay-corrected.py",
+        "--models",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/models-new",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/replay-new-repaired"
+      ],
+      "exit_code": 0,
+      "seconds": 9.302979946136475,
+      "log": "remainder-00.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/models.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance",
+        "--native",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/models-original"
+      ],
+      "exit_code": 0,
+      "seconds": 99.22456407546997,
+      "log": "remainder-01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/verification-driver-repair/replay-corrected.py",
+        "--models",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/models-original",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/replay-original"
+      ],
+      "exit_code": 0,
+      "seconds": 6.127425909042358,
+      "log": "remainder-02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/guides.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance",
+        "--binaries",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/guides-final",
+        "--worktree",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work",
+        "--target",
+        "/Users/jeff/code/dive-pluscal-macro-checksum-target"
+      ],
+      "exit_code": 0,
+      "seconds": 9.43616509437561,
+      "log": "remainder-03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/checksum-controls.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance",
+        "--binaries",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/crc"
+      ],
+      "exit_code": 0,
+      "seconds": 6.382814884185791,
+      "log": "remainder-04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/forgery-controls.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance",
+        "--runtime",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/forgeries"
+      ],
+      "exit_code": 0,
+      "seconds": 10.558063745498657,
+      "log": "remainder-05.log"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/conformance-gate.sh",
+        "conformance/gates/cm1.txt",
+        "--workers",
+        "1,4,8",
+        "--dive-bin",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive"
+      ],
+      "exit_code": 0,
+      "seconds": 18.690501928329468,
+      "log": "remainder-06.log"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/conformance-gate.sh",
+        "conformance/gates/validation-smoke.txt",
+        "--workers",
+        "1,4,8",
+        "--dive-bin",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7786571979522705,
+      "log": "remainder-07.log"
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "selected": 4,
+  "native_binary_sha256": "d4eb99821fdbb9cb7def0e6689941cb929346e46224a44d4a1d41a22df382495",
+  "cst_binary_sha256": "9c79348f83262bc33c14f14b4173246af341055db4df4ca5a99af29aca9d6fcf",
+  "script_sha256": "e230063ec35858aefdfba4affd902102f4f898e8c78a7be9e903b7ab1dfc983a",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false,
+  "model_proved": false,
+  "summary": {
+    "disagree": 4
+  },
+  "rows": [
+    {
+      "id": "ElsifProcedureChecksum_C_dive",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_C",
+      "profile": "dive",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "32844d25c8c490285fb9dccae4265624b44cf7fe804bf6ac728537d3126434c6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "ElsifProcedureChecksum_C_tlc",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_C",
+      "profile": "tlc",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "94fb5cf033b584a826407eb6ac823970db518d1a8f84e9cc6ed79c5f2ff8397f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "ElsifProcedureChecksum_P_dive",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_P",
+      "profile": "dive",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "5e4fcd897f3d5b7ca02547a2122b9f3c3335798879cbfdf148e1fad860312e07",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "ElsifProcedureChecksum_P_tlc",
+      "folder": "",
+      "source_id": "ElsifProcedureChecksum_P",
+      "profile": "tlc",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 3,
+        "stdout_sha256": "f8157c9a83dd0813def379c42108291b24b621933536e1f424d98083b1c551ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    }
+  ]
+}

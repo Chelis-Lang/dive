@@ -55,3 +55,19 @@ stages and original native refusal campaign. `p_elsif_checksum.rs` asserts exact
 stored-header bytes and CRC for all 32 cases plus bounded resource controls.
 Public/model/forgery campaigns have separate source-bound reports and must finish
 before delivery credit. User contract: `docs/pluscal-p-elsif-checksums.md`.
+
+Final source37 campaigns closed: all32 new raw stored-header pairs and64 public
+profile artifacts match, while all original180 and12 loop dispositions stay
+unchanged. Separately declared4 branch-boundary and8 reachable-branch variants
+bring the source-qualified total to236 raw observations and472 public profile
+rows. The144 finite models match1728 width/store/profile settings;720 independent
+replays yield72 canonical valid controls and no strict saved-frame valid witness.
+20 executed CLI/Cargo/Rust guides,24 CRC controls and28 forged-report controls
+remain distinct from model proof. All51 local-gate stages pass, including1189
+tests run with zero skips and unchanged CM1/VTS gates at1/4/8.
+
+Mandatory offline `verify.py` and `verify-delivery.py` read the declared primary
+bytes and portable22,105-record source/runtime pack. Original hardcoded replay
+path failure, exact external correction and failed draft omission-control
+verification stay archived. Post-gate verifier/guide packaging is explicitly
+qualified; no runtime or compiled source is retagged. F-034/F-035 stay partial.

@@ -5,12 +5,12 @@ p=argparse.ArgumentParser()
 for key in ['models','binary','out']:p.add_argument('--'+key,type=Path,required=True)
 a=p.parse_args();A=a.models.parent;B=a.binary;O=a.out;O.mkdir(exist_ok=False);rows=[]
 def sha(b):return hashlib.sha256(b).hexdigest()
-report=json.loads((A/'models/report.json').read_text())
+report=json.loads((a.models/'report.json').read_text())
 for r in report['rows']:
  if not r['id'].endswith('.violation'):continue
- ident=r['id'];name=ident.split('.')[0];first=r['settings'][0]['capture']['stdout']['path'];doc=json.loads(gzip.decompress((A/'models'/first).read_bytes()));trace=doc['counterexample']['trace']
+ ident=r['id'];name=ident.split('.')[0];first=r['settings'][0]['capture']['stdout']['path'];doc=json.loads(gzip.decompress((a.models/first).read_bytes()));trace=doc['counterexample']['trace']
  with tempfile.TemporaryDirectory(prefix='dive-procedure-replay-')as tmp:
-  w=Path(tmp);module=w/(name+'.tla');module.write_bytes((A/'models'/(ident+'.tla')).read_bytes());cfg=w/(name+'.cfg');cfg.write_bytes((A/'models'/(ident+'.cfg')).read_bytes())
+  w=Path(tmp);module=w/(name+'.tla');module.write_bytes((a.models/(ident+'.tla')).read_bytes());cfg=w/(name+'.cfg');cfg.write_bytes((a.models/(ident+'.cfg')).read_bytes())
   for profile in ['dive','tlc']:
    for kind in ['original','invalid-init','invalid-next','missing-final-variable','invalid-closing']:
     t=copy.deepcopy(trace)

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "source_commit": "37ace0360d4d9ae89f358161602f71898178b793",
+  "client_sha256": "1b71abfb44ed6d94251ecea4c155ecfb937477ef6ff7e81fd55e1b579da8f9f4",
+  "rlib_sha256": "927471e5af68a37be40919dc3ae92d7c692b605ad860ab76460ccdabd3f957e1",
+  "binary_sha256": "0a385a85f836da4a81d692c5e40f0083533efeb3ae87f05d123c6cc72ff9dd2f",
+  "compile": [
+    "rustc",
+    "--edition=2024",
+    "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/expansion-resource-controls/controls.rs",
+    "--extern",
+    "dive_pluscal=/Users/jeff/code/dive-pluscal-macro-checksum-target/release/deps/libdive_pluscal-5b2d0ff7ba426e89.rlib",
+    "-L",
+    "dependency=/Users/jeff/code/dive-pluscal-macro-checksum-target/release/deps",
+    "-o",
+    "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/expansion-resource-controls/controls"
+  ],
+  "separate_external_client": true,
+  "unchanged_limits": true,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "all_call",
+      "stdout": "16:Source:Resource\n24:Normalization:Resource\n32:Normalization:Resource\n48:ok:4311\n64:ok:4311\n96:ok:4311\n128:ok:4311\n256:ok:4311\n",
+      "source_sha256": "f26fb277823a2b19c12d6bd477396c56dc489d68ffa5cd9917bbb93e6e558564"
+    },
+    {
+      "id": "nested_call",
+      "stdout": "16:Source:Resource\n24:Normalization:Resource\n32:Normalization:Resource\n48:ok:5147\n64:ok:5147\n96:ok:5147\n128:ok:5147\n256:ok:5147\n",
+      "source_sha256": "c8b32d93f2d2fd2914071c8eab0269858e786416c7664b5a1d0114dbf589fcb5"
+    },
+    {
+      "id": "either_return",
+      "stdout": "16:Source:Resource\n24:Normalization:Resource\n32:ok:5222\n48:ok:5222\n64:ok:5222\n96:ok:5222\n128:ok:5222\n256:ok:5222\n",
+      "source_sha256": "f1662bfd8672910bb823d57e7220a75cbc586bc5a1889f824ae1b1dc12208a4a"
+    },
+    {
+      "id": "while_return",
+      "stdout": "16:Normalization:Resource\n24:Normalization:Resource\n32:ok:4984\n48:ok:4984\n64:ok:4984\n96:ok:4984\n128:ok:4984\n256:ok:4984\n",
+      "source_sha256": "e998a028049191646a073cc34dae8dd938c0ed4c16c66885d9e4ca35c5ab6efb"
+    }
+  ]
+}

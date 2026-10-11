@@ -1,0 +1,823 @@
+{
+  "schema_version": 1,
+  "selected": 4,
+  "native_binary_sha256": "788745b3e789260f2deb70d7366e11711f62fd6b2a9f49f31cd8f8b993601ec2",
+  "primary_manifest_sha256": {
+    "": "b38c628545adc890a4b0629839d64b9d85538f2acc8fd8636c57bf3a0ef8d0cc"
+  },
+  "executed_script_sha256": "b6e69721368b987ed31c22d60c94585b80c7083d7bfa51217998b9750870c9fd",
+  "family_certified": false,
+  "summary": {
+    "exact-raw-ast": 4
+  },
+  "rows": [
+    {
+      "id": "ElsifBranch_three",
+      "outcome": "exact-raw-ast",
+      "detail": "",
+      "document": {
+        "artifact_admitted": false,
+        "checksum": {
+          "Ok": {
+            "checksum": "e419316b",
+            "fair_header_crc_only": false,
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "serialized_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<[name   |-> \"Put\", \n              minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"Put\">>,\n               params |-> <<[var |-> \"z\", eqOrIn |-> \"=\", val |-> << \"0\" >>], \n                            [var |-> \"a\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n               decls  |-> <<>>,\n               body   |-> <<[label |-> \"P\",\n                             stmts |-> <<[type |-> \"assignment\",\n                                          ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                      rhs |-> << \"a\", \"+\", \"z\" >>]>>]>>], \n                            [label |-> \"R\",\n                             stmts |-> <<[type |-> \"return\", from |-> \"Put\"]>>]>>]>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type    |-> \"if\", \n                           test    |-> << \"x\", \"=\", \"0\" >>,\n                           then |-> <<[type |-> \"skip\"], \n                                      [type |-> \"assignment\",\n                                       ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                   rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>,\n                           else |-> <<[type    |-> \"if\", \n                                       test    |-> << \"x\", \"=\", \"1\" >>,\n                                       then |-> <<[type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"a\", sub |-> <<  >>],\n                                                               rhs |-> << \"2\" >>], \n                                                              [lhs |-> [var |-> \"stack\", sub |-> <<  >>],\n                                                               rhs |-> << \"<<\", \"[\", \"procedure\", \"|->\", \"\\\"\", \"Put\", \"\\\"\", \",\"\n, \"pc\", \"|->\", \"\\\"\", \"E\", \"\\\"\", \",\"\n, \"z\", \"|->\", \"z\", \",\"\n, \"a\", \"|->\", \"a\", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>], \n                                                              [lhs |-> [var |-> \"z\", sub |-> <<  >>],\n                                                               rhs |-> << \"1\" >>]>>], \n                                                  [type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                               rhs |-> << \"\\\"\", \"P\", \"\\\"\" >>]>>]>>,\n                                       else |-> <<[type    |-> \"if\", \n                                                   test    |-> << \"x\", \"=\", \"2\" >>,\n                                                   then |-> <<[type |-> \"skip\"], \n                                                              [type |-> \"assignment\",\n                                                               ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                                           rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>,\n                                                   else |-> <<[type |-> \"assignment\",\n                                                               ass  |-> <<[lhs |-> [var |-> \"a\", sub |-> <<  >>],\n                                                                           rhs |-> << \"2\" >>], \n                                                                          [lhs |-> [var |-> \"stack\", sub |-> <<  >>],\n                                                                           rhs |-> << \"<<\", \"[\", \"procedure\", \"|->\", \"\\\"\", \"Put\", \"\\\"\", \",\"\n, \"pc\", \"|->\", \"\\\"\", \"E\", \"\\\"\", \",\"\n, \"z\", \"|->\", \"z\", \",\"\n, \"a\", \"|->\", \"a\", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>], \n                                                                          [lhs |-> [var |-> \"z\", sub |-> <<  >>],\n                                                                           rhs |-> << \"1\" >>]>>], \n                                                              [type |-> \"assignment\",\n                                                               ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                                           rhs |-> << \"\\\"\", \"P\", \"\\\"\" >>]>>]>>]>>]>>]>>], \n             [label |-> \"E\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]"
+          }
+        },
+        "model_proved": false,
+        "translation": {
+          "Ok": {
+            "actions": [
+              "P",
+              "R",
+              "L",
+              "E"
+            ],
+            "configuration": "",
+            "inserted_labels": [],
+            "mappings": [
+              {
+                "generated": {
+                  "end": 64,
+                  "start": 0
+                },
+                "original": {
+                  "end": 306,
+                  "start": 71
+                }
+              },
+              {
+                "generated": {
+                  "end": 161,
+                  "start": 64
+                },
+                "original": {
+                  "end": 306,
+                  "start": 71
+                }
+              },
+              {
+                "generated": {
+                  "end": 252,
+                  "start": 161
+                },
+                "original": {
+                  "end": 137,
+                  "start": 128
+                }
+              },
+              {
+                "generated": {
+                  "end": 397,
+                  "start": 252
+                },
+                "original": {
+                  "end": 147,
+                  "start": 138
+                }
+              },
+              {
+                "generated": {
+                  "end": 412,
+                  "start": 397
+                },
+                "original": {
+                  "end": 162,
+                  "start": 99
+                }
+              },
+              {
+                "generated": {
+                  "end": 1301,
+                  "start": 412
+                },
+                "original": {
+                  "end": 283,
+                  "start": 169
+                }
+              },
+              {
+                "generated": {
+                  "end": 1392,
+                  "start": 1301
+                },
+                "original": {
+                  "end": 291,
+                  "start": 284
+                }
+              },
+              {
+                "generated": {
+                  "end": 1438,
+                  "start": 1392
+                },
+                "original": {
+                  "end": 306,
+                  "start": 71
+                }
+              },
+              {
+                "generated": {
+                  "end": 1476,
+                  "start": 1438
+                },
+                "original": {
+                  "end": 306,
+                  "start": 71
+                }
+              },
+              {
+                "generated": {
+                  "end": 1507,
+                  "start": 1476
+                },
+                "original": {
+                  "end": 306,
+                  "start": 71
+                }
+              },
+              {
+                "generated": {
+                  "end": 1538,
+                  "start": 1507
+                },
+                "original": {
+                  "end": 306,
+                  "start": 71
+                }
+              }
+            ],
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "processes": [],
+            "program_counter": true,
+            "tla": "VARIABLES pc, x, stack, z, a\n\nvars == << pc, x, stack, z, a >>\n\nInit == /\\ x = 0\n        /\\ z = 0\n        /\\ a = 0\n        /\\ stack = << >>\n        /\\ pc = \"L\"\n\nP == /\\ pc = \"P\"\n     /\\ x' = a + z\n     /\\ pc' = \"R\"\n     /\\ UNCHANGED << stack, z, a >>\n\nR == /\\ pc = \"R\"\n     /\\ pc' = Head(stack).pc\n     /\\ z' = Head(stack).z\n     /\\ a' = Head(stack).a\n     /\\ stack' = Tail(stack)\n     /\\ x' = x\n\nPut == P \\/ R\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ TRUE\n                /\\ pc' = \"E\"\n                /\\ UNCHANGED << stack, z, a >>\n           ELSE /\\ IF x = 1\n                      THEN /\\ /\\ a' = 2\n                              /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"E\", z |-> z, a |-> a ] >> \\o stack\n                              /\\ z' = 1\n                           /\\ pc' = \"P\"\n                      ELSE /\\ IF x = 2\n                                 THEN /\\ TRUE\n                                      /\\ pc' = \"E\"\n                                      /\\ UNCHANGED << stack, z, a >>\n                                 ELSE /\\ /\\ a' = 2\n                                         /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"E\", z |-> z, a |-> a ] >> \\o stack\n                                         /\\ z' = 1\n                                      /\\ pc' = \"P\"\n     /\\ x' = x\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, z, a >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Put \\/ L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+            "warnings": []
+          }
+        }
+      }
+    },
+    {
+      "id": "ElsifBranch_noelse",
+      "outcome": "exact-raw-ast",
+      "detail": "",
+      "document": {
+        "artifact_admitted": false,
+        "checksum": {
+          "Ok": {
+            "checksum": "fbee305e",
+            "fair_header_crc_only": false,
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "serialized_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<[name   |-> \"Put\", \n              minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"Put\">>,\n               params |-> <<[var |-> \"z\", eqOrIn |-> \"=\", val |-> << \"0\" >>], \n                            [var |-> \"a\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n               decls  |-> <<>>,\n               body   |-> <<[label |-> \"P\",\n                             stmts |-> <<[type |-> \"assignment\",\n                                          ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                      rhs |-> << \"a\", \"+\", \"z\" >>]>>]>>], \n                            [label |-> \"R\",\n                             stmts |-> <<[type |-> \"return\", from |-> \"Put\"]>>]>>]>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type    |-> \"if\", \n                           test    |-> << \"x\", \"=\", \"0\" >>,\n                           then |-> <<[type |-> \"skip\"], \n                                      [type |-> \"assignment\",\n                                       ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                   rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>,\n                           else |-> <<[type    |-> \"if\", \n                                       test    |-> << \"x\", \"=\", \"1\" >>,\n                                       then |-> <<[type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"a\", sub |-> <<  >>],\n                                                               rhs |-> << \"2\" >>], \n                                                              [lhs |-> [var |-> \"stack\", sub |-> <<  >>],\n                                                               rhs |-> << \"<<\", \"[\", \"procedure\", \"|->\", \"\\\"\", \"Put\", \"\\\"\", \",\"\n, \"pc\", \"|->\", \"\\\"\", \"E\", \"\\\"\", \",\"\n, \"z\", \"|->\", \"z\", \",\"\n, \"a\", \"|->\", \"a\", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>], \n                                                              [lhs |-> [var |-> \"z\", sub |-> <<  >>],\n                                                               rhs |-> << \"1\" >>]>>], \n                                                  [type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                               rhs |-> << \"\\\"\", \"P\", \"\\\"\" >>]>>]>>,\n                                       else |-> <<[type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                               rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>]>>]>>], \n             [label |-> \"E\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]"
+          }
+        },
+        "model_proved": false,
+        "translation": {
+          "Ok": {
+            "actions": [
+              "P",
+              "R",
+              "L",
+              "E"
+            ],
+            "configuration": "",
+            "inserted_labels": [],
+            "mappings": [
+              {
+                "generated": {
+                  "end": 64,
+                  "start": 0
+                },
+                "original": {
+                  "end": 258,
+                  "start": 72
+                }
+              },
+              {
+                "generated": {
+                  "end": 161,
+                  "start": 64
+                },
+                "original": {
+                  "end": 258,
+                  "start": 72
+                }
+              },
+              {
+                "generated": {
+                  "end": 252,
+                  "start": 161
+                },
+                "original": {
+                  "end": 138,
+                  "start": 129
+                }
+              },
+              {
+                "generated": {
+                  "end": 397,
+                  "start": 252
+                },
+                "original": {
+                  "end": 148,
+                  "start": 139
+                }
+              },
+              {
+                "generated": {
+                  "end": 412,
+                  "start": 397
+                },
+                "original": {
+                  "end": 163,
+                  "start": 100
+                }
+              },
+              {
+                "generated": {
+                  "end": 919,
+                  "start": 412
+                },
+                "original": {
+                  "end": 235,
+                  "start": 170
+                }
+              },
+              {
+                "generated": {
+                  "end": 1010,
+                  "start": 919
+                },
+                "original": {
+                  "end": 243,
+                  "start": 236
+                }
+              },
+              {
+                "generated": {
+                  "end": 1056,
+                  "start": 1010
+                },
+                "original": {
+                  "end": 258,
+                  "start": 72
+                }
+              },
+              {
+                "generated": {
+                  "end": 1094,
+                  "start": 1056
+                },
+                "original": {
+                  "end": 258,
+                  "start": 72
+                }
+              },
+              {
+                "generated": {
+                  "end": 1125,
+                  "start": 1094
+                },
+                "original": {
+                  "end": 258,
+                  "start": 72
+                }
+              },
+              {
+                "generated": {
+                  "end": 1156,
+                  "start": 1125
+                },
+                "original": {
+                  "end": 258,
+                  "start": 72
+                }
+              }
+            ],
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "processes": [],
+            "program_counter": true,
+            "tla": "VARIABLES pc, x, stack, z, a\n\nvars == << pc, x, stack, z, a >>\n\nInit == /\\ x = 0\n        /\\ z = 0\n        /\\ a = 0\n        /\\ stack = << >>\n        /\\ pc = \"L\"\n\nP == /\\ pc = \"P\"\n     /\\ x' = a + z\n     /\\ pc' = \"R\"\n     /\\ UNCHANGED << stack, z, a >>\n\nR == /\\ pc = \"R\"\n     /\\ pc' = Head(stack).pc\n     /\\ z' = Head(stack).z\n     /\\ a' = Head(stack).a\n     /\\ stack' = Tail(stack)\n     /\\ x' = x\n\nPut == P \\/ R\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ TRUE\n                /\\ pc' = \"E\"\n                /\\ UNCHANGED << stack, z, a >>\n           ELSE /\\ IF x = 1\n                      THEN /\\ /\\ a' = 2\n                              /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"E\", z |-> z, a |-> a ] >> \\o stack\n                              /\\ z' = 1\n                           /\\ pc' = \"P\"\n                      ELSE /\\ pc' = \"E\"\n                           /\\ UNCHANGED << stack, z, a >>\n     /\\ x' = x\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, z, a >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Put \\/ L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+            "warnings": []
+          }
+        }
+      }
+    },
+    {
+      "id": "ElsifBranch_emptyelse",
+      "outcome": "exact-raw-ast",
+      "detail": "",
+      "document": {
+        "artifact_admitted": false,
+        "checksum": {
+          "Ok": {
+            "checksum": "fbee305e",
+            "fair_header_crc_only": false,
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "serialized_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<[name   |-> \"Put\", \n              minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"Put\">>,\n               params |-> <<[var |-> \"z\", eqOrIn |-> \"=\", val |-> << \"0\" >>], \n                            [var |-> \"a\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n               decls  |-> <<>>,\n               body   |-> <<[label |-> \"P\",\n                             stmts |-> <<[type |-> \"assignment\",\n                                          ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                      rhs |-> << \"a\", \"+\", \"z\" >>]>>]>>], \n                            [label |-> \"R\",\n                             stmts |-> <<[type |-> \"return\", from |-> \"Put\"]>>]>>]>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type    |-> \"if\", \n                           test    |-> << \"x\", \"=\", \"0\" >>,\n                           then |-> <<[type |-> \"skip\"], \n                                      [type |-> \"assignment\",\n                                       ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                   rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>,\n                           else |-> <<[type    |-> \"if\", \n                                       test    |-> << \"x\", \"=\", \"1\" >>,\n                                       then |-> <<[type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"a\", sub |-> <<  >>],\n                                                               rhs |-> << \"2\" >>], \n                                                              [lhs |-> [var |-> \"stack\", sub |-> <<  >>],\n                                                               rhs |-> << \"<<\", \"[\", \"procedure\", \"|->\", \"\\\"\", \"Put\", \"\\\"\", \",\"\n, \"pc\", \"|->\", \"\\\"\", \"E\", \"\\\"\", \",\"\n, \"z\", \"|->\", \"z\", \",\"\n, \"a\", \"|->\", \"a\", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>], \n                                                              [lhs |-> [var |-> \"z\", sub |-> <<  >>],\n                                                               rhs |-> << \"1\" >>]>>], \n                                                  [type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                               rhs |-> << \"\\\"\", \"P\", \"\\\"\" >>]>>]>>,\n                                       else |-> <<[type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                               rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>]>>]>>], \n             [label |-> \"E\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]"
+          }
+        },
+        "model_proved": false,
+        "translation": {
+          "Ok": {
+            "actions": [
+              "P",
+              "R",
+              "L",
+              "E"
+            ],
+            "configuration": "",
+            "inserted_labels": [],
+            "mappings": [
+              {
+                "generated": {
+                  "end": 64,
+                  "start": 0
+                },
+                "original": {
+                  "end": 266,
+                  "start": 75
+                }
+              },
+              {
+                "generated": {
+                  "end": 161,
+                  "start": 64
+                },
+                "original": {
+                  "end": 266,
+                  "start": 75
+                }
+              },
+              {
+                "generated": {
+                  "end": 252,
+                  "start": 161
+                },
+                "original": {
+                  "end": 141,
+                  "start": 132
+                }
+              },
+              {
+                "generated": {
+                  "end": 397,
+                  "start": 252
+                },
+                "original": {
+                  "end": 151,
+                  "start": 142
+                }
+              },
+              {
+                "generated": {
+                  "end": 412,
+                  "start": 397
+                },
+                "original": {
+                  "end": 166,
+                  "start": 103
+                }
+              },
+              {
+                "generated": {
+                  "end": 919,
+                  "start": 412
+                },
+                "original": {
+                  "end": 243,
+                  "start": 173
+                }
+              },
+              {
+                "generated": {
+                  "end": 1010,
+                  "start": 919
+                },
+                "original": {
+                  "end": 251,
+                  "start": 244
+                }
+              },
+              {
+                "generated": {
+                  "end": 1056,
+                  "start": 1010
+                },
+                "original": {
+                  "end": 266,
+                  "start": 75
+                }
+              },
+              {
+                "generated": {
+                  "end": 1094,
+                  "start": 1056
+                },
+                "original": {
+                  "end": 266,
+                  "start": 75
+                }
+              },
+              {
+                "generated": {
+                  "end": 1125,
+                  "start": 1094
+                },
+                "original": {
+                  "end": 266,
+                  "start": 75
+                }
+              },
+              {
+                "generated": {
+                  "end": 1156,
+                  "start": 1125
+                },
+                "original": {
+                  "end": 266,
+                  "start": 75
+                }
+              }
+            ],
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "processes": [],
+            "program_counter": true,
+            "tla": "VARIABLES pc, x, stack, z, a\n\nvars == << pc, x, stack, z, a >>\n\nInit == /\\ x = 0\n        /\\ z = 0\n        /\\ a = 0\n        /\\ stack = << >>\n        /\\ pc = \"L\"\n\nP == /\\ pc = \"P\"\n     /\\ x' = a + z\n     /\\ pc' = \"R\"\n     /\\ UNCHANGED << stack, z, a >>\n\nR == /\\ pc = \"R\"\n     /\\ pc' = Head(stack).pc\n     /\\ z' = Head(stack).z\n     /\\ a' = Head(stack).a\n     /\\ stack' = Tail(stack)\n     /\\ x' = x\n\nPut == P \\/ R\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ TRUE\n                /\\ pc' = \"E\"\n                /\\ UNCHANGED << stack, z, a >>\n           ELSE /\\ IF x = 1\n                      THEN /\\ /\\ a' = 2\n                              /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"E\", z |-> z, a |-> a ] >> \\o stack\n                              /\\ z' = 1\n                           /\\ pc' = \"P\"\n                      ELSE /\\ pc' = \"E\"\n                           /\\ UNCHANGED << stack, z, a >>\n     /\\ x' = x\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, z, a >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Put \\/ L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+            "warnings": []
+          }
+        }
+      }
+    },
+    {
+      "id": "ElsifBranch_elsewith",
+      "outcome": "exact-raw-ast",
+      "detail": "",
+      "document": {
+        "artifact_admitted": false,
+        "checksum": {
+          "Ok": {
+            "checksum": "25d08e79",
+            "fair_header_crc_only": false,
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "serialized_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<[name   |-> \"Put\", \n              minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"Put\">>,\n               params |-> <<[var |-> \"z\", eqOrIn |-> \"=\", val |-> << \"0\" >>], \n                            [var |-> \"a\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n               decls  |-> <<>>,\n               body   |-> <<[label |-> \"P\",\n                             stmts |-> <<[type |-> \"assignment\",\n                                          ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                      rhs |-> << \"a\", \"+\", \"z\" >>]>>]>>], \n                            [label |-> \"R\",\n                             stmts |-> <<[type |-> \"return\", from |-> \"Put\"]>>]>>]>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type    |-> \"if\", \n                           test    |-> << \"x\", \"=\", \"0\" >>,\n                           then |-> <<[type |-> \"assignment\",\n                                       ass  |-> <<[lhs |-> [var |-> \"a\", sub |-> <<  >>],\n                                                   rhs |-> << \"2\" >>], \n                                                  [lhs |-> [var |-> \"stack\", sub |-> <<  >>],\n                                                   rhs |-> << \"<<\", \"[\", \"procedure\", \"|->\", \"\\\"\", \"Put\", \"\\\"\", \",\"\n, \"pc\", \"|->\", \"\\\"\", \"E\", \"\\\"\", \",\"\n, \"z\", \"|->\", \"z\", \",\"\n, \"a\", \"|->\", \"a\", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>], \n                                                  [lhs |-> [var |-> \"z\", sub |-> <<  >>],\n                                                   rhs |-> << \"1\" >>]>>], \n                                      [type |-> \"assignment\",\n                                       ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                   rhs |-> << \"\\\"\", \"P\", \"\\\"\" >>]>>]>>,\n                           else |-> <<[type    |-> \"if\", \n                                       test    |-> << \"x\", \"=\", \"1\" >>,\n                                       then |-> <<[type |-> \"skip\"], \n                                                  [type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                               rhs |-> << \"\\\"\", \"E\", \"\\\"\" >>]>>]>>,\n                                       else |-> <<[type   |-> \"with\", \n                                                   var    |-> \"q\",\n                                                   eqOrIn |-> \"=\",\n                                                   exp    |-> << \"2\" >>,\n                                                   do     |-> <<[type |-> \"assignment\",\n                                                                 ass  |-> <<[lhs |-> [var |-> \"a\", sub |-> <<  >>],\n                                                                             rhs |-> << \"1\" >>], \n                                                                            [lhs |-> [var |-> \"stack\", sub |-> <<  >>],\n                                                                             rhs |-> << \"<<\", \"[\", \"procedure\", \"|->\", \"\\\"\", \"Put\", \"\\\"\", \",\"\n, \"pc\", \"|->\", \"\\\"\", \"E\", \"\\\"\", \",\"\n, \"z\", \"|->\", \"z\", \",\"\n, \"a\", \"|->\", \"a\", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>], \n                                                                            [lhs |-> [var |-> \"z\", sub |-> <<  >>],\n                                                                             rhs |-> << \"q\" >>]>>], \n                                                                [type |-> \"assignment\",\n                                                                 ass  |-> <<[lhs |-> [var |-> \"pc\", sub |-> <<  >>],\n                                                                             rhs |-> << \"\\\"\", \"P\", \"\\\"\" >>]>>]>>]>>]>>]>>], \n             [label |-> \"E\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]"
+          }
+        },
+        "model_proved": false,
+        "translation": {
+          "Ok": {
+            "actions": [
+              "P",
+              "R",
+              "L",
+              "E"
+            ],
+            "configuration": "",
+            "inserted_labels": [],
+            "mappings": [
+              {
+                "generated": {
+                  "end": 64,
+                  "start": 0
+                },
+                "original": {
+                  "end": 310,
+                  "start": 74
+                }
+              },
+              {
+                "generated": {
+                  "end": 161,
+                  "start": 64
+                },
+                "original": {
+                  "end": 310,
+                  "start": 74
+                }
+              },
+              {
+                "generated": {
+                  "end": 252,
+                  "start": 161
+                },
+                "original": {
+                  "end": 140,
+                  "start": 131
+                }
+              },
+              {
+                "generated": {
+                  "end": 397,
+                  "start": 252
+                },
+                "original": {
+                  "end": 150,
+                  "start": 141
+                }
+              },
+              {
+                "generated": {
+                  "end": 412,
+                  "start": 397
+                },
+                "original": {
+                  "end": 165,
+                  "start": 102
+                }
+              },
+              {
+                "generated": {
+                  "end": 1109,
+                  "start": 412
+                },
+                "original": {
+                  "end": 287,
+                  "start": 172
+                }
+              },
+              {
+                "generated": {
+                  "end": 1200,
+                  "start": 1109
+                },
+                "original": {
+                  "end": 295,
+                  "start": 288
+                }
+              },
+              {
+                "generated": {
+                  "end": 1246,
+                  "start": 1200
+                },
+                "original": {
+                  "end": 310,
+                  "start": 74
+                }
+              },
+              {
+                "generated": {
+                  "end": 1284,
+                  "start": 1246
+                },
+                "original": {
+                  "end": 310,
+                  "start": 74
+                }
+              },
+              {
+                "generated": {
+                  "end": 1315,
+                  "start": 1284
+                },
+                "original": {
+                  "end": 310,
+                  "start": 74
+                }
+              },
+              {
+                "generated": {
+                  "end": 1346,
+                  "start": 1315
+                },
+                "original": {
+                  "end": 310,
+                  "start": 74
+                }
+              }
+            ],
+            "option_context": {
+              "effective": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "requested": {
+                "fairness": "Declared",
+                "insert_missing_labels": false,
+                "label_root": "Lbl_",
+                "max_actions": 10000,
+                "max_output_bytes": 4194304,
+                "parser": {
+                  "max_bytes": 1048576,
+                  "max_depth": 128,
+                  "max_nodes": 50000,
+                  "max_tokens": 100000
+                }
+              },
+              "source_declaration": null
+            },
+            "processes": [],
+            "program_counter": true,
+            "tla": "VARIABLES pc, x, stack, z, a\n\nvars == << pc, x, stack, z, a >>\n\nInit == /\\ x = 0\n        /\\ z = 0\n        /\\ a = 0\n        /\\ stack = << >>\n        /\\ pc = \"L\"\n\nP == /\\ pc = \"P\"\n     /\\ x' = a + z\n     /\\ pc' = \"R\"\n     /\\ UNCHANGED << stack, z, a >>\n\nR == /\\ pc = \"R\"\n     /\\ pc' = Head(stack).pc\n     /\\ z' = Head(stack).z\n     /\\ a' = Head(stack).a\n     /\\ stack' = Tail(stack)\n     /\\ x' = x\n\nPut == P \\/ R\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ /\\ a' = 2\n                   /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"E\", z |-> z, a |-> a ] >> \\o stack\n                   /\\ z' = 1\n                /\\ pc' = \"P\"\n           ELSE /\\ IF x = 1\n                      THEN /\\ TRUE\n                           /\\ pc' = \"E\"\n                           /\\ UNCHANGED << stack, z, a >>\n                      ELSE /\\ LET q == 2 IN\n                                 /\\ /\\ a' = 1\n                                    /\\ stack' = << [ procedure |-> \"Put\", pc |-> \"E\", z |-> z, a |-> a ] >> \\o stack\n                                    /\\ z' = q\n                                 /\\ pc' = \"P\"\n     /\\ x' = x\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, z, a >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Put \\/ L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+            "warnings": []
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "native_gate_source_commit": "37ace0360d4d9ae89f358161602f71898178b793",
+  "all_consumers_closed": true,
+  "native_runtime_retagged": false,
+  "post_gate_changes": "changes.json",
+  "current_guard_exit": 0,
+  "mutation_controls": 22,
+  "each_mutation_baseline_reverified": true,
+  "fmt_exit": 0,
+  "logs": {
+    "portable-mutations-packaging.log.gz": {
+      "sha256": "34c1ef6d27bf60311913f37f55d50e4aa9f847f296ec9e8087a4f5a4f6ac46f5",
+      "compressed_sha256": "629f0c7ae1b08edba326b8d75f91db258d135671a0cd3e56d474a9a220de4fd1"
+    },
+    "post-package-guard-final.log.gz": {
+      "sha256": "4a8ad4e03cdbf19194e3f3ac5334e94da706ccf27444d310e4673d59968a74d6",
+      "compressed_sha256": "c863d0dd57a76d9057070164e55015f73f5e8ed242c5346fe75bab05dfdf805d"
+    }
+  }
+}
