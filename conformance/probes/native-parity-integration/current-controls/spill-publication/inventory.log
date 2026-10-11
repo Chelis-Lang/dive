@@ -1,0 +1,57 @@
+    Blocking waiting for file lock on build directory
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 51.85s
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+{"selected_tests": 928, "ignored_tests": 0, "hash_partitions": [243, 229, 244, 212], "disjoint_and_complete": true}

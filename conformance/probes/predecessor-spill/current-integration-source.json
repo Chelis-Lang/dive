@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "current_integration_scope": "Checkpoint spill publication, process-procedure fairness and partitioned CI; current source integrity with separately frozen execution receipts, no full family certification",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",
