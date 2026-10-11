@@ -717,3 +717,5 @@ All notable changes to this project are documented here. The project will follow
 - `dive-eval`: constant definitions that read a configured constant are computed once, as
   TLC precomputes them, when every `<-` binding is constant-level and pure. TLC warnings
   are printed once each, and not at all with warnings off.
+
+- Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.

@@ -368,3 +368,8 @@ fidelity retains the original operator-CST failure and paired controls.
 See [the runnable scope guide](pluscal-checksum-expressions.md) and
 `crates/dive-pluscal/checksum-expression-acceptance/`. The family remains
 partial/audit-required; no source-integrity or complete translator certification.
+
+Bounded sequential non-junction multiline PlusCal generation is now tracked in
+`docs/pluscal-multiline.md` and its complete capture. Raw AST CRC, generated
+operator trees/admission and finite model/witness evidence remain separate.
+F-034/F-035 remain partial and audit-required; all unproved contexts refuse.

@@ -129,3 +129,7 @@ compares native serialized bytes with pinned parsed/name-fixed/post-translation
 captures and independently checks admitted full documents with SANY and Validator.
 Exact generator pretty-print bytes, file writing, mapping formats and other AST
 shapes remain pending under [ADR 0047](decisions/0047-bounded-translation-block-editing.md).
+
+Bounded sequential non-junction multiline generation and its executable CLI/API
+examples are documented in [the multiline guide](pluscal-multiline.md). The older
+raw multiline checksum captures remain separate from this new admission evidence.

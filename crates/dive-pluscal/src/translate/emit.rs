@@ -145,19 +145,45 @@ impl Emitter<'_> {
             _ => Some(format!("UNCHANGED << {} >>", names.join(", "))),
         }
     }
-    fn expression(&self, expr: Expr, changed: &Changed) -> Result<String, TranslationError> {
-        if self
-            .parsed
-            .text(expr.span)
-            .is_some_and(|text| text.contains(['\n', '\r']))
+    fn expression_layout(
+        &self,
+        expr: Expr,
+        source: &[crate::ast::Token],
+    ) -> Result<(), TranslationError> {
+        let text = self.parsed.text(expr.span).unwrap_or_default();
+        if !text.contains(['\n', '\r']) {
+            return Ok(());
+        }
+        // TLA junction-list columns are semantic. Flattening their source
+        // lines can change nesting, so retain this unproved layout boundary.
+        if source.iter().any(|token| {
+            matches!(
+                token.text.as_str(),
+                "/\\" | "\\/" | "∧" | "∨" | "\\land" | "\\lor"
+            )
+        }) || text
+            .as_bytes()
+            .iter()
+            .enumerate()
+            .any(|(index, byte)| *byte == b'\r' && text.as_bytes().get(index + 1) != Some(&b'\n'))
+            || self.parsed.declared_macros()
+            || !self.model.processes.is_empty()
+            || !self.model.procedures.is_empty()
         {
             return Err(failure(
                 expr.span,
                 Code::Unsupported,
-                "unsupported PlusCal translation: multiline TLA expression layout/substitution",
+                "unsupported PlusCal translation: multiline junction/macro/process/procedure expression layout",
             ));
         }
+        // In the admitted non-junction slice, TLA token order and existing
+        // changed-variable substitutions define the same expression tree.
+        // Newline trivia is omitted; reference pretty-print bytes are not claimed.
+        Ok(())
+    }
+    fn expression(&self, expr: Expr, changed: &Changed) -> Result<String, TranslationError> {
         let source = tokens(self.parsed, expr);
+        self.expression_layout(expr, source)?;
         // The reference performs lexical substitution, not a scope-aware TLA
         // rewrite. Binding constructs need a separate proved shadowing path.
         if source.iter().any(|token| {
@@ -256,6 +282,7 @@ impl Emitter<'_> {
                             | ">"
                             | "<="
                             | ">="
+                            | "->"
                             | "=>"
                             | "<=>"
                             | "|-"

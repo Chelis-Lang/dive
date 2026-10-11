@@ -311,3 +311,5 @@ parser disagreements and separate SANY-invalid artifacts are retained in
 name-fix/process/procedure serialization or stronger checksum default is added.
 
 | `dive-pluscal` empty-Else generation (`translate/emit.rs`) | `pcal.PcalTLAGen.GenIf` empty Else TRUE before identity updates; `ParseAlgorithm.GetIf`/`GetStmtSeq` P empty branches and C nonempty bodies; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Retained original operator-CST mismatch and complete paired empty/explicit-Skip/elsif controls. Empty Then generation remains explicitly unsupported. |
+
+| Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |

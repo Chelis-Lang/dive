@@ -83,7 +83,7 @@ fn selection_refusals_remain_explicit() {
 }
 
 #[test]
-fn long_module_terminator_and_multiline_expression_limits() {
+fn long_module_terminator_and_multiline_expression_boundaries() {
     let source = module("variable x=0; begin L: x:=1; E: skip; end algorithm;")
         .replace("====", "====================");
     assert!(
@@ -95,6 +95,15 @@ fn long_module_terminator_and_multiline_expression_limits() {
         .accepted()
     );
     let source = module("variable x=0; begin L: x:=1+\n 2; E: skip; end algorithm;");
+    assert!(
+        translate_source(
+            "TranslationTest.tla",
+            &source,
+            &TranslationRequest::default()
+        )
+        .accepted()
+    );
+    let source = module("variable x=0; begin L: await /\\ TRUE\n /\\ x=0; E: skip; end algorithm;");
     let report = translate_source(
         "TranslationTest.tla",
         &source,

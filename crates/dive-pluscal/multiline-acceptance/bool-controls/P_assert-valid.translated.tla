@@ -1,0 +1,37 @@
+---- MODULE P_assert_valid ----
+EXTENDS Integers, TLC, Sequences
+(* --algorithm A variables x=0,y=0; begin L:assert (y=0)
+  = TRUE; E:skip; end algorithm; *)
+\* BEGIN TRANSLATION (chksum(pcal) = "b2cc8010" /\ chksum(tla) = "285c49af")
+VARIABLES pc, x, y
+
+vars == << pc, x, y >>
+
+Init == (* Global variables *)
+        /\ x = 0
+        /\ y = 0
+        /\ pc = "L"
+
+L == /\ pc = "L"
+     /\ Assert(                                                 (y=0)
+               = TRUE, "Failure of assertion at line 3, column 45.")
+     /\ pc' = "E"
+     /\ UNCHANGED << x, y >>
+
+E == /\ pc = "E"
+     /\ TRUE
+     /\ pc' = "Done"
+     /\ UNCHANGED << x, y >>
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == pc = "Done" /\ UNCHANGED vars
+
+Next == L \/ E
+           \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(pc = "Done")
+
+\* END TRANSLATION 
+====
