@@ -738,3 +738,9 @@ comparison, construction or Random/VIEW shape policy. A transported word is not
 a certificate. Reverse construction, arbitrary deferred/symbolic values and
 trusted-storage tuple bit loss (#195) is repaired by explicitly versioned structural storage format 2; older ambiguous archives refuse. See
 [the schema and bounded CLI/API guide](trace-representation.md).
+
+D-007 storage increment (ADR 0063): additive `dive_store::seen::DiskSeen`
+provides actual fallible disk fingerprint/exact membership with bounded
+workspaces and explicit owned cleanup. Ordinary engine/parallel admission and
+seen-memory CLI budgets remain pending; the library is not a full storage-family
+certificate. See `docs/user/disk-seen-library.md`.

@@ -19,6 +19,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
 | Build a periodic backend | [Periodic controller](../ordinary-periodic-controller.md) | Callback ordering only; ordinary temporal verdicts remain unavailable |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
+| Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; checker admission remains pending |
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |
 | Interpret structured results | [Reports and errors](reports-and-errors.md) | Versioned schemas; exit zero alone is insufficient |
 

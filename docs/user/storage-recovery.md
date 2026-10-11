@@ -100,3 +100,10 @@ The [migration example](../native-checkpoint.md#structural-format-migration)
 combines zero-byte queue/log budgets with opt-in stored trace transport and
 independent witness checking. This migration changes no mathematical store key
 or fingerprint and grants no additional archive or total-memory proof.
+## Additive disk membership library
+
+[`dive_store::seen::DiskSeen`](disk-seen-library.md) retains full fingerprint or
+canonical exact keys on disk with fallible operations and explicit owned cleanup.
+This library is not yet a `dive check` option. Ordinary seen sets still remain
+resident; frontier/predecessor flags do not imply a seen-set or total RAM budget.
+

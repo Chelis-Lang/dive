@@ -2186,3 +2186,13 @@ mathematical canonical keys and fingerprints are unchanged. Native error metadat
 still reports `verified: false` for this ported diagnostic site; representation
 matching does not certify every error class. Independent transported-witness
 checks remain separate. See [the full evidence](../conformance/probes/storage-tuple-function/README.md).
+
+### Disk seen-state retention is a library increment
+
+D-007 now has an additive Rust disk-membership library, described in
+[the user guide](user/disk-seen-library.md). It preserves full fingerprints or
+canonical exact bytes and reports storage failures explicitly. This is not yet
+an ordinary checker flag: seen sets remain resident during `dive check`. Its
+physical entry count does not certify a discovery prefix, and bounded collision
+summary refusal cannot be counted as completed safety. Frontier/predecessor
+budgets, recovery and total-memory qualifications remain unchanged.
