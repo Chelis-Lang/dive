@@ -16,7 +16,7 @@
     "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
   },
   "schema_version": 1,
-  "scope": "combined native frontier and predecessor storage; no total-memory claim",
+  "scope": "combined native frontier and predecessor storage; no total-memory claim; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "scoped_final_parent_history": {
     "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/predecessor-spill/current-integration-source.json",
     "matrix_sha256": "cce0fd3110e1117544e96263a8ca6e961c7f9df27df9ab98debf8c4d35bc5a9f",

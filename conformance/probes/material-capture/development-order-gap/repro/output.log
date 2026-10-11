@@ -1,0 +1,4 @@
+order Tlc, choose Some("zeta")
+COMPLETED states [[Some("zeta")]]
+order Canonical, choose Some("zeta")
+COMPLETED states [[Some("zeta")], [Some("alpha")]]

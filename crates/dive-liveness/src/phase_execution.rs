@@ -53,8 +53,11 @@ pub struct Complete {
     pub capture: Box<capture::Complete>,
     /// Actual groups in pinned OOS first-encounter order.
     pub groups: Vec<Group>,
-    /// Original configured/action property identities.
+    /// Original configured PROPERTY identities, before role splitting.
     pub configured_properties: Vec<dive_model::Named>,
+    /// Original configuration name of each expanded temporal Action.
+    /// This does not replace original before-splitting witness claims.
+    pub expanded_property_names: Vec<String>,
     /// Derived PROPERTY-role names; never substituted for configured identities.
     pub role_names: Vec<String>,
     /// Predicate/collection stage actual work; executes inline in commit order.
@@ -896,6 +899,7 @@ pub fn execute(
         last_commit_work: observer.last_commit_work,
         groups: observer.groups,
         configured_properties: observer.session.configured_properties().to_vec(),
+        expanded_property_names: observer.session.expanded_property_names().to_vec(),
         role_names: observer.session.role_names().to_vec(),
         phase_work: observer.session.progress().clone(),
         limits: limits.graph,

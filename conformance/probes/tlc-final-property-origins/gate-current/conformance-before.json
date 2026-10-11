@@ -1,0 +1,5 @@
+{
+  "cli_sha256": "f6f562477b56a5f616f230757fdcdddc64da2c5bc52785e3e3daccaf4081f8e3",
+  "harness_sha256": "7c869b174669e073ede4484c3a9c780e19ad839dbc379a3f0f11a680b7299148",
+  "scope": "same frozen source; exact native producer binaries retained separately from gate profile"
+}

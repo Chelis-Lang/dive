@@ -613,3 +613,19 @@ Multiline CRC derivation does not lift the named multiline-generation refusal;
 empty-Then layout also refuses explicitly. All 320 primary controls and original
 failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
 remains compatibility reproduction only; no stronger checksum default.
+
+### Expanded temporal identity evidence (#134)
+
+Completed bounded final TLC results now preserve the original name on each
+expanded temporal Action separately from original configured claims and derived
+role labels. This matches the pinned binder and adds no semantic divergence.
+Conjunctive `PROPERTY P` can expose Action names `P;P` while the trace claims `P`
+once. The complete18 source-bound selection retains two exported-formal failures
+as refusals; ordinary schedules and broad family certification remain pending.
+See [the identity guide](tlc-property-origins.md).
+
+Callback-free captured concrete values now have a bounded matching admission
+in explicit final mode; this resolves a native limitation, not a new divergence.
+Stored representations, context/name authority, fixed recursive work/depth and
+deferred/opaque refusals are documented in [the guide](material-capture.md).
+No ordinary scheduling or whole-corpus certification is implied.

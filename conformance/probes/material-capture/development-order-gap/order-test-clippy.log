@@ -1,0 +1,22 @@
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-material-capture-work/crates/dive-check)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-material-capture-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-material-capture-work/crates/dive-api)
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-material-capture-work/crates/dive-conformance)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-material-capture-work/crates/dive-cli)
+error: used `assert!` to check that a value is empty
+   --> crates/dive-api/tests/material_capture.rs:337:17
+    |
+337 |                 assert!(model.evaluator.take_output().is_empty());
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+    = note: `-D clippy::assert-is-empty` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::assert_is_empty)]`
+help: use `assert_eq!` to show the value on failure
+    |
+337 -                 assert!(model.evaluator.take_output().is_empty());
+337 +                 assert_eq!(model.evaluator.take_output(), [] as [std::string::String; 0]);
+    |
+
+error: could not compile `dive-api` (test "material_capture") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

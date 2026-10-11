@@ -15,6 +15,7 @@
     "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
   },
   "schema_version": 1,
+  "scope": "; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "scoped_final_parent_history": {
     "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
     "matrix_sha256": "23bfd4b8aecc53fc1c47ae7ba523f7cc77d69f0ec4f42b2ea5638610b010b1f0",

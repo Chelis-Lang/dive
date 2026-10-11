@@ -60,6 +60,22 @@ pub(super) fn success(doc: &mut Value, report: &Report) {
         capture(doc, c);
     }
     doc["execution"] = json!({"stage":"complete","capture_completed":true,"schedule":"final-only","selection":"tlc"});
+    let execution = match report.outcome() {
+        Outcome::Holds(e) => Some(&e.execution),
+        Outcome::Violation(v) => Some(&v.candidate().evidence.execution),
+        Outcome::Safety(_) => None,
+    };
+    if let Some(e) = execution {
+        doc["execution"]["configured_property_names"] = json!(
+            e.configured_properties
+                .iter()
+                .map(|p| &p.name)
+                .collect::<Vec<_>>()
+        );
+        doc["execution"]["expanded_property_names"] = json!(e.expanded_property_names);
+        doc["execution"]["role_names"] = json!(e.role_names);
+    }
+
     doc["elapsed_ms"] = json!(u64::try_from(report.elapsed().as_millis()).unwrap_or(u64::MAX));
     doc["notes"] = json!([
         "Explicit bounded final-only TLC selection; ordinary periodic scheduling, exact temporal storage and unsupported effect/recovery boundaries remain unavailable."

@@ -14,11 +14,25 @@ All notable changes to this project are documented here. The project will follow
   LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
   resource bounds and ordinary periodic scheduling restrictions stay unchanged.
 
+- Explicit bounded final TLC checking admits callback-free stored strings/model
+  atoms, tuples, records, functions and Enum/Raw sets in captured scopes and
+  configured constants. Actual context resolution discharges potential OPEN
+  dependence; opaque/effectful/computed providers and fixed recursive admission
+  limits still refuse. Supplied stored sets/records/general functions must match
+  the evaluator ordering profile; tuple domains remain profile independent.
+  See `docs/material-capture.md`.
+
+- Explicit bounded final TLC results retain configured PROPERTY names, original
+  expanded temporal Action names, and derived role labels separately in the
+  Rust API and schema-2 JSON. Conjunctions preserve repeated original names;
+  original witness claims, ordinary schema 1, scheduling and bounds are unchanged.
+  See `docs/tlc-property-origins.md`.
+
 - Scoped explicit final temporal checking preserves local LET derived role
   names separately from formal argument forwarding, and exact cardinality-one
   DNF shape. Caller contexts and original witness claims have pinned field and
-  fresh replay controls; expanded-action names and ordinary schedules remain
-  incomplete. See `docs/tlc-final-scopes.md`.
+  fresh replay controls. The later property-origin increment adds expanded Action
+  names separately; ordinary schedules remain incomplete. See `docs/tlc-final-scopes.md`.
 
 - Explicit final/TLC checking admits proven direct temporal conditionals with
   pinned shared-guard tags, exact particles and independent counterexample replay.

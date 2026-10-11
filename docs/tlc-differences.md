@@ -1838,8 +1838,9 @@ usable artifact admission are separate contracts (D-008). See
 Bounded final scope evidence (#134) now distinguishes configured names from
 local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
 Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
-refusals. Original expanded-action attribution is still a missing native field,
-not an approved result-changing default. Ordinary periodic scheduling remains
+refusals. The additive property-origin increment below exposes original
+expanded Action names separately; its metadata is not a new result-changing
+default or ordinary liveness certificate. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
 
 **D-008 checksum continuation:** nested `elsif` and multiple `with` binders now
@@ -1853,3 +1854,29 @@ invalid generated artifact is admitted. See
 [the scope and executable examples](pluscal-checksum-expressions.md). D-020
 continues to expose the fair-header-only checksum weakness without correcting
 it by default.
+
+### Current identity metadata limitation and evidence
+
+The final-only JSON and Rust API expose three distinct temporal identity vectors:
+configured properties, original expanded Actions and derived role labels. A
+conjunction can have one configured `P`, two Action names `P`, and two source
+location labels. Those labels are not interchangeable. This is a matching
+metadata contract, not a new divergence or ordinary liveness certification.
+Exported temporal-formal INSTANCE cases still refuse when the pinned reference
+fails before producing that projection. See [the identity guide](tlc-property-origins.md).
+
+### Native concrete capture limitation narrowed
+
+TLC accepts a split action capturing `<<[tag |-> "ok", vals |-> {a,b}], <<1,2>>>>`
+and configured string/model/set constants. The earlier native final checker
+refused all32 selected runs at1/4 workers. A callback-free stored-value proof
+now admits the paired final controls while preserving opaque/cached providers,
+invalid namespaces, effects and existing50k/128 bounds as refusals. Public
+callers must supply sets/records/general functions with the evaluator's stored
+ordering profile; same-owned atoms alone do not preserve cached CHOOSE order.
+Tuples have profile-independent integer domains, but nested values still match.
+The pre-order-guard observations and interrupted gate remain blocked evidence.
+This matches
+the reference and does not change any approved default. The original failed
+selection remains evidence; see [the concrete capture guide](material-capture.md).
+Ordinary periodic checking and full family certification remain unfinished.

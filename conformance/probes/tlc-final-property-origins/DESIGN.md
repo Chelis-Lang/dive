@@ -1,0 +1,3 @@
+Original expanded temporal property names (#134)
+
+SpecProcessor.processConfigProps threads configName unchanged into every impliedTemporal Action. Derived name is a separate mutable label. Record configName at each native implied_temporals push; do not infer it from label text or formula identity. Preserve configured-before-split and derived-role vectors. Add read-only binder metadata, bounded projection/commit metadata and schema-2 final output. Do not change witness claims, safety-only/ordinary schema 1, temporal scheduling, defaults or resource bounds. Reference-refused exported formals stay unsupported.

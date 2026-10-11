@@ -93,3 +93,23 @@ fifteen clean TLC outcomes are retained in `conformance/probes/tlc-phase-l-graph
 Multiple-OOS/tableau revisit ordering and strict SCC/lasso/schedule integration
 must follow this increment. #140 remains open and F-020/F-021/F-022 partial,
 F-023 missing. No default or integrated-liveness refusal is changed.
+
+## Addendum: stored capture admission, 2026-10-11
+
+The concrete pool capture proof admits callback-free stored string/model atoms,
+functions (including tuples/records), and Enum/Raw sets after shared ownership,
+role/scope and namespace admission. Expression and recursive material visits
+share the original50,000-per-predicate/128-depth proof; keys/ranges both charge.
+Configured OPEN dependence resolves through actual bound constants and scoped
+contexts without changing static effect flags. Opaque/unknown/unbound leaves,
+operator captures, cached/computed providers and effects remain refused before
+workers. This does not alter phase-L graph/product bounds or scheduled semantics.
+Clean paired final controls and independent witness mutations remain separate
+from historical broad-corpus evidence; see `docs/material-capture.md`.
+
+Supplied stored Enum/Raw sets, records and general functions must carry the
+admitted evaluator's ordering profile. Correct interner ownership alone cannot
+repair a cached canonical sequence used by TLC-mode CHOOSE. Tuple domains are
+ascending integer indices and exempt only at their outer representation. The
+pre-guard positive matrix and interrupted gate remain development evidence;
+opposite-profile public controls now refuse before workers or counters.

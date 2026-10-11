@@ -1,0 +1,1 @@
+First new API control compilation returned101/E0609/E0277: Complete exposes configured_properties as Named rows and TraceDoc uses its explicit to_json/from_json API, not serde derives. Zero model control executions. Source preserved before correcting the new test to actual public interfaces.

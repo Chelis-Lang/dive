@@ -645,6 +645,11 @@ impl<'a> Session<'a> {
     pub fn configured_properties(&self) -> &[dive_model::Named] {
         &self.plan.configured_properties
     }
+    /// Original names of expanded temporal Actions, in property-role order.
+    #[must_use]
+    pub fn expanded_property_names(&self) -> &[String] {
+        self.model.implied_temporal_action_names()
+    }
     /// Derived PROPERTY-role labels, in planning input order.
     #[must_use]
     pub fn role_names(&self) -> &[String] {
