@@ -2344,3 +2344,31 @@ budgets, recovery and total-memory qualifications remain unchanged.
 ### Request-owned service limitation (#208)
 
 The [Rust diagnostic](request-owned-periodic-service.md) now services one real request after successful source-prefix graph publication and physical frontier append, including an empty request with no invented source. Pin94d0c50 measured empty FALSE2104 and repeated unchanged graph FALSE2104, hook division errors2179/exit2, and written-graph temporal2116 before the hook. Actual candidate words are replayed independently; clock/suspendAll/count/checkpoint parity remains unfinished. Every failed adapter/EOF-race and incorrect native test assumption remains preserved; no new TLC bug/default or ordinary verdict is declared.
+D-008 P elsif procedure-checksum continuation (ADR0066): the native flat source
+branch list now has a typed virtual nested-If header view for the pinned shared
+Else-vector mutation. Before this increment the32 clean C/P controls produced17
+exact pairs and15 named P refusals; focused stored-header bytes/CRC now match all32.
+Public artifact/model evidence is separately source-bound, never inferred from
+CRC equality. General procedure/scoped checksums and strict saved-frame replay
+remain qualified; see [the runnable guide](pluscal-p-elsif-checksums.md).
+
+
+D-008 disjoint sequential procedure checksum continuation (ADR 0069): main can
+call globally disjoint, explicitly labelled procedures through the bounded Full
+editor. With declarations `Put(z,a)` then `Get(q,b)`, main calls `Put(1,2)` then
+`Get(3,4)`, the pinned stored header keeps `Put.proceduresCalled` empty and stores
+`<<"Put", "Get">>` on `Get`. The measured algorithm CRC is `99cb7254`. Reversing
+main calls yields `182d4367`; reversing declarations yields `8197b276` and moves
+the shared vector to `Put`. These original stored-header fields differ from the
+separate exploded call frames, whose saved slots belong to the actual target.
+Native serialization preserves both in both profiles; it does not infer header
+fields from reachability. Procedure-to-procedure/recursive/process/scoped checksum
+ownership stays refused by name. Fair CRC-only policy and strict saved-frame
+replay #124 remain unchanged; CRC equality does not certify a usable artifact,
+model proof or independently valid witness. Read [the guide](pluscal-multiple-procedure-checksums.md).
+
+The 98-row study also retains two invalid `-fair` command controls: clean pinned
+translator exit 255, separate development stage-probe exit 0 carrying the error,
+and native CLI exit 2. Those errors are not TLA grammar or checksum equivalence
+credit. Original verification-driver failures remain archived; corrected command
+accounting never changes their oracle or native bytes.

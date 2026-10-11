@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "source_commit": "7a3645a8754d3865c699a6d6697f6e3106373974",
+  "driver_sha256": "c1580472b3d9753e580579dae7a8b772c293a91227ec2a9388ecbbe5c1525518",
+  "verifier_sha256": "4b28d7968b3703eea66c64cff2b39c60918a0fe239ef4891a32d3db80c528851",
+  "selected": 27,
+  "rows": [
+    {
+      "control": "baseline",
+      "accepted": true,
+      "detail": {
+        "records": 25895,
+        "source_inputs": 3838,
+        "gate_tests": 1192,
+        "model_settings": 768,
+        "strict_saved_frame_valid": 0,
+        "family_certified": false
+      }
+    },
+    {
+      "control": "source-byte",
+      "accepted": false,
+      "detail": "source archive:crates/dive-pluscal/src/translate/checksum.rs"
+    },
+    {
+      "control": "reference-input-byte",
+      "accepted": false,
+      "detail": "reference input archive:crates/dive-pluscal/nested-procedure-checksum-acceptance/guide/primary/NestedProcedureChecksum_C.names.ast"
+    },
+    {
+      "control": "first-source-retagged",
+      "accepted": false,
+      "detail": "uncommitted first source retagged"
+    },
+    {
+      "control": "gate-failed",
+      "accepted": false,
+      "detail": "full gate"
+    },
+    {
+      "control": "gate-stage-drop",
+      "accepted": false,
+      "detail": "full gate"
+    },
+    {
+      "control": "gate-skip",
+      "accepted": false,
+      "detail": "actual complete nextest"
+    },
+    {
+      "control": "failed-command-hidden",
+      "accepted": false,
+      "detail": "original failed commands concealed"
+    },
+    {
+      "control": "repair-raises-quota",
+      "accepted": false,
+      "detail": "repair exceeds output path"
+    },
+    {
+      "control": "raw-drop",
+      "accepted": false,
+      "detail": "raw census:final-runtime/raw-original"
+    },
+    {
+      "control": "raw-proof",
+      "accepted": false,
+      "detail": "raw false proof"
+    },
+    {
+      "control": "raw-ast",
+      "accepted": false,
+      "detail": "raw exact header bytes/CRC"
+    },
+    {
+      "control": "raw-crc",
+      "accepted": false,
+      "detail": "raw exact header bytes/CRC"
+    },
+    {
+      "control": "public-proof",
+      "accepted": false,
+      "detail": "public claims"
+    },
+    {
+      "control": "public-exhaustive",
+      "accepted": false,
+      "detail": "public claims"
+    },
+    {
+      "control": "public-profile",
+      "accepted": false,
+      "detail": "public claims"
+    },
+    {
+      "control": "public-cst",
+      "accepted": false,
+      "detail": "whole CST"
+    },
+    {
+      "control": "validator-divergence",
+      "accepted": false,
+      "detail": "Validator"
+    },
+    {
+      "control": "model-count",
+      "accepted": false,
+      "detail": "primary counts"
+    },
+    {
+      "control": "model-width-drop",
+      "accepted": false,
+      "detail": "finite model"
+    },
+    {
+      "control": "model-width-duplicated",
+      "accepted": false,
+      "detail": "complete worker/store/profile matrix"
+    },
+    {
+      "control": "public-selection-duplicated",
+      "accepted": false,
+      "detail": "public complete paired selection"
+    },
+    {
+      "control": "replay-strict-credit",
+      "accepted": false,
+      "detail": "replay census"
+    },
+    {
+      "control": "guide-false-proof",
+      "accepted": false,
+      "detail": "guide claims"
+    },
+    {
+      "control": "crc-proof",
+      "accepted": false,
+      "detail": "CRC controls"
+    },
+    {
+      "control": "forgery-accepted",
+      "accepted": false,
+      "detail": "forgery controls"
+    },
+    {
+      "control": "primary-mutation-accepted",
+      "accepted": false,
+      "detail": "primary integrity mutations"
+    }
+  ],
+  "family_certified": false,
+  "all_record_and_archive_hashes_recomputed_before_verification": true
+}

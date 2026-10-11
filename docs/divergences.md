@@ -798,3 +798,15 @@ certificate. See `docs/user/disk-seen-library.md`.
 D-014 also retains the controlled zero-duration NaN updater/controller observation
 and a failed native diagnostic resource experiment in [the known-issues log](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
 A finite-ratio improvement remains under consideration; no ratio default changes.
+
+
+D-008 disjoint sequential procedure Full checksum continuation (ADR 0069)
+represents target/current frame owners separately from the last declaration's
+shared main-call vector. The original 64 C/P rows retain 62 clean reference
+translations and two grammar errors; two corrected declarations and 32 declared
+ownership/call-graph/option controls remain distinct. Named unproved call-graph,
+process/scoped and modifier boundaries emit no replacement or CRC. Both profiles
+retain the pinned header behavior, unchanged global quotas and D-020 weakness.
+Invalid `-fair` commands are command-stage uncredited controls, not language
+rejection or exit-equivalence credit. Artifact and strict saved-frame replay
+remain separately qualified. See [the runnable guide](pluscal-multiple-procedure-checksums.md).

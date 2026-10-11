@@ -104,3 +104,7 @@ saved-frame/record-string replay can remain named unsupported under #124;
 canonical replay is separately qualified and earns no strict TLC witness credit.
 See [ADR 0061](decisions/0061-nested-procedure-header-vectors.md) and the
 [stage-separated study](../crates/dive-pluscal/nested-procedure-checksum-acceptance/README.md).
+
+Bounded P `elsif` shared-header ownership is extended in
+[Procedure checksums with P elsif](pluscal-p-elsif-checksums.md). Existing
+recursive/multiple/process-owned/scoped checksum and strict replay limits remain.

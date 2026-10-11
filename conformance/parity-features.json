@@ -1165,7 +1165,8 @@
         172,
         186,
         200,
-        203
+        203,
+        214
       ],
       "name": "PlusCal translation and translation validation",
       "phase": 8,
@@ -1314,7 +1315,8 @@
         186,
         190,
         200,
-        203
+        203,
+        214
       ],
       "name": "Public Rust APIs and cargo-test integration",
       "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Opt-in checked stored transport v2 covers admitted forward mixed sets and nonliteral tuple/record functions; legacy v1 decoder failures and #195 trusted-storage bit loss remain separate. Transport is not a certificate; provider/symbolic/reverse construction and Random/VIEW extensions remain unsupported. Family remains partial/audit-required. Separate v2 release selection retains72 independentlyValid originals/216 semanticInvalid mutants and24 matching legacyMixed shapeInvalid rows, with12 interval encoding refusals; no arbitrary representation or family certification.",

@@ -1,0 +1,211 @@
+{
+  "source_commit": "37ace0360d4d9ae89f358161602f71898178b793",
+  "planned_stages": 17,
+  "completed": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/compare.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/context",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/raw-new"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6600778102874756,
+      "log": "campaign-00.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/public-controls.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/public-new",
+        "--cst",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/cst",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library"
+      ],
+      "exit_code": 0,
+      "seconds": 90.11691498756409,
+      "log": "campaign-01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/compare.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/context",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/raw-original"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8706870079040527,
+      "log": "campaign-02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/public-controls.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/public-original",
+        "--cst",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/cst",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library"
+      ],
+      "exit_code": 0,
+      "seconds": 428.54000782966614,
+      "log": "campaign-03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/compare.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/while-tail",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/context",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/raw-while-tail"
+      ],
+      "exit_code": 0,
+      "seconds": 0.19712471961975098,
+      "log": "campaign-04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/public-controls.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/while-tail",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/public-while-tail",
+        "--cst",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/cst",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library"
+      ],
+      "exit_code": 0,
+      "seconds": 11.776780843734741,
+      "log": "campaign-05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/compare.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/while-lines",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/context",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/raw-while-lines"
+      ],
+      "exit_code": 0,
+      "seconds": 0.24424076080322266,
+      "log": "campaign-06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/public-controls.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/nested-procedure-checksum-acceptance/while-lines",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/public-while-lines",
+        "--cst",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/cst",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library"
+      ],
+      "exit_code": 0,
+      "seconds": 11.08667516708374,
+      "log": "campaign-07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/models.py",
+        "--base",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance",
+        "--native",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/models-new"
+      ],
+      "exit_code": 0,
+      "seconds": 62.90009093284607,
+      "log": "campaign-08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal/p-elsif-checksum-acceptance/replay.py",
+        "--models",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/models-new",
+        "--binary",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/bins/dive",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-p-elsif-checksum-artifacts/native-first/replay-new"
+      ],
+      "exit_code": 1,
+      "seconds": 0.15629005432128906,
+      "log": "campaign-09.log"
+    }
+  ],
+  "passed": false
+}
