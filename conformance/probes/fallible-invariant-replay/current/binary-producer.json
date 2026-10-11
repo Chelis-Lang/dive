@@ -1,0 +1,29 @@
+{
+  "runtime_source_commit": "881b75992d0ef5dc11539018da526e5e55066027",
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "-p",
+    "dive-conformance",
+    "-p",
+    "dive-cli"
+  ],
+  "source_index_sha256": "2333169f1b871fbefb73a1602d42b076336d50798510ef55e7134eb6f2d12db1",
+  "rows": [
+    {
+      "name": "dive",
+      "runtime_source_commit": "881b75992d0ef5dc11539018da526e5e55066027",
+      "bytes": 9082136,
+      "sha256": "e2979affd2387e942b792ded21c3d9eea36aeee6293dc22e38798b3cb34b63a8"
+    },
+    {
+      "name": "dive-conformance",
+      "runtime_source_commit": "881b75992d0ef5dc11539018da526e5e55066027",
+      "bytes": 8004512,
+      "sha256": "11a81d2b63184ea3f4c5512e0f7ea65a476a82909d37afa477b4889a4fd5d510"
+    }
+  ],
+  "seconds": 38.52950275
+}

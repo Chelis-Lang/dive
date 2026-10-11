@@ -4304,7 +4304,7 @@
     "conformance/probes/fallible-seen-engine/invariant-replay-before/primary/tlc-2026.10.06.014338/ReplayMembership.trace.command": "90a4501409d20768c60f689d280ef72276e1a3d6f6ab2a3573cece96abb28a64",
     "scripts/check-fallible-seen-engine.py": "d37d6b54e7080139e966c14512c07999ac360fb1f52c0bfe9264e3daec978a3b",
     "docs/decisions/0068-fallible-disk-seen-safety.md": "a83a6d695689be19307f0b5e0aa9c87456364a20e43a78293157d7e8ad8907f1",
-    "docs/user/disk-seen-safety.md": "f0bdd5c394490bd468e40f97bd9ea342ce4553a878e04225055f61dd6de3f1a2"
+    "docs/user/disk-seen-safety.md": "83189d58193a9ad771b07ea1cd18f83c10a81334a0f8747e968340c347b30034"
   },
   "metadata_receipt": "conformance/probes/fallible-seen-engine/current/metadata-controls/receipt.json",
   "metadata_directory": "conformance/probes/fallible-seen-engine/current/metadata-controls"

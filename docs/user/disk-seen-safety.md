@@ -167,7 +167,7 @@ in [ADR0072](../decisions/0072-fallible-invariant-error-replay.md) and
 The public PROPERTY/SPECIFICATION and other mode restrictions above remain.
 Per-action replay successor buffers are outside the disk-key budget.
 
-The [current source-bound controls](../../conformance/probes/fallible-seen-engine/current/)
+The [current replay source-bound controls](../../conformance/probes/fallible-invariant-replay/current/)
 include real VIEW and symmetry counterexamples, separately checked by the
 independent validator at both profiles/stores and requested 1/4/8 workers. They
 retain 144 Valid original words and 864 rejected mutants. The actual VIEW case
@@ -176,3 +176,11 @@ evidence. The 384 original memory runs remain unchanged, and the 576 disk runs
 compare every existing concrete result field while checking the added disk and
 fallback metadata separately. These controls establish the bounded examples,
 not general storage-family certification.
+
+The positioned-replay campaign separately retains 432 pure disk comparisons
+and 504 explicit Print-output refusals against 104 inline references. Those
+refusals receive no output/error-class or certificate agreement credit. All
+original named witness mutants remain selected; the varied five/six/seven
+mutants per word total 864. The [portable readback](../../scripts/check-fallible-invariant-replay.py)
+checks the immutable packet without running the checker. Hash integrity is not
+a safety proof or archive authentication.
