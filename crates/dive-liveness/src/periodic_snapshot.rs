@@ -150,6 +150,7 @@ impl Snapshot {
                 policy,
                 requests,
                 retain_sources,
+                false,
             )?
         } else if let Some(requests) = requests {
             crate::periodic_hook::execute_requests(
@@ -277,7 +278,7 @@ impl OptionalSnapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
     ) -> Result<OptionalRun, EvalError> {
-        self.execute_inner(options, limits, policy, requests, false)
+        self.execute_inner(options, limits, policy, requests, false, false)
     }
     /// Same service, retaining bounded original concrete source authority for
     /// independent candidate replay. No caller-supplied graph or word is trusted.
@@ -291,7 +292,23 @@ impl OptionalSnapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
     ) -> Result<OptionalRun, EvalError> {
-        self.execute_inner(options, limits, policy, requests, true)
+        self.execute_inner(options, limits, policy, requests, true, false)
+    }
+    /// Retain real source provenance and service the genuinely exhausted queue
+    /// before timer/pool joins, then independently selectable final candidates.
+    /// The configured hook is skipped when the finished queue cannot suspend.
+    /// This remains diagnostic: ordinary checking and temporal Holds refuse.
+    ///
+    /// # Errors
+    /// Existing source/profile admission and cumulative resource bounds.
+    pub fn execute_terminal_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_inner(options, limits, policy, requests, true, true)
     }
     fn execute_inner(
         &self,
@@ -300,6 +317,7 @@ impl OptionalSnapshot {
         policy: crate::periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
         retain_sources: bool,
+        terminal: bool,
     ) -> Result<OptionalRun, EvalError> {
         admit_source(&self.model().ir, &self.configuration)?;
         let lifecycle = owned_service(
@@ -310,6 +328,7 @@ impl OptionalSnapshot {
             policy,
             requests,
             retain_sources,
+            terminal,
         )?;
         let role = match (self.configured_name(), self.definition(), self.predicate()) {
             (Some(name), Some(definition), Some(predicate)) => {
@@ -386,6 +405,7 @@ fn owned_service(
     policy: crate::periodic_lifecycle::Options,
     requests: dive_check::progress::Options,
     retain_sources: bool,
+    terminal: bool,
 ) -> Result<crate::periodic_lifecycle::Run, EvalError> {
     bound.validate_context()?;
     let hook = predicate
@@ -417,6 +437,7 @@ fn owned_service(
         hook,
         requests,
         retain_sources,
+        terminal,
     ))
 }
 fn failure(error: &EvalError) -> dive_model::Failure {

@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
+  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",

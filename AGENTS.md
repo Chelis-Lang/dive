@@ -180,6 +180,7 @@ python3 -I scripts/check-committed-prefix.py
 python3 -I scripts/check-request-owned-service.py
 python3 -I scripts/check-producer-owned-candidate.py
 python3 -I scripts/check-optional-periodic-hook.py
+python3 -I scripts/check-terminal-periodic-service.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

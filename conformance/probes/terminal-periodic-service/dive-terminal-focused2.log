@@ -1,0 +1,19 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+error[E0308]: mismatched types
+   --> crates/dive-check/tests/terminal_observer.rs:102:40
+    |
+102 |                 assert_eq!(stop.stats, stats);
+    |                                        ^^^^^ expected `Option<Stats>`, found `Stats`
+    |
+    = note: expected enum `Option<Stats>`
+             found struct `Stats`
+help: try wrapping the expression in `Some`
+    |
+102 |                 assert_eq!(stop.stats, Some(stats));
+    |                                        +++++     +
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `dive-check` (test "terminal_observer") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

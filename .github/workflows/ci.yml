@@ -116,6 +116,7 @@ jobs:
           python3 -I scripts/check-request-owned-service.py
           python3 -I scripts/check-producer-owned-candidate.py
           python3 -I scripts/check-optional-periodic-hook.py
+          python3 -I scripts/check-terminal-periodic-service.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: tests

@@ -6,19 +6,19 @@
   "scope": "Current native commit-boundary lifecycle diagnostics only. Clock, actual dispatch pause and EOF selection remain distinct from ordinary asynchronous TLC scheduling.",
   "history_manifest_sha256": "f3a8cc4808bcf9c22e1ebf33c33988648df728bc58cbf8963d39aa0a2fd24ff9",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
-    "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
+    "crates/dive-check/src/capture.rs": "cc8aba3ed498b2fc9be4bc277023731f64181ce76bfd31a70517a5ebad324b47",
+    "crates/dive-check/src/parallel.rs": "7bbcb03cd7a7ef512f8269ca8800e6b7679a21b9d25b37c3c6d5a2f3400f867b",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
-    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
+    "crates/dive-liveness/src/phase_execution.rs": "09f9f036a8a49412700ec060fb4ddbe46a2e7657babb70f441389abcb2080497",
     "crates/dive-liveness/src/periodic.rs": "2bd9ed572999c8189ee00371e40124cf03c010f6e91ba5c573db3478033c1553",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "ecd1d229c215785fc746f2b9492c01b697da25babc44309dd8ef6b628d9f0a76",
     "crates/dive-liveness/tests/periodic_lifecycle.rs": "053969cbbb1b1d46f73a9e9731cf6a49c35155f2bcc0aa8cb67a59f667b9bb8e",
     "crates/dive-api/examples/periodic_lifecycle.rs": "d30b8f527e83a9d55d6deadfc640e8cf8be64f43d5d5d91b70b9666d749635c2",
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
-    "conformance/parity-features.json": "2b5d05b7eb4c215a154dfaffae73d2ea1138dbb23dd03dbfebf75dcd9a200176"
+    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0"
   },
-  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

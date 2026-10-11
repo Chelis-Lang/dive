@@ -762,6 +762,74 @@ impl Observer<'_> {
             )),
         }
     }
+    fn lifecycle_terminal(
+        &mut self,
+        end: &capture::ExhaustedQueue<'_>,
+        state: &mut crate::periodic_lifecycle::State,
+    ) -> Result<(), Error> {
+        if state.terminal_service != crate::periodic_lifecycle::TerminalMode::BeforeJoin
+            || state.terminal.is_some()
+            || end.stats().left_on_queue != 0
+        {
+            return Err(Error::Input(
+                "invalid or repeated exhausted-queue transaction".into(),
+            ));
+        }
+        let initial = state.initial_stats.ok_or_else(|| {
+            Error::Input("terminal service before successful initialization".into())
+        })?;
+        // Reserve scalar receipt metadata before controller/retention on the
+        // existing graph+partial+hook meter. This is not an extra work quota.
+        self.partial_charge(Some(1))?;
+        let now = crate::periodic_lifecycle::time_millis()?;
+        if now.wrapping_sub(state.last) < 0 {
+            return Err(Error::Execution(
+                "native terminal clock moved backwards".into(),
+            ));
+        }
+        let mut policy = crate::periodic::Policy {
+            check_liveness: true,
+            runtime_ratio: state.ratio,
+            ratio_limit: state.options.ratio_limit,
+            force_liveness: state.force,
+            checkpoint: false,
+            periodic: state.hook.is_some(),
+        };
+        let before = (state.ratio, state.force);
+        let mut hooks = FinishedHooks {
+            observer: self,
+            state,
+            end,
+            suspended: false,
+        };
+        let outcome = crate::periodic::run(&mut policy, &mut hooks);
+        hooks.state.ratio = policy.runtime_ratio;
+        hooks.state.force = policy.force_liveness;
+        hooks.state.terminal = Some(crate::periodic_terminal::Invocation {
+            stats: end.stats(),
+            initial,
+            graph_source: hooks.state.graph_source,
+            workers: end.pool().0,
+            generation: end.pool().1,
+            pending: end.pending_request(),
+            now,
+            ratio: (before.0, policy.runtime_ratio),
+            force: (before.1, policy.force_liveness),
+            suspension_attempted: hooks.suspended,
+            joined: false,
+            outcome: outcome.as_ref().copied().map_err(|e| format!("{e:?}")),
+        });
+        match outcome {
+            Ok(crate::periodic::Outcome::Complete) => Ok(()),
+            Ok(_) => Err(Error::Input(
+                "finished queue unexpectedly ran a deciding service".into(),
+            )),
+            Err(crate::periodic::Error::Callback(e)) => Err(e),
+            Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
+                "native terminal clock moved backwards".into(),
+            )),
+        }
+    }
     fn lifecycle_final(
         &mut self,
         state: &mut crate::periodic_lifecycle::State,
@@ -1623,6 +1691,71 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
     }
 }
 
+/// Only the actual exhausted-frontier callback can construct this adapter.
+/// It cannot borrow a request pause's successful suspension as queue authority.
+struct FinishedHooks<'a, 'model, 'queue> {
+    observer: &'a mut Observer<'model>,
+    state: &'a mut crate::periodic_lifecycle::State,
+    end: &'a capture::ExhaustedQueue<'queue>,
+    suspended: bool,
+}
+impl crate::periodic::Hooks for FinishedHooks<'_, '_, '_> {
+    type Error = Error;
+    fn growth_due(&mut self) -> Result<bool, Error> {
+        self.observer.pointer_sizes = self.observer.pointer_counts()?;
+        Ok(self
+            .observer
+            .pointer_sizes
+            .iter()
+            .zip(&self.observer.last_sizes)
+            .any(|(size, last)| {
+                Growth {
+                    size: *size,
+                    last: *last,
+                }
+                .due(self.state.options.backend.threshold)
+            }))
+    }
+    fn suspend_workers(&mut self) -> Result<bool, Error> {
+        if self.end.stats().left_on_queue != 0 {
+            return Err(Error::Input(
+                "exhausted queue has remaining frontier".into(),
+            ));
+        }
+        self.suspended = true;
+        // Pinned StateQueue.suspendAll returns false after finishAll. Native
+        // authority is actual run_levels exhaustion, not the dispatch mutex.
+        Ok(false)
+    }
+    fn update_runtime_ratio(&mut self, elapsed: i64) -> Result<f64, Error> {
+        crate::periodic::calculate_runtime_ratio(
+            self.state.ratio,
+            self.state.start,
+            crate::periodic_lifecycle::time_millis()?,
+            self.state.options.progress_interval,
+            elapsed,
+        )
+        .map_err(|_| Error::Execution("negative terminal elapsed time".into()))
+    }
+    fn time_millis(&mut self) -> Result<i64, Error> {
+        crate::periodic_lifecycle::time_millis()
+    }
+    fn check_liveness(&mut self, _: bool) -> Result<i32, Error> {
+        Err(Error::Input("partial check after finished queue".into()))
+    }
+    fn periodic_is_false(&mut self) -> Result<bool, Error> {
+        Err(Error::Input(
+            "PERIODIC evaluation after finished queue".into(),
+        ))
+    }
+    fn checkpoint(&mut self) -> Result<(), Error> {
+        Err(Error::Input("checkpoint after finished queue".into()))
+    }
+    fn resume_workers(&mut self) -> Result<(), Error> {
+        Err(Error::Input("resume after finished queue".into()))
+    }
+}
+
 impl SourceObserver for Observer<'_> {
     fn progress_requests(&self) -> Option<dive_check::progress::Options> {
         self.lifecycle.as_ref().and_then(|state| state.requests)
@@ -1713,11 +1846,43 @@ impl SourceObserver for Observer<'_> {
         self.lifecycle = Some(state);
         self.retain(result)
     }
+    fn requires_terminal_service(&self) -> bool {
+        self.lifecycle.as_ref().is_some_and(|state| {
+            state.terminal_service == crate::periodic_lifecycle::TerminalMode::BeforeJoin
+        })
+    }
+    fn terminal_queue_finished(&mut self, end: &capture::ExhaustedQueue<'_>) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return self.retain(Err(Error::Input(
+                "terminal service without owned lifecycle".into(),
+            )));
+        };
+        let result = self.lifecycle_terminal(end, &mut state);
+        self.lifecycle = Some(state);
+        self.retain(result)
+    }
     fn exploration_complete(&mut self, end: &capture::ExplorationEnd) -> Result<(), String> {
         let Some(mut state) = self.lifecycle.take() else {
             return Ok(());
         };
-        let result = self.lifecycle_final(&mut state, end);
+        let result =
+            if state.terminal_service == crate::periodic_lifecycle::TerminalMode::BeforeJoin {
+                match state.terminal.as_mut() {
+                    Some(receipt)
+                        if receipt.stats == end.stats()
+                            && receipt.pool().0 == end.workers().used
+                            && receipt.outcome == Ok(crate::periodic::Outcome::Complete) =>
+                    {
+                        receipt.joined = true;
+                        self.lifecycle_final(&mut state, end)
+                    }
+                    _ => Err(Error::Input(
+                        "missing/mismatched successful prejoin terminal service".into(),
+                    )),
+                }
+            } else {
+                self.lifecycle_final(&mut state, end)
+            };
         self.lifecycle = Some(state);
         self.retain(result)
     }
@@ -1850,8 +2015,14 @@ pub(crate) fn execute_periodic_lifecycle_requests(
     hook: Option<(dive_model::Pred, usize)>,
     requests: Option<dive_check::progress::Options>,
 ) -> crate::periodic_lifecycle::Run {
-    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false, false)
+    execute_lifecycle_mode(
+        model, options, limits, policy, hook, requests, false, false, false,
+    )
 }
+#[allow(
+    clippy::too_many_arguments,
+    reason = "additive terminal mode preserves original service admission arguments"
+)]
 pub(crate) fn execute_periodic_service(
     model: &Model,
     options: &CheckOptions,
@@ -1860,6 +2031,7 @@ pub(crate) fn execute_periodic_service(
     hook: Option<(dive_model::Pred, usize)>,
     requests: dive_check::progress::Options,
     retain_sources: bool,
+    terminal: bool,
 ) -> crate::periodic_lifecycle::Run {
     execute_lifecycle_mode(
         model,
@@ -1870,11 +2042,13 @@ pub(crate) fn execute_periodic_service(
         Some(requests),
         true,
         retain_sources,
+        terminal,
     )
 }
 #[allow(
     clippy::too_many_arguments,
-    reason = "separate existing service mode from opt-in reconstruction authority"
+    clippy::too_many_lines,
+    reason = "retain separate modes and original failure/provenance packaging"
 )]
 fn execute_lifecycle_mode(
     model: &Model,
@@ -1885,6 +2059,7 @@ fn execute_lifecycle_mode(
     requests: Option<dive_check::progress::Options>,
     service: bool,
     retain_sources: bool,
+    terminal: bool,
 ) -> crate::periodic_lifecycle::Run {
     let mut failed_state = None;
     let outcome = execute_inner(
@@ -1893,7 +2068,7 @@ fn execute_lifecycle_mode(
         limits,
         true,
         Some(policy.backend),
-        Some((policy, hook, requests, service, retain_sources)),
+        Some((policy, hook, requests, service, retain_sources, terminal)),
         Some(&mut failed_state),
     );
     let (backend, mut state) = match outcome {
@@ -1936,6 +2111,7 @@ fn execute_lifecycle_mode(
             )
         },
     );
+    let terminal = state.as_ref().and_then(|s| s.terminal.clone());
     let (
         invocations,
         final_checks,
@@ -1972,6 +2148,7 @@ fn execute_lifecycle_mode(
         },
     );
     crate::periodic_lifecycle::Run {
+        terminal,
         concrete_sources,
         request_services,
         service_evaluations,
@@ -2001,6 +2178,7 @@ type LifecycleInput = (
     crate::periodic_lifecycle::Options,
     Option<(dive_model::Pred, usize)>,
     Option<dive_check::progress::Options>,
+    bool,
     bool,
     bool,
 );
@@ -2056,21 +2234,28 @@ fn execute_inner(
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
     let lifecycle = lifecycle
-        .map(|(options, hook, requests, service, retain_sources)| {
-            if let Some(requests) = requests {
-                requests.validate().map_err(Error::Input)?;
-            }
-            let mut state = crate::periodic_lifecycle::State::new(options)?;
-            state.request_service = service;
-            state.concrete_retention = if retain_sources {
-                crate::periodic_lifecycle::SourceRetention::Original
-            } else {
-                crate::periodic_lifecycle::SourceRetention::Omitted
-            };
-            state.hook = hook;
-            state.requests = requests;
-            Ok(state)
-        })
+        .map(
+            |(options, hook, requests, service, retain_sources, terminal)| {
+                if let Some(requests) = requests {
+                    requests.validate().map_err(Error::Input)?;
+                }
+                let mut state = crate::periodic_lifecycle::State::new(options)?;
+                state.request_service = service;
+                state.terminal_service = if terminal {
+                    crate::periodic_lifecycle::TerminalMode::BeforeJoin
+                } else {
+                    crate::periodic_lifecycle::TerminalMode::Omitted
+                };
+                state.concrete_retention = if retain_sources {
+                    crate::periodic_lifecycle::SourceRetention::Original
+                } else {
+                    crate::periodic_lifecycle::SourceRetention::Omitted
+                };
+                state.hook = hook;
+                state.requests = requests;
+                Ok(state)
+            },
+        )
         .transpose()
         .map_err(early)?;
     let mut session = Session::new(model, options.fp_index, 1, limits.phase_l)

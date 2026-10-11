@@ -1,0 +1,4 @@
+/tmp/dive-terminal-outer-queue-candidate1/TerminalOuterProbe.java:18: error: cannot inherit from final FastTool
+ static class Tool extends FastTool {
+                           ^
+1 error

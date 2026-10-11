@@ -149,3 +149,18 @@ owned request service and independent candidate admission. Existing mandatory
 APIs remain required; no supplied TRUE replaces absence. This removes a source
 injection prerequisite without proving ordinary clock/queue/stop/count/checkpoint
 composition or Holds. See the [current executable contract](optional-periodic-hook.md).
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).

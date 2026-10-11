@@ -1852,3 +1852,37 @@ request receipts likewise distinguish initial progress publication from forced
 liveness; an empty request is not EOF. This is not a new TLC bug/default change.
 Original hidden-startup/state/temporal/error refusals and all quotas remain; no
 ordinary scheduling, stopping-count, Holds or family certification is granted.
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+
+
+### Distinct partial-stop and full-CLI observations (#222)
+
+The separately controlled 12-row queue study holds a genuinely dequeued state:
+physical queue size 0 is not finished while a Worker owns outstanding work.
+Actual suspension succeeds, partial checking precedes the hook, and FALSE or
+division stops without final selection; a deciding temporal2116 precedes FALSE.
+These bounded scheduler observations are separate from the natural full CLI.
+The void `ModelChecker.modelCheck` observer can return with reflected errorCode 0
+and observer process 0; neither is a temporal success or the inner periodic code.
+
+The separate unmodified full CLI FALSE-hook counter exits 10, with 3,913,590
+states generated/distinct and one queued state after 4.2456s; it prints no success
+and no 2104 message. The declared 512MiB heap and 30s observer bound remain recorded.
+This is an intentional-boundary observation, not a newly declared TLC bug. A
+native early hook/service stop remains incomplete or refused and cannot be Holds.
+All original selections, cleanup events and raw command/timing facts are retained
+in [the evidence](../conformance/probes/terminal-periodic-service/README.md).

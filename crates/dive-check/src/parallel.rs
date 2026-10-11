@@ -877,11 +877,49 @@ pub(crate) fn levels_from<S: Keyed>(
     workers: usize,
     level: u64,
 ) -> (Option<Stop>, Stats, usize) {
+    let initial_stats = search.stats(next.len() as u64);
     let set = RwLock::new(std::mem::replace(&mut search.set, S::fresh(0)));
     let (stop, stats, used) = with_pool(workers, dive_eval::RECOMMENDED_STACK, |pool| {
         let request_options = search.observer.as_ref().and_then(|o| o.progress_requests());
+        let mut returned_stats = None;
         match crate::progress::with_lane(request_options, |progress| {
-            run_levels(search, &set, next, opts, pool, level, progress.as_ref())
+            let (stop, stats) =
+                run_levels(search, &set, next, opts, pool, level, progress.as_ref());
+            returned_stats = Some(stats);
+            // Only the real exhausted-frontier return may enter this additive
+            // transaction. A failed source/Init/cut never creates EOF authority.
+            if stop.is_none()
+                && search
+                    .observer
+                    .as_ref()
+                    .is_some_and(|o| o.requires_terminal_service())
+            {
+                let result = progress
+                    .as_ref()
+                    .map_or(Ok(None), |lane| lane.finish())
+                    .and_then(|pending| {
+                        pool.with_pause(|pause| {
+                            let end = crate::capture::ExhaustedQueue::new(stats, pause, pending);
+                            search
+                                .observer
+                                .as_mut()
+                                .map_or(Ok(()), |o| o.terminal_queue_finished(&end))
+                        })
+                    })
+                    .and_then(std::convert::identity);
+                if let Err(feature) = result {
+                    return (
+                        Some(Stop {
+                            verdict: Verdict::Unsupported { feature },
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        stats,
+                    );
+                }
+            }
+            (stop, stats)
         }) {
             Ok((stop, stats)) => (stop, stats, pool.threads()),
             Err(feature) => (
@@ -891,7 +929,7 @@ pub(crate) fn levels_from<S: Keyed>(
                     path: None,
                     then: None,
                 }),
-                search.stats(0),
+                returned_stats.unwrap_or(initial_stats),
                 pool.threads(),
             ),
         }

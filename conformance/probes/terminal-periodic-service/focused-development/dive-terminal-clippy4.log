@@ -1,0 +1,22 @@
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+error: consider adding a `;` to the last statement for consistent formatting
+   --> crates/dive-api/tests/terminal_periodic_candidate.rs:130:21
+    |
+130 | /                     doc.ending = Some(dive_trace::Ending::Lasso {
+131 | |                         back_to: doc.states.len(),
+132 | |                     })
+    | |______________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#semicolon_if_nothing_returned
+    = note: `-D clippy::semicolon-if-nothing-returned` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::semicolon_if_nothing_returned)]`
+help: add a `;` here
+    |
+130 |                     doc.ending = Some(dive_trace::Ending::Lasso {
+131 |                         back_to: doc.states.len(),
+132 ~                     });
+    |
+
+error: could not compile `dive-api` (test "terminal_periodic_candidate") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

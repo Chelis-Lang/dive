@@ -191,6 +191,48 @@ impl DispatchPause<'_> {
         self.generation
     }
 }
+/// Borrowed producer authority after actual frontier exhaustion and all expansion
+/// returns, before timer/pool joins. A paused dispatch mutex or zero queue counter
+/// alone cannot produce this token. It does not certify Java queue equivalence.
+pub struct ExhaustedQueue<'a> {
+    stats: Stats,
+    workers: usize,
+    generation: u64,
+    pending: Option<crate::progress::Request>,
+    authority: std::marker::PhantomData<&'a mut ()>,
+}
+impl ExhaustedQueue<'_> {
+    pub(crate) fn new(
+        stats: Stats,
+        pause: &DispatchPause<'_>,
+        pending: Option<crate::progress::Request>,
+    ) -> Self {
+        Self {
+            stats,
+            workers: pause.workers(),
+            generation: pause.generation(),
+            pending,
+            authority: std::marker::PhantomData,
+        }
+    }
+    /// Counters after real frontier exhaustion and every successful physical append.
+    #[must_use]
+    pub fn stats(&self) -> Stats {
+        self.stats
+    }
+    /// Actual live, joined-job pool width and last dispatch generation, before close.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.workers, self.generation)
+    }
+    /// Actual pending request removed while closing the producer lane, if any.
+    /// It has not been serviced and is not a terminal request identity.
+    #[must_use]
+    pub fn pending_request(&self) -> Option<crate::progress::Request> {
+        self.pending
+    }
+}
+
 /// Successful safety EOF after the pool has joined and closed. This is not a
 /// temporal check or proof; a source's zero queue counter cannot create it.
 pub struct ExplorationEnd {
@@ -301,6 +343,20 @@ pub trait SourceObserver: Send {
         _pause: &DispatchPause<'_>,
     ) -> Result<(), String> {
         self.source(source)
+    }
+    /// Opt in to the additive exhausted-frontier transaction before timer/pool join.
+    /// Defaults leave the existing observer route unchanged.
+    fn requires_terminal_service(&self) -> bool {
+        false
+    }
+    /// Successful actual frontier exhaustion, with request publication closed and
+    /// real dispatch authority held, before timer/pool join. This is neither an
+    /// ordinary TLC schedule nor a caller-supplied EOF/suspension result.
+    ///
+    /// # Errors
+    /// A terminal consumer stop; final completion is not called after this failure.
+    fn terminal_queue_finished(&mut self, _end: &ExhaustedQueue<'_>) -> Result<(), String> {
+        Ok(())
     }
     /// Successful actual safety EOF after the pool closes. Never called after
     /// assumption, Init, source, safety, worker or resource failure.

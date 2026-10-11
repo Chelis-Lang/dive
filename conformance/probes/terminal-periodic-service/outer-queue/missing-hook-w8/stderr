@@ -1,0 +1,12 @@
+Exception in thread "main" util.Assert$TLCRuntimeException: The periodic Missing specified in the configuration file
+is not defined in the specification.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.SpecProcessor.processPeriodic(SpecProcessor.java:1641)
+	at tlc2.tool.impl.SpecProcessor.processConfig(SpecProcessor.java:946)
+	at tlc2.tool.impl.SpecProcessor.<init>(SpecProcessor.java:211)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:111)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at TerminalOuterProbe.main(TerminalOuterProbe.java:28)

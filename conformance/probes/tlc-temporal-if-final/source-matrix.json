@@ -10,18 +10,18 @@
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
-    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
+    "crates/dive-check/src/capture.rs": "cc8aba3ed498b2fc9be4bc277023731f64181ce76bfd31a70517a5ebad324b47",
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "d525d87444795a3b6b615cdeb5fd6a9254f08f7e08e27d08bdf605d6106888c4",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
-    "docs/user/temporal.md": "55a1ca6cce3f7dea59bf6377d3ad95fea137331b0604b5811b14c620ab50a460",
-    "docs/provenance.md": "2113a9bb5f2002240630e891c0d94471e3f2e821ff284999c649d60fb3c75462",
+    "docs/user/temporal.md": "5d2c9debba7afca7ead54a5359b15d431fc4dc6319b2437e8b473606adcb772e",
+    "docs/provenance.md": "86524d366034f48a472800faa6b543e290bbbba8169c990f87cc4a0413ddc939",
     "docs/divergences.md": "4a639a0bebdd900f304d5e33ef37afb5c8cedee3c067bd4ab70c2ef8840756af",
-    "docs/tlc-differences.md": "70bf0922bdcd46c9bc5b34191f763a02fa54890f3f8e7fc2fb74e71dfa9852be",
+    "docs/tlc-differences.md": "668a110d91218850f292bc3e6c4f12e20489e417f4cc9c2ab601fa9bd8c2d741",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "2b5d05b7eb4c215a154dfaffae73d2ea1138dbb23dd03dbfebf75dcd9a200176",
+    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f"
   },
   "scoped_final_parent_history": {
@@ -33,5 +33,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Exhausted-queue terminal transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

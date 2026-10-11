@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "history_manifest_sha256": "ded099948cf17f1ecb19dc72dd7d435e18e5972f1eb1bc36de14afb6e294b1e5",
+  "scope": "Private source-selected request/EOF candidate admission with original-value fingerprint audit and fresh independent memory/JSON validation. No ordinary clock/queue/count/verdict/family certificate.",
+  "source_sha256": {
+    "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090",
+    "crates/dive-api/src/lib.rs": "0a210d7ba71183ea9c5910f32e1e4e624738cf0b80515e9fb9e5b3fa068e60f8",
+    "crates/dive-api/src/periodic_candidate.rs": "3a21d6dddcb489dfc002da93413a410d4d067bc2665d391f5c6d390763a617aa",
+    "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
+    "crates/dive-api/tests/periodic_candidate.rs": "3b928e4628dd8817896c1c9c7ed65f6a2e9a74edef0354512cfab7ce65da3b9f",
+    "crates/dive-api/examples/periodic_candidate.rs": "c75378585965ad52a8b12dbd47a9b6df219714532c4db06c2954ff81dc0e1ad0",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "be9c91a82acf5ed7d903fa2bba7eb48129be5bdf9ea34f4451d0ab066423ccf4",
+    "crates/dive-liveness/src/phase_execution.rs": "ac5f108d1d76116ef3d8f75b04cbd88e0868effb76ceb8ebfdc28eb78bc94ba3",
+    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/src/phase_l.rs": "d0a8635f992be8c0e4074745d7e668b18616e44b80eca3f62e8629707bbbb4e3",
+    "docs/producer-owned-temporal-candidate.md": "53f4b758f1cfba9da016c5054fb08aa9648b2aa485b0ebce9b435623ef0faa6d",
+    "docs/decisions/0070-producer-owned-candidate-admission.md": "3f98cee35bb2ccff842f1afe6977dda9b2606a520604f1b23618e0d34c0fc454",
+    "scripts/check-producer-owned-candidate.py": "a7af848ec98959f6f99820c1147825cd5eecaf8f3a974a8e3fd57bc9f3613033",
+    "AGENTS.md": "6ee1d6588c2e6c4b63a8c97bff73e2a865432fe49dd2223ba97072e81b0d5630",
+    ".github/workflows/ci.yml": "305d6d2185eeb3aecd3cb7976b11c0f102551da37fc0deabe217baa467d4f688",
+    "conformance/parity-features.json": "2b5d05b7eb4c215a154dfaffae73d2ea1138dbb23dd03dbfebf75dcd9a200176"
+  },
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof."
+}

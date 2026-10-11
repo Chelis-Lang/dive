@@ -188,7 +188,7 @@ fn check_inner(
     policy: periodic_lifecycle::Options,
     requests: dive_check::progress::Options,
 ) -> Result<Report, Box<Failure>> {
-    check_owned::<periodic_snapshot::Snapshot>(ir, cfg, options, limits, policy, requests)
+    check_owned::<periodic_snapshot::Snapshot>(ir, cfg, options, limits, policy, requests, false)
 }
 /// Optional configuration-owned execution and witness admission. Absence derives
 /// from the original configuration; it never inserts TRUE or a supplied callback.
@@ -211,12 +211,40 @@ pub fn check_optional(
         .stack_size(dive_eval::RECOMMENDED_STACK)
         .spawn(move || {
             check_owned::<periodic_snapshot::OptionalSnapshot>(
-                &ir, &cfg, &options, limits, policy, requests,
+                &ir, &cfg, &options, limits, policy, requests, false,
             )
         })
         .map_err(|e| before(Error::Thread(e.to_string())))?
         .join()
         .map_err(|_| before(Error::Thread("candidate admission thread failed".into())))?
+}
+/// Source-owned terminal service before timer/pool joins, followed by the same
+/// fresh reconstruction and independent memory/JSON replay as [`check_optional`].
+/// A genuinely finished queue skips its configured hook; earlier actual requests
+/// still preserve hook/candidate/error precedence. Absence never means Holds.
+/// Ordinary checker/CLI scheduling, checkpoint and stopping-count parity refuse.
+///
+/// # Errors
+/// Existing callback-free admission, actual execution/resource failures and
+/// independent replay failures. No caller EOF/graph/suspension flag is accepted.
+pub fn check_optional_terminal(
+    ir: Arc<Ir>,
+    cfg: ModelConfig,
+    options: CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+) -> Result<Report<periodic_snapshot::OptionalRun>, Box<Failure<periodic_snapshot::OptionalRun>>> {
+    std::thread::Builder::new()
+        .stack_size(dive_eval::RECOMMENDED_STACK)
+        .spawn(move || {
+            check_owned::<periodic_snapshot::OptionalSnapshot>(
+                &ir, &cfg, &options, limits, policy, requests, true,
+            )
+        })
+        .map_err(|e| before(Error::Thread(e.to_string())))?
+        .join()
+        .map_err(|_| before(Error::Thread("terminal candidate thread failed".into())))?
 }
 trait Owned {
     type Run;
@@ -230,11 +258,12 @@ trait Owned {
         limits: phase_graph::Limits,
         policy: periodic_lifecycle::Options,
         requests: dive_check::progress::Options,
+        terminal: bool,
     ) -> Result<Self::Run, dive_eval::EvalError>;
     fn lifecycle(run: &Self::Run) -> &periodic_lifecycle::Run;
 }
 macro_rules! owned {
-    ($snapshot:ty, $run:ty, $bind:path) => {
+    ($snapshot:ty, $run:ty, $bind:path, $terminal:expr) => {
         impl Owned for $snapshot {
             type Run = $run;
             fn bind(ir: Arc<Ir>, cfg: &ModelConfig) -> Result<Self, Box<dive_model::Failure>> {
@@ -249,8 +278,13 @@ macro_rules! owned {
                 limits: phase_graph::Limits,
                 policy: periodic_lifecycle::Options,
                 requests: dive_check::progress::Options,
+                terminal: bool,
             ) -> Result<Self::Run, dive_eval::EvalError> {
-                self.execute_candidate_source(options, limits, policy, requests)
+                if terminal {
+                    ($terminal)(self, options, limits, policy, requests)
+                } else {
+                    self.execute_candidate_source(options, limits, policy, requests)
+                }
             }
             fn lifecycle(run: &Self::Run) -> &periodic_lifecycle::Run {
                 run.lifecycle()
@@ -261,13 +295,21 @@ macro_rules! owned {
 owned!(
     periodic_snapshot::Snapshot,
     periodic_snapshot::Run,
-    periodic_snapshot::bind
+    periodic_snapshot::bind,
+    |_: &periodic_snapshot::Snapshot, _, _, _, _| Err(dive_eval::EvalError::unsupported(
+        "mandatory terminal endpoint not admitted"
+    ))
 );
 owned!(
     periodic_snapshot::OptionalSnapshot,
     periodic_snapshot::OptionalRun,
-    periodic_snapshot::bind_optional
+    periodic_snapshot::bind_optional,
+    periodic_snapshot::OptionalSnapshot::execute_terminal_candidate_source
 );
+#[allow(
+    clippy::too_many_arguments,
+    reason = "one shared original rebind/reconstruction/replay pipeline across additive modes"
+)]
 fn check_owned<S: Owned>(
     ir: &Arc<Ir>,
     cfg: &ModelConfig,
@@ -275,10 +317,11 @@ fn check_owned<S: Owned>(
     limits: phase_graph::Limits,
     policy: periodic_lifecycle::Options,
     requests: dive_check::progress::Options,
+    terminal: bool,
 ) -> Result<Report<S::Run>, Box<Failure<S::Run>>> {
     let snapshot = S::bind(ir.clone(), cfg).map_err(|e| before(Error::Binding(e)))?;
     let run = snapshot
-        .execute(options, limits, policy, requests)
+        .execute(options, limits, policy, requests, terminal)
         .map_err(|e| before(Error::Input(e)))?;
     let result = admit(cfg, snapshot.model(), S::lifecycle(&run), limits, || {
         S::bind(ir.clone(), cfg).map(|fresh| fresh.model().clone())
@@ -472,6 +515,7 @@ mod tests {
                             interval: std::time::Duration::from_millis(1),
                             force: false,
                         },
+                        false,
                     )
                 });
             assert!(observed, "actual returned prefix rendezvous");
@@ -487,6 +531,64 @@ mod tests {
             assert!(!service.resume_requested());
             assert!(report.run().lifecycle().service_evaluations().is_empty());
             assert!(report.run().lifecycle().safety_eof().is_none());
+            assert_eq!(witness.memory_validation().validation, Validation::Valid);
+            assert_eq!(witness.json_validation().validation, Validation::Valid);
+        }
+    }
+    #[test]
+    fn actual_request_candidate_stops_before_new_terminal_transaction() {
+        for width in [1, 3, 4, 8] {
+            let source = "---- MODULE TerminalRequest ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x'=1\nLive == <>(x=2)\nHook == FALSE\n====\n";
+            let analysis = dive_sema::analyze_source(
+                "TerminalRequest.tla",
+                source,
+                &dive_sema::Options::default(),
+            );
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let cfg = dive_config::parse(
+                "INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+            )
+            .into_config()
+            .expect("cfg");
+            let options = CheckOptions {
+                workers: width,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let (report, observed) =
+                dive_check::progress::testing::with_returned_prefix_request(|| {
+                    check_owned::<periodic_snapshot::OptionalSnapshot>(
+                        &ir,
+                        &cfg,
+                        &options,
+                        phase_graph::Limits::default(),
+                        periodic_lifecycle::Options {
+                            ratio_limit: f64::INFINITY,
+                            ..periodic_lifecycle::Options::default()
+                        },
+                        dive_check::progress::Options {
+                            interval: std::time::Duration::from_millis(1),
+                            force: false,
+                        },
+                        true,
+                    )
+                });
+            assert!(
+                observed,
+                "test-only dispatch observes genuine pending request"
+            );
+            let report = report.expect("actual candidate");
+            let run = report.run().lifecycle();
+            assert!(run.terminal_service().is_none());
+            assert!(run.safety_eof().is_none());
+            assert!(run.final_checks().is_empty());
+            assert!(run.service_evaluations().is_empty());
+            let witness = report.witness().expect("independently admitted word");
+            let Origin::Request(service) = witness.origin() else {
+                panic!("request origin required");
+            };
+            assert!(!service.committed().is_empty());
+            assert!(!service.resume_requested());
             assert_eq!(witness.memory_validation().validation, Validation::Valid);
             assert_eq!(witness.json_validation().validation, Validation::Valid);
         }

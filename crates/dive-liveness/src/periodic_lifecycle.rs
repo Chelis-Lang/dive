@@ -171,6 +171,7 @@ impl ConcreteSource {
 /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
 #[derive(Clone, Debug)]
 pub struct Run {
+    pub(crate) terminal: Option<crate::periodic_terminal::Invocation>,
     pub(crate) concrete_sources: Vec<ConcreteSource>,
     pub(crate) backend: periodic_backend::Run,
     pub(crate) options: Options,
@@ -186,6 +187,12 @@ pub struct Run {
     pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
 }
 impl Run {
+    /// Actual terminal service before timer/pool joins, present only on the
+    /// additive exhausted-queue route. No successful result certifies Holds.
+    #[must_use]
+    pub fn terminal_service(&self) -> Option<&crate::periodic_terminal::Invocation> {
+        self.terminal.as_ref()
+    }
     /// Actual successful source callbacks retained in discovery order. These
     /// original concrete values are not recovered from a fingerprint or from
     /// an arbitrary stored target representative. Only the distinct
@@ -292,10 +299,18 @@ pub(crate) enum SourceRetention {
     Omitted,
     Original,
 }
+/// Additive terminal authority mode, distinct from per-request service.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TerminalMode {
+    Omitted,
+    BeforeJoin,
+}
 pub(crate) struct State {
     pub concrete_sources: Vec<ConcreteSource>,
     pub concrete_retention: SourceRetention,
     pub request_service: bool,
+    pub terminal_service: TerminalMode,
+    pub terminal: Option<crate::periodic_terminal::Invocation>,
     pub initial_stats: Option<Stats>,
     pub graph_source: Option<u64>,
     pub request_services: Vec<crate::periodic_service::Invocation>,
@@ -340,6 +355,8 @@ impl State {
             concrete_sources: Vec::new(),
             concrete_retention: SourceRetention::Omitted,
             request_service: false,
+            terminal_service: TerminalMode::Omitted,
+            terminal: None,
             initial_stats: None,
             graph_source: None,
             request_services: Vec::new(),

@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add a source-owned exhausted-queue terminal diagnostic before timer/pool joins. Request-lane setup/join failures retain actual initial or returned-prefix statistics. Genuine finished queues skip configured hooks; deciding final words reuse fresh independent replay. Ordinary checking and scheduling/count/model-proof claims stay refused.
+
 - Add source-owned optional periodic diagnostics: genuine configuration absence skips only the hook stage, while mandatory APIs, pre-startup guards and private independent candidate replay remain unchanged. No ordinary scheduling or model-proof credit.
 
 - Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
