@@ -52,3 +52,15 @@ edge changes. Issue #124 and F-029 remain partial.
 Qualification belongs to separately frozen source/runtime receipts. Preserve the
 before census, all original failed setup attempts and the historical ADR 0071
 producer separately; do not retag them as evidence for the additional range rules.
+
+## Qualification addendum (2026-10-12)
+
+The distinct frozen final source passed all eight local gate stages, all
+69 literal CI Python invocations (64 distinct) and 1,698 tests with zero skipped.
+A fresh executable repeated the original census and complete process matrix,
+semantic frame mutations, clean primary pairs, actual guide and CM1/VTS widths.
+The original before/first producers and interrupted preparation attempts remain
+separate; current metadata does not relabel their execution. See the probe
+README and runnable guide for exact selection and bounded evidence. The
+checker fallback remains unchanged; a closed-operand-only shared authority
+is a separate future increment (#230).

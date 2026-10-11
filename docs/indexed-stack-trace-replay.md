@@ -79,8 +79,17 @@ generated/distinct states, queue zero and depth three. The actual Cargo example
 passes both profiles and transports. Two false-proof implementation mutations
 fail the negative tests. The preserved pre-freeze source sweep found one stale
 maintained-guide digest; its old envelope and corrected current-doc authority are
-separate from all runtime producers. The final full source gate and conformance
-qualification remain separate from these first implementation observations
-and from the original ADR 0071 producer. See [ADR 0081](decisions/0081-indexed-stack-range-replay.md).
+separate from all runtime producers. The final qualification uses a distinct frozen producer and remains separate
+from these first implementation observations and the original ADR 0071 producer.
+On 2026-10-12, its complete gate passed all 69 literal Python invocations
+(64 distinct commands), all eight Rust stages and 1,698 tests with zero skipped.
+The before-gate archive retains all 70 literal include sites and 65 targets
+alongside the selected tracked source; this is not a hermetic toolchain or
+dependency archive. The fresh release repeats the complete 80-case census,
+384 width/store/transport cases and 80 frame mutants with the same outcomes,
+plus eight clean primary pairs, the actual CLI/Cargo guide and all 37 conformance
+models at widths 1/4/8. All 80 checker reports (except elapsed time) and words
+remain equal to the first implementation. These are bounded selected proofs,
+not general process-stack or namespace-history certification. See [ADR 0081](decisions/0081-indexed-stack-range-replay.md).
 Issue #124 and F-029 remain partial until broader source-owned namespace histories
 are proved; this is a bounded admission rule rather than family certification.

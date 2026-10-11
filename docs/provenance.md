@@ -841,3 +841,12 @@ Init/Next/ending predicates and transport namespace authority remain independent
 checked. Original 32 sequential and eight process before-profile observations
 retain separate producer/raw identity. No whole-family or arbitrary-state
 namespace certification is claimed.
+
+The indexed-stack admission's separately frozen qualification archives all
+70 literal include sites/65 targets before its complete 1,698-test gate and
+records the fresh original 80/384/80 replay selections, clean primary pairs
+and executable guides. Portable Git commit/tree proofs preserve the selected
+producer blob identity without requiring an unpublished Git object in CI.
+The current reader checks the old and qualified epochs separately; this
+selected-source proof is not a hermetic build or full namespace certificate
+([probe evidence](../conformance/probes/indexed-stack-replay/README.md)).
