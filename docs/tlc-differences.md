@@ -1721,3 +1721,11 @@ This matches
 the reference and does not change any approved default. The original failed
 selection remains evidence; see [the concrete capture guide](material-capture.md).
 Ordinary periodic checking and full family certification remain unfinished.
+
+Pure operator-formal forwarding now has bounded explicit-final TLC admission;
+this resolves a native refusal rather than adding a result-changing default.
+Known user targets preserve caller scopes and are inspected even when unused;
+opaque/native/recursive/higher-order and configured-origin-ambiguous targets
+remain refused. Clean accepted INSTANCE operator-formal controls are separate
+from older exported temporal-expression failures2213. Full periodic/corpus/family
+parity is unclaimed; see [the operator guide](temporal-operators.md).

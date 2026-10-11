@@ -174,15 +174,26 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
     let model = bound(
         "---- MODULE Refusal ----\nEXTENDS TLC\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\n\
         F(a) == WF_x(a)\nFair == F(Next)\nEffect == []Print(x,x)\nRead == [](TLCGet(\"level\") = 0)\n\
-        T(p) == []p\nParam == T(x)\nH(G(_),p) == G(p)\nHigher == H(T,x)\nBad == <>1\n====\n",
+        T(p) == []p\nParam == T(x)\nH(G(_),p) == G(p)\nKnown == H(T,x)\nRECURSIVE Recur(_)\nRecur(p) == IF p THEN p ELSE Recur(p)\nHigher == H(Recur,x)\nBad == <>1\n====\n",
         "INIT Init\nNEXT Next\n",
     );
     let _ = model.take_output();
+    // The exact former refusal fixture is now a proved ordinary user actual.
+    // The clean pin rejects its false initial state with safety exit 12;
+    // the whole-arena facade still refuses this source's unused effectful defs.
+    let known = lower(&model, &pred(&model, "Known"), Limits::default()).expect("known actual");
+    let tableau = compile(&known.formula, Limits::default()).expect("known tableau");
+    assert!(accepts(&model, &known, &tableau, &[Value::Bool(true)], 0));
+    assert!(!accepts(&model, &known, &tableau, &[Value::Bool(false)], 0));
+    assert!(
+        model.take_output().is_empty(),
+        "known forwarding must not print"
+    );
     for (name, reason) in [
         ("Fair", "action/temporal operator argument"),
         ("Effect", "effects"),
         ("Read", "TLCGet"),
-        ("Higher", "higher-order"),
+        ("Higher", "recursive"),
         ("Bad", "not boolean"),
     ] {
         let error = lower(&model, &pred(&model, name), Limits::default()).expect_err(name);

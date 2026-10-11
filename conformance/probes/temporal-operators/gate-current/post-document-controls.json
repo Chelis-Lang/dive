@@ -1,0 +1,98 @@
+{
+  "scope": "Metadata/docs/source-map updates only after immutable Rust941 gate; no Rust/Cargo changes and no historical raw capture retagging",
+  "steps": [
+    {
+      "command": "python3 scripts/test-validation-import.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/test-frontend-campaign.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final-safety.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-state-if.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-temporal-if.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final-scopes.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-property-origins.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-material-capture.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-temporal-operators.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-parity-ledger.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/test-parity-ledger.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-planning.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-tableau.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-temporal-action-order.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-phase-l.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-phase-l-graph.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-phase-execution.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-tlc-final.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-state-if-planning.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-predecessor-spill.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-native-checkpoint.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -I scripts/check-native-parity-integration.py",
+      "exit": 0
+    }
+  ],
+  "log_sha256": "5340def5297a41127768c4446075fa7976e7674515b1c4afad479ad76d9a049a"
+}

@@ -9,7 +9,7 @@
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "d525d87444795a3b6b615cdeb5fd6a9254f08f7e08e27d08bdf605d6106888c4",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "6420df6dd0a220dc024c0b21a89bb8b42deb6ef56ee476f2505f75fe52801794"
+    "conformance/parity-features.json": "b86e69f59c50ce530d99a35fbf0f01f6149881b6e427b68436168a5cfd130acb"
   },
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",

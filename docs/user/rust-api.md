@@ -66,3 +66,9 @@ For pure conditional predicates through `FinalTlc`/`tlc_temporal::check_final`,
 see [the conditional API example](../tlc-state-if.md). Ordinary periodic
 scheduling, exact temporal identity and unproved captured bindings remain
 explicitly unavailable in this bounded path.
+
+For pure operator formals through `tlc_temporal::check_final`, use the runnable
+[operator example](../temporal-operators.md). The low-level
+`Evaluator::scope_operator_analysis` exposes a callback-free known user scope for
+analysis only; its unknown formals cannot be forced or certify a model. Actual
+applications use real arguments and fresh independent witness replay.

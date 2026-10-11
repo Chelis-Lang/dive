@@ -199,6 +199,14 @@ impl Word<'_> {
                 return self.eval(self.model.ir.def(d).body, &sc, depth + 1);
             }
         }
+        if let Expr::Apply {
+            callee: OpRef::Param(local),
+            args,
+        } = &node.expr
+        {
+            let (def, called) = self.parameter_call(scope, *local, args, depth + 1, &mut 0)?;
+            return self.eval(self.model.ir.def(def).body, &called, depth + 1);
+        }
         if let Expr::StepAngle { action, sub } | Expr::StepBox { action, sub } = &node.expr {
             return self.temporal_action(
                 *action,
@@ -488,7 +496,6 @@ impl Word<'_> {
             || d.recursive
             || d.std.is_some()
             || ev.is_value_override(def)
-            || d.params.iter().any(|p| p.arity != 0)
         {
             return Err(TemporalError::Unsupported(
                 "recursive/overridden/higher-order or bounded temporal call".into(),
@@ -497,9 +504,11 @@ impl Word<'_> {
         let mut constant = true;
         for arg in args {
             let Arg::Expr { expr, .. } = arg else {
-                return Err(TemporalError::Unsupported(
-                    "operator argument in temporal call".into(),
-                ));
+                if let Arg::Op { op, .. } = arg {
+                    self.operator_context(op, scope, depth + 1, steps)?;
+                }
+                constant = false;
+                continue;
             };
             let level = self.scoped_level(*expr, scope, depth + 1, steps)?;
             let maximum = if d.level == Level::Temporal {
@@ -546,6 +555,61 @@ impl Word<'_> {
         }
     }
 
+    fn operator_context(
+        &self,
+        operator: &OpRef,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(), TemporalError> {
+        *steps = steps.saturating_add(1);
+        let (def, analysis) = self
+            .model
+            .evaluator
+            .scope_operator_analysis(scope, operator)
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))?
+            .ok_or_else(|| {
+                TemporalError::Unsupported("opaque/recursive/higher-order operator capture".into())
+            })?;
+        let mut remaining = 100_000_usize.saturating_sub(*steps);
+        let captures = self
+            .model
+            .evaluator
+            .scope_operator_captures(&analysis, &mut remaining);
+        *steps = 100_000 - remaining;
+        let captures = captures
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))?
+            .ok_or_else(|| TemporalError::Unsupported("opaque captured operator context".into()))?;
+        for (body, captured) in captures {
+            self.forwarded_context(body, &captured, depth + 1, steps)?;
+        }
+        self.forwarded_context(self.model.ir.def(def).body, &analysis, depth + 1, steps)
+    }
+
+    fn parameter_call(
+        &self,
+        scope: &Scope,
+        local: dive_ir::LocalRef,
+        args: &[Arg],
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(DefId, Scope), TemporalError> {
+        self.operator_context(&OpRef::Param(local), scope, depth + 1, steps)?;
+        for arg in args {
+            let Arg::Expr { expr, .. } = arg else {
+                return Err(TemporalError::Unsupported(
+                    "higher-order operator actual".into(),
+                ));
+            };
+            self.forwarded_context(*expr, scope, depth + 1, steps)?;
+        }
+        self.model
+            .evaluator
+            .scope_apply_param(scope, local, args)
+            .ok_or_else(|| TemporalError::Unsupported("opaque operator parameter".into()))?
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))
+    }
+
     // Admission proof for a temporal expression argument. Keep its lexical
     // scope; do not force it as a constant or trust a formal's static level.
     // This walk does not interpret temporal truth or materialize binders.
@@ -581,6 +645,11 @@ impl Word<'_> {
                 ));
             }
             match &n.expr {
+                Expr::Unbound(_) | Expr::Unevaluable(_) => {
+                    return Err(TemporalError::Unsupported(
+                        "unbound/unevaluable operator capture".into(),
+                    ));
+                }
                 Expr::Local(r) => match ev.scope_slot(&sc, *r) {
                     SlotView::Value(_) | SlotView::AnalysisBound => continue,
                     SlotView::Lazy(body, inner) => {
@@ -651,12 +720,18 @@ impl Word<'_> {
                 _ => None,
             };
             if let Some((op, args)) = call {
-                if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
-                    return Err(TemporalError::Unsupported(
-                        "higher-order forwarded temporal argument".into(),
-                    ));
+                for arg in args {
+                    if let Arg::Op { op, .. } = arg {
+                        self.operator_context(op, &sc, depth + 1, steps)?;
+                    }
                 }
                 match op {
+                    OpRef::Param(local) => {
+                        let (def, called) =
+                            self.parameter_call(&sc, local, args, depth + 1, steps)?;
+                        todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
                     OpRef::Def(d) => {
                         let d = self.checked_definition(d)?;
                         let def = ir.def(d);
@@ -674,16 +749,37 @@ impl Word<'_> {
                             ));
                             continue;
                         }
+                        if def.std.is_some_and(|op| {
+                            op.impure()
+                                || op.creates_runtime_names()
+                                || matches!(
+                                    op.support(),
+                                    dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
+                                )
+                        }) {
+                            return Err(TemporalError::Unsupported(
+                                "native callback/runtime-name operator capture".into(),
+                            ));
+                        }
                         if def.std == Some(StdOp::TlcTLCGet) {
                             return Err(TemporalError::Unsupported(
                                 "checker introspection in temporal argument".into(),
                             ));
                         }
                     }
-                    OpRef::Std(StdOp::TlcTLCGet)
-                    | OpRef::Param(_)
-                    | OpRef::Const(_)
-                    | OpRef::Subst(_) => {
+                    OpRef::Std(op)
+                        if op.impure()
+                            || op.creates_runtime_names()
+                            || matches!(
+                                op.support(),
+                                dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
+                            ) =>
+                    {
+                        return Err(TemporalError::Unsupported(
+                            "native callback/runtime-name operator capture".into(),
+                        ));
+                    }
+                    OpRef::Std(StdOp::TlcTLCGet) | OpRef::Const(_) | OpRef::Subst(_) => {
                         return Err(TemporalError::Unsupported(
                             "opaque/checker forwarded temporal operator".into(),
                         ));
@@ -702,6 +798,10 @@ impl Word<'_> {
     }
 
     // Check actual argument contexts independently of planner annotations.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "independent scoped level resolution and explicit refusal paths"
+    )]
     fn scoped_level(
         &self,
         expr: ExprId,
@@ -721,6 +821,13 @@ impl Word<'_> {
             TemporalError::Unsupported("missing scoped temporal expression".into())
         })?;
         match &node.expr {
+            Expr::Apply {
+                callee: OpRef::Param(local),
+                args,
+            } => {
+                let (def, called) = self.parameter_call(scope, *local, args, depth + 1, steps)?;
+                return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
+            }
             Expr::Subst { body, .. } => {
                 let sc = ev
                     .scope_subst(scope, expr)
@@ -1054,7 +1161,13 @@ impl Word<'_> {
                             def.std
                         }
                     }
-                    OpRef::Param(_) | OpRef::Subst(_) | OpRef::Const(_) => {
+                    OpRef::Param(local) => {
+                        let (def, called) =
+                            self.parameter_call(&scope, local, args, depth + 1, steps)?;
+                        todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
+                    OpRef::Subst(_) | OpRef::Const(_) => {
                         return Err(TemporalError::Unsupported(
                             "dynamically bound temporal atom operator".into(),
                         ));

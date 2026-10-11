@@ -71,3 +71,7 @@ do not replace independent witness replay or add ordinary scheduling support.
 Stored scalar and composite action/constant captures are described in the
 [concrete capture guide](../material-capture.md), with runnable CLI/Rust examples,
 recursive admission limits and deferred/provider refusals.
+
+Pure user operator formals in bounded explicit final TLC mode retain local and
+INSTANCE scopes; see [operator arguments](../temporal-operators.md). Native,
+configured-origin-ambiguous, recursive and opaque targets remain named refusals.

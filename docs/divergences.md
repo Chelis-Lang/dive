@@ -537,3 +537,11 @@ in explicit final mode; this resolves a native limitation, not a new divergence.
 Stored representations, context/name authority, fixed recursive work/depth and
 deferred/opaque refusals are documented in [the guide](material-capture.md).
 No ordinary scheduling or whole-corpus certification is implied.
+
+Pure operator-formal forwarding now has bounded explicit-final TLC admission;
+this resolves a native refusal rather than adding a result-changing default.
+Known user targets preserve caller scopes and are inspected even when unused;
+opaque/native/recursive/higher-order and configured-origin-ambiguous targets
+remain refused. Clean accepted INSTANCE operator-formal controls are separate
+from older exported temporal-expression failures2213. Full periodic/corpus/family
+parity is unclaimed; see [the operator guide](temporal-operators.md).

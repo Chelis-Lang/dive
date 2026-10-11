@@ -4,7 +4,7 @@
   "scope": "Combined ordered observed pool with bounded source waves and current checkpoint/admission; original execution source retained separately; no strict verdict certification; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
-    "crates/dive-check/src/capture/pure.rs": "73195b6094279104f3bb2d90ec146878d493c07bb22d61790aaddce1c8972276",
+    "crates/dive-check/src/capture/pure.rs": "7609a8061525a8f64bece6c69df2f35f9d6164f18853ffbffb0e7bfd7d3453ef",
     "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",

@@ -31,6 +31,7 @@ impl Evaluator {
             evaluator: self,
             limit,
             visits: 0,
+            analysis: false,
         }
         .walk(scope, expr, st, 0)
     }
@@ -40,6 +41,7 @@ struct Guard<'a> {
     evaluator: &'a Evaluator,
     limit: usize,
     visits: usize,
+    analysis: bool,
 }
 impl Guard<'_> {
     fn shifted(st: &St) -> St {
@@ -51,6 +53,39 @@ impl Guard<'_> {
             // fail evaluation; no placeholder value is supplied.
             _ => St::empty(),
         }
+    }
+
+    fn operator_context(
+        &mut self,
+        scope: &Scope,
+        operator: &OpRef,
+        st: &St,
+        depth: usize,
+    ) -> crate::Result<()> {
+        let (def, analysis) = self
+            .evaluator
+            .scope_operator_analysis(scope, operator)?
+            .ok_or_else(|| {
+                EvalError::unsupported("opaque/recursive/higher-order finite operator")
+            })?;
+        let saved = self.analysis;
+        self.analysis = true;
+        let result = (|| {
+            let ceiling = self.limit.saturating_mul(64).min(100_000);
+            let mut remaining = ceiling.saturating_sub(self.visits);
+            let captures = self
+                .evaluator
+                .scope_operator_captures(&analysis, &mut remaining);
+            self.visits = ceiling - remaining;
+            let captures = captures?
+                .ok_or_else(|| EvalError::unsupported("opaque finite operator context"))?;
+            for (body, captured) in captures {
+                self.walk(&captured, body, st, depth + 1)?;
+            }
+            self.walk(&analysis, self.evaluator.ir().def(def).body, st, depth + 1)
+        })();
+        self.analysis = saved;
+        result
     }
 
     #[allow(
@@ -113,6 +148,7 @@ impl Guard<'_> {
                 return match ev.scope_slot(scope, *local) {
                     SlotView::Value(_) => Ok(()),
                     SlotView::Lazy(body, sc) => self.walk(&sc, body, st, depth + 1),
+                    SlotView::AnalysisBound if self.analysis => Ok(()),
                     SlotView::AnalysisBound => Err(EvalError::unsupported(
                         "analysis-only binder in runtime preflight",
                     )),
@@ -155,8 +191,17 @@ impl Guard<'_> {
                         .ok_or_else(|| EvalError::unsupported("unbounded predicate domain"))?;
                     self.walk(scope, dom, st, depth + 1)?;
                 }
-                for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
-                    self.walk(&sc, *body, st, depth + 1)?;
+                if self.analysis {
+                    self.walk(
+                        &ev.scope_binder_analysis(scope, expr)?,
+                        *body,
+                        st,
+                        depth + 1,
+                    )?;
+                } else {
+                    for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
+                        self.walk(&sc, *body, st, depth + 1)?;
+                    }
                 }
                 return Ok(());
             }
@@ -165,8 +210,17 @@ impl Guard<'_> {
                     .domain
                     .ok_or_else(|| EvalError::unsupported("unbounded predicate domain"))?;
                 self.walk(scope, dom, st, depth + 1)?;
-                for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
-                    self.walk(&sc, *pred, st, depth + 1)?;
+                if self.analysis {
+                    self.walk(
+                        &ev.scope_binder_analysis(scope, expr)?,
+                        *pred,
+                        st,
+                        depth + 1,
+                    )?;
+                } else {
+                    for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
+                        self.walk(&sc, *pred, st, depth + 1)?;
+                    }
                 }
                 return Ok(());
             }
@@ -205,12 +259,17 @@ impl Guard<'_> {
                 OpRef::Def(d) => {
                     let d = ev.redirected(d);
                     let def = ev.ir().def(d);
-                    if def.recursive || args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+                    if def.recursive {
                         return Err(EvalError::unsupported(
                             "recursive/higher-order finite binding",
                         ));
                     }
                     if !ev.is_value_override(d) && def.std.is_none() {
+                        for arg in args {
+                            if let Arg::Op { op, .. } = arg {
+                                self.operator_context(scope, op, st, depth + 1)?;
+                            }
+                        }
                         return self.walk(
                             &ev.scope_apply(scope, d, args)?,
                             def.body,
@@ -221,7 +280,23 @@ impl Guard<'_> {
                     def.std
                 }
                 OpRef::Std(s) => Some(s),
-                OpRef::Param(_) | OpRef::Const(_) | OpRef::Subst(_) => {
+                OpRef::Param(local) => {
+                    self.operator_context(scope, &OpRef::Param(local), st, depth + 1)?;
+                    for arg in args {
+                        let Arg::Expr { expr, .. } = arg else {
+                            return Err(EvalError::unsupported(
+                                "higher-order finite binding actual",
+                            ));
+                        };
+                        self.walk(scope, *expr, st, depth + 1)?;
+                    }
+                    let (def, called) =
+                        ev.scope_apply_param(scope, local, args).ok_or_else(|| {
+                            EvalError::unsupported("opaque finite binding operator")
+                        })??;
+                    return self.walk(&called, ev.ir().def(def).body, st, depth + 1);
+                }
+                OpRef::Const(_) | OpRef::Subst(_) => {
                     return Err(EvalError::unsupported("dynamic finite binding operator"));
                 }
                 _ => None,

@@ -1,0 +1,35 @@
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.28s
+     Running tests/temporal_operators.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/temporal_operators-735b4238665dde24)
+
+running 7 tests
+test actual_operator_planning_keeps_existing_work_and_formula_bounds ... ok
+test binding_inlined_unused_operator_capture_is_refused_without_callbacks ... FAILED
+test erased_effect_annotations_never_authorize_hidden_native_operator_callbacks ... ok
+test configured_target_origin_and_runtime_domains_keep_named_boundaries ... ok
+test unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity ... ok
+test retained_operator_formals_match_independent_words_and_closing_edges ... ok
+test clean_paired_primary_models_have_final_outcomes_with_fresh_validation ... ok
+
+failures:
+
+---- binding_inlined_unused_operator_capture_is_refused_without_callbacks stdout ----
+
+thread 'binding_inlined_unused_operator_capture_is_refused_without_callbacks' (115589960) panicked at crates/dive-api/tests/temporal_operators.rs:359:50:
+arena
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    binding_inlined_unused_operator_capture_is_refused_without_callbacks
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.48s
+
+error: test failed, to rerun pass `-p dive-api --test temporal_operators`

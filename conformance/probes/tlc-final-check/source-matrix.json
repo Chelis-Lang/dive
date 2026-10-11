@@ -13,7 +13,7 @@
     "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
     "crates/dive-api/src/lib.rs": "7e1e90f04ac38eba01a13c0a26a603f4a7c14090a3383148f01458580fcaa6ed",
     "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
-    "crates/dive-api/src/tlc_temporal_admission.rs": "263c5d553c2f45552a299b9da48375b9870b9cbc6865b2dd20fd8f1952d67a29",
+    "crates/dive-api/src/tlc_temporal_admission.rs": "3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36",
     "crates/dive-api/tests/tlc_temporal.rs": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
     "scripts/check-tlc-final.py": "6a543eca4ca83b62176e68072968ad155f3a86b52a057ff9f3d32e7082f496d3",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
@@ -21,7 +21,7 @@
     "crates/dive-api/src/check.rs": "fb504620a8d0de1d00c3b7309ad615cb109682fe5fa4e877c2e6c8e99b73b038",
     "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
-    "crates/dive-cli/tests/cli.rs": "26f9baa1d61534dc83219a64d6165e213e7854a9b433187c792e82ba18f5fd5d",
+    "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f",
     "crates/dive-conformance/src/dive.rs": "8ad9f02117015c110e67f00636f81fd66f8f7956203444266c3fe6d80528dfb8",
     "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
     "crates/dive-conformance/src/pipeline.rs": "6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4"

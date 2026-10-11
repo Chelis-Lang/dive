@@ -11,6 +11,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Explicit bounded final TLC checking supports proved pure user operator formals,
+  retained LET/INSTANCE scopes and constant/state/temporal actuals. Independent
+  periodic and serialized witness replay retain original attribution. Native,
+  recursive/higher-order, configured-origin-ambiguous and effectful callbacks
+  still refuse without raising resource limits. See `docs/temporal-operators.md`.
+
 - Explicit bounded final TLC checking admits callback-free stored strings/model
   atoms, tuples, records, functions and Enum/Raw sets in captured scopes and
   configured constants. Actual context resolution discharges potential OPEN

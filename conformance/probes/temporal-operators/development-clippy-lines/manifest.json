@@ -1,0 +1,13 @@
+{
+  "source_sha256": {
+    "crates/dive-eval/src/scope.rs": "9967e0ca6fa680bd784bc39eb98c08cde2d158d149883b45b22da9eb1c3a7b3e",
+    "crates/dive-eval/src/finite.rs": "971fa340ef018f4fb9d12dfd98d246b4720e33ed356a4248d0d461dcf6c89299",
+    "crates/dive-liveness/src/plan.rs": "045328aabdb70aaed642d4e63fd0f6d37869a68ce25afbbe5cad43902397a043",
+    "crates/dive-trace/src/temporal.rs": "9381e73e09e108cae8f61396f8bea9a948a8f304f18054ad83aed90ead09a716",
+    "crates/dive-check/src/capture/pure.rs": "98cec43a70e40e8cbc427e1d2d649364e3390e93a747af0ce6efb5a80c0a0ee5",
+    "crates/dive-api/src/tlc_temporal_admission.rs": "3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36",
+    "crates/dive-api/tests/temporal_operators.rs": "472f6933ae30cccbf4bb2749eca574197e54f808e50e4b40e30d125eabf0dccb",
+    "crates/dive-liveness/tests/temporal_operators.rs": "8900d000368ac6ad0bb75ae676b070c55e7bf12680e1af3fc3d37566079ae8db"
+  },
+  "outcome": "7 focused tests pass; clippy rejects105-line independent scoped level function before full gate"
+}
