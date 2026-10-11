@@ -286,12 +286,13 @@ pub(crate) fn run_check_with_checkpoint(
             ir,
         );
     }
-    // Source-only scheduling and per-state stream selection miss a native
-    // replacement that is selected by configuration rather than an IR call.
-    // This has produced both false success and false violation (#180). Until
-    // bound-context authority drives both routes, refuse before any startup
-    // effect, even if a different source node already references randomness.
-    if engine::configured_random_target(ir, cfg) {
+    if cfg.symmetry.is_some() && engine::uses_configured_random(ir, cfg) {
+        return bare(Verdict::Unsupported { feature: "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay".into() }, opts, ir);
+    }
+    // RandomElement's actual configured target now drives inline scheduling
+    // and predecessor-stream selection. Other configured native RNG families
+    // remain refused before startup until their own stream/replay campaign.
+    if engine::unproved_configured_random(ir, cfg) {
         return bare(
             Verdict::Unsupported {
                 feature: "configured native random replacements need bound-context stream classification and independent replay".into(),

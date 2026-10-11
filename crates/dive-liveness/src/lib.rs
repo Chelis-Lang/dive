@@ -47,3 +47,6 @@ pub mod tlc_witness;
 
 /// Constructed-model final-only pinned SCC/lasso analysis; candidates require validation.
 pub mod tlc_final;
+
+/// Pinned periodic controller callback order; no ordinary backend proof claim.
+pub mod periodic;

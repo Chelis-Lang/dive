@@ -310,3 +310,22 @@ TLC's equivalent outcome is a JVM `StackOverflowError`, which the harness classi
 7. **Out of scope, refused by name.** File, process and environment I/O (`IOUtils`, `CSV`, `Json` serialization; open question 13 proposes an explicit opt-in), `SVG`, and the operators that read TLC's checker state. `TLCExt!Trace` needs the path from an initial state to the state being evaluated (the trace log and a replay at evaluation time, which `dive-check` has but the evaluator cannot reach); `TLCExt!CounterExample` needs the violation's counterexample as a value, available only after a stop, when TLC evaluates `POSTCONDITION`s and `ALIAS`; `TLCExt!ToTrace` needs that counterexample's states as tuples. Each would be a further `Host` method, with the trace validator refusing it.
 
 **2026-10-09, issue #52 (the trace validator's random stream).** WP-C3's point 2 said the trace validator's host provides no random stream. Given the checking run's seed and polynomial index (`dive_trace::Replay`), it now replays the run's draws: it holds a `dive_stdlib::host::RunHost` of its own, which `dive-stdlib` builds without the `enumerate` feature, and points it at a fresh start-up stream for the initial predicate and at the stream of TLC's fingerprint of state `k` for the step out of it. `RunHost` gains `stream`, `set_stream` and `skip`. Draws elsewhere, and the live counters, are still refused. ADR 0016's amendment 2 has the rules, including how the validator handles draws made in an order only the successor generator knows.
+
+## Implementation addendum: configured random authority (2026-10-11)
+
+A native operator selected through a configured constant or definition redirect
+is an execution authority even when source effect metadata contains no random
+node. The model's reachable native targets therefore participate in inline
+execution planning, and the checker queries admitted actual bindings before
+choosing per-predecessor streams. Ordinary RandomElement follows this route;
+other configured random families, transformed keys, graph/temporal capture and
+recovery remain refused.
+
+Independent replay resolves the same actual callee without successor enumeration.
+Its bounded non-evaluating purity proof refuses configured effects in guards,
+opaque operator contexts and startup prefixes that cannot be reproduced from a
+fresh Init stream. TLC's initial-predecessor trace fast path retains a consumed
+stream by state-object identity; strict checking refuses that unproved printing
+boundary rather than attach a different witness. See the source-bound
+[controls](../../conformance/probes/configured-random-stream/README.md). Historical
+admission receipts remain evidence for the previous refused epoch.

@@ -13,7 +13,7 @@
 | Name (dive option) | TLC behaviour (the handcuff) | dive default | dive option | Kind | Status | Evidence / tests |
 |---|---|---|---|---|---|---|
 | Deterministic parallel search (`--workers N`, default `auto`) | Multi-worker BFS is only approximately breadth-first: depth and counterexample length vary with worker count, so exactness needs `-workers 1` (`TLCTrace.java`; tlaplus#883) | Exact BFS results identical to TLC's single-worker run | Any worker count gives the same verdict, counts, depth and chosen shortest counterexample | preserving | **implemented** (`dive check --workers N`, WP-D3: ADR 0015's three-phase level engine; specs using `TLCSet`, live `TLCGet`, randomness, I/O or runtime name constructors under TLC order run in reported sequential mode (#122)) | ADR 0004; harness worker-invariance runs at 1, 3, 4, 8 workers and chaos; `crates/dive-check/tests/invariance.rs`; Examples `DieHard` (TLC depth 9 vs trace 7 at 4 workers); probes in `crates/dive-check/tests/fixtures/tlc-probes/` |
-| Replayable randomness (`--seed`, seed always reported) | `RandomElement`/`RandomSubset`/`Randomization` are unseeded in exhaustive mode unless `-seed` is given; state counts vary per run. Draws in `Next` are seeded from the state fingerprint, whose polynomial is random unless `-fp` is given, so `-seed` alone does not replay them. A draw before `Init` can make TLC lose the counterexample (exit 12, no trace) | TLC-like: fresh seed per run, but the seed used is always reported | `--seed S` alone reproduces the run exactly at any worker count (streams keyed by seed, state fingerprint or trace number, and position); `--compat=tlc` reproduces TLC's draws bit for bit | changing (only when a seed is fixed) | implemented in `dive-stdlib` (`random`, both modes) and wired into `dive check` (`--seed`; start-up and per-state streams; replay as TLC does it) | Examples `SpanningTree/SpanTreeRandom.cfg`: 1.9k to 240k distinct states without a seed, stable with `-seed 0`, golden reproduced from the first six draws; `crates/dive-stdlib/tests/fixtures/random/` (six seeds, `RndTraceAssume`, `RndLetRedraw`); D-002 |
+| Replayable randomness (`--seed`, seed always reported) | `RandomElement`/`RandomSubset`/`Randomization` are unseeded in exhaustive mode unless `-seed` is given; state counts vary per run. Draws in `Next` are seeded from the state fingerprint, whose polynomial is random unless `-fp` is given, so `-seed` alone does not replay them. A draw before `Init` can make TLC lose the counterexample (exit 12, no trace) | TLC-like: fresh seed per run, but the seed used is always reported | `--seed S` alone reproduces the run exactly at any worker count (streams keyed by seed, state fingerprint or trace number, and position); `--compat=tlc` reproduces TLC's draws bit for bit | changing (only when a seed is fixed) | implemented in `dive-stdlib` (`random`, both modes) and wired into ordinary safety checking, including actual-bound configured RandomElement; strict initial-predecessor random replay, configured Randomization families and transformed/graph/recovery randomness remain explicit refusals (#180, D-002) | Examples `SpanningTree/SpanTreeRandom.cfg`: 1.9k to 240k distinct states without a seed, stable with `-seed 0`, golden reproduced from the first six draws; `crates/dive-stdlib/tests/fixtures/random/` (six seeds, `RndTraceAssume`, `RndLetRedraw`); D-002 |
 | Reproducible simulation (`dive simulate --seed`) | Simulation counts vary even with `-seed 0` and one worker. Each worker has its own generator for choosing steps, and every worker draws `RandomElement` from the same unreseeded `-seed` generator, so a trace's draws depend on which worker ran it | Same seed semantics as above | Bit-identical simulation from the same seed at any worker count: one stream per trace number | changing (only when a seed is fixed) | streams implemented in `dive-stdlib` (`Streams::simulation_trace`, TLC's `tlc_simulation_worker_seeds`); finite pure single-worker safety simulation implemented (`dive-sim`, ADR 0020); spec random operators, other modes and worker scaling remain named refusals | Examples `EWD840_anim` (generated counts 267k to 271k across runs); `crates/dive-stdlib/tests/java_random.rs`, `dive_mode.rs`; D-003 |
 | Arbitrary-precision integers (`--int=big`; TLC mode `--int=tlc`) | 32-bit ints; overflow raises `EC.TLC_MODULE_OVERFLOW` (2178); literals above 2^31−1 rejected (`Naturals.java`, `Integers.java`, `SpecProcessor.java`) | **Big integers** (owner-approved default; flips on once both modes pass the harness) | `--int=tlc`, part of `--compat=tlc`: 32-bit with TLC's overflow error, proven against full conformance | changing | implemented in `dive-value` (`IntMode::Big` default, `IntMode::Tlc`; ADR 0012); CLI flag and harness flip pending | Harness fixture `Overflow`; `crates/dive-value/tests/fixtures/specs/Ov*`, `Ar*` (messages matched byte for byte); probe `P1Overflow` in `conformance/corpus/probes/` (default profile: success, 3 states; registered expected divergence); owner decision 2026-10-08; D-004 |
 | Sound symmetry with liveness (`--symmetry-liveness=unreduced`) | TLC checks a reduced graph and can both miss and invent violations | **Unreduced**, once implemented: disable symmetry reduction for the whole liveness run and report it | `=refuse` remains available; `=tlc` / `--compat=tlc` reproduces warning 2279 and quotient checking | changing | planned (M6); currently refused | Owner decisions 2026-10-08 and 2026-10-09; probes `SymLiveMissed`, `SymLiveSymProp`; D-005 |
@@ -135,7 +135,7 @@ None is implemented.
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |
 |---|---|---|---|---|
 | D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; bounded ordered parallel capture with 1/4/8/chaos controls; explicit bounded final-only pinned selection now exposed through schema-2 API/CLI with fresh independent replay; ordinary periodic and remaining recovery/error boundaries stay refused. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
-| D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | planned; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
+| D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | ordinary schedule remains planned; separate periodic callback kernel implemented with296 pinned-method controls, no clock/graph/checkpoint or ordinary-verdict certification; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
 | D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | bounded checked/TLC closure and pure safety reduction implemented; default non-bijections refuse before search, compat reproduces SyNonBiject; staged startup warnings match source-backed probes; liveness/randomness and unverified declaration/value shapes still refused (ADR 0019) |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
 | D-017 | Host access from a specification | No access without explicit category grants | Explicit grants also required under `--compat=tlc`; restrictions are reported | planned; existing named refusals, CommunityModules `AllTests`, Examples `TLC/TestGraphs` and `ewd998/EWD998ChanTrace` |
@@ -699,3 +699,33 @@ Both primary syntax studies are retained under
 `crates/dive-pluscal/source-option-semantics-acceptance/prestudy/` before native
 implementation. Unknown/malformed/partial-error contexts remain named refusals;
 no silent corrected default or unsupported-success credit is adopted.
+
+## Stored successor admission (existing final-mode limitation)
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.
+
+Bounded final native forwarding additionally admits `Append` with exactly two
+constant/state expression operands. Tail/SubSeq runtime-name admission remains
+refused, not a default change; see `docs/native-sequence-operators.md` and the
+complete source-bound controls. No new D-ID or family certification applies.
+
+## Bounded partial temporal SCC diagnostics (#185)
+
+Native ordered source commits now have a separate bounded partial-check API.
+It skips unfinished records, retains original root/EA/OOS/PEM order and candidate
+identities, and charges projection/SCC/witness work against the existing shared
+graph quota. Successful partial checks never mean temporal `Holds`; ordinary
+strict checking remains refused until real clock/quiescence/error/stop-count
+contracts are implemented. The complete32 explicit-prefix projections and8
+repeated forced original checks are diagnostics, not ordinary schedule runs.
+See the [user/API guide](partial-temporal-checks.md) and
+[complete controls](../conformance/probes/tlc-partial-scc/README.md).
+No new result-changing default or family certification is claimed.

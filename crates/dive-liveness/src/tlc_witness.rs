@@ -38,6 +38,35 @@ pub struct Selection {
     /// Absent only after complete supplied-graph traversal with no acceptance.
     pub candidate: Option<Candidate>,
 }
+
+/// A partial supplied-graph selection with no completion/proof claim.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PartialSelection {
+    selection: Selection,
+    inspections: usize,
+}
+impl PartialSelection {
+    /// Original SCC order through the deciding accepting component, if any.
+    #[must_use]
+    pub fn traversal(&self) -> &tlc_scc::Traversal {
+        &self.selection.traversal
+    }
+    /// A candidate requiring independent replay; absence does not mean holds.
+    #[must_use]
+    pub fn candidate(&self) -> Option<&Candidate> {
+        self.selection.candidate.as_ref()
+    }
+    /// A partial supplied graph never certifies completed model checking.
+    #[must_use]
+    pub fn model_proof(&self) -> bool {
+        false
+    }
+    /// Combined SCC and witness/identity work, including a nonaccepting check.
+    #[must_use]
+    pub fn inspections(&self) -> usize {
+        self.inspections
+    }
+}
 struct Meter {
     used: usize,
     maximum: usize,
@@ -269,6 +298,61 @@ pub fn select(
     limits: Limits,
 ) -> Result<Selection, Error> {
     let traversal = tlc_scc::check(graph, labels, limits)?;
+    select_with_traversal(graph, labels, identities, limits, traversal)
+        .map(|(selection, _)| selection)
+}
+
+/// Pinned candidate selection after a partial SCC check.
+///
+/// An absent candidate is only a result for this partial supplied graph. This
+/// diagnostic never establishes completed model checking. Unwritten records
+/// retain their identities and cannot participate in the selected component.
+///
+/// # Errors
+/// Invalid write/label/identity dimensions, bounds or traversal invariants.
+pub fn select_partial(
+    graph: &Graph,
+    labels: &Acceptance,
+    identities: &[Identity],
+    written: &[bool],
+    limits: Limits,
+) -> Result<PartialSelection, Error> {
+    let partial = tlc_scc::check_partial(graph, labels, written, limits)?;
+    let scc_work = partial.traversal().inspections;
+    let remaining = limits
+        .steps
+        .checked_sub(scc_work)
+        .ok_or(Error::Limit("partial SCC/witness cumulative inspections"))?;
+    let (selection, witness_work) = select_with_traversal(
+        graph,
+        labels,
+        identities,
+        Limits {
+            steps: remaining,
+            ..limits
+        },
+        partial.into_traversal(),
+    )?;
+    let inspections = scc_work
+        .checked_add(witness_work)
+        .ok_or(Error::Limit("partial SCC/witness cumulative inspections"))?;
+    Ok(PartialSelection {
+        selection,
+        inspections,
+    })
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "share pinned candidate logic without replacing partial SCC admission"
+)]
+fn select_with_traversal(
+    graph: &Graph,
+    labels: &Acceptance,
+    identities: &[Identity],
+    limits: Limits,
+    traversal: tlc_scc::Traversal,
+) -> Result<(Selection, usize), Error> {
     let mut meter = Meter {
         used: 0,
         maximum: limits.steps,
@@ -285,10 +369,13 @@ pub fn select(
         }
     }
     let Some(component) = traversal.accepting.map(|id| &traversal.components[id]) else {
-        return Ok(Selection {
-            traversal,
-            candidate: None,
-        });
+        return Ok((
+            Selection {
+                traversal,
+                candidate: None,
+            },
+            meter.used,
+        ));
     };
     meter.take(graph.edges.len())?;
     let mut inside = vec![false; graph.edges.len()];
@@ -316,8 +403,11 @@ pub fn select(
         closure_reverse,
         inspections: meter.used,
     };
-    Ok(Selection {
-        traversal,
-        candidate: Some(candidate),
-    })
+    Ok((
+        Selection {
+            traversal,
+            candidate: Some(candidate),
+        },
+        meter.used,
+    ))
 }

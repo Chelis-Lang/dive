@@ -174,6 +174,11 @@ python3 -I scripts/check-material-capture.py
 python3 -I scripts/check-temporal-operators.py
 python3 -I scripts/check-native-temporal-operators.py
 python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
+
+python3 -I scripts/check-stored-successor-material.py
+python3 -I scripts/check-stored-successor-census.py
+python3 -I scripts/check-native-sequence-operators.py
+python3 -I scripts/check-tlc-partial-scc.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py
@@ -182,6 +187,8 @@ python3 -I scripts/check-temporal-action-order.py
 python3 -I scripts/check-phase-l.py
 python3 -I scripts/check-phase-l-graph.py
 python3 -I scripts/check-phase-execution.py
+python3 -I scripts/check-periodic-controller.py
+python3 -I scripts/check-runtime-ratio.py
 python3 -I scripts/check-tlc-final.py
 
 python3 -I scripts/check-state-if-planning.py

@@ -17,6 +17,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
+| Build a periodic backend | [Periodic controller](../ordinary-periodic-controller.md) | Callback ordering only; ordinary temporal verdicts remain unavailable |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |
 | Interpret structured results | [Reports and errors](reports-and-errors.md) | Versioned schemas; exit zero alone is insufficient |
@@ -26,3 +27,5 @@ ADRs retain historical measurements separately. Read [current coverage](../sprin
 and the [maintained TLC differences log](../tlc-differences.md) for known limitations
 and approved better defaults. LSP, native compilation and distributed recovery
 are not exposed as completed functionality here.
+
+Concrete temporal state representation: [Stored successor values](../stored-successor-material.md).

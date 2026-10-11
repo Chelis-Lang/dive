@@ -122,3 +122,9 @@ M6 finite-predicate increment: final/short checking and independent validation
 support constant-domain forall/exists inside state/action predicates. Six pinned
 models match final truth/counts in both profiles/stores; a separate 36-state probe
 checks 108 quantified ENABLED decisions. Complete L1/L4/L5 coverage remains pending.
+
+The next ordinary-liveness boundary (#185/#66) is bounded partial SCC checking
+on actual committed Phase-L records. Explicit prefix diagnostics and repeated
+forced reference checks do not establish the wall-clock threshold/quiescence/
+error/stop/checkpoint schedule; that execution contract must be ported next
+without routing ordinary strict checks through final-only or short witnesses.

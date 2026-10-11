@@ -282,6 +282,22 @@ pub(crate) fn uses_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelC
 // node does not prove the selected replacement has the inline/per-state
 // stream routes needed by the current engine (#180).
 pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
+    configured_target_matches(ir, cfg, random_op)
+}
+
+// The first lifted configured stream route is RandomElement. Other native
+// families retain pre-effect refusal until their configured-call campaign.
+pub(crate) fn unproved_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
+    configured_target_matches(ir, cfg, |op| {
+        random_op(op) && op != dive_ir::StdOp::TlcRandomElement
+    })
+}
+
+fn configured_target_matches(
+    ir: &dive_ir::Ir,
+    cfg: &dive_config::ModelConfig,
+    predicate: impl Fn(dive_ir::StdOp) -> bool,
+) -> bool {
     cfg.constants.iter().any(|entry| {
         let dive_config::ConstantEntry::Substitution { target, .. } = entry else {
             return false;
@@ -290,10 +306,10 @@ pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::Mode
             module.context.iter().any(|(name, symbol)| {
                 name == &target.text
                     && matches!(symbol, dive_ir::Symbol::Def(id)
-                            if ir.def(*id).std.is_some_and(random_op))
+                            if ir.def(*id).std.is_some_and(&predicate))
             })
         }) || ir.defs().iter().any(|def| {
-            def.source.is_none() && def.name == target.text && def.std.is_some_and(random_op)
+            def.source.is_none() && def.name == target.text && def.std.is_some_and(&predicate)
         })
     })
 }
@@ -1625,6 +1641,25 @@ fn search_in<S: Keyed>(
 ) -> Outcome {
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
+    let random = match bound_configured_random(m) {
+        Ok(configured) => uses_random(&m.ir) || configured,
+        Err(feature) => {
+            workers.used = 0;
+            return Outcome {
+                predecessor: crate::result::PredecessorUsage::default(),
+                graph: None,
+                frontier: crate::FrontierUsage::default(),
+                verdict: Verdict::Unsupported { feature },
+                stats: None,
+                tlc_prints_stats: false,
+                counterexample: None,
+                collision: None,
+                output: Vec::new(),
+                notes,
+                workers,
+            };
+        }
+    };
     let tlc_order: Vec<usize> = m.ir.tlc_var_order().iter().map(|v| v.index()).collect();
     let keyer = match S::keyer(opts, &tlc_order) {
         Ok(k) => k,
@@ -1668,7 +1703,7 @@ fn search_in<S: Keyed>(
         m,
         host,
         seeder,
-        random: uses_random(&m.ir),
+        random,
         ctx: opts.eval.ctx,
         keyer: &keyer,
         set: S::fresh(dive_store::shard_bits_for(workers.used)),
@@ -1777,6 +1812,17 @@ fn search_in<S: Keyed>(
             },
         );
     };
+    // TLCTrace's initial-predecessor fast path reuses the original state's
+    // object. TLCStateRandom then retains its consumed stream rather than
+    // reseeding. A final random successor can disappear from the printed
+    // trace. Until that object/printing contract is ported, strict mode
+    // refuses this boundary instead of attaching a different full witness.
+    let unproved_initial_replay = s.random
+        && stop.then.is_some()
+        && stop
+            .path
+            .as_ref()
+            .is_some_and(|(id, _)| s.log.get(*id).is_ok_and(|step| step.parent.is_none()));
     // The replay re-evaluates `Init` and `Next`; their output is not
     // repeated, and neither is a warning they raise.
     let cx = {
@@ -1786,6 +1832,16 @@ fn search_in<S: Keyed>(
     let _ = m.take_output();
     let deciding_event = format!("{:?}", stop.verdict);
     let (verdict, counterexample) = match cx {
+        _ if unproved_initial_replay => {
+            notes.push(format!("The search reached {:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification.", stop.verdict));
+            (
+                Verdict::Unsupported {
+                    feature: "TLC initial-predecessor random counterexample replay is not proved"
+                        .into(),
+                },
+                None,
+            )
+        }
         Ok(c) => (stop.verdict, c),
         Err(message) if s.random && s.log.failure().is_none() => {
             // TLC rebuilds the trace the same way, from a fresh start-up
@@ -1944,5 +2000,154 @@ mod predecessor_tests {
         );
         assert!(!outcome.predecessor.cleanup_completed);
         assert_eq!(outcome.predecessor.storage.records, 2);
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "configured RNG stream regression assertions"
+)]
+mod configured_stream_tests {
+    use super::*;
+    use std::sync::Arc;
+
+    fn run(configured: bool, invariant: &str, seed: i64, width: usize) -> Outcome {
+        run_case(configured, invariant, seed, width, "")
+    }
+
+    fn run_case(
+        configured: bool,
+        invariant: &str,
+        seed: i64,
+        width: usize,
+        extra: &str,
+    ) -> Outcome {
+        let call = if configured {
+            "C(1..100)"
+        } else {
+            "RandomElement(1..100)"
+        };
+        let source = format!(
+            "---- MODULE Stream ----\nEXTENDS Naturals, TLC\nCONSTANT C(_)\nVARIABLES n,x\n{extra}\nInit == n=0 /\\ x=0\nNext == n<3 /\\ n'=n+1 /\\ x'={call}\nInv == {invariant}\n====\n"
+        );
+        let a = dive_sema::analyze_source("Stream.tla", &source, &dive_sema::Options::default());
+        assert!(a.accepted());
+        let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+        let cfg = dive_config::parse("CONSTANT C <- RandomElement\nINIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n").into_config().expect("cfg");
+        let mut opts = CheckOptions::tlc(0, seed);
+        opts.workers = width;
+        opts.chaos = Some(19);
+        let host = Arc::new(run_host(&opts));
+        let bind = dive_model::BindOptions {
+            eval: opts.eval,
+            no_deadlock: opts.no_deadlock,
+            host: Some(Arc::new(crate::host::EngineHost::new(host.clone()))),
+        };
+        let model = dive_model::bind(ir, &cfg, &bind).expect("bound model");
+        model.evaluator.intern_checker_names();
+        let config = run_config(&opts, model.settings.check_deadlock);
+        model.evaluator.intern_bfs_config(&config);
+        host.set_config(Some(config));
+        startup_counters(&host);
+        assert!(matches!(
+            model.check_assumptions(),
+            dive_eval::AssumptionOutcome::AllTrue
+        ));
+        let assume_output = model.take_output();
+        // Compare this internal route independently with the direct source call.
+        let mut outcome = search(&model, &opts, &host);
+        let mut startup = model
+            .output
+            .iter()
+            .filter_map(|message| match message {
+                dive_model::Message::Print(text) => Some(text.clone()),
+                dive_model::Message::Warning { .. } => None,
+            })
+            .collect::<Vec<_>>();
+        startup.extend(assume_output);
+        startup.extend(outcome.output);
+        outcome.output = startup;
+        outcome
+    }
+
+    #[test]
+    fn actual_configured_target_matches_direct_draws_and_inline_order() {
+        for seed in [0, 7, 14] {
+            for width in [1, 4, 8] {
+                for invariant in ["x # 74", "x # 80", "n < 3"] {
+                    let configured = run(true, invariant, seed, width);
+                    let direct = run(false, invariant, seed, width);
+                    assert_eq!(
+                        configured.verdict, direct.verdict,
+                        "seed{seed} width{width} {invariant}"
+                    );
+                    assert_eq!(configured.stats, direct.stats);
+                    assert_eq!(configured.workers.used, 1);
+                    assert!(configured.workers.sequential);
+                    let states = |out: &Outcome| {
+                        out.counterexample.as_ref().map(|trace| {
+                            trace
+                                .states
+                                .iter()
+                                .map(|state| state.values.clone())
+                                .collect::<Vec<_>>()
+                        })
+                    };
+                    assert_eq!(states(&configured), states(&direct));
+                    if seed == 7 && invariant == "n < 3" {
+                        let x = states(&configured)
+                            .expect("trace")
+                            .into_iter()
+                            .map(|state| state[1].clone())
+                            .collect::<Vec<_>>();
+                        assert_eq!(
+                            x,
+                            [
+                                Value::Int(0),
+                                Value::Int(80),
+                                Value::Int(94),
+                                Value::Int(100)
+                            ]
+                        );
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn configured_startup_draws_preserve_direct_stream_and_print_order() {
+        for extra in [
+            "ASSUME PrintT(\"startup\")",
+            "ASSUME RandomElement(1..100)>0",
+            "ASSUME C(1..100)>0",
+            "CachedConfigured == C(1..100)",
+            "ConfiguredPrint == Print(C(1..100), TRUE)",
+            "Cached == RandomElement(1..100)",
+            "ASSUME Print(RandomElement(1..100), TRUE)",
+            "Unused == RandomElement(1..100)",
+        ] {
+            for seed in [0, 7, 14] {
+                for width in [1, 4, 8] {
+                    let configured = run_case(true, "n < 3", seed, width, extra);
+                    let direct = run_case(false, "n < 3", seed, width, extra);
+                    assert_eq!(configured.verdict, direct.verdict, "{extra} seed{seed}");
+                    assert_eq!(configured.stats, direct.stats);
+                    assert_eq!(configured.output, direct.output);
+                    assert_eq!(configured.workers.used, 1);
+                    let states = |out: &Outcome| {
+                        out.counterexample.as_ref().map(|trace| {
+                            trace
+                                .states
+                                .iter()
+                                .map(|state| state.values.clone())
+                                .collect::<Vec<_>>()
+                        })
+                    };
+                    assert_eq!(states(&configured), states(&direct));
+                }
+            }
+        }
     }
 }
