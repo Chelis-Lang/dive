@@ -1,6 +1,6 @@
 # Pure native temporal operator arguments
 
-The bounded final TLC mode accepts `Len`, `Head`, and `Cardinality` as directly
+The bounded final TLC mode accepts `Len`, `Head`, `Cardinality`, and fixed-arity `Append` as directly
 supplied operator arguments, including pure wrapper, relay, `LET`, and named
 `INSTANCE` contexts. Native authority comes from the admitted IR's `Def.std`
 metadata or an explicit `StdOp`, never the operator's spelling. Ordinary periodic
@@ -83,8 +83,8 @@ word or graph does not certify a model. See the [final API guide](tlc-final-api.
 The independent word evaluator supports both profiles; this explicit final TLC
 facade continues to refuse the default profile and exact temporal storage.
 
-The native actuals accept exactly one ordinary expression argument at constant
-or state level. The original call and captured scope stay intact for evaluation;
+The unary native actuals accept exactly one ordinary expression argument at constant
+or state level; [Append](native-sequence-operators.md) admits exactly two. The original call and captured scope stay intact for evaluation;
 the implementation does not invent a native operator body. Every supplied
 operator actual is inspected even when unused. Configured targets, redirected
 or value-overridden native targets, and an explicitly supplied same configured
@@ -103,9 +103,11 @@ word proof keep their existing node/step/depth and finite-binding bounds. These
 are structural bounds, not aggregate memory or evaluation-time guarantees.
 
 `Cardinality(IF x THEN {1} ELSE {})` is supported for a boolean state variable.
-The separate concrete successor-set guard still refuses a model whose stored
-state variable itself is a TLC-normalized set, such as `x = {1}`. The complete
-controls retain those refusals alongside the successful boolean-state cases.
+The separate [stored-successor admission](stored-successor-material.md) now
+accepts authoritative normalized Raw/Enum set states such as `x = {1}`.
+The original native producer retains its three named refusals as historical
+evidence; a fresh complete20-case regression capture validates the newly
+admitted Cardinality cases at1/3/4/8 workers. Cached providers stay refused.
 `Head(<<>>)` and `Len(TRUE)` retain their actual pinned runtime failures and
 native unsupported outcomes; this increment earns no error-class agreement for
 them. Wrong arity and an action argument rejected by SANY remain reference

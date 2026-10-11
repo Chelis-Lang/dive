@@ -64,6 +64,43 @@ pub struct Traversal {
     pub inspections: usize,
 }
 
+/// A supplied partial-graph check, never a model-completion result.
+///
+/// An absent accepting component means only that this invocation found none
+/// among written records. It says nothing about still-unwritten records or
+/// unexplored concrete states, even when every supplied record is written.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PartialTraversal {
+    traversal: Traversal,
+    written: usize,
+    registered: usize,
+}
+impl PartialTraversal {
+    pub(crate) fn into_traversal(self) -> Traversal {
+        self.traversal
+    }
+    /// Original visitation/components through the first accepting component.
+    #[must_use]
+    pub fn traversal(&self) -> &Traversal {
+        &self.traversal
+    }
+    /// Number of actually written records supplied to this diagnostic.
+    #[must_use]
+    pub fn written(&self) -> usize {
+        self.written
+    }
+    /// Number of registered records, including unwritten records.
+    #[must_use]
+    pub fn registered(&self) -> usize {
+        self.registered
+    }
+    /// A partial check never certifies completed model checking.
+    #[must_use]
+    pub fn model_proof(&self) -> bool {
+        false
+    }
+}
+
 #[derive(Clone, Copy)]
 enum Item {
     Node { id: usize, closing: bool },
@@ -222,7 +259,60 @@ fn accepts(
     reason = "retain the pinned stack/link protocol and deciding component order"
 )]
 pub fn check(graph: &Graph, labels: &Acceptance, limits: Limits) -> Result<Traversal, Error> {
+    check_inner(graph, labels, None, limits)
+}
+
+/// Check a supplied partial graph using pinned non-final SCC visitation.
+///
+/// `written` describes actual disk-write status, not concrete-state discovery
+/// or a caller's desired completion status. Unwritten roots and successors are
+/// skipped. Written records keep their original identities and adjacency; no
+/// vertex compaction or invented empty-node completion occurs. This entry is a
+/// diagnostic projection, not an execution or model-proof authority.
+///
+/// # Errors
+/// Invalid label/write dimensions, fixed bounds or a stack protocol failure.
+pub fn check_partial(
+    graph: &Graph,
+    labels: &Acceptance,
+    written: &[bool],
+    limits: Limits,
+) -> Result<PartialTraversal, Error> {
+    if written.len() != graph.edges.len() {
+        return Err(Error::Input("partial write dimensions".into()));
+    }
+    let traversal = check_inner(graph, labels, Some(written), limits)?;
+    Ok(PartialTraversal {
+        traversal,
+        written: written.iter().filter(|value| **value).count(),
+        registered: written.len(),
+    })
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "retain pinned final/partial stack and done-record branches together"
+)]
+fn check_inner(
+    graph: &Graph,
+    labels: &Acceptance,
+    written: Option<&[bool]>,
+    limits: Limits,
+) -> Result<Traversal, Error> {
     let mut meter = validate(graph, labels, limits)?;
+    if let Some(written) = written {
+        meter.take(written.len().checked_mul(3))?;
+        if graph
+            .edges
+            .iter()
+            .zip(written)
+            .any(|(edges, done)| !done && !edges.is_empty())
+        {
+            return Err(Error::Input(
+                "unwritten record has outgoing adjacency".into(),
+            ));
+        }
+    }
     // None is an unvisited file pointer; MAX is a component already checked.
     let mut links = vec![None; graph.edges.len()];
     let mut membership = vec![false; graph.edges.len()];
@@ -233,6 +323,9 @@ pub fn check(graph: &Graph, labels: &Acceptance, limits: Limits) -> Result<Trave
     let mut components = Vec::new();
     while let Some(root) = roots.pop_front() {
         meter.take(Some(1))?;
+        if written.is_some_and(|records| !records[root]) {
+            continue;
+        }
         dfs.clear();
         push(
             &mut dfs,
@@ -294,6 +387,9 @@ pub fn check(graph: &Graph, labels: &Acceptance, limits: Limits) -> Result<Trave
                     .ok_or(Error::Limit("SCC link indices"))?;
                 for (edge, &target) in graph.edges[id].iter().enumerate() {
                     meter.take(Some(1))?;
+                    if written.is_some_and(|records| !records[target]) {
+                        continue;
+                    }
                     if labels.recurrent[id][edge] {
                         if let Some(link) = links[target] {
                             child_low = child_low.min(link);

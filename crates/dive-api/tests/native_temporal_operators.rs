@@ -106,6 +106,7 @@ fn native_metadata_admission_refuses_unknown_configured_foreign_and_budget_input
         for op in [
             StdOp::SequencesLen,
             StdOp::SequencesHead,
+            StdOp::SequencesAppend,
             StdOp::FiniteSetsCardinality,
         ] {
             assert_eq!(

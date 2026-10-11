@@ -589,3 +589,37 @@ alias while using full resolved extents for overlap admission.
 | Implementation | Reference | License | Evidence and limits |
 | --- | --- | --- | --- |
 | `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |
+
+## Stored successor representation admission
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.
+
+### Actual-bound RandomElement stream authority (2026-10-11)
+
+`dive-model::reach` and `dive-check::engine` match native target selection and
+`RandomEnumerableValues.TLCStateRandom.initialize/initializedFor` at pin
+`94d0c50`: startup uses the run seed, and expansion uses predecessor fingerprint
+XOR seed. Actual ConstBinding/redirect authority participates independently of
+source operator references. The bounded `dive-trace::random_position` proof is
+independent dive code; it resolves those targets without enumerating successors
+and refuses unknown startup/guard draw positions. `TLCTrace.printTrace` and
+`Tool.getState(TLCState,TLCState)` initial-object reuse is captured as a remaining
+strict trace-printing refusal, not ported or certified. Clean raw primary and
+current native producer identities are separated in
+`conformance/probes/configured-random-stream/`. Licence: MIT reference semantics.
+
+| Pure native `Append` temporal operator actual admission | `tlc2.module.Sequences.Append`, pinned `94d0c50`; actual arity and processLiveness projections under `conformance/probes/native-sequence-operators` | MIT | Existing native evaluator unchanged; bounded operand/context proof retains original calls and independent word/witness replay; Tail/SubSeq remain refused |
+
+| Bounded partial SCC/source checkpoint projection | `LiveWorker.checkSccs` non-final UNDONE root/target skips, `checkComponent` EA-root/reverse-stack order, `LiveCheck.check0` repeated pointer restoration and `AbstractDiskGraph.getPath`; pin94d0c50 | MIT | Complete32 actual explicit-prefix fields plus8 original repeated checks; private native source-slot authority, independent acceptance/word/mutant controls; ordinary clock schedule remains unimplemented |
+
+| Periodic backend controller (`dive-liveness/src/periodic.rs`) | `tlc2/tool/ModelChecker.java` `doPeriodicWork`, commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | All296 actual method callback/force/code/effect controls; controlled queue/SCC/checkpoint/ratio callbacks. Clock-ratio math, graph authority and ordinary verdicts remain unproved. |
+
+| Runtime-ratio arithmetic (`periodic::calculate_runtime_ratio`) | `ModelChecker.updateRuntimeRatio`, pinned `94d0c50`; actual method called with controlled initial fields | MIT | 196 complete numeric observations with raw double bits and real clock brackets, three negative assertion controls; no scheduling/clock-origin/model-proof credit |

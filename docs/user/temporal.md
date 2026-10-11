@@ -74,7 +74,7 @@ recursive admission limits and deferred/provider refusals.
 
 Pure user operator formals in bounded explicit final TLC mode retain local and
 INSTANCE scopes; see [operator arguments](../temporal-operators.md). Direct pure
-`Len`, `Head`, and `Cardinality` actuals also work within the bounded final TLC
+`Len`, `Head`, `Cardinality`, and fixed-arity `Append` actuals also work within the bounded final TLC
 contract; the [native operator guide](../native-temporal-operators.md) provides
 CLI examples and a Cargo-owned Rust example. Configured-origin-ambiguous,
 recursive, opaque and other native targets remain named refusals.
@@ -90,3 +90,19 @@ selection retains its existing pre-binding effect admission. See the
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
 [Pure native temporal operator arguments](../native-temporal-operators.md), with
 executable CLI/Rust examples and retained refusal boundaries.
+
+See [Stored successor values](../stored-successor-material.md) for concrete set/function admission, namespace/order requirements and provider refusals.
+
+[Fixed-arity Append operator arguments](../native-sequence-operators.md) retain
+both operand scopes; Tail/SubSeq runtime-name admission remains pending.
+
+The [partial SCC diagnostic guide](../partial-temporal-checks.md) describes the
+separate Rust checkpoint API. A partial check can return a candidate requiring
+fresh independent replay, but never temporal Holds or an ordinary schedule
+certificate. Original graph/partial inspection bounds remain shared.
+
+Backend authors can use the [periodic-work controller](../ordinary-periodic-controller.md)
+to preserve pinned suspension, force, PERIODIC and checkpoint callback order.
+Its successful invocation is not a model verdict and does not enable ordinary
+strict temporal checking. Actual graph-growth, clock and checkpoint authority
+remain separate integration obligations.
