@@ -3,11 +3,11 @@
   "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
   "scope": "Current integrated-source integrity; historical final producer outcomes remain bound to preserved sources and are not recertified by this matrix.; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    "crates/dive-liveness/src/lib.rs": "1fbd5f877e31a848ca0d8568e7402081191cdac84db91c6443a8a79ddb488d28",
+    "crates/dive-liveness/src/lib.rs": "fbe7161e622411683358b7bf27fc8ea6dd6ff8e107d74cde50a18b2144709f20",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
-    "crates/dive-liveness/src/phase_execution.rs": "027d80c67fb4e4c0484a5be47e1ae494bac22c59d46a0fb3712ff3245062a7e4",
+    "crates/dive-liveness/src/phase_execution.rs": "203795e697118e6a57e1570bdfa1854419822552dcd70a42b913afb6354c561b",
     "crates/dive-liveness/tests/tlc_scc.rs": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
     "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
     "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",

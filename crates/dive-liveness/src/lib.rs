@@ -54,5 +54,6 @@ pub mod periodic_backend;
 /// Pinned controller/ratio primitives; native lifecycle integration remains separate.
 pub mod periodic;
 
+pub mod periodic_hook;
 /// Native producer-owned commit-boundary clock/pool diagnostics.
 pub mod periodic_lifecycle;

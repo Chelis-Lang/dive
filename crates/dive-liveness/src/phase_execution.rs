@@ -645,7 +645,7 @@ impl Observer<'_> {
             ratio_limit: state.options.ratio_limit,
             force_liveness: state.force,
             checkpoint: false,
-            periodic: false,
+            periodic: state.hook.is_some(),
         };
         let mut hooks = NativeHooks {
             observer: self,
@@ -677,7 +677,7 @@ impl Observer<'_> {
             Ok(crate::periodic::Outcome::Complete) => Ok(()),
             Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(Error::PartialCandidate),
             Ok(crate::periodic::Outcome::PeriodicAssumptionFalse) => {
-                Err(Error::Input("unadmitted PERIODIC callback".into()))
+                Err(Error::PeriodicAssumptionFalse)
             }
             Err(crate::periodic::Error::Callback(e)) => Err(e),
             Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
@@ -1449,9 +1449,34 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
         .map_err(|_| Error::Execution("negative native liveness elapsed time".into()))
     }
     fn periodic_is_false(&mut self) -> Result<bool, Error> {
-        Err(Error::Input(
-            "PERIODIC is not admitted by native lifecycle".into(),
-        ))
+        let (pred, admission_work) = self
+            .state
+            .hook
+            .as_ref()
+            .ok_or_else(|| Error::Input("missing supplied PERIODIC expression".into()))?;
+        // Charge before evaluation and retaining its receipt. The original
+        // graph+partial+hook bookkeeping quota remains shared.
+        self.observer
+            .partial_charge(crate::periodic_hook::evaluation_charge(*admission_work))?;
+        let result = self
+            .observer
+            .model
+            .eval(pred, &dive_eval::St::empty())
+            .and_then(|value| {
+                self.observer
+                    .model
+                    .evaluator
+                    .equal_values(&dive_value::Value::Bool(false), &value)
+            })
+            .map_err(|error| error.at(pred.expr));
+        self.state
+            .hook_evaluations
+            .push(crate::periodic_hook::Evaluation {
+                source: self.source.id,
+                expression: pred.expr,
+                result: result.clone(),
+            });
+        result.map_err(Error::PeriodicEvaluation)
     }
     fn checkpoint(&mut self) -> Result<(), Error> {
         Err(Error::Input(
@@ -1622,6 +1647,16 @@ pub(crate) fn execute_periodic_lifecycle(
     limits: Limits,
     policy: crate::periodic_lifecycle::Options,
 ) -> crate::periodic_lifecycle::Run {
+    execute_periodic_lifecycle_hook(model, options, limits, policy, None)
+}
+
+pub(crate) fn execute_periodic_lifecycle_hook(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+) -> crate::periodic_lifecycle::Run {
     let mut failed_state = None;
     let outcome = execute_inner(
         model,
@@ -1629,7 +1664,7 @@ pub(crate) fn execute_periodic_lifecycle(
         limits,
         true,
         Some(policy.backend),
-        Some(policy),
+        Some((policy, hook)),
         Some(&mut failed_state),
     );
     let (backend, state) = match outcome {
@@ -1662,9 +1697,9 @@ pub(crate) fn execute_periodic_lifecycle(
             failed_state,
         ),
     };
-    let (invocations, final_checks, eof) = state.map_or_else(
-        || (Vec::new(), Vec::new(), None),
-        |s| (s.invocations, s.final_checks, s.eof),
+    let (invocations, final_checks, eof, hook_evaluations) = state.map_or_else(
+        || (Vec::new(), Vec::new(), None, Vec::new()),
+        |s| (s.invocations, s.final_checks, s.eof, s.hook_evaluations),
     );
     crate::periodic_lifecycle::Run {
         backend,
@@ -1672,6 +1707,7 @@ pub(crate) fn execute_periodic_lifecycle(
         invocations,
         final_checks,
         eof,
+        hook_evaluations,
     }
 }
 
@@ -1694,7 +1730,10 @@ fn execute_inner(
     limits: Limits,
     partial: bool,
     periodic: Option<Policy>,
-    lifecycle: Option<crate::periodic_lifecycle::Options>,
+    lifecycle: Option<(
+        crate::periodic_lifecycle::Options,
+        Option<(dive_model::Pred, usize)>,
+    )>,
     lifecycle_failure: Option<&mut Option<crate::periodic_lifecycle::State>>,
 ) -> Result<ExecutionParts, Box<PartialFailure>> {
     let early = |error| {
@@ -1735,7 +1774,11 @@ fn execute_inner(
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
     let lifecycle = lifecycle
-        .map(crate::periodic_lifecycle::State::new)
+        .map(|(options, hook)| {
+            let mut state = crate::periodic_lifecycle::State::new(options)?;
+            state.hook = hook;
+            Ok(state)
+        })
         .transpose()
         .map_err(early)?;
     let session = Session::new(model, options.fp_index, 1, limits.phase_l)

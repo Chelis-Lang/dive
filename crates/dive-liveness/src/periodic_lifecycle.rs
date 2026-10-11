@@ -120,6 +120,7 @@ pub struct Run {
     pub(crate) invocations: Vec<Invocation>,
     pub(crate) final_checks: Vec<FinalCheck>,
     pub(crate) eof: Option<Stats>,
+    pub(crate) hook_evaluations: Vec<crate::periodic_hook::Evaluation>,
 }
 impl Run {
     /// Source-owned graph/partial-check evidence and actual deciding stop.
@@ -141,6 +142,11 @@ impl Run {
     #[must_use]
     pub fn final_checks(&self) -> &[FinalCheck] {
         &self.final_checks
+    }
+    /// Actual supplied-expression calls. These assert no configured `_PERIODIC` identity.
+    #[must_use]
+    pub fn hook_evaluations(&self) -> &[crate::periodic_hook::Evaluation] {
+        &self.hook_evaluations
     }
     /// Actual successful safety EOF, separate from any temporal result.
     #[must_use]
@@ -182,6 +188,8 @@ pub(crate) struct State {
     pub invocations: Vec<Invocation>,
     pub final_checks: Vec<FinalCheck>,
     pub eof: Option<Stats>,
+    pub hook: Option<(dive_model::Pred, usize)>,
+    pub hook_evaluations: Vec<crate::periodic_hook::Evaluation>,
 }
 pub(crate) fn time_millis() -> Result<i64, phase_graph::Error> {
     let millis = std::time::SystemTime::now()
@@ -213,6 +221,8 @@ impl State {
             invocations: Vec::new(),
             final_checks: Vec::new(),
             eof: None,
+            hook: None,
+            hook_evaluations: Vec::new(),
         })
     }
 }

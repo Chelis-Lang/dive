@@ -503,3 +503,5 @@ Ordinary schedules and whole-family parity remain partial.
 
 
 | Native periodic lifecycle (#189) | ModelChecker.doPeriodicWork/updateRuntimeRatio; StateQueue suspendAll/resumeAll/finishAll and actual DiskStateQueue selected thread controls; pin94d0c50 | MIT |296 controller,196 updater and96 selected queue controls retain separate producers; native borrowed pool authority and internal source-commit timer/EOF SCC seam are diagnostic, not ordinary scheduler equivalence. ADR0052 |
+
+| `dive-liveness::periodic_hook` and lifecycle hook composition | `tlc2.tool.ModelChecker.doPeriodicWork` (hook after liveness before checkpoint/resume), `Tool.eval(SemanticNode)` (Context.Empty/Empty states/Clear), `BoolValue.equals`; pin94d0c50 | MIT | Complete59 actual method projections; supplied pure Pred composition only, configured snapshot binding and ordinary scheduling unclaimed |

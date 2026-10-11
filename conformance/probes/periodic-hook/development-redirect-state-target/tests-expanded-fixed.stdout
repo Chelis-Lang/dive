@@ -1,0 +1,22 @@
+
+running 5 tests
+test graph_quota_is_charged_before_hook_and_configured_binder_still_refuses ... ok
+test earlier_temporal_candidate_skips_false_hook_and_leaves_force_pending ... ok
+test captured_effects_unused_effect_arguments_and_redirects_do_not_print ... FAILED
+test zero_state_guard_rejects_state_temporal_unknown_or_unbounded_before_execution ... ok
+test actual_hooks_resume_stop_or_retain_original_errors_under_real_pauses ... ok
+
+failures:
+
+---- captured_effects_unused_effect_arguments_and_redirects_do_not_print stdout ----
+
+thread 'captured_effects_unused_effect_arguments_and_redirects_do_not_print' (122110948) panicked at crates/dive-liveness/tests/periodic_hook.rs:253:10:
+redirected model: Failure { error: BindError { kind: Tlc(TlcConfigSubstitutionNonConstant), message: "The configuration file substitutes constant Token with non-constant Init - specifically: @!@!@STARTMSG 2280:0 @!@!@\nIn evaluation, the identifier x is either undefined or not an operator.\nline 5, col 9 to line 5, col 9 of module Hook\n@!@!@ENDMSG 2280 @!@!@" }, output: [] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    captured_effects_unused_effect_arguments_and_redirects_do_not_print
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+

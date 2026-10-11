@@ -146,3 +146,5 @@ The #189 [source-qualified backend](../periodic-backend.md) supplies actual node
 
 
 P4/#189 lifecycle increment connects actual dispatch-mutex authority and internally sampled controller/ratio polling to source-owned graph growth, with mandatory final SCCs at actual EOF. Commit-boundary timing is explicitly narrower than ordinary TLC scheduling; no Holds/ordinary verdict or family credit. PERIODIC/checkpoint and exact stop/clock/replay contracts remain pending.
+
+The ADR0054 supplied pure PERIODIC seam follows ADR0052 real native lifecycle. It preserves configured binding refusal and original bounds. Next ordinary schedule work must establish actual snapshot/name lookup, queue progress/stop timing, checkpoint effects and fresh independent deciding witness replay; do not promote supplied-predicate or callback controls to strict verdicts.

@@ -1778,3 +1778,7 @@ The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qu
 
 
 The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
+
+## Native periodic hook boundary
+
+The [pure supplied-expression API](periodic-hook.md) now composes a bounded hook at real native dispatch pauses, with original FALSE comparison and evaluation errors. It does not bind configured `_PERIODIC` and does not enable ordinary checking. The complete59 actual-TLC controls retain even setup failures: an `_PERIODIC` constant name throws ClassCastException rather than a stable binding diagnostic. Native configured binding remains a named refusal, so no fabricated error-class agreement is claimed. Checkpoint/host effects, ordinary schedule and stopping-count parity remain pending; no result default changes.

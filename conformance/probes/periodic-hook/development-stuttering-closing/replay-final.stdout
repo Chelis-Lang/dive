@@ -1,0 +1,24 @@
+
+running 5 tests
+test graph_quota_is_charged_before_hook_and_configured_binder_still_refuses ... ok
+test earlier_temporal_candidate_skips_false_hook_and_leaves_force_pending ... FAILED
+test zero_state_guard_rejects_state_temporal_unknown_or_unbounded_before_execution ... ok
+test captured_effects_unused_effect_arguments_and_redirects_do_not_print ... ok
+test actual_hooks_resume_stop_or_retain_original_errors_under_real_pauses ... ok
+
+failures:
+
+---- earlier_temporal_candidate_skips_false_hook_and_leaves_force_pending stdout ----
+
+thread 'earlier_temporal_candidate_skips_false_hook_and_leaves_force_pending' (122444892) panicked at crates/dive-liveness/tests/periodic_hook.rs:193:13:
+assertion `left != right` failed
+  left: Valid
+ right: Valid
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    earlier_temporal_candidate_skips_false_hook_and_leaves_force_pending
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
