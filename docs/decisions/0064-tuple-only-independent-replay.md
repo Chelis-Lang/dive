@@ -33,6 +33,11 @@ operator actuals, recursion, unknown shapes or budget exhaustion retain the
 existing explicit refusal. The inspection budget is 8,192 steps/depth 64, with
 the existing 256-step tuple-shape proof per native call.
 
+Use a closed nonconstructing-native list; neither a pure-operator annotation nor
+the existing runtime-name marker is an exhaustive no-name-construction proof.
+In particular JSON conversion still refuses in a model requiring this admission.
+Unknown natives, host and introspection calls receive no guessed purity credit.
+
 Apply admission before native validation and before lossy TLC interpretation.
 Retain original namespace-forgery negatives, actual/altered words and scope/
 alias/assumption controls in both relevant transport paths. User functionality

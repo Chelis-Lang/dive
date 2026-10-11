@@ -58,6 +58,13 @@ inspection budget and depth 64; each tuple-operand proof has its existing
 256-step budget. These are inspection policies, not total validation/search
 memory or CPU limits. Exhaustion never supplies a guessed proof.
 
+Other native calls must be in the audit's closed list of arithmetic, finite-set
+size tests and nonconstructing sequence operations. Pure overrides are not
+automatically safe: `ToJson` returns a newly constructed string. JSON conversion,
+host access, checker introspection, randomness and unclassified native calls
+retain the refusal when this tuple-only admission is required. Their existing
+behavior in models that do not require this guard is unchanged.
+
 ## Remaining limits
 
 Saved procedure stacks are variables. `Tail(stack)` remains refused under

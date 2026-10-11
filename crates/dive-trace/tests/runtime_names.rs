@@ -123,6 +123,24 @@ fn configured_sequence_aliases_require_the_same_proof() {
 }
 
 #[test]
+fn tuple_guard_does_not_trust_pure_native_string_constructors() {
+    // Json is classified as pure and is not in the old runtime-name marker.
+    // The tuple call makes this model require the new complete admission walk.
+    let source = tuple_replay_source("ASSUME ToJson(0)=\"0\"", "Tail(<<0,1>>)")
+        .replace("Sequences, TLC", "Sequences, TLC, Json");
+    for lossy in [false, true] {
+        let model = tuple_replay_model(&source, "");
+        assert!(model.runtime_name_order);
+        assert_eq!(
+            validate_doc(&model, &tuple_replay_doc(1, lossy), &[], None)
+                .0
+                .validation,
+            Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+        );
+    }
+}
+
+#[test]
 fn trace_supplied_tuple_shapes_do_not_prove_variable_stack_history() {
     let source = "---- MODULE StackReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s\nInit == x=0 /\\ s=<<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
     let analysis =

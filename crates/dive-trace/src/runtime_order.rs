@@ -4,7 +4,7 @@
 //! Unknown operand shapes retain the existing runtime-order refusal.
 
 use dive_eval::{ConstBinding, Scope, SlotView};
-use dive_ir::{Arg, DefId, Expr, ExprId, OpRef};
+use dive_ir::{Arg, DefId, Expr, ExprId, OpRef, StdOp};
 use dive_model::Model;
 use dive_value::Value;
 
@@ -50,6 +50,46 @@ pub(crate) fn admitted(model: &Model) -> bool {
 struct Proof<'a> {
     model: &'a Model,
     fuel: usize,
+}
+
+/// A deliberately closed list: purity alone does not prove that an override
+/// cannot construct names (for example, Json's serializers return strings).
+fn known_nonconstructing(op: StdOp) -> bool {
+    matches!(
+        op,
+        StdOp::NaturalsNat
+            | StdOp::NaturalsPlus
+            | StdOp::NaturalsMinus
+            | StdOp::NaturalsTimes
+            | StdOp::NaturalsLt
+            | StdOp::NaturalsLeq
+            | StdOp::NaturalsGt
+            | StdOp::NaturalsGeq
+            | StdOp::NaturalsDotDot
+            | StdOp::NaturalsDiv
+            | StdOp::NaturalsMod
+            | StdOp::NaturalsExpt
+            | StdOp::IntegersInt
+            | StdOp::IntegersNat
+            | StdOp::IntegersPlus
+            | StdOp::IntegersMinus
+            | StdOp::IntegersTimes
+            | StdOp::IntegersLt
+            | StdOp::IntegersLeq
+            | StdOp::IntegersGt
+            | StdOp::IntegersGeq
+            | StdOp::IntegersDotDot
+            | StdOp::IntegersNeg
+            | StdOp::IntegersDiv
+            | StdOp::IntegersMod
+            | StdOp::IntegersExpt
+            | StdOp::FiniteSetsIsFiniteSet
+            | StdOp::FiniteSetsCardinality
+            | StdOp::SequencesLen
+            | StdOp::SequencesHead
+            | StdOp::SequencesCons
+            | StdOp::SequencesAppend
+    )
 }
 
 impl Proof<'_> {
@@ -122,7 +162,7 @@ impl Proof<'_> {
             _ => return false,
         };
         if standard.is_some_and(|op| {
-            op.creates_runtime_names()
+            !known_nonconstructing(op)
                 && !crate::exists::native_tuple_only(self.model, op, args, scope)
         }) {
             return false;
