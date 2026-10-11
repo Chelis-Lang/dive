@@ -514,3 +514,10 @@ are separately checked. Existing arena/work ceilings and whole-arena forwarding
 admission remain; no aggregate memory bound or periodic-family claim is added.
 See [the user guide](tlc-temporal-if.md) and
 `conformance/probes/tlc-temporal-if-final/`.
+
+Bounded final scope evidence (#134) now distinguishes configured names from
+local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
+Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
+refusals. Original expanded-action attribution is still a missing native field,
+not an approved result-changing default. Ordinary periodic scheduling remains
+unsupported; the whole small-model study from the prior IF slice is unchanged.

@@ -14,10 +14,16 @@
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/src/phase_l.rs": "0f7bfb58ac387ecfb68a751666ec10c6312c9a046628b0a7c13ac2a30521fa87",
+    "crates/dive-liveness/src/phase_l.rs": "635a4a08659f76c4e541fd6c61f41b77bf26a93767ea1d6f25fa262781edc599",
     "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7"
   },
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit."
+  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-phase-l-graph/source-matrix.json",
+    "matrix_sha256": "b4ae3f5151199098ec073adae9b6e9f1a585690b5f736a9f5bc0dc308c0deddc",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit"
 }

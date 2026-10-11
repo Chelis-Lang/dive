@@ -407,6 +407,7 @@ impl Build {
                     .map(|c| self.dnf(c, depth + 1))
                     .collect::<Result<Vec<_>, _>>()?;
                 let mut columns = Vec::new();
+                let mut single = Vec::new();
                 let mut total = 1usize;
                 for c in converted {
                     match &self.nodes[c] {
@@ -417,13 +418,18 @@ impl Build {
                                 .filter(|n| *n <= 2_147_483_647)
                                 .ok_or(FormulaError::Limit("TLC DNF cardinality"))?;
                             columns.push(cs.clone());
+                            single.push(c);
                         }
                         Node::And(cs) => {
                             for &c in cs {
                                 columns.push(vec![c]);
+                                single.push(c);
                             }
                         }
-                        _ => columns.push(vec![c]),
+                        _ => {
+                            columns.push(vec![c]);
+                            single.push(c);
+                        }
                     }
                 }
                 // Charge the whole prospective cartesian output before allocating it.
@@ -438,7 +444,10 @@ impl Build {
                     .ok_or(FormulaError::Limit("TLC planning work"))?;
                 self.steps += terms;
                 if total == 1 {
-                    return self.junction(true, columns.into_iter().flatten().collect());
+                    // LNConj.toDNF returns new LNConj(nes) for total=1.
+                    // Unlike the expanded product, it keeps a singleton
+                    // LNDisj factor intact until flattenSingleJunctions.
+                    return self.junction(true, single);
                 }
                 let mut branches = Vec::with_capacity(total);
                 for position in 0..total {

@@ -11,6 +11,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Scoped explicit final temporal checking preserves local LET derived role
+  names separately from formal argument forwarding, and exact cardinality-one
+  DNF shape. Caller contexts and original witness claims have pinned field and
+  fresh replay controls; expanded-action names and ordinary schedules remain
+  incomplete. See `docs/tlc-final-scopes.md`.
+
 - Explicit final/TLC checking admits proven direct temporal conditionals with
   pinned shared-guard tags, exact particles and independent counterexample replay.
   Compound guards and INSTANCE attribution have source-bound controls; forwarding,

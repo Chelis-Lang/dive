@@ -456,3 +456,21 @@ word separately; neither normalization equality nor backend flags certify it.
 All30 actual captures and120 native outcomes are in
 `conformance/probes/tlc-temporal-if-final/`; clean source-prefix/refused controls
 receive no matching-error or ordinary-schedule credit.
+
+### Scoped final attribution and cardinality-one DNF (#134)
+
+`dive-model/src/spec.rs::Binder::props` matches pinned94d0c50
+`SpecProcessor.processConfigProps`: a zero-arity LET OpDef changes the derived
+name; formal LazyValue forwarding preserves it. Expression and caller scope
+remain unchanged. `dive-liveness/src/tlc_plan.rs::Builder::dnf` matches
+`LNConj.toDNF` cardinality-one `new LNConj(nes)` including singleton LNDisj
+factors. Both MIT source rules have exact field-level raw controls in
+`conformance/probes/tlc-final-scopes/`; original failed observations are retained.
+Expanded original Action names remain reference-only, not inferred native data.
+
+`dive-liveness/src/plan.rs` TLC-shape directly syntactic `~ENABLED A` matches
+`Liveness.astToLiveAppl` OPCODE_lnot's state-level fallback: the original source
+predicate is one atom, evaluated by negating the existing pure bounded action
+search. The default formula kernel and independent Word implementation stay
+unchanged. Complete positive/negative fields and periodic/closing controls
+retain the old extra-negation mismatch; this is normalization fidelity only.

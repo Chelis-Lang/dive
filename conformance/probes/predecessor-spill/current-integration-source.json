@@ -26,5 +26,11 @@
     "crates/dive-store/src/trace.rs": "3df7a6b8f467346733c961998dc75729f2f5685917453c6c7106db7952f33f72"
   },
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit."
+  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/predecessor-spill/current-integration-source.json",
+    "matrix_sha256": "cce0fd3110e1117544e96263a8ca6e961c7f9df27df9ab98debf8c4d35bc5a9f",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit"
 }

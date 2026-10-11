@@ -718,7 +718,8 @@ impl<'a> Session<'a> {
                 Some(dive_ir::Expr::StepBox { action, sub }) => Some((*action, *sub, true)),
                 _ => None,
             },
-            crate::plan::AtomTest::Enabled { .. } => None,
+            crate::plan::AtomTest::Enabled { .. }
+            | crate::plan::AtomTest::NegatedEnabled { .. } => None,
         };
         if let Some((body, sub, is_box)) = bracket {
             let (dive_eval::StateRef::Vals(before), dive_eval::StateRef::Vals(after)) =

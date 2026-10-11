@@ -59,3 +59,6 @@ checking with fresh independent witness replay. Read the
 [temporal conditional guide](../tlc-temporal-if.md) for executable CLI/Rust
 examples, unchanged bounds and refused forwarding/early-witness combinations.
 Ordinary periodic scheduling remains unavailable.
+
+For caller-context forwarding and property names, see the
+[scoped final guide](../tlc-final-scopes.md).
