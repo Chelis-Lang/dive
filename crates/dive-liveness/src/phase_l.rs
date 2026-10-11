@@ -11,7 +11,7 @@ use std::sync::Arc;
 use dive_eval::St;
 use dive_model::Model;
 use dive_value::fp64::{Fingerprinter, TlcFingerprint};
-use dive_value::{Ctx, ErrorKind, Value};
+use dive_value::{Ctx, ErrorKind, Interner, Value, ValueOrder};
 
 use crate::formula::{Atom, AtomKind, Node};
 use crate::tlc_plan::{self, BoundProjection};
@@ -317,6 +317,8 @@ impl Slots {
 
 fn material(
     value: &Value,
+    names: &Interner,
+    order: ValueOrder,
     limits: Limits,
     progress: &mut Progress,
     depth: usize,
@@ -330,22 +332,46 @@ fn material(
     progress.values += 1;
     match value {
         Value::Set(set) => {
-            let Some(elements) = set.raw_elements() else {
+            if set.order() != order {
+                return Err(Error::Input(
+                    "successor set order differs from the run".into(),
+                ));
+            }
+            // Explicit Raw/Enum storage is authoritative even after TLC has
+            // normalized it. A cached deferred provider is still not storage.
+            let Some(elements) = set.stored_elements() else {
                 return Err(Error::Unsupported(
                     "lazy/infinite/opaque successor set value",
                 ));
             };
             for v in elements {
-                material(v, limits, progress, depth + 1)?;
+                material(v, names, order, limits, progress, depth + 1)?;
             }
         }
         Value::Fcn(function) => {
+            // Tuple domains use implicit ascending integers; their intentional
+            // Canonical storage does not encode string/model enumeration order.
+            if function.kind() != dive_value::FcnKind::Tuple && function.order() != order {
+                return Err(Error::Input(
+                    "successor function order differs from the run".into(),
+                ));
+            }
             for (k, v) in function.iter() {
-                material(&k, limits, progress, depth + 1)?;
-                material(v, limits, progress, depth + 1)?;
+                material(&k, names, order, limits, progress, depth + 1)?;
+                material(v, names, order, limits, progress, depth + 1)?;
             }
         }
-        Value::Bool(_) | Value::Int(_) | Value::BigInt(_) | Value::Str(_) | Value::Model(_) => {}
+        Value::Str(atom) | Value::Model(atom) => {
+            if names
+                .resolve(atom.tok())
+                .is_none_or(|owned| owned.as_str() != atom.as_str())
+            {
+                return Err(Error::Input(
+                    "successor atom is outside the model namespace".into(),
+                ));
+            }
+        }
+        Value::Bool(_) | Value::Int(_) | Value::BigInt(_) => {}
     }
     Ok(())
 }
@@ -662,7 +688,14 @@ impl<'a> Session<'a> {
             ));
         }
         for value in state.iter().flatten() {
-            material(value, self.limits, &mut self.progress, 0)?;
+            material(
+                value,
+                &self.model.names,
+                self.model.evaluator.options().ctx.order,
+                self.limits,
+                &mut self.progress,
+                0,
+            )?;
         }
         // Check material visits before allocating the reordered value vector.
         let order = self.model.ir.tlc_var_order();

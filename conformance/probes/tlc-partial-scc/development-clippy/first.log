@@ -1,0 +1,40 @@
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-syntax)
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-value)
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-sema)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-config)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-store)
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-ir)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-eval)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-stdlib)
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-model)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-liveness)
+error: item in documentation is missing backticks
+   --> crates/dive-liveness/src/phase_execution.rs:180:16
+    |
+180 |     /// Actual SetOfStates table slot.
+    |                ^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#doc_markdown
+    = note: `-D clippy::doc-markdown` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::doc_markdown)]`
+help: try
+    |
+180 -     /// Actual SetOfStates table slot.
+180 +     /// Actual `SetOfStates` table slot.
+    |
+
+error: this function has too many lines (103/100)
+   --> crates/dive-liveness/src/phase_execution.rs:373:5
+    |
+373 |     fn partial_check(&mut self) -> Result<(), Error> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#too_many_lines
+    = note: `-D clippy::too-many-lines` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::too_many_lines)]`
+
+error: could not compile `dive-liveness` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `dive-liveness` (lib test) due to 2 previous errors

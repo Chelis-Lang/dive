@@ -115,7 +115,8 @@ impl Evaluator {
 
     /// Resolves an authoritative, bounded pure native operator actual.
     ///
-    /// Only `Sequences!Len`, `Sequences!Head` and `FiniteSets!Cardinality`
+    /// Only `Sequences!Len`, `Sequences!Head`, `Sequences!Append` and
+    /// `FiniteSets!Cardinality`
     /// are admitted. This is callback-free metadata inspection, not a purity
     /// or truth certificate. Callers must prove the captured context, arity
     /// and actual expression arguments independently. Configured targets and
@@ -188,7 +189,10 @@ impl Evaluator {
         };
         if !matches!(
             native,
-            StdOp::SequencesLen | StdOp::SequencesHead | StdOp::FiniteSetsCardinality
+            StdOp::SequencesLen
+                | StdOp::SequencesHead
+                | StdOp::SequencesAppend
+                | StdOp::FiniteSetsCardinality
         ) {
             return Ok(None);
         }

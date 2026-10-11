@@ -79,6 +79,38 @@ fn counterexample(tla: &Path, compat_tlc: bool, seed: i64) -> TraceDoc {
     TraceDoc::from_json(&j["counterexample"]["trace"]).expect("dive trace document")
 }
 
+/// Supply the retained original independently of the checker's unproved
+/// initial-predecessor printing path. The draw-position refusal below must
+/// still hold when a caller supplies a complete concrete witness.
+fn supplied_counterexample(name: &str) -> TraceDoc {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/random-traces/native-before-stream")
+        .join(format!("{name}.trace.json"));
+    TraceDoc::parse(&std::fs::read_to_string(path).expect("retained original trace"))
+        .expect("supplied trace document")
+}
+
+fn first_successor_refuses(tla: &Path, compat_tlc: bool, seed: i64) {
+    let j = check_file(&CheckRequest {
+        file: tla.to_path_buf(),
+        compat_tlc,
+        seed: Some(seed),
+        fp: Some(0),
+        workers: Some(1),
+        ..CheckRequest::default()
+    })
+    .expect("check")
+    .to_json();
+    assert_eq!(j["verdict"], "unsupported", "{j:#}");
+    assert_eq!(
+        j["message"],
+        "TLC initial-predecessor random counterexample replay is not proved"
+    );
+    assert!(j["counterexample"].is_null());
+    assert_eq!(j["statistics"]["depth"], 2);
+    assert_eq!(j["options"]["workers"]["used"], 1);
+}
+
 fn model(tla: &Path, cfg: &Path, compat_tlc: bool, run: Option<(i64, usize)>) -> SpecModel {
     SpecModel::load(
         tla,
@@ -179,7 +211,12 @@ fn wide_random_expansions_are_refused_without_an_offset_search() {
     let spec = include_str!("fixtures/random-traces/RndWide/RndWide.tla");
     let (tla, cfg) = write_spec("wide", spec, CFG);
     for compat in [true, false] {
-        let doc = counterexample(&tla, compat, 7);
+        first_successor_refuses(&tla, compat, 7);
+        let doc = supplied_counterexample(if compat {
+            "RndWide-tlc"
+        } else {
+            "RndWide-dive"
+        });
         assert_eq!(doc.states.len(), 2);
         let report = model(&tla, &cfg, compat, Some((7, 0))).validate(&doc);
         assert!(
@@ -193,7 +230,8 @@ fn wide_random_expansions_are_refused_without_an_offset_search() {
 fn a_coincidental_random_match_is_not_a_stream_position_proof() {
     let spec = include_str!("fixtures/random-traces/RndCoincidence/RndCoincidence.tla");
     let (tla, cfg) = write_spec("coincidence", spec, CFG);
-    let doc = counterexample(&tla, true, 0);
+    first_successor_refuses(&tla, true, 0);
+    let doc = supplied_counterexample("RndCoincidence-tlc");
     let report = model(&tla, &cfg, true, Some((0, 0))).validate(&doc);
     assert!(
         matches!(report.validation, Validation::Unsupported(_)),

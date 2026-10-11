@@ -16,6 +16,12 @@
     "matrix_sha256": "3c0f5928d1ce66edb710e49b964dc4bbb58cf8ebfff777c6c84149f78b3a0b47",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "7bd15c1c7a012d18da05105d94c14bc1c53c8654545aae122229ba6c2f0f7ec1",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "current_main_rng_previous_authority": {
@@ -50,14 +56,15 @@
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "40e8aee4a011b30ed8c43746c75cb4a9227625ac636b2195535b8d49f127e53a",
-    "crates/dive-check/src/engine.rs": "b08ed9456b4fa53d5fe3f75d890a5ac753e677d12da73a0a184f217e509dad9a",
-    "crates/dive-check/src/lib.rs": "3a924b12f02585c61f6c57739f0e473fb1adf5b6a9a6a116c37c0469b68c206f",
+    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+    "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
     "crates/dive-cli/src/main.rs": "aeb9609d19ea071cc12a44c2d5877854e76376dfc974858bfd00aab5c0c595e9",
     "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",
     "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
     "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd"
   },
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged",
   "transient_recovery_integration": {
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification",

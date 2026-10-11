@@ -241,9 +241,16 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
     let ordered_names = b.opts.eval.ctx.order == dive_value::ValueOrder::Tlc
         || b.opts.eval.exploration == dive_eval::ExplorationOrder::Tlc;
     let mut names: BTreeSet<String> = BTreeSet::new();
+    let mut out: BTreeSet<String> = BTreeSet::new();
     for (i, d) in ir.defs().iter().enumerate() {
         if reach.get(i).copied().unwrap_or(false) {
             if let Some(op) = d.std {
+                // Configuration-selected native operators may have no call
+                // node in the source IR. The bound checking roots retain the
+                // actual target, and its RNG shares one expansion stream.
+                if native_random(op) {
+                    out.extend(sequential_op(op, None));
+                }
                 if ordered_names && op.creates_runtime_names() {
                     names.insert(format!(
                         "{} (runtime names require TLC encounter order)",
@@ -256,7 +263,6 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
         }
     }
     let impure = |e: ExprId| ir.node(e).effects.intersects(Effects::IMPURE);
-    let mut out: BTreeSet<String> = BTreeSet::new();
     let mut seen = vec![false; ir.nodes().len()];
     while let Some(e) = exprs.pop() {
         match seen.get_mut(e.index()) {
@@ -327,4 +333,14 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
         names_only,
         runtime_names,
     }
+}
+
+fn native_random(op: StdOp) -> bool {
+    matches!(
+        op,
+        StdOp::TlcRandomElement
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets
+            | StdOp::RandomizationRandomSubsetSet
+    )
 }

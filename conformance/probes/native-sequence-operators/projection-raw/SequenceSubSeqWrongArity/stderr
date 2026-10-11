@@ -1,0 +1,34 @@
+Parsing file /Users/jeff/code/dive-native-tail-work/conformance/probes/native-sequence-operators/models/SequenceSubSeqWrongArity/SequenceSubSeqWrongArity.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-16154274139750105973/Sequences.tla (jar:file:/Users/jeff/code/dive-native-tail-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-16154274139750105973/Naturals.tla (jar:file:/Users/jeff/code/dive-native-tail-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module SequenceSubSeqWrongArity
+Semantic errors:
+
+*** Errors: 2
+
+line 7, col 11 to line 7, col 16 of module SequenceSubSeqWrongArity
+
+Expected arity 2 but found operator of arity 3.
+
+
+line 7, col 7 to line 7, col 17 of module SequenceSubSeqWrongArity
+
+Argument number 1 to operator 'Use' 
+should be a 2-parameter operator.
+
+
+Starting... (2026-10-11 06:27:50)
+failure_code	3002
+Exception in thread "main" util.Assert$TLCRuntimeException: Parsing or semantic analysis failed.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.SpecProcessor.processSpec(SpecProcessor.java:451)
+	at tlc2.tool.impl.SpecProcessor.<init>(SpecProcessor.java:199)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:111)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at tlc2.tool.liveness.IfIdentityProbe.run(IfIdentityProbe.java:112)
+	at tlc2.tool.liveness.IfIdentityProbe.main(IfIdentityProbe.java:100)

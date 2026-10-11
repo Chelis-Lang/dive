@@ -23,7 +23,7 @@
   },
   "schema_version": 1,
   "source_sha256": {
-    "crates/dive-eval/src/scope.rs": "ba8245c216fc3e6330afb8ff0ce434af2429fe33d2d54aecb95e45767c26bd0d",
+    "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
     "crates/dive-trace/src/temporal.rs": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
     "crates/dive-api/tests/temporal_forwarding.rs": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",

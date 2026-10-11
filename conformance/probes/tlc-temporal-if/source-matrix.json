@@ -16,6 +16,12 @@
     "matrix_sha256": "83718cac0f955eb8e9d530ad869ebea2bc9ce6098b768707717947194baa15d2",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-temporal-if/source-matrix.json",
+    "matrix_sha256": "70d6090f4cf8aab1bffbe6082587bb5e006205ade30dea889eff98e7363dc215",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "current_main_rng_previous_authority": {
@@ -27,6 +33,7 @@
   "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "parent": "03f11881b",
+  "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "schema_version": 1,
   "scope": "Current shared-tag source plus bounded direct temporal-IF admission; original source-only52b and raw diagnostic evidence remain archived; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "scoped_final_parent_history": {
@@ -36,7 +43,7 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "conformance/parity-features.json": "8ce55161386450e0cf470e5d45754b70205ed14e66d3c7b02394bd3b05696326",
+    "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
@@ -44,6 +51,7 @@
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "scripts/check-tlc-temporal-if.py": "c173f5b64971e22df42e963154b8fdc4639abd53a515543608e9a59196578b5d"
   },
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged",
   "view_normalization_scope_addendum": "Current integrity only; exact fe35 map and changed source retained at conformance/probes/view-concrete-normalization/before/fe35-current-authority. Historical raw/runtime epochs unchanged; no family certification.",
   "view_random_admission_previous_authority": {
     "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-temporal-if/source-matrix.json",

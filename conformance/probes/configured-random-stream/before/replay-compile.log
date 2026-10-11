@@ -1,0 +1,9 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-check)
+error[E0433]: cannot find type `Profile` in this scope
+    --> crates/dive-check/src/engine.rs:1820:51
+     |
+1820 |     let unproved_initial_replay = opts.profile == Profile::Tlc
+     |                                                   ^^^^^^^ use of undeclared type `Profile`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `dive-check` (lib) due to 1 previous error

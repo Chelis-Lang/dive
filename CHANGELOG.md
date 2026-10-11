@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Periodic backend runtime-fraction arithmetic matches 196 actual pinned updater
+  observations, including wrapping and NaN/zero behavior. It remains separate
+  from ordinary scheduling and checker verdicts.
+
+- Bounded partial temporal SCC/source-checkpoint diagnostics retain written-record authority and candidate fields under shared graph limits; successful partial checks never certify temporal completion.
+- Fixed-arity `Append` operator arguments in explicit bounded final TLC checking,
+  with independent operand and witness proof. Tail/SubSeq runtime-name refusals
+  and existing budgets remain unchanged.
+- A closed complete stored-successor final-TLC census retains all 140 models:
+  60 agree, 75 explicitly refuse and five time out. Historical source/binary
+  receipts and every raw outcome remain separate from later producer results.
+- Explicit final TLC state admission accepts stored Enum/Raw sets, including
+  normalized sets nested in tuples, records and general functions. Callback-free
+  namespace/order checks and unchanged cumulative work/depth bounds precede
+  fingerprinting; cached deferred providers still refuse.
+
+- A periodic backend controller preserves pinned queue/force/PERIODIC/checkpoint
+  callback order, with all 296 selected Java observations and typed backend
+  failures. It does not enable ordinary temporal verdicts or certify actual clock
+  authority and checkpoint persistence.
+
+
 
 - Memory VIEW preserves nonforcing normalization of evaluator-owned lazy filters; unknown providers and unproved lazy-operation caches remain explicit refusals. Spill and checkpoint deferred-value admission is unchanged.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
@@ -11,6 +33,23 @@ All notable changes to this project are documented here. The project will follow
   callback-free stored-input admission. Configured/opaque/effectful and
   unsupported state-storage/error boundaries remain explicit; final TLC
   scheduling remains separately scoped.
+
+- Ordinary configured `RandomElement` safety checking uses actual bound native
+  authority for predecessor streams and reports real inline worker use. Independent
+  replay resolves constant targets and definition redirects; unproved startup,
+  strict first-successor printing, transformed-key, Randomization replacement,
+  graph/temporal and recovery paths retain explicit refusals (#180).
+
+- Refuse unproved configured native random replacements before startup/output/search in
+  both profiles and all capture routes, including source-visible/configured
+  mixed calls. Preserve false-success and false-violation controls; direct RNG
+  calls and pure user replacements remain supported (#180).
+
+- Refuse configured VIEW with source-level random operators before binding/output
+  or safety search in both profiles, including native aliases, cfg-selected
+  native replacement targets and unused random definitions. Preserve the
+  equal-count/different-draw defect; pure VIEW and untransformed random checking
+  retain their supported implementations (#178).
 
 - Normalize every concrete variable before evaluating VIEW, including ignored
   variables and runs without symmetry. Unproved TLC normalization failures
@@ -32,7 +71,7 @@ All notable changes to this project are documented here. The project will follow
   are rejected before loading. Pinned Validator context limitations are documented.
 
 
-- Refuse configured native random replacements before startup/output/search in
+- Refuse unproved configured native random replacements before startup/output/search in
   both profiles and all capture routes, including source-visible/configured
   mixed calls. Preserve false-success and false-violation controls; direct RNG
   calls and pure user replacements remain supported (#180).
@@ -78,6 +117,12 @@ All notable changes to this project are documented here. The project will follow
   fresh replay controls. The later property-origin increment adds expanded Action
   names separately; ordinary schedules remain incomplete. See `docs/tlc-final-scopes.md`.
 
+- Scoped explicit final temporal checking preserves local LET derived role
+  names separately from formal argument forwarding, and exact cardinality-one
+  DNF shape. Caller contexts and original witness claims have pinned field and
+  fresh replay controls; expanded-action names and ordinary schedules remain
+  incomplete. See `docs/tlc-final-scopes.md`.
+
 - Explicit final/TLC checking admits proven direct temporal conditionals with
   pinned shared-guard tags, exact particles and independent counterexample replay.
   Compound guards and INSTANCE attribution have source-bound controls; forwarding,
@@ -97,6 +142,12 @@ All notable changes to this project are documented here. The project will follow
   prerequisite fails, is cancelled or is skipped.
 
 - CI runs the complete workspace test suite in eight disjoint partitions, with
+
+- CI runs the complete workspace test suite in four disjoint partitions, with
+  unchanged test/job limits. The required workspace check fails if any
+  prerequisite fails, is cancelled or is skipped.
+
+- CI runs the complete workspace test suite in four disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
   prerequisite fails, is cancelled or is skipped.
 
@@ -117,6 +168,7 @@ All notable changes to this project are documented here. The project will follow
   named refusals. Runnable CLI/API examples separate CRC equality, artifact
   admission and model proof. Singleton identity clauses now follow the
   reference five-unit UTF-16 spelling threshold; original CST failure retained.
+
 
 
 - Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
@@ -992,4 +1044,5 @@ All notable changes to this project are documented here. The project will follow
   final temporal-IF refusal or certify ordinary periodic scheduling (#170).
 
 - Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.
+
 

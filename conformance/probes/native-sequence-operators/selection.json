@@ -1,0 +1,167 @@
+[
+  {
+    "name": "SequenceTailStateHolds",
+    "model": "SequenceTailStateHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailStateFails",
+    "model": "SequenceTailStateFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailConstantHolds",
+    "model": "SequenceTailConstantHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailConstantFails",
+    "model": "SequenceTailConstantFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailLetHolds",
+    "model": "SequenceTailLetHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailLetFails",
+    "model": "SequenceTailLetFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailInstanceHolds",
+    "model": "SequenceTailInstanceHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailInstanceFails",
+    "model": "SequenceTailInstanceFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendStateHolds",
+    "model": "SequenceAppendStateHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendStateFails",
+    "model": "SequenceAppendStateFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendConstantHolds",
+    "model": "SequenceAppendConstantHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendConstantFails",
+    "model": "SequenceAppendConstantFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendLetHolds",
+    "model": "SequenceAppendLetHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendLetFails",
+    "model": "SequenceAppendLetFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendInstanceHolds",
+    "model": "SequenceAppendInstanceHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceAppendInstanceFails",
+    "model": "SequenceAppendInstanceFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqStateHolds",
+    "model": "SequenceSubSeqStateHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqStateFails",
+    "model": "SequenceSubSeqStateFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqConstantHolds",
+    "model": "SequenceSubSeqConstantHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqConstantFails",
+    "model": "SequenceSubSeqConstantFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqLetHolds",
+    "model": "SequenceSubSeqLetHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqLetFails",
+    "model": "SequenceSubSeqLetFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqInstanceHolds",
+    "model": "SequenceSubSeqInstanceHolds",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceSubSeqInstanceFails",
+    "model": "SequenceSubSeqInstanceFails",
+    "kind": "pure-sequence-native"
+  },
+  {
+    "name": "SequenceTailWrongArity",
+    "model": "SequenceTailWrongArity",
+    "kind": "reference-rejection"
+  },
+  {
+    "name": "SequenceAppendWrongArity",
+    "model": "SequenceAppendWrongArity",
+    "kind": "reference-rejection"
+  },
+  {
+    "name": "SequenceSubSeqWrongArity",
+    "model": "SequenceSubSeqWrongArity",
+    "kind": "reference-rejection"
+  },
+  {
+    "name": "SequenceTailEmptyError",
+    "model": "SequenceTailEmptyError",
+    "kind": "reference-error"
+  },
+  {
+    "name": "SequenceTailTypeError",
+    "model": "SequenceTailTypeError",
+    "kind": "reference-error"
+  },
+  {
+    "name": "SequenceAppendTypeError",
+    "model": "SequenceAppendTypeError",
+    "kind": "reference-error"
+  },
+  {
+    "name": "SequenceSubSeqTypeError",
+    "model": "SequenceSubSeqTypeError",
+    "kind": "reference-error"
+  },
+  {
+    "name": "SequenceTailActionActual",
+    "model": "SequenceTailActionActual",
+    "kind": "reference-rejection"
+  },
+  {
+    "name": "SequenceTailUnusedEffect",
+    "model": "SequenceTailUnusedEffect",
+    "kind": "effect-boundary"
+  }
+]

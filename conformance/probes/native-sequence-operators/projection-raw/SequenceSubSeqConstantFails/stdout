@@ -1,0 +1,21 @@
+properties	Live
+temporal_role_names	Use
+configured_properties	Live
+before	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNBool:-1
+tag_count	0
+tagged_ids	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNBool:-1
+tagged	N(G(E(F)))
+pushed	E(G(T))
+simplified	E(G(T))
+dnf	E(G(T))
+groups	1
+g0.temporal	null
+g0.p0	AEAction=|AEState=|EAAction=0
+g0.state	
+g0.action	T
+actual.groups	1
+actual.g0.state	
+actual.g0.action	T
+actual.g0.p0	AEAction=|AEState=|EAAction=0
+actual.g0.promises	
+actual.g0.tableauNodes	0

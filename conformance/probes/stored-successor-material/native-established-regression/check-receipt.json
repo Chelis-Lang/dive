@@ -1,0 +1,9 @@
+{
+  "exit": 0,
+  "scope": "Complete establishednative20 regression selection, separate from original refusal epoch",
+  "artifact_sha256": {
+    "check.stdout": "acea17dabcaada204b6e0bf3811a9f1d4343afefd0adcb9251b0d09a30ff795f",
+    "check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "check-source.py": "d5f0157a396375ce7d317e61dc76a6123b631bfb5032692c9378e3f5ba7d9e84"
+  }
+}
