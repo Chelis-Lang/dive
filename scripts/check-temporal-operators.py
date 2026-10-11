@@ -125,3 +125,20 @@ assert load(failed/'gate-current/after.json')['all_steps_passed']is False
 assert '941 tests run: 939 passed, 2 failed' in (failed/'gate-current/workspace.log').read_text()
 for path,digest in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==digest,path
 print('Verified18 clean primary/72 current native rows,14 exact temporal projections,72 original refusals, bounded independent captures/replay; prior9b140 census46/92/2 remains separate, no ordinary/family credit')
+
+closed_base = ROOT / "conformance/studies/temporal-operators-final-small"
+closed = load(closed_base / "closed-after.json")
+assert closed["source_commit"] == OPERATOR_PRODUCER["source_commit"]
+assert closed["row_count"] == 140 and closed["harness_exit"] == 1
+assert closed["source_and_binaries_unchanged"] is True
+for name, digest in closed["artifact_sha256"].items():
+    assert sha(closed_base / name) == digest, name
+for name, digest in closed["source_sha256"].items():
+    assert hashlib.sha256(gzip.decompress((closed_base / "source" / (name + ".gz")).read_bytes())).hexdigest() == digest, name
+report_paths = list((closed_base / "reports").glob("*.json"))
+assert len(report_paths) == 1
+report = load(report_paths[0])
+assert report["summary"]["models_selected"] == len(report["models"]) == 140
+assert {k: v for k, v in report["summary"]["models"].items() if v} == {"agree": 53, "unsupported": 85, "timeout": 2}
+assert sum(row["outcome"] == "agree" for row in report["models"]) == 53
+print("Verified closed768 complete140 census source/artifact authority; nonzero harness exit retained, no current producer or family certification")

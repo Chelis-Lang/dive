@@ -90,3 +90,12 @@ stutter forever; the pin and the bounded final checker both report the resulting
 liveness violation. Acceptance does not imply that `P` holds. A recursive actual
 remains refused before evaluation, and an actual definition whose own parameters
 include an operator remains outside the analysis accessor's admitted subset.
+
+The complete 140-model bounded final-mode study is retained separately under
+[`temporal-operators-final-small`](../conformance/studies/temporal-operators-final-small/closed-after.json).
+Producer `7683204` records 53 agreements, 85 explicit refusals, two timeouts and
+zero disagreements; its nonzero harness exit is preserved. The preceding stored
+material producer had 46 agreements, 92 refusals and the same two timeouts.
+The seven added agreements are bounded final-mode evidence, not ordinary
+periodic-liveness or full-family certification. The source archive, raw reports
+and independent readback remain bound to that earlier executable.

@@ -6,8 +6,8 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "e88094c58d25239e30c901b0976b296cbbada2300063db1e96022e5a65531855",
     "AGENTS.md": "83af23f94b4935c1341d6f542a4c262ef21a80b8d0668c83a619eff2322ddada",
-    "CHANGELOG.md": "840ce0f5284f3cf3b55f48ac71b5aa706da575a07f1920fda83496ce0677d864",
-    "conformance/parity-features.json": "5d41126d1aed35ba36537ff683e9c7d7ed0d3befe1a3326286df57141f8c501d",
+    "CHANGELOG.md": "c706d32bfde9f90c167bd64bc030c57c71db7d862b34d3336e4604a3e8895be4",
+    "conformance/parity-features.json": "1a3608e8f9435c4e5787ca228d8941d0dbf7008b675795f4336d93ba4463d09c",
     "conformance/probes/tlc-final-property-origins/DESIGN.md": "aa5a122a7c7f071967dab07a00b9080313ce74dae1b51be2729a2321d0e41792",
     "conformance/probes/tlc-final-property-origins/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/tlc-final-property-origins/ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
@@ -318,7 +318,7 @@
     "docs/tlc-differences.md": "dad0c166924b188c14651c50a55193765af733ae4c9be659245e755238f8bb31",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
-    "docs/user/temporal.md": "3c50ece25590bd77f03e81932ff18a2c9f13f5127a5dace75ef79b7a3e11ca02",
+    "docs/user/temporal.md": "30e72960d8b949c2f7b470855fbd27cf9727983419363d3362713d89b6a5dd4c",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"
   }

@@ -61,3 +61,11 @@ CM1/ValidationTestSuite at 1/4/8 workers, eleven user CLI examples and two compi
 Rust examples. These runs identify their own repaired source and binary. The
 older combined captures remain bound to their immutable archived runtime; they
 are never retagged as runs of the repaired implementation.
+
+## Combined material, operator and PlusCal verification
+
+The [frozen combined receipt](../conformance/probes/native-parity-integration/current-controls/core-options-random-frozen/receipt.json) preserves producer `550d959`, its exact source and five executable hashes. All 1,076 workspace tests passed with zero skips, followed by documentation, dependency and independent-validator layering checks. The 21 CM1 and 16 ValidationTestSuite models fully agree at 1, 4 and 8 workers; the separate ValidationTestSuite run retains the 30-second model bound.
+
+The executable controls cover stored material and property-origin APIs, pure user operator arguments, sequential multiline generation and finite-process Full checksums. Six exact Markdown Rust examples compile in their owning Cargo crates; 25 CLI guide controls and the original-source option-masking regression pass. Source-declared options remain explicit refusals in this producer. The 524-case explicit-process-option campaign admits 320 modules in each profile, with all 640 complete CST/SANY/configured Validator comparisons passing. Translation validation is separate from a model-checking proof.
+
+The [complete user-operator study](../conformance/studies/temporal-operators-final-small/closed-after.json) belongs to the earlier immutable `7683204` producer: 53 agreements, 85 named refusals and two timeouts across all 140 selected models. Its harness exit remains 1. These bounded final-mode results do not certify ordinary periodic liveness, full temporal language, general random-stream replacements or a complete TLC family. Historical observations retain their original producer identities.
