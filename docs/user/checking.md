@@ -39,6 +39,16 @@ context aliases follow the same authority. These runs execute inline and disclos
 requested and used worker counts separately. Pure user replacements still use the
 parallel engine where admitted.
 
+The committed configured-operator example is runnable directly:
+
+```sh
+dive check conformance/probes/configured-random-stream/primary/natural/Stream.tla --compat=tlc --seed 7 --fp 0 --workers 8 --output json
+```
+
+It reports an invariant violation with generated/distinct/depth `4/4/4` and
+concrete values `0,80,94,100`, matching clean pinned TLC. Although eight workers
+were requested, the report discloses the actual inline width of one.
+
 A random violation on the first successor of an initial state
 currently returns `unsupported` with its observed stopping-prefix statistics.
 TLC's initial-predecessor printing path can keep an already-consumed stream and
@@ -58,6 +68,11 @@ refused. The callback-free configured-target scan remains conservative across
 matching modules and aliases.
 See the [original wrong-answer repair](../../conformance/probes/configured-random-admission/README.md)
 and [bound-stream controls and remaining replay limits](../../conformance/probes/configured-random-stream/README.md).
+The corrected standalone campaign independently validates 144 of 180 original
+witness controls, refuses 36 unproved draw positions, and rejects all 180
+changed-Init controls. The remaining refusals cover two draws, a discarded random
+branch and conditional random Init. These counts belong to the corrected
+producer; the original failed campaign's 48 refusals remain historical evidence.
 
 Ordinary strict temporal model checking remains unsupported; use the explicit
 [final/short mode](temporal.md) for its supported subset. Refused library

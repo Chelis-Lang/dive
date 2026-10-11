@@ -68,6 +68,26 @@ Those original observations remain historical and are not retagged as the
 corrected producer's results. Missing traces and standalone Unsupported originals
 never constitute full conformance agreement or an independently validated witness.
 
+The corrected runtime producer is
+`2c2ebda3940109fae34a033749b63a8560f8834c`; its metadata-only gate source is
+`4cbe698ca97eb0469ebcaaa0a9700ffb89cb0dee`. All 434 compiled Rust/Cargo inputs
+were checked for equality, without retagging either execution. The corrected
+full gate passes 1,054 tests with zero skipped and all eight stages passed.
+Its fresh campaign retains 1,296 checker observations, 648 clean-reference
+printed-output comparisons, and 360 independent validation controls: 144 valid
+originals, 36 unsupported originals and 180 invalid changed-Init controls.
+The remaining unsupported originals are 12 each for two draws, a discarded
+random branch and conditional random Init. Random Init without an unproved
+startup prefix now passes its unchanged independent controls.
+
+The complete [current receipt](current-receipt.json) records source archives,
+binary hashes, timing, exclusions and all retained files. The CM1 21-model and
+ValidationTestSuite 16-model gates fully agree at 1, 4 and 8 requested workers.
+These gates do not upgrade every random checker observation to full agreement:
+36 first-successor strict controls refuse trace printing, 36 strict startup-Init
+controls have no trace, and independent replay can still refuse a supplied word.
+The runnable guide control and its raw JSON are under `current/guide/`.
+
 `run_primary.py` captures clean single-worker seeds0/7/14 for 18 startup, Init,
 branch, call and binding variants. The direct-source counterpart is captured
 separately; raw outputs are retained before any native comparison. It never uses

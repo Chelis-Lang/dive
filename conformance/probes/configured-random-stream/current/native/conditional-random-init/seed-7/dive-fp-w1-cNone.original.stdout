@@ -1,0 +1,1 @@
+{"command":"validate-trace","length":4,"notes":[],"result":"unsupported","schema_version":1,"unsupported":"random draws: the successor generator may have consumed draws for other successors; the independent validator cannot prove the predicate's stream position (ADR 0016, amendment 2)"}
