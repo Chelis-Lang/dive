@@ -1,5 +1,9 @@
 # Changelog
 
+- Final temporal checking preserves the binding stage's TLC error class and
+  exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks
+  retain their named refusal.
+
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;
   tests keep only the fixtures they read. PlusCal and storage notes are merged into

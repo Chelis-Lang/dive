@@ -468,6 +468,89 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
 }
 
 #[test]
+fn final_binding_errors_preserve_primary_periodic_classes_and_exits() {
+    let primary: serde_json::Value =
+        serde_json::from_str(include_str!("fixtures/periodic-binding.json")).unwrap_or_default();
+    let controls = primary["controls"]
+        .as_array()
+        .unwrap_or_else(|| unreachable!("missing primary periodic controls"));
+    assert_eq!(controls.len(), 2);
+    for control in controls {
+        let name = control["file"].as_str().unwrap_or_default();
+        let spec = temp_file(name, control["source"].as_str().unwrap_or_default());
+        assert!(
+            std::fs::write(
+                spec.with_extension("cfg"),
+                control["config"].as_str().unwrap_or_default()
+            )
+            .is_ok()
+        );
+        for profile in ["--compat=dive", "--compat=tlc"] {
+            for final_short in [false, true] {
+                let path = spec.to_string_lossy();
+                let mut args = vec!["check", &path, profile, "--seed=0", "--output=json"];
+                if final_short {
+                    args.extend(["--lncheck=final", "--lasso=short"]);
+                }
+                let output = dive(&args);
+                let expected_exit = if profile == "--compat=tlc" {
+                    i32::try_from(control["exit"].as_i64().unwrap_or_default()).unwrap_or_default()
+                } else {
+                    1
+                };
+                assert_eq!(output.status.code(), Some(expected_exit));
+                let report: serde_json::Value =
+                    serde_json::from_slice(&output.stdout).unwrap_or_default();
+                assert_eq!(report["verdict"], "model-error");
+                assert_eq!(report["tlc"]["code"], control["code"]);
+                assert_eq!(report["tlc"]["name"], control["name"]);
+                assert_eq!(report["tlc"]["exit_status"], control["exit"]);
+                assert_eq!(report["tlc"]["reported"], control["code"]);
+                assert_eq!(report["tlc"]["verified"], true);
+                assert!(report["statistics"].is_null());
+                assert!(report["counterexample"].is_null());
+                assert_eq!(report["output"], serde_json::json!([]));
+                if final_short {
+                    assert_eq!(report["execution"]["stage"], "binding");
+                    assert_eq!(report["execution"]["capture_completed"], false);
+                }
+            }
+        }
+    }
+    // A valid hook remains a named refusal until hook execution is supported.
+    let spec = temp_file(
+        "ValidPeriodic.tla",
+        "---- MODULE ValidPeriodic ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nHook == TRUE\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            spec.with_extension("cfg"),
+            "INIT Init\nNEXT Next\n_PERIODIC Hook\n"
+        )
+        .is_ok()
+    );
+    for profile in ["--compat=dive", "--compat=tlc"] {
+        let output = dive(&[
+            "check",
+            &spec.to_string_lossy(),
+            profile,
+            "--lncheck=final",
+            "--lasso=short",
+            "--output=json",
+        ]);
+        assert_eq!(output.status.code(), Some(3));
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        assert_eq!(report["verdict"], "unsupported");
+        assert!(report["tlc"].is_null());
+        assert!(
+            report["message"]
+                .as_str()
+                .is_some_and(|m| m.contains("_PERIODIC"))
+        );
+    }
+}
+
+#[test]
 fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
     // Pinned TLC 2026.10.06.014338 reports 2215 / TLC_EXPECTED_VALUE and
     // exits 255 for this complete input, before generating initial states.

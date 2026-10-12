@@ -43,6 +43,11 @@ Malformed numeric temporal operands, such as `Bad == <>1`, report
 The process exits 255 under `--compat=tlc` and 13 in the default profile. Effects
 and unsupported scopes still refuse before planning executes them.
 
+Final checking also preserves binding errors: a missing `_PERIODIC` definition
+reports TLC code 2229, and a parameterized definition reports 2228. Both exit
+151 under `--compat=tlc` and 1 in the default profile. A valid `_PERIODIC` hook
+still refuses by name until hook execution is implemented.
+
 ## Rust APIs
 
 `dive_api::temporal` is the Rust entry point (see

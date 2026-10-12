@@ -475,7 +475,20 @@ impl CheckReport {
             },
             Phase::TemporalError(e) => match temporal_failure_kind(e.error()) {
                 "internal-error" => exit::INTERNAL,
-                "model-error" => exit::REJECTED,
+                "model-error" => {
+                    if tlc {
+                        if let crate::temporal::Error::Binding(failure) = e.error() {
+                            failure
+                                .error
+                                .code()
+                                .map_or(exit::INTERNAL, dive_check::tlc_exit_status)
+                        } else {
+                            exit::INTERNAL
+                        }
+                    } else {
+                        exit::REJECTED
+                    }
+                }
                 "evaluation-error" => {
                     if tlc {
                         temporal_planning_evaluation(e.error()).map_or(exit::INTERNAL, |error| {
@@ -753,7 +766,17 @@ impl CheckReport {
                     json!({"stage": e.stage().name(), "capture_completed": e.capture_completed()});
                 doc["elapsed_ms"] =
                     json!(u64::try_from(e.elapsed().as_millis()).unwrap_or(u64::MAX));
-                if let Some(error) = temporal_planning_evaluation(e.error()) {
+                if let crate::temporal::Error::Binding(failure) = e.error()
+                    && let Some(class) = Verdict::from(&failure.error).tlc()
+                {
+                    doc["tlc"] = json!({
+                        "code": class.code,
+                        "name": class.name,
+                        "exit_status": class.exit,
+                        "reported": class.reported,
+                        "verified": class.verified,
+                    });
+                } else if let Some(error) = temporal_planning_evaluation(e.error()) {
                     let code = error.ec().code();
                     doc["tlc"] = json!({
                         "code": code,
