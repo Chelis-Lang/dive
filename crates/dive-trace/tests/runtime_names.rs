@@ -874,3 +874,20 @@ fn sequences_of_model_values_validate_in_tlc_order() {
         Validation::Invalid(_)
     ));
 }
+
+#[test]
+fn existing_runtime_names_refuse_malformed_words_too() {
+    let m = entry_model(ENTRY_SPEC, "INIT Init\nNEXT Next\n", true);
+    m.names.intern("a-fresh-runtime-name");
+    assert_eq!(
+        dive_trace::temporal::evaluate_lasso(&m, &predicate(&m, "Q"), &[], 0),
+        Err(dive_trace::temporal::TemporalError::Unsupported(
+            dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned()
+        ))
+    );
+    let doc = TraceDoc::from_json(&json!({
+        "vars": ["x"], "counterexample": {"action": [], "state": [[1, {"x": 0}]]}
+    }))
+    .expect("TLC document without an ending");
+    assert_eq!(validate_doc(&m, &doc, &[], None).0.validation, refused());
+}

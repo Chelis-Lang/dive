@@ -35,7 +35,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use dive_eval::{Scope, St};
-use dive_ir::{Expr, ExprId, JunctionKind, OpRef};
+use dive_ir::{Effects, Expr, ExprId, JunctionKind, OpRef};
 use dive_model::Model;
 use dive_value::{Ctx, Interner, Value};
 use serde_json::{Map, Value as J};
@@ -444,6 +444,23 @@ pub fn validate_tlc(
         notes,
         length,
     };
+    // Validate public metadata before the interpretation heuristic indexes
+    // expressions or evaluates a predicate, just as native replay does.
+    if let Err(error) = model.validate_context() {
+        return TlcReading {
+            report: report(Validation::Unsupported(error.to_string()), Vec::new()),
+            trace: None,
+        };
+    }
+    if model.has_runtime_names() {
+        return TlcReading {
+            report: report(
+                Validation::Unsupported(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
+                Vec::new(),
+            ),
+            trace: None,
+        };
+    }
     let Some(ending) = doc.ending.clone() else {
         return TlcReading {
             report: report(
@@ -671,15 +688,21 @@ impl Search<'_> {
                 }
             }
         }
+        let mut run = Run::new(self.model);
         let init_true = states.first().map_or(0, |s0| {
             let st = St::state(s0.clone());
             self.conjuncts
                 .iter()
                 .filter(|(scope, e)| {
-                    matches!(
-                        self.model.evaluator.eval_scoped(scope, *e, &st),
-                        Ok(Value::Bool(true))
-                    )
+                    // Scoring is only a heuristic: it must not write a
+                    // register, consume a draw or print before replay checks
+                    // Init in its actual short-circuit order.
+                    !self.model.ir.node(*e).effects.intersects(Effects::IMPURE)
+                        && !self.model.evaluator.scope_shares_side_effects(scope)
+                        && matches!(
+                            self.model.evaluator.eval_scoped(scope, *e, &st),
+                            Ok(Value::Bool(true))
+                        )
                 })
                 .count() as u64
         });
@@ -690,7 +713,6 @@ impl Search<'_> {
             length: self.length,
             properties: self.properties.to_vec(),
         };
-        let mut run = Run::new(self.model);
         let validation = run.validate(&trace);
         Outcome {
             validation,

@@ -293,6 +293,14 @@ independent finite-cover search (`exists_successor`). A liveness lasso is
 checked with the word semantics of `temporal.rs`. The successor enumerator is
 still not compiled in (§2).
 
+The lossy TLC reader checks the existing public model context before looking up
+expressions. Its interpretation score evaluates only pure initial conjuncts,
+with the replay host already installed. Scoring must never write registers,
+print, or consume random draws before checking `Init` in its actual evaluation
+order: otherwise `TLCGet(0)=1 /\\ TLCSet(0,1)` can be made true by the heuristic's
+own earlier write. The regression controls in `crates/dive-trace/tests/tlc_effects.rs`
+reject that false acceptance and keep untaken effects from running.
+
 **Runtime names** (replaces the namespace-provenance amendment of
 2026-10-10). The evaluator records how many names were interned when binding
 finished (`Evaluator::startup_names`). Interning TLC's checker start-up names

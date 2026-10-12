@@ -77,6 +77,11 @@ pub fn evaluate_lasso(
         .evaluator
         .validate_predicate(&formula.scope, formula.expr)
         .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+    if model.has_runtime_names() {
+        return Err(TemporalError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+        ));
+    }
     if states.is_empty() || back_to >= states.len() {
         return Err(TemporalError::Invalid("invalid lasso back edge".into()));
     }

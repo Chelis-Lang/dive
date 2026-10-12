@@ -12,7 +12,9 @@
   `MCCheckpointCoordinationFailure`) now validate. Random draws in a check are
   refused by name instead of replayed. The `--trace-format representation-v2`
   flag and trace format version 2 are removed, and `trace-controls` and
-  `SpecModel::controls` no longer build mutants.
+  `SpecModel::controls` no longer build mutants. TLC JSON interpretation scoring
+  now evaluates only pure predicates, preventing register writes from making
+  invalid initial states validate, and leaves untaken effects unevaluated.
 
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;

@@ -75,6 +75,15 @@ fn foreign_scopes_and_replaced_model_arenas_never_certify() {
                 dive_trace::validate(&m, &trace, None).validation,
                 Validation::Unsupported(_)
             ));
+            let doc = dive_trace::TraceDoc::from_json(&serde_json::json!({
+                "vars": ["x"], "counterexample": {"action": [], "state": [[1, {"x": 0}]]}
+            }))
+            .expect("TLC document")
+            .with_ending(Ending::Behavior);
+            assert!(matches!(
+                dive_trace::validate_doc(&m, &doc, &[], None).0.validation,
+                Validation::Unsupported(_)
+            ));
             assert_eq!(
                 m.names.len(),
                 names_before,
