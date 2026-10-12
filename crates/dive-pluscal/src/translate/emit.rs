@@ -34,6 +34,60 @@ fn conjunction(clauses: &[String], force: bool) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
+// Pinned PcalTLAGen.GenNext reserves the full leading Next/quantifier/\/
+// width even when the actual prefix is shorter. Chunking is observable TLA
+// grouping: several chunks introduce a leading disjunction-list token.
+fn procedure_next<'a>(
+    names: impl IntoIterator<Item = &'a str>,
+    column: usize,
+    limit: usize,
+    span: Span,
+) -> Result<String, TranslationError> {
+    let prefix = "(\\E self \\in ProcSet: ";
+    let maximum = 78 - "Next == \\/ (\\E self \\in ProcSet: \\/ ".len();
+    let mut chunks = Vec::new();
+    let mut line = String::new();
+    for name in names {
+        if name.encode_utf16().count() + "(self) \\/ ".len() + line.encode_utf16().count() > maximum
+        {
+            chunks.push(std::mem::take(&mut line));
+        }
+        if !line.is_empty() {
+            line.push_str(" \\/ ");
+        }
+        line.push_str(name);
+        line.push_str("(self)");
+    }
+    line.push(')');
+    chunks.push(line);
+    let mut bytes = prefix
+        .len()
+        .saturating_add(chunks.iter().map(String::len).sum::<usize>());
+    if chunks.len() > 1 {
+        let continuation_bytes = column
+            .saturating_add(prefix.encode_utf16().count())
+            .saturating_add(5);
+        bytes = bytes
+            .saturating_add(4)
+            .saturating_add((chunks.len() - 1).saturating_mul(continuation_bytes));
+    }
+    if bytes > limit {
+        return Err(failure(
+            span,
+            Code::Resource,
+            "PlusCal generated-byte limit reached",
+        ));
+    }
+    if chunks.len() == 1 {
+        Ok(format!("{prefix}{}", chunks.join("")))
+    } else {
+        let continuation = format!(
+            "\n{} \\/ ",
+            " ".repeat(column + prefix.encode_utf16().count())
+        );
+        Ok(format!("{prefix} \\/ {}", chunks.join(&continuation)))
+    }
+}
 impl Emitter<'_> {
     fn procedure_slot(&self, name: &str) -> bool {
         !self.model.processes.is_empty()
@@ -1197,17 +1251,21 @@ pub(super) fn generate(
                 .iter()
                 .filter(|p| p.id.kind == BindingKind::Equal)
                 .count();
+            // Continuation indentation includes the actual preceding wrappers;
+            // the reference width reservation remains the fixed 78-column rule.
+            let column = "Next == ".len()
+                + actions[..at]
+                    .iter()
+                    .map(|action| action.encode_utf16().count() + " \\/ ".len())
+                    .sum::<usize>();
             actions.insert(
                 at,
-                format!(
-                    "(\\E self \\in ProcSet: {})",
-                    model
-                        .procedures
-                        .iter()
-                        .map(|p| format!("{}(self)", p.name.text))
-                        .collect::<Vec<_>>()
-                        .join(" \\/ ")
-                ),
+                procedure_next(
+                    model.procedures.iter().map(|p| p.name.text.as_str()),
+                    column,
+                    emitter.limit,
+                    span,
+                )?,
             );
         }
         append(

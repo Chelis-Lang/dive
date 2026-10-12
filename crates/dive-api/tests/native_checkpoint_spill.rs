@@ -22,13 +22,20 @@ fn request(name: &str) -> CheckRequest {
 }
 fn directory() -> std::path::PathBuf {
     static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-    let p = std::env::temp_dir().join(format!(
-        "dive-native-spill-api-{}-{}",
-        std::process::id(),
-        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
-    ));
-    std::fs::create_dir(&p).expect("private directory");
-    p
+    loop {
+        let p = std::env::temp_dir().join(format!(
+            "dive-native-spill-api-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        // A recycled PID can meet a directory left by an interrupted run.
+        // Claim a fresh path atomically; never reuse another run's files.
+        match std::fs::create_dir(&p) {
+            Ok(()) => return p,
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            result => result.expect("private directory"),
+        }
+    }
 }
 fn observable(mut value: serde_json::Value) -> serde_json::Value {
     let object = value.as_object_mut().expect("object");
