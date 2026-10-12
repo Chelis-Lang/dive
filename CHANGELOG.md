@@ -20,6 +20,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Independent trace context inspection refuses Strict substitution expressions
+  before entering their scopes (#234), retaining lazy and ordinary evaluator
+  semantics and explicit opaque-context refusals.
+
 
 - Strict independent trace replay can prove bounded finite tuple ranges from
   Init and every Next branch, admitting indexed process stacks without using

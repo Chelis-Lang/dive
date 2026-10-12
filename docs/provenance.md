@@ -1003,3 +1003,15 @@ producer blob identity without requiring an unpublished Git object in CI.
 The current reader checks the old and qualified epochs separately; this
 selected-source proof is not a hermetic build or full namespace certificate
 ([probe evidence](../conformance/probes/indexed-stack-replay/README.md)).
+
+### Independent Strict substitution admission (#234)
+
+The native trace context guard inspects `Arg::Expr`/`Pass::Strict` before
+`Evaluator::scope_subst`. Existing `Core::bind_subst` evaluates Strict
+expressions while Lazy/Direct bindings remain thunks; operator lookup does not
+execute an expression. Eleven trace-side entry sites in tuple shape/range,
+whole-word tuple history, runtime-order and temporal inspection are guarded.
+This is an independent native admission repair, not a Java algorithm port or
+a claim that naturally lowered TLA+ emits the retained caller-forged metadata.
+The regression fixture preserves owned IR, original impure-annotation refusal,
+actual inert/lazy contexts and ordinary evaluator execution separately.

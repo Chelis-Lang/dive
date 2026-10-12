@@ -163,7 +163,12 @@ impl Word<'_> {
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
         }
-        if let Expr::Subst { body, .. } = &node.expr {
+        if let Expr::Subst { body, bindings } = &node.expr {
+            if !crate::context_admission::substitution_is_lazy(bindings) {
+                return Err(TemporalError::Unsupported(
+                    crate::context_admission::STRICT_SUBSTITUTION.into(),
+                ));
+            }
             let sc = ev
                 .scope_subst(scope, expr)
                 .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
@@ -753,7 +758,12 @@ impl Word<'_> {
                     ));
                     continue;
                 }
-                Expr::Subst { body, .. } => {
+                Expr::Subst { body, bindings } => {
+                    if !crate::context_admission::substitution_is_lazy(bindings) {
+                        return Err(TemporalError::Unsupported(
+                            crate::context_admission::STRICT_SUBSTITUTION.into(),
+                        ));
+                    }
                     todo.push((
                         *body,
                         ev.scope_subst(&sc, e)
@@ -940,7 +950,12 @@ impl Word<'_> {
                 let (def, called) = self.parameter_call(scope, *local, args, depth + 1, steps)?;
                 return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
             }
-            Expr::Subst { body, .. } => {
+            Expr::Subst { body, bindings } => {
+                if !crate::context_admission::substitution_is_lazy(bindings) {
+                    return Err(TemporalError::Unsupported(
+                        crate::context_admission::STRICT_SUBSTITUTION.into(),
+                    ));
+                }
                 let sc = ev
                     .scope_subst(scope, expr)
                     .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
@@ -1206,7 +1221,12 @@ impl Word<'_> {
                         ));
                     }
                 },
-                Expr::Subst { body, .. } => {
+                Expr::Subst { body, bindings } => {
+                    if !crate::context_admission::substitution_is_lazy(bindings) {
+                        return Err(TemporalError::Unsupported(
+                            crate::context_admission::STRICT_SUBSTITUTION.into(),
+                        ));
+                    }
                     let sc = ev
                         .scope_subst(&scope, e)
                         .map_err(|error| TemporalError::Unsupported(error.to_string()))?;

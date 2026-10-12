@@ -107,7 +107,7 @@
     "corrected-prefreeze/9.stdout": "bc12843c5295b3585808f521be63b39df1493379d0405d6eaa79d49925ef2ea3",
     "corrected-prefreeze/api-consumer-before-entry-limit.rs": "972475e67ea2cb96356e93eda910bcbdd28af754f51887a53744a7fe8e0cafd3",
     "corrected-prefreeze/receipt.json": "b5ccb76c861e5937965dc6c3fda9101de541e205ea2ed5c05a0f61fc33d7cd52",
-    "current-source.json": "53db5e10db44e997df13eb6514ff3baf46dd164ec2099adf9f0d0f9f07ef87a0",
+    "current-source.json": "6be385db0f7cb1e50a198bd386379c49fdd002039a9305d6e9181b8212f31e25",
     "declared-selection.json": "386e682183c7551a45812cf3b29176f06225990c5031c9ac09440d90d36ad5c0",
     "drivers/dive-role-current-runtime.py": "a51bc7fa5b0963e319948edb5d6b83c41c688948cf2e634964346a77b216b647",
     "drivers/dive-role-full-gate-driver.py": "8314240f1cc2fee83895f62de8e076467e20a35c92e893352735ec62a507a14e",

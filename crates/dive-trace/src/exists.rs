@@ -171,9 +171,12 @@ impl TupleProof<'_> {
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.range(*body, &entered)),
-            Expr::Subst { body, .. } => ev
-                .scope_subst(scope, expr)
-                .is_ok_and(|entered| self.range(*body, &entered)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_lazy(bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|entered| self.range(*body, &entered))
+            }
             Expr::Def(id) => self.range_definition(*id, &[], scope),
             Expr::Apply {
                 callee: OpRef::Def(id),
@@ -240,9 +243,12 @@ impl TupleProof<'_> {
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|sc| self.tuple(*body, &sc)),
-            Expr::Subst { body, .. } => ev
-                .scope_subst(scope, expr)
-                .is_ok_and(|sc| self.tuple(*body, &sc)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_lazy(bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|sc| self.tuple(*body, &sc))
+            }
             Expr::Apply { callee, args } => {
                 let op = match callee {
                     OpRef::Const(id) => self.configured_native(*id),

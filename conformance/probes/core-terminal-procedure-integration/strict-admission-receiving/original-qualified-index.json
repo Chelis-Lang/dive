@@ -1,0 +1,17 @@
+{
+  "producer": "7e0b266c081d1cc3ac490972a7dd24d40baa85e0",
+  "commands": 81,
+  "tests_passed": 1760,
+  "tests_skipped": 0,
+  "scope": "Successful frozen receiving gate before narrow234 fix. No fresh runtime or repaired-source qualification credit; original receipts/source/logs retained.",
+  "family_certified": false,
+  "files_sha256": {
+    "gate-receipt.json": "9db78310e9cc68993528699abce6009f58a0941e464cfb99e5943770ce01fb2b",
+    "reviewed-guard-only.patch": "8da5aa0d5094fd16f1908257add750805eaf779980344db7f251f87e3028c8a1",
+    "original-7e-gate-source.tar.gz": "b0d1b533a3474e159706ef6a63a4199ef968a9d02b88f8fa0a7b7b6f3b21cb5a",
+    "offline-commands.json": "13fd76c5f6a3e5ac9a7c1c706fcbd95ee8cad60fecfbea4991e5e26e8d98f328",
+    "source-index.json": "dc23413ccebf09e4100055279636ff80af1db6273164f7e21549752b7ef5659c",
+    "original-full-gate.log": "4763f9c61f75842ca816af45bc5121013c13cb0113dc514a3277f0fd7b56e204",
+    "reviewed-guard-only-source.json": "faca21b7d29b2e9c9de6263d6b1713ca66d7ddb7de9e3d80af3527e15e6d9a8d"
+  }
+}

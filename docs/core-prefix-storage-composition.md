@@ -171,3 +171,25 @@ outcome. The fixture now initializes that field to `None`; its corruption and
 cleanup assertions are unchanged. The [failed gate record](../conformance/probes/core-terminal-procedure-integration/seen-outcome-test-initializer-receiving/index.json)
 retains the original source, command, and compiler failure. This is an integration
 correction, with fresh combined gate and runtime qualification still pending.
+
+
+### Independent admission repair before shipping (#234)
+
+The frozen combined receiving source `7e0b266c` passed all81 commands and
+1,760 tests with zero skipped. Its original selected source and command logs
+remain under the strict-admission receiving evidence; this is gate evidence,
+not a runtime result for a later source. A separate public serialized-IR probe
+then demonstrated Print effects before independent admission completed.
+The narrow trace guard now refuses Strict substitution entry; ordinary evaluator
+semantics and lazy substitution remain intact.
+
+The first receiving four-test run passed three and exposed a positive fixture
+that was not structurally inert. Its replacement is an actually closed literal
+tuple with the same child ownership and all original refusal/effect assertions.
+A copied old timestamp caused the first retry to reuse the prior executable;
+that source, executable hash and failed log remain uncredited. Removing the
+closed test executable and recompiling the unchanged corrected fixture passes
+all four tests. The repaired receiving source still requires its own complete
+gate and original runtime selections before shipping; no producer is retagged,
+no ordinary scheduler is admitted and no family certification is earned.
+See the [user contract](user/strict-context-admission.md).

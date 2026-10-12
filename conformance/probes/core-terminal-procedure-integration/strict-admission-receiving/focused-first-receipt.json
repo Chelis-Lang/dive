@@ -1,0 +1,51 @@
+{
+  "base": "7e0b266c081d1cc3ac490972a7dd24d40baa85e0",
+  "source_was_uncommitted": true,
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "dive-api",
+    "--test",
+    "strict_context_admission",
+    "--",
+    "--test-threads=2"
+  ],
+  "exit": 101,
+  "passed": 3,
+  "failed": 1,
+  "skipped": 0,
+  "failure": "Positive identity-call fixture is not structurally inert; existing ContextError rejection precedes endpoint. Production guards passed the other three focused tests. Replace positive with an actually closed literal tuple, preserving child ownership and all effect/refusal assertions.",
+  "inputs": {
+    "crates/dive-api/tests/strict_context_admission.rs": {
+      "sha256": "429a0487a51f2fdaf1c25ef7e7cb65a909d7514469a34b59ab325caa6078f9e2",
+      "archive": "focused-first-source/crates/dive-api/tests/strict_context_admission.rs.gz"
+    },
+    "crates/dive-trace/src/context_admission.rs": {
+      "sha256": "188a92d466621dcb74c3d01c41b971e390f7cdd71072d803b3889c50a748a972",
+      "archive": "focused-first-source/crates/dive-trace/src/context_admission.rs.gz"
+    },
+    "crates/dive-trace/src/exists.rs": {
+      "sha256": "a46d5c0fdbb62c02135bad3dcaa97fb9939b1df9f303a369e3ad8673952dbbd4",
+      "archive": "focused-first-source/crates/dive-trace/src/exists.rs.gz"
+    },
+    "crates/dive-trace/src/tuple_history.rs": {
+      "sha256": "d93448667756ad2ffbdb7d4316d0e5d303e0578ac54c40dc2e0ee67ad65b2b57",
+      "archive": "focused-first-source/crates/dive-trace/src/tuple_history.rs.gz"
+    },
+    "crates/dive-trace/src/runtime_order.rs": {
+      "sha256": "a917b16db42e1bfd55b546abd663058683863aa10634c8e15864871903032945",
+      "archive": "focused-first-source/crates/dive-trace/src/runtime_order.rs.gz"
+    },
+    "crates/dive-trace/src/temporal.rs": {
+      "sha256": "652f7198869dfbfaa6ddee5dd06963289a1f95492d09c87070dc2809f0d8a599",
+      "archive": "focused-first-source/crates/dive-trace/src/temporal.rs.gz"
+    },
+    "crates/dive-trace/src/lib.rs": {
+      "sha256": "fae39eb9b76a18066b1ed0826508a9b3e830aba651fce7a5bb7c586421c2de28",
+      "archive": "focused-first-source/crates/dive-trace/src/lib.rs.gz"
+    }
+  },
+  "model_proof": false
+}

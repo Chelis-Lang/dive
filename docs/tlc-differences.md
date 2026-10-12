@@ -2606,3 +2606,21 @@ per-node write coverage and actual tableau done authority under existing graph
 budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
 no-action and checkpoint composition are unfinished. No Holds, model-proof or
 family credit is claimed; F-023 remains missing/audit-required.
+
+### Public Rust IR: Strict context admission (#234)
+
+Independent trace context inspection conservatively refuses an expression
+substitution passed as `Pass::Strict` before entering its scope. This includes
+an actually inert Strict binding: caller-supplied expression effects metadata
+is not an independent proof that eager entry cannot execute effects. Lazy and
+Direct substitution expressions remain thunks; ordinary evaluator Strict
+execution is unchanged. See [the endpoint contract](user/strict-context-admission.md).
+
+The retained public serialized-IR control references `Noise(v) == PrintT(v)`
+from a Strict binding but annotates that copied call `Effects::NONE`. Its valid
+owned context previously produced three Print events before `validate_doc`
+returned Valid, and one before `evaluate_lasso` returned Unsupported. Independent
+existence search already refused without effects. This is a dive public-IR
+admission limitation, not a false-word or naturally lowered TLA+ parity claim,
+and does not introduce a TLC divergence/default ID. Repair source is present;
+fresh receiving qualification is pending under [#234](https://github.com/Chelis-Lang/dive/issues/234).

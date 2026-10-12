@@ -82,3 +82,8 @@ and [bounded tuple-variable histories](../inductive-tuple-trace-replay.md)
 prove operand shape without using the report itself as evidence. The latter
 requires Init and every Next branch to establish/preserve the invariant.
 A [bounded finite function-range proof](../indexed-stack-trace-replay.md) additionally admits tuple stacks indexed by process owners when Init and every Next branch establish/preserve the range. Arbitrary-state APIs and general saved procedure stacks remain refused.
+
+Public serialized IR with Strict substitution expressions has an explicit
+pre-entry refusal during independent context inspection. See
+[strict context admission](strict-context-admission.md) for the Rust endpoint
+contract and unchanged lazy/ordinary-evaluator behavior.

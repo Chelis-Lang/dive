@@ -224,13 +224,23 @@ impl Proof<'_> {
                         self.obligation(*body, &entered, var, next, shape, hypotheses, depth + 1)
                     })
             }
-            Expr::Subst { body, .. } => {
-                self.model
-                    .evaluator
-                    .scope_subst(scope, expr)
-                    .is_ok_and(|entered| {
-                        self.obligation(*body, &entered, var, next, shape, hypotheses, depth + 1)
-                    })
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_lazy(bindings)
+                    && self
+                        .model
+                        .evaluator
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|entered| {
+                            self.obligation(
+                                *body,
+                                &entered,
+                                var,
+                                next,
+                                shape,
+                                hypotheses,
+                                depth + 1,
+                            )
+                        })
             }
             _ => false,
         }
@@ -321,9 +331,12 @@ impl Proof<'_> {
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.shape(*body, &entered, shape, facts, depth + 1)),
-            Expr::Subst { body, .. } => ev
-                .scope_subst(scope, expr)
-                .is_ok_and(|entered| self.shape(*body, &entered, shape, facts, depth + 1)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_lazy(bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|entered| self.shape(*body, &entered, shape, facts, depth + 1))
+            }
             _ => false,
         }
     }
@@ -400,9 +413,12 @@ impl Proof<'_> {
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.finite(*body, &entered, depth + 1)),
-            Expr::Subst { body, .. } => ev
-                .scope_subst(scope, expr)
-                .is_ok_and(|entered| self.finite(*body, &entered, depth + 1)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_lazy(bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|entered| self.finite(*body, &entered, depth + 1))
+            }
             _ => false,
         }
     }
@@ -470,9 +486,12 @@ impl Proof<'_> {
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1)),
-            Expr::Subst { body, .. } => ev
-                .scope_subst(scope, expr)
-                .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_lazy(bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1))
+            }
             _ => false,
         }
     }

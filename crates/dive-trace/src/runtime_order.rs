@@ -222,7 +222,10 @@ impl Proof<'_> {
                     .scope_let(scope, expr)
                     .is_ok_and(|entered| self.walk(*body, &entered, depth + 1));
             }
-            Expr::Subst { body, .. } => {
+            Expr::Subst { body, bindings } => {
+                if !crate::context_admission::substitution_is_lazy(bindings) {
+                    return false;
+                }
                 return ev
                     .scope_subst(scope, expr)
                     .is_ok_and(|entered| self.walk(*body, &entered, depth + 1));
