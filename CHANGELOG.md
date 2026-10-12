@@ -20,6 +20,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Prevent lost notifications in the test-only returned-prefix rendezvous; retain
+  its five-second bound, actual timer/request controls and default behavior.
+
 - Independent trace context inspection admits bounded closed Strict literals
   and actual constant forwarding before entering their scopes (#234), retaining
   pre-effect refusals for forged calls, lazy bindings and ordinary evaluator

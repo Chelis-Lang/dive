@@ -7,7 +7,7 @@
   "history_manifest_sha256": "1cfd568cf56ab2e4d32352a19185c84f8f7295c49dbad81b1073d637b84f0d82",
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "4510a435318598a71cd55d62e2e51ce9de39111936ab169c003d20985356bf4d",
-    "crates/dive-check/src/progress.rs": "b82fca9201f86013d9a4ef53940889ba70271db22d036309df8eb48158a6cc79",
+    "crates/dive-check/src/progress.rs": "5b35ef8f6c12f86e47b6e48dc80ab20591915799b229503a1deb000b40df9579",
     "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
     "crates/dive-check/tests/terminal_observer.rs": "8738435470a26b0135572d2b77fbc505f234a816590eff93268a9618c5489f7f",
     "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",

@@ -235,3 +235,29 @@ All eleven entry sites use the same owned, bounded, callback-free operand
 proof in the original outer scope. The repaired producer still requires its
 own complete gate and fresh original combined runtime selections; these
 focused checks do not qualify the wider composition.
+
+
+### Returned-prefix rendezvous reliability (#235)
+
+The independent no-action component gate ran 1,104 tests on `d9d80aa`:
+1,103 passed, one existing optional-prefix test failed, none were skipped.
+Its seven new no-action/postcondition tests passed. The shared test-only
+returned-prefix lane notified its timer before acquiring the mutex that
+protects the timer's predicate. That ordering permits a lost notification
+between checking the predicate and entering the condition-variable wait.
+
+The receiving gate on `bfd12b14` was deliberately stopped after 41 successful
+Python checks to repair this shared defect; it receives no full-gate credit.
+The repair acquires that same mutex before changing the predicate and
+notifying. It preserves the five-second limit, every existing assertion and
+the default production path, which excludes the test-rendezvous feature.
+
+A deterministic actual-lane unit control observes mutex ownership at
+notification. Restoring the old ordering fails that exact assertion; the
+repaired ordering passes. This is a critical-section invariant control, not
+a reproduced two-thread deadlock or natural-clock certificate. Both original
+real timer/request-origin API controls and the scoped no-invented-request
+control pass unchanged; targeted Clippy passes. The
+[receiving evidence](../conformance/probes/core-terminal-procedure-integration/returned-prefix-rendezvous-receiving/index.json)
+preserves both sources, commands, logs and the actual old-order rejection.
+A fresh complete gate and combined runtime remain required.

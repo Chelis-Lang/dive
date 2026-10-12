@@ -6,7 +6,7 @@
   "history_manifest_sha256": "66feb1244bb73ac46ab12fea60a1b1b59de1cb6d138156c192b1aaa19660c8cf",
   "scope": "Current producer-clock claim/pause diagnostic. Current-wave output remains uncommitted; no ordinary clock/queue/count/verdict or family certificate.",
   "source_sha256": {
-    "crates/dive-check/src/progress.rs": "b82fca9201f86013d9a4ef53940889ba70271db22d036309df8eb48158a6cc79",
+    "crates/dive-check/src/progress.rs": "5b35ef8f6c12f86e47b6e48dc80ab20591915799b229503a1deb000b40df9579",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
     "crates/dive-check/src/capture.rs": "4510a435318598a71cd55d62e2e51ce9de39111936ab169c003d20985356bf4d",
     "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",

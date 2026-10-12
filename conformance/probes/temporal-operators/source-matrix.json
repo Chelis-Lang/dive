@@ -15,7 +15,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
     "AGENTS.md": "7a520dea2aef94a68bd3452c25d7fa86723c87b17210900f8e9451aacbfcb1ee",
-    "CHANGELOG.md": "fb009d4dd948002a28858870c546530a6f8ef5c5399dd7b20397cefa15e9b3fd",
+    "CHANGELOG.md": "f011741b05d87accc05af073a982925dfe10274caa637d81f9d9b15648a3fb52",
     "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",

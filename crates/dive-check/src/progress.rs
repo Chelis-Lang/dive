@@ -167,11 +167,18 @@ impl Lane {
         let Some(rendezvous) = &self.rendezvous else {
             return;
         };
+        // The timer tests `returned` while holding this mutex before waiting.
+        // Publish the predicate and notify under the same lock so notification
+        // cannot precede the timer's atomic unlock-and-wait transition.
+        let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
         if rendezvous.returned.swap(true, Ordering::AcqRel) {
             return;
         }
+        #[cfg(test)]
+        rendezvous
+            .notification_lock_observed
+            .store(self.state.try_lock().is_err(), Ordering::Release);
         self.wake.notify_all();
-        let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
         let (state, _) = self
             .wake
             .wait_timeout_while(state, Duration::from_secs(5), |state| {
@@ -230,6 +237,9 @@ pub mod testing {
     pub(crate) struct Rendezvous {
         pub(super) returned: AtomicBool,
         pub(super) observed: AtomicBool,
+        // Unit-test observation only: no caller callback or request authority.
+        #[cfg(test)]
+        pub(super) notification_lock_observed: AtomicBool,
     }
     thread_local! {
         static CURRENT: RefCell<Option<Arc<Rendezvous>>> = const { RefCell::new(None) };
@@ -256,6 +266,8 @@ pub mod testing {
         let rendezvous = Arc::new(Rendezvous {
             returned: AtomicBool::new(false),
             observed: AtomicBool::new(false),
+            #[cfg(test)]
+            notification_lock_observed: AtomicBool::new(false),
         });
         let _restore = install(Some(rendezvous.clone()));
         let result = callback();
@@ -391,6 +403,33 @@ mod tests {
         );
         assert!(result.is_ok()); // Actual scoped timer join completes despite its old hour deadline.
     }
+    #[test]
+    #[cfg(feature = "test-rendezvous")]
+    fn rendezvous_notification_owns_the_timer_predicate_mutex() {
+        let ((), observed) = testing::with_returned_prefix_request(|| {
+            let lane = Lane::new(Options {
+                interval: Duration::from_millis(1),
+                force: false,
+            })
+            .expect("lane");
+            // No timer or competing thread holds the lock in this control.
+            // Closing first avoids a timing wait or any invented request.
+            lane.close();
+            lane.returned_source_rendezvous();
+            let rendezvous = lane.rendezvous.as_ref().expect("test rendezvous");
+            assert!(rendezvous.returned.load(Ordering::Acquire));
+            assert!(
+                rendezvous
+                    .notification_lock_observed
+                    .load(Ordering::Acquire),
+                "notification must own the mutex used by the timer predicate"
+            );
+            assert!(lane.take().expect("closed lane").is_none());
+        });
+        assert!(!observed);
+        assert!(testing::current().is_none());
+    }
+
     #[test]
     #[cfg(feature = "test-rendezvous")]
     fn test_rendezvous_restores_scope_and_does_not_invent_requests() {
