@@ -201,8 +201,9 @@ snapshot, optional role, terminal and stopped-queue services were removed
 duplicate removal, ordered frontier closure, and first-map-then-second-map
 composition. The bounded dense index representation, checked bijectivity and
 resource refusals are original implementations. The 1,329 direct Java-kernel
-fixtures include malformed maps. This does not port `Tool.getSymmetryPerms`,
-its warnings, canonicalization or state/trace reduction yet. The original MIT
+fixtures include malformed maps. That kernel evidence does not establish
+`Tool.getSymmetryPerms`, its warnings, canonicalization or state/trace reduction;
+their separate implementations and controls are recorded below. The original MIT
 Java driver and raw SyEmpty capture are in
 `crates/dive-model/tests/fixtures/symmetry-group/`.
 
@@ -210,13 +211,22 @@ Java driver and raw SyEmpty capture are in
 The pure symmetry declaration stage matches `SpecProcessor`'s pre-constant
 `Defns.snapshot` and `Tool.getSymmetryPerms`' name, original-body evaluation,
 enum-set normalization and function-record checks at tlaplus `94d0c50` (MIT).
-Four early errors are checked against the existing clean raw symmetry captures;
+Early errors are checked against the clean pinned symmetry controls;
 configuration replacement and pure/effectful controls supplement them. Warning,
-model-value and group checks are separate pending stages; no reduction is enabled.
+model-value and group checks belong to `prepare_symmetry`; safety key reduction
+and concrete trace retention belong to the checker.
 
-Unverified declaration-evaluation and normalization startup errors refuse by
-name rather than reuse an evaluator diagnostic as an exact startup message.
-A division-by-zero control verifies that no TLC code is claimed for that refusal.
+Division by zero while evaluating the declaration and incomparable values while
+normalizing its enumerated set now use TLC's outer `GENERAL` startup class
+(1000, exit 255), rather than the inner evaluator code. The source basis is
+`Tool.getSymmetryPerms`, `TLC.process`'s outer exception catch and
+`MP.ECGeneralMsg` at the same pin: `EvalException` retains its class and nested
+2179 message; `Assert.TLCRuntimeException` is printed as `RuntimeException`.
+The consumed `SyDivZero` and `SyMixedElements` specifications and model tests
+check the exact messages. Public API/CLI controls check both profiles and show
+these errors precede a false ASSUME without exploring states. Other unverified
+declaration-evaluation and normalization errors remain named refusals; this is
+not general JVM exception support or full symmetry startup certification.
 
 
 ## Bounded lazy binder domains
