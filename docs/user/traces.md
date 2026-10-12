@@ -12,11 +12,9 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states
-are not completed by guessing. Version 1 normalizes value JSON and has known
-representation gaps. Opt-in version 2 retains admitted stored representations
-with checked construction witnesses; successful transport is still not semantic
-validation. TLC dumpTrace JSON is also an accepted input format within the
-validator's documented boundary.
+are not completed by guessing. Trace format version 1 normalizes value JSON and has known representation
+gaps. Successful decoding is separate from semantic validation. TLC dumpTrace
+JSON is also an accepted input format within the validator's documented boundary.
 
 Rust applications can validate their own observed state sequence:
 
@@ -37,29 +35,20 @@ dependencies. `Behavior` checks the supplied finite execution; it does not claim
 an invariant counterexample or exhaustive model proof. Counterexample endings
 and periodic lassos carry separate claims and closing-edge obligations.
 
-Validation distinguishes valid, invalid and explicitly refused. Named random
-replay restrictions, unavailable finite deadlock/ENABLED covers, effects and
-unknown closing evidence do not become `valid`. Supply the original seed/fp and
-profile when required. The in-memory lasso back edge is zero-based; checker
+Validation distinguishes valid, invalid and explicitly refused. Random draws,
+search-dependent register access, unavailable finite deadlock/ENABLED covers,
+effects and unknown closing evidence do not become `valid`. Supply the original
+seed/fp for run-dependent model binding and use the checking profile. The in-memory lasso back edge is zero-based; checker
 summary `back_to` display is one-based. Prefer the supplied trace document over reconstructing a lasso from displayed
 states, and inspect its decoder and independent-validation disposition.
 
 See the [API rustdoc](../../crates/dive-api/src/trace.rs),
 [temporal contract](../temporal-api.md) and [validator independence ADR](../decisions/0016-trace-validator-independence.md).
 
-A known mixed-set limitation remains: a checker can emit canonical JSON set
-order containing a sequence before a record, which the current decoder
-rejects with `result: invalid` at the shape check. This happens in both profiles;
-it is decoder admission failure, not semantic replay of the word. The current
-VIEW normalization selection retains 36 such original shape failures and 108
-mutant shape failures, separately from 96 independently valid words and 288
-semantic mutant rejections. Twelve originals are separately supplied
-default-reverse candidates, not emitted checker certificates. No shape failure
-receives validation credit. The separate homogeneous checkpoint matrix proves
-216 valid original/recovered words and 216 altered-word rejections.
-[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) and the
-source-bound campaign
-retain the exact outputs and incomplete coverage.
+A known mixed-set limitation remains: a checker can emit a JSON set containing
+a sequence before a record that the decoder rejects at the shape check, in
+either profile. Such a result receives no validation credit.
+[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) tracks this boundary.
 
 Under `--compat=tlc`, strings and model values compare in the order TLC first
 encountered them. The validator knows that order for every name interned when
