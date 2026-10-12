@@ -4,9 +4,6 @@
 //! capture path uses the shared ordered safety engines. It retains every accepted
 //! generated edge, including duplicates, and adds explicit implicit stutters.
 
-mod post;
-pub use post::DeferredPostconditions;
-
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -396,9 +393,7 @@ pub struct ExplorationEnd {
     stats: Stats,
     workers: Workers,
     completion: GraphCompletion,
-    evaluator: dive_eval::Evaluator,
     result: CheckResult,
-    deferred_admission: Option<Arc<()>>,
 }
 impl ExplorationEnd {
     /// Actual completed exploration counters.
@@ -1068,7 +1063,7 @@ pub fn explore_with_evidence(
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false, None, None);
+    let run = || explore_inner(model, opts, limits, false, None);
     let mut result = run_on_thread(run)?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
@@ -1134,7 +1129,7 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None, None))?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None))?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -1153,15 +1148,6 @@ pub fn explore_observed_with_evidence(
     limits: Limits,
     observer: &mut dyn SourceObserver,
 ) -> Result<Exploration, String> {
-    observed_admitted(model, opts, limits, observer, None)
-}
-fn observed_admitted(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-    observer: &mut dyn SourceObserver,
-    deferred_admission: Option<Arc<()>>,
-) -> Result<Exploration, String> {
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
@@ -1174,43 +1160,9 @@ fn observed_admitted(
         }, model, opts));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| {
-        explore_inner(
-            model,
-            opts,
-            limits,
-            true,
-            Some(observer),
-            deferred_admission,
-        )
-    })?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, Some(observer)))?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
-}
-
-/// Observe an admitted owned model with its postconditions deferred. The private
-/// token supplies the model; no caller defer/EOF/graph flag is accepted. A final
-/// consumer must first complete temporal selection and then call
-/// [`DeferredPostconditions::evaluate`]. This diagnostic capture alone grants
-/// no ordinary success, postcondition pass or temporal proof.
-///
-/// # Errors
-/// The same original execution/context failures as observed capture.
-pub fn explore_observed_deferred_with_evidence(
-    token: &DeferredPostconditions,
-    opts: &CheckOptions,
-    limits: Limits,
-    observer: &mut dyn SourceObserver,
-) -> Result<Exploration, String> {
-    let mut model = token.model.clone();
-    model.postconditions = Ok(Vec::new());
-    observed_admitted(
-        &model,
-        opts,
-        limits,
-        observer,
-        Some(token.admission.clone()),
-    )
 }
 
 fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
@@ -1275,7 +1227,6 @@ fn explore_inner(
     limits: Limits,
     parallel: bool,
     mut observer: Option<&mut dyn SourceObserver>,
-    deferred_admission: Option<Arc<()>>,
 ) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
@@ -1399,9 +1350,7 @@ fn explore_inner(
             stats,
             workers: result.workers.clone(),
             completion: completion.clone(),
-            evaluator: model.evaluator.clone(),
             result: result.clone(),
-            deferred_admission,
         };
         if let Err(message) = consumer.exploration_complete(&end) {
             result.verdict = Verdict::Unsupported {

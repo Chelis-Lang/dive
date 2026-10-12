@@ -98,7 +98,9 @@ All notable changes to this project are documented here. The project will follow
   supplied in public Rust predicate/action scopes before any backend work.
   Pure captured operators remain supported. Unused value-admission context error
   variants are removed. An evaluator now refuses
-  any scope created by another evaluator.
+  any scope created by another evaluator. The unused deferred-postcondition
+  admission token and its observer entry point are removed after the periodic
+  pipeline deletion.
 
 - Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
   from the trace-validation API. Random draws remain explicitly unsupported.
