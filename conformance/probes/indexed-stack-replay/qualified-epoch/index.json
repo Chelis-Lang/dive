@@ -4,7 +4,7 @@
   "family_certified": false,
   "source_scope": "1461 selected tracked inputs,485 workspace Rust paths and70 actual literal include sites/65targets archived before qualification; not dependency/toolchain hermeticity. Historic c296/bad4 producers remain unchanged.",
   "files_sha256": {
-    "current-source.json": "27211405b923e3001fae19beb07fce59a1a599044ac7a75b040af0980505a0a5",
+    "current-source.json": "df16ec91c565679c7eba73a1e89286bf608fdd145207524292e96f128dff051f",
     "drivers/dive-indexed-stack-final-first-native-census.py.gz": "248c731d320af916839aff347f36e9f240e44a5b0dd26dad577611df14e97674",
     "drivers/dive-indexed-stack-final-guide-controls.py.gz": "741c76b636b66874830d5c1f1bf7576a9ace360eb25b19bd52131feb1aa7b777",
     "drivers/dive-indexed-stack-final-native-build.py.gz": "de3f8ae0f284a53d8db7178c73a70f018c91e502bd14ee5b6f09533077b58828",

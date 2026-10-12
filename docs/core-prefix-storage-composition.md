@@ -153,3 +153,12 @@ semantic mutants. The receiving merge changes only the two existing trace
 implementation files, adds their tests and executable guide, and retains the
 16-partition CI policy. These component receipts do not qualify the combined
 receiving executable; its gate and fresh runtime campaigns are still pending.
+
+The first combined gate stopped when the indexed replay reader detected an
+incoming current-source map that still described the trace component tree.
+The original map, envelope and actual failed command are retained in the
+[receiving record](../conformance/probes/core-terminal-procedure-integration/indexed-current-map-receiving/index.json).
+Only the current map and its envelope hash were refreshed; the historical
+epochs, semantic assertions and qualified native producer remain unchanged.
+The corrected reader passes independently. Full combined qualification still
+requires the complete gate and fresh runtime campaigns on the receiving source.
