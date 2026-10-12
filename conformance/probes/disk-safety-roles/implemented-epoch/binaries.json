@@ -1,0 +1,40 @@
+{
+  "runtime_source_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+  "source_index_sha256": "57bf6a77cf1ad0dddb40284844e31c89df6980cc88cdc4f28ce328d3d66973c2",
+  "binaries": [
+    {
+      "name": "dive",
+      "runtime_source_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+      "sha256": "f2d389b4c50050b6a49d635709fe7f7f09ca61550b2cf9c63caed006f7eccdc2",
+      "path": "dive"
+    },
+    {
+      "name": "dive-conformance",
+      "runtime_source_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+      "sha256": "140d55f4b07bea8a82de7abea036e4191ae093c419af0d7715330c3bbf2d3ff7",
+      "path": "dive-conformance"
+    },
+    {
+      "name": "disk_seen_roles",
+      "runtime_source_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+      "sha256": "93e1e3d197a8aa96a09625a79518b9ed12e9f14f078e4c73a90854fd385a5221",
+      "path": "disk_seen_roles"
+    },
+    {
+      "name": "dive-disk-role-controls",
+      "runtime_source_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+      "sha256": "ca1f2f87e85189f794151c5219cf9df30d4d972a463ae117b723879842ad54cd",
+      "path": "dive-disk-role-controls"
+    },
+    {
+      "name": "disk_seen_roles-debug-guide",
+      "runtime_source_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+      "sha256": "aed6872ea8587a1f728810d59da772544e7d888f9d42424e8032784c1add3713",
+      "path": "disk_seen_roles-debug-guide",
+      "qualification": "Actual debug Cargo guide invocation; distinct from the release guide binary."
+    }
+  ],
+  "jobs": 2,
+  "incremental": false,
+  "qualification": "All copied executables are built after the exact-source complete gate. Selected input provenance is not a hermetic dependency/toolchain claim."
+}

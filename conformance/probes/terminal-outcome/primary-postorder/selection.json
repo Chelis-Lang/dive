@@ -1,0 +1,146 @@
+[
+  {
+    "id": "safe-state-post-w1-observed",
+    "case": "safe-state-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-state-post-w1-cli",
+    "case": "safe-state-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-state-post-w4-observed",
+    "case": "safe-state-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-state-post-w4-cli",
+    "case": "safe-state-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-state-post-w8-observed",
+    "case": "safe-state-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-state-post-w8-cli",
+    "case": "safe-state-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-state-post-w1-observed",
+    "case": "violation-state-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-state-post-w1-cli",
+    "case": "violation-state-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-state-post-w4-observed",
+    "case": "violation-state-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-state-post-w4-cli",
+    "case": "violation-state-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-state-post-w8-observed",
+    "case": "violation-state-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-state-post-w8-cli",
+    "case": "violation-state-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-constant-post-w1-observed",
+    "case": "safe-constant-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-constant-post-w1-cli",
+    "case": "safe-constant-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-constant-post-w4-observed",
+    "case": "safe-constant-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-constant-post-w4-cli",
+    "case": "safe-constant-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-constant-post-w8-observed",
+    "case": "safe-constant-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-constant-post-w8-cli",
+    "case": "safe-constant-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-constant-post-w1-observed",
+    "case": "violation-constant-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-constant-post-w1-cli",
+    "case": "violation-constant-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-constant-post-w4-observed",
+    "case": "violation-constant-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-constant-post-w4-cli",
+    "case": "violation-constant-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-constant-post-w8-observed",
+    "case": "violation-constant-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-constant-post-w8-cli",
+    "case": "violation-constant-post",
+    "width": 8,
+    "mode": "cli"
+  }
+]

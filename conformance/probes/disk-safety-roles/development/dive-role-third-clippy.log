@@ -1,0 +1,27 @@
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-model)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-trace)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sim)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+error: field assignment outside of initializer for an instance created with Default::default()
+   --> crates/dive-check/tests/disk_roles.rs:144:13
+    |
+144 | /             disk.directory = Some(
+145 | |                 Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/never-created-role-admission"),
+146 | |             );
+    | |______________^
+    |
+note: consider initializing the variable with `dive_check::SeenOptions { directory: Some(
+                      Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/never-created-role-admission"),
+                  ), ..Default::default() }` and removing relevant reassignments
+   --> crates/dive-check/tests/disk_roles.rs:143:13
+    |
+143 |             let mut disk = SeenOptions::default();
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#field_reassign_with_default
+    = note: `-D clippy::field-reassign-with-default` implied by `-D clippy::all`
+    = help: to override `-D clippy::all` add `#[allow(clippy::field_reassign_with_default)]`
+
+error: could not compile `dive-check` (test "disk_roles") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

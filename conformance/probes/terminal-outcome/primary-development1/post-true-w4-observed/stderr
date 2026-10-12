@@ -1,0 +1,4 @@
+Exception in thread "main" util.Assert$TLCRuntimeException: The post condition Post cannot be a constant.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.Spec.getPostConditionSpecs(Spec.java:323)
+	at TerminalOutcomeProbe.main(TerminalOutcomeProbe.java:36)

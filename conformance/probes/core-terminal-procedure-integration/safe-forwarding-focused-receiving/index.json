@@ -1,0 +1,38 @@
+{
+  "base": "555f4e993d8cea89fefdd9206181024e8e18c185",
+  "scope": "Actual uncommitted receiving patch. Both original temporal tests1+1, all4Strict endpoint tests and all3private proof controls passed. TargetedClippy then failed one doc_markdown issue. Full temporal target notrun in this failed sequence. Fullgate/runtimefalse. Original receiving patch and command/source/log hashes retained, not retagged to later source.",
+  "files": {
+    "source.json.gz": {
+      "sha256": "4235b8a8e964d290944484d1df1ec763af08e1f7f5cfe33c4953791b0917ee74",
+      "raw_sha256": "1ed26ee99e674a78b27b30389c1d8ab0b73481e0cdff88394d1af39e9775aad9"
+    },
+    "receiving.patch.gz": {
+      "sha256": "7d5f58a77ca0e3f4a82ec31afd85773cf6bead5933c5ded9874111d883b8ef71",
+      "raw_sha256": "60493a2e9f891c9fe4a18c7b90424a8fa74eaf27e3bf784637d5b0a544fd091d"
+    },
+    "receipt.json.gz": {
+      "sha256": "15ea8477f719c16f0b57d7596a757a6838ab29dd25c5b214db2ff8e5f6d168e4",
+      "raw_sha256": "48e4436fc74cfea006756070b8b3bc1a0de9dabe042f320d8755358f495df853"
+    },
+    "step-0.log.gz": {
+      "sha256": "bcc366640186a0f31152934cddd7081c3f313cfafd4f963eee9d2ad049ffbb6d",
+      "raw_sha256": "1bb97e47612eb12d7de220f2a184c2d1d6fbe3c4edf7e3c054a656fb7359176a"
+    },
+    "step-1.log.gz": {
+      "sha256": "7d0dc35464fbbe87847913d239d5c487fb97fd492a693f137b5b885ec0ef20d8",
+      "raw_sha256": "221d386395612b61443d5ec6efd7f267d254a91e705ee9cf2be82f9e087a466b"
+    },
+    "step-2.log.gz": {
+      "sha256": "aae02c5e83b949f1616e14cde673def9be58876f600d583dcdd1b2b0101e36ad",
+      "raw_sha256": "fb41344b31d84cf13f8ee1552590ecedc5a8aef9c508e16bfb814d0b0da9733a"
+    },
+    "step-3.log.gz": {
+      "sha256": "3952012f95562c05d0c95bb6cd9d35de9ee9bc4ee5478fe593352dd9c328c342",
+      "raw_sha256": "c412f48cffcb620b540440b389ce4bfdd9528f1f727a556c94048b34eee95c89"
+    },
+    "step-4.log.gz": {
+      "sha256": "fea2c232883d8ef99f263fc3d176a3238f44b6257e32f3f63966e1ce3e9d5572",
+      "raw_sha256": "481801cb12431b787a420b7fd46039ce6d8f17dcc83735082a30df92075ee097"
+    }
+  }
+}

@@ -57,18 +57,34 @@ jobs:
     needs: no-ai-authorship
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      CARGO_BUILD_JOBS: "2"
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target/ci-workspace-checks
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Reclaim unused hosted Linux SDK space
+        if: ${{ runner.environment == 'github-hosted' && runner.os == 'Linux' }}
+        env:
+          DIVE_CI_RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          DIVE_CI_RUNNER_OS: ${{ runner.os }}
+        run: bash scripts/ci-reclaim-hosted-sdk-space.sh
       - name: Install pinned toolchain (rust-toolchain.toml)
         run: rustup show active-toolchain || rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
+          prefix-key: v1-workspace-checks-isolated
+          workspaces: ". -> target/ci-workspace-checks"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-nextest,cargo-deny
+      - name: Workspace resources after cache restore
+        run: |
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+          free -h
+          if [ -d "$CARGO_TARGET_DIR" ]; then du -sh "$CARGO_TARGET_DIR"; fi
       - name: rustfmt
         run: cargo fmt --all --check
       - name: ValidationTestSuite import controls
@@ -100,9 +116,14 @@ jobs:
           python3 -I scripts/check-fallible-seen-store.py
           python3 -I scripts/check-inductive-tuple-replay.py
           python3 -I scripts/check-fixed-tuple-projection.py
+          python3 -I scripts/check-indexed-stack-replay.py
           python3 -I scripts/check-core-prefix-storage-integration.py
           python3 -I scripts/check-core-composed-epoch.py
           python3 -I scripts/test-core-composed-epoch.py
+          python3 -I scripts/check-fallible-seen-engine.py
+          python3 -I scripts/test-fallible-seen-git-proof.py
+          python3 -I scripts/check-disk-safety-roles.py
+          python3 -I scripts/test-disk-safety-role-proof.py
           python3 -I scripts/check-native-parity-integration.py
           python3 -I scripts/check-tlc-final.py
           python3 -I scripts/check-tlc-final-safety.py
@@ -140,10 +161,52 @@ jobs:
           python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
           python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py
           python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py
+          python3 -I scripts/check-optional-periodic-hook.py
+          python3 -I scripts/check-terminal-periodic-service.py
+          python3 -I scripts/check-stopped-periodic-service.py
+          python3 -I scripts/check-terminal-outcome.py
       - name: clippy
+        env:
+          # Check-only outputs never coexist with the complete inventory build.
+          CARGO_TARGET_DIR: ${{ runner.temp }}/dive-ci-clippy-${{ github.run_id }}-${{ github.run_attempt }}
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Dispose completed temporary Clippy outputs
+        # Default success condition: never remove a failed Clippy producer here.
+        run: |
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+          free -h
+          python3 -I - <<'PY'
+          import os
+          from pathlib import Path
+          import shutil
+
+          def dispose(parent, run_id, attempt):
+              if not run_id.isascii() or not run_id.isdecimal():
+                  raise ValueError("invalid run ID")
+              if not attempt.isascii() or not attempt.isdecimal():
+                  raise ValueError("invalid attempt")
+              parent = Path(parent).resolve(strict=True)
+              target = parent / ("dive-ci-clippy-" + run_id + "-" + attempt)
+              if target.is_symlink():
+                  raise ValueError("temporary Clippy target is a symlink")
+              if target.exists():
+                  if not target.is_dir() or target.resolve(strict=True) != target:
+                      raise ValueError("temporary Clippy target is not an owned directory")
+                  shutil.rmtree(target)
+
+          dispose(os.environ["RUNNER_TEMP"], os.environ["GITHUB_RUN_ID"],
+                  os.environ["GITHUB_RUN_ATTEMPT"])
+          PY
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+          free -h
       - name: Verify complete test partitions
         run: python3 -I scripts/check-test-partitions.py
+      - name: Workspace resources after inventory
+        if: ${{ always() }}
+        run: |
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+          free -h
+          if [ -d "$CARGO_TARGET_DIR" ]; then du -sh "$CARGO_TARGET_DIR"; fi
       - name: Required workspace result controls
         run: python3 -I scripts/test-workspace-gate.py
       - name: doctests
@@ -174,6 +237,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Reclaim unused hosted Linux SDK space
+        if: ${{ runner.environment == 'github-hosted' && runner.os == 'Linux' }}
+        env:
+          DIVE_CI_RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          DIVE_CI_RUNNER_OS: ${{ runner.os }}
+        run: bash scripts/ci-reclaim-hosted-sdk-space.sh
       - name: Install pinned toolchain (rust-toolchain.toml)
         run: rustup show active-toolchain || rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2

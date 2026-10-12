@@ -1,0 +1,11 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.43s
+     Running tests/stopped_observer.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/stopped_observer-4f75275a5598d6a0)
+
+running 3 tests
+test init_resource_unsupported_and_lane_setup_stops_never_mint_source_authority ... ok
+test stateful_admission_is_read_once_and_never_mints_postjoin_authority ... ok
+test every_source_family_retains_verdict_counts_trace_and_workers_on_rejection_or_unwind ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s
+

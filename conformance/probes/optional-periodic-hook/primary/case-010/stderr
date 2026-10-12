@@ -1,0 +1,27 @@
+EVENT	setup-start
+Parsing file /private/tmp/dive-ordinary-optional-hook-primary/case-010/Snapshot.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-18070402312889375062/Integers.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-18070402312889375062/TLC.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-18070402312889375062/Naturals.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-18070402312889375062/Sequences.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-18070402312889375062/FiniteSets.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Snapshot
+Linting of module Snapshot
+Starting... (2026-10-11 18:33:05)
+tlc2.tool.EvalException: The second argument of \div is 0.
+	at tlc2.module.Integers.Divide(Integers.java:158)
+	at tlc2.value.impl.MethodValue.eval(MethodValue.java:145)
+	at tlc2.value.impl.OpValue.eval(OpValue.java:64)
+	at tlc2.tool.impl.Tool.evalApplImpl(Tool.java:2045)
+	at tlc2.tool.impl.FastTool.evalAppl(FastTool.java:117)
+	at tlc2.tool.impl.Tool.evalImpl(Tool.java:1810)
+	at tlc2.tool.impl.FastTool.eval(FastTool.java:110)
+	at tlc2.tool.impl.Tool.eval(Tool.java:1624)
+	at tlc2.tool.impl.Tool.eval(Tool.java:1629)
+	at tlc2.tool.impl.Tool.eval(Tool.java:1634)
+	at SnapshotProbe.main(SnapshotProbe.java:31)

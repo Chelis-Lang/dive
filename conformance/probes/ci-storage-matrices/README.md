@@ -68,3 +68,4 @@ Rust/Cargo/toolchain inputs are identical to the earlier test-splitting producer
 `d21ea2c6`. Existing model runtime campaigns keep their `05b3a1ef` producer.
 This is CI scheduling qualification, not a new model run or feature certificate.
 The pre-run declaration's pending text is retained in the frozen source packet.
+

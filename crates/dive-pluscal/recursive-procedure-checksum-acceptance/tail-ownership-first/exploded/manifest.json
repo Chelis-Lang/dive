@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "selected": 8,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "adapter_sha256": "483e27238f5a8bdd4e5c2897b88e8b798279576ba21a69318782ccfaf48420eb",
+  "script_sha256": "cf2731b0c1c25bd1e9c2be4716985b7cb6fe9fe3fd6aa2d312d2af3599a0fd90",
+  "selection_sha256": "41814d84e4884c727c079312734ea3f617b16f385c74b79b3c2296621ece5108",
+  "header_crc_authority": false,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "RecursiveTail_C_self_tail_local",
+      "input_sha256": "6a2cd3e4955221bdc24581bc4d460b44b12e3cc3f330aaa7f828bb51df37d902",
+      "exit_code": 0,
+      "stages": {},
+      "rejections": [
+        "pcal.exception.ParseAlgorithmException: Expected \":=\" but found \";\"\n    line 3, column 71"
+      ],
+      "stdout": {
+        "path": "RecursiveTail_C_self_tail_local.stdout.gz",
+        "sha256": "a50a6482ad3417972d14f6737fee80a41faf5bd1f5fbcc741d478f7d630c2fca"
+      },
+      "stderr": {
+        "path": "RecursiveTail_C_self_tail_local.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_C_self_tail_two_args",
+      "input_sha256": "feb9bf9ba335db8b3defb9c5764d54d3d15fcd5c14b7ecc09a86cfe1b431fe98",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "c3748446",
+          "ast_sha256": "9dbaa9a79884c120e959b154214560ab5733fd12d395202669129c25f3d2f2f1",
+          "json_sha256": "d4c2d4bc3298a27a7b55b2e9e9fa833c5f91560b94661f370e8c54b0e5d71597"
+        },
+        "names": {
+          "crc": "c3748446",
+          "ast_sha256": "9dbaa9a79884c120e959b154214560ab5733fd12d395202669129c25f3d2f2f1",
+          "json_sha256": "d4c2d4bc3298a27a7b55b2e9e9fa833c5f91560b94661f370e8c54b0e5d71597"
+        },
+        "original-after-explode": {
+          "crc": "5eec1253",
+          "ast_sha256": "ddd8512877d7ec61207ee2c0e688fe13db300acee7e718deb37ac69b85084073",
+          "json_sha256": "261a755798a5298376edc8d4f633ec42d52afbcf63ad8e7b4233a68af95d0bad"
+        },
+        "exploded": {
+          "crc": "77295b9b",
+          "ast_sha256": "c61af29d571d81a2012b59f890a30f295f34f457a9dfb1b357da41306d069665",
+          "json_sha256": "0aa170fb62c88515069a707cec2b1c04c117a2bd91ebe60ae4e5da704c3bdba8"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "RecursiveTail_C_self_tail_two_args.stdout.gz",
+        "sha256": "2746a2c185bc81b8521004be107c3298594f57a24445caa28ba54efbe1b9517b"
+      },
+      "stderr": {
+        "path": "RecursiveTail_C_self_tail_two_args.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_C_mutual_tail_local",
+      "input_sha256": "38bf6dcafe9c0a1159e5d63cfefb218e737003b7c1602d604b361215495b3da2",
+      "exit_code": 0,
+      "stages": {},
+      "rejections": [
+        "pcal.exception.ParseAlgorithmException: Expected \":=\" but found \";\"\n    line 3, column 71"
+      ],
+      "stdout": {
+        "path": "RecursiveTail_C_mutual_tail_local.stdout.gz",
+        "sha256": "a50a6482ad3417972d14f6737fee80a41faf5bd1f5fbcc741d478f7d630c2fca"
+      },
+      "stderr": {
+        "path": "RecursiveTail_C_mutual_tail_local.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_C_mutual_tail_reverse",
+      "input_sha256": "73133c99f747b8e35aa62e4be39162bad120c9cf9ed74d1aae873eb36546b920",
+      "exit_code": 0,
+      "stages": {},
+      "rejections": [
+        "pcal.exception.ParseAlgorithmException: Expected \":=\" but found \";\"\n    line 3, column 71"
+      ],
+      "stdout": {
+        "path": "RecursiveTail_C_mutual_tail_reverse.stdout.gz",
+        "sha256": "a50a6482ad3417972d14f6737fee80a41faf5bd1f5fbcc741d478f7d630c2fca"
+      },
+      "stderr": {
+        "path": "RecursiveTail_C_mutual_tail_reverse.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_P_self_tail_local",
+      "input_sha256": "a34fb734d79c6dcf0770b63d742ff4087929c9605eb5be34c414dc24f6d5681e",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "31ab34ce",
+          "ast_sha256": "0561a5ff924affec93708eea20657b380c0ad37f49911fbed0581be287169790",
+          "json_sha256": "1878307cb2acc253608c8a8a098fbb1f3e5d64adfcf8ab98585cfd2e6757b47f"
+        },
+        "names": {
+          "crc": "31ab34ce",
+          "ast_sha256": "0561a5ff924affec93708eea20657b380c0ad37f49911fbed0581be287169790",
+          "json_sha256": "1878307cb2acc253608c8a8a098fbb1f3e5d64adfcf8ab98585cfd2e6757b47f"
+        },
+        "original-after-explode": {
+          "crc": "d2271fed",
+          "ast_sha256": "b30eef516edd03d70901d0d0f4dcd6a01c0ff9a0fa5159769137a24aa5441998",
+          "json_sha256": "44af97f8bc6e84181cfd312a8e0b55213c75fdca3a3039ff2e9b7ab9c1124275"
+        },
+        "exploded": {
+          "crc": "ce6b2aa6",
+          "ast_sha256": "446c010aafd9cb56b421a48b71f58727886964e243ed750b26313609f1042ef6",
+          "json_sha256": "cd9a570e0e5f94740accacfd15ba11607f6ca2c32ee37d473de45ff18efd7622"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "RecursiveTail_P_self_tail_local.stdout.gz",
+        "sha256": "c5df6fa3aba833a5dabb3a8b3fd825e55f3c549ae28ae20656cec250438374b0"
+      },
+      "stderr": {
+        "path": "RecursiveTail_P_self_tail_local.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_P_self_tail_two_args",
+      "input_sha256": "b33d6f099703b280a0c0c40363e585d32a302e3171e05b0ed21e17818aebd552",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "c3748446",
+          "ast_sha256": "9dbaa9a79884c120e959b154214560ab5733fd12d395202669129c25f3d2f2f1",
+          "json_sha256": "4191e863e22e2998db3e0cc81ed571ac4a3767f16d082e6e70f453e6f4de3540"
+        },
+        "names": {
+          "crc": "c3748446",
+          "ast_sha256": "9dbaa9a79884c120e959b154214560ab5733fd12d395202669129c25f3d2f2f1",
+          "json_sha256": "4191e863e22e2998db3e0cc81ed571ac4a3767f16d082e6e70f453e6f4de3540"
+        },
+        "original-after-explode": {
+          "crc": "5eec1253",
+          "ast_sha256": "ddd8512877d7ec61207ee2c0e688fe13db300acee7e718deb37ac69b85084073",
+          "json_sha256": "1dc65fce37e0fe028dfc9dab4d16e68fbb7586c7a2d20d0cbefd4df953d285d5"
+        },
+        "exploded": {
+          "crc": "77295b9b",
+          "ast_sha256": "c61af29d571d81a2012b59f890a30f295f34f457a9dfb1b357da41306d069665",
+          "json_sha256": "86b1ba61c0b1932d95903246ce93e15bb62b3d73a480ca5f02798c5748f76b43"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "RecursiveTail_P_self_tail_two_args.stdout.gz",
+        "sha256": "35e1f4b7c6f59790fc83d2fac8465a81e72111be80b851e67471c9b549a07a3f"
+      },
+      "stderr": {
+        "path": "RecursiveTail_P_self_tail_two_args.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_P_mutual_tail_local",
+      "input_sha256": "5dd2a6df4f4c0a42750227c0e0c5ee64097bf9364a08eaed17c818178991677e",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "c9b5b3da",
+          "ast_sha256": "3227a91c0bdda4f49347c47f0e09774cdeddfbb42776ef70fb994e175d295ffa",
+          "json_sha256": "bc895c88aa0494740fa9768c50cf356684aa514a509a31d40f86fd328b496543"
+        },
+        "names": {
+          "crc": "c9b5b3da",
+          "ast_sha256": "3227a91c0bdda4f49347c47f0e09774cdeddfbb42776ef70fb994e175d295ffa",
+          "json_sha256": "bc895c88aa0494740fa9768c50cf356684aa514a509a31d40f86fd328b496543"
+        },
+        "original-after-explode": {
+          "crc": "f8b49e03",
+          "ast_sha256": "6f5119b4ef49ba00818789dd78889dd9c1697a613571c1cadfa87227008a219d",
+          "json_sha256": "24aab47385bf5302fc117c8c7774aaab98b058769350d5e5ede80c3ea684e351"
+        },
+        "exploded": {
+          "crc": "6dcf93cc",
+          "ast_sha256": "e4b14ed384e616c4dd3ac06436c01b1decb4083dafcfdb61a3e5846ca8565d69",
+          "json_sha256": "0fb0c68f08182e35488b48a88928139c98fda23dd0d928b53c0bf30e97d73b57"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "RecursiveTail_P_mutual_tail_local.stdout.gz",
+        "sha256": "425f1ece707d2db781e01acede7b0465514c5448536c0a0683412ffc8f778501"
+      },
+      "stderr": {
+        "path": "RecursiveTail_P_mutual_tail_local.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "RecursiveTail_P_mutual_tail_reverse",
+      "input_sha256": "ba4a1b039dca3c51d1aeddfb48ccfe5766ad8b7e54e0ccd6a39af466a825299c",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "9a40efa4",
+          "ast_sha256": "68d7475d5f59c4fa52f3dceabc867e73891e36192d9798beeb4aa88b7908dd82",
+          "json_sha256": "50dcbb81807e37f954a771fc580827d52e7d9cff7813994f327dfba677ec238a"
+        },
+        "names": {
+          "crc": "9a40efa4",
+          "ast_sha256": "68d7475d5f59c4fa52f3dceabc867e73891e36192d9798beeb4aa88b7908dd82",
+          "json_sha256": "50dcbb81807e37f954a771fc580827d52e7d9cff7813994f327dfba677ec238a"
+        },
+        "original-after-explode": {
+          "crc": "1150a936",
+          "ast_sha256": "c0b253c4bdc504e4f31a0dfc98447370fc28cb3ac30fa8da7244554f4fe48871",
+          "json_sha256": "82a170b3950cfb78ca4d8b67d1ca8c038a0c3373380edcbe9621eea38ddce5f2"
+        },
+        "exploded": {
+          "crc": "aaf11cb",
+          "ast_sha256": "a5ca47abbb394b02f18615c7f298041581668a3fd33dff2a5de4060607adeae4",
+          "json_sha256": "db1be69c9dddb63bc62f69c58a497510f90e3e2b31b9b6bd5756d88d63c5fcb7"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "RecursiveTail_P_mutual_tail_reverse.stdout.gz",
+        "sha256": "21e80a9b5b97e24981423158cfc776f069a82fb6caea6a8a05ae63047087eb2f"
+      },
+      "stderr": {
+        "path": "RecursiveTail_P_mutual_tail_reverse.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "base": "7e0b266c081d1cc3ac490972a7dd24d40baa85e0",
+  "source_was_uncommitted": true,
+  "source_sha256": "d94dbf5eb0d0fa4a8aa521aa6d09cd3f01146291f84755ce4c703f841c342763",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "dive-api",
+    "--test",
+    "strict_context_admission",
+    "--",
+    "--test-threads=2"
+  ],
+  "exit": 0,
+  "passed": 4,
+  "failed": 0,
+  "skipped": 0,
+  "actual_compile_seconds": 1.5,
+  "full_receiving_gate_pending": true,
+  "family_certified": false
+}

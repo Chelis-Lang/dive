@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "scope": "Source-owned exhausted-frontier terminal service before timer/pool joins, matching original admission and shared independent replay; no ordinary schedule/model proof",
+  "history_manifest_sha256": "1cfd568cf56ab2e4d32352a19185c84f8f7295c49dbad81b1073d637b84f0d82",
+  "source_sha256": {
+    "crates/dive-check/src/capture.rs": "cc8aba3ed498b2fc9be4bc277023731f64181ce76bfd31a70517a5ebad324b47",
+    "crates/dive-check/src/progress.rs": "366aac793c8225833a83fa9187be39ce6d06580be611230c8d4ff37ac30e422b",
+    "crates/dive-check/src/parallel.rs": "7bbcb03cd7a7ef512f8269ca8800e6b7679a21b9d25b37c3c6d5a2f3400f867b",
+    "crates/dive-check/tests/terminal_observer.rs": "8738435470a26b0135572d2b77fbc505f234a816590eff93268a9618c5489f7f",
+    "crates/dive-liveness/src/phase_execution.rs": "09f9f036a8a49412700ec060fb4ddbe46a2e7657babb70f441389abcb2080497",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "ecd1d229c215785fc746f2b9492c01b697da25babc44309dd8ef6b628d9f0a76",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "d1f17ea82c34382028263773e4ea2654682f8dbca90351701faf3092f172a84c",
+    "crates/dive-liveness/src/periodic_terminal.rs": "b731180556a24830c4e7f62c6e89bdaf5ec1f9b2babd137323a9c0ea20882ba8",
+    "crates/dive-liveness/src/lib.rs": "5c1b4f63b7965f0fd976253b47539158783e87f85584e2a64e99a138316b4ec5",
+    "crates/dive-api/src/periodic_candidate.rs": "c72c00e4d05ae8c4f4f63d41af1179738c7586b3861328eceb62f3d59887fe13",
+    "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
+    "crates/dive-api/tests/terminal_periodic_candidate.rs": "cbcb588dc5221911c9027a97f5fba1cb71cf0a21b309ec250aad9c6a06d9711a",
+    "crates/dive-api/examples/terminal_periodic_candidate.rs": "d8fe275873a33d7c394938d87f539f9b3a55e450736d26ee2ea61bf5c3d7643d",
+    "docs/terminal-periodic-service.md": "a7bdc4caec747f08e74ad595f436241975abac9ca599ba84b3ec0f4717a4f3f2",
+    "docs/decisions/0076-exhausted-queue-terminal-service.md": "c8ce234c0140fbf7fe144e2e45c381530d117cfaa6c880defea288764a57c4f0",
+    "scripts/check-terminal-periodic-service.py": "18baaa526f71fc1513f0e39aa13ef2bd4ddd710de879dd6bf73c4ccbbef02fc1",
+    "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0",
+    "AGENTS.md": "776114479b1142720c51bfec6923d8c932f861c8c224b139889b1186d381c8e2",
+    ".github/workflows/ci.yml": "9e201e7e3eb66e8956276c94f0c0f1bb114ba3ab93967bf0d4aca0461ac451b1"
+  }
+}

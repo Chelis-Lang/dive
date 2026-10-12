@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "scope": "Genuine optional configured role, original pre-startup admission and shared independent candidate replay; no ordinary checking promotion",
+  "history_manifest_sha256": "3990162478ad3bfaecb8146bc83578b59aff9a69fa975ae216ff3b826db6a3b1",
+  "source_sha256": {
+    "crates/dive-api/src/periodic_candidate.rs": "3a21d6dddcb489dfc002da93413a410d4d067bc2665d391f5c6d390763a617aa",
+    "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
+    "crates/dive-api/tests/optional_periodic_candidate.rs": "3d57f3266ff659986b003b50ea09d1f388445847a92dd05b8aea4103eb1baa27",
+    "crates/dive-api/examples/optional_periodic_candidate.rs": "810f64b605e82167a8f6ddf71ff68aec4119247a109f7e06c99ba745f6b75dac",
+    "crates/dive-model/src/lib.rs": "e8e06232e2dbfffa5a7add765e9f31313eff1a9568d2f77b15651aa8e70abda9",
+    "crates/dive-model/src/bind.rs": "3d2d73ad25247ea2c5f64f650371ae8e48c360b4db425cceba84adccac341de0",
+    "crates/dive-model/src/spec.rs": "1aded7aef71f5dac3e4f0558fa800828c854b8c88b4d7ed026a3a3c1d84b308f",
+    "crates/dive-model/src/periodic.rs": "32c95125afe0c2cf6613c71a2660b22f5846b1d54a6674150bd0fd011d42450e",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "be9c91a82acf5ed7d903fa2bba7eb48129be5bdf9ea34f4451d0ab066423ccf4",
+    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/tests/optional_periodic_snapshot.rs": "c09983216f180e18b945370a6357223cf5fc79ba88cc416a3ce92836fbb614e2",
+    "docs/optional-periodic-hook.md": "579410a054dbb8212f757d12f46bdb320124121167e8c9318fbc7a7926515016",
+    "docs/decisions/0074-optional-configured-periodic-hook.md": "993d14c3e88492456ec1452c88f08913e7ee69bb3d098d57f453cb8a4c2c321c",
+    "scripts/check-optional-periodic-hook.py": "f10b54bf8570fd19f5abac4cdcfe974ce8c46cc8dfde8c0579964721799d296e",
+    "conformance/parity-features.json": "2b5d05b7eb4c215a154dfaffae73d2ea1138dbb23dd03dbfebf75dcd9a200176",
+    "AGENTS.md": "6ee1d6588c2e6c4b63a8c97bff73e2a865432fe49dd2223ba97072e81b0d5630",
+    ".github/workflows/ci.yml": "305d6d2185eeb3aecd3cb7976b11c0f102551da37fc0deabe217baa467d4f688"
+  }
+}

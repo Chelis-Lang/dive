@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "scope": "Genuine optional configured role, original pre-startup admission and shared independent candidate replay; no ordinary checking promotion",
+  "history_manifest_sha256": "3990162478ad3bfaecb8146bc83578b59aff9a69fa975ae216ff3b826db6a3b1",
+  "source_sha256": {
+    "crates/dive-api/src/periodic_candidate.rs": "156e14b8b06829ffd17a340cd7f8d743dde8abac401677ae815809340542aad6",
+    "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
+    "crates/dive-api/tests/optional_periodic_candidate.rs": "3d57f3266ff659986b003b50ea09d1f388445847a92dd05b8aea4103eb1baa27",
+    "crates/dive-api/examples/optional_periodic_candidate.rs": "810f64b605e82167a8f6ddf71ff68aec4119247a109f7e06c99ba745f6b75dac",
+    "crates/dive-model/src/lib.rs": "18306b5b35f2efb53e8c5fd3bd5f8ffc364cf929bed00a22d69eb0c29a4b5cc8",
+    "crates/dive-model/src/bind.rs": "ff64d41a152ecc9cd685dfb9a5dda76f4a45e7baa53a768f9a2249db21fe5ad7",
+    "crates/dive-model/src/spec.rs": "c980e47c12f42ba3d03b63586d05535d340afed62ae729b686d985b939684a78",
+    "crates/dive-model/src/periodic.rs": "32c95125afe0c2cf6613c71a2660b22f5846b1d54a6674150bd0fd011d42450e",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
+    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/tests/optional_periodic_snapshot.rs": "c09983216f180e18b945370a6357223cf5fc79ba88cc416a3ce92836fbb614e2",
+    "docs/optional-periodic-hook.md": "579410a054dbb8212f757d12f46bdb320124121167e8c9318fbc7a7926515016",
+    "docs/decisions/0074-optional-configured-periodic-hook.md": "993d14c3e88492456ec1452c88f08913e7ee69bb3d098d57f453cb8a4c2c321c",
+    "scripts/check-optional-periodic-hook.py": "f10b54bf8570fd19f5abac4cdcfe974ce8c46cc8dfde8c0579964721799d296e",
+    "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
+    "AGENTS.md": "f6f8ad70b0bc6eef39bd351afc71ff08af6c34bf39485ea10e7c17e933685ca8",
+    ".github/workflows/ci.yml": "733294529557a809564bc60e83ed48566eefaf8c54de9fdce39b49554ff8b869"
+  },
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+}

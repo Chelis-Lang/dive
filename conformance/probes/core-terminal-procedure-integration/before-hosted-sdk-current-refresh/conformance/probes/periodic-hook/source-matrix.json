@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Current supplied pure hook diagnostic only, not configured hook binding or ordinary schedule proof.",
+  "history_manifest_sha256": "3abf6a1851b0aca9efec90a9f2566a4c6b869240bfbb5a2c50860ed0a9ecc817",
+  "source_sha256": {
+    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "86538e58667e190d6b5653728a35c3fe11dc73125a0e811d9fdd4d57e11091cb",
+    "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",
+    "crates/dive-liveness/src/lib.rs": "785bbceaa3c2ceb0f07e02ea31083e656b72a6cc71a787ae3b2070affad93a52",
+    "crates/dive-liveness/tests/periodic_hook.rs": "89ed654950acbd9b0c859c08dd64959776a2113cea2c7eb570b9774d5053d2c4",
+    "crates/dive-api/examples/periodic_hook.rs": "529eca3d06e23712a6331256525c84cd8b4a795ea13dec46ea0c18f9ae20b574",
+    "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
+    "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
+    "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
+    "AGENTS.md": "f6f8ad70b0bc6eef39bd351afc71ff08af6c34bf39485ea10e7c17e933685ca8",
+    ".github/workflows/ci.yml": "70c93d46b33a5423b310bd3d9d8df2c70499345fcb01321a18e6554a4d0a0eb1",
+    "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593"
+  },
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+}

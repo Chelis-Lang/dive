@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+    "-cp",
+    "/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-fp",
+    "0",
+    "-cleanup",
+    "-metadir",
+    "/tmp/dive-optional-hook-init-primary/meta",
+    "InitError"
+  ],
+  "exit": 75,
+  "seconds": 0.693952542,
+  "artifact_sha256": {
+    "InitError.tla": "5fd9a5ae5b9fb86398b28b6fdb2f3ef81b06556c36a146db4903c37ee356a1d2",
+    "stdout": "5dd12f199de2c5ff4f872c5e2f88e4fe604a9fd454be089515e359caacdf3616",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "InitError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+  }
+}

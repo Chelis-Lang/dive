@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "declared_before_production": true,
+  "cases": [
+    "ActionLevelProperty",
+    "ActionProperty",
+    "AlwaysProperty",
+    "ArityProperty",
+    "AritySpecification",
+    "AssumeFalseSafety",
+    "AssumePrintSafety",
+    "ConfiguredSpecification",
+    "ConjunctionProperty",
+    "ConstantFalseProperty",
+    "ConstantSpecification",
+    "ConstantTrueProperty",
+    "FairSpecification",
+    "InitNextCounterpart",
+    "InstanceProperty",
+    "InstanceSpecification",
+    "LetProperty",
+    "LetSpecification",
+    "MissingProperty",
+    "MissingSpecification",
+    "MixedRoles",
+    "PrintedProperty",
+    "PrintedSpecification",
+    "PropertyAlias",
+    "PureSpecification",
+    "QuantifiedProperty",
+    "StateProperty",
+    "TemporalProperty",
+    "WrapperSpecification"
+  ],
+  "planned_profiles": [
+    "tlc",
+    "dive"
+  ],
+  "planned_stores": [
+    "fp",
+    "exact"
+  ],
+  "requested_widths": [
+    1,
+    4,
+    8
+  ],
+  "chaos": [
+    null,
+    0,
+    7
+  ],
+  "frontier_predecessor_budgets": [
+    null,
+    0
+  ],
+  "qualification": "Retain all original reference/native outcome rows. Unsupported wrapper/quantified/temporal/effectful controls earn no agreement or certificate credit. Actual support follows shared role decomposition, never model-name admission."
+}

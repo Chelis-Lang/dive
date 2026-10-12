@@ -1,0 +1,20 @@
+
+running 1 test
+test process_original_header_bytes_and_crc_match_every_admitted_row ... FAILED
+
+failures:
+
+---- process_original_header_bytes_and_crc_match_every_admitted_row stdout ----
+
+thread 'process_original_header_bytes_and_crc_match_every_admitted_row' (132306178) panicked at crates/dive-pluscal/tests/process_procedure_checksum.rs:31:9:
+assertion `left == right` failed: ProcessHeader_C_constant_ordinary
+  left: "[type    |-> \"multiprocess\", \n name  |-> \"A\", \n decls |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs  |-> <<  >>,\n prcds |-> <<[name   |-> \"First\", \n             minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"First\">>,\n              params |-> <<>>,\n              decls  |-> <<>>,\n              body   |-> <<[label |-> \"F\",\n                            stmts |-> <<[type |-> \"assignment\",\n                                         ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                     rhs |-> << \"1\" >>]>>]>>], \n                           [label |-> \"R\",\n                            stmts |-> <<[type |-> \"return\", from |-> \"First\"]>>]>>]>>,\n procs |-> <<[name   |-> \"Worker\",\n              fairness |-> \"unfair\", minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"First\">>,\n              eqOrIn |-> \"=\",\n              id     |-> << \"1\" >>,\n              decls  |-> <<>>,\n              body   |-> <<[label |-> \"L\",\n                            stmts |-> <<[type     |-> \"call\",\n                                         returnTo |-> \"\",\n                                         to       |-> \"First\",\n                                         args     |-> <<>>]>>], \n                           [label |-> \"E\",\n                            stmts |-> <<[type |-> \"skip\"]>>]>>]>>]"
+ right: "[type    |-> \"multiprocess\", \n name  |-> \"A\", \n decls |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs  |-> <<  >>,\n prcds |-> <<[name   |-> \"First\", \n             minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<>>,\n              params |-> <<>>,\n              decls  |-> <<>>,\n              body   |-> <<[label |-> \"F\",\n                            stmts |-> <<[type |-> \"assignment\",\n                                         ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                     rhs |-> << \"1\" >>]>>]>>], \n                           [label |-> \"R\",\n                            stmts |-> <<[type |-> \"return\", from |-> \"First\"]>>]>>]>>,\n procs |-> <<[name   |-> \"Worker\",\n              fairness |-> \"unfair\", minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<\"First\">>,\n              eqOrIn |-> \"=\",\n              id     |-> << \"1\" >>,\n              decls  |-> <<>>,\n              body   |-> <<[label |-> \"L\",\n                            stmts |-> <<[type     |-> \"call\",\n                                         returnTo |-> \"\",\n                                         to       |-> \"First\",\n                                         args     |-> <<>>]>>], \n                           [label |-> \"E\",\n                            stmts |-> <<[type |-> \"skip\"]>>]>>]>>]"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    process_original_header_bytes_and_crc_match_every_admitted_row
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.01s
+

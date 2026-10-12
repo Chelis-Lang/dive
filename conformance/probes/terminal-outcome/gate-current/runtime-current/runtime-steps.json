@@ -1,0 +1,424 @@
+[
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-api-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.042431042000000016
+  },
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-cli",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-cli-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.041991042000000006
+  },
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-conformance",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-conformance-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.044181374999999995
+  },
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-trace",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-trace-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.038828999999999975
+  },
+  {
+    "command": [
+      "cargo",
+      "rustc",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-check",
+      "--lib",
+      "--no-default-features",
+      "--",
+      "--print",
+      "cfg"
+    ],
+    "log": "default-check-cfg.log",
+    "exit": 0,
+    "wall_seconds": 7.592924417
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-api",
+      "-p",
+      "dive-cli",
+      "-p",
+      "dive-conformance",
+      "--message-format=json-render-diagnostics"
+    ],
+    "log": "default-release-build.log",
+    "exit": 0,
+    "wall_seconds": 38.861435666999995
+  },
+  {
+    "command": [
+      "rustc",
+      "--edition=2024",
+      "/tmp/dive-terminal-classification-runtime.rs",
+      "-L",
+      "dependency=/Users/jeff/code/dive-periodic-snapshot-target/release/deps",
+      "-o",
+      "/tmp/dive-terminal-classification-frozen-native/terminal-outcome-runtime",
+      "--extern",
+      "dive_api=/Users/jeff/code/dive-periodic-snapshot-target/release/libdive_api.rlib",
+      "--extern",
+      "dive_check=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_check-87a658f32195a5e8.rlib",
+      "--extern",
+      "dive_liveness=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_liveness-14bc6582068dd5ec.rlib",
+      "--extern",
+      "dive_sema=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_sema-b5bda40fa29ae6c5.rlib",
+      "--extern",
+      "dive_ir=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_ir-ae1ace45933e9b28.rlib",
+      "--extern",
+      "dive_config=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_config-9ed24e059499b6a3.rlib",
+      "--extern",
+      "dive_trace=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_trace-2678553fa3c2bb9e.rlib",
+      "--extern",
+      "serde_json=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libserde_json-67e93f6c02cd99ab.rlib"
+    ],
+    "log": "default-api-runtime-compile.log",
+    "exit": 0,
+    "wall_seconds": 0.3702380419999969
+  },
+  {
+    "command": [
+      "/tmp/dive-terminal-classification-frozen-native/terminal-outcome-runtime",
+      "/tmp/dive-terminal-classification-fullgate-retry1/runtime-current/native-current"
+    ],
+    "log": "default-api-runtime.log",
+    "exit": 0,
+    "wall_seconds": 1.2812416659999997
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--example",
+      "terminal_classification"
+    ],
+    "log": "cargo-guide-build.log",
+    "exit": 0,
+    "wall_seconds": 19.397811749999995
+  },
+  {
+    "command": [
+      "/tmp/dive-terminal-classification-frozen-native/terminal-outcome-guide"
+    ],
+    "log": "cargo-guide.log",
+    "exit": 0,
+    "wall_seconds": 0.2954424160000002
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--lib",
+      "periodic_candidate::tests::",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "controlled-request-and-authority.log",
+    "exit": 0,
+    "wall_seconds": 1.6670332080000065
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--test",
+      "stopped_periodic_candidate",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-api-controls.log",
+    "exit": 0,
+    "wall_seconds": 1.1157853750000015
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-check",
+      "--test",
+      "stopped_observer",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-core-stopped-controls.log",
+    "exit": 0,
+    "wall_seconds": 2.5046077089999983
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--test",
+      "terminal_periodic_candidate",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-legacy-terminal-controls.log",
+    "exit": 0,
+    "wall_seconds": 0.8269605419999948
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--test",
+      "periodic_candidate",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "mandatory-api-controls.log",
+    "exit": 0,
+    "wall_seconds": 0.8033114170000033
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--test",
+      "terminal_classification",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-final-classification-controls.log",
+    "exit": 0,
+    "wall_seconds": 1.505870540999993
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-check",
+      "--test",
+      "deferred_postconditions",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-token-ownership-controls.log",
+    "exit": 0,
+    "wall_seconds": 0.6603045410000021
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-check",
+      "--lib",
+      "evidence_controls",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-capture-finalization-controls.log",
+    "exit": 0,
+    "wall_seconds": 1.7701819170000022
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "dive-liveness",
+      "--lib",
+      "final_records",
+      "--",
+      "--test-threads=2"
+    ],
+    "log": "fresh-product-finalization-controls.log",
+    "exit": 0,
+    "wall_seconds": 1.8904217500000016
+  },
+  {
+    "command": [
+      "/tmp/dive-terminal-classification-frozen-native/dive-conformance",
+      "run",
+      "--impl",
+      "dive",
+      "--impl-profile",
+      "tlc",
+      "--dive-bin",
+      "/tmp/dive-terminal-classification-frozen-native/dive",
+      "--corpus",
+      "examples",
+      "--tier",
+      "all",
+      "--no-sany",
+      "--no-summary",
+      "--report-dir",
+      "/tmp/dive-terminal-classification-fullgate-retry1/runtime-current/examples-reports",
+      "--workers",
+      "1,4,8",
+      "--filter",
+      "specifications/DieHard/DieHard.cfg",
+      "--filter",
+      "specifications/DieHard/MCDieHarder.cfg",
+      "--filter",
+      "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+      "--filter",
+      "specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+      "--filter",
+      "specifications/spanning/MC_spanning.cfg",
+      "--filter",
+      "specifications/acp/ACP_NB_WRONG_TLC.cfg",
+      "--filter",
+      "specifications/CigaretteSmokers/CigaretteSmokers.cfg",
+      "--filter",
+      "specifications/SpecifyingSystems/HourClock/HourClock.cfg",
+      "--filter",
+      "specifications/SpecifyingSystems/HourClock/HourClock2.cfg",
+      "--filter",
+      "specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg",
+      "--filter",
+      "specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg",
+      "--filter",
+      "specifications/TwoPhase/MCTwoPhase.cfg",
+      "--filter",
+      "specifications/transaction_commit/TCommit.cfg",
+      "--filter",
+      "specifications/transaction_commit/TwoPhase.cfg",
+      "--filter",
+      "specifications/PaxosHowToWinATuringAward/MCVoting.cfg",
+      "--filter",
+      "specifications/locks_auxiliary_vars/Peterson.cfg",
+      "--filter",
+      "specifications/echo/MCEcho.cfg",
+      "--filter",
+      "specifications/Stones/Stones.cfg",
+      "--filter",
+      "specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg",
+      "--filter",
+      "specifications/MultiCarElevator/ElevatorSafetySmall.cfg",
+      "--filter",
+      "specifications/Paxos/MCVoting.cfg"
+    ],
+    "log": "examples-gate.log",
+    "exit": 0,
+    "wall_seconds": 16.364332667
+  },
+  {
+    "command": [
+      "/tmp/dive-terminal-classification-frozen-native/dive-conformance",
+      "run",
+      "--impl",
+      "dive",
+      "--impl-profile",
+      "tlc",
+      "--dive-bin",
+      "/tmp/dive-terminal-classification-frozen-native/dive",
+      "--corpus",
+      "validation-smoke",
+      "--tier",
+      "all",
+      "--no-sany",
+      "--no-summary",
+      "--report-dir",
+      "/tmp/dive-terminal-classification-fullgate-retry1/runtime-current/validation-smoke-reports",
+      "--workers",
+      "1,4,8",
+      "--filter",
+      "specifications/06cb41f6d429e5df49e3648fa0c09fcd9dd41244/TLC_M0.cfg",
+      "--filter",
+      "specifications/1433cf727e0e566bdfdca64b1b72b30a32716461/TLC_M0.cfg",
+      "--filter",
+      "specifications/24f15a44b2df798de8c821d6fe3f677722ac1808/TLC_M0.cfg",
+      "--filter",
+      "specifications/3870929418abe4114f36583a9a4d04798480ce4f/TLC_M0.cfg",
+      "--filter",
+      "specifications/4e97856939057fc81a11c6e4e811523e016df94c/TLC_M0.cfg",
+      "--filter",
+      "specifications/5d9425415c79d7fd9b6407f9eb3d100716e6bc2a/TLC_M0.cfg",
+      "--filter",
+      "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.cfg",
+      "--filter",
+      "specifications/7c339496ea8de87b0e9f449e814d23b81215a07d/TLC_M0.cfg",
+      "--filter",
+      "specifications/90fd9daab81221afee6ce88c42448621ec9afb45/TLC_M0.cfg",
+      "--filter",
+      "specifications/94dc14331d9da5603c31466dffc5b4cca2094178/TLC_M0.cfg",
+      "--filter",
+      "specifications/9b33484778609a0a78ef2dae93ea8780283e5604/TLC_M0.cfg",
+      "--filter",
+      "specifications/aca89d8f9ace59a5fd7716214cc8866242eb7135/TLC_M0.cfg",
+      "--filter",
+      "specifications/afb5a158cc0289c80fb1a9285d646ce5c9483562/TLC_M0.cfg",
+      "--filter",
+      "specifications/db34a439da0a07814aeb80e65ca4fdb76d980551/TLC_M0.cfg",
+      "--filter",
+      "specifications/e5d7e351f1d2a4c04a6827d0297b2a90db5011ce/TLC_M0.cfg",
+      "--filter",
+      "specifications/f85a8c8b070809cb0f54c081da908852bbb949be/TLC_M0.cfg"
+    ],
+    "log": "validation-smoke-gate.log",
+    "exit": 0,
+    "wall_seconds": 0.5267262090000031
+  }
+]

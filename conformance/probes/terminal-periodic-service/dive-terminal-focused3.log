@@ -1,0 +1,21 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
+     Running tests/terminal_periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/terminal_periodic_candidate-1224a6320cafaf28)
+
+running 4 tests
+test empty_init_is_genuine_exhaustion_while_profile_and_zero_work_remain_refused ... ok
+test deciding_final_words_use_same_independent_replay_and_strict_mutants ... ok
+test failed_init_expansion_cut_hook_and_quota_never_create_terminal_authority ... ok
+test safe_finished_queue_skips_false_integer_hook_and_confirms_post_service_joins ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/terminal_observer.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/terminal_observer-1af9c968b7b4805f)
+
+running 2 tests
+test actual_terminal_failure_preserves_completed_counters_and_never_calls_final ... ok
+test init_source_and_capture_limit_stops_never_authorize_terminal_or_final ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+

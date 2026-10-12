@@ -1,0 +1,54 @@
+{
+  "producer": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+  "jobs": 2,
+  "incremental": false,
+  "rows": [
+    {
+      "stage": 0,
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "-p",
+        "dive-cli",
+        "-p",
+        "dive-conformance"
+      ],
+      "exit": 0,
+      "seconds": 99.031969459,
+      "log_sha256": "0dd4c2bc125a4ac6413cc87270746a43c855ee4cd986322daea5333a97536415"
+    },
+    {
+      "stage": 1,
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "-p",
+        "dive-api",
+        "--example",
+        "disk_seen_roles"
+      ],
+      "exit": 0,
+      "seconds": 72.00112825,
+      "log_sha256": "af8e93d77aff5a17619ca2c5d400969d78c696102717ce7cb4551b1cabc9f2ba"
+    },
+    {
+      "stage": 2,
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--manifest-path",
+        "conformance/probes/disk-safety-roles/controls/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 78.97024220800003,
+      "log_sha256": "ead395e2b5ed1022c16920fd84fcac8f4ef9a206e466afe97370f37266bdaf5d"
+    }
+  ],
+  "elapsed_seconds": 250.64429141600002
+}

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/dive-terminal-classification-root-fresh.py", line 27, in <module>
+    assert doc == json.loads((baseline/file.name).read_bytes()), file.name
+AssertionError: absent-forced-w1.json

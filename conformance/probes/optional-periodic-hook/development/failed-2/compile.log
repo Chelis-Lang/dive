@@ -1,0 +1,17 @@
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-sim)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error[E0599]: no method named `safety_result` found for enum `dive_check::capture::Exploration` in the current scope
+   --> crates/dive-liveness/tests/optional_periodic_snapshot.rs:39:25
+    |
+ 39 |             exploration.safety_result().verdict,
+    |                         ^^^^^^^^^^^^^ method not found in `dive_check::capture::Exploration`
+    |
+note: the method `safety_result` exists on the type `Box<dive_check::capture::Complete>`
+   --> crates/dive-check/src/capture.rs:455:5
+    |
+455 |     pub fn safety_result(&self) -> &CheckResult {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `dive-liveness` (test "optional_periodic_snapshot") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

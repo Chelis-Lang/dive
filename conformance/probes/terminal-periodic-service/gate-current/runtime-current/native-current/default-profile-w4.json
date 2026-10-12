@@ -1,0 +1,12 @@
+{
+  "configuration": "INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n",
+  "error": "DIVE-API-P002: Input(EvalError(Inner { class: Unsupported, ec: General, message: \"request-owned service requires matching TLC checker/evaluator mode\", origin: None, eval_exception: false }))",
+  "error_code": "DIVE-API-P002",
+  "execution_retained": false,
+  "kind": "default-profile",
+  "limits": "Limits { capture: Limits { states: 1000000, edges: 8000000, generated: 32000000, successors_per_unit: 65536 }, phase_l: Limits { formula: Limits { formula_nodes: 4096, tableau_nodes: 4096, expansion_steps: 1000000 }, incoming: 8000000, slots: 8000000, values: 8000000, cells: 8000000, work: 32000000 }, graph: Limits { vertices: 1000000, edges: 8000000, acceptance_cells: 8000000, steps: 32000000 }, workers: 64 }",
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "requested_width": 4,
+  "source": "---- MODULE RuntimeCandidate ----\nEXTENDS Integers,TLC\nVARIABLES x\nInit == x=(0)\nNext == x'=(IF x=0 THEN 1 ELSE 1)\nLive == <>(x=2)\nHook == TRUE\n====\n"
+}

@@ -1,0 +1,15 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
+     Running tests/periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_candidate-e4568856ff1bacaa)
+
+running 7 tests
+test absent_candidate_or_false_hook_is_never_holds ... ok
+test capture_limits_retain_actual_incomplete_execution_without_witness ... ok
+test changed_profile_refuses_without_execution ... ok
+test actual_material_atoms_are_rehomed_into_fresh_interner ... ok
+test effectful_startup_is_refused_before_any_run ... ok
+test original_configured_conjunction_and_model_atoms_survive_fresh_replay ... ok
+test public_eof_candidates_are_freshly_rehomed_and_independently_replayed ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+

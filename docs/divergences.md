@@ -847,3 +847,44 @@ error-reconstruction refusal. Clean `ReplayPrint` has three output events,
 pre-review native one; equal counts do not grant class/output or certificate
 credit. Pure key/count replay, original errors and positioned failure evidence
 remain separately qualified. This adds no result-changing default.
+
+
+D-008 acyclic sequential procedure Full checksum continuation (ADR0073) separates
+actual body edges from the reference LAST-header main-call alias. The clean
+130-row C/P selection retains the original98 and adds32 acyclic shapes;
+original-header/CRC, exploded frames, public artifact and replay evidence remain
+separate. Real recursive/process/scoped graphs and other unproved checksum
+shapes remain named refusals with no Full replacement. Shared quotas and
+D-020 fair-header weakness are unchanged. See
+[the executable guide](pluscal-acyclic-procedure-checksums.md); F-034/F-035 remain
+partial and strict saved-frame replay stays qualified under #124.
+
+
+## D-008 recursive sequential procedure checksum continuation
+
+The bounded Full editor now serializes proved source-finite self/mutual call
+vectors without unrolling execution. Pinned ordinary/tail ownership and LAST
+header alias remain distinct in both profiles; quotas and D-020 CRC weakness do
+not change. The 162-case selection keeps all 130 predecessors and two new
+primary-generated/SANY-invalid zero-parameter self-tail artifacts uncredited.
+Process/scoped checksum and strict #124 saved-frame replay remain qualified;
+CRC equality is neither artifact admission nor a model proof. See
+[the executable guide](pluscal-recursive-procedure-checksums.md).
+
+D-007 role continuation (#221, ADR0075): opt-in disk checking uses the actual
+shared configured role splitter for a bounded pure safety slice, before startup
+execution. Temporal/effectful/opaque/quantified-domain and strict-substitution
+contexts remain named refusals. The default resident route and error order are
+unchanged; requested widths still disclose actual inline execution. This adds no
+semantic default, parallel disk/recovery/capture support or family credit.
+[Executable CLI/Rust guide](user/disk-seen-safety.md); current qualification is in
+progress and every declared refused row remains selected.
+
+D-008's process-owned procedure Full-checksum continuation (#225/ADR0079)
+separates original stored header ownership from process-indexed runtime slots.
+One unfair finite process/one disjoint labelled procedure has bounded native
+serialization; general process/fairness/scoped checksum contexts remain named
+refusals. The clean C/P With binder `a` shadowing procedure parameter `a`
+generates SANY-invalid duplicate operators; no successful artifact or CRC is
+credited from those invalid references. Strict #124 frame replay is unchanged.
+See `docs/pluscal-process-procedure-checksums.md` for the exact stage contract.

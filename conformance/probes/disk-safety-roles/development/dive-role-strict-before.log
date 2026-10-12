@@ -1,0 +1,5 @@
+primary 0
+tlc-False 0 success None [{'code': 2140, 'message': 'The subscript of the next-state relation specified by the specification\ndoes not seem to contain the state variable x'}]
+tlc-True 0 success None [{'code': 2140, 'message': 'The subscript of the next-state relation specified by the specification\ndoes not seem to contain the state variable x'}]
+dive-False 0 success None [{'code': 2140, 'message': 'The subscript of the next-state relation specified by the specification\ndoes not seem to contain the state variable x'}]
+dive-True 0 success None [{'code': 2140, 'message': 'The subscript of the next-state relation specified by the specification\ndoes not seem to contain the state variable x'}]

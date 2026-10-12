@@ -1,0 +1,919 @@
+{
+  "producer": "7e0b266c081d1cc3ac490972a7dd24d40baa85e0",
+  "source_index_sha256": "dc23413ccebf09e4100055279636ff80af1db6273164f7e21549752b7ef5659c",
+  "jobs": 2,
+  "test_threads": 2,
+  "profile": "ci",
+  "family_certified": false,
+  "rows": [
+    {
+      "name": "offline-0",
+      "command": [
+        "python3",
+        "scripts/test-validation-import.py"
+      ],
+      "exit": 0,
+      "seconds": 0.20859233400000043,
+      "log_sha256": "962b3015c5fadebbf7dc0568a659b384d929466402538cc987792ee8dbfefd93"
+    },
+    {
+      "name": "offline-1",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-frontend-campaign.py"
+      ],
+      "exit": 0,
+      "seconds": 1.0360029170000011,
+      "log_sha256": "cec38d7a8b9c990e5fa6523c76557b2d7bfe0290105c0f2ce7de699f5c75b553"
+    },
+    {
+      "name": "offline-2",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-parity-ledger.py"
+      ],
+      "exit": 0,
+      "seconds": 0.14917858299999764,
+      "log_sha256": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398"
+    },
+    {
+      "name": "offline-3",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-parity-ledger.py"
+      ],
+      "exit": 0,
+      "seconds": 0.26714137500000135,
+      "log_sha256": "f2ce366f054fbb6fe825ca2025a5ba4dd3fff84e9b9bf8ad371479d1f82853d3"
+    },
+    {
+      "name": "offline-4",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-planning.py"
+      ],
+      "exit": 0,
+      "seconds": 0.2040719580000001,
+      "log_sha256": "45ed7acf1403a7088c901e166377c2f3f6f5f5206f4a1db0281fcee1613282d0"
+    },
+    {
+      "name": "offline-5",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-tableau.py"
+      ],
+      "exit": 0,
+      "seconds": 0.21564662499999798,
+      "log_sha256": "38e9b3082a2513ee7cd2f332e2b5bb2f047983e3cdcf9ca7f3fb6b468940e3d6"
+    },
+    {
+      "name": "offline-6",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-action-order.py"
+      ],
+      "exit": 0,
+      "seconds": 0.3818430000000035,
+      "log_sha256": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846"
+    },
+    {
+      "name": "offline-7",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l.py"
+      ],
+      "exit": 0,
+      "seconds": 0.23863420800000767,
+      "log_sha256": "223f270f665f0f493efc50396debfd091f5c86363caeb497c5ef9380675289fd"
+    },
+    {
+      "name": "offline-8",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l-graph.py"
+      ],
+      "exit": 0,
+      "seconds": 0.1484616669999923,
+      "log_sha256": "bc12843c5295b3585808f521be63b39df1493379d0405d6eaa79d49925ef2ea3"
+    },
+    {
+      "name": "offline-9",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-execution.py"
+      ],
+      "exit": 0,
+      "seconds": 0.15419529199999715,
+      "log_sha256": "1bd2ccddffd138892fa11f45a2d2a629a5e5ebd3dd47eacf0888cec35c2cdd6f"
+    },
+    {
+      "name": "offline-10",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-controller.py"
+      ],
+      "exit": 0,
+      "seconds": 0.290673666999993,
+      "log_sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268"
+    },
+    {
+      "name": "offline-11",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-runtime-ratio.py"
+      ],
+      "exit": 0,
+      "seconds": 0.10972133299999598,
+      "log_sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8"
+    },
+    {
+      "name": "offline-12",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final.py"
+      ],
+      "exit": 0,
+      "seconds": 0.20447495900000945,
+      "log_sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+    },
+    {
+      "name": "offline-13",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-state-if-planning.py"
+      ],
+      "exit": 0,
+      "seconds": 0.12514287500002297,
+      "log_sha256": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f"
+    },
+    {
+      "name": "offline-14",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-predecessor-spill.py"
+      ],
+      "exit": 0,
+      "seconds": 0.2520424169999842,
+      "log_sha256": "ee736a7259a65e8ad0d492c9862671fa464cef3fe4ec7c9dd7f170bc726e32ed"
+    },
+    {
+      "name": "offline-15",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-checkpoint.py"
+      ],
+      "exit": 0,
+      "seconds": 0.25264808299999686,
+      "log_sha256": "0543c1c6a230798d4642392e1387501de782bd568eee6b8053b78f4dd3d9e8f1"
+    },
+    {
+      "name": "offline-16",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-view-normalization.py"
+      ],
+      "exit": 0,
+      "seconds": 1.6379288329999895,
+      "log_sha256": "8005e4d37f7d463c4167c1c8ad195d5c947d95d11f19d7a750567959ccd360a0"
+    },
+    {
+      "name": "offline-17",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-view-random-stream.py"
+      ],
+      "exit": 0,
+      "seconds": 1.4367692499999976,
+      "log_sha256": "25862df3d2f55666b67243dcaf8d53280bf822fc7eee408de80f21f4fd262089"
+    },
+    {
+      "name": "offline-18",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-trace-representation.py"
+      ],
+      "exit": 0,
+      "seconds": 0.45446958299999096,
+      "log_sha256": "bce3d3c14a1aba1b954864fbb451319b702ef6ab3a194cf9c6811cfb2df6d1cb"
+    },
+    {
+      "name": "offline-19",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tuple-only-replay.py"
+      ],
+      "exit": 0,
+      "seconds": 0.6261357089999819,
+      "log_sha256": "466c356860ac8113d4ce0c35a1d3b6a16a17f0ea8a65d0e00127229ef69e8928"
+    },
+    {
+      "name": "offline-20",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-fallible-seen-store.py"
+      ],
+      "exit": 0,
+      "seconds": 0.34850275000002284,
+      "log_sha256": "5b449d12cae9986b209d1e70c12dc9942f85a6fb388ffd7975db78ff0edceb8a"
+    },
+    {
+      "name": "offline-21",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-inductive-tuple-replay.py"
+      ],
+      "exit": 0,
+      "seconds": 1.1317999170000235,
+      "log_sha256": "c32bd10ffbc25549173f9a1d3e51c8d91cb4abcd4ea79426049d2c1e1938832d"
+    },
+    {
+      "name": "offline-22",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-fixed-tuple-projection.py"
+      ],
+      "exit": 0,
+      "seconds": 1.0892447090000132,
+      "log_sha256": "63caeb5c8a83a742d53fbc8e1cba1093d5a7d8f5778634308b946e8c74aafd47"
+    },
+    {
+      "name": "offline-23",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-indexed-stack-replay.py"
+      ],
+      "exit": 0,
+      "seconds": 3.564542249999988,
+      "log_sha256": "8c9ed7107a6525b023f98013ec44b659100566bc99b0a5a72c72d024e9315426"
+    },
+    {
+      "name": "offline-24",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-core-prefix-storage-integration.py"
+      ],
+      "exit": 0,
+      "seconds": 2.6288893749999716,
+      "log_sha256": "a8fa856bf13546e4bed4ed914ef2ff71881c4ccd4b34fbfca0b9d2ad55182fe6"
+    },
+    {
+      "name": "offline-25",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-core-composed-epoch.py"
+      ],
+      "exit": 0,
+      "seconds": 1.010207624999964,
+      "log_sha256": "d27eb46ac97e35c25f9dedde1321aaf6c6aea9ccd8798f7dc2fc80c9ac0dc9b5"
+    },
+    {
+      "name": "offline-26",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-core-composed-epoch.py"
+      ],
+      "exit": 0,
+      "seconds": 11.238073832999987,
+      "log_sha256": "11860d822846b07f2c161e4162d0f8a8c896d0887fd0b12bc029c0a53bb6e2a4"
+    },
+    {
+      "name": "offline-27",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-fallible-seen-engine.py"
+      ],
+      "exit": 0,
+      "seconds": 1.2235531249999667,
+      "log_sha256": "e839b03aff09a3d0123dbc41cde797d82ece451a3c05e0fb4e1c587e6b5510bd"
+    },
+    {
+      "name": "offline-28",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-fallible-seen-git-proof.py"
+      ],
+      "exit": 0,
+      "seconds": 0.18697116599997798,
+      "log_sha256": "cce9cf4a2efdc9d2de612b5a5550fca153852fdc93284a16f7b6c2bb6849d548"
+    },
+    {
+      "name": "offline-29",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-disk-safety-roles.py"
+      ],
+      "exit": 0,
+      "seconds": 4.139587790999997,
+      "log_sha256": "55306ecec6bf29336521723971abdb4cb8f205270a6afb69a0b92ca47d3ceedd"
+    },
+    {
+      "name": "offline-30",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-disk-safety-role-proof.py"
+      ],
+      "exit": 0,
+      "seconds": 0.4865325829999847,
+      "log_sha256": "cfe5007cb168bc399097449ec4c940a7a4aa29ea7569da3a0adbae251c937fc6"
+    },
+    {
+      "name": "offline-31",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-parity-integration.py"
+      ],
+      "exit": 0,
+      "seconds": 152.60524537500004,
+      "log_sha256": "deecd680be658e5c283cac5a66a0a41a9d25eb933acd08055af94adbe98d4624"
+    },
+    {
+      "name": "offline-32",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final.py"
+      ],
+      "exit": 0,
+      "seconds": 0.18394624999996267,
+      "log_sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+    },
+    {
+      "name": "offline-33",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-safety.py"
+      ],
+      "exit": 0,
+      "seconds": 1.519975790999979,
+      "log_sha256": "ae3238c455225f84957e96f89fd80a5e05b67e255e8a6ac4126f4daf44755406"
+    },
+    {
+      "name": "offline-34",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-state-if.py"
+      ],
+      "exit": 0,
+      "seconds": 0.42552129099999547,
+      "log_sha256": "5beb88844459a1f54ad70a0a4e37a5a62e0add877f72f425224983171a4bc7fe"
+    },
+    {
+      "name": "offline-35",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if.py"
+      ],
+      "exit": 0,
+      "seconds": 0.1526237499999752,
+      "log_sha256": "1137f8ddc0ffa3700abaae37d845680dfe412015ee048b9207517f6d89dd07d6"
+    },
+    {
+      "name": "offline-36",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if-final.py"
+      ],
+      "exit": 0,
+      "seconds": 0.6282589999999573,
+      "log_sha256": "cad44c573c40ba14799244a5ac73aaa01019924eb602e265b9f6b3854e5c7f7e"
+    },
+    {
+      "name": "offline-37",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-scopes.py"
+      ],
+      "exit": 0,
+      "seconds": 0.49719470799993815,
+      "log_sha256": "1299e7b3bbfde60bb74a1b90a91273d1ca263d1226f86758d547b9c59bbe0bc7"
+    },
+    {
+      "name": "offline-38",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-property-origins.py"
+      ],
+      "exit": 0,
+      "seconds": 0.4624702079998997,
+      "log_sha256": "3d179a815cd5b45ec0cf865eb404ce6ef24bb97da8196197efb2d8276d1d3c19"
+    },
+    {
+      "name": "offline-39",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-material-capture.py"
+      ],
+      "exit": 0,
+      "seconds": 0.6671637499999861,
+      "log_sha256": "bbd248ae76566b62fc2d2fb91ee2242e67c7d505e292f142dfc10849878e2f0a"
+    },
+    {
+      "name": "offline-40",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-operators.py"
+      ],
+      "exit": 0,
+      "seconds": 0.7328842500000974,
+      "log_sha256": "ce5a7808c69505b899c61135ed918627bf577ce4d9cb51d4df04489dd322b5a3"
+    },
+    {
+      "name": "offline-41",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-temporal-operators.py"
+      ],
+      "exit": 0,
+      "seconds": 0.8917352500000106,
+      "log_sha256": "2b360275230677a1b5877c14230be9d9bd2ede7417039dd4f5db1525a3aca315"
+    },
+    {
+      "name": "offline-42",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py"
+      ],
+      "exit": 0,
+      "seconds": 2.2671405410000034,
+      "log_sha256": "c8670b336f016f82d7372e8334ea5e141e28bc6eda9597bbd9147e332d13dcda"
+    },
+    {
+      "name": "offline-43",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-stored-successor-material.py"
+      ],
+      "exit": 0,
+      "seconds": 0.5318721250000635,
+      "log_sha256": "421b9b40aeddd9efc6776008b05b14c1efe65eec8c5f2ee74380cd3ebad7d662"
+    },
+    {
+      "name": "offline-44",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-stored-successor-census.py"
+      ],
+      "exit": 0,
+      "seconds": 0.240720916999976,
+      "log_sha256": "c98c2725c762f17af07ecbfb02f603ee7cbac8081366dda907ad3126c9591e39"
+    },
+    {
+      "name": "offline-45",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-sequence-operators.py"
+      ],
+      "exit": 0,
+      "seconds": 0.31808124999997744,
+      "log_sha256": "cc98199c7cb15839e728968ec4144e62aa90bb6a8f3cfc8895e22d15a3abaddc"
+    },
+    {
+      "name": "offline-46",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-partial-scc.py"
+      ],
+      "exit": 0,
+      "seconds": 0.34933824999995977,
+      "log_sha256": "e34b9b02b5cac4dfa28467e7f4a5008ffe2da50222fe8b12902a1dac1d26efd8"
+    },
+    {
+      "name": "offline-47",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-backend.py"
+      ],
+      "exit": 0,
+      "seconds": 0.34745279100002335,
+      "log_sha256": "b00fca9fb83c1c15b3a868b70c0e1f04afa614582d648b27e2328412f36b0520"
+    },
+    {
+      "name": "offline-48",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-controller.py"
+      ],
+      "exit": 0,
+      "seconds": 0.2791525839999167,
+      "log_sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268"
+    },
+    {
+      "name": "offline-49",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-runtime-ratio.py"
+      ],
+      "exit": 0,
+      "seconds": 0.10265100000003713,
+      "log_sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8"
+    },
+    {
+      "name": "offline-50",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-lifecycle.py"
+      ],
+      "exit": 0,
+      "seconds": 1.0535248329999831,
+      "log_sha256": "7873a88afaacc1db96f3989269d4d6893ac5098d72e4c6592b9d3a25b46314ae"
+    },
+    {
+      "name": "offline-51",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-hook.py"
+      ],
+      "exit": 0,
+      "seconds": 0.7805694590000485,
+      "log_sha256": "b0ecb5319c42f6a612a5fb9faa1e6e53fd177b04b9f4b6f8074fa013f5987da0"
+    },
+    {
+      "name": "offline-52",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/macro-checksum-acceptance/verify.py"
+      ],
+      "exit": 0,
+      "seconds": 0.7347593750000669,
+      "log_sha256": "c3ac549c2652572275c8fd6850b932fe14fe473a1d3ed747bf29fb9080970969"
+    },
+    {
+      "name": "offline-53",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/define-acceptance/verify-delivery.py"
+      ],
+      "exit": 0,
+      "seconds": 0.9808990829999402,
+      "log_sha256": "48310ed7466319f908bb3df5bc8ad5262036660c70d8cd11f60f321a702c17f3"
+    },
+    {
+      "name": "offline-54",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-snapshot.py"
+      ],
+      "exit": 0,
+      "seconds": 1.044872416999965,
+      "log_sha256": "24d96cdd23eedb14202dd8ca8169d5e90ae80f55d400bfd939ca487f02ee0939"
+    },
+    {
+      "name": "offline-55",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-progress-queue.py"
+      ],
+      "exit": 0,
+      "seconds": 0.8590661670000372,
+      "log_sha256": "8d8677cc057922e8acf88ac4c39253002ad37dd48aedce941a6ac4cb0434b982"
+    },
+    {
+      "name": "offline-56",
+      "command": [
+        "python3",
+        "-I",
+        "conformance/probes/storage-tuple-function/verify.py"
+      ],
+      "exit": 0,
+      "seconds": 1.7333177909999904,
+      "log_sha256": "edf723f366a79b783c4d6c1e10c86c7b8904e8b3d9d01462f05779f0cea9d149"
+    },
+    {
+      "name": "offline-57",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-committed-prefix.py"
+      ],
+      "exit": 0,
+      "seconds": 0.7867775830000028,
+      "log_sha256": "26a7c52cc32a99346269ee76d2ecd32675e8f0c46e44caf74a456761f098300c"
+    },
+    {
+      "name": "offline-58",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-request-owned-service.py"
+      ],
+      "exit": 0,
+      "seconds": 0.7783663750000187,
+      "log_sha256": "009a60d896430ec99e92bf49385cd878d3138e14e55a8c80e84044b862f4ceb0"
+    },
+    {
+      "name": "offline-59",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-producer-owned-candidate.py"
+      ],
+      "exit": 0,
+      "seconds": 0.7414165840000351,
+      "log_sha256": "1b426ca849cde60eed74a5c4100c771ed1de7e50462ccfade274b256bae0f083"
+    },
+    {
+      "name": "offline-60",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-fallible-seen-engine.py"
+      ],
+      "exit": 0,
+      "seconds": 1.2676375409999991,
+      "log_sha256": "e839b03aff09a3d0123dbc41cde797d82ece451a3c05e0fb4e1c587e6b5510bd"
+    },
+    {
+      "name": "offline-61",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-fallible-seen-git-proof.py"
+      ],
+      "exit": 0,
+      "seconds": 0.22094654099998934,
+      "log_sha256": "cce9cf4a2efdc9d2de612b5a5550fca153852fdc93284a16f7b6c2bb6849d548"
+    },
+    {
+      "name": "offline-62",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-fallible-invariant-replay.py"
+      ],
+      "exit": 0,
+      "seconds": 2.3896361659999457,
+      "log_sha256": "17fa91eea870cf62932d144e556aba75675f17b287ed693b5ced579bff481c89"
+    },
+    {
+      "name": "offline-63",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py"
+      ],
+      "exit": 0,
+      "seconds": 1.0435948340000323,
+      "log_sha256": "850bc69cfd0be10afa26e5f75dc8dcdaecbe6aa52418471f586539d27b7093ff"
+    },
+    {
+      "name": "offline-64",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py"
+      ],
+      "exit": 0,
+      "seconds": 55.91608595799994,
+      "log_sha256": "34c1ef6d27bf60311913f37f55d50e4aa9f847f296ec9e8087a4f5a4f6ac46f5"
+    },
+    {
+      "name": "offline-65",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py"
+      ],
+      "exit": 0,
+      "seconds": 1.2862289170000167,
+      "log_sha256": "724024b653e109a987e0541b1e4b70aa53ec92ec891687cb18f2a3dceab5bfd6"
+    },
+    {
+      "name": "offline-66",
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py"
+      ],
+      "exit": 0,
+      "seconds": 60.83814466600006,
+      "log_sha256": "4e3684deb5dfc85cb42dd55831552725e0f8202ac6c1496f564d69341db1d2a8"
+    },
+    {
+      "name": "offline-67",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-optional-periodic-hook.py"
+      ],
+      "exit": 0,
+      "seconds": 1.4723548750000646,
+      "log_sha256": "109d0565ad29800382a8fb4254de652e947b762dc10d95f2586366dff2de271e"
+    },
+    {
+      "name": "offline-68",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-terminal-periodic-service.py"
+      ],
+      "exit": 0,
+      "seconds": 1.4300558329998694,
+      "log_sha256": "3b9b96404cd7e92d8bf25c1ae93deccd1ba6d065cfe025702f18e033ecec924d"
+    },
+    {
+      "name": "offline-69",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-stopped-periodic-service.py"
+      ],
+      "exit": 0,
+      "seconds": 1.0383630409999114,
+      "log_sha256": "6a168a4f182b09e2c47eb287fbd6c2fab9f9466e0872be1d27ce873fa8a5976c"
+    },
+    {
+      "name": "offline-70",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-terminal-outcome.py"
+      ],
+      "exit": 0,
+      "seconds": 2.199562166000078,
+      "log_sha256": "7d2c212842f864f1216f448efb12f994f5284460f90e2b983c793c261659cd77"
+    },
+    {
+      "name": "offline-71",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-test-partitions.py"
+      ],
+      "exit": 0,
+      "seconds": 201.160060166,
+      "log_sha256": "07df316f03766b7023dba596d32aef1b148cdf8af86af6558e7f4a7de6397a7d"
+    },
+    {
+      "name": "offline-72",
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-workspace-gate.py"
+      ],
+      "exit": 0,
+      "seconds": 0.35767408299989256,
+      "log_sha256": "5e11f4ac596aeb5b02a8b3f9239a443399e352692e29411a8aa1c990c59aac0b"
+    },
+    {
+      "name": "stage-0",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.5448360829998364,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "stage-1",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 12.365462665999985,
+      "log_sha256": "29b984b559c9916974201b94b6090f215a1f31c2ce3fcc2ea306176ff930bba5"
+    },
+    {
+      "name": "stage-2",
+      "command": [
+        "cargo",
+        "nextest",
+        "run",
+        "--workspace",
+        "--locked",
+        "--profile",
+        "ci",
+        "--test-threads",
+        "2"
+      ],
+      "exit": 0,
+      "seconds": 448.5143242920001,
+      "log_sha256": "653307055924724dfc79b815f961a4013e964803a7f62b000a26f17dec7bc0b1"
+    },
+    {
+      "name": "stage-3",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--doc",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 11.374576208999997,
+      "log_sha256": "be71a6be50524d164065e00fc5a474cb35d1e4f464e6f04b0b4b999ce178ac8e"
+    },
+    {
+      "name": "stage-4",
+      "command": [
+        "cargo",
+        "doc",
+        "--workspace",
+        "--no-deps",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 18.580773416000056,
+      "log_sha256": "3c6e5471895bc3a6a350861015e42f1810d8f38c0d7f69a59454db8433d7ba26"
+    },
+    {
+      "name": "stage-5",
+      "command": [
+        "cargo",
+        "xtask",
+        "check-layering"
+      ],
+      "exit": 0,
+      "seconds": 1.4266404170000442,
+      "log_sha256": "f39fcb94821bda20b929bc4f28f0d22ca19cae4d3dda388e831543c586312a9d"
+    },
+    {
+      "name": "stage-6",
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "dive-trace",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 3.701030791999983,
+      "log_sha256": "f6545612a784a3501aae3b97a9a867fbfbbecdccdad5a749da32aff3ddd25d00"
+    },
+    {
+      "name": "stage-7",
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 2.080815082999834,
+      "log_sha256": "3ac44189d11af4e84986d33c5009464fd8d44770f2f8cf28a775ccb5bffce04b"
+    }
+  ]
+}

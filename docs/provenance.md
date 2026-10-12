@@ -539,7 +539,7 @@ name-fix/process/procedure serialization or stronger checksum default is added.
 
 | Expanded temporal Action origins in `dive-model` and final-only API/JSON | `tlc2/tool/impl/SpecProcessor.java`, `processConfigProps`: unchanged `configName` passed into every implied-temporal `new Action`, independently of mutable derived `name`; pin `94d0c50` | MIT | Complete18 actual primary projections retain configured, expanded Action and derived role vectors separately;16 complete/2 exported-formal failures. Metadata only, unchanged witness/scheduling contract. |
 
-| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
+| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at 94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
 
 | Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |
 
@@ -805,3 +805,223 @@ capture/sink calls, separately from warnings. The disk error route refuses
 unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr`
 and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
 pre-review native run's single event is retained as failed output evidence.
+
+
+## Acyclic procedure-body checksum calls (#219)
+
+`checksum_transfers.rs` discovers source-owned procedure call vectors separately
+from main's LAST-header alias. `checksum.rs` emits each body vector then distinct
+main targets only on the last declaration. The matched source is pinned
+`pcal.ParseAlgorithm.GetProcedure` (reset/store shared vector) and `GetCall`
+(first source encounter/dedup), plus `AST.Procedure.toString`, at commit
+`94d0c507` (MIT). Target frame and current return-slot ownership still match the
+separate `PcalTranslate.ExplodeCall/ExplodeReturn` view; original post-generation
+header authority is not replaced with direct exploded xast. Native iterative
+acyclic admission and conservative pre-allocation reservations are dive's own
+controls, not Java algorithms or exact instruction counts. No runtime Java
+is delegated to. ADR0073 and the complete130-row declared study retain all old
+errors/refusals and the first ENOSPC capture separately.
+
+
+## Recursive sequential procedure Full checksum graphs (#223)
+
+`checksum_transfers.rs` retains bounded source-owned call vectors separately
+from `ParseAlgorithm.GetProcedure/GetCall` LAST-main alias. `PcalTranslate`
+`CopyAndExplodeLastStmt` and `ExplodeCallReturn` (1284–1490) provide self/cross-owner
+tail assignment/frame/local/entry order; `PcalTLAGen.GenAssign` supplies
+visited-assignment sorting. `AST.CallReturn.toString` supplies unmodified
+original header formatting. All source references use pinned commit `94d0c50`
+(MIT). Iterative finite graph admission/shared reservations are dive's design,
+not runtime unrolling or termination analysis. The 162 primary and separate
+exploded rows retain two generated/SANY-invalid artifacts without public credit.
+See [ADR0077](decisions/0077-recursive-procedure-header-checksums.md) and
+[the executable contract](pluscal-recursive-procedure-checksums.md).
+
+Candidate delivery10af preserves full45-stage/1057-test source receipts, default release feature isolation,27 separately corrected public outcomes, fresh memory/JSON witness mutants and all37 required safety gate models at1/4/8. The original unparenthesized IF material workload correctly produced an incomplete successor (four pin exit75 controls); four separately parenthesized controls give exit13. Every failed observer/source/script epoch remains retained, with no ordinary scheduling or corpus/family gain claimed.
+
+## Optional configured periodic role (ADR0074, #220)
+
+The shared binder's optional mode follows pinned94d0c50 MIT
+`tlc2.tool.impl.SpecProcessor.processPeriodic` (1634–1650) null/definition/arity
+selection and actual pre-constant `Defns.snapshot` authority. Selected real
+`ModelChecker.doPeriodicWork` observations preserve absent-hook skip, separately
+forced suspension/resume, false2104 and type1000/error2179 outcomes. The complete26
+rows in `conformance/probes/optional-periodic-hook/primary` retain actual Java
+exception and observer queue cleanup. Additive optional native tokens and shared
+independent candidate admission are dive architecture; they do not establish
+ordinary Java queue/clock/count/model-proof equivalence. Existing mandatory APIs
+and original startup/predicate bounds remain unchanged.
+
+Optional-hook Init precedence includes a separate unmodified full TLC invocation:
+GENERAL1000 contains inner2179, then nested-expression2103 decides exit75. This is
+not substituted with the selected direct doInit2179 exception surface. Original
+failed assertion/source and both primary stages remain retained.
+
+The clean e553 optional producer has 46 closed gate stages/1,067 zero-skip tests,
+479 exact compiler inputs including 50 embedded literal payloads, 46 default-library
+runtime rows, 12 independently Valid EOF words and 48 strict Invalid mutants through
+both memory/JSON routes. Default feature isolation, executable Cargo guide,
+mandatory API controls and 37 safety models at 1/4/8 are separate receipts. Historical
+matrix hashes remain tied to their original archived sources; the failed packaging
+assumption is retained. No ordinary schedule/model/family certification follows.
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+
+
+### Distinct partial-stop and full-CLI observations (#222)
+
+The separately controlled 12-row queue study holds a genuinely dequeued state:
+physical queue size 0 is not finished while a Worker owns outstanding work.
+Actual suspension succeeds, partial checking precedes the hook, and FALSE or
+division stops without final selection; a deciding temporal2116 precedes FALSE.
+These bounded scheduler observations are separate from the natural full CLI.
+The original observer discards the integer returned by `AbstractChecker.modelCheck`;
+its earlier description as a void method was incorrect and is preserved as history.
+The separate corrected twelve-row observer records actual returns at widths 1/4/8:
+TRUE 0, FALSE 2104, division 1000, and temporal violation 2116. Reflected
+`errorCode` 0 and observer process exit 0 are separate fields. The subprocess
+exits zero because its adapter does not forward the method result to `System.exit`;
+none of these early-stop observations establishes temporal success.
+
+The separate unmodified full CLI FALSE-hook counter exits 10, with 3,913,590
+states generated/distinct and one queued state after 4.2456s; it prints no success
+and no 2104 message. The declared 512MiB heap and 30s observer bound remain recorded.
+This is an intentional-boundary observation, not a newly declared TLC bug. A
+native early hook/service stop remains incomplete or refused and cannot be Holds.
+All original selections, cleanup events and raw command/timing facts are retained
+in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+## Stopped-queue worker diagnostics (ADR 0078, issue 224)
+
+`Worker.run`, `ModelChecker.setErrState/setError`, `runTLC` and
+`AbstractChecker.modelCheck` determine first-error/finished-queue behavior. The
+complete `conformance/probes/stopped-periodic-service/primary` selection preserves
+actual integer returns and independent CLI exits at 1/4/8, plus all earlier
+rejected selections. Native private transaction facts retain original source
+error/counters through joins; no claim reproduces Java graph writes after errors,
+natural clock scheduling or ordinary model proof. See
+[ADR0078](decisions/0078-stopped-queue-worker-errors.md) and the
+[executable guide](stopped-periodic-service.md).
+
+### Source-owned disk safety role admission (#221)
+
+`dive-model::admit_pure_safety_roles` reuses actual `Binder::process_spec` and
+`process_config` tables and decomposition: MIT pin94d0c50
+`tlc2.tool.impl.SpecProcessor.processSpec/processConfig/processConfigSpec/processConfigProps`,
+`SymbolNodeValueLookupProvider.lookup/getLevelBound`, and `ModuleNode.processConstantDefns`.
+The native structural-only mode refuses evaluation-demanding domains/literals/
+strict substitutions and checks actual native dispatch before startup. It does
+not replace levels/predicates with guessed values. Source visit/depth admission,
+conservative unused roots and pre-startup native refusals are original bounded
+policy, not claimed Java error parity. Resident binding is unchanged; no crate
+edge changes. The declared before-selection and current proof scope are in
+`conformance/probes/disk-safety-roles/` and ADR0075.
+
+The role admission runtime source is frozen at `7fae387c11675b6a72119cc0013dd18f4eac33cb`.
+Its archived selected inputs include 1,347 Git/live pairs and all 61 literal
+include sites/56 targets derived from actual workspace Rust sources. Portable
+commit/tree objects establish the selected Git blob identities without requiring
+an unsquashed producer object in a future clone. This is selected-input provenance,
+not a hermetic build or independent semantic certificate. Runtime/gate histories
+and metadata-only current authority stay separate in the role study.
+
+## Process-owned procedure Full headers (#225)
+
+`translate/checksum_transfers.rs` follows pinned `ParseAlgorithm.GetProcedure`
+(694/720) and `GetProcess` (737/755): each process resets and stores its own
+proceduresCalled vector, while sequential main aliases LAST. Original parsed
+source spans identify each owner; vectors retain encounter order and duplicate
+suppression with shared preallocation charges. `PcalTranslate.ExplodeMultiprocess`
+(383 onward), `CopyAndExplodeLastStmt`/`ExplodeCall`/`ExplodeCallReturn`/`UpdatePC`
+and `PCalTLAGen.GenAssign` match original stored shared-vector mutation, while
+`AST.Multiprocess`, `Procedure`, `Process` and `VectorToSeqString` define exact
+header serialization. `PCalTLAGen.GenCall`/`GenReturn`/`GenInit` separately own
+process-indexed state generation; no header indexing or runtime unrolling is
+added. Source commit `94d0c5070852b37b801bb8998c436383ab7ee37b`, MIT.
+
+The complete declared242 study separates clean primary generation/original
+post-generation AST/CRC from direct exploded xast. Only one unfair finite process
+and one disjoint labelled procedure are lifted; fairness/scoped/multiple/option
+boundaries remain explicit. See ADR0079 and the executable user guide. Java is
+development-only. Artifact and strict saved-frame replay credit remain separate.
+
+
+## Terminal finalization and postcondition order (#228, ADR0080)
+
+The bounded [Rust terminal guide](terminal-outcome.md) exposes actual private
+capture/resource completion, OOS/PEM final checks, independently replayed words
+and subsequent direct post errors. `ModelChecker.modelCheck` runs finalCheck
+before normal `Tool.checkPostCondition`; `LiveWorker.printTrace` also calls
+`checkPostConditionWithCounterExample`, ignoring returned errors while getter
+exceptions can abort rendering. The complete24 minimal pinned rows distinguish
+2405/CLI10, ignored2405 then2116/CLI13, cached-role GENERAL1000/CLI255 and the
+candidate getter exception/CLI1 with no method return. These are measured
+ordering contracts, not a newly declared TLC defect or approved default change.
+The unchanged8820 wrong post-before-final observation and all84/84/84/96
+reference development/selection epochs remain in
+[the acceptance evidence](../conformance/probes/terminal-outcome/README.md).
+
+Only direct bounded scalar/Boolean posts are admitted; calls, effects, configured
+constants, constructors and unproved partial-render/getter exceptions refuse.
+Current final records require original source/commit fingerprint alignment,
+per-node write coverage and actual tableau done authority under existing graph
+budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
+no-action and checkpoint composition are unfinished. No Holds, model-proof or
+family credit is claimed; F-023 remains missing/audit-required.
+
+### Independent indexed tuple-stack replay (#227)
+
+`dive-trace::tuple_history` and private `exists::TupleProof` extend the native
+logical admission with finite function-range tuple invariants (ADR 0081). The
+reference semantics are TLA+ function construction/application, EXCEPT and
+UNCHANGED as evaluated by pinned MIT `tlc2.tool.impl.Tool.eval` at 94d0c50.
+No Java state generation or checker enumeration algorithm is ported. Proof
+construction uses checked bound scopes and source expressions only; selectors,
+Init/Next/ending predicates and transport namespace authority remain independently
+checked. Original 32 sequential and eight process before-profile observations
+retain separate producer/raw identity. No whole-family or arbitrary-state
+namespace certification is claimed.
+
+The indexed-stack admission's separately frozen qualification archives all
+70 literal include sites/65 targets before its complete 1,698-test gate and
+records the fresh original 80/384/80 replay selections, clean primary pairs
+and executable guides. Portable Git commit/tree proofs preserve the selected
+producer blob identity without requiring an unpublished Git object in CI.
+The current reader checks the old and qualified epochs separately; this
+selected-source proof is not a hermetic build or full namespace certificate
+([probe evidence](../conformance/probes/indexed-stack-replay/README.md)).
+
+### Independent Strict substitution admission (#234)
+
+The native trace context guard inspects `Arg::Expr`/`Pass::Strict` before
+`Evaluator::scope_subst`. Existing `Core::bind_subst` evaluates Strict
+expressions while Lazy/Direct bindings remain thunks; operator lookup does not
+execute an expression. Eleven trace-side entry sites in tuple shape/range,
+whole-word tuple history, runtime-order and temporal inspection are guarded.
+This is an independent native admission repair, not a Java algorithm port or
+a claim that naturally lowered TLA+ emits the retained caller-forged metadata.
+The regression fixture preserves owned IR, original impure-annotation refusal,
+actual inert/lazy contexts and ordinary evaluator execution separately.
+
+### Independent eager-substitution admission (#234)
+
+`Core::new` plans literal values/errors and record field atoms; `eval_inner`
+reads those caches. `Core::bind_subst` evaluates all Strict operands against its
+original outer environment. Trace admission matches that boundary with bounded
+callback-free literal/tuple/record and scoped-value forwarding inspection. It
+performs no evaluator call/provider forcing and trusts no effects annotation.
+Stored atoms require receiving-token identity. The original 1,762/1,764 failure
+is retained; corrected compilation/qualification remain pending separately.

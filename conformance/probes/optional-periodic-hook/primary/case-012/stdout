@@ -1,0 +1,5 @@
+EVENT	exception-class:util.Assert$TLCRuntimeException
+EVENT	exception-code:2228
+MESSAGE-BEGIN
+TLC requires periodic not to take any argument, but one was given: Hook
+MESSAGE-END

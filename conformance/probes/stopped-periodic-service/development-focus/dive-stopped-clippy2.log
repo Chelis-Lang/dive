@@ -1,0 +1,62 @@
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+error: wildcard matches only a single variant and will also match any future added variants
+  --> crates/dive-check/tests/stopped_observer.rs:93:9
+   |
+93 |         _ => panic!("must stop"),
+   |         ^ help: try: `Exploration::Complete(_)`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#match_wildcard_for_single_variants
+   = note: `-D clippy::match-wildcard-for-single-variants` implied by `-D clippy::pedantic`
+   = help: to override `-D clippy::pedantic` add `#[allow(clippy::match_wildcard_for_single_variants)]`
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/stopped_observer.rs:217:13
+    |
+217 |             assert!(observer.pre.is_empty());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+    = note: `-D clippy::assert-is-empty` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::assert_is_empty)]`
+help: use `assert_eq!` to show the value on failure
+    |
+217 -             assert!(observer.pre.is_empty());
+217 +             assert_eq!(observer.pre, [] as [(dive_check::Stats, dive_check::Verdict, dive_check::capture::WorkerStop, u64); 0]);
+    |
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/stopped_observer.rs:219:13
+    |
+219 |             assert!(observer.faults.is_empty());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+help: use `assert_eq!` to show the value on failure
+    |
+219 -             assert!(observer.faults.is_empty());
+219 +             assert_eq!(observer.faults, [] as [dive_check::capture::StoppedDiagnosticFault; 0]);
+    |
+
+error: only a `panic!` in `if`-then statement
+   --> crates/dive-check/tests/stopped_observer.rs:237:13
+    |
+237 | /             if self.panic {
+238 | |                 panic!("controlled admission unwind");
+239 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#manual_assert
+    = note: `-D clippy::manual-assert` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::manual_assert)]`
+help: replace `if`-then-`panic!` with `assert!`
+    |
+237 -             if self.panic {
+238 -                 panic!("controlled admission unwind");
+239 -             }
+237 +             assert!(!self.panic, "controlled admission unwind");
+    |
+
+error: could not compile `dive-check` (test "stopped_observer") due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...

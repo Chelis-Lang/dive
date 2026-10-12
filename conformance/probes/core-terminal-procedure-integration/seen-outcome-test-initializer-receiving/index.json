@@ -1,0 +1,24 @@
+{
+  "failed_producer": "b9a73230a0d200f0b98c7a6231e421499c85f2b1",
+  "failure": "Workspace inventory compilation found missing Outcome.stopped_transaction in existing seen-store test initializer. No tests ran in this failed command. Earlier71 literal commands closed0; no full gate qualification.",
+  "correction": "Set stopped_transaction=None in this synthetic error outcome. Existing cleanup assertions and production behavior remain unchanged. Fresh source qualification required.",
+  "family_certified": false,
+  "files": {
+    "gate-receipt.json": {
+      "sha256": "137b7115f6442aa058f91a57aa86729bd5a16aa45a16000fcee7a1132e7cfc56",
+      "archive": "gate-receipt.json.gz"
+    },
+    "source-index.json": {
+      "sha256": "aab9abb48735840f53156a098218e530d744e0124df31d2a931bbfde3d0d4a08",
+      "archive": "source-index.json.gz"
+    },
+    "offline-commands.json": {
+      "sha256": "13fd76c5f6a3e5ac9a7c1c706fcbd95ee8cad60fecfbea4991e5e26e8d98f328",
+      "archive": "offline-commands.json.gz"
+    },
+    "offline-71.log": {
+      "sha256": "aaaf31d77870eec90fcdcfab12c46f0fccafd080af5ba4270f245c0285ce689d",
+      "archive": "offline-71.log.gz"
+    }
+  }
+}

@@ -142,14 +142,15 @@ impl Snapshot {
             _ => return Err(refusal()),
         }
         let lifecycle = if let Some(requests) = requests.filter(|_| service) {
-            crate::periodic_hook::execute_service(
-                &model,
-                self.bound.predicate(),
+            owned_service(
+                self.bound.model(),
+                Some(self.bound.predicate()),
                 options,
                 limits,
                 policy,
                 requests,
                 retain_sources,
+                false,
             )?
         } else if let Some(requests) = requests {
             crate::periodic_hook::execute_requests(
@@ -234,6 +235,304 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig) -> Result<Snapshot, Box<dive_model::
         configuration: cfg.clone(),
     })
 }
+
+/// Privately bound optional configuration role. Genuine absence skips only the
+/// hook stage; graph/controller, source admission and EOF authority are unchanged.
+/// This diagnostic never enables ordinary checking or certifies a model proof.
+pub struct OptionalSnapshot {
+    bound: dive_model::OptionalPeriodicSnapshot,
+    configuration: ModelConfig,
+}
+impl OptionalSnapshot {
+    /// Exact owned model, retaining the ordinary-check refusal marker.
+    #[must_use]
+    pub fn model(&self) -> &dive_model::Model {
+        self.bound.model()
+    }
+    /// Original configured spelling, or actual absence in that configuration.
+    #[must_use]
+    pub fn configured_name(&self) -> Option<&str> {
+        self.bound.configured_name()
+    }
+    /// Actual pre-constant selected definition, if configured.
+    #[must_use]
+    pub fn definition(&self) -> Option<DefId> {
+        self.bound.definition()
+    }
+    /// Actual selected body and context, if configured.
+    #[must_use]
+    pub fn predicate(&self) -> Option<&dive_model::Pred> {
+        self.bound.predicate()
+    }
+    /// Service genuine internally produced requests under owned dispatch pauses.
+    /// No hook is evaluated when the original configuration has none. Absence
+    /// does not imply successful temporal checking or an ordinary schedule.
+    ///
+    /// # Errors
+    /// Callback-free source/context admission, nonmatching TLC options, or
+    /// existing graph, capture, predicate and cumulative resource bounds.
+    pub fn execute_service(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_inner(options, limits, policy, requests, false, false)
+    }
+    /// Same service, retaining bounded original concrete source authority for
+    /// independent candidate replay. No caller-supplied graph or word is trusted.
+    ///
+    /// # Errors
+    /// The same admission and existing source-retention bounds as the service.
+    pub fn execute_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_inner(options, limits, policy, requests, true, false)
+    }
+    /// Retain real source provenance and service the genuinely exhausted queue
+    /// before timer/pool joins, then independently selectable final candidates.
+    /// The configured hook is skipped when the finished queue cannot suspend.
+    /// This remains diagnostic: ordinary checking and temporal Holds refuse.
+    ///
+    /// # Errors
+    /// Existing source/profile admission and cumulative resource bounds.
+    pub fn execute_terminal_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_inner(options, limits, policy, requests, true, true)
+    }
+    /// Retain real source provenance and service an eligible ordered worker
+    /// failure before joins. Diagnostic faults never replace the original error;
+    /// no failed source is promoted to EOF, final checking or temporal Holds.
+    ///
+    /// # Errors
+    /// Existing source/profile admission and cumulative resource bounds.
+    pub fn execute_stopped_candidate_source(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_mode(
+            options,
+            limits,
+            policy,
+            requests,
+            true,
+            ServiceMode::Stopped,
+        )
+    }
+    fn execute_inner(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+        retain_sources: bool,
+        terminal: bool,
+    ) -> Result<OptionalRun, EvalError> {
+        self.execute_mode(
+            options,
+            limits,
+            policy,
+            requests,
+            retain_sources,
+            if terminal {
+                ServiceMode::Terminal
+            } else {
+                ServiceMode::Requests
+            },
+        )
+    }
+    fn execute_mode(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+        retain_sources: bool,
+        mode: ServiceMode,
+    ) -> Result<OptionalRun, EvalError> {
+        admit_source(&self.model().ir, &self.configuration)?;
+        let lifecycle = owned_service_mode(
+            self.model(),
+            self.predicate(),
+            options,
+            limits,
+            policy,
+            requests,
+            retain_sources,
+            mode,
+        )?;
+        let role = match (self.configured_name(), self.definition(), self.predicate()) {
+            (Some(name), Some(definition), Some(predicate)) => {
+                Some((name.to_owned(), definition, predicate.expr))
+            }
+            (None, None, None) => None,
+            _ => return Err(refusal()),
+        };
+        Ok(OptionalRun { lifecycle, role })
+    }
+}
+/// Private optional-hook provenance accompanying actual diagnostic execution.
+/// The optional identity is producer-derived, never a caller's absence flag.
+pub struct OptionalRun {
+    lifecycle: crate::periodic_lifecycle::Run,
+    role: Option<(String, DefId, dive_ir::ExprId)>,
+}
+impl OptionalRun {
+    /// Actual request/EOF/ordered failure evidence; never a model proof.
+    #[must_use]
+    pub fn lifecycle(&self) -> &crate::periodic_lifecycle::Run {
+        &self.lifecycle
+    }
+    /// Actual configured spelling, or genuine absence.
+    #[must_use]
+    pub fn configured_name(&self) -> Option<&str> {
+        self.role.as_ref().map(|r| r.0.as_str())
+    }
+    /// Actual selected definition, or genuine absence.
+    #[must_use]
+    pub fn definition(&self) -> Option<DefId> {
+        self.role.as_ref().map(|r| r.1)
+    }
+    /// Actual selected body, or genuine absence.
+    #[must_use]
+    pub fn expression(&self) -> Option<dive_ir::ExprId> {
+        self.role.as_ref().map(|r| r.2)
+    }
+}
+/// Bind an optional configuration-owned diagnostic hook. Pre-startup structural,
+/// ownership, effect and bounded grammar guards are the same as mandatory binding.
+/// Absence is read from the original configuration, never substituted with TRUE.
+///
+/// # Errors
+/// Original binding error or callback-free source/selected-body refusal. No
+/// ordinary schedule, Holds or model-proof certificate is produced.
+pub fn bind_optional(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+) -> Result<OptionalSnapshot, Box<dive_model::Failure>> {
+    admit_source(&ir, cfg).map_err(|error| Box::new(failure(&error)))?;
+    let bound = dive_model::bind_optional_periodic_snapshot(ir, cfg, &BindOptions::tlc())?;
+    if let Some(predicate) = bound.predicate() {
+        crate::periodic_hook::admit(bound.model(), predicate).map_err(|error| {
+            let mut f = failure(&error);
+            f.output.clone_from(&bound.model().output);
+            Box::new(f)
+        })?;
+    }
+    Ok(OptionalSnapshot {
+        bound,
+        configuration: cfg.clone(),
+    })
+}
+#[derive(Clone, Copy)]
+enum ServiceMode {
+    Requests,
+    Terminal,
+    Stopped,
+}
+#[allow(
+    clippy::too_many_arguments,
+    reason = "one shared request-service admission boundary"
+)]
+fn owned_service(
+    bound: &dive_model::Model,
+    predicate: Option<&dive_model::Pred>,
+    options: &dive_check::CheckOptions,
+    limits: crate::phase_graph::Limits,
+    policy: crate::periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+    retain_sources: bool,
+    terminal: bool,
+) -> Result<crate::periodic_lifecycle::Run, EvalError> {
+    owned_service_mode(
+        bound,
+        predicate,
+        options,
+        limits,
+        policy,
+        requests,
+        retain_sources,
+        if terminal {
+            ServiceMode::Terminal
+        } else {
+            ServiceMode::Requests
+        },
+    )
+}
+#[allow(
+    clippy::too_many_arguments,
+    reason = "one shared source-owned admission boundary"
+)]
+fn owned_service_mode(
+    bound: &dive_model::Model,
+    predicate: Option<&dive_model::Pred>,
+    options: &dive_check::CheckOptions,
+    limits: crate::phase_graph::Limits,
+    policy: crate::periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+    retain_sources: bool,
+    mode: ServiceMode,
+) -> Result<crate::periodic_lifecycle::Run, EvalError> {
+    bound.validate_context()?;
+    let hook = predicate
+        .map(|p| crate::periodic_hook::admit(bound, p).map(|work| (p.clone(), work)))
+        .transpose()?;
+    let tlc = dive_eval::Options::tlc();
+    if options.profile != dive_eval::Profile::Tlc
+        || options.eval.ctx != tlc.ctx
+        || options.eval.comparisons != tlc.comparisons
+        || options.eval.exploration != tlc.exploration
+        || options.eval != *bound.evaluator.options()
+    {
+        return Err(EvalError::unsupported(
+            "request-owned service requires matching TLC checker/evaluator mode",
+        ));
+    }
+    let mut model = bound.clone();
+    match model.unsupported.pop() {
+        Some(marker)
+            if marker.kind == dive_model::UnsupportedKind::Feature
+                && marker.feature == PeriodicSnapshot::ORDINARY_REFUSAL => {}
+        _ => return Err(refusal()),
+    }
+    Ok(match mode {
+        ServiceMode::Stopped => crate::phase_execution::execute_periodic_stopped_service(
+            &model,
+            options,
+            limits,
+            policy,
+            hook,
+            requests,
+            retain_sources,
+        ),
+        ServiceMode::Requests | ServiceMode::Terminal => {
+            crate::phase_execution::execute_periodic_service(
+                &model,
+                options,
+                limits,
+                policy,
+                hook,
+                requests,
+                retain_sources,
+                matches!(mode, ServiceMode::Terminal),
+            )
+        }
+    })
+}
+
 fn failure(error: &EvalError) -> dive_model::Failure {
     dive_model::Failure {
         error: dive_model::BindError {

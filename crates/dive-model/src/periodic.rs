@@ -6,6 +6,13 @@ use dive_ir::{DefId, Ir};
 
 use crate::{BindError, BindOptions, Ec, Failure, Model, Pred, bind::Binder, tables::Look};
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Mode {
+    Ordinary,
+    Required,
+    Optional,
+}
+
 pub(crate) struct Role {
     name: String,
     definition: DefId,
@@ -68,7 +75,7 @@ pub fn bind_periodic_snapshot(
     cfg: &ModelConfig,
     opts: &BindOptions,
 ) -> Result<PeriodicSnapshot, Box<Failure>> {
-    let (mut model, role) = crate::bind_in(ir, cfg, opts, None, true)?;
+    let (mut model, role) = crate::bind_in(ir, cfg, opts, None, Mode::Required)?;
     let role = role.ok_or_else(|| {
         Box::new(Failure {
             error: BindError::unsupported("missing diagnostic periodic snapshot"),
@@ -120,4 +127,54 @@ pub(crate) fn resolve(b: &Binder<'_>, entry: Option<&Look>) -> Result<Role, Bind
         definition,
         predicate: Pred::new(def.body, scope),
     })
+}
+
+/// Configuration-owned optional periodic selection. Absence comes only from the
+/// original configuration, never a supplied predicate or an inferred TRUE body.
+/// The exposed model retains the ordinary-scheduling refusal even when absent.
+pub struct OptionalPeriodicSnapshot {
+    model: Model,
+    role: Option<Role>,
+}
+impl OptionalPeriodicSnapshot {
+    /// Exact model and evaluator owned by this selection.
+    #[must_use]
+    pub fn model(&self) -> &Model {
+        &self.model
+    }
+    /// Original configured role, or genuine configuration absence.
+    #[must_use]
+    pub fn configured_name(&self) -> Option<&str> {
+        self.role.as_ref().map(|r| r.name.as_str())
+    }
+    /// Actual selected pre-constant definition, without a synthetic fallback.
+    #[must_use]
+    pub fn definition(&self) -> Option<DefId> {
+        self.role.as_ref().map(|r| r.definition)
+    }
+    /// Original owned selected body, if a role was configured.
+    #[must_use]
+    pub fn predicate(&self) -> Option<&Pred> {
+        self.role.as_ref().map(|r| &r.predicate)
+    }
+}
+/// Bind an optional diagnostic selection through the same actual binder stages
+/// and pre-constant definition snapshot as the mandatory API. Constant startup
+/// evaluation is unchanged; callers needing pre-effect admission must use the
+/// bounded liveness wrapper. This never enables ordinary checking.
+///
+/// # Errors
+/// Original binding errors, or invalid/non-definition/nonzero-arity configured
+/// roles. An absent role succeeds as genuine absence.
+pub fn bind_optional_periodic_snapshot(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+) -> Result<OptionalPeriodicSnapshot, Box<Failure>> {
+    let (mut model, role) = crate::bind_in(ir, cfg, opts, None, Mode::Optional)?;
+    model.unsupported.push(crate::Unsupported {
+        kind: crate::UnsupportedKind::Feature,
+        feature: PeriodicSnapshot::ORDINARY_REFUSAL.to_owned(),
+    });
+    Ok(OptionalPeriodicSnapshot { model, role })
 }

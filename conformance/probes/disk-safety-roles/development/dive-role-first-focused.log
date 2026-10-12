@@ -1,0 +1,19 @@
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+error[E0369]: binary operation `==` cannot be applied to type `Option<Counterexample>`
+   --> crates/dive-check/tests/disk_roles.rs:54:17
+    |
+ 54 |                 assert_eq!(disk.counterexample, memory.counterexample, "{name}");
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |                 |
+    |                 Option<Counterexample>
+    |                 Option<Counterexample>
+    |
+note: `Counterexample` does not implement `PartialEq`
+   --> crates/dive-check/src/result.rs:342:1
+    |
+342 | pub struct Counterexample {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ `Counterexample` is defined in another crate
+
+For more information about this error, try `rustc --explain E0369`.
+error: could not compile `dive-check` (test "disk_roles") due to 1 previous error

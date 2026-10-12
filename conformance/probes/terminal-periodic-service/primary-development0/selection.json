@@ -1,0 +1,542 @@
+[
+  {
+    "id": "safe-absent-w1",
+    "width": 1,
+    "case": "safe-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-true-w1",
+    "width": 1,
+    "case": "safe-true",
+    "property": "<>(x=1)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-false-w1",
+    "width": 1,
+    "case": "safe-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-integer-w1",
+    "width": 1,
+    "case": "safe-integer",
+    "property": "<>(x=1)",
+    "hook": "1",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-division-w1",
+    "width": 1,
+    "case": "safe-division",
+    "property": "<>(x=1)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-state-w1",
+    "width": 1,
+    "case": "safe-state",
+    "property": "<>(x=1)",
+    "hook": "x=1",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-absent-w1",
+    "width": 1,
+    "case": "violating-absent",
+    "property": "<>(x=2)",
+    "hook": null,
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-true-w1",
+    "width": 1,
+    "case": "violating-true",
+    "property": "<>(x=2)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-false-w1",
+    "width": 1,
+    "case": "violating-false",
+    "property": "<>(x=2)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-error-w1",
+    "width": 1,
+    "case": "violating-error",
+    "property": "<>(x=2)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "init-error-absent-w1",
+    "width": 1,
+    "case": "init-error-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": "x=(1 \\div 0)",
+    "next": null
+  },
+  {
+    "id": "init-error-false-w1",
+    "width": 1,
+    "case": "init-error-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": "x=(1 \\div 0)",
+    "next": null
+  },
+  {
+    "id": "next-error-absent-w1",
+    "width": 1,
+    "case": "next-error-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": "x'=(1 \\div 0)"
+  },
+  {
+    "id": "next-error-false-w1",
+    "width": 1,
+    "case": "next-error-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": "x'=(1 \\div 0)"
+  },
+  {
+    "id": "empty-init-absent-w1",
+    "width": 1,
+    "case": "empty-init-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": "FALSE",
+    "next": null
+  },
+  {
+    "id": "empty-init-false-w1",
+    "width": 1,
+    "case": "empty-init-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": "FALSE",
+    "next": null
+  },
+  {
+    "id": "no-actions-absent-w1",
+    "width": 1,
+    "case": "no-actions-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": "NO_ACTIONS"
+  },
+  {
+    "id": "no-actions-false-w1",
+    "width": 1,
+    "case": "no-actions-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": "NO_ACTIONS"
+  },
+  {
+    "id": "missing-hook-w1",
+    "width": 1,
+    "case": "missing-hook",
+    "property": "<>(x=1)",
+    "hook": "MISSING",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "nonzero-hook-w1",
+    "width": 1,
+    "case": "nonzero-hook",
+    "property": "<>(x=1)",
+    "hook": "NONZERO",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-absent-w4",
+    "width": 4,
+    "case": "safe-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-true-w4",
+    "width": 4,
+    "case": "safe-true",
+    "property": "<>(x=1)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-false-w4",
+    "width": 4,
+    "case": "safe-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-integer-w4",
+    "width": 4,
+    "case": "safe-integer",
+    "property": "<>(x=1)",
+    "hook": "1",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-division-w4",
+    "width": 4,
+    "case": "safe-division",
+    "property": "<>(x=1)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-state-w4",
+    "width": 4,
+    "case": "safe-state",
+    "property": "<>(x=1)",
+    "hook": "x=1",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-absent-w4",
+    "width": 4,
+    "case": "violating-absent",
+    "property": "<>(x=2)",
+    "hook": null,
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-true-w4",
+    "width": 4,
+    "case": "violating-true",
+    "property": "<>(x=2)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-false-w4",
+    "width": 4,
+    "case": "violating-false",
+    "property": "<>(x=2)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-error-w4",
+    "width": 4,
+    "case": "violating-error",
+    "property": "<>(x=2)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "init-error-absent-w4",
+    "width": 4,
+    "case": "init-error-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": "x=(1 \\div 0)",
+    "next": null
+  },
+  {
+    "id": "init-error-false-w4",
+    "width": 4,
+    "case": "init-error-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": "x=(1 \\div 0)",
+    "next": null
+  },
+  {
+    "id": "next-error-absent-w4",
+    "width": 4,
+    "case": "next-error-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": "x'=(1 \\div 0)"
+  },
+  {
+    "id": "next-error-false-w4",
+    "width": 4,
+    "case": "next-error-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": "x'=(1 \\div 0)"
+  },
+  {
+    "id": "empty-init-absent-w4",
+    "width": 4,
+    "case": "empty-init-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": "FALSE",
+    "next": null
+  },
+  {
+    "id": "empty-init-false-w4",
+    "width": 4,
+    "case": "empty-init-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": "FALSE",
+    "next": null
+  },
+  {
+    "id": "no-actions-absent-w4",
+    "width": 4,
+    "case": "no-actions-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": "NO_ACTIONS"
+  },
+  {
+    "id": "no-actions-false-w4",
+    "width": 4,
+    "case": "no-actions-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": "NO_ACTIONS"
+  },
+  {
+    "id": "missing-hook-w4",
+    "width": 4,
+    "case": "missing-hook",
+    "property": "<>(x=1)",
+    "hook": "MISSING",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "nonzero-hook-w4",
+    "width": 4,
+    "case": "nonzero-hook",
+    "property": "<>(x=1)",
+    "hook": "NONZERO",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-absent-w8",
+    "width": 8,
+    "case": "safe-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-true-w8",
+    "width": 8,
+    "case": "safe-true",
+    "property": "<>(x=1)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-false-w8",
+    "width": 8,
+    "case": "safe-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-integer-w8",
+    "width": 8,
+    "case": "safe-integer",
+    "property": "<>(x=1)",
+    "hook": "1",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-division-w8",
+    "width": 8,
+    "case": "safe-division",
+    "property": "<>(x=1)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "safe-state-w8",
+    "width": 8,
+    "case": "safe-state",
+    "property": "<>(x=1)",
+    "hook": "x=1",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-absent-w8",
+    "width": 8,
+    "case": "violating-absent",
+    "property": "<>(x=2)",
+    "hook": null,
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-true-w8",
+    "width": 8,
+    "case": "violating-true",
+    "property": "<>(x=2)",
+    "hook": "TRUE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-false-w8",
+    "width": 8,
+    "case": "violating-false",
+    "property": "<>(x=2)",
+    "hook": "FALSE",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "violating-error-w8",
+    "width": 8,
+    "case": "violating-error",
+    "property": "<>(x=2)",
+    "hook": "1 \\div 0",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "init-error-absent-w8",
+    "width": 8,
+    "case": "init-error-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": "x=(1 \\div 0)",
+    "next": null
+  },
+  {
+    "id": "init-error-false-w8",
+    "width": 8,
+    "case": "init-error-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": "x=(1 \\div 0)",
+    "next": null
+  },
+  {
+    "id": "next-error-absent-w8",
+    "width": 8,
+    "case": "next-error-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": "x'=(1 \\div 0)"
+  },
+  {
+    "id": "next-error-false-w8",
+    "width": 8,
+    "case": "next-error-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": "x'=(1 \\div 0)"
+  },
+  {
+    "id": "empty-init-absent-w8",
+    "width": 8,
+    "case": "empty-init-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": "FALSE",
+    "next": null
+  },
+  {
+    "id": "empty-init-false-w8",
+    "width": 8,
+    "case": "empty-init-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": "FALSE",
+    "next": null
+  },
+  {
+    "id": "no-actions-absent-w8",
+    "width": 8,
+    "case": "no-actions-absent",
+    "property": "<>(x=1)",
+    "hook": null,
+    "init": null,
+    "next": "NO_ACTIONS"
+  },
+  {
+    "id": "no-actions-false-w8",
+    "width": 8,
+    "case": "no-actions-false",
+    "property": "<>(x=1)",
+    "hook": "FALSE",
+    "init": null,
+    "next": "NO_ACTIONS"
+  },
+  {
+    "id": "missing-hook-w8",
+    "width": 8,
+    "case": "missing-hook",
+    "property": "<>(x=1)",
+    "hook": "MISSING",
+    "init": null,
+    "next": null
+  },
+  {
+    "id": "nonzero-hook-w8",
+    "width": 8,
+    "case": "nonzero-hook",
+    "property": "<>(x=1)",
+    "hook": "NONZERO",
+    "init": null,
+    "next": null
+  }
+]

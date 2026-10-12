@@ -1,0 +1,53 @@
+Parsing file /private/tmp/dive-terminal-postorder-primary/violation-constant-post-w1-observed/Terminal.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-4996153976805489473/Naturals.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Terminal
+Linting of module Terminal
+Starting... (2026-10-11 23:06:56)
+Implied-temporal checking--satisfiability problem has 1 branches.
+EVENT	modelCheck-enter
+Computing initial states...
+EVENT	live-addInitState-enter
+EVENT	graph:addInitState-enter:group=0:class=TableauDiskGraph:buckets=0
+EVENT	live-addInitState-return:null
+EVENT	graph:addInitState-return:group=0:class=TableauDiskGraph:buckets=1
+Finished computing initial states: 1 distinct state generated at 2026-10-11 23:06:56.
+EVENT	start-workers-enter
+EVENT	start-workers-return:1
+EVENT	live-addNextState-enter
+EVENT	graph:addNextState-enter:group=0:class=TableauDiskGraph:buckets=1
+EVENT	live-addNextState-return:null
+EVENT	graph:addNextState-return:group=0:class=TableauDiskGraph:buckets=2
+EVENT	live-addNextState-enter
+EVENT	graph:addNextState-enter:group=0:class=TableauDiskGraph:buckets=2
+EVENT	live-addNextState-return:null
+EVENT	graph:addNextState-return:group=0:class=TableauDiskGraph:buckets=2
+EVENT	queue-dequeue-EOF:TLCWorkerThread-000
+EVENT	live-doLiveCheck-enter
+EVENT	graph:doLiveCheck-enter:group=0:class=TableauDiskGraph:buckets=2
+EVENT	live-doLiveCheck-return:true
+EVENT	graph:doLiveCheck-return:group=0:class=TableauDiskGraph:buckets=2
+EVENT	queue-finishAll-enter:TLCWorkerThread-000:size=0
+EVENT	queue-suspendAll-enter:main:size=0
+EVENT	queue-finishAll-return:null:size=0
+EVENT	queue-suspendAll-return:false:size=0
+Progress(2) at 2026-10-11 23:06:56: 3 states generated, 2 distinct states found, 0 states left on queue.
+EVENT	live-finalCheck-enter
+EVENT	graph:finalCheck-enter:group=0:class=TableauDiskGraph:buckets=2
+Checking temporal properties for the complete state space with 2 total distinct states at (2026-10-11 23:06:56)
+Error: Temporal property Live was violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+x = 0
+
+State 2: <Next line 5, col 9 to line 5, col 12 of module Terminal>
+x = 1
+
+State 3: Stuttering
+Error: TLC threw an unexpected exception.
+This was probably caused by an error in the spec or model.
+See the User Output or TLC Console for clues to what happened.
+The exception was a java.lang.RuntimeException
+: The post condition Post cannot be a constant.

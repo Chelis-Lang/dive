@@ -1,0 +1,22 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.60s
+     Running tests/disk_roles.rs (/Users/jeff/code/dive-trace-representation-target/debug/deps/disk_roles-61e0941c769e1fe7)
+
+running 1 test
+test strict_subscript_only_substitution_is_not_admitted_by_warning ... FAILED
+
+failures:
+
+---- strict_subscript_only_substitution_is_not_admitted_by_warning stdout ----
+
+thread 'strict_subscript_only_substitution_is_not_admitted_by_warning' (130973512) panicked at crates/dive-check/tests/disk_roles.rs:333:9:
+Success
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    strict_subscript_only_substitution_is_not_admitted_by_warning
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 35 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p dive-check --test disk_roles`

@@ -1,0 +1,9 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error[E0609]: no field `kind` on type `EvalError`
+   --> crates/dive-liveness/tests/optional_periodic_snapshot.rs:193:114
+    |
+193 | ...                   Err(error)=>serde_json::json!({"error":error.to_string(),"kind":format!("{:?}",error.kind)}),
+    |                                                                                                            ^^^^ unknown field
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `dive-liveness` (test "optional_periodic_snapshot") due to 1 previous error

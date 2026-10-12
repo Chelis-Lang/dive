@@ -1,0 +1,47 @@
+{
+  "all_closed": true,
+  "passed": true,
+  "native_credit": false,
+  "rows": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-process-procedure-checksum-artifacts/declared/capture.py",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-process-procedure-checksum-artifacts/primary"
+      ],
+      "exit_code": 0,
+      "seconds": 234.958230709,
+      "log_sha256": "c0cd5b486d48c53c5d2669d7a743c95099a4e0023d0a61075f22290bfc21d60e"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "/Users/jeff/code/dive-pluscal-process-procedure-checksum-artifacts/declared/capture-exploded.py",
+        "--java",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "--jar",
+        "/Users/jeff/code/dive-pluscal-definition-forms-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "--adapter",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/adapter",
+        "--library",
+        "/Users/jeff/code/dive-pluscal-procedure-checksum-artifacts/reference-library",
+        "--out",
+        "/Users/jeff/code/dive-pluscal-process-procedure-checksum-artifacts/exploded"
+      ],
+      "exit_code": 0,
+      "seconds": 62.750158374999984,
+      "log_sha256": "c0cd5b486d48c53c5d2669d7a743c95099a4e0023d0a61075f22290bfc21d60e"
+    }
+  ]
+}

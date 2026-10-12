@@ -1,0 +1,23 @@
+{
+  "backend": "Run { complete: None, failure: Some(Failure { error: Capture(CheckResult { frontier: FrontierUsage { memory_bytes_per_queue: None, max_record_bytes: None, peak_retained_bytes: 0, retained_bytes: 0, spilled_bytes: 0, deciding_event_before_failure: None, failures: [] }, predecessor: PredecessorUsage { storage: Usage { retained_bytes: 0, peak_retained_bytes: 0, written_bytes: 0, records: 0, spilled: false }, failures: [], deciding_event_before_failure: None, cleanup_completed: false }, verdict: EvaluationError { site: Init, code: 2103, name: \"TLC_NESTED_EXPRESSION\", reported: 1000, message: \"@!@!@STARTMSG 2179:0 @!@!@\\nThe second argument of \\\\div is 0.\\n@!@!@ENDMSG 2179 @!@!@\", verified: true, cause: EvalError(Inner { class: Eval, ec: DivisionByZero, message: \"The second argument of \\\\div is 0.\", origin: Some(ExprId(664)), eval_exception: true }) }, stats: Some(Stats { generated: 0, distinct: 0, left_on_queue: 0, depth: 0, initial_generated: 0 }), tlc_prints_stats: true, counterexample: None, collision: None, store: Fingerprint, fp_index: Some(0), tlc_fingerprints: true, var_names: [\"x\"], tlc_var_order: [0], output: [], warnings: [], notes: [], workers: Workers { requested: 3, used: 1, sequential: true, reason: Some(\"search stopped during inline initial-state enumeration before the worker pool started\") }, elapsed: 114.834µs }), stats: Some(Stats { generated: 0, distinct: 0, left_on_queue: 0, depth: 0, initial_generated: 0 }), workers: Some(Workers { requested: 3, used: 1, sequential: true, reason: Some(\"search stopped during inline initial-state enumeration before the worker pool started\") }), groups: [Group { nodes: [], roots: [], commits: [], writes: [], pems: [PossibleErrorModel { ae_action: [], ae_state: [], ea_action: [] }], records: {}, done: {} }], phase_work: Progress { actual_workers: 0, sources: 0, admissions: 0, insertions: 0, grows: 0, comparisons: 0, work: 0, values: 0, predicates: 0, completed_cells: 0, retained_cells: 0 }, recursive_work: RecursiveWork { generated: 0, retained: 0, expansions: 0 }, last_commit_work: None }), checkpoints: [], checks: [], inspections: 2, graph_inspections: 2, options: CheckOptions { frontier_memory_bytes: None, frontier_directory: None, predecessor_memory_bytes: None, predecessor_directory: None, profile: Tlc, eval: Options { ctx: Ctx { int_mode: Tlc, order: Tlc }, exploration: Tlc, comparisons: Tlc, max_depth: 400, warnings: true }, store: Fingerprint, fp_index: 0, tlc_fingerprints: true, seed: 0, no_deadlock: false, workers: 3, sequential: false, chaos: Some(7) }, policy: Policy { force: false, schedule: Default, threshold: 0.1 }, limits: Limits { capture: Limits { states: 1000000, edges: 8000000, generated: 32000000, successors_per_unit: 65536 }, phase_l: Limits { formula: Limits { formula_nodes: 4096, tableau_nodes: 4096, expansion_steps: 1000000 }, incoming: 8000000, slots: 8000000, values: 8000000, cells: 8000000, work: 32000000 }, graph: Limits { vertices: 1000000, edges: 8000000, acceptance_cells: 8000000, steps: 32000000 }, workers: 64 } }",
+  "configuration": "INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n",
+  "execution_retained": true,
+  "kind": "failed-init",
+  "limits": "Limits { capture: Limits { states: 1000000, edges: 8000000, generated: 32000000, successors_per_unit: 65536 }, phase_l: Limits { formula: Limits { formula_nodes: 4096, tableau_nodes: 4096, expansion_steps: 1000000 }, incoming: 8000000, slots: 8000000, values: 8000000, cells: 8000000, work: 32000000 }, graph: Limits { vertices: 1000000, edges: 8000000, acceptance_cells: 8000000, steps: 32000000 }, workers: 64 }",
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "requested_width": 3,
+  "retained_source_count": 0,
+  "safety_eof": "None",
+  "selected_role": {
+    "configured": null,
+    "definition": "None",
+    "expression": "None"
+  },
+  "services": "[]",
+  "source": "---- MODULE RuntimeCandidate ----\nEXTENDS Integers,TLC\nVARIABLES x\nInit == x=(1 \\div 0)\nNext == x'=(IF x=0 THEN 1 ELSE 1)\nLive == <>(x=2)\nHook == TRUE\n====\n",
+  "stopped_faults": "[]",
+  "stopped_service": null,
+  "terminal_service": null,
+  "witness": null
+}

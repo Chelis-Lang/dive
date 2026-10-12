@@ -1,0 +1,6 @@
+Verified preserved40-case before/native census,384 width/store/transport semantic pairs,80 indexed-frame mutants and actual false-proof controls; no family certification
+Verified distinct dd4 frozen8stage/1698zero-skip gate, complete literal census, fresh80/384/80 semantic selections,8clean primary pairs, actual guides and37width gates; no family certification
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-native-operator-integration-work/scripts/check-indexed-stack-replay.py", line 315, in <module>
+    assert all(hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest for name, digest in current['current_sha256'].items())
+AssertionError

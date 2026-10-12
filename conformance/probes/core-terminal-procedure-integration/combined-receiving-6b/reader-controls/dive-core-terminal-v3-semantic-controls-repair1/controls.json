@@ -1,0 +1,98 @@
+{
+  "original_index_sha256": "5fa56504c5fc2c944bde519ada6f5bc27056089ec2e389aaf9610f0ed7d6a035",
+  "original_payload_sha256": "90a6b697722550ffd61215e7d7f69b6575904788e67a3e17ab8328d85ee1832b",
+  "reader_sha256": "bbf781ac38481dfb7e7a7ace91fa4ddec23c27279e5822f5d7f4764a47209d64",
+  "driver_sha256": "8ae24aa11fc86feb8ab7a1f613dae258ef1919cc58dab2a05a7b98ca49f13dc2",
+  "closed": true,
+  "genuine": 1,
+  "semantic_negatives": 2,
+  "all_rejected_at_intended_semantic_checks": true,
+  "original_unchanged": true,
+  "Cargo_executed": false,
+  "full_derived_packets_retained": 0,
+  "rows": [
+    {
+      "name": "genuine",
+      "exit": 0,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-I",
+        "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py",
+        "--base",
+        "/tmp/dive-core-terminal-6b-portable-packet-v3",
+        "--index-sha",
+        "5fa56504c5fc2c944bde519ada6f5bc27056089ec2e389aaf9610f0ed7d6a035"
+      ],
+      "index_sha256": "5fa56504c5fc2c944bde519ada6f5bc27056089ec2e389aaf9610f0ed7d6a035"
+    },
+    {
+      "name": "invalid-component-replay-forged-valid",
+      "genuine_mutation": true,
+      "semantic_rejection_verified": true,
+      "exit": 1,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-I",
+        "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py",
+        "--base",
+        "/tmp/dive-core-terminal-v3-semantic-controls-repair1/dive-v3-derived-r6a8k21z",
+        "--index-sha",
+        "9e7b119c4a2daa178b2e46414fe1234036fd726e157a046d3aea47f7e1006df0"
+      ],
+      "derived_index_sha256": "9e7b119c4a2daa178b2e46414fe1234036fd726e157a046d3aea47f7e1006df0",
+      "expected_semantic_assertion": "assert (actual_valid, actual_invalid) == (valid, invalid)",
+      "changes": [
+        {
+          "target": "/tmp/dive-core-terminal-composed-runtime-terminal-resume-6b/terminal-outcome-public/conjunction-w1/init.stdout",
+          "before_sha256": "a9e6d5a17b7ffe1a17c1e60e9322af2e34a9b627c50073c056a9faa188ce22d4",
+          "after_sha256": "0332b072b463fc395cfaadf810e8dddc2dadfef6270d47b95e38387a50ca6b56",
+          "aliases_rehashed": [
+            "/tmp/dive-core-terminal-composed-runtime-terminal-resume-6b/terminal-outcome-public/conjunction-w1/init.stdout"
+          ]
+        },
+        {
+          "target": "/tmp/dive-core-terminal-composed-runtime-process-resume-6b/terminal-outcome-receiving-contract.json",
+          "before_sha256": "9d0a5b02e3e67d197fbc92b693337d640900c0ccd1d701f6b67ac5ad0e6fbba4",
+          "after_sha256": "980faeb6e91875ef38234454478276a9e6ffbb5a4cdf1a254eba2ca0e53d3156",
+          "aliases_rehashed": [
+            "/tmp/dive-core-terminal-composed-runtime-terminal-resume-6b/terminal-outcome-receiving-contract.json",
+            "/tmp/dive-core-terminal-composed-runtime-indexed-resume-6b/terminal-outcome-receiving-contract.json",
+            "/tmp/dive-core-terminal-composed-runtime-process-resume-6b/terminal-outcome-receiving-contract.json"
+          ]
+        }
+      ],
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ac93e2b90ce34503e62a9b2391c5d9524a98aa355400c09093c55127791a6247"
+    },
+    {
+      "name": "invented-original-producer",
+      "genuine_mutation": true,
+      "semantic_rejection_verified": true,
+      "exit": 1,
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-I",
+        "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py",
+        "--base",
+        "/tmp/dive-core-terminal-v3-semantic-controls-repair1/dive-v3-derived-yquv726j",
+        "--index-sha",
+        "35d639c247590cf022b555b1eeeabf1ebc30e49fcb1eb626b1f804181ab6e107"
+      ],
+      "derived_index_sha256": "35d639c247590cf022b555b1eeeabf1ebc30e49fcb1eb626b1f804181ab6e107",
+      "expected_semantic_assertion": "assert source['producer'] == supplement['producer'] == PRODUCER",
+      "changes": [
+        {
+          "target": "/tmp/dive-core-terminal-qualified-epoch/source-index.json",
+          "before_sha256": "bbdd491871499dd21c4dfea002700306cd8e67ac318d857147d9a6e2dafc48eb",
+          "after_sha256": "3c2173bbb2eed19316fb8dd11bf0a313f04ba2bf4afa732bda24ed62527964f6",
+          "aliases_rehashed": [
+            "/tmp/dive-core-terminal-qualified-epoch/source-index.json",
+            "/tmp/dive-core-terminal-qualified-epoch-failed-6b4113aa-inventory-enospc/source-index.json"
+          ]
+        }
+      ],
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "794daae964f17103f8b6e75d2c997ced28350eea1f070d4f392f42a3a997657d"
+    }
+  ]
+}

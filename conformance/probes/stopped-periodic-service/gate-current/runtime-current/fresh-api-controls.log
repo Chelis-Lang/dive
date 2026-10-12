@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/stopped_periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/stopped_periodic_candidate-1db75b76266e8b51)
+
+running 4 tests
+test diagnostic_meter_failure_cannot_replace_actual_source_winner_or_mint_completion ... ok
+test forced_stopped_queue_attempts_false_suspension_without_running_false_hook ... ok
+test outside_eligible_stops_and_default_profile_never_create_stopped_receipt ... ok
+test source_error_skips_hook_partial_final_and_preserves_original_result ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.92s
+

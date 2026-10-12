@@ -1,0 +1,12 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-native-operator-integration-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.50s
+     Running tests/strict_context_admission.rs (/Users/jeff/code/dive-native-operator-integration-target/debug/deps/strict_context_admission-0218ee1f4a2d9901)
+
+running 4 tests
+test lazy_substitution_keeps_an_independent_valid_word_without_forcing_unused_noise ... ok
+test ordinary_evaluator_keeps_strict_execution_and_inert_bindings ... ok
+test parsed_tuple_history_remains_independent_of_strict_context_refusal ... ok
+test strict_substitutions_refuse_before_independent_endpoint_effects ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+

@@ -1,0 +1,26 @@
+{
+  "name": "original-log-retagged-final-origin",
+  "genuine_mutation": true,
+  "semantic_rejection_verified": true,
+  "exit": 1,
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py",
+    "--base",
+    "/tmp/dive-core-terminal-v3-semantic-controls/dive-v3-derived-terylqbz",
+    "--index-sha",
+    "d3b0db272f525779e8acec9cbd058da3ce0119f44ab85c9302b4d9e5aab8dcf7"
+  ],
+  "derived_index_sha256": "d3b0db272f525779e8acec9cbd058da3ce0119f44ab85c9302b4d9e5aab8dcf7",
+  "expected_semantic_assertion": "index['ordered_runtime_bindings'] == expected_bindings",
+  "changes": [
+    {
+      "index_semantic_field": "ordered_runtime_bindings[21].producer_directory",
+      "before": "/tmp/dive-core-terminal-composed-runtime",
+      "after": "/tmp/dive-core-terminal-composed-runtime-process-resume-6b"
+    }
+  ],
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "33c08b9a6810279a38a312ad95bf057e88b00cafdc41617aa23267d4cacbfab5"
+}

@@ -1,0 +1,16 @@
+EVENT	configured-name:
+EVENT	body-present:false
+EVENT	assumptions:0
+EVENT	init-result:0
+EVENT	queue-before:1
+EVENT	force-requested:true
+EVENT	service-enter
+EVENT	actual-stop-observed:true
+EVENT	queue-helper-enter
+EVENT	service-result:0
+EVENT	queue-helper-return:0
+EVENT	force-retained:true
+EVENT	stop-after-service:false
+EVENT	queue-at-service-return:0
+EVENT	observer-cleanup-start
+EVENT	observer-cleanup-complete

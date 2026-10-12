@@ -1,0 +1,1 @@
+Uncommitted test draft on ae359. Focused cargo test compile failed E0609 at optional_periodic_snapshot.rs:39: Exploration has no public result field. Full tool compiler output retained. No assertions executed.

@@ -1,0 +1,99 @@
+{
+  "command": [
+    "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+    "-Xmx512m",
+    "-cp",
+    "/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-fp",
+    "0",
+    "-seed",
+    "0",
+    "-cleanup",
+    "-metadir",
+    "/tmp/dive-periodic-false-outer-exit-primary0/meta",
+    "FalseExit"
+  ],
+  "exit": 10,
+  "timeout": false,
+  "wall_seconds": 4.245558042,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "codes": [
+    [
+      2262,
+      0
+    ],
+    [
+      2401,
+      3
+    ],
+    [
+      2187,
+      0
+    ],
+    [
+      2220,
+      0
+    ],
+    [
+      2219,
+      0
+    ],
+    [
+      2185,
+      0
+    ],
+    [
+      2212,
+      0
+    ],
+    [
+      2189,
+      0
+    ],
+    [
+      2190,
+      0
+    ],
+    [
+      2192,
+      0
+    ],
+    [
+      2267,
+      0
+    ],
+    [
+      2200,
+      0
+    ],
+    [
+      2199,
+      0
+    ],
+    [
+      2194,
+      0
+    ],
+    [
+      2186,
+      0
+    ]
+  ],
+  "artifact_sha256": {
+    "stdout": "98856adf886255889b005c2613161c97a43f27923d4b987bdfc32ddab4109f92",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "FalseExit.cfg": "de4a08b618eeea274c2d3acb1e94b5750740942249f319362b524926e78b592e",
+    "FalseExit.tla": "07e5be5fbeefcd74f54127f423a0b2a8771af7da93c2e7b55b30fd86966d7eb3",
+    "meta/26-10-11-20-42-25.774/FalseExit_1.fp": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "meta/26-10-11-20-42-25.774/FalseExit_0.fp": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "meta/26-10-11-20-42-25.774/FalseExit.st": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "meta/26-10-11-20-42-25.774/FalseExit-0.st": "cda5d9237e3e0b5c10fbcc4df0a68c1473d28546582e7ebc0784f6a082541ab2",
+    "meta/26-10-11-20-42-25.774/ptrs_0": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "meta/26-10-11-20-42-25.774/nodes_0": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Actual unmodified full CLI, unbounded logical Counter with declared512m JVM heap/30s observer timeout; no native/model-proof credit"
+}

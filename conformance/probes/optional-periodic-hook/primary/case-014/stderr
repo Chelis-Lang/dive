@@ -1,0 +1,10 @@
+EVENT	setup-start
+tlc2.tool.ConfigFileException: TLC found an error in the configuration file at line 5
+It was expecting a keyword, but did not find it.
+	at tlc2.tool.impl.ModelConfig.parse(ModelConfig.java:516)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:100)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at SnapshotProbe.main(SnapshotProbe.java:17)

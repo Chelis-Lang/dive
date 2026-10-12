@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "scope": "Source-owned exhausted-frontier terminal service before timer/pool joins, matching original admission and shared independent replay; no ordinary schedule/model proof",
+  "history_manifest_sha256": "1cfd568cf56ab2e4d32352a19185c84f8f7295c49dbad81b1073d637b84f0d82",
+  "source_sha256": {
+    "crates/dive-check/src/capture.rs": "e101aa6ca463cb965d7c4acf137eb3cb481fa51ddcceff063bef38dde2900d41",
+    "crates/dive-check/src/progress.rs": "b82fca9201f86013d9a4ef53940889ba70271db22d036309df8eb48158a6cc79",
+    "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
+    "crates/dive-check/tests/terminal_observer.rs": "8738435470a26b0135572d2b77fbc505f234a816590eff93268a9618c5489f7f",
+    "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "86538e58667e190d6b5653728a35c3fe11dc73125a0e811d9fdd4d57e11091cb",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
+    "crates/dive-liveness/src/periodic_terminal.rs": "b731180556a24830c4e7f62c6e89bdaf5ec1f9b2babd137323a9c0ea20882ba8",
+    "crates/dive-liveness/src/lib.rs": "78a0483df51157f275d07b8c050cc3ed8714d297e1ce5121962415b94a96a571",
+    "crates/dive-api/src/periodic_candidate.rs": "156e14b8b06829ffd17a340cd7f8d743dde8abac401677ae815809340542aad6",
+    "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
+    "crates/dive-api/tests/terminal_periodic_candidate.rs": "cbcb588dc5221911c9027a97f5fba1cb71cf0a21b309ec250aad9c6a06d9711a",
+    "crates/dive-api/examples/terminal_periodic_candidate.rs": "d8fe275873a33d7c394938d87f539f9b3a55e450736d26ee2ea61bf5c3d7643d",
+    "docs/terminal-periodic-service.md": "a7bdc4caec747f08e74ad595f436241975abac9ca599ba84b3ec0f4717a4f3f2",
+    "docs/decisions/0076-exhausted-queue-terminal-service.md": "c8ce234c0140fbf7fe144e2e45c381530d117cfaa6c880defea288764a57c4f0",
+    "scripts/check-terminal-periodic-service.py": "18baaa526f71fc1513f0e39aa13ef2bd4ddd710de879dd6bf73c4ccbbef02fc1",
+    "conformance/parity-features.json": "8d16448338aa8f14ab07eb423f358b8f7010d59c5ddb660ac28572834064aafe",
+    "AGENTS.md": "ac76daf170d920063fa658d98c9e5478adfe3aaa03abd6099ddc93402f507548",
+    ".github/workflows/ci.yml": "568a0b8ee5b348ba162b9f3bc43b92356e6e80574eda23ce0037591fc313fa3e"
+  },
+  "current_integration_scope": "Terminal graph/final/post composition source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+}

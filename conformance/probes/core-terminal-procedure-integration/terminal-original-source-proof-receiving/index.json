@@ -1,0 +1,18 @@
+{
+  "compiled_producer": "3968821ee1dedf9a486896443a16f3af7e348570",
+  "receiving_base": "b993651b1556ae7df6953e7c3fe995089e4550b5",
+  "scope": "Metadata-only receiving correction: original491 archived inputs are bound to actual396 commit/tree/blob paths, while current source-map hashes are checked separately. Original reader failures and extraction error retained. No Rust, literal fixtures, gate/runtime, golden or assertion outcome is retagged; combined receiving qualification remains pending.",
+  "source_inputs": 491,
+  "corrected_reader_exit": 0,
+  "source_or_runtime_qualification_credit": false,
+  "family_certified": false,
+  "files_sha256": {
+    "check-terminal-outcome.py": "e90e97e619babec2fb7cec58922561b89fead3a5718a1aeb044dc81e2d585490",
+    "component-focused-verification.json": "b5877a31c57d3e350ec17df66dbf97a91da76806ded0365ed0a09205c819a32a",
+    "corrected-reader.log": "7d2c212842f864f1216f448efb12f994f5284460f90e2b983c793c261659cd77",
+    "delivery-index.json": "8192db3fdf5601c74a0c8f92510bbdc04607899b189504fdb04a9ec073429d9c",
+    "failed-proof-reader-after-import-error.log": "0e37bf353e7b892edf13a93589cf2630840ed2b72e8c5249c8395e91154ed490",
+    "historical-live-reader-failure.log": "140b98cc033d0bd2885d7b64b9c3b10319bd60e5eef8833e715b1afda4dd1b5f",
+    "import-error.json": "6372f1821650d7569a78479b6ab4f081b951e5985325a740ff3059aa7a3735f8"
+  }
+}

@@ -68,8 +68,7 @@ native enclosing-module analysis.
 General scoped renaming, sequential procedure modifiers, historical translator
 flags, exact formatter output, filesystem writes and TLC mapping-file parity
 remain unfinished. Full checksum derivation has a narrower scope than raw
-translation: unproved recursive/process-owned procedure checksum ASTs and elsif shapes
-outside the bounded [P elsif contract](../pluscal-p-elsif-checksums.md),
+translation: unproved process-owned/scoped procedure ASTs,
 macro substitution/renaming shapes beyond the [bounded macro Full contract](../pluscal-macro-checksums.md),
 unproved source-option declarations and layout/name-fix shapes may translate
 successfully while an editing request explicitly refuses. Bounded ordinary and nested shared-vector procedure calls have their own
@@ -124,7 +123,7 @@ explains the narrower one-procedure Full editor, runnable CLI/Cargo examples,
 nested-transfer refusals and CRC/witness qualification.
 
 The [nested procedure checksum guide](../pluscal-nested-procedure-checksums.md)
-adds proved shared If/With/Either/While header mutations; recursive, process-owned
+adds proved shared If/With/Either/While header mutations; process-owned
 and scoped checksum shapes remain separate named boundaries.
 
 For the newly bounded nested sequential call/return header shapes, use the
@@ -133,7 +132,7 @@ distinguishes exact stored-header bytes, admitted generated modules and finite
 model/trace evidence. Procedure layouts and transfers outside that guide and the bounded
 [P elsif editor](../pluscal-p-elsif-checksums.md) remain named refusals; strict
 saved-frame replay remains
-separately qualified under #124.
+separately qualified under #124. The [indexed tuple-stack replay guide](../indexed-stack-trace-replay.md) describes the additional bounded source proof and executable CLI/Cargo controls; it does not certify general process frames.
 
 For bounded sequential procedure `elsif` header editing, see
 [Procedure checksums with P elsif](../pluscal-p-elsif-checksums.md), with executable
@@ -141,9 +140,23 @@ C/P and Cargo examples and separate artifact/count/strict-replay qualifications.
 
 
 Full editing also supports bounded [disjoint sequential procedure headers](../pluscal-multiple-procedure-checksums.md)
-with main-only calls and globally disjoint parameter/local names. Target-specific
+with globally disjoint parameter/local names. The [acyclic call continuation](../pluscal-acyclic-procedure-checksums.md) also supports bounded procedure-body calls. Target-specific
 frames and return slots remain separate from the reference header's shared
 last-declaration call vector. The guide includes executable C/P and Cargo-owned
-Rust examples. Procedure-to-procedure, recursive, process-owned and scoped
-checksum shapes remain explicit refusals; no artifact checksum certifies a model
+Rust examples. Broader process-owned and scoped checksum shapes remain explicit refusals; no artifact checksum certifies a model
 or a strict saved-frame witness.
+
+
+The [recursive sequential procedure checksum guide](../pluscal-recursive-procedure-checksums.md)
+adds bounded self/mutual source call graphs, parameters/locals and tail-call header
+mutations. It includes executable C/P and Cargo examples. This finite serialization
+does not unroll execution or prove termination. Primary-invalid zero-parameter
+self-tail artifacts and strict saved-frame replay remain uncredited; broader
+process/scoped Full checksum contexts outside the bounded continuation still refuse by name.
+
+[Finite-process procedure Full checksums](../pluscal-process-procedure-checksums.md)
+now admit one explicitly labelled unfair finite process and one disjoint procedure.
+The original header process vector is distinct from sequential LAST aliases and
+process-indexed runtime slots. Executable C/P CLI/Cargo examples describe exact
+limits, fairness/scoped/multiple-owner refusals and unchanged strict saved-frame
+qualification; CRC equality never certifies a model.
