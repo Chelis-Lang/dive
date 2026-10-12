@@ -343,3 +343,38 @@ fn cached_lazy_bindings_cannot_cross_evaluator_cores_with_equal_ir_and_names() {
         .expect_err("stale lazy cache");
     assert!(err.message().contains("C004"));
 }
+
+#[test]
+fn captured_callable_effects_ignore_caller_supplied_level_and_run_no_callbacks() {
+    let ir = ir();
+    let sink = Arc::new(Sink::default());
+    let ev = Evaluator::with_sink(Model::new(ir.clone()), Options::tlc(), sink.clone())
+        .expect("evaluator");
+    let op = id(&ir, "Op");
+    let literal = ir.def(id(&ir, "Literal")).body;
+    for (actual, effectful) in [
+        (dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT), true),
+        (dive_ir::OpRef::Std(dive_ir::StdOp::TlcRandomElement), true),
+        (dive_ir::OpRef::Std(dive_ir::StdOp::SequencesLen), false),
+        (dive_ir::OpRef::Def(id(&ir, "Pure")), false),
+    ] {
+        let scope = ev
+            .scope_apply(
+                &ev.scope(op).expect("scope"),
+                op,
+                &[
+                    Arg::Op {
+                        op: actual,
+                        level: dive_ir::Level::Constant,
+                    },
+                    Arg::Expr {
+                        expr: literal,
+                        pass: Pass::Lazy,
+                    },
+                ],
+            )
+            .expect("retained callable");
+        assert_eq!(ev.scope_has_effects(&scope), effectful);
+        assert_eq!(sink.0.load(Ordering::SeqCst), 0);
+    }
+}

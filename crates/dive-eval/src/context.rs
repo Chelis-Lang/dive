@@ -31,10 +31,6 @@ pub enum ContextErrorKind {
     ForeignContext,
     /// The IR or its binding table has an inconsistent shape.
     Structure,
-    /// An opaque value cannot be admitted without executing caller code.
-    OpaqueValue,
-    /// The bounded non-evaluating admission walk exhausted its budget.
-    ResourceLimit,
 }
 
 impl ContextError {
@@ -58,8 +54,6 @@ impl ContextError {
             ContextErrorKind::RedirectCycle => "DIVE-EVAL-C003",
             ContextErrorKind::ForeignContext => "DIVE-EVAL-C004",
             ContextErrorKind::Structure => "DIVE-EVAL-C005",
-            ContextErrorKind::OpaqueValue => "DIVE-EVAL-C006",
-            ContextErrorKind::ResourceLimit => "DIVE-EVAL-C007",
         }
     }
     /// What failed admission, without formatting or evaluating user values.

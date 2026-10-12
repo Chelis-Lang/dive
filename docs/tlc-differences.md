@@ -1601,7 +1601,7 @@ TLC-equivalent disambiguation and rewrite/checksum parity remain pending.
 **D-008 public Rust context update:** a caller-created invalid evaluator redirect
 previously panicked after interning a literal, while malformed lazy expression
 IDs could enter captured scopes. Constructor and scope admission now produce
-stable `DIVE-EVAL-C001`–`C007` refusals before evaluation or interning. Independent
+stable `DIVE-EVAL-C001`–`C005` refusals before evaluation or interning. Independent
 trace/predicate APIs also reject foreign model/evaluator metadata before replay
 setup. Valid configured models keep TLC's existing startup diagnostics. The
 checks apply equally to both profiles; no compatibility flag disables them.

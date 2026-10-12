@@ -191,8 +191,9 @@ pub(crate) fn eval_code_name(code: u32) -> &'static str {
 /// `Print`, `TLCSet`, a live `TLCGet`, randomness, I/O or checker
 /// introspection. Conservative: any definition of a user module counts,
 /// whether or not it is reached, and so does a constant or definition the
-/// configuration binds to such a standard operator. Backends that cannot
-/// reproduce TLC's evaluation order for effects refuse such models.
+/// configuration binds to such a standard operator. Caller-supplied predicate
+/// and action scopes are checked for actual captured effects as well. Backends
+/// that cannot reproduce TLC's evaluation order for effects refuse such models.
 pub(crate) fn effectful(model: &dive_model::Model) -> bool {
     use dive_ir::{Effects, StdSupport};
     let ir = &model.ir;
@@ -211,21 +212,54 @@ pub(crate) fn effectful(model: &dive_model::Model) -> bool {
         (!ir.module(def.module).standard && ir.node(def.body).effects.intersects(forbidden))
             || (model.evaluator.redirected(id) != id && native(id))
     });
-    user || (0..ir.consts().len()).any(|i| {
+    if user || (0..ir.consts().len()).any(|i| {
         let id = dive_ir::ConstId(u32::try_from(i).unwrap_or(u32::MAX));
         matches!(model.evaluator.constant_binding(id), Some(dive_eval::ConstBinding::Def(d)) if native(d))
-    })
+    }) {
+        return true;
+    }
+    let predicates = model
+        .init
+        .iter()
+        .map(|init| &init.pred)
+        .chain(model.next.iter())
+        .chain(model.invariants.iter().map(|named| &named.pred))
+        .chain(model.implied_inits.iter().map(|named| &named.pred))
+        .chain(model.implied_actions.iter().map(|named| &named.pred))
+        .chain(model.temporals.iter().map(|named| &named.pred))
+        .chain(model.implied_temporals.iter().map(|named| &named.pred))
+        .chain(model.configured_properties.iter().map(|named| &named.pred))
+        .chain(model.constraints.iter().map(|named| &named.pred))
+        .chain(model.action_constraints.iter().map(|named| &named.pred))
+        .chain(model.view.iter().map(|named| &named.pred))
+        .chain(
+            model
+                .alias
+                .as_ref()
+                .and_then(|alias| alias.as_ref().ok())
+                .map(|named| &named.pred),
+        )
+        .chain(
+            model
+                .postconditions
+                .as_ref()
+                .into_iter()
+                .flatten()
+                .map(|named| &named.pred),
+        );
+    predicates
+        .into_iter()
+        .any(|pred| model.evaluator.scope_has_effects(&pred.scope))
+        || model
+            .init_actions
+            .iter()
+            .chain(&model.actions)
+            .any(|action| model.evaluator.scope_has_effects(&action.scope()))
 }
 
 pub(crate) fn context_verdict(error: &dive_eval::ContextError) -> Verdict {
-    if error.kind() == dive_eval::ContextErrorKind::ResourceLimit {
-        Verdict::ResourceLimit {
-            message: error.to_string(),
-        }
-    } else {
-        Verdict::Unsupported {
-            feature: error.to_string(),
-        }
+    Verdict::Unsupported {
+        feature: error.to_string(),
     }
 }
 

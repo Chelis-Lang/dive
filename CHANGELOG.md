@@ -94,7 +94,10 @@ All notable changes to this project are documented here. The project will follow
   no longer refuses compound or mixed state values; the draws match pinned TLC.
   Constant values are no longer size-limited at evaluator construction. DFID
   and parallel graph capture refuse effectful models through one conservative
-  effects check instead of per-scope purity proofs. An evaluator now refuses
+  effects check instead of per-scope purity proofs, including actual operators
+  supplied in public Rust predicate/action scopes before any backend work.
+  Pure captured operators remain supported. Unused value-admission context error
+  variants are removed. An evaluator now refuses
   any scope created by another evaluator.
 
 - Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
