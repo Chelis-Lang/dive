@@ -200,6 +200,7 @@ fn captured_fixture_integrity() {
         assert!(
             std::process::Command::new("python3")
                 .arg("-I")
+                .arg("-B")
                 .arg(script)
                 .status()
                 .expect("fixture verifier / comparison controls")
