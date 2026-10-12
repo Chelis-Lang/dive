@@ -5,7 +5,7 @@ use std::fmt;
 use std::sync::Arc;
 
 use dive_ir::{Arg, DefId, DefScope, Expr, ExprId, OpRef};
-use dive_value::{Atom, Interner, Value};
+use dive_value::Interner;
 
 use crate::{ConstBinding, EvalError, Evaluator, Model, Scope};
 
@@ -338,19 +338,16 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
                     ));
                 }
             }
-            Some(ConstBinding::Value(v)) => {
-                if ir.decl(ir.consts()[i]).arity != 0 {
-                    return Err(ContextError::new(
-                        ContextErrorKind::Arity,
-                        "parameterized constant bound to a value",
-                    ));
-                }
-                validate_value(v, &model.ir, &model.names)?;
+            Some(ConstBinding::Value(_)) if ir.decl(ir.consts()[i]).arity != 0 => {
+                return Err(ContextError::new(
+                    ContextErrorKind::Arity,
+                    "parameterized constant bound to a value",
+                ));
             }
-            None => {}
+            Some(ConstBinding::Value(_)) | None => {}
         }
     }
-    for (&d, v) in &model.def_values {
+    for &d in model.def_values.keys() {
         let def = ir
             .defs()
             .get(d.index())
@@ -361,105 +358,8 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
                 "parameterized definition bound to a value",
             ));
         }
-        validate_value(v, &model.ir, &model.names)?;
     }
     model.redirects = normalized;
-    Ok(())
-}
-
-fn atom(atom: &Atom, names: &Interner) -> CResult<()> {
-    if names
-        .resolve(atom.tok())
-        .is_none_or(|a| a.as_str() != atom.as_str())
-    {
-        Err(ContextError::new(
-            ContextErrorKind::ForeignContext,
-            "value atom is not in the evaluator name table",
-        ))
-    } else {
-        Ok(())
-    }
-}
-
-fn admission_room<T>(work: &[T], count: usize, remaining: usize) -> CResult<()> {
-    if work.len().checked_add(count).is_none_or(|n| n > remaining) {
-        return Err(ContextError::new(
-            ContextErrorKind::ResourceLimit,
-            "admission work budget",
-        ));
-    }
-    Ok(())
-}
-
-pub(crate) fn validate_value(
-    value: &Value,
-    ir: &Arc<dive_ir::Ir>,
-    names: &Arc<Interner>,
-) -> CResult<()> {
-    let mut work = vec![value.clone()];
-    let mut remaining = 65_536_usize;
-    while let Some(v) = work.pop() {
-        remaining = remaining.checked_sub(1).ok_or_else(|| {
-            ContextError::new(
-                ContextErrorKind::ResourceLimit,
-                "value admission exceeds 65536 nodes",
-            )
-        })?;
-        match v {
-            Value::Str(a) | Value::Model(a) => atom(&a, names)?,
-            Value::Fcn(f) => {
-                admission_room(&work, f.len().saturating_mul(2), remaining)?;
-                for (key, val) in f.iter() {
-                    work.push(key);
-                    work.push(val.clone());
-                }
-            }
-            Value::Set(s) => {
-                if let Some(d) = s.as_deferred() {
-                    let any: &dyn std::any::Any = d.as_ref();
-                    let core = if let Some(f) = any.downcast_ref::<crate::lazy::Filter>() {
-                        admission_room(&work, 1, remaining)?;
-                        work.push(f.in_val.clone());
-                        &f.core
-                    } else if let Some(op) = any.downcast_ref::<crate::lazy::SetOp>() {
-                        admission_room(&work, 2, remaining)?;
-                        work.push(op.a.clone());
-                        work.push(op.b.clone());
-                        &op.core
-                    } else {
-                        return Err(ContextError::new(
-                            ContextErrorKind::OpaqueValue,
-                            "opaque deferred value binding",
-                        ));
-                    };
-                    if !Arc::ptr_eq(&core.ir, ir) || !Arc::ptr_eq(&core.names, names) {
-                        return Err(ContextError::new(
-                            ContextErrorKind::ForeignContext,
-                            "deferred value captures another evaluator context",
-                        ));
-                    }
-                }
-                if let Some(elems) = s.stored_elements() {
-                    admission_room(&work, elems.len(), remaining)?;
-                    work.extend(elems.iter().cloned());
-                }
-                admission_room(&work, s.component_count(), remaining)?;
-                for (key, val) in s.components() {
-                    if let Some(key) = key {
-                        atom(&key, names)?;
-                    }
-                    work.push(val);
-                }
-            }
-            _ => {}
-        }
-        if work.len() > remaining {
-            return Err(ContextError::new(
-                ContextErrorKind::ResourceLimit,
-                "value admission work budget",
-            ));
-        }
-    }
     Ok(())
 }
 
@@ -477,21 +377,20 @@ impl Evaluator {
         }
         Ok(())
     }
-    /// Verifies the ownership of a scope, without evaluating its captured values.
+    /// Verifies that a scope was created by this evaluator.
     ///
     /// # Errors
-    /// A scope created by an evaluator over another IR.
+    /// A scope created by another evaluator, even one over an equal IR.
     pub fn validate_scope(&self, scope: &Scope) -> crate::Result<()> {
-        if !Arc::ptr_eq(&self.core.ir, &scope.owner) {
+        if !Arc::ptr_eq(&self.core.ir, &scope.owner)
+            || !Arc::ptr_eq(&self.core.names, &scope.names)
+            || !std::sync::Weak::ptr_eq(&scope.context, &Arc::downgrade(&self.core))
+        {
             return Err(ContextError::new(
                 ContextErrorKind::ForeignContext,
-                "scope belongs to another IR",
+                "scope belongs to another evaluator",
             )
             .into());
-        }
-        let same_core = std::sync::Weak::ptr_eq(&scope.context, &Arc::downgrade(&self.core));
-        if !same_core || !Arc::ptr_eq(&self.core.names, &scope.names) {
-            admit_captures(&scope.env, &self.core, same_core)?;
         }
         Ok(())
     }
@@ -777,150 +676,4 @@ impl Evaluator {
     pub fn validate_predicate(&self, scope: &Scope, expr: ExprId) -> crate::Result<()> {
         self.admit_scoped_expr(scope, expr)
     }
-}
-
-// Empty/symbolic binder contexts may move between evaluators over the same IR.
-// Captured atoms, cached values and native lazy functions must still belong to
-// the receiver's name table. Inspect stored representations, never force them.
-#[allow(
-    clippy::too_many_lines,
-    reason = "one bounded non-evaluating work loop covers every private capture representation"
-)]
-fn admit_captures(
-    env: &crate::env::Env,
-    core: &Arc<crate::core::Core>,
-    same_core: bool,
-) -> CResult<()> {
-    use crate::env::{Dyn, Ev, Frame, OpVal, StateRef, Sv};
-    enum Work {
-        Frame(Arc<Frame>),
-        Dynamic(Dyn),
-        Slot(Sv),
-        Value(Value),
-        Function(Arc<crate::lazy::LazyFcn>),
-    }
-    let (ir, names) = (&core.ir, &core.names);
-    let mut work = vec![
-        Work::Frame(env.frame.clone()),
-        Work::Dynamic(env.dynamic.clone()),
-    ];
-    let mut seen = HashSet::new();
-    let mut remaining = 65_536_usize;
-    let states = |st: &StateRef, work: &mut Vec<Work>, remaining: usize| -> CResult<()> {
-        if let StateRef::Vals(values) = st {
-            admission_room(work, values.len(), remaining)?;
-            work.extend(values.iter().flatten().cloned().map(Work::Value));
-        }
-        Ok(())
-    };
-    let ev = |v: &Ev| match v {
-        Ev::V(v) => Work::Value(v.clone()),
-        Ev::F(f) => Work::Function(f.clone()),
-    };
-    while let Some(item) = work.pop() {
-        remaining = remaining.checked_sub(1).ok_or_else(|| {
-            ContextError::new(
-                ContextErrorKind::ResourceLimit,
-                "scope admission exceeds 65536 captures",
-            )
-        })?;
-        match item {
-            Work::Frame(f) => {
-                if seen.insert(Arc::as_ptr(&f) as usize) {
-                    admission_room(
-                        &work,
-                        f.slots
-                            .len()
-                            .saturating_add(usize::from(f.parent.is_some())),
-                        remaining,
-                    )?;
-                    work.extend(f.slots.iter().cloned().map(Work::Slot));
-                    if let Some(parent) = &f.parent {
-                        work.push(Work::Frame(parent.clone()));
-                    }
-                }
-            }
-            Work::Dynamic(d) => {
-                if let Some(v) = d.at {
-                    admission_room(&work, 1, remaining)?;
-                    work.push(Work::Value(v));
-                }
-                let mut link = d.subst;
-                while let Some(l) = link.take() {
-                    if !seen.insert(Arc::as_ptr(&l) as usize) {
-                        break;
-                    }
-                    admission_room(&work, 1, remaining)?;
-                    work.push(Work::Slot(l.val.clone()));
-                    link.clone_from(&l.next);
-                    if work.len() > remaining {
-                        return Err(ContextError::new(
-                            ContextErrorKind::ResourceLimit,
-                            "scope admission work budget",
-                        ));
-                    }
-                }
-            }
-            Work::Value(v) => validate_value(&v, ir, names)?,
-            Work::Function(f) => {
-                if !Arc::ptr_eq(&f.core, core) {
-                    return Err(ContextError::new(
-                        ContextErrorKind::ForeignContext,
-                        "lazy function captures another evaluator context",
-                    ));
-                }
-                // Its private constructor was admitted in exactly this context.
-            }
-            Work::Slot(s) => match s {
-                Sv::Val(v) => work.push(Work::Value(v)),
-                Sv::Fcn(f) => work.push(Work::Function(f)),
-                Sv::Thunk(t) => {
-                    if seen.insert(Arc::as_ptr(&t) as usize) {
-                        admission_room(&work, 2, remaining)?;
-                        work.push(Work::Frame(t.env.frame.clone()));
-                        work.push(Work::Dynamic(t.env.dynamic.clone()));
-                        let cache = t
-                            .cache
-                            .lock()
-                            .unwrap_or_else(std::sync::PoisonError::into_inner);
-                        if let Some(c) = cache.as_ref() {
-                            if !same_core {
-                                return Err(ContextError::new(
-                                    ContextErrorKind::ForeignContext,
-                                    "cached lazy value captures another evaluator binding context",
-                                ));
-                            }
-                            admission_room(&work, 1, remaining)?;
-                            work.push(ev(&c.val));
-                            states(&c.s0, &mut work, remaining)?;
-                            states(&c.s1, &mut work, remaining)?;
-                        }
-                    }
-                }
-                Sv::Op(OpVal::Def {
-                    parent, dynamic, ..
-                }) => {
-                    admission_room(
-                        &work,
-                        usize::from(parent.is_some()) + usize::from(dynamic.is_some()),
-                        remaining,
-                    )?;
-                    if let Some(p) = parent {
-                        work.push(Work::Frame(p));
-                    }
-                    if let Some(d) = dynamic {
-                        work.push(Work::Dynamic(d));
-                    }
-                }
-                Sv::Unset | Sv::AnalysisBound | Sv::Op(_) => {}
-            },
-        }
-        if work.len() > remaining {
-            return Err(ContextError::new(
-                ContextErrorKind::ResourceLimit,
-                "scope admission work budget",
-            ));
-        }
-    }
-    Ok(())
 }

@@ -572,9 +572,6 @@ impl Evaluator {
         if matches!(d.scope, DefScope::TopLevel) {
             s.env.dynamic = scope.env.dynamic.clone();
         }
-        for v in &values {
-            crate::context::validate_value(v, &self.core.ir, &self.core.names)?;
-        }
         for (i, v) in values.into_iter().enumerate() {
             s.env.bind(i, Sv::Val(v));
         }
@@ -788,7 +785,6 @@ impl Evaluator {
             )
             .into());
         }
-        crate::context::validate_value(&v, &self.core.ir, &self.core.names)?;
         let mut env = scope.env.clone();
         env.bind(slot.index(), Sv::Val(v));
         Ok(Scope {

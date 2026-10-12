@@ -5,7 +5,6 @@
 //! generated edge, including duplicates, and adds explicit implicit stutters.
 
 mod post;
-mod pure;
 pub use post::DeferredPostconditions;
 
 use std::collections::BTreeMap;
@@ -1321,11 +1320,8 @@ fn explore_inner(
     {
         return refuse(u.feature.clone());
     }
-    if parallel && !pure::model(model) {
-        return refuse(
-            "concrete pool capture effects, runtime names, opaque captures or invalid context"
-                .into(),
-        );
+    if parallel && (!model.sequential.is_empty() || crate::effectful(model)) {
+        return refuse("concrete pool capture with effects or runtime names".into());
     }
     let host = Arc::new(engine::run_host(opts));
     model

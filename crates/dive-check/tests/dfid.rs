@@ -209,7 +209,7 @@ fn captured_fixture_integrity() {
     }
 }
 #[test]
-fn injected_captured_print_preflight() {
+fn malformed_captured_expressions_refuse_before_dfid() {
     let src = r"---- MODULE Graph ----
 EXTENDS Naturals, TLC
 VARIABLE x
@@ -226,47 +226,6 @@ R(y) == y
         .expect("cfg");
     let mut m = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     let d = m.ir.root_def("Q").expect("Q");
-    let scope = m
-        .evaluator
-        .scope_apply(
-            &m.evaluator.scope(d).expect("valid scope"),
-            d,
-            &[dive_ir::Arg::Op {
-                op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
-                level: dive_ir::Level::Constant,
-            }],
-        )
-        .expect("scope");
-    m.invariants.push(dive_model::Named {
-        name: "Q(PrintT)".into(),
-        pred: dive_model::Pred::new(m.ir.def(d).body, scope),
-    });
-    let report = dive_check::dfid::check(&m, &Options::new(dive_check::CheckOptions::tlc(0, 7), 6));
-    let output = m.evaluator.take_output();
-    assert!(
-        matches!(report.outcome, Outcome::Unsupported(_)),
-        "impure capture admitted"
-    );
-    assert!(output.is_empty(), "preflight ran opaque PrintT");
-
-    // A caller can replace the actual enumerated action independently of the
-    // model's original Next role. Its captured scope needs the same proof.
-    let pred = m.invariants.remove(0).pred;
-    m.actions = vec![
-        m.evaluator
-            .predicate_in(
-                &pred.scope,
-                pred.expr,
-                dive_ir::actions::ActionName::Def(d),
-                1,
-            )
-            .expect("valid action"),
-    ];
-    let report = dive_check::dfid::check(&m, &Options::new(CheckOptions::tlc(0, 7), 6));
-    assert!(matches!(report.outcome, Outcome::Unsupported(_)));
-    assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
-
-    m.actions.clear();
     m.invariants.push(dive_model::Named {
         name: "invalid captured expression".into(),
         pred: dive_model::Pred::new(

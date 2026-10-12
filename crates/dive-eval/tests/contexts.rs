@@ -3,7 +3,7 @@
 
 use dive_eval::{ConstBinding, ContextErrorKind, Evaluator, Model, Options, PrintSink, St};
 use dive_ir::{Arg, DefId, ExprId, Pass};
-use dive_value::{Ctx, DeferredKind, DeferredSet, Value};
+use dive_value::Value;
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
@@ -232,75 +232,8 @@ fn equal_number_foreign_scopes_cannot_evaluate_or_bind_values() {
     assert_eq!(foreign.take_output(), Vec::<String>::new());
 }
 
-#[derive(Debug)]
-struct Opaque(Arc<AtomicUsize>);
-impl DeferredSet for Opaque {
-    fn kind(&self) -> DeferredKind {
-        self.0.fetch_add(1, Ordering::SeqCst);
-        DeferredKind::Filter
-    }
-    fn elements(&self, _: Ctx) -> dive_value::Result<Vec<Value>> {
-        self.0.fetch_add(1, Ordering::SeqCst);
-        Ok(vec![])
-    }
-    fn member(&self, _: &Value, _: Ctx) -> Option<dive_value::Result<bool>> {
-        self.0.fetch_add(1, Ordering::SeqCst);
-        Some(Ok(false))
-    }
-    fn key(&self) -> Vec<Value> {
-        self.0.fetch_add(1, Ordering::SeqCst);
-        vec![]
-    }
-    fn as_any(&self) -> Option<&dyn std::any::Any> {
-        self.0.fetch_add(1, Ordering::SeqCst);
-        Some(self)
-    }
-}
 #[test]
-fn opaque_value_admission_calls_no_deferred_callbacks() {
-    for nested in [false, true] {
-        let mut model = Model::new(ir());
-        let calls = Arc::new(AtomicUsize::new(0));
-        let value = Value::deferred(Arc::new(Opaque(calls.clone())), Ctx::tlc());
-        let value = if nested {
-            Value::tuple(vec![value])
-        } else {
-            value
-        };
-        let baseline = calls.load(Ordering::SeqCst);
-        if !nested {
-            assert_eq!(baseline, 0);
-        }
-        model.constants[0] = Some(ConstBinding::Value(value));
-        let error = Evaluator::new(model, Options::tlc()).expect_err("opaque context");
-        assert_eq!(error.kind(), ContextErrorKind::OpaqueValue);
-        assert_eq!(calls.load(Ordering::SeqCst), baseline);
-    }
-}
-
-#[test]
-fn foreign_native_deferred_captures_are_rejected_without_forcing() {
-    let src = "---- MODULE Captured ----\nEXTENDS Naturals\nCONSTANT C\nLazy == { n \\in Nat : n=0 }\n====\n";
-    let a = dive_sema::analyze_source("Captured.tla", src, &dive_sema::Options::default());
-    let ir = Arc::new(dive_ir::lower(&a).expect("lower"));
-    let foreign =
-        Evaluator::new(Model::new(ir.clone()), Options::tlc()).expect("foreign evaluator");
-    let value = foreign
-        .eval_def(id(&ir, "Lazy"), &St::constant())
-        .expect("native filter");
-    let mut model = Model::new(Arc::new((*ir).clone()));
-    model.constants[0] = Some(ConstBinding::Value(value));
-    assert_eq!(
-        Evaluator::new(model, Options::tlc())
-            .expect_err("foreign captured IR")
-            .kind(),
-        ContextErrorKind::ForeignContext
-    );
-    assert_eq!(foreign.take_output(), Vec::<String>::new());
-}
-
-#[test]
-fn captured_atoms_cannot_cross_name_tables_but_symbolic_scopes_can() {
+fn scopes_cannot_cross_evaluators() {
     let ir = ir();
     let first = Model::new(ir.clone());
     first.names.intern("extra before literals");
@@ -309,9 +242,10 @@ fn captured_atoms_cannot_cross_name_tables_but_symbolic_scopes_can() {
     let second = Evaluator::new(Model::new(ir.clone()), Options::tlc()).expect("second");
     let p = id(&ir, "P");
     let scope = first.scope(p).expect("symbolic");
-    second
+    let err = second
         .validate_scope(&scope)
-        .expect("no foreign values captured");
+        .expect_err("another evaluator's scope");
+    assert!(err.message().contains("C004"));
     let atom = Value::string(&first_names, "foreign captured atom");
     let captured = first
         .scope_call_values(&scope, p, vec![atom])
@@ -373,36 +307,6 @@ fn cached_lazy_atoms_cannot_cross_name_tables() {
         .eval_scoped(&captured, ir.def(p).body, &St::constant())
         .expect_err("cached foreign token");
     assert!(err.message().contains("C004"));
-}
-
-#[test]
-fn admission_budget_refuses_without_evaluating_large_values() {
-    let singleton = Value::interval(1.into(), 1.into(), Ctx::tlc());
-    for value in [
-        Value::tuple(vec![Value::TRUE; 65_537]),
-        Value::product(vec![singleton.clone(); 65_537], Ctx::tlc()),
-        Value::set_raw(vec![Value::TRUE; 65_537], Ctx::tlc()),
-    ] {
-        let mut model = Model::new(ir());
-        model.constants[0] = Some(ConstBinding::Value(value));
-        let names = model.names.clone();
-        let before = names.len();
-        assert_eq!(
-            Evaluator::new(model, Options::tlc())
-                .expect_err("bounded admission")
-                .kind(),
-            ContextErrorKind::ResourceLimit
-        );
-        assert_eq!(names.len(), before);
-    }
-    // The root plus these constant-space factors exactly fills the existing
-    // admission budget. No cartesian enumeration is needed to admit the value.
-    let mut model = Model::new(ir());
-    model.constants[0] = Some(ConstBinding::Value(Value::product(
-        vec![singleton; 65_535],
-        Ctx::tlc(),
-    )));
-    Evaluator::new(model, Options::tlc()).expect("exact budget stays admitted");
 }
 
 #[test]

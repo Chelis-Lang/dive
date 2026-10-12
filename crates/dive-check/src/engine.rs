@@ -1162,19 +1162,6 @@ impl<S: Keyed> Search<'_, '_, S> {
         }
         let t: StateVals = succ.state.into();
         let st1 = St::state(t.clone());
-        if self.random
-            && m.view.is_some()
-            && let Err(feature) =
-                dive_model::random_view::admit_values(&values(&t).unwrap_or_default())
-        {
-            return Some((
-                Verdict::Unsupported {
-                    feature: feature.into(),
-                },
-                false,
-                false,
-            ));
-        }
         let st_step = parent.map(|(s0, _)| St::action(s0.clone(), t.clone()));
         let in_model = match in_model(m, &st1, st_step.as_ref(), &levels) {
             Ok(b) => b,
@@ -1544,17 +1531,12 @@ impl<S: Keyed> Search<'_, '_, S> {
     }
 
     // The pre-key check and stream seeding inspect the same pure VIEW value.
-    // Concrete admission also runs before constraints, so an out-of-model
-    // violation cannot attach an unproved concrete replay representation.
     fn random_view_value(&self, state: &StateVals) -> Result<Option<Value>, Verdict> {
         let Some(view) = &self.m.view else {
             return Ok(None);
         };
         let vals = values(state).ok_or_else(|| Verdict::Unsupported {
             feature: "random VIEW requires completely assigned concrete states".into(),
-        })?;
-        dive_model::random_view::admit_values(&vals).map_err(|feature| Verdict::Unsupported {
-            feature: feature.into(),
         })?;
         dive_model::symmetry::Reduction::normalize_concrete(&vals, self.ctx)
             .map_err(|error| crate::model_error(&error))?;
@@ -1563,11 +1545,6 @@ impl<S: Keyed> Search<'_, '_, S> {
             .m
             .eval(&view.pred, &st)
             .map_err(|e| error_verdict(&e, ErrorSite::View))?;
-        dive_model::random_view::admit_values(std::slice::from_ref(&value)).map_err(|feature| {
-            Verdict::Unsupported {
-                feature: feature.into(),
-            }
-        })?;
         Ok(Some(value))
     }
 

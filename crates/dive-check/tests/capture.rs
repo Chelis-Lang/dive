@@ -678,7 +678,7 @@ fn concrete_parallel_source_rows_equal_inline_across_scheduling_and_fixed_bounds
 }
 
 #[test]
-fn actual_captured_scopes_are_proved_before_any_pool_evaluation() {
+fn malformed_captured_scopes_refuse_before_any_pool_evaluation() {
     let src = r"---- MODULE Captured ----
 EXTENDS Naturals, TLC
 VARIABLE x
@@ -695,41 +695,14 @@ R(y) == y
         };
         let mut m = model(src, "INIT Init\nNEXT Next\n", &opts);
         let d = m.ir.root_def("Q").expect("Q");
-        let sc = m
-            .evaluator
-            .scope_apply(
-                &m.evaluator.scope(d).expect("valid owned scope"),
-                d,
-                &[dive_ir::Arg::Op {
-                    op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
-                    level: dive_ir::Level::Constant,
-                }],
-            )
-            .expect("scope");
-        m.invariants.push(dive_model::Named {
-            name: "hidden PrintT".into(),
-            pred: dive_model::Pred::new(m.ir.def(d).body, sc),
-        });
         let refusal = |m: &dive_model::Model| {
             let r = capture::explore_concrete_parallel_with_evidence(m, &opts, Limits::default())
                 .expect("no panic");
             assert!(
                 matches!(r,Exploration::Stopped(ref r) if matches!(r.verdict,Verdict::Unsupported { .. }) && r.stats.is_none() && r.workers.used==0)
             );
-            assert!(
-                m.evaluator.take_output().is_empty(),
-                "admission evaluated hidden PrintT"
-            );
+            assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
         };
-        refusal(&m);
-        let p = m.invariants.remove(0).pred;
-        m.actions = vec![
-            m.evaluator
-                .predicate_in(&p.scope, p.expr, dive_ir::actions::ActionName::Def(d), 1)
-                .expect("valid owned action"),
-        ];
-        refusal(&m);
-        m.actions.clear();
         m.invariants.push(dive_model::Named {
             name: "bad ID".into(),
             pred: dive_model::Pred::new(

@@ -4,8 +4,6 @@
 //! tlaplus revision. Completion is an iteration certificate; a depth-bound
 //! stop is explicitly incomplete even when TLC returns zero.
 
-mod pure;
-
 use std::collections::BTreeMap;
 
 use dive_eval::next::{Flow, StateVals};
@@ -779,21 +777,10 @@ fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         .chain(model.implied_actions.iter().map(|n| &n.pred))
         .chain(model.constraints.iter().map(|n| &n.pred))
         .chain(model.action_constraints.iter().map(|n| &n.pred));
-    if predicates
-        .into_iter()
-        .any(|p| !pure::predicate(model, p) || model.evaluator.scope_shares_side_effects(&p.scope))
-        || model.assumptions.iter().any(|d| {
-            model.ir.defs().get(d.index()).is_none_or(|def| {
-                !model.evaluator.scope(*d).is_ok_and(|scope| {
-                    pure::predicate(model, &dive_model::Pred::new(def.body, scope))
-                })
-            })
-        })
-        || model
-            .init_actions
-            .iter()
-            .chain(&model.actions)
-            .any(|a| !pure::predicate(model, &dive_model::Pred::new(a.expr(), a.scope())))
+    if crate::effectful(model)
+        || predicates
+            .into_iter()
+            .any(|p| model.evaluator.scope_shares_side_effects(&p.scope))
     {
         return refusal("DFID effects or unresolved constant-operator effects");
     }

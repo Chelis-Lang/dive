@@ -71,8 +71,6 @@ enum CfgConst<'a> {
 
 /// The binder's state.
 pub(crate) struct Binder<'a> {
-    /// Callback-free pre-startup role decomposition; evaluation-demanding paths refuse.
-    pub(crate) structural_admission: bool,
     pub(crate) t: Tables,
     pub(crate) cfg: &'a ModelConfig,
     pub(crate) opts: &'a BindOptions,
@@ -109,7 +107,6 @@ impl<'a> Binder<'a> {
         names: Arc<Interner>,
     ) -> R<Self> {
         Ok(Self {
-            structural_admission: false,
             t: Tables::new(ir)?,
             cfg,
             opts,

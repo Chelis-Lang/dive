@@ -148,13 +148,10 @@ fn transformed_first_successor_replay_boundary_stays_named_and_incomplete() {
 }
 
 #[test]
-fn unproved_concrete_shapes_do_not_turn_into_certified_random_view_traces() {
-    for initial in [
-        "{<<1>>}",
-        "{[a |-> 1,b |-> 1],<<1>>}",
-        "[i \\in 1..2 |-> i]",
-        "1..2",
-    ] {
+fn compound_and_mixed_state_shapes_follow_the_view_stream() {
+    // Pinned TLC (workers 1, seed 7, fp 0) violates Inv at depth 4 with the
+    // same draws for each shape: the unchanged s is outside the VIEW.
+    for initial in ["{<<1>>}", "{[a |-> 1,b |-> 1],<<1>>}", "1..2"] {
         for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
             let result = run(
                 "n",
@@ -167,16 +164,41 @@ fn unproved_concrete_shapes_do_not_turn_into_certified_random_view_traces() {
                 Some(19),
             );
             assert!(
-                matches!(&result.verdict,Verdict::Unsupported {feature} if feature.starts_with("random VIEW") || (initial == r"[i \in 1..2 |-> i]" && feature == "randomness under VIEW needs transformed-fingerprint seeding and independent replay")),
+                matches!(&result.verdict,Verdict::InvariantViolated {property,..} if property=="Inv"),
                 "{initial}: {result:?}"
             );
-            assert!(result.counterexample.is_none());
-            if initial == r"[i \in 1..2 |-> i]" {
-                assert_eq!(result.workers.used, 0);
-                assert!(result.stats.is_none());
-            } else {
-                assert_eq!(result.stats.as_ref().expect("prefix").distinct, 0);
+            let stats = result.stats.as_ref().expect("search evidence");
+            assert_eq!((stats.generated, stats.distinct, stats.depth), (4, 4, 4));
+            let trace = result.counterexample.as_ref().expect("concrete trace");
+            assert_eq!(trace.states.len(), 4);
+            if profile == dive_eval::Profile::Tlc {
+                for (state, x) in trace.states.iter().zip([0, 78, 49, 21]) {
+                    assert_eq!(state.values[1], dive_value::Value::Int(x));
+                }
             }
         }
+    }
+}
+
+#[test]
+fn nonliteral_function_initial_value_keeps_the_pre_binding_refusal() {
+    for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
+        let result = run(
+            "n",
+            true,
+            r"[i \in 1..2 |-> i]",
+            "n<3",
+            profile,
+            StoreMode::Exact,
+            4,
+            Some(19),
+        );
+        assert!(
+            matches!(&result.verdict,Verdict::Unsupported {feature} if feature == "randomness under VIEW needs transformed-fingerprint seeding and independent replay"),
+            "{result:?}"
+        );
+        assert!(result.counterexample.is_none());
+        assert_eq!(result.workers.used, 0);
+        assert!(result.stats.is_none());
     }
 }

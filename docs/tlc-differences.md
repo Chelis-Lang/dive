@@ -2528,35 +2528,12 @@ contain only the earlier actually committed prefix. No ordinary queue/count/grap
 or clock parity follows. The guide distinguishes
 actual method returns, CLI exits, callback failures and joins.
 
-### Source-owned disk safety roles (#221)
+### Disk safety roles (#221)
 
-Disk checking now has a bounded pre-startup role path through the actual shared
-binder, admitting proven pure safety PROPERTY/SPECIFICATION forms. It does not
-use syntax-level temporal filtering: `Init /\ [][Next]_x` decomposes into safety
-roles, while actual temporal assumptions or obligations refuse. The declared
-29-model before-selection keeps clean pinned output, resident results and the old
-blanket disk refusal separately. A strict INSTANCE expression occurring only
-in the SPECIFICATION subscript remains refused before startup: the selected
-primary and resident control succeed with three states and warning 2140, while
-warning-only subscript inspection does not prove structural disk admission.
-The preliminary4f disk Success and failed admission regression are preserved.
-This is a scoped native restriction, not a wrong TLC verdict. LET/INSTANCE/configured aliases are selected,
-not granted support merely by name. The frozen `7fae387c` producer passed the
-full gate (1,326 tests, zero skips) and all 2,320 current-role CLI observations.
-Its 2,088 public API comparisons retain 432 independently Valid words and
-2,592 Invalid named mutants; seven refusal models stay selected without proof
-credit. Original resident reports and diagnostic error words are qualified
-separately in the study.
-
-The policy is deliberately partial. A fairness-only specification that succeeds
-in the resident route remains refused on disk; quantified PROPERTY domain
-execution and opaque wrappers also stay selected with no agreement credit.
-Unused effectful source can cause an earlier refusal, before startup output or a
-later role diagnostic. INIT/NEXT-only binder ordering, disk-key bounds, actual
-inline fallback, Print-dependent error-replay refusal and independent trace
-requirements remain unchanged. This is a native limitation, not a new reference
-bug or semantic default. [CLI/Rust contract](user/disk-seen-safety.md) and
-[ADR0075](decisions/0083-storage-and-checkpoint.md).
+Disk checking binds `PROPERTY` and `SPECIFICATION` roles through the same binder
+as the resident route and gives the resident route's results, including for
+effectful, quantified and fairness-only specifications. Temporal obligations are
+an explicit unsupported combination. [CLI/Rust contract](user/disk-seen-safety.md).
 
 D-008 process-owned procedure checksum continuation (ADR0079): the stored
 original header gives each process its own called-procedure vector. Calling a

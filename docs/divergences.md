@@ -867,14 +867,11 @@ Process/scoped checksum and strict #124 saved-frame replay remain qualified;
 CRC equality is neither artifact admission nor a model proof. See
 [the executable guide](pluscal-translation.md).
 
-D-007 role continuation (#221, ADR0075): opt-in disk checking uses the actual
-shared configured role splitter for a bounded pure safety slice, before startup
-execution. Temporal/effectful/opaque/quantified-domain and strict-substitution
-contexts remain named refusals. The default resident route and error order are
-unchanged; requested widths still disclose actual inline execution. This adds no
-semantic default, parallel disk/recovery/capture support or family credit.
-[Executable CLI/Rust guide](user/disk-seen-safety.md); current qualification is in
-progress and every declared refused row remains selected.
+D-007 role continuation (#221, ADR0075): opt-in disk checking binds PROPERTY and
+SPECIFICATION roles through the shared binder and gives the resident route's
+results. Temporal checking with disk keys remains unsupported; requested
+widths still disclose actual inline execution.
+[Executable CLI/Rust guide](user/disk-seen-safety.md).
 
 D-008's process-owned procedure Full-checksum continuation (#225/ADR0079)
 separates original stored header ownership from process-indexed runtime slots.

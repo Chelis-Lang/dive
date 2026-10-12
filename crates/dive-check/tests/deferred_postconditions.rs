@@ -53,6 +53,7 @@ fn same_core_clone_positive_and_separately_bound_same_ir_completion_negative() {
     );
     let fresh = bind(original.ir.clone());
     assert!(!original.evaluator.shares_run_state(&fresh.evaluator));
+    // A scope belongs to the evaluator that created it.
     assert!(
         fresh
             .evaluator
@@ -61,7 +62,7 @@ fn same_core_clone_positive_and_separately_bound_same_ir_completion_negative() {
                     .pred
                     .scope
             )
-            .is_ok()
+            .is_err()
     );
     for same_run in [true, false] {
         let execution =

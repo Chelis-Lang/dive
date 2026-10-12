@@ -187,6 +187,36 @@ pub(crate) fn eval_code_name(code: u32) -> &'static str {
     }
 }
 
+/// Whether evaluating `model` may have effects beyond computing a value:
+/// `Print`, `TLCSet`, a live `TLCGet`, randomness, I/O or checker
+/// introspection. Conservative: any definition of a user module counts,
+/// whether or not it is reached, and so does a constant or definition the
+/// configuration binds to such a standard operator. Backends that cannot
+/// reproduce TLC's evaluation order for effects refuse such models.
+pub(crate) fn effectful(model: &dive_model::Model) -> bool {
+    use dive_ir::{Effects, StdSupport};
+    let ir = &model.ir;
+    let forbidden = Effects::IMPURE.union(Effects::LIVE_TLCGET);
+    let native = |def: dive_ir::DefId| {
+        let def = model.evaluator.redirected(def);
+        ir.defs()
+            .get(def.index())
+            .and_then(|d| d.std)
+            .is_some_and(|op| {
+                op.impure() || matches!(op.support(), StdSupport::Io | StdSupport::Introspection)
+            })
+    };
+    let user = ir.defs().iter().enumerate().any(|(i, def)| {
+        let id = dive_ir::DefId(u32::try_from(i).unwrap_or(u32::MAX));
+        (!ir.module(def.module).standard && ir.node(def.body).effects.intersects(forbidden))
+            || (model.evaluator.redirected(id) != id && native(id))
+    });
+    user || (0..ir.consts().len()).any(|i| {
+        let id = dive_ir::ConstId(u32::try_from(i).unwrap_or(u32::MAX));
+        matches!(model.evaluator.constant_binding(id), Some(dive_eval::ConstBinding::Def(d)) if native(d))
+    })
+}
+
 pub(crate) fn context_verdict(error: &dive_eval::ContextError) -> Verdict {
     if error.kind() == dive_eval::ContextErrorKind::ResourceLimit {
         Verdict::ResourceLimit {
@@ -288,19 +318,6 @@ pub(crate) fn run_check_with_checkpoint(
         }
         if checkpoint.is_some() {
             return bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, opts, ir);
-        }
-        if (!cfg.properties.is_empty() || cfg.specification.is_some())
-            && let Err(failure) = dive_model::admit_pure_safety_roles(
-                ir.clone(),
-                cfg,
-                &BindOptions {
-                    eval: opts.eval,
-                    no_deadlock: opts.no_deadlock,
-                    host: None,
-                },
-            )
-        {
-            return bare(model_error(&failure.error), opts, ir);
         }
     }
     // Only the callback-free closed pure VIEW slice has transformed stream

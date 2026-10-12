@@ -93,33 +93,14 @@ and OS page cache remain outside this policy. You may separately opt into
 this combination nor any one flag is a total-memory budget. Inserts do not fsync
 data and have no crash durability or restart/import guarantee.
 
-Successful explicit `INIT`/`NEXT` binding retains its original route. Configured
-pure safety `PROPERTY` and `SPECIFICATION` additionally use source-owned,
-callback-free admission through the actual shared binder. Supported forms include
-state properties, `[]` invariants, `[][A]_v` action properties and
-`Init /\ [][Next]_v` specifications, plus proven alias, LET and INSTANCE contexts.
-The real binder still runs afterward in its original order; admission does not
-execute startup definitions, ASSUMEs or Init and is not a safety proof.
+Configured `PROPERTY` and `SPECIFICATION` roles bind exactly as in the resident
+route, through the same binder, and give the resident route's results: verdict,
+counts, output, warnings and counterexample. This includes effectful roles,
+quantified `PROPERTY` domains, strict INSTANCE substitutions and fairness-only
+specifications. Temporal checking with disk keys remains an explicit unsupported combination.
 As in TLC, a state-level formula used directly as `PROPERTY` checks only Init
 and emits warning 2255. Use `PROPERTY []P` or `INVARIANT P` to check every state;
 disk placement does not change that distinction.
-
-This first role slice refuses temporal assumptions/obligations, effectful or
-checker-reading source paths, opaque/recursive contexts, evaluated quantified
-PROPERTY domains and strict INSTANCE substitutions. Source inspection is bounded
-to 16,384 visits and depth 128; it conservatively includes unused user definitions.
-A strict INSTANCE expression used only in a SPECIFICATION subscript is also
-refused: the normal subscript collector can turn an unproved scope into a
-warning, which is insufficient for disk admission. The minimal selected
-`R == INSTANCE StrictRolePart WITH c <- 1` / `[][Next]_R!Sub` control still
-succeeds with three states and warning 2140 in TLC and resident checking. This
-is a disk support restriction, not a changed resident verdict.
-A refusal can therefore precede a later role-name/arity error. Plain native
-startup definitions that the actual binder skips are not treated as executed
-bodies; configured targets are inspected through actual lookup. These are named
-partial-support refusals, not TLC-error agreement. For example, a fairness-only
-SPECIFICATION succeeds in the resident route but remains refused with disk keys.
-A wrapped higher-order specification may already refuse in the resident route.
 
 Missing or invalid explicit INIT/NEXT roles preserve ordinary binder ordering
 and can emit startup output; they do not carry a blanket no-effects guarantee.
@@ -142,19 +123,9 @@ cargo run -p dive-api --example disk_seen_roles --locked
 
 The Rust `CheckRequest` above also works with
 `crates/dive-api/examples/seen-roles/Counter.tla`; the adjacent configuration
-contains both `SPECIFICATION Spec` and `PROPERTY Bound`. No new request flag
-selects the role policy: the same disk opt-in invokes admission, and output still
-reports requested8/actual1 workers. Separately add frontier/predecessor budgets
-when needed; their scopes remain independent. [ADR0075](../decisions/0083-storage-and-checkpoint.md)
-and the complete declared selection
-record support and refused rows. The frozen `7fae387c` producer passed all
-eight local gate stages and 1,326 tests with zero skips. Its complete 29-model
-selection retains 2,320 CLI rows and 2,088 public API comparisons, with 432
-independently Valid violation words and 2,592 Invalid named mutants. All seven
-refusal cases stay selected and receive no agreement or certificate credit.
-The original 1,024 resident/disk controls and all 37 CM1/ValidationTestSuite
-models at widths 1/4/8 also pass. These bounded observations do not certify
-the entire storage or role family.
+contains both `SPECIFICATION Spec` and `PROPERTY Bound`. Output still reports
+requested8/actual1 workers. Separately add frontier/predecessor budgets when
+needed; their scopes remain independent.
 
 See [the storage library](disk-seen-library.md),
 [ADR0068](../decisions/0083-storage-and-checkpoint.md) and the current

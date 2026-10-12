@@ -71,7 +71,6 @@
 
 #[cfg(feature = "enumerate")]
 mod actions;
-mod admission;
 mod bind;
 mod error;
 pub mod intern;
@@ -91,7 +90,6 @@ use std::sync::Arc;
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 
-pub use admission::admit_pure_safety_roles;
 pub use bind::BindOptions;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
