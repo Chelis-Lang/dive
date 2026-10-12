@@ -1,0 +1,7 @@
+{
+  "helper_sha256": "35a9c3ee1b85d1da184124d4ad5b006811d60b2fad9c4661d005782d7a9bea9d",
+  "actual_exit": 1,
+  "stdout": "",
+  "stderr": "SDK cleanup requires an explicitly selected GitHub-hosted Linux runner\n",
+  "qualification": "Actual refusal before filesystem inspection or deletion with missing explicit hosted-Linux context. No local SDK cleanup or real hosted resource repair credit."
+}

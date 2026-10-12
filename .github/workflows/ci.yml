@@ -64,6 +64,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Reclaim unused hosted Linux SDK space
+        if: ${{ runner.environment == 'github-hosted' && runner.os == 'Linux' }}
+        env:
+          DIVE_CI_RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          DIVE_CI_RUNNER_OS: ${{ runner.os }}
+        run: bash scripts/ci-reclaim-hosted-sdk-space.sh
       - name: Install pinned toolchain (rust-toolchain.toml)
         run: rustup show active-toolchain || rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -231,6 +237,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Reclaim unused hosted Linux SDK space
+        if: ${{ runner.environment == 'github-hosted' && runner.os == 'Linux' }}
+        env:
+          DIVE_CI_RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          DIVE_CI_RUNNER_OS: ${{ runner.os }}
+        run: bash scripts/ci-reclaim-hosted-sdk-space.sh
       - name: Install pinned toolchain (rust-toolchain.toml)
         run: rustup show active-toolchain || rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2

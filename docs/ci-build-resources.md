@@ -42,3 +42,38 @@ scope, not the runner's available resources or a repaired linker.
 Keep every original script invocation, including duplicates, and run the complete
 Rust gate. Preserve command outputs, exits and producer identities. Measurements
 from the actual Linux job determine whether the mitigation worked.
+
+## Hosted Linux SDK bootstrap experiment (2026-10-12)
+
+The retained partition 2 log for source `79e96185` restored about 89 MB of
+cache, then reported only 17 MB of free disk before a linker SIGBUS. This
+attempt establishes severe disk exhaustion in that job. Workspace checks
+separately emitted `No space left on device` during the inventory build; its
+post-failure measurement showed 8.1 MB of disk and 6.9 GiB of available memory.
+These observations establish disk exhaustion in both inspected jobs. They do
+not establish cache corruption, the cause of every other failed partition, or
+the cause of the earlier `6b4113aa` failures. All sixteen test partitions failed
+in the new attempt; conformance passed. Keep the individual logs and receipts.
+
+Before Rust/tool/cache installation, Workspace checks and each Workspace test
+partition remove only the unused preinstalled Android, .NET and GHC SDK
+directories selected by [the helper](../scripts/ci-reclaim-hosted-sdk-space.sh).
+The workflow selects GitHub-hosted Linux runners, and the helper independently
+requires that explicit context. It validates every existing selected path as an
+unredirected directory on the root filesystem, refuses symlink or mounted roots,
+and uses one-filesystem deletion. Missing SDK directories are harmless. Cleanup
+errors fail the job; disk usage is recorded before cleanup and on every exit.
+
+The helper does not select the hosted tool cache, Rust/Cargo, Java/JRE, Node,
+Python, dependency caches, workspace files or retained evidence for deletion.
+The original 73 Python script invocations and exact inline Python body remain
+unchanged, as do the sixteen partitions, all Rust commands, profiles, assertions,
+cache settings and timeouts. This is ephemeral job resource bootstrap, not a
+semantic change or a replacement for any required check.
+
+Actual hosted-runner execution and the next exact-head CI result are still
+pending. Static source review and shell syntax validation are not proof that
+this mitigation frees enough space or repairs the linker. Never run this helper
+as local stale-build cleanup. The next source qualification must retain the
+helper's exact bytes in addition to the unchanged 74 Python inventory records
+(73 scripts and one inline program).

@@ -2,7 +2,7 @@
   "runtime_commit": "dd4edf337c70be1c5b5efdcb72ca805425fd48b1",
   "current_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
-    ".github/workflows/ci.yml": "70c93d46b33a5423b310bd3d9d8df2c70499345fcb01321a18e6554a4d0a0eb1",
+    ".github/workflows/ci.yml": "733294529557a809564bc60e83ed48566eefaf8c54de9fdce39b49554ff8b869",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
     "conformance/golden/tlc-2026.10.06.014338/examples/specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg.json": "5e0347c784761eade99c8710cab61ded9e922bb740a631750aeb2147da285643",
