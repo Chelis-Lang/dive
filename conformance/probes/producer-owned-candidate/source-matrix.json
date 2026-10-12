@@ -20,9 +20,9 @@
     "docs/producer-owned-temporal-candidate.md": "53f4b758f1cfba9da016c5054fb08aa9648b2aa485b0ebce9b435623ef0faa6d",
     "docs/decisions/0070-producer-owned-candidate-admission.md": "3f98cee35bb2ccff842f1afe6977dda9b2606a520604f1b23618e0d34c0fc454",
     "scripts/check-producer-owned-candidate.py": "a7af848ec98959f6f99820c1147825cd5eecaf8f3a974a8e3fd57bc9f3613033",
-    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
-    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a",
-    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f"
+    "AGENTS.md": "7a520dea2aef94a68bd3452c25d7fa86723c87b17210900f8e9451aacbfcb1ee",
+    ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
+    "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

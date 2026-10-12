@@ -20,9 +20,9 @@
     "docs/producer-progress-requests.md": "3c86960fa78819f6c13947abe377fef87a9a31a4c342981cfe32d109b89cd59c",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
     "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
-    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
-    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a",
-    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f",
+    "AGENTS.md": "7a520dea2aef94a68bd3452c25d7fa86723c87b17210900f8e9451aacbfcb1ee",
+    ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
+    "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."

@@ -157,19 +157,47 @@ must succeed; failed, cancelled or skipped jobs fail the required check. The
 combined jobs run the same full gate below, with tests partitioned using
 `--profile ci --partition hash:N/16` for N = 1 through 16.
 `scripts/check-test-partitions.py` verifies their disjoint union equals the full
-workspace suite. Test and job time limits remain unchanged:
+workspace suite. The Python list preserves all literal CI invocations, including
+repeated inherited guards. Test and job time limits remain unchanged:
 
 
 ```sh
 cargo fmt --all --check
 python3 scripts/test-validation-import.py
-python3 -I scripts/check-inductive-tuple-replay.py
+python3 -I scripts/test-frontend-campaign.py
+python3 -I scripts/check-parity-ledger.py
+python3 -I scripts/test-parity-ledger.py
+python3 -I scripts/check-tlc-planning.py
+python3 -I scripts/check-tlc-tableau.py
+python3 -I scripts/check-temporal-action-order.py
+python3 -I scripts/check-phase-l.py
+python3 -I scripts/check-phase-l-graph.py
+python3 -I scripts/check-phase-execution.py
+python3 -I scripts/check-periodic-controller.py
+python3 -I scripts/check-runtime-ratio.py
+python3 -I scripts/check-tlc-final.py
+python3 -I scripts/check-state-if-planning.py
+python3 -I scripts/check-predecessor-spill.py
+python3 -I scripts/check-native-checkpoint.py
+python3 -I scripts/check-view-normalization.py
+python3 -I scripts/check-view-random-stream.py
+python3 -I scripts/check-trace-representation.py
+python3 -I scripts/check-tuple-only-replay.py
 python3 -I scripts/check-fallible-seen-store.py
+python3 -I scripts/check-fallible-seen-engine.py
+python3 -I scripts/test-fallible-seen-git-proof.py
+python3 -I scripts/check-disk-safety-roles.py
+python3 -I scripts/test-disk-safety-role-proof.py
+python3 -I scripts/check-inductive-tuple-replay.py
 python3 -I scripts/check-fixed-tuple-projection.py
+python3 -I scripts/check-indexed-stack-replay.py
 python3 -I scripts/check-core-prefix-storage-integration.py
 python3 -I scripts/check-core-composed-epoch.py
 python3 -I scripts/test-core-composed-epoch.py
 python3 -I scripts/test-frontend-campaign.py
+
+python3 -I scripts/check-native-parity-integration.py
+python3 -I scripts/check-tlc-final.py
 python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-tlc-state-if.py
 python3 -I scripts/check-tlc-temporal-if.py
@@ -180,7 +208,6 @@ python3 -I scripts/check-material-capture.py
 python3 -I scripts/check-temporal-operators.py
 python3 -I scripts/check-native-temporal-operators.py
 python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
-
 python3 -I scripts/check-stored-successor-material.py
 python3 -I scripts/check-stored-successor-census.py
 python3 -I scripts/check-native-sequence-operators.py
@@ -190,12 +217,11 @@ python3 -I scripts/check-periodic-controller.py
 python3 -I scripts/check-runtime-ratio.py
 python3 -I scripts/check-periodic-lifecycle.py
 python3 -I scripts/check-periodic-hook.py
+python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
+python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
 python3 -I scripts/check-periodic-snapshot.py
-python3 -I scripts/check-trace-representation.py
-
 python3 -I scripts/check-progress-queue.py
 python3 -I conformance/probes/storage-tuple-function/verify.py
-python3 -I scripts/check-tuple-only-replay.py
 python3 -I scripts/check-committed-prefix.py
 python3 -I scripts/check-request-owned-service.py
 python3 -I scripts/check-producer-owned-candidate.py
@@ -257,11 +283,10 @@ python3 -I scripts/check-periodic-hook.py
 python3 -I scripts/check-periodic-snapshot.py
 python3 -I scripts/check-progress-queue.py
 python3 -I scripts/check-committed-prefix.py
+
 python3 -I scripts/check-test-partitions.py
 python3 -I scripts/test-workspace-gate.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
-python3 -I scripts/check-test-partitions.py
-python3 -I scripts/test-workspace-gate.py
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked

@@ -539,7 +539,7 @@ name-fix/process/procedure serialization or stronger checksum default is added.
 
 | Expanded temporal Action origins in `dive-model` and final-only API/JSON | `tlc2/tool/impl/SpecProcessor.java`, `processConfigProps`: unchanged `configName` passed into every implied-temporal `new Action`, independently of mutable derived `name`; pin `94d0c50` | MIT | Complete18 actual primary projections retain configured, expanded Action and derived role vectors separately;16 complete/2 exported-formal failures. Metadata only, unchanged witness/scheduling contract. |
 
-| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
+| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at 94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
 
 | Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |
 
@@ -981,3 +981,25 @@ per-node write coverage and actual tableau done authority under existing graph
 budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
 no-action and checkpoint composition are unfinished. No Holds, model-proof or
 family credit is claimed; F-023 remains missing/audit-required.
+
+### Independent indexed tuple-stack replay (#227)
+
+`dive-trace::tuple_history` and private `exists::TupleProof` extend the native
+logical admission with finite function-range tuple invariants (ADR 0081). The
+reference semantics are TLA+ function construction/application, EXCEPT and
+UNCHANGED as evaluated by pinned MIT `tlc2.tool.impl.Tool.eval` at 94d0c50.
+No Java state generation or checker enumeration algorithm is ported. Proof
+construction uses checked bound scopes and source expressions only; selectors,
+Init/Next/ending predicates and transport namespace authority remain independently
+checked. Original 32 sequential and eight process before-profile observations
+retain separate producer/raw identity. No whole-family or arbitrary-state
+namespace certification is claimed.
+
+The indexed-stack admission's separately frozen qualification archives all
+70 literal include sites/65 targets before its complete 1,698-test gate and
+records the fresh original 80/384/80 replay selections, clean primary pairs
+and executable guides. Portable Git commit/tree proofs preserve the selected
+producer blob identity without requiring an unpublished Git object in CI.
+The current reader checks the old and qualified epochs separately; this
+selected-source proof is not a hermetic build or full namespace certificate
+([probe evidence](../conformance/probes/indexed-stack-replay/README.md)).

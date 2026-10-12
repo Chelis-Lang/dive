@@ -138,3 +138,18 @@ Git commit, tree paths and blob IDs. Current-file integrity is checked separatel
 The retained receiving failure shows why a historical source snapshot cannot be
 required to equal later implementation files. This strengthens provenance without
 changing any model assertion, runtime result or original producer.
+
+### Additional receiving source: indexed tuple-stack replay
+
+The receiving source now includes [finite indexed stack replay](indexed-stack-trace-replay.md)
+(#227). The independent validator proves a bounded function range of tuple
+stacks from Init and every Next branch before using that shape during replay.
+It does not assume a shape from the supplied states or from one successful
+branch. Arbitrary-state predicates and unproved selectors retain their refusals.
+
+The original `dd4edf337` qualification remains separate: 1,698 tests with zero
+skips, the declared 80-case census, 384 worker/store/transport cases and 80
+semantic mutants. The receiving merge changes only the two existing trace
+implementation files, adds their tests and executable guide, and retains the
+16-partition CI policy. These component receipts do not qualify the combined
+receiving executable; its gate and fresh runtime campaigns are still pending.

@@ -132,7 +132,7 @@ distinguishes exact stored-header bytes, admitted generated modules and finite
 model/trace evidence. Procedure layouts and transfers outside that guide and the bounded
 [P elsif editor](../pluscal-p-elsif-checksums.md) remain named refusals; strict
 saved-frame replay remains
-separately qualified under #124.
+separately qualified under #124. The [indexed tuple-stack replay guide](../indexed-stack-trace-replay.md) describes the additional bounded source proof and executable CLI/Cargo controls; it does not certify general process frames.
 
 For bounded sequential procedure `elsif` header editing, see
 [Procedure checksums with P elsif](../pluscal-p-elsif-checksums.md), with executable

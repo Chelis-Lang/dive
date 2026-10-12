@@ -2,7 +2,7 @@
   "runtime_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
   "current_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
-    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a",
+    ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
     "conformance/golden/tlc-2026.10.06.014338/examples/specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg.json": "5e0347c784761eade99c8710cab61ded9e922bb740a631750aeb2147da285643",
@@ -1238,7 +1238,7 @@
     "crates/dive-syntax/tests/sany_cases.rs": "6bb3d05ee7691233d908547f75a2e29e2ce956c395d34bd231c0e090aa718354",
     "crates/dive-syntax/tests/structure.rs": "4634d4f6eb0844826568ad23dcad27deb7d2590a787c4e5c3168f43da47866d5",
     "crates/dive-trace/Cargo.toml": "ab0e260666252dfc81451f2dc97c4ff4917710513431357c15585630c294edf6",
-    "crates/dive-trace/src/exists.rs": "5dbaf2b71eb4359864f68844e5c09de132e328a05d5ffd933573e60b2201251c",
+    "crates/dive-trace/src/exists.rs": "cb01b54a925d544435558844b9258dec311800a0bb4ee00db47691d1d88264ae",
     "crates/dive-trace/src/format.rs": "392c6996d38dc3621308ff1476f70de05b755c2c0bfa52e952ff833af007b337",
     "crates/dive-trace/src/lib.rs": "ad7d0e10b2cae3a0e1fce4a46b4031c26a2ab78bd6c4161ea132a573b90e33ce",
     "crates/dive-trace/src/mutate.rs": "aa6e32ad4cbfa151c73442fd5d467d62d1c2fa65de44f3f587acaf8abafbbba2",

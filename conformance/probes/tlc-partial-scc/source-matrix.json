@@ -3,7 +3,7 @@
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "scope": "Current bounded partial SCC source contract; all reference prefix projections remain explicit diagnostic fields, not ordinary schedule/model proof.",
   "source_sha256": {
-    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f",
+    "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
     "crates/dive-api/examples/partial_temporal_checks.rs": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
     "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",

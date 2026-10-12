@@ -20,9 +20,9 @@
     "docs/terminal-outcome.md": "3367c7bdf50ac8e3a4b4c141898c98764be1bf5a74ffa7723349a6f51cd0e2ec",
     "docs/decisions/0080-owned-terminal-finalization.md": "49a0aed84378041d9774399479f4c71a7432d5ac1f0c7746064316f891668177",
     "scripts/check-terminal-outcome.py": "0a84e5f6bf3a2b6741b210253797cdea14b19198b17c86fca5b5b5d1e0264e50",
-    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f",
-    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
-    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a"
+    "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
+    "AGENTS.md": "7a520dea2aef94a68bd3452c25d7fa86723c87b17210900f8e9451aacbfcb1ee",
+    ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

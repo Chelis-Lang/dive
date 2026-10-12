@@ -400,7 +400,7 @@
     "crates/dive-syntax/tests/sany_cases.rs": "6bb3d05ee7691233d908547f75a2e29e2ce956c395d34bd231c0e090aa718354",
     "crates/dive-syntax/tests/structure.rs": "4634d4f6eb0844826568ad23dcad27deb7d2590a787c4e5c3168f43da47866d5",
     "crates/dive-trace/Cargo.toml": "ab0e260666252dfc81451f2dc97c4ff4917710513431357c15585630c294edf6",
-    "crates/dive-trace/src/exists.rs": "5dbaf2b71eb4359864f68844e5c09de132e328a05d5ffd933573e60b2201251c",
+    "crates/dive-trace/src/exists.rs": "cb01b54a925d544435558844b9258dec311800a0bb4ee00db47691d1d88264ae",
     "crates/dive-trace/src/format.rs": "392c6996d38dc3621308ff1476f70de05b755c2c0bfa52e952ff833af007b337",
     "crates/dive-trace/src/lib.rs": "ad7d0e10b2cae3a0e1fce4a46b4031c26a2ab78bd6c4161ea132a573b90e33ce",
     "crates/dive-trace/src/mutate.rs": "aa6e32ad4cbfa151c73442fd5d467d62d1c2fa65de44f3f587acaf8abafbbba2",
