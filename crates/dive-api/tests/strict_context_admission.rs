@@ -11,7 +11,8 @@ fn model(definitions: &str, operand: &str, extra: &str) -> Model {
     let source = format!(
         "---- MODULE ClosedTuple ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\n{definitions}\nInit == x=0 /\\ s = <<0,1>>\nNext == x'=1 /\\ s'={operand}\nInv == x=0\n====\n"
     );
-    let analysis = dive_sema::analyze_source("ClosedTuple.tla", &source, &Default::default());
+    let analysis =
+        dive_sema::analyze_source("ClosedTuple.tla", &source, &dive_sema::Options::default());
     assert!(
         analysis.accepted(),
         "syntax={:?}; semantic={:?}",
@@ -219,7 +220,7 @@ fn context_model(pass: Pass, printing: bool) -> Model {
         assert!(!evaluator.has_print_event());
     }
     assert!(!model.evaluator.has_print_event());
-    assert!(model.take_output().is_empty());
+    assert_eq!(model.take_output(), Vec::<String>::new());
     // Public serialized metadata can claim inertness without changing the
     // actual called Noise/PrintT definitions. Admission cannot trust that claim
     // before entering a Strict substitution. This is a Rust-IR control, not a
@@ -280,7 +281,7 @@ fn strict_substitutions_refuse_before_independent_endpoint_effects() {
         model.validate_context().expect("owned all-role model");
         assert!(model.runtime_name_order, "source Tail(s) requires history");
         assert!(!model.evaluator.has_print_event());
-        assert!(model.take_output().is_empty());
+        assert_eq!(model.take_output(), Vec::<String>::new());
         let before = names(&model);
         let doc = word();
         let states = dive_trace::Trace::decode(&model, &doc)
@@ -301,7 +302,7 @@ fn strict_substitutions_refuse_before_independent_endpoint_effects() {
                     model.next.as_ref().expect("Next"),
                     &states[0],
                     None,
-                    Default::default()
+                    dive_trace::exists::Limits::default()
                 )
                 .expect_err("opaque substitution does not certify enabledness"),
                 dive_trace::exists::ExistsError::Unsupported(
@@ -340,7 +341,7 @@ fn parsed_tuple_history_remains_independent_of_strict_context_refusal() {
         dive_trace::Validation::Valid
     );
     assert!(!model.evaluator.has_print_event());
-    assert!(model.take_output().is_empty());
+    assert_eq!(model.take_output(), Vec::<String>::new());
     let model = fresh();
     let mutant = TraceDoc::behavior(vec![
         json!({"x":0,"s":{"seq":[0,1]}}),
@@ -355,7 +356,7 @@ fn parsed_tuple_history_remains_independent_of_strict_context_refusal() {
         dive_trace::Validation::Invalid(_)
     ));
     assert!(!model.evaluator.has_print_event());
-    assert!(model.take_output().is_empty());
+    assert_eq!(model.take_output(), Vec::<String>::new());
 }
 
 #[test]
@@ -369,7 +370,7 @@ fn lazy_substitution_keeps_an_independent_valid_word_without_forcing_unused_nois
         dive_trace::Validation::Valid
     );
     assert!(!model.evaluator.has_print_event());
-    assert!(model.take_output().is_empty());
+    assert_eq!(model.take_output(), Vec::<String>::new());
     assert_eq!(names(&model), before);
 }
 
@@ -380,7 +381,7 @@ fn ordinary_evaluator_keeps_strict_execution_and_inert_bindings() {
         let before = names(&model);
         let next = model.next.as_ref().expect("Next");
         assert!(!model.evaluator.has_print_event());
-        assert!(model.take_output().is_empty());
+        assert_eq!(model.take_output(), Vec::<String>::new());
         // Independent admission now conservatively refuses both cases; it
         // must not infer eager safety from caller expression annotations.
         assert_eq!(
@@ -390,7 +391,7 @@ fn ordinary_evaluator_keeps_strict_execution_and_inert_bindings() {
             dive_trace::Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
         );
         assert!(!model.evaluator.has_print_event());
-        assert!(model.take_output().is_empty());
+        assert_eq!(model.take_output(), Vec::<String>::new());
         // This deliberately calls ordinary evaluator entry *after* the proof
         // assertions. Its existing Strict execution semantics are unchanged.
         model

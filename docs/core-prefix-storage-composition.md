@@ -193,3 +193,12 @@ all four tests. The repaired receiving source still requires its own complete
 gate and original runtime selections before shipping; no producer is retagged,
 no ordinary scheduler is admitted and no family certification is earned.
 See the [user contract](user/strict-context-admission.md).
+
+
+The repaired source `28e89624` passed all 73 literal Python commands and
+formatting, then Clippy rejected nine test-style expressions. The
+[retained failure](../conformance/probes/core-terminal-procedure-integration/strict-admission-clippy-receiving/index.json)
+keeps its actual source index and compiler log. The correction names the
+default types and compares output to an empty vector, preserving every
+assertion and expected result. A new full gate and runtime campaign are required
+for the corrected source; the failed producer has no passing-gate credit.
