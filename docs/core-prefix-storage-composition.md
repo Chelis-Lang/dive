@@ -162,3 +162,12 @@ Only the current map and its envelope hash were refreshed; the historical
 epochs, semantic assertions and qualified native producer remain unchanged.
 The corrected reader passes independently. Full combined qualification still
 requires the complete gate and fresh runtime campaigns on the receiving source.
+
+### Combined test fixture correction
+
+The first combined workspace inventory compilation found a missing
+`stopped_transaction` field in the seen-store cleanup test’s synthetic engine
+outcome. The fixture now initializes that field to `None`; its corruption and
+cleanup assertions are unchanged. The [failed gate record](../conformance/probes/core-terminal-procedure-integration/seen-outcome-test-initializer-receiving/index.json)
+retains the original source, command, and compiler failure. This is an integration
+correction, with fresh combined gate and runtime qualification still pending.

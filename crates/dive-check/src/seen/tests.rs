@@ -203,6 +203,7 @@ fn replay_identity_mismatch_retains_typed_position_without_fake_library_poison()
         output: Vec::new(),
         notes: Vec::new(),
         workers: crate::Workers::one(),
+        stopped_transaction: None,
     };
     let usage = run.close(&mut outcome);
     let failure = usage.first_failure.expect("first protocol cause retained");
