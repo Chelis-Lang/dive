@@ -2,6 +2,7 @@
 #![forbid(unsafe_code)]
 
 mod features;
+mod gate;
 mod layering;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -15,16 +16,19 @@ commands:
     check-layering  verify internal crate dependencies follow the charter DAG, and
                     that dive-trace builds without dive-eval/enumerate
     protect-main    apply branch protection to main on GitHub (PR mode)
+    gate            run the local gate: --fast mirrors CI's Workspace gate;
+                    --full [--skip-corpus] adds the whole suite and conformance
 ";
 
 type Result<T> = std::result::Result<T, String>;
 
 fn main() -> ExitCode {
-    let cmd = std::env::args().nth(1);
-    let result = match cmd.as_deref() {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let result = match args.first().map(String::as_str) {
         Some("install-hooks") => install_hooks(),
         Some("check-layering") => check_layering(),
         Some("protect-main") => protect_main(),
+        Some("gate") => gate::gate(&args[1..]),
         _ => Err(USAGE.to_owned()),
     };
     match result {
