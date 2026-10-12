@@ -333,6 +333,17 @@ attempt, so optional label checks cannot swallow it and produce a verdict.
 Untaken register calls remain supported, caller registers remain unchanged,
 and non-register introspection retains its existing behavior.
 
+**Typed state input.** Public trace, lasso and enabledness inputs check every
+stored atom against the model's name table before evaluating predicates.
+`Value::validate_names` checks text and token iteratively without interning,
+normalizing, enumerating or calling a deferred source. Foreign tokens are
+unsupported (`DIVE-V0041`), as are opaque deferred state values whose names
+cannot be inspected (`DIVE-V0042`). This prevents a foreign interner's ordering
+from making `CHOOSE` manufacture an invariant violation despite the model's
+start-up name count remaining unchanged. Existing evaluator context checks
+still validate atoms in constant bindings and captured scopes; the source IR,
+binding process and its start-up name feed remain the trusted model boundary.
+
 **Removed.** The negative-control mutants (`dive_trace::mutate`): the
 harness's `trace-controls` and `SpecModel::controls` run the positive control
 and the dive-format round trip only. The opt-in stored-representation trace

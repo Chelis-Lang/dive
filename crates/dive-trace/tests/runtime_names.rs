@@ -891,3 +891,126 @@ fn existing_runtime_names_refuse_malformed_words_too() {
     .expect("TLC document without an ending");
     assert_eq!(validate_doc(&m, &doc, &[], None).0.validation, refused());
 }
+
+#[test]
+fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
+    use dive_trace::exists::{Decision, ExistsError, Limits, exists_successor};
+    use dive_trace::temporal::{TemporalError, evaluate_lasso};
+    use dive_value::{Interner, Value};
+
+    for tlc in [false, true] {
+        for nested in [false, true] {
+            let (initial_x, initial_y, select_x, select_y) = if nested {
+                ("<<\"a\">>", "<<\"b\">>", "x[1]", "y[1]")
+            } else {
+                ("\"a\"", "\"b\"", "x", "y")
+            };
+            let source = format!(
+                "---- MODULE EntryNames ----\nVARIABLES x,y\nInit == x = {initial_x} /\\ y = {initial_y}\nNext == UNCHANGED <<x,y>>\nInv == (CHOOSE v \\in {{{select_x},{select_y}}}: TRUE) = {select_x}\nP == []Inv\n====\n"
+            );
+            let m = entry_model(&source, "INIT Init\nNEXT Next\nINVARIANT Inv\n", tlc);
+            let foreign = Interner::new();
+            foreign.intern("b");
+            let state = |names: &Interner| -> dive_trace::State {
+                let wrap = |text| {
+                    let value = Value::string(names, text);
+                    if nested {
+                        Value::tuple(vec![value])
+                    } else {
+                        value
+                    }
+                };
+                Arc::from([Some(wrap("a")), Some(wrap("b"))])
+            };
+            for owned in [false, true] {
+                let here = state(if owned { &m.names } else { &foreign });
+                let trace = Trace {
+                    states: vec![here.clone()],
+                    labels: vec![None],
+                    ending: Ending::Invariant("Inv".to_owned()),
+                    length: None,
+                    properties: Vec::new(),
+                };
+                assert!(!m.has_runtime_names());
+                let report = validate(&m, &trace, None);
+                let temporal =
+                    evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&here), 0);
+                let enabled =
+                    exists_successor(&m, &predicate(&m, "Next"), &here, None, Limits::default());
+                if owned {
+                    let mut behavior = trace.clone();
+                    behavior.ending = Ending::Behavior;
+                    assert_eq!(validate(&m, &behavior, None).validation, Validation::Valid);
+                    // The actual start-up names make Inv true: this claimed
+                    // invariant violation is rejected, not a counterexample.
+                    assert!(
+                        matches!(report.validation, Validation::Invalid(_)),
+                        "{report:?}"
+                    );
+                    assert_eq!(temporal, Ok(vec![true]));
+                    assert!(
+                        matches!(enabled, Ok(Decision::Enabled { .. })),
+                        "{enabled:?}"
+                    );
+                } else {
+                    assert!(
+                        matches!(report.validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0041"))
+                    );
+                    assert!(
+                        matches!(temporal, Err(TemporalError::Unsupported(reason)) if reason.contains("DIVE-V0041"))
+                    );
+                    assert!(
+                        matches!(enabled, Err(ExistsError::Unsupported(reason)) if reason.contains("DIVE-V0041"))
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn opaque_typed_states_refuse_without_evaluation_or_callbacks() {
+    use dive_value::{Ctx, DeferredKind, DeferredSet, Value};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    #[derive(Debug, Default)]
+    struct Opaque(AtomicUsize);
+    impl DeferredSet for Opaque {
+        fn kind(&self) -> DeferredKind {
+            DeferredKind::Map
+        }
+        fn elements(&self, _: Ctx) -> dive_value::Result<Vec<Value>> {
+            self.0.fetch_add(1, Ordering::Relaxed);
+            Ok(Vec::new())
+        }
+        fn member(&self, _: &Value, _: Ctx) -> Option<dive_value::Result<bool>> {
+            None
+        }
+    }
+
+    for tlc in [false, true] {
+        let source = "---- MODULE EntryNames ----\nEXTENDS TLC\nVARIABLE x\nInit == PrintT(TRUE) /\\ x=x\nNext == UNCHANGED x\nP == []TRUE\n====\n";
+        let m = entry_model(source, "INIT Init\nNEXT Next\n", tlc);
+        let callback = Arc::new(Opaque::default());
+        let state: dive_trace::State =
+            Arc::from([Some(Value::deferred(callback.clone(), Ctx::tlc()))]);
+        let trace = Trace {
+            states: vec![state.clone()],
+            labels: vec![None],
+            ending: Ending::Behavior,
+            length: None,
+            properties: Vec::new(),
+        };
+        assert!(
+            matches!(validate(&m, &trace, None).validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0042"))
+        );
+        assert!(
+            matches!(dive_trace::temporal::evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&state), 0), Err(dive_trace::temporal::TemporalError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
+        );
+        assert!(
+            matches!(dive_trace::exists::exists_successor(&m, &predicate(&m, "Next"), &state, None, dive_trace::exists::Limits::default()), Err(dive_trace::exists::ExistsError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
+        );
+        assert_eq!(callback.0.load(Ordering::Relaxed), 0);
+        assert_eq!(m.take_output(), Vec::<String>::new());
+    }
+}

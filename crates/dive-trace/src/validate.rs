@@ -294,6 +294,7 @@ impl<'a> Run<'a> {
                     "the state does not assign every variable",
                 ));
             }
+            crate::trace::validate_state_names(m, s).map_err(Stop::Unsupported)?;
         }
         let named_lasso = !trace.properties.is_empty();
         if named_lasso {

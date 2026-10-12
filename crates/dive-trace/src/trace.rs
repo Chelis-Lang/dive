@@ -11,8 +11,19 @@ use crate::format::{Ending, Label, Source, TraceDoc};
 use crate::value_json;
 
 /// A state: the value of each of the model's variables, by
-/// [`dive_ir::VarId`]. Every entry is `Some`.
+/// [`dive_ir::VarId`]. Every entry is `Some`. Names must have the text and token
+/// of the model's interner; public typed inputs are checked before evaluation.
 pub type State = Arc<[Option<Value>]>;
+
+/// Checks public typed state values before any predicate can compare names.
+pub(crate) fn validate_state_names(model: &Model, state: &State) -> Result<(), String> {
+    for value in state.iter().flatten() {
+        value
+            .validate_names(&model.names)
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
 
 /// A counterexample (or behavior) read against a model.
 #[derive(Clone, Debug)]

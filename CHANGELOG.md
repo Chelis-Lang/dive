@@ -17,6 +17,8 @@
   invalid initial states validate, and leaves untaken effects unevaluated.
   Register reads and writes during replay are refused by name because they
   depend on off-trace evaluations; validation leaves caller registers intact.
+  Public typed trace, lasso and enabledness states now reject foreign name
+  tokens and opaque deferred values before evaluation.
 
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;

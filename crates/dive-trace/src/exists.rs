@@ -709,6 +709,7 @@ fn decide(
             "state does not assign every variable".into(),
         ));
     }
+    crate::trace::validate_state_names(model, state).map_err(ExistsError::Unsupported)?;
     if model.evaluator.scope_shares_side_effects(&action.scope)
         || nonstuttering.is_some_and(|s| model.evaluator.scope_shares_side_effects(&s.scope))
     {

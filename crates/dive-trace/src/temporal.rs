@@ -93,6 +93,9 @@ pub fn evaluate_lasso(
             "a lasso state does not assign every variable".into(),
         ));
     }
+    for state in states {
+        crate::trace::validate_state_names(model, state).map_err(TemporalError::Unsupported)?;
+    }
     let mut cx = Word {
         model,
         states,
