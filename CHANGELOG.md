@@ -1,5 +1,9 @@
 # Changelog
 
+- Independent Init validation now uses startup level 0, while generated-state
+  invariants and implied initial properties retain level 1. Named register
+  and random refusals remain unchanged.
+
 - Final temporal checking preserves the binding stage's TLC error class and
   exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks
   retain their named refusal.

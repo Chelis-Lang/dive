@@ -977,3 +977,18 @@ family credit is claimed; F-023 remains missing/audit-required.
 The trace-side pre-entry proof for Strict substitutions (`context_admission`)
 was removed on 2026-10-12 (ADR 0016, amendment 3). `dive-trace` now checks
 only the bindings' effects annotations and contexts before entry.
+
+
+### Independent initial-predicate context
+
+
+
+Pinned TLC `tlc2.tool.impl.Tool.getInitStates` evaluates predicates with
+`EvalControl.Init`; generated-state checks use `EvalControl.Clear`.
+`tlc2.module.TLCGetSet.TLCGet` implements startup level 0,
+while `TLCState.INIT_LEVEL` is 1. Native replay uses `St::initial` only for
+Init and keeps ordinary state/action contexts for later checks.
+`crates/dive-trace/tests/fixtures/startup-level/primary.json` records the
+pinned one-worker control; the test reads its concrete states, and API and
+trace tests reject altered initial, step and ending claims. This fixes an
+inherited context mismatch without changing register or random admission.

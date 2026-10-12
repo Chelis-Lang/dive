@@ -303,8 +303,11 @@ impl<'a> Run<'a> {
                 (k > 0).then(|| St::action(trace.states[k - 1].clone(), trace.states[k].clone()));
             match &step {
                 None => {
+                    // Init uses startup level 0; generated-state predicates
+                    // keep the separate Clear context in `here` (level 1).
+                    let initial = St::initial(trace.states[0].clone());
                     for init in &m.init {
-                        self.require(&init.pred, &here, 0, Check::Init, || {
+                        self.require(&init.pred, &initial, 0, Check::Init, || {
                             format!(
                                 "the initial predicate {} is false in the first state",
                                 m.location(&init.pred)

@@ -1,0 +1,39 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "command": [
+    "tlc2.TLC",
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-fp",
+    "0",
+    "-dumpTrace",
+    "json",
+    "trace",
+    "-config",
+    "Audit.cfg",
+    "Audit.tla"
+  ],
+  "exit": 12,
+  "error_class": 2110,
+  "violated_property": "Inv",
+  "generated": 3,
+  "distinct": 3,
+  "depth": 3,
+  "states": [
+    {
+      "x": 0
+    },
+    {
+      "x": 1
+    },
+    {
+      "x": 2
+    }
+  ],
+  "trace_sha256": "f96a64fdc3ef8662eaa36fed9e7b876703a179bdc2a84d3b223d1baa248e14d2"
+}

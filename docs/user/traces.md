@@ -67,3 +67,8 @@ Before entering an `INSTANCE ... WITH` substitution, whose strict bindings are
 evaluated eagerly, the validator refuses a binding from another model's
 context or one whose effects annotation is not pure. It trusts the IR's
 effects annotations; it does not re-prove them.
+
+
+### Initial-predicate level
+
+Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and preserves ordinary state/action contexts thereafter. Random and register refusals remain unchanged.
