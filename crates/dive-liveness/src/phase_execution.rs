@@ -356,6 +356,7 @@ impl PartialFailure {
 }
 struct Observer<'a> {
     model: &'a Model,
+    deferred_posts: Option<capture::DeferredPostconditions>,
     session: Session<'a>,
     tableaux: Vec<Option<Tableau>>,
     recursive_generated: u64,
@@ -394,6 +395,13 @@ fn charge(
     Ok(())
 }
 impl Observer<'_> {
+    fn request_candidate_error(&self) -> Error {
+        if self.deferred_posts.is_some() {
+            Error::Input("request candidate POSTCONDITION rendering requires separately proved partial authority".into())
+        } else {
+            Error::PartialCandidate
+        }
+    }
     fn partial_charge(&mut self, amount: Option<usize>) -> Result<(), Error> {
         charge(
             &mut self.steps,
@@ -615,7 +623,7 @@ impl Observer<'_> {
         });
         result?;
         if candidate.is_some() {
-            return Err(Error::PartialCandidate);
+            return Err(self.request_candidate_error());
         }
         Ok(())
     }
@@ -676,7 +684,7 @@ impl Observer<'_> {
             });
         match outcome {
             Ok(crate::periodic::Outcome::Complete) => Ok(()),
-            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(Error::PartialCandidate),
+            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(self.request_candidate_error()),
             Ok(crate::periodic::Outcome::PeriodicAssumptionFalse) => {
                 Err(Error::PeriodicAssumptionFalse)
             }
@@ -752,7 +760,7 @@ impl Observer<'_> {
             });
         match outcome {
             Ok(crate::periodic::Outcome::Complete) => Ok(()),
-            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(Error::PartialCandidate),
+            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(self.request_candidate_error()),
             Ok(crate::periodic::Outcome::PeriodicAssumptionFalse) => {
                 Err(Error::PeriodicAssumptionFalse)
             }
@@ -762,95 +770,153 @@ impl Observer<'_> {
             )),
         }
     }
+    fn lifecycle_terminal(
+        &mut self,
+        end: &capture::ExhaustedQueue<'_>,
+        state: &mut crate::periodic_lifecycle::State,
+    ) -> Result<(), Error> {
+        if state.terminal_service == crate::periodic_lifecycle::TerminalMode::Omitted
+            || state.terminal.is_some()
+            || end.stats().left_on_queue != 0
+        {
+            return Err(Error::Input(
+                "invalid or repeated exhausted-queue transaction".into(),
+            ));
+        }
+        let initial = state.initial_stats.ok_or_else(|| {
+            Error::Input("terminal service before successful initialization".into())
+        })?;
+        // Reserve scalar receipt metadata before controller/retention on the
+        // existing graph+partial+hook meter. This is not an extra work quota.
+        self.partial_charge(Some(1))?;
+        let now = crate::periodic_lifecycle::time_millis()?;
+        if now.wrapping_sub(state.last) < 0 {
+            return Err(Error::Execution(
+                "native terminal clock moved backwards".into(),
+            ));
+        }
+        let mut policy = crate::periodic::Policy {
+            check_liveness: true,
+            runtime_ratio: state.ratio,
+            ratio_limit: state.options.ratio_limit,
+            force_liveness: state.force,
+            checkpoint: false,
+            periodic: state.hook.is_some(),
+        };
+        let before = (state.ratio, state.force);
+        let mut hooks = FinishedHooks {
+            observer: self,
+            state,
+            end: FinishedOrigin::Exhausted(end),
+            suspended: false,
+        };
+        let outcome = crate::periodic::run(&mut policy, &mut hooks);
+        hooks.state.ratio = policy.runtime_ratio;
+        hooks.state.force = policy.force_liveness;
+        hooks.state.terminal = Some(crate::periodic_terminal::Invocation {
+            stats: end.stats(),
+            initial,
+            graph_source: hooks.state.graph_source,
+            workers: end.pool().0,
+            generation: end.pool().1,
+            pending: end.pending_request(),
+            now,
+            ratio: (before.0, policy.runtime_ratio),
+            force: (before.1, policy.force_liveness),
+            suspension_attempted: hooks.suspended,
+            joined: false,
+            outcome: outcome.as_ref().copied().map_err(|e| format!("{e:?}")),
+        });
+        match outcome {
+            Ok(crate::periodic::Outcome::Complete) => Ok(()),
+            Ok(_) => Err(Error::Input(
+                "finished queue unexpectedly ran a deciding service".into(),
+            )),
+            Err(crate::periodic::Error::Callback(e)) => Err(e),
+            Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
+                "native terminal clock moved backwards".into(),
+            )),
+        }
+    }
+    fn lifecycle_stopped(
+        &mut self,
+        end: &capture::StoppedQueue<'_>,
+        state: &mut crate::periodic_lifecycle::State,
+    ) -> Result<(), Error> {
+        if state.terminal_service != crate::periodic_lifecycle::TerminalMode::BeforeJoinStopped
+            || state.stopped.is_some()
+        {
+            return Err(Error::Input(
+                "invalid or repeated stopped-queue transaction".into(),
+            ));
+        }
+        let initial = state.initial_stats.ok_or_else(|| {
+            Error::Input("stopped service before successful initialization".into())
+        })?;
+        self.partial_charge(Some(1))?;
+        let now = crate::periodic_lifecycle::time_millis()?;
+        if now.wrapping_sub(state.last) < 0 {
+            return Err(Error::Execution(
+                "native stopped clock moved backwards".into(),
+            ));
+        }
+        let mut policy = crate::periodic::Policy {
+            check_liveness: true,
+            runtime_ratio: state.ratio,
+            ratio_limit: state.options.ratio_limit,
+            force_liveness: state.force,
+            checkpoint: false,
+            periodic: state.hook.is_some(),
+        };
+        let before = (state.ratio, state.force);
+        let mut hooks = FinishedHooks {
+            observer: self,
+            state,
+            end: FinishedOrigin::Stopped(end),
+            suspended: false,
+        };
+        let outcome = crate::periodic::run(&mut policy, &mut hooks);
+        hooks.state.ratio = policy.runtime_ratio;
+        hooks.state.force = policy.force_liveness;
+        hooks.state.stopped = Some(crate::periodic_stopped::Invocation {
+            kind: end.kind(),
+            code: end.verdict().tlc().map_or(0, |c| c.code),
+            source: end.source(),
+            stats: end.stats(),
+            initial,
+            graph_source: hooks.state.graph_source,
+            workers: end.pool().0,
+            generation: end.pool().1,
+            pending: end.pending_request(),
+            now,
+            ratio: (before.0, policy.runtime_ratio),
+            force: (before.1, policy.force_liveness),
+            suspended: hooks.suspended,
+            joined: None,
+            outcome: outcome.as_ref().copied().map_err(|e| format!("{e:?}")),
+        });
+        match outcome {
+            Ok(crate::periodic::Outcome::Complete) => Ok(()),
+            Ok(_) => Err(Error::Input(
+                "stopped queue unexpectedly ran a deciding service".into(),
+            )),
+            Err(crate::periodic::Error::Callback(e)) => Err(e),
+            Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
+                "native stopped clock moved backwards".into(),
+            )),
+        }
+    }
     fn lifecycle_final(
         &mut self,
         state: &mut crate::periodic_lifecycle::State,
         end: &capture::ExplorationEnd,
     ) -> Result<(), Error> {
+        self.finalize_graph(state, end)?;
         state.eof = Some(end.stats());
         self.pointer_sizes = self.pointer_counts()?;
         for group in 0..self.groups.len() {
             for pem in 0..self.groups[group].pems.len() {
-                // Reserve projection metadata before clones/retention, using the
-                // original shared graph meter rather than a fresh SCC allowance.
-                let records = &self.groups[group];
-                let edge_count = records
-                    .nodes
-                    .iter()
-                    .try_fold(0usize, |n, x| n.checked_add(x.transitions.len()));
-                let cells = records
-                    .nodes
-                    .len()
-                    .checked_mul(records.pems[pem].ae_state.len())
-                    .and_then(|n| {
-                        edge_count?
-                            .checked_mul(records.pems[pem].ae_action.len().checked_add(1)?)?
-                            .checked_add(n)
-                    })
-                    .and_then(|n| {
-                        records
-                            .nodes
-                            .len()
-                            .checked_mul(
-                                self.tableaux[group]
-                                    .as_ref()
-                                    .map_or(0, |t| t.promises.len()),
-                            )?
-                            .checked_add(n)
-                    });
-                self.partial_charge(
-                    records
-                        .nodes
-                        .len()
-                        .checked_mul(3)
-                        .and_then(|n| n.checked_add(edge_count?))
-                        .and_then(|n| n.checked_add(cells?))
-                        .and_then(|n| n.checked_add(records.roots.len()))
-                        .and_then(|n| n.checked_add(1)),
-                )?;
-                let records = &self.groups[group];
-                let (graph, labels) = project_inputs_inner(
-                    records,
-                    pem,
-                    self.limits.graph,
-                    self.tableaux[group].as_ref(),
-                    false,
-                )?;
-                let identities = records
-                    .nodes
-                    .iter()
-                    .map(|n| crate::tlc_witness::Identity {
-                        fingerprint: n.fingerprint,
-                        tableau: n.tableau,
-                    })
-                    .collect::<Vec<_>>();
-                let remaining = self
-                    .limits
-                    .graph
-                    .steps
-                    .checked_sub(self.steps)
-                    .ok_or(Error::Limit("final SCC cumulative inspections"))?;
-                let selection = crate::tlc_witness::select(
-                    &graph,
-                    &labels,
-                    &identities,
-                    crate::product::Limits {
-                        steps: remaining,
-                        ..self.limits.graph
-                    },
-                )
-                .map_err(|e| match e {
-                    crate::tlc_scc::Error::Limit(_) => {
-                        Error::Limit("final SCC cumulative inspections")
-                    }
-                    other => Error::Input(format!("final SCC selection: {other}")),
-                })?;
-                self.partial_charge(
-                    selection
-                        .traversal
-                        .inspections
-                        .checked_add(selection.candidate.as_ref().map_or(0, |c| c.inspections)),
-                )?;
+                let selection = self.final_selection(group, pem)?;
                 let candidate = selection.candidate.is_some();
                 state
                     .final_checks
@@ -859,13 +925,234 @@ impl Observer<'_> {
                         pem,
                         selection,
                     });
+                if let Some(finalization) = state.finalization.as_mut() {
+                    finalization.checked += 1;
+                    if candidate {
+                        finalization.candidate = Some((group, pem));
+                    }
+                }
                 if candidate {
                     self.record_check_size(group);
+                    self.final_candidate_posts(state, end)?;
                     return Err(Error::PartialCandidate);
                 }
             }
             self.record_check_size(group);
         }
+        self.final_success_posts(state, end)
+    }
+    fn final_selection(
+        &mut self,
+        group: usize,
+        pem: usize,
+    ) -> Result<crate::tlc_witness::Selection, Error> {
+        // Reserve projection metadata before clones/retention, using the
+        // original shared graph meter rather than a fresh SCC allowance.
+        let records = &self.groups[group];
+        let edge_count = records
+            .nodes
+            .iter()
+            .try_fold(0usize, |n, x| n.checked_add(x.transitions.len()));
+        let cells = records
+            .nodes
+            .len()
+            .checked_mul(records.pems[pem].ae_state.len())
+            .and_then(|n| {
+                edge_count?
+                    .checked_mul(records.pems[pem].ae_action.len().checked_add(1)?)?
+                    .checked_add(n)
+            })
+            .and_then(|n| {
+                records
+                    .nodes
+                    .len()
+                    .checked_mul(
+                        self.tableaux[group]
+                            .as_ref()
+                            .map_or(0, |t| t.promises.len()),
+                    )?
+                    .checked_add(n)
+            });
+        self.partial_charge(
+            records
+                .nodes
+                .len()
+                .checked_mul(3)
+                .and_then(|n| n.checked_add(edge_count?))
+                .and_then(|n| n.checked_add(cells?))
+                .and_then(|n| n.checked_add(records.roots.len()))
+                .and_then(|n| n.checked_add(1)),
+        )?;
+        let records = &self.groups[group];
+        let (graph, labels) = project_inputs_inner(
+            records,
+            pem,
+            self.limits.graph,
+            self.tableaux[group].as_ref(),
+            false,
+        )?;
+        let identities = records
+            .nodes
+            .iter()
+            .map(|n| crate::tlc_witness::Identity {
+                fingerprint: n.fingerprint,
+                tableau: n.tableau,
+            })
+            .collect::<Vec<_>>();
+        let remaining = self
+            .limits
+            .graph
+            .steps
+            .checked_sub(self.steps)
+            .ok_or(Error::Limit("final SCC cumulative inspections"))?;
+        let selection = crate::tlc_witness::select(
+            &graph,
+            &labels,
+            &identities,
+            crate::product::Limits {
+                steps: remaining,
+                ..self.limits.graph
+            },
+        )
+        .map_err(|e| match e {
+            crate::tlc_scc::Error::Limit(_) => Error::Limit("final SCC cumulative inspections"),
+            other => Error::Input(format!("final SCC selection: {other}")),
+        })?;
+        self.partial_charge(
+            selection
+                .traversal
+                .inspections
+                .checked_add(selection.candidate.as_ref().map_or(0, |c| c.inspections)),
+        )?;
+        Ok(selection)
+    }
+    fn final_candidate_posts(
+        &self,
+        state: &mut crate::periodic_lifecycle::State,
+        end: &capture::ExplorationEnd,
+    ) -> Result<(), Error> {
+        if let Some(token) = &self.deferred_posts
+            && let Err(failure) = token.evaluate(end)
+        {
+            if matches!(
+                failure.verdict,
+                dive_check::Verdict::ModelError { .. } | dive_check::Verdict::InternalError { .. }
+            ) {
+                return Err(Error::Input("final candidate POSTCONDITION getter/render exception requires separately proved authority".into()));
+            }
+            state.counterexample_postcondition_failure = Some(*failure);
+        }
+        Ok(())
+    }
+    fn final_success_posts(
+        &self,
+        state: &mut crate::periodic_lifecycle::State,
+        end: &capture::ExplorationEnd,
+    ) -> Result<(), Error> {
+        if let Some(token) = &self.deferred_posts {
+            match token.evaluate(end) {
+                Ok(()) => state.postconditions_passed = true,
+                Err(failure) => {
+                    state.postcondition_failure = Some(*failure.clone());
+                    return Err(Error::Capture(failure));
+                }
+            }
+        } else {
+            state.postconditions_passed = true;
+        }
+        Ok(())
+    }
+    fn finalize_graph(
+        &mut self,
+        state: &mut crate::periodic_lifecycle::State,
+        end: &capture::ExplorationEnd,
+    ) -> Result<(), Error> {
+        if state.finalization.is_some()
+            || self.sources != end.completion().entries().0
+            || self.groups.len() != self.tableaux.len()
+            || self.groups.len() != self.orders.len()
+            || state.source_fingerprints.len() != self.sources
+            || (state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original
+                && state.concrete_sources.len() != self.sources)
+        {
+            return Err(Error::Input(
+                "incomplete final source/product authority".into(),
+            ));
+        }
+        self.partial_charge(Some(state.source_fingerprints.len()))?;
+        if state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original {
+            self.partial_charge(Some(state.concrete_sources.len()))?;
+            if state
+                .concrete_sources
+                .iter()
+                .zip(&state.source_fingerprints)
+                .any(|(source, &(id, fp))| source.identity != id || source.fingerprint != fp)
+            {
+                return Err(Error::Input(
+                    "final retained concrete source identity mismatch".into(),
+                ));
+            }
+        }
+        let mut nodes = 0usize;
+        let mut transitions = 0usize;
+        let mut pem_count = 0usize;
+        for group in 0..self.groups.len() {
+            let records = &self.groups[group];
+            // Reserve existing bounded metadata visits before inspecting records;
+            // this shares the graph/SCC meter rather than minting a new allowance.
+            let metadata = records
+                .nodes
+                .len()
+                .checked_add(records.records.len())
+                .and_then(|n| n.checked_add(records.writes.len()))
+                .and_then(|n| n.checked_add(records.commits.len()))
+                .and_then(|n| n.checked_add(records.roots.len()))
+                .and_then(|n| n.checked_add(records.done.len()))
+                .and_then(|n| n.checked_add(records.pems.len()))
+                .and_then(|n| n.checked_add(1));
+            self.partial_charge(metadata)?;
+            let edges = self.groups[group]
+                .nodes
+                .iter()
+                .try_fold(0usize, |n, node| n.checked_add(node.transitions.len()))
+                .ok_or(Error::Limit("final product transition count"))?;
+            self.partial_charge(Some(edges))?;
+            let records = &self.groups[group];
+            validate_final_group(
+                records,
+                &self.orders[group],
+                self.tableaux[group].as_ref(),
+                &state.source_fingerprints,
+            )?;
+            nodes = nodes
+                .checked_add(records.nodes.len())
+                .ok_or(Error::Limit("final product nodes"))?;
+            transitions = transitions
+                .checked_add(edges)
+                .ok_or(Error::Limit("final product transitions"))?;
+            pem_count = pem_count
+                .checked_add(records.pems.len())
+                .ok_or(Error::Limit("final product PEMs"))?;
+        }
+        bounded(
+            Some(nodes),
+            self.limits.graph.vertices,
+            "final product nodes",
+        )?;
+        bounded(
+            Some(transitions),
+            self.limits.graph.edges,
+            "final product transitions",
+        )?;
+        state.finalization = Some(crate::periodic_lifecycle::Finalization {
+            capture: end.completion().clone(),
+            groups: self.groups.len(),
+            nodes,
+            transitions,
+            pem_count,
+            checked: 0,
+            candidate: None,
+        });
         Ok(())
     }
     fn recursive_work(&self) -> RecursiveWork {
@@ -945,6 +1232,16 @@ impl Observer<'_> {
         });
         if usize::try_from(source.id).ok() != Some(self.sources) {
             return Err(Error::Input("nonconsecutive actual source commits".into()));
+        }
+        if lifecycle.is_some() {
+            // Original source-id/fingerprint provenance, charged before retention
+            // using the same cumulative graph quota as final resource admission.
+            self.partial_charge(Some(1))?;
+            bounded(
+                self.sources.checked_add(1),
+                self.limits.capture.states,
+                "final source provenance entries",
+            )?;
         }
         if lifecycle.as_ref().is_some_and(|state| {
             state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original
@@ -1063,16 +1360,17 @@ impl Observer<'_> {
             });
         }
         self.session.finish_source(&receipt).map_err(Error::Phase)?;
-        if let Some(state) = lifecycle.filter(|state| {
-            state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original
-        }) {
-            state
-                .concrete_sources
-                .push(crate::periodic_lifecycle::ConcreteSource {
-                    identity: source.id,
-                    fingerprint: fp,
-                    values: source.state.clone(),
-                });
+        if let Some(state) = lifecycle {
+            state.source_fingerprints.push((source.id, fp));
+            if state.concrete_retention == crate::periodic_lifecycle::SourceRetention::Original {
+                state
+                    .concrete_sources
+                    .push(crate::periodic_lifecycle::ConcreteSource {
+                        identity: source.id,
+                        fingerprint: fp,
+                        values: source.state.clone(),
+                    });
+            }
         }
         self.sources += 1;
         Ok(())
@@ -1623,6 +1921,80 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
     }
 }
 
+/// Only an actual exhausted/stopped-frontier callback can construct this adapter.
+/// It cannot borrow a request pause's successful suspension as queue authority.
+enum FinishedOrigin<'a, 'queue> {
+    Exhausted(&'a capture::ExhaustedQueue<'queue>),
+    Stopped(&'a capture::StoppedQueue<'queue>),
+}
+struct FinishedHooks<'a, 'model, 'queue> {
+    observer: &'a mut Observer<'model>,
+    state: &'a mut crate::periodic_lifecycle::State,
+    end: FinishedOrigin<'a, 'queue>,
+    suspended: bool,
+}
+impl crate::periodic::Hooks for FinishedHooks<'_, '_, '_> {
+    type Error = Error;
+    fn growth_due(&mut self) -> Result<bool, Error> {
+        self.observer.pointer_sizes = self.observer.pointer_counts()?;
+        Ok(self
+            .observer
+            .pointer_sizes
+            .iter()
+            .zip(&self.observer.last_sizes)
+            .any(|(size, last)| {
+                Growth {
+                    size: *size,
+                    last: *last,
+                }
+                .due(self.state.options.backend.threshold)
+            }))
+    }
+    fn suspend_workers(&mut self) -> Result<bool, Error> {
+        if matches!(self.end, FinishedOrigin::Exhausted(end) if end.stats().left_on_queue != 0) {
+            return Err(Error::Input(
+                "exhausted queue has remaining frontier".into(),
+            ));
+        }
+        if let FinishedOrigin::Stopped(end) = &self.end
+            && capture::WorkerStop::classify(end.verdict()) != Some(end.kind())
+        {
+            return Err(Error::Input("inconsistent stopped worker authority".into()));
+        }
+        self.suspended = true;
+        // Pinned StateQueue.suspendAll returns false after finishAll. Native
+        // authority is actual run_levels exhaustion, not the dispatch mutex.
+        Ok(false)
+    }
+    fn update_runtime_ratio(&mut self, elapsed: i64) -> Result<f64, Error> {
+        crate::periodic::calculate_runtime_ratio(
+            self.state.ratio,
+            self.state.start,
+            crate::periodic_lifecycle::time_millis()?,
+            self.state.options.progress_interval,
+            elapsed,
+        )
+        .map_err(|_| Error::Execution("negative terminal elapsed time".into()))
+    }
+    fn time_millis(&mut self) -> Result<i64, Error> {
+        crate::periodic_lifecycle::time_millis()
+    }
+    fn check_liveness(&mut self, _: bool) -> Result<i32, Error> {
+        Err(Error::Input("partial check after finished queue".into()))
+    }
+    fn periodic_is_false(&mut self) -> Result<bool, Error> {
+        Err(Error::Input(
+            "PERIODIC evaluation after finished queue".into(),
+        ))
+    }
+    fn checkpoint(&mut self) -> Result<(), Error> {
+        Err(Error::Input("checkpoint after finished queue".into()))
+    }
+    fn resume_workers(&mut self) -> Result<(), Error> {
+        Err(Error::Input("resume after finished queue".into()))
+    }
+}
+
 impl SourceObserver for Observer<'_> {
     fn progress_requests(&self) -> Option<dive_check::progress::Options> {
         self.lifecycle.as_ref().and_then(|state| state.requests)
@@ -1713,11 +2085,76 @@ impl SourceObserver for Observer<'_> {
         self.lifecycle = Some(state);
         self.retain(result)
     }
+    fn requires_terminal_service(&self) -> bool {
+        self.lifecycle.as_ref().is_some_and(|state| {
+            state.terminal_service != crate::periodic_lifecycle::TerminalMode::Omitted
+        })
+    }
+    fn terminal_queue_finished(&mut self, end: &capture::ExhaustedQueue<'_>) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return self.retain(Err(Error::Input(
+                "terminal service without owned lifecycle".into(),
+            )));
+        };
+        let result = self.lifecycle_terminal(end, &mut state);
+        self.lifecycle = Some(state);
+        self.retain(result)
+    }
+    fn requires_stopped_service(&self) -> bool {
+        self.lifecycle.as_ref().is_some_and(|state| {
+            state.terminal_service == crate::periodic_lifecycle::TerminalMode::BeforeJoinStopped
+        })
+    }
+    fn stopped_queue_finished(&mut self, end: &capture::StoppedQueue<'_>) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return self.retain(Err(Error::Input(
+                "stopped service without owned lifecycle".into(),
+            )));
+        };
+        let result = self.lifecycle_stopped(end, &mut state);
+        self.lifecycle = Some(state);
+        self.retain(result)
+    }
+    fn stopped_diagnostic_failed(&mut self, fault: capture::StoppedDiagnosticFault) {
+        if let Some(state) = &mut self.lifecycle {
+            state.stopped_faults[fault as usize] = true;
+        }
+    }
+    fn exploration_stopped(&mut self, end: &capture::ExplorationStop<'_>) {
+        if let Some(receipt) = self
+            .lifecycle
+            .as_mut()
+            .and_then(|state| state.stopped.as_mut())
+            && receipt.source == end.source()
+            && receipt.stats == end.before_join_stats()
+            && receipt.pool() == end.pool()
+            && end.result().verdict.tlc().map(|c| c.code) == Some(receipt.code)
+            && capture::WorkerStop::classify(&end.result().verdict) == Some(receipt.kind)
+        {
+            receipt.joined = end.result().stats;
+        }
+    }
     fn exploration_complete(&mut self, end: &capture::ExplorationEnd) -> Result<(), String> {
         let Some(mut state) = self.lifecycle.take() else {
             return Ok(());
         };
-        let result = self.lifecycle_final(&mut state, end);
+        let result = if state.terminal_service == crate::periodic_lifecycle::TerminalMode::Omitted {
+            self.lifecycle_final(&mut state, end)
+        } else {
+            match state.terminal.as_mut() {
+                Some(receipt)
+                    if receipt.stats == end.stats()
+                        && receipt.pool().0 == end.workers().used
+                        && receipt.outcome == Ok(crate::periodic::Outcome::Complete) =>
+                {
+                    receipt.joined = true;
+                    self.lifecycle_final(&mut state, end)
+                }
+                _ => Err(Error::Input(
+                    "missing/mismatched successful prejoin terminal service".into(),
+                )),
+            }
+        };
         self.lifecycle = Some(state);
         self.retain(result)
     }
@@ -1850,9 +2287,53 @@ pub(crate) fn execute_periodic_lifecycle_requests(
     hook: Option<(dive_model::Pred, usize)>,
     requests: Option<dive_check::progress::Options>,
 ) -> crate::periodic_lifecycle::Run {
-    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false, false)
+    execute_lifecycle_mode(
+        model,
+        options,
+        limits,
+        policy,
+        hook,
+        requests,
+        false,
+        false,
+        crate::periodic_lifecycle::TerminalMode::Omitted,
+    )
 }
+#[allow(
+    clippy::too_many_arguments,
+    reason = "additive terminal mode preserves original service admission arguments"
+)]
 pub(crate) fn execute_periodic_service(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+    requests: dive_check::progress::Options,
+    retain_sources: bool,
+    terminal: bool,
+) -> crate::periodic_lifecycle::Run {
+    execute_lifecycle_mode(
+        model,
+        options,
+        limits,
+        policy,
+        hook,
+        Some(requests),
+        true,
+        retain_sources,
+        if terminal {
+            crate::periodic_lifecycle::TerminalMode::BeforeJoin
+        } else {
+            crate::periodic_lifecycle::TerminalMode::Omitted
+        },
+    )
+}
+#[allow(
+    clippy::too_many_arguments,
+    reason = "shared original service admission arguments"
+)]
+pub(crate) fn execute_periodic_stopped_service(
     model: &Model,
     options: &CheckOptions,
     limits: Limits,
@@ -1870,11 +2351,13 @@ pub(crate) fn execute_periodic_service(
         Some(requests),
         true,
         retain_sources,
+        crate::periodic_lifecycle::TerminalMode::BeforeJoinStopped,
     )
 }
 #[allow(
     clippy::too_many_arguments,
-    reason = "separate existing service mode from opt-in reconstruction authority"
+    clippy::too_many_lines,
+    reason = "retain separate modes and original failure/provenance packaging"
 )]
 fn execute_lifecycle_mode(
     model: &Model,
@@ -1885,6 +2368,7 @@ fn execute_lifecycle_mode(
     requests: Option<dive_check::progress::Options>,
     service: bool,
     retain_sources: bool,
+    terminal: crate::periodic_lifecycle::TerminalMode,
 ) -> crate::periodic_lifecycle::Run {
     let mut failed_state = None;
     let outcome = execute_inner(
@@ -1893,7 +2377,7 @@ fn execute_lifecycle_mode(
         limits,
         true,
         Some(policy.backend),
-        Some((policy, hook, requests, service, retain_sources)),
+        Some((policy, hook, requests, service, retain_sources, terminal)),
         Some(&mut failed_state),
     );
     let (backend, mut state) = match outcome {
@@ -1936,6 +2420,15 @@ fn execute_lifecycle_mode(
             )
         },
     );
+    let terminal = state.as_ref().and_then(|s| s.terminal.clone());
+    let finalization = state.as_ref().and_then(|s| s.finalization.clone());
+    let postcondition_failure = state.as_ref().and_then(|s| s.postcondition_failure.clone());
+    let counterexample_postcondition_failure = state
+        .as_ref()
+        .and_then(|s| s.counterexample_postcondition_failure.clone());
+    let postconditions_passed = state.as_ref().is_some_and(|s| s.postconditions_passed);
+    let stopped = state.as_ref().and_then(|s| s.stopped.clone());
+    let stopped_faults = state.as_ref().map_or([false; 5], |s| s.stopped_faults);
     let (
         invocations,
         final_checks,
@@ -1972,6 +2465,13 @@ fn execute_lifecycle_mode(
         },
     );
     crate::periodic_lifecycle::Run {
+        finalization,
+        postcondition_failure,
+        counterexample_postcondition_failure,
+        postconditions_passed,
+        terminal,
+        stopped,
+        stopped_faults,
         concrete_sources,
         request_services,
         service_evaluations,
@@ -1997,12 +2497,80 @@ type ExecutionParts = (
     Option<crate::periodic_lifecycle::State>,
 );
 
+// Called only on the producer's owned records after shared-meter reservation.
+// Public Group edits cannot mint the private finalization receipt.
+fn validate_final_group(
+    group: &Group,
+    order: &OrderOfSolution,
+    tableau: Option<&Tableau>,
+    sources: &[(u64, u64)],
+) -> Result<(), Error> {
+    let invalid = || Error::Input("incomplete final product records/done authority".into());
+    if group.records.len() != group.nodes.len() || group.commits.len() != sources.len() {
+        return Err(invalid());
+    }
+    for (source, commit) in group.commits.iter().enumerate() {
+        if commit.source != source
+            || sources[source] != (source as u64, commit.fingerprint)
+            || (tableau.is_some() && !group.done.contains(&commit.fingerprint))
+        {
+            return Err(invalid());
+        }
+    }
+    for (id, node) in group.nodes.iter().enumerate() {
+        if !node.written
+            || group.records.get(&(node.fingerprint, node.tableau)) != Some(&id)
+            || node.state.len() != order.check_state.len()
+            || tableau.map_or(node.tableau != -1, |t| {
+                usize::try_from(node.tableau)
+                    .ok()
+                    .is_none_or(|i| i >= t.particles.len())
+                    || !group.done.contains(&node.fingerprint)
+            })
+        {
+            return Err(invalid());
+        }
+        for transition in &node.transitions {
+            if transition.action.len() != order.check_action.len()
+                || !group
+                    .records
+                    .contains_key(&(transition.target, transition.tableau))
+            {
+                return Err(invalid());
+            }
+        }
+    }
+    let mut written = vec![false; group.nodes.len()];
+    for &id in &group.writes {
+        let Some(slot) = written.get_mut(id) else {
+            return Err(invalid());
+        };
+        *slot = true;
+    }
+    if written.iter().any(|&covered| !covered) {
+        return Err(invalid());
+    }
+    if group
+        .roots
+        .iter()
+        .any(|root| !group.records.contains_key(root))
+        || group
+            .writes
+            .iter()
+            .any(|&id| group.nodes.get(id).is_none_or(|node| !node.written))
+    {
+        return Err(invalid());
+    }
+    Ok(())
+}
+
 type LifecycleInput = (
     crate::periodic_lifecycle::Options,
     Option<(dive_model::Pred, usize)>,
     Option<dive_check::progress::Options>,
     bool,
     bool,
+    crate::periodic_lifecycle::TerminalMode,
 );
 
 #[allow(
@@ -2055,22 +2623,34 @@ fn execute_inner(
     model
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
+    let deferred_posts =
+        if lifecycle.is_some() && !model.postconditions.as_ref().is_ok_and(Vec::is_empty) {
+            Some(
+                capture::DeferredPostconditions::admit(model)
+                    .map_err(|verdict| early(Error::Input(format!("{verdict:?}"))))?,
+            )
+        } else {
+            None
+        };
     let lifecycle = lifecycle
-        .map(|(options, hook, requests, service, retain_sources)| {
-            if let Some(requests) = requests {
-                requests.validate().map_err(Error::Input)?;
-            }
-            let mut state = crate::periodic_lifecycle::State::new(options)?;
-            state.request_service = service;
-            state.concrete_retention = if retain_sources {
-                crate::periodic_lifecycle::SourceRetention::Original
-            } else {
-                crate::periodic_lifecycle::SourceRetention::Omitted
-            };
-            state.hook = hook;
-            state.requests = requests;
-            Ok(state)
-        })
+        .map(
+            |(options, hook, requests, service, retain_sources, terminal)| {
+                if let Some(requests) = requests {
+                    requests.validate().map_err(Error::Input)?;
+                }
+                let mut state = crate::periodic_lifecycle::State::new(options)?;
+                state.request_service = service;
+                state.terminal_service = terminal;
+                state.concrete_retention = if retain_sources {
+                    crate::periodic_lifecycle::SourceRetention::Original
+                } else {
+                    crate::periodic_lifecycle::SourceRetention::Omitted
+                };
+                state.hook = hook;
+                state.requests = requests;
+                Ok(state)
+            },
+        )
         .transpose()
         .map_err(early)?;
     let mut session = Session::new(model, options.fp_index, 1, limits.phase_l)
@@ -2109,6 +2689,7 @@ fn execute_inner(
     }
     let mut observer = Observer {
         model,
+        deferred_posts: deferred_posts.clone(),
         tableaux,
         recursive_generated: 0,
         recursive_retained: 0,
@@ -2138,20 +2719,33 @@ fn execute_inner(
             Vec::new()
         },
     };
-    let captured =
-        capture::explore_observed_with_evidence(model, options, limits.capture, &mut observer);
+    let captured = if let Some(token) = &deferred_posts {
+        capture::explore_observed_deferred_with_evidence(
+            token,
+            options,
+            limits.capture,
+            &mut observer,
+        )
+    } else {
+        capture::explore_observed_with_evidence(model, options, limits.capture, &mut observer)
+    };
     let captured = match captured {
         Ok(Exploration::Complete(c)) => c,
         stopped => {
             let (error, stats, workers) = match stopped {
-                Ok(Exploration::Stopped(stop)) => (
-                    observer
-                        .error
-                        .take()
-                        .unwrap_or_else(|| Error::Capture(stop.clone())),
-                    stop.stats,
-                    Some(stop.workers.clone()),
-                ),
+                Ok(Exploration::Stopped(stop)) => {
+                    let retained = observer.lifecycle.as_ref().is_some_and(|state| {
+                        state.terminal_service
+                            == crate::periodic_lifecycle::TerminalMode::BeforeJoinStopped
+                    }) && capture::WorkerStop::classify(&stop.verdict).is_some();
+                    let diagnostic = observer.error.take();
+                    let error = if retained {
+                        Error::Capture(stop.clone())
+                    } else {
+                        diagnostic.unwrap_or_else(|| Error::Capture(stop.clone()))
+                    };
+                    (error, stop.stats, Some(stop.workers.clone()))
+                }
                 Err(error) => (Error::Execution(error), None, None),
                 Ok(Exploration::Complete(_)) => (
                     Error::Input("unexpected complete capture in stopped branch".into()),
@@ -2368,8 +2962,84 @@ fn bounded(n: Option<usize>, maximum: usize, name: &'static str) -> Result<usize
 
 #[cfg(test)]
 mod partial_origin_tests {
-    use super::{Group, Node, SuccessorOrigin, validate_origin};
+    use super::{Group, Node, SuccessorOrigin, validate_final_group, validate_origin};
     use crate::{phase_graph::Commit, phase_l};
+
+    #[test]
+    fn final_records_reject_unwritten_missing_foreign_and_incomplete_metadata()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let mut group = Group::default();
+        let order = crate::tlc_plan::OrderOfSolution {
+            temporal: vec![],
+            check_state: vec![],
+            check_action: vec![],
+            pems: vec![],
+        };
+        group.nodes.push(Node {
+            fingerprint: 71,
+            tableau: -1,
+            state: vec![],
+            transitions: vec![super::Transition {
+                target: 71,
+                tableau: -1,
+                action: vec![],
+            }],
+            written: true,
+        });
+        group.records.insert((71, -1), 0);
+        group.roots.push((71, -1));
+        group.writes.push(0);
+        group.commits.push(Commit {
+            source: 0,
+            fingerprint: 71,
+            graph_insertion: true,
+            receipt: phase_l::Receipt {
+                multiplier: 1,
+                capacity: 16,
+                successors: vec![],
+                checks: vec![],
+                graph_insertion: false,
+            },
+        });
+        assert!(validate_final_group(&group, &order, None, &[(0, 71)]).is_ok());
+        for edit in 0..11 {
+            let mut bad = group.clone();
+            match edit {
+                0 => bad.nodes[0].written = false,
+                1 => bad.records.clear(),
+                2 => {
+                    bad.records.insert((71, -1), 1);
+                }
+                3 => bad.roots.push((72, -1)),
+                4 => bad.writes.push(1),
+                5 => bad.commits[0].source = 1,
+                6 => bad.nodes[0].state.push(true),
+                7 => bad.nodes[0].transitions[0].target = 72,
+                8 => bad.nodes[0].transitions[0].action.push(true),
+                9 => bad.writes.clear(),
+                _ => bad.commits[0].fingerprint = 72,
+            }
+            assert!(validate_final_group(&bad, &order, None, &[(0, 71)]).is_err());
+        }
+        assert!(validate_final_group(&group, &order, None, &[(0, 71), (1, 72)]).is_err());
+        assert!(validate_final_group(&group, &order, None, &[(1, 71)]).is_err());
+        assert!(validate_final_group(&group, &order, None, &[(0, 72)]).is_err());
+        // Genuine projected tableau, then missing done/source/write authority.
+        let formula = crate::formula::Formula::new(vec![crate::formula::Node::Bool(true)], 0)?;
+        let tableau =
+            crate::tlc_tableau::project_formula(&formula, crate::formula::Limits::default())?;
+        group.nodes[0].tableau = 0;
+        group.nodes[0].transitions[0].tableau = 0;
+        group.records.clear();
+        group.records.insert((71, 0), 0);
+        group.roots[0].1 = 0;
+        assert!(validate_final_group(&group, &order, Some(&tableau), &[(0, 71)]).is_err());
+        group.done.insert(71);
+        assert!(validate_final_group(&group, &order, Some(&tableau), &[(0, 71)]).is_ok());
+        group.writes.clear();
+        assert!(validate_final_group(&group, &order, Some(&tableau), &[(0, 71)]).is_err());
+        Ok(())
+    }
 
     #[test]
     fn placeholder_requires_actual_matching_committed_successor_slot() {

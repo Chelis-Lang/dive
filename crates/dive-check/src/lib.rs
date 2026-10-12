@@ -280,8 +280,21 @@ pub(crate) fn run_check_with_checkpoint(
         if let Err(error) = disk.limits.validate() {
             return bare(seen::verdict(&error), opts, ir);
         }
-        if checkpoint.is_some() || !cfg.properties.is_empty() || cfg.specification.is_some() {
-            return bare(Verdict::Unsupported { feature: "disk seen-state retention requires explicit INIT/NEXT; checkpoints, PROPERTY and SPECIFICATION roles are not implemented".into() }, opts, ir);
+        if checkpoint.is_some() {
+            return bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, opts, ir);
+        }
+        if (!cfg.properties.is_empty() || cfg.specification.is_some())
+            && let Err(failure) = dive_model::admit_pure_safety_roles(
+                ir.clone(),
+                cfg,
+                &BindOptions {
+                    eval: opts.eval,
+                    no_deadlock: opts.no_deadlock,
+                    host: None,
+                },
+            )
+        {
+            return bare(model_error(&failure.error), opts, ir);
         }
     }
     // Only the callback-free closed pure VIEW slice has transformed stream

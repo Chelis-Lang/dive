@@ -1434,7 +1434,7 @@ branches and nested name constructors retain the refusal. A separately bounded
 some variable sequence histories; general saved-frame provenance remains
 unproved. Fixed nested tuple aliases through `UNCHANGED vars` have a bounded
 projection proof (#215); conditional tuple permutations cannot establish
-per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. See [the literal operand slice](tuple-only-trace-replay.md).
+per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. A [finite tuple-range proof](indexed-stack-trace-replay.md) additionally permits indexed reads only when Init and every Next branch prove a tuple range. Strings, opaque maps, nested updates, primed self-reference and effects keep the refusal; public arbitrary-state APIs do not inherit these facts. See [the literal operand slice](tuple-only-trace-replay.md).
 
 
 Finite safety simulation also refuses TLC runtime-name models before sampling
@@ -2401,7 +2401,7 @@ full fingerprints or canonical exact keys on disk through Result operations.
 The original resident command remains default; admitted complete outcomes and
 concrete witnesses match that reference. Requested parallel widths currently
 use reported inline fallback, not advertised scaling. Entry/probe/summary limits
-and I/O/cleanup errors refuse completion. Configured PROPERTY/SPECIFICATION, graph, temporal, checkpoint/
+and I/O/cleanup errors refuse completion. Unproved configured role contexts, graph, temporal, checkpoint/
 recovery and DFID combinations remain unsupported. Separate frontier and
 predecessor budgets can combine, without a total-RAM/crash/import claim.
 [Executable user/API guide](user/disk-seen-safety.md).
@@ -2420,7 +2420,7 @@ operations in source/ordinal order. `ReplayNew` proves that successful replay
 can add distinct/queued states while generated stays frozen: clean TLC gives
 2 generated/4 distinct/2 queued, depth 2, exit 76. Storage/bound/cleanup failures
 retain the original error and diagnostic prefix while refusing completion;
-unknown error classes remain unverified. Public PROPERTY/SPECIFICATION,
+unknown error classes remain unverified. Unproved PROPERTY/SPECIFICATION contexts,
 parallel disk/capture/temporal and recovery restrictions remain. See
 [the user guide](user/disk-seen-safety.md) and [source-bound replay study](../conformance/probes/fallible-invariant-replay/README.md).
 
@@ -2435,3 +2435,203 @@ causes retain precedence. Warnings and unexecuted Print definitions do not
 trigger this event-based guard. Pure positioned replay is unchanged; resident
 memory replay's repeated-output contract is not extended here. Clean primary
 records and the original failed output are retained in the replay study.
+
+
+The bounded acyclic procedure continuation also preserves TLC's call-list alias.
+For `Outer(p)` calling `Inner(p+1)`, with main calling `Outer(1)`, pinned stored
+header lists Outer=[Inner], Inner=[Outer], CRC `256207b7`. Reversing declarations
+lists Inner=[], Outer=[Inner,Outer], CRC `90b81514`. A runtime chain to Leaf has
+CRC `37b455c8` and its last header still records main's Outer call; an unused
+Outer-to-Inner procedure has CRC `6e37c648` while the last header stays empty.
+These measured checksum fields are not a recursion or reachability graph.
+The native Full editor now preserves those fields separately from actual body
+edges, admitting proved disjoint acyclic sequential calls. Real recursive,
+process-owned and scoped checksum contexts remain named unsupported results.
+Both profiles retain reference CRC behavior, including fair-header-only weak
+detection. [Runnable C/P and Rust examples](pluscal-acyclic-procedure-checksums.md)
+explain artifact/model boundaries and the unchanged strict saved-frame #124 gap.
+
+
+## D-008: Recursive procedure headers without a termination claim
+
+The bounded editor now derives pinned Full headers for proved disjoint
+sequential recursive source programs. `Recur(n)` with a decreasing base case
+has paired C/P header CRC `72442bcc`; an unused recursive owner still serializes.
+Source call vectors and the LAST main alias stay distinct. Self tail calls keep
+the existing frame; cross-owner tail calls restore caller locals and replace
+its head before entering the target. Both profiles match the same checksum
+behavior; execution is never unrolled to compute a header.
+
+The zero-parameter `R1:call Recur(); return;` control has paired header CRC
+`3db87d9a` but TLC's generated TLA is rejected by SANY. Native raw equality is
+diagnostic-only: public editing emits no admitted replacement. Nonterminating
+recursion also earns no completion claim. Strict saved-frame replay stays
+pending under #124; canonical-only evidence is not strict TLC validation.
+Read [the C/P and Cargo guide](pluscal-recursive-procedure-checksums.md).
+Broader process/scoped/automatic-label/multiline procedure checksum contexts
+remain named refusals, not conformance successes.
+
+The candidate-admission delivery passes its45-stage/1057-test gate and admits12 actual EOF words via two independent routes;48 deliberately corrupted words fail both. Source-error history is retained: an unparenthesized IF material workload leaves one variable undefined (pin exit75), whereas the separately parenthesized workload gives exit13. This is ordinary TLA+ grouping, not a TLC bug or semantic divergence. The required37 safety gates at1/4/8 remain green; none of these results certifies ordinary temporal scheduling.
+
+### Genuine optional configured-hook diagnostic (#220)
+
+The [bounded Rust diagnostic](optional-periodic-hook.md) retains actual absence
+instead of requiring a synthetic configured TRUE hook. Pinned26 selected method
+controls show unused FALSE/nonzero-arity declarations still yield null; unforced
+no-hook/no-liveness service returns0 without suspension, while a separately forced
+service really suspends/resumes and retains force when no liveness runs. Native
+request receipts likewise distinguish initial progress publication from forced
+liveness; an empty request is not EOF. This is not a new TLC bug/default change.
+Original hidden-startup/state/temporal/error refusals and all quotas remain; no
+ordinary scheduling, stopping-count, Holds or family certification is granted.
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+
+
+### Distinct partial-stop and full-CLI observations (#222)
+
+The separately controlled 12-row queue study holds a genuinely dequeued state:
+physical queue size 0 is not finished while a Worker owns outstanding work.
+Actual suspension succeeds, partial checking precedes the hook, and FALSE or
+division stops without final selection; a deciding temporal2116 precedes FALSE.
+These bounded scheduler observations are separate from the natural full CLI.
+The original observer discards the integer returned by `AbstractChecker.modelCheck`;
+its earlier description as a void method was incorrect and is preserved as history.
+The separate corrected twelve-row observer records actual returns at widths 1/4/8:
+TRUE 0, FALSE 2104, division 1000, and temporal violation 2116. Reflected
+`errorCode` 0 and observer process exit 0 are separate fields. The subprocess
+exits zero because its adapter does not forward the method result to `System.exit`;
+none of these early-stop observations establishes temporal success.
+
+The separate unmodified full CLI FALSE-hook counter exits 10, with 3,913,590
+states generated/distinct and one queued state after 4.2456s; it prints no success
+and no 2104 message. The declared 512MiB heap and 30s observer bound remain recorded.
+This is an intentional-boundary observation, not a newly declared TLC bug. A
+native early hook/service stop remains incomplete or refused and cannot be Holds.
+All original selections, cleanup events and raw command/timing facts are retained
+in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+## Stopped-worker diagnostic boundary (issue 224)
+
+The bounded Rust stopped-service API preserves the original deciding worker
+error: pinned Next division returns2179/CLI255, invariant2110/12, action
+property2112/13, incomplete2109/75 and deadlock2114/11 at1/4/8. An actual FALSE
+hook does not override a prior division/invariant error. This is an honest native
+limitation, not a new default divergence or upstream-bug claim: Java can write
+liveness successor records after its error winner, while native diagnostics
+contain only the earlier actually committed prefix. No ordinary queue/count/graph
+or clock parity follows. The [guide](stopped-periodic-service.md) distinguishes
+actual method returns, CLI exits, callback failures and joins.
+
+### Source-owned disk safety roles (#221)
+
+Disk checking now has a bounded pre-startup role path through the actual shared
+binder, admitting proven pure safety PROPERTY/SPECIFICATION forms. It does not
+use syntax-level temporal filtering: `Init /\ [][Next]_x` decomposes into safety
+roles, while actual temporal assumptions or obligations refuse. The declared
+29-model before-selection keeps clean pinned output, resident results and the old
+blanket disk refusal separately. A strict INSTANCE expression occurring only
+in the SPECIFICATION subscript remains refused before startup: the selected
+primary and resident control succeed with three states and warning 2140, while
+warning-only subscript inspection does not prove structural disk admission.
+The preliminary4f disk Success and failed admission regression are preserved.
+This is a scoped native restriction, not a wrong TLC verdict. LET/INSTANCE/configured aliases are selected,
+not granted support merely by name. The frozen `7fae387c` producer passed the
+full gate (1,326 tests, zero skips) and all 2,320 current-role CLI observations.
+Its 2,088 public API comparisons retain 432 independently Valid words and
+2,592 Invalid named mutants; seven refusal models stay selected without proof
+credit. Original resident reports and diagnostic error words are qualified
+separately in the study.
+
+The policy is deliberately partial. A fairness-only specification that succeeds
+in the resident route remains refused on disk; quantified PROPERTY domain
+execution and opaque wrappers also stay selected with no agreement credit.
+Unused effectful source can cause an earlier refusal, before startup output or a
+later role diagnostic. INIT/NEXT-only binder ordering, disk-key bounds, actual
+inline fallback, Print-dependent error-replay refusal and independent trace
+requirements remain unchanged. This is a native limitation, not a new reference
+bug or semantic default. [CLI/Rust contract](user/disk-seen-safety.md) and
+[ADR0075](decisions/0075-source-owned-pure-safety-role-admission.md).
+
+D-008 process-owned procedure checksum continuation (ADR0079): the stored
+original header gives each process its own called-procedure vector. Calling a
+procedure from a process does not append the call to the last procedure header,
+as sequential main does. Parameter/local/frame fields remain unindexed in this
+header; generated runtime state is separately indexed by process ID. The bounded
+native Full scope has one unfair finite process and one disjoint labelled
+procedure; broader fairness/scoped/multiple-owner contexts refuse explicitly.
+
+A clean minimal C/P `procedure First(a=0) ... process Worker=1 ...
+with a=2 do call First(a)` example generates TLA with duplicate operator `a`.
+Pinned SANY rejects both outputs. The complete242 selection retains both raw
+artifacts, their original/header/direct-exploded stages and SANY errors; the
+native scoped-name guard returns a named refusal and grants no successful Full
+replacement. No new default correction is made. Exact CRC, CST/SANY/Validator,
+finite model results and canonical/strict replay remain separate obligations.
+Read [the runnable process/procedure checksum guide](pluscal-process-procedure-checksums.md).
+
+
+## Terminal finalization and postcondition order (#228, ADR0080)
+
+The bounded [Rust terminal guide](terminal-outcome.md) exposes actual private
+capture/resource completion, OOS/PEM final checks, independently replayed words
+and subsequent direct post errors. `ModelChecker.modelCheck` runs finalCheck
+before normal `Tool.checkPostCondition`; `LiveWorker.printTrace` also calls
+`checkPostConditionWithCounterExample`, ignoring returned errors while getter
+exceptions can abort rendering. The complete24 minimal pinned rows distinguish
+2405/CLI10, ignored2405 then2116/CLI13, cached-role GENERAL1000/CLI255 and the
+candidate getter exception/CLI1 with no method return. These are measured
+ordering contracts, not a newly declared TLC defect or approved default change.
+The unchanged8820 wrong post-before-final observation and all84/84/84/96
+reference development/selection epochs remain in
+[the acceptance evidence](../conformance/probes/terminal-outcome/README.md).
+
+Only direct bounded scalar/Boolean posts are admitted; calls, effects, configured
+constants, constructors and unproved partial-render/getter exceptions refuse.
+Current final records require original source/commit fingerprint alignment,
+per-node write coverage and actual tableau done authority under existing graph
+budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
+no-action and checkpoint composition are unfinished. No Holds, model-proof or
+family credit is claimed; F-023 remains missing/audit-required.
+
+### Public Rust IR: Strict context admission (#234)
+
+Independent trace context inspection conservatively refuses an expression
+substitution passed as `Pass::Strict` before entering its scope. This includes
+an actually inert Strict binding: caller-supplied expression effects metadata
+is not an independent proof that eager entry cannot execute effects. Lazy and
+Direct substitution expressions remain thunks; ordinary evaluator Strict
+execution is unchanged. See [the endpoint contract](user/strict-context-admission.md).
+
+The retained public serialized-IR control references `Noise(v) == PrintT(v)`
+from a Strict binding but annotates that copied call `Effects::NONE`. Its valid
+owned context previously produced three Print events before `validate_doc`
+returned Valid, and one before `evaluate_lasso` returned Unsupported. Independent
+existence search already refused without effects. This is a dive public-IR
+admission limitation, not a false-word or naturally lowered TLA+ parity claim,
+and does not introduce a TLC divergence/default ID. Repair source is present;
+fresh receiving qualification is pending under [#234](https://github.com/Chelis-Lang/dive/issues/234).
+
+#### Pure eager instance operands and independent admission (#234)
+
+The initial blanket Strict refusal also refused legitimate literal TRUE and
+nested constant forwarding in existing pinned instance tests. The bounded
+repair inspects actual closed structure and scoped values before eager entry,
+keeps malicious Print refusal, and trusts no inertness flag. This is a dive
+admission limitation/repair, not a new reference-tool divergence. Native/user
+calls, providers and exhausted/opaque eager contexts remain unsupported. The
+complete original 1,762-pass/two-failure gate is retained; fresh qualification
+is pending.

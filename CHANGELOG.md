@@ -1,15 +1,80 @@
 # Changelog
 
+
+- Add source-owned stopped-worker periodic diagnostics through
+  `periodic_candidate::check_optional_stopped`. Eligible ordered source errors
+  remain authoritative across diagnostic callback failures and timer/pool joins;
+  no failed source becomes EOF, final checking or temporal Holds. Ordinary
+  scheduling remains refused; the executable guide records actual method/CLI
+  evidence and the unproved Java after-error graph/count boundary.
+
+
+- Explicit final TLC mode now admits pure state conditional predicates through
+  the corrected shared planner and fresh independent witness replay. Scoped
+  LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
+  resource bounds and ordinary periodic scheduling restrictions stay unchanged.
+
+
 All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
 
+- Prevent lost notifications in the test-only returned-prefix rendezvous; retain
+  its five-second bound, actual timer/request controls and default behavior.
+
+- Independent trace context inspection admits bounded closed Strict literals
+  and actual constant forwarding before entering their scopes (#234), retaining
+  pre-effect refusals for forged calls, lazy bindings and ordinary evaluator
+  semantics. Both original temporal regression tests are preserved.
+
+
+- Strict independent trace replay can prove bounded finite tuple ranges from
+  Init and every Next branch, admitting indexed process stacks without using
+  witness values as namespace/type evidence. Unproved branches, strings, opaque
+  maps and effects retain named refusals; arbitrary-state APIs and budgets stay
+  unchanged. Executable CLI/Cargo guides cover both transports and profiles.
+
+- Source-owned pre-startup admission extends opt-in disk seen-state checking to
+  proven pure safety PROPERTY/SPECIFICATION roles through the shared binder.
+  Temporal/effectful/opaque and evaluation-demanding contexts remain explicit
+  refusals; resident binding, actual inline fallback and separate budget scopes
+  stay unchanged.
+
 - Composed request/candidate diagnostics, disk safety and positioned replay,
   bounded procedure checksum editing, and inductive tuple replay with fresh
   release verification and maintained user/developer guides.
 
+- Add private actual graph/tableau/resource finalization and terminal outcomes to
+  the owned periodic candidate diagnostic. Final selection precedes direct posts;
+  counterexample render errors remain separate, and unproved getter/partial
+  paths refuse. Original source winners, bounds and independent memory/JSON replay
+  remain authoritative; ordinary scheduling and Holds are still unsupported.
+
+
+- Add a source-owned exhausted-queue terminal diagnostic before timer/pool joins. Request-lane setup/join failures retain actual initial or returned-prefix statistics. Genuine finished queues skip configured hooks; deciding final words reuse fresh independent replay. Ordinary checking and scheduling/count/model-proof claims stay refused.
+
+- Add source-owned optional periodic diagnostics: genuine configuration absence skips only the hook stage, while mandatory APIs, pre-startup guards and private independent candidate replay remain unchanged. No ordinary scheduling or model-proof credit.
+
 - Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
+
+- Bounded Full PlusCal checksums support one unfair finite process calling one
+  disjoint labelled procedure. Source-owned process call vectors stay separate
+  from sequential LAST aliases and indexed runtime state (ADR0079). Global
+  resource limits, invalid-reference admission and strict saved-frame replay
+  boundaries remain unchanged; runnable C/P and Cargo examples document them.
+
+- Bounded Full PlusCal checksums admit source-finite self/mutual sequential
+  procedure graphs and preserve pinned top-level/shared nested CallReturn
+  headers (ADR0077). Unchanged shared resource limits and explicit artifact
+  admission keep primary-invalid tails and execution/witness claims separate.
+  Runnable C/P and Cargo-owned examples describe the remaining scopes.
+
+- Bounded Full PlusCal checksums support disjoint acyclic sequential procedure-body
+  calls, preserving each owner's source call vector separately from the reference
+  last-header main alias (ADR0073). Actual recursion remains a named refusal;
+  shared budgets, CRC policy and strict saved-frame witness qualifications remain
+  unchanged. The guide includes executable C/P and Cargo-owned Rust examples.
 
 - Bounded Full PlusCal editing supports disjoint explicitly labelled sequential
   procedures called from main. Typed call frames retain target ownership while
@@ -43,6 +108,13 @@ All notable changes to this project are documented here. The project will follow
   round trips from construction-preserving value transport and independent
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
+
+- Source-owned pre-startup admission extends opt-in disk seen-state checking to
+  proven pure safety PROPERTY/SPECIFICATION roles through the shared binder.
+  Temporal/effectful/opaque and evaluation-demanding contexts remain explicit
+  refusals; resident binding, actual inline fallback and separate budget scopes
+  stay unchanged.
+
 
 - Opt-in bounded disk seen-state safety membership uses fallible ordered inline
   admission, preserving concrete outcomes while reporting actual worker fallback,

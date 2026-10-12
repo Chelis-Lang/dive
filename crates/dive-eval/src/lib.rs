@@ -172,6 +172,13 @@ pub struct Evaluator {
 }
 
 impl Evaluator {
+    /// Whether both handles share the exact mutable evaluation core. This
+    /// callback-free identity check binds deferred execution receipts to their
+    /// original run; it is not semantic equality, graph or host authority.
+    #[must_use]
+    pub fn shares_run_state(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.core, &other.core)
+    }
     /// An evaluator that collects `Print` output (see [`Evaluator::take_output`]).
     /// Admission checks IR references, override signatures/cycles and captured
     /// values before interning literals or invoking caller code. Bare numeric IDs

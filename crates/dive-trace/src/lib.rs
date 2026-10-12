@@ -66,6 +66,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+mod context_admission;
 pub mod exists;
 pub mod format;
 pub mod mutate;

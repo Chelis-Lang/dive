@@ -69,6 +69,15 @@ fn public_eof_candidates_are_freshly_rehomed_and_independently_replayed() {
         )
         .expect("candidate admitted");
         let witness = report.witness().expect("actual EOF candidate");
+        assert_eq!(report.terminal(), &periodic_candidate::Terminal::EofWitness);
+        let finalization = report
+            .run()
+            .lifecycle()
+            .finalization()
+            .expect("actual graph admission");
+        assert_eq!(finalization.capture().entries().0, 2);
+        assert!(finalization.candidate().is_some());
+        assert!(!finalization.all_checked());
         assert!(matches!(witness.origin(), Origin::Eof(_)));
         assert_eq!(
             witness.memory_validation().validation,
@@ -179,6 +188,20 @@ fn absent_candidate_or_false_hook_is_never_holds() {
         assert!(!report.model_proof());
         if forced {
             assert!(report.run().lifecycle().safety_eof().is_none());
+            assert_eq!(report.terminal(), &periodic_candidate::Terminal::Incomplete);
+            assert!(report.run().lifecycle().finalization().is_none());
+        } else {
+            assert_eq!(
+                report.terminal(),
+                &periodic_candidate::Terminal::FinalSelectionsComplete
+            );
+            let finalized = report
+                .run()
+                .lifecycle()
+                .finalization()
+                .expect("private finalization");
+            assert!(finalized.all_checked());
+            assert_eq!(finalized.checks().0, finalized.checks().1);
         }
     }
 }
@@ -235,6 +258,8 @@ fn capture_limits_retain_actual_incomplete_execution_without_witness() {
     )
     .expect("actual bounded diagnostics");
     assert!(report.witness().is_none());
+    assert_eq!(report.terminal(), &periodic_candidate::Terminal::Incomplete);
+    assert!(report.run().lifecycle().finalization().is_none());
     assert!(!report.model_proof());
     assert!(report.run().lifecycle().backend().stop().is_some());
     assert!(report.run().lifecycle().safety_eof().is_none());

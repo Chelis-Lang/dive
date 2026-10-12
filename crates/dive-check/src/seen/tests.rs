@@ -203,6 +203,7 @@ fn replay_identity_mismatch_retains_typed_position_without_fake_library_poison()
         output: Vec::new(),
         notes: Vec::new(),
         workers: crate::Workers::one(),
+        stopped_transaction: None,
     };
     let usage = run.close(&mut outcome);
     let failure = usage.first_failure.expect("first protocol cause retained");
@@ -739,8 +740,63 @@ fn replay_read_fault_outranks_late_cleanup_without_losing_original_error() {
     }
 }
 
+fn assert_public_property_replay(public: &crate::CheckResult, memory: &crate::CheckResult) {
+    assert_eq!(public.verdict, memory.verdict);
+    assert!(matches!(
+        public.verdict,
+        Verdict::EvaluationError {
+            site: crate::ErrorSite::Invariant,
+            code: 2111,
+            ..
+        }
+    ));
+    assert_eq!(public.verdict.tlc(), memory.verdict.tlc());
+    let class = public.verdict.tlc().expect("captured TLC class");
+    assert_eq!((class.code, class.exit, class.reported), (2111, 76, 2111));
+    assert!(class.verified);
+    assert_eq!(public.stats, memory.stats);
+    assert_eq!(public.tlc_prints_stats, memory.tlc_prints_stats);
+    assert_eq!(public.collision, memory.collision);
+    assert_eq!(public.output, memory.output);
+    assert_eq!(public.warnings, memory.warnings);
+    assert_eq!(public.notes, memory.notes);
+    assert_eq!(public.var_names, memory.var_names);
+    assert_eq!(public.tlc_var_order, memory.tlc_var_order);
+    assert_eq!(public.store, memory.store);
+    assert_eq!(public.fp_index, memory.fp_index);
+    assert_eq!(public.tlc_fingerprints, memory.tlc_fingerprints);
+    assert_eq!(
+        format!("{:?}", public.counterexample),
+        format!("{:?}", memory.counterexample)
+    );
+    assert_eq!(
+        public
+            .counterexample
+            .as_ref()
+            .expect("diagnostic word")
+            .states
+            .len(),
+        3
+    );
+    let word = public.counterexample.as_ref().expect("diagnostic word");
+    for (index, state) in word.states.iter().enumerate() {
+        assert_eq!(format!("{:?}", state.values), format!("[{index}, 0]"));
+        assert!(state.text.is_none());
+        if index == 0 {
+            assert_eq!(state.label, "<Initial predicate>");
+            assert!(state.action.is_none());
+        } else {
+            assert_eq!(
+                state.label,
+                "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>"
+            );
+            assert_eq!(state.action.as_deref(), Some("Step"));
+        }
+    }
+}
+
 #[test]
-fn private_bound_action_property_replay_matches_memory_without_lifting_public_role() {
+fn public_pure_action_property_replay_matches_memory_and_private_disk() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/errors/specs/ErInvReplayProp/ErInvReplayProp.tla");
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
@@ -759,11 +815,16 @@ fn private_bound_action_property_replay_matches_memory_without_lifting_public_ro
                 directory: Some(parent.clone()),
                 ..SeenOptions::default()
             });
-            let refused = crate::check(&ir, &cfg, &options);
-            assert!(matches!(refused.verdict, Verdict::Unsupported { .. }));
-            assert!(refused.stats.is_none());
-            assert_eq!(std::fs::read_dir(&parent).expect("parent").count(), 0);
-            // This is a private bound-engine transaction test, not public PROPERTY admission.
+            let public = crate::check(&ir, &cfg, &options);
+            assert_public_property_replay(&public, &memory);
+            assert_eq!(
+                std::fs::read_dir(&parent)
+                    .expect("closed public store")
+                    .count(),
+                0
+            );
+            // The independently invoked private engine must preserve the same
+            // source transaction, not merely agree on its final error class.
             let host = Arc::new(crate::engine::run_host(&options));
             let bind = dive_model::BindOptions {
                 eval: options.eval,
@@ -776,6 +837,18 @@ fn private_bound_action_property_replay_matches_memory_without_lifting_public_ro
             host.set_config(Some(config.clone()));
             model.evaluator.intern_bfs_config(&config);
             let disk = crate::engine::search(&model, &options, &host);
+            assert_eq!(disk.verdict, public.verdict);
+            assert_eq!(disk.stats, public.stats);
+            assert_eq!(disk.output, public.output);
+            assert_eq!(disk.tlc_prints_stats, public.tlc_prints_stats);
+            assert_eq!(disk.collision, public.collision);
+            assert_eq!(disk.frontier, public.frontier);
+            assert_eq!(disk.predecessor, public.predecessor);
+            assert_eq!(disk.workers, public.workers);
+            assert_eq!(public.workers.requested, 1);
+            assert_eq!(public.workers.used, 1);
+            assert!(public.workers.sequential);
+            assert_eq!(format!("{:?}", disk.seen), format!("{:?}", public.seen));
             assert_eq!(disk.verdict, memory.verdict);
             assert_eq!(disk.stats, memory.stats);
             assert_eq!(

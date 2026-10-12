@@ -108,6 +108,48 @@ pub struct FinalCheck {
     pub(crate) pem: usize,
     pub(crate) selection: crate::tlc_witness::Selection,
 }
+
+/// Producer-owned final graph/resource admission, minted only after actual
+/// safety graph completion and all registered product records are checked.
+/// This does not certify ordinary queue timing, scheduling or temporal Holds.
+#[derive(Clone, Debug)]
+pub struct Finalization {
+    pub(crate) capture: dive_check::capture::GraphCompletion,
+    pub(crate) groups: usize,
+    pub(crate) nodes: usize,
+    pub(crate) transitions: usize,
+    pub(crate) pem_count: usize,
+    pub(crate) checked: usize,
+    pub(crate) candidate: Option<(usize, usize)>,
+}
+impl Finalization {
+    /// Immutable retained safety graph completion from the actual producer.
+    #[must_use]
+    pub fn capture(&self) -> &dive_check::capture::GraphCompletion {
+        &self.capture
+    }
+    /// Checked OOS groups, written product nodes and stored transitions.
+    #[must_use]
+    pub fn product_entries(&self) -> (usize, usize, usize) {
+        (self.groups, self.nodes, self.transitions)
+    }
+    /// Executed PEM selections and total compiled PEMs, respectively.
+    #[must_use]
+    pub fn checks(&self) -> (usize, usize) {
+        (self.checked, self.pem_count)
+    }
+    /// Actual first final candidate's OOS/PEM identity, before independent replay.
+    #[must_use]
+    pub fn candidate(&self) -> Option<(usize, usize)> {
+        self.candidate
+    }
+    /// Every compiled PEM passed bounded selection without a candidate. This is
+    /// descriptive final-only graph evidence, never an ordinary model proof.
+    #[must_use]
+    pub fn all_checked(&self) -> bool {
+        self.candidate.is_none() && self.checked == self.pem_count
+    }
+}
 impl FinalCheck {
     /// Original OOS/PEM indices in source order.
     #[must_use]
@@ -171,6 +213,13 @@ impl ConcreteSource {
 /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
 #[derive(Clone, Debug)]
 pub struct Run {
+    pub(crate) finalization: Option<Finalization>,
+    pub(crate) postcondition_failure: Option<dive_check::CheckResult>,
+    pub(crate) counterexample_postcondition_failure: Option<dive_check::CheckResult>,
+    pub(crate) postconditions_passed: bool,
+    pub(crate) terminal: Option<crate::periodic_terminal::Invocation>,
+    pub(crate) stopped: Option<crate::periodic_stopped::Invocation>,
+    pub(crate) stopped_faults: [bool; 5],
     pub(crate) concrete_sources: Vec<ConcreteSource>,
     pub(crate) backend: periodic_backend::Run,
     pub(crate) options: Options,
@@ -186,6 +235,58 @@ pub struct Run {
     pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
 }
 impl Run {
+    /// Nondetermining postcondition error from the actual final candidate path.
+    /// TLC's witness renderer ignores returned evaluation errors; getter throws
+    /// remain a named native refusal and cannot create an admitted witness.
+    #[must_use]
+    pub fn counterexample_postcondition_failure(&self) -> Option<&dive_check::CheckResult> {
+        self.counterexample_postcondition_failure.as_ref()
+    }
+    /// Actual postcondition deciding result, evaluated only after admitted graph
+    /// completion and every final PEM passed. Absent after a temporal candidate.
+    #[must_use]
+    pub fn postcondition_failure(&self) -> Option<&dive_check::CheckResult> {
+        self.postcondition_failure.as_ref()
+    }
+    /// Actual ordered final composition reached and passed postconditions (or
+    /// had none). This does not certify ordinary scheduling or temporal Holds.
+    #[must_use]
+    pub fn postconditions_passed(&self) -> bool {
+        self.postconditions_passed
+    }
+    /// Actual admitted safety/product completion and final selection progress.
+    /// Absent after earlier stops or a graph/resource finalization failure.
+    #[must_use]
+    pub fn finalization(&self) -> Option<&Finalization> {
+        self.finalization.as_ref()
+    }
+    /// Actual eligible worker-error service, distinct from successful EOF.
+    #[must_use]
+    pub fn stopped_service(&self) -> Option<&crate::periodic_stopped::Invocation> {
+        self.stopped.as_ref()
+    }
+    /// Diagnostic faults retained separately from the original search winner.
+    pub fn stopped_faults(
+        &self,
+    ) -> impl Iterator<Item = dive_check::capture::StoppedDiagnosticFault> + '_ {
+        use dive_check::capture::StoppedDiagnosticFault as F;
+        [
+            F::LaneClose,
+            F::LaneJoin,
+            F::Dispatch,
+            F::Callback,
+            F::Unwind,
+        ]
+        .into_iter()
+        .enumerate()
+        .filter_map(|(i, f)| self.stopped_faults[i].then_some(f))
+    }
+    /// Actual terminal service before timer/pool joins, present only on the
+    /// additive exhausted-queue route. No successful result certifies Holds.
+    #[must_use]
+    pub fn terminal_service(&self) -> Option<&crate::periodic_terminal::Invocation> {
+        self.terminal.as_ref()
+    }
     /// Actual successful source callbacks retained in discovery order. These
     /// original concrete values are not recovered from a fingerprint or from
     /// an arbitrary stored target representative. Only the distinct
@@ -292,10 +393,30 @@ pub(crate) enum SourceRetention {
     Omitted,
     Original,
 }
+/// Additive terminal authority mode, distinct from per-request service.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TerminalMode {
+    Omitted,
+    BeforeJoin,
+    BeforeJoinStopped,
+}
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent request/controller and post-completion facts; no single bool certifies a model"
+)]
 pub(crate) struct State {
+    pub finalization: Option<Finalization>,
+    pub postcondition_failure: Option<dive_check::CheckResult>,
+    pub counterexample_postcondition_failure: Option<dive_check::CheckResult>,
+    pub postconditions_passed: bool,
+    pub source_fingerprints: Vec<(u64, u64)>,
     pub concrete_sources: Vec<ConcreteSource>,
     pub concrete_retention: SourceRetention,
     pub request_service: bool,
+    pub terminal_service: TerminalMode,
+    pub terminal: Option<crate::periodic_terminal::Invocation>,
+    pub stopped: Option<crate::periodic_stopped::Invocation>,
+    pub stopped_faults: [bool; 5],
     pub initial_stats: Option<Stats>,
     pub graph_source: Option<u64>,
     pub request_services: Vec<crate::periodic_service::Invocation>,
@@ -337,9 +458,18 @@ impl State {
         }
         let start = time_millis()?;
         Ok(Self {
+            finalization: None,
+            postcondition_failure: None,
+            counterexample_postcondition_failure: None,
+            postconditions_passed: false,
+            source_fingerprints: Vec::new(),
             concrete_sources: Vec::new(),
             concrete_retention: SourceRetention::Omitted,
             request_service: false,
+            terminal_service: TerminalMode::Omitted,
+            terminal: None,
+            stopped: None,
+            stopped_faults: [false; 5],
             initial_stats: None,
             graph_source: None,
             request_services: Vec::new(),
