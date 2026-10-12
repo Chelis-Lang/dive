@@ -1,7 +1,7 @@
 name: conformance
 
-# Standard and deep conformance tiers (ADR 0001): nightly on the small tier,
-# and on manual dispatch with a chosen tier. Runs the pinned TLC against the
+# Standard and deep conformance tiers (ADR 0001), on manual dispatch only,
+# with a chosen tier (default small). Runs the pinned TLC against the
 # committed goldens, with worker-count invariance (charter rule 7) and the
 # Examples manifest cross-check. Then runs dive under --compat=tlc (`dive
 # analyze` on the modules of every module corpus, `dive check` on the tier's
@@ -10,8 +10,6 @@ name: conformance
 # fast tier.
 
 on:
-  schedule:
-    - cron: "17 3 * * *"
   workflow_dispatch:
     inputs:
       tier:

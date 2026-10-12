@@ -151,7 +151,7 @@ dive-conformance run --impl dive --sany-phase parse --tier all \
   on. A golden that does not determine the verdict is reported as `oracle-error`.
 - It compares that verdict with `dive parse --output json`. `accepted`, with
   `DIVE-S0006` as the only error, is `name-mismatch`.
-- The nightly `conformance` workflow runs this comparison.
+- The `conformance` workflow (manual dispatch) runs this comparison.
 
 The syntax corpus, the tree-sitter corpus, `tests/sany-cases/` and the mutation
 campaign stay here. Mutants are a natural deep-tier job for the harness.

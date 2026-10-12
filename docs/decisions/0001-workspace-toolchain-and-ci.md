@@ -67,7 +67,8 @@ checks and the complete test matrix. Cancellation, skipped prerequisites and
 missing results fail closed. The conformance job remains unchanged.
 
 Local contributors still run the whole gate. Partition reproduction and
-coverage verification are documented in [CI scheduling](../developer/ci.md).
+coverage verification were documented in [CI](../developer/ci.md); see the
+lean-gate addendum below.
 
 ## Recovery-matrix scheduling addendum (2026-10-11)
 
@@ -84,3 +85,20 @@ witness checks remain unchanged. Ten broad wrappers become 60 smaller tests;
 no setting or assertion is removed. The full workspace uses eight disjoint
 hash partitions, checked against the complete actual inventory. The per-test
 and per-job bounds, required aggregate gate and no-ignore policy are unchanged.
+
+## Lean-gate addendum (2026-10-12)
+
+Issue #241 replaces the partitioned CI. The twenty-job, roughly 190
+runner-minute PR run (sixteen test partitions, an aggregator and about seventy
+evidence-script steps) becomes three jobs with the unchanged required names:
+`No AI authorship markers`, `Workspace gate` (one compile; fmt, clippy, the
+nextest `ci` profile, doctests, rustdoc, layering, standalone `dive-trace`, and
+`cargo deny` only when `Cargo.lock` or `deny.toml` changed) and `Conformance
+gate` (an eight-model CM1 smoke list at 1 and 4 workers). The `ci` profile
+excludes slow, evidence-oriented and multi-worker matrix tests by name.
+
+The excluded tests, the whole CM1 list at 1, 4 and 8 workers, the
+validation-smoke corpus and the small corpus tier run locally with
+`cargo xtask gate --full`, which is required before PRs that touch the checker
+crates and writes a Markdown report for the PR body. `conformance.yml` runs on
+manual dispatch only.

@@ -296,6 +296,6 @@ this producer. Its reader runs in the workspace integrity checks.
 Two CI inventory attempts on this head failed with a linker SIGBUS; all sixteen
 test partitions and conformance passed. Local success does not override that
 required failure. A separate documentation/workflow revision qualifies its own
-full gate and CI result; the [resource notes](ci-build-resources.md) describe the
-mitigation and its limits. No producer is relabelled and no semantic family is
+full gate and CI result. CI has since been replaced by the lean gate described
+in [CI](developer/ci.md). No producer is relabelled and no semantic family is
 certified by this bounded composition.

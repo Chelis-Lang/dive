@@ -151,167 +151,41 @@ workspace feature unification cannot hide a violation (ADR 0016 §2).
 
 ## Gates
 
-Run the gate locally before pushing. CI's required `Workspace gate` aggregates
-`Workspace checks` and all sixteen `Workspace tests` partitions. Every prerequisite
-must succeed; failed, cancelled or skipped jobs fail the required check. The
-combined jobs run the same full gate below, with tests partitioned using
-`--profile ci --partition hash:N/16` for N = 1 through 16.
-`scripts/check-test-partitions.py` verifies their disjoint union equals the full
-workspace suite. The Python list preserves all literal CI invocations, including
-repeated inherited guards. Test and job time limits remain unchanged:
-
+CI's required checks are deliberately small. The `Workspace gate` job runs, in
+one compile, what `cargo xtask gate --fast` runs locally:
 
 ```sh
 cargo fmt --all --check
-python3 scripts/test-validation-import.py
-python3 -I scripts/test-frontend-campaign.py
-python3 -I scripts/check-parity-ledger.py
-python3 -I scripts/test-parity-ledger.py
-python3 -I scripts/check-tlc-planning.py
-python3 -I scripts/check-tlc-tableau.py
-python3 -I scripts/check-temporal-action-order.py
-python3 -I scripts/check-phase-l.py
-python3 -I scripts/check-phase-l-graph.py
-python3 -I scripts/check-phase-execution.py
-python3 -I scripts/check-periodic-controller.py
-python3 -I scripts/check-runtime-ratio.py
-python3 -I scripts/check-tlc-final.py
-python3 -I scripts/check-state-if-planning.py
-python3 -I scripts/check-predecessor-spill.py
-python3 -I scripts/check-native-checkpoint.py
-python3 -I scripts/check-view-normalization.py
-python3 -I scripts/check-view-random-stream.py
-python3 -I scripts/check-trace-representation.py
-python3 -I scripts/check-tuple-only-replay.py
-python3 -I scripts/check-fallible-seen-store.py
-python3 -I scripts/check-fallible-seen-engine.py
-python3 -I scripts/test-fallible-seen-git-proof.py
-python3 -I scripts/check-disk-safety-roles.py
-python3 -I scripts/test-disk-safety-role-proof.py
-python3 -I scripts/check-inductive-tuple-replay.py
-python3 -I scripts/check-fixed-tuple-projection.py
-python3 -I scripts/check-indexed-stack-replay.py
-python3 -I scripts/check-core-prefix-storage-integration.py
-python3 -I scripts/check-core-composed-epoch.py
-python3 -I scripts/test-core-composed-epoch.py
-python3 -I scripts/test-frontend-campaign.py
-
-python3 -I scripts/check-native-parity-integration.py
-python3 -I scripts/check-tlc-final.py
-python3 -I scripts/check-tlc-final-safety.py
-python3 -I scripts/check-tlc-state-if.py
-python3 -I scripts/check-tlc-temporal-if.py
-python3 -I scripts/check-tlc-temporal-if-final.py
-python3 -I scripts/check-tlc-final-scopes.py
-python3 -I scripts/check-tlc-property-origins.py
-python3 -I scripts/check-material-capture.py
-python3 -I scripts/check-temporal-operators.py
-python3 -I scripts/check-native-temporal-operators.py
-python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
-python3 -I scripts/check-stored-successor-material.py
-python3 -I scripts/check-stored-successor-census.py
-python3 -I scripts/check-native-sequence-operators.py
-python3 -I scripts/check-tlc-partial-scc.py
-python3 -I scripts/check-periodic-backend.py
-python3 -I scripts/check-periodic-controller.py
-python3 -I scripts/check-runtime-ratio.py
-python3 -I scripts/check-periodic-lifecycle.py
-python3 -I scripts/check-periodic-hook.py
-python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
-python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
-python3 -I scripts/check-periodic-snapshot.py
-python3 -I scripts/check-progress-queue.py
-python3 -I conformance/probes/storage-tuple-function/verify.py
-python3 -I scripts/check-committed-prefix.py
-python3 -I scripts/check-request-owned-service.py
-python3 -I scripts/check-producer-owned-candidate.py
-python3 -I scripts/check-fallible-seen-engine.py
-python3 -I scripts/test-fallible-seen-git-proof.py
-python3 -I scripts/check-fallible-invariant-replay.py
-python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py
-python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
-python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py
-python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py
-
-python3 -I scripts/check-optional-periodic-hook.py
-python3 -I scripts/check-terminal-periodic-service.py
-python3 -I scripts/check-stopped-periodic-service.py
-
-
-python3 -I scripts/check-terminal-outcome.py
-python3 -I scripts/check-parity-ledger.py
-python3 -I scripts/test-parity-ledger.py
-python3 -I scripts/check-tlc-planning.py
-python3 -I scripts/check-tlc-tableau.py
-python3 -I scripts/check-temporal-action-order.py
-python3 -I scripts/check-phase-l.py
-python3 -I scripts/check-phase-l-graph.py
-python3 -I scripts/check-phase-execution.py
-python3 -I scripts/check-tlc-final.py
-python3 -I scripts/check-state-if-planning.py
-python3 -I scripts/check-predecessor-spill.py
-python3 -I scripts/check-native-checkpoint.py
-python3 -I scripts/check-view-normalization.py
-python3 -I scripts/check-view-random-stream.py
-python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
-python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
-
-python3 -I scripts/check-trace-representation.py
-python3 -I scripts/check-fallible-seen-store.py
-python3 -I scripts/check-fallible-seen-engine.py
-python3 -I scripts/test-fallible-seen-git-proof.py
-python3 -I scripts/check-disk-safety-roles.py
-python3 -I scripts/test-disk-safety-role-proof.py
-python3 -I scripts/check-native-parity-integration.py
-python3 -I scripts/check-tlc-final-safety.py
-python3 -I scripts/check-tlc-state-if.py
-python3 -I scripts/check-tlc-temporal-if.py
-python3 -I scripts/check-tlc-temporal-if-final.py
-python3 -I scripts/check-tlc-final-scopes.py
-python3 -I scripts/check-tlc-property-origins.py
-python3 -I scripts/check-material-capture.py
-python3 -I scripts/check-temporal-operators.py
-python3 -I scripts/check-native-temporal-operators.py
-python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
-python3 -I scripts/check-stored-successor-material.py
-python3 -I scripts/check-stored-successor-census.py
-python3 -I scripts/check-native-sequence-operators.py
-python3 -I scripts/check-tlc-partial-scc.py
-python3 -I scripts/check-periodic-backend.py
-python3 -I scripts/check-periodic-lifecycle.py
-python3 -I scripts/check-periodic-hook.py
-python3 -I scripts/check-periodic-snapshot.py
-python3 -I scripts/check-progress-queue.py
-python3 -I scripts/check-committed-prefix.py
-
-python3 -I scripts/check-test-partitions.py
-python3 -I scripts/test-workspace-gate.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
-cargo nextest run --workspace --locked          # or: cargo test --workspace
+cargo nextest run --workspace --locked --profile ci   # excludes slow tests
 cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked
 cargo xtask check-layering
 cargo build -p dive-trace --locked              # standalone: no feature unification
-cargo deny --locked check
+cargo deny --locked check                       # only when Cargo.lock or deny.toml changed
 ```
 
-The workspace CI job isolates completed Clippy outputs from test-inventory
-builds and records runner resource measurements. Keep every original gate
-command and test. If a workflow uses inline Python, a local command inventory
-must execute its exact hashed stdin body against an owned temporary fixture;
-a heredoc header alone is not an executed check. See
-[`docs/ci-build-resources.md`](docs/ci-build-resources.md).
+The `ci` nextest profile (`.config/nextest.toml`) leaves out slow,
+evidence-oriented and multi-worker matrix tests; everything it excludes still
+runs in the full gate. The `Conformance gate` job checks the eight models of
+`conformance/gates/smoke.txt` at 1 and 4 workers.
+
+**Full gate.** `cargo xtask gate --full` runs the fast gate with the whole
+nextest suite, then `scripts/conformance-gate.sh` over `conformance/gates/cm1.txt`
+and the validation-smoke corpus at 1, 4 and 8 workers, then the small corpus
+tier through the harness (`--skip-corpus` leaves that out). It writes
+`target/gate-report.md`. Run it before opening any PR that touches
+`dive-eval`, `dive-check`, `dive-value`, `dive-store`, `dive-liveness`,
+`dive-model` or `dive-trace`, and paste the report into the PR body. On a
+shared machine, set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
 **Testing tiers** (charter §Engineering practice):
-- *Fast:* the gate above. It runs on every push and PR.
-- *Standard:* `.github/workflows/conformance.yml` runs nightly and on manual
-  dispatch, over the small-model corpus. Its PR-gating subset is
-  `conformance/gates/cm1.txt`, run by the required `Conformance gate` job
-  (`scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8`).
-  The same job checks all 16 generated ValidationTestSuite smoke models at
-  those widths (`DIVE_GATE_CORPUS=validation-smoke` and
-  `conformance/gates/validation-smoke.txt`). Every model must fully agree.
-- *Deep:* the same workflow with `tier=deep`, run on manual dispatch and before
+- *Fast:* CI's `Workspace gate` and `Conformance gate`, on every PR and push to
+  `main` (`cargo xtask gate --fast` locally).
+- *Standard:* `cargo xtask gate --full`, run locally before checker PRs as
+  above. Every gate model must fully agree. `.github/workflows/conformance.yml`
+  runs the same small tier, plus the TLC self-checks, on manual dispatch.
+- *Deep:* `conformance.yml` with `tier=deep`, on manual dispatch and before
   releases. Its separate frontend job runs deterministic syntax/layout/semantic
   mutations and both SANY-case directories through the pinned oracle. See
   `docs/frontend-campaign.md`; preserve the complete selection and raw reports.

@@ -1,7 +1,81 @@
 [profile.default]
 fail-fast = false
 
+# CI's `Workspace gate` (`cargo xtask gate --fast`). It leaves out the slow,
+# evidence-oriented and multi-worker matrix tests, which `cargo xtask gate
+# --full` (default profile) still runs. Selected from per-test durations of
+# main CI run 38214486988 (1768 tests, 8385 test-seconds) and PR #243's runs:
+# the selection keeps about 1230 tests and 400 test-seconds (about three
+# minutes on the 2-vCPU hosted runner), and tests of every crate. The last
+# eleven exclusions are evidence source guards: they run scripts/check-*.py,
+# which pin hashes of repository files, some of them .github/workflows/ci.yml.
+# To run the excluded tests on their own:
+#   cargo nextest run --workspace --profile ci --ignore-default-filter
 [profile.ci]
 fail-fast = false
 failure-output = "immediate-final"
 slow-timeout = { period = "60s", terminate-after = 3 }
+default-filter = """
+not (
+    binary_id(dive-api::native_checkpoint_spill)
+    | binary_id(dive-api::native_checkpoint_runtime_names)
+    | binary_id(dive-api::native_checkpoint_keys)
+    | binary_id(dive-api::view_normalization)
+    | binary_id(dive-api::storage_tuple_function)
+    | binary_id(dive-liveness::periodic_snapshot)
+    | binary_id(dive-api::process_procedure_checksum)
+    | binary_id(dive-api::recursive_procedure_checksum)
+    | binary_id(dive-api::acyclic_procedure_checksum)
+    | binary_id(dive-api::nested_procedure_checksum)
+    | binary_id(dive-api::multiline)
+    | binary_id(dive-api::material_capture)
+    | binary_id(dive-check::disk_roles)
+    | binary_id(dive-check::view_random_stream)
+    | binary_id(dive-liveness::tlc_scc)
+    | (binary_id(dive-check::invariance) & test(=probes_are_invariant))
+    | (binary_id(dive-check::capture) & test(=tiny_bounds_choose_the_inline_prefix_at_every_width))
+    | (binary_id(dive-check::symmetry) & test(=pure_symmetry_probes_match_in_both_stores_at_every_worker_width))
+    | (binary_id(dive-check::frontier_spill) & test(=tiny_spill_matches_memory_across_events_profiles_stores_and_widths))
+    | (binary_id(dive-store::properties) & test(=chaos_runs_at_eight_threads_are_identical))
+    | (binary_id(dive-liveness::phase_graph) & test(=every_selected_pinned_graph_projection_is_accounted_for_at_all_widths))
+    | (binary_id(dive-check::dfid) & test(=seeded_reference_matrix))
+    | (binary_id(dive-check::view_normalization) & test(=compound_and_approved_canonical_view_controls_keep_concrete_counts))
+    | (binary_id(dive-api::configured_random) & (
+        test(=property_bearing_final_routes_do_not_return_configured_rng_false_verdicts)
+        | test(=configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports)
+    ))
+    | (binary_id(dive-api::native_checkpoint) & test(/^frontier_recovery_/))
+    | (binary_id(dive-check::native_checkpoint) & (
+        test(=actual_resume_matches_uninterrupted_and_tlc_reset_is_explicit)
+        | test(/^native_counter_prefix_/)
+        | test(=recovery_can_change_pool_width_and_resume_an_actual_later_level)
+        | test(=coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt)
+        | test(=concrete_compound_model_values_and_name_prefixes_restore_losslessly)
+    ))
+    | (binary_id(dive-api::predecessor_spill) & test(=zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos))
+    | (binary_id(dive-check::capture) & test(=mid_wave_safety_stops_preserve_ordered_prints_counts_and_predecessors))
+    | (binary_id(dive-check::checkpoint_runtime_names) & test(=corrupt_name_tables_refuse_without_continuation_or_a_witness))
+    | (binary_id(dive-check::fingerprints) & (
+        test(=compat_and_exact_agree_on_mc_write_through_cache)
+        | test(=default_profile_finds_every_state_of_mc_write_through_cache)
+    ))
+    | (binary_id(dive-check::dfid) & test(=resource_sweep_keeps_partial_evidence_and_no_false_completion))
+    | (binary_id(dive-check::checkpoint_keys) & (
+        test(=configured_view_key_failure_is_import_failure_not_a_model_verdict)
+        | test(=native_override_authority_and_substitutions_preserve_pre_effect_refusals)
+    ))
+    | (binary_id(dive-check::invariance) & test(=wide_levels_stop_identically_at_every_worker_count))
+    | (binary_id(dive-store::state_fingerprint) & test(=fingerprint_and_exact_membership_agree_on_a_large_sample))
+    | (binary_id(dive-api::temporal_forwarding) & test(=fixture_integrity_and_complete_historical_census_are_verified))
+    | (binary_id(dive-api::tlc_final_scopes) & test(=complete_scope_capture_source_guard))
+    | (binary_id(dive-api::tlc_property_origins) & test(=complete_primary_native_origins_and_source_history_are_verified))
+    | (binary_id(dive-api::tlc_temporal_if) & test(=complete_current_source_raw_and_user_example_guard))
+    | (binary_id(dive-liveness::phase_execution) & test(=every_raw_execution_and_before_source_observation_is_hash_verified))
+    | (binary_id(dive-liveness::phase_graph) & test(=raw_graph_selection_hashes_and_all_before_observations_are_preserved))
+    | (binary_id(dive-liveness::phase_l) & test(=phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified))
+    | (binary_id(dive-liveness::tlc_final) & test(=complete_selection_and_source_histories_are_verified))
+    | (binary_id(dive-liveness::tlc_planning) & test(=complete_selection_raw_hashes_and_source_matrix_are_verified))
+    | (binary_id(dive-liveness::tlc_tableau) & test(=complete_raw_source_selection_hashes_are_verified))
+    | (binary_id(dive-liveness::tlc_temporal_if) & test(=complete_raw_capture_history_and_source_guard))
+)
+"""
