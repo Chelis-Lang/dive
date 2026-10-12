@@ -91,140 +91,6 @@ fn retained_operator_formals_match_independent_words_and_closing_edges() {
     }
 }
 
-fn number(raw: &str, before: &str, after: &str) -> u64 {
-    raw.split(before)
-        .nth(1)
-        .expect("before")
-        .split(after)
-        .next()
-        .expect("after")
-        .parse()
-        .expect("number")
-}
-#[test]
-#[allow(
-    clippy::too_many_lines,
-    reason = "complete paired selection and fresh independent mutants"
-)]
-fn clean_paired_primary_models_have_final_outcomes_with_fresh_validation() {
-    use dive_api::tlc_temporal::Outcome;
-    use dive_trace::{Ending, Validation};
-    let base =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/temporal-operators");
-    let main: serde_json::Value =
-        serde_json::from_slice(&std::fs::read(base.join("selection.json")).expect("selection"))
-            .expect("json");
-    let instance: serde_json::Value = serde_json::from_slice(
-        &std::fs::read(base.join("selection-instance.json")).expect("selection"),
-    )
-    .expect("json");
-    let mut outcomes = 0;
-    for case in main
-        .as_array()
-        .expect("cases")
-        .iter()
-        .chain(instance.as_array().expect("instance"))
-    {
-        let name = case["name"].as_str().expect("name");
-        let path = base.join("models").join(name).join(format!("{name}.tla"));
-        let a = dive_sema::analyze_file(&path, &dive_sema::Options::default()).expect("analysis");
-        assert!(a.accepted(), "{name}");
-        let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\n")
-            .into_config()
-            .expect("cfg");
-        let raw =
-            std::fs::read_to_string(base.join("tlc").join(format!("{name}.txt"))).expect("raw pin");
-        let stats = raw
-            .split("@!@!@STARTMSG 2199:0 @!@!@\n")
-            .nth(1)
-            .expect("stats");
-        for workers in [1, 3, 4, 8] {
-            outcomes += 1;
-            let options = dive_check::CheckOptions {
-                workers,
-                ..dive_check::CheckOptions::tlc(0, 0)
-            };
-            let result = dive_api::tlc_temporal::check_final(
-                &ir,
-                &cfg,
-                &options,
-                dive_liveness::phase_graph::Limits::default(),
-            );
-            if name.contains("Effect") {
-                let refusal = result.expect_err("effect before host");
-                assert_eq!(refusal.workers.as_ref().expect("workers").used, 0);
-                assert!(refusal.evidence.is_none());
-                continue;
-            }
-            let report = result.expect(name);
-            let (capture, violation) = match report.outcome() {
-                Outcome::Holds(e) => (&e.execution.capture, None),
-                Outcome::Violation(v) => (&v.candidate().evidence.execution.capture, Some(v)),
-                Outcome::Safety(e) => {
-                    assert!(matches!(e.result().verdict, dive_check::Verdict::Success));
-                    continue;
-                }
-            };
-            assert_eq!(
-                capture.stats.generated,
-                number(stats, "", " states generated"),
-                "{name}"
-            );
-            assert_eq!(
-                capture.stats.distinct,
-                number(stats, "states generated, ", " distinct"),
-                "{name}"
-            );
-            assert_eq!(
-                capture.stats.depth,
-                number(
-                    &raw,
-                    "The depth of the complete state graph search is ",
-                    "."
-                ),
-                "{name}"
-            );
-            assert_eq!(capture.workers.used, workers);
-            if name.ends_with("Holds") || name.contains("Constant") {
-                assert!(violation.is_none(), "{name}");
-                continue;
-            }
-            let v = violation.expect("actual primary13 word");
-            assert_eq!(v.validation().validation, Validation::Valid);
-            assert_eq!(v.document().properties, vec!["Live"]);
-            let fresh =
-                dive_model::bind(ir.clone(), &cfg, &BindOptions::tlc()).expect("fresh authority");
-            let check = |doc: &dive_trace::TraceDoc| {
-                dive_trace::validate_doc(&fresh, doc, &[], None)
-                    .0
-                    .validation
-            };
-            assert_eq!(check(v.document()), Validation::Valid);
-            let mut bad = v.document().clone();
-            bad.properties.clear();
-            assert_ne!(check(&bad), Validation::Valid);
-            let mut bad = v.document().clone();
-            bad.properties = vec!["Foreign".into()];
-            assert_ne!(check(&bad), Validation::Valid);
-            let mut bad = v.document().clone();
-            bad.states[0] =
-                serde_json::from_value(serde_json::json!({"x":99})).expect("initial mutant");
-            assert_ne!(check(&bad), Validation::Valid);
-            let mut bad = v.document().clone();
-            bad.states
-                .push(serde_json::from_value(serde_json::json!({"x":99})).expect("closing mutant"));
-            assert_ne!(check(&bad), Validation::Valid);
-            let mut bad = v.document().clone();
-            bad.ending = Some(Ending::Lasso {
-                back_to: usize::MAX,
-            });
-            assert_ne!(check(&bad), Validation::Valid);
-        }
-    }
-    assert_eq!(outcomes, 72);
-}
-
 #[test]
 fn unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity() {
     let source = r"---- MODULE NegativeOperators ----
@@ -543,21 +409,6 @@ Live==Unused(Evil)
         assert!(dive_trace::temporal::evaluate_lasso(&model, &pred, &states, 0).is_err());
         assert_eq!(model.evaluator.take_output(), Vec::<String>::new());
     }
-    let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\n")
-        .into_config()
-        .expect("cfg");
-    let refusal = dive_api::tlc_temporal::check_final(
-        &ir,
-        &cfg,
-        &dive_check::CheckOptions {
-            workers: 4,
-            ..dive_check::CheckOptions::tlc(0, 0)
-        },
-        dive_liveness::phase_graph::Limits::default(),
-    )
-    .expect_err("native authority before binding");
-    assert_eq!(refusal.workers.expect("workers").used, 0);
-    assert!(refusal.evidence.is_none());
 }
 
 #[test]
@@ -579,17 +430,4 @@ fn actual_operator_planning_keeps_existing_work_and_formula_bounds() {
             .code(),
         "DIVE-L0021"
     );
-    let mut limits = dive_liveness::phase_graph::Limits::default();
-    limits.phase_l.formula.expansion_steps = 1;
-    let refusal = dive_api::tlc_temporal::check_final(
-        &ir,
-        &cfg,
-        &dive_check::CheckOptions {
-            workers: 4,
-            ..dive_check::CheckOptions::tlc(0, 0)
-        },
-        limits,
-    )
-    .expect_err("before pool");
-    assert_eq!(refusal.workers.expect("workers").used, 0);
 }

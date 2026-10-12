@@ -153,13 +153,9 @@ impl Binder<'_> {
         if self.cfg.rl_reward.is_some() {
             return Err(BindError::unsupported("_RL_REWARD"));
         }
-        if self.cfg.periodic.is_some() && self.periodic_snapshot == crate::periodic::Mode::Ordinary
-        {
-            return Err(BindError::unsupported("_PERIODIC"));
-        }
-        if !self.cfg.possible.is_empty()
-            && self.periodic_snapshot == crate::periodic::Mode::Ordinary
-        {
+        // A configured `_PERIODIC` is bound (and refused) after this pass,
+        // and its binding errors take precedence over the `_POSSIBLE` refusal.
+        if !self.cfg.possible.is_empty() && self.cfg.periodic.is_none() {
             return Err(BindError::unsupported("_POSSIBLE"));
         }
         Ok(())

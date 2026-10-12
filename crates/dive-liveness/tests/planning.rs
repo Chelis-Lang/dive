@@ -194,7 +194,6 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
         ("Effect", "effects"),
         ("Read", "TLCGet"),
         ("Higher", "recursive"),
-        ("Bad", "not boolean"),
     ] {
         let error = lower(&model, &pred(&model, name), Limits::default()).expect_err(name);
         assert_eq!(error.code(), "DIVE-L0020");
@@ -211,6 +210,22 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
             "planning printed for {name}"
         );
     }
+    let error = lower(&model, &pred(&model, "Bad"), Limits::default()).expect_err("Bad");
+    assert_eq!(error.code(), "DIVE-L0023");
+    let dive_liveness::plan::PlanningError::Evaluation { error, source } = error else {
+        panic!("expected TLC evaluation error for a numeric temporal operand")
+    };
+    assert_eq!(error.class(), dive_eval::ErrorClass::Eval);
+    assert_eq!(error.ec(), dive_eval::Ec::ExpectedValue);
+    assert_eq!(error.ec().code(), 2215);
+    assert!(source.origin.begin.0 > 0);
+    assert_eq!(error.origin(), Some(source.expr));
+    assert_eq!(source.location, model.evaluator.location(source.expr));
+    assert_eq!(
+        error.message(),
+        "TLC expected a boolean value, but did not find one.\n1"
+    );
+    assert!(model.take_output().is_empty(), "planning printed for Bad");
     assert!(
         lower(
             &model,

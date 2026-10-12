@@ -84,7 +84,7 @@ impl Report {
     }
 }
 
-/// An explicit refusal, resource bound or internal inconsistency. No error
+/// An explicit refusal, evaluation error, resource bound or internal inconsistency. No error
 /// variant is evidence of a successful model check.
 #[derive(Clone, Debug)]
 pub enum Error {

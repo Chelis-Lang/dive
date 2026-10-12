@@ -690,7 +690,7 @@ valid: the 7-state trace validates
 
 ## D-013: A deterministic short liveness counterexample
 
-**Status:** planned, owner-approved default. `--lasso=short` chooses a shortest prefix and a deterministic short cycle. It does not promise the globally shortest lasso. `--lasso=tlc`, included in `--compat=tlc`, reproduces TLC's selection.
+**Status:** partial, owner-approved default. `--lasso=short` chooses a shortest prefix and a deterministic short cycle. It does not promise the globally shortest lasso. Under `--compat=tlc` dive also reports a short lasso that the independent validator accepts. TLC's exact choice is not a parity obligation (ADR 0082, ADR 0086), so the planned `--lasso=tlc` mode was withdrawn on 2026-10-12 and its emulation code removed; `--lasso tlc` is now a usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify` reproduces TLC's two liveness formula refusals (errors 2213 and 2214).
 
 **Library progress.** The bounded final-only coordinator now handles pure
 predicates and WF/SF via scoped enabledness and non-stuttering actions. Ten
@@ -975,7 +975,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
-  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture, while explicit schema-2 final-only pinned selection now has a separate API/CLI/harness contract; ordinary schedules and wider recovery remain refused;
+  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture; ordinary schedules and wider recovery remain refused;
   - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
@@ -984,11 +984,12 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - draws of the random operators without the run's `-seed` and `-fp`. With them, draws in `Init` and the next-state relation are replayed from the run's streams. Still refused: a draw in an invariant, constraint, property or label, any draw under a `VIEW` or `SYMMETRY`, an `ASSUME` that draws and fails on a fresh start-up stream, and a step that holds only with its draws taken further into the stream than a predicate reaches them (the successor generator drew for other successors first, ADR 0016 amendment 2).
 
   A step label that names an operator with parameters is noted and not checked.
+- **TLC's exact liveness counterexample.** TLC picks its lasso through hash-table and SCC visitation order, which depends on the fingerprint polynomial. dive reports a deterministic short lasso that the independent validator accepts, with the same verdict, counts and violated property. `--lasso tlc` is refused as a usage error (D-013).
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 - **Binding refusals** (`dive-model`). Binding a specification to its configuration refuses, naming the feature:
   - a constant operator given values in the `.cfg` (`F(1) = 2`), which TLC holds as a table of values (`OpRcdValue`);
   - a Java class next to a module (`Bits.class` next to `Bits.tla`): TLC loads it and uses its methods instead of the module's definitions, and dive cannot run Java;
-  - TLC's undocumented `_PERIODIC`, `_RL_REWARD` and `_POSSIBLE` sections;
+  - TLC's undocumented `_PERIODIC`, `_RL_REWARD` and `_POSSIBLE` sections. A `_PERIODIC` entry is bound first, with TLC's errors for an undefined name (2229) or an operator with parameters (2228), and then refused: dive does not run the hook on TLC's wall-clock timer (D-014);
   - a definition TLC evaluates at start-up that dive's evaluator refuses, when the result decides how the model is bound (it is named in the configuration, it is a conjunct of the behavior specification, or it prints or draws), or when the refused construct splits the next-state relation;
   - the few messages whose text depends on Java objects dive does not have (a Java override used as a configuration name, a state variable used as a conjunct of `SPECIFICATION`).
 
@@ -1808,7 +1809,7 @@ Standard-module classification does not bypass this admission. Explicit sequenti
 requests/fallback execution remain refused until their observer path is certified.
 
 
-**Explicit final/TLC integration update:** `dive check --compat=tlc --lncheck final
+**Explicit final/TLC integration update (withdrawn 2026-10-12: the `--lasso tlc` mode, the `dive_api::tlc_temporal` API and the `dive-final-tlc` harness mode were removed with the rest of the TLC-internal liveness emulation):** `dive check --compat=tlc --lncheck final
 --lasso tlc` now exposes the independently certified bounded final-only path.
 Actual counts/worker/stage metadata and original property identities are retained,
 including TLC's stuttering marker. This does not enable periodic checking or lift

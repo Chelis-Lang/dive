@@ -134,7 +134,7 @@ None is implemented.
 
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |
 |---|---|---|---|---|
-| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; bounded ordered parallel capture with 1/4/8/chaos controls; explicit bounded final-only pinned selection now exposed through schema-2 API/CLI with fresh independent replay; ordinary periodic and remaining recovery/error boundaries stay refused. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
+| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | none: TLC's exact lasso is not a parity obligation (ADR 0082); `--compat=tlc` keeps the short validated lasso. `--lasso=tlc` was withdrawn on 2026-10-12 and its emulation removed | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; bounded ordered parallel capture with 1/4/8/chaos controls; ordinary periodic and remaining recovery/error boundaries stay refused. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
 | D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | ordinary schedule remains planned; separate periodic callback kernel implemented with296 pinned-method controls, no clock/graph/checkpoint or ordinary-verdict certification; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
 | D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | bounded checked/TLC closure and pure safety reduction implemented; default non-bijections refuse before search, compat reproduces SyNonBiject; staged startup warnings match source-backed probes; liveness/randomness and unverified declaration/value shapes still refused (ADR 0019) |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
@@ -429,7 +429,7 @@ liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
 remain partial/audit-required, F-023 missing and #140 open. Previous complete
 studies keep their original outcomes and receive no new corpus verdict credit.
 
-### D-013 historical library increment: pinned final-only SCC and witness selection
+### D-013 historical library increment: pinned final-only SCC and witness selection (removed 2026-10-12)
 
 This section preserves the first library producer and its selected controls.
 The later CLI exposure does not retroactively change that receipt.
@@ -462,7 +462,7 @@ Standard-module classification does not bypass this admission. Explicit sequenti
 requests/fallback execution remain refused until their observer path is certified.
 
 
-**Explicit final/TLC integration update:** `dive check --compat=tlc --lncheck final
+**Explicit final/TLC integration update (withdrawn 2026-10-12: the `--lasso tlc` mode, the `dive_api::tlc_temporal` API and the `dive-final-tlc` harness mode were removed with the rest of the TLC-internal liveness emulation):** `dive check --compat=tlc --lncheck final
 --lasso tlc` now exposes the independently certified bounded final-only path.
 Actual counts/worker/stage metadata and original property identities are retained,
 including TLC's stuttering marker. This does not enable periodic checking or lift

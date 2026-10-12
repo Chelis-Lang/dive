@@ -98,10 +98,8 @@ fn property_bearing_final_routes_do_not_return_configured_rng_false_verdicts() {
         for inv in ["x # 74", "x # 80"] {
             std::fs::write(&file,format!("---- MODULE ConfiguredFinal ----\nEXTENDS Naturals,TLC\nCONSTANT C(_)\nVARIABLES n,x\nInit == n=0 /\\ x=0\nNext == n<3 /\\ n'=n+1 /\\ x'=C(1..100)\nInv == {inv}\nLive == {live}\n====\n")).expect("source");
             std::fs::write(dir.join("ConfiguredFinal.cfg"),"INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\nCONSTANT C <- RandomElement\nPROPERTY Live\n").expect("cfg");
-            for temporal in [
-                dive_api::TemporalMode::FinalShort,
-                dive_api::TemporalMode::FinalTlc,
-            ] {
+            {
+                let temporal = dive_api::TemporalMode::FinalShort;
                 for compat in [false, true] {
                     for store in [Store::Fingerprint, Store::Exact] {
                         for width in [1, 4, 8] {

@@ -131,23 +131,29 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
 
 /// The verdict for an error of the binding stage.
 pub(crate) fn model_error(e: &BindError) -> Verdict {
-    match &e.kind {
-        ErrorKind::Tlc(ec) => Verdict::ModelError {
-            code: ec.code(),
-            name: ec.name().to_owned(),
-            message: e.message.clone(),
-        },
-        ErrorKind::Eval { code } => Verdict::ModelError {
-            code: *code,
-            name: eval_code_name(*code).to_owned(),
-            message: e.message.clone(),
-        },
-        ErrorKind::Unsupported { feature } => Verdict::Unsupported {
-            feature: feature.clone(),
-        },
-        ErrorKind::Bug => Verdict::InternalError {
-            message: e.message.clone(),
-        },
+    Verdict::from(e)
+}
+
+impl From<&BindError> for Verdict {
+    fn from(e: &BindError) -> Self {
+        match &e.kind {
+            ErrorKind::Tlc(ec) => Verdict::ModelError {
+                code: ec.code(),
+                name: ec.name().to_owned(),
+                message: e.message.clone(),
+            },
+            ErrorKind::Eval { code } => Verdict::ModelError {
+                code: *code,
+                name: eval_code_name(*code).to_owned(),
+                message: e.message.clone(),
+            },
+            ErrorKind::Unsupported { feature } => Verdict::Unsupported {
+                feature: feature.clone(),
+            },
+            ErrorKind::Bug => Verdict::InternalError {
+                message: e.message.clone(),
+            },
+        }
     }
 }
 

@@ -13,7 +13,7 @@ TLC coverage.
 | Structural comparisons | Approved TLA+ comparisons | TLC's comparison/error behavior |
 | Safety workers | Automatic parallel width | One by default; an explicit width is reported |
 | Fingerprints | Native combination | TLC polynomial scheme, selectable with `--fp` |
-| Explicit bounded final temporal mode | Deterministic short selection | Pinned TLC selection with `--lncheck final --lasso tlc`; source/effect/size refusals remain |
+| Explicit bounded final temporal mode | Deterministic short selection | Same short selection, labeled `tlc+overrides`; TLC's exact lasso is not reproduced (`--lasso tlc` is a usage error) |
 | Ordinary periodic temporal scheduling | Pending | Pending; final mode does not implement periodic scheduling |
 
 Named opt-ins can produce `tlc+overrides`. For example, final/short temporal
@@ -35,10 +35,8 @@ implementation status. Planned rows there are not implemented CLI switches.
 The gating reference is the [single pinned oracle bundle](../decisions/0002-oracle-pinning.md),
 not every historical TLC release.
 
-Explicit `--lncheck final --lasso tlc` selects the bounded final-only schema-2
-TLC mode; ordinary `--compat=tlc` temporal scheduling remains refused. The
-separate `dive-final-tlc` harness requires a clean final-schedule golden and
-fresh independent witness replay. It preserves configured property identities
-and checks that scalar/array names, state rows and ending markers agree with
-the actual replay document. See the final TLC API/CLI contract; the first unchanged
-full small selection has 140 named refusals and no general corpus credit.
+`--lncheck final --lasso short` under `--compat=tlc` checks temporal properties
+with TLC's value semantics and a short, independently validated lasso. TLC's
+exact lasso choice is not a parity obligation (ADR 0082), so the former
+`--lasso tlc` mode and its `dive-final-tlc` harness mode were removed on
+2026-10-12. Ordinary `--compat=tlc` temporal scheduling remains refused.

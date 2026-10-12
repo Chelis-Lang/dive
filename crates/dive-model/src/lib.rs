@@ -95,10 +95,6 @@ pub use admission::admit_pure_safety_roles;
 pub use bind::BindOptions;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
-pub use periodic::{
-    OptionalPeriodicSnapshot, PeriodicSnapshot, bind_optional_periodic_snapshot,
-    bind_periodic_snapshot,
-};
 
 /// The modules TLC's `-dumpTrace json <file>` loads in addition to the
 /// specification's own (`TLC.java` adds the `_JsonTrace` post-condition, and
@@ -117,7 +113,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None, periodic::Mode::Ordinary).map(|(model, _)| model)
+    bind_in(ir, cfg, opts, None)
 }
 
 /// Binds a trusted native recovered ordered name table before evaluating constants.
@@ -133,7 +129,7 @@ pub fn bind_with_names(
     opts: &BindOptions,
     restored: &[String],
 ) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored), periodic::Mode::Ordinary).map(|(model, _)| model)
+    bind_in(ir, cfg, opts, Some(restored))
 }
 
 fn bind_in(
@@ -141,8 +137,7 @@ fn bind_in(
     cfg: &ModelConfig,
     opts: &BindOptions,
     restored: Option<&[String]>,
-    periodic_snapshot: periodic::Mode,
-) -> Result<(Model, Option<periodic::Role>), Box<Failure>> {
+) -> Result<Model, Box<Failure>> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
             error: BindError::unsupported(error.to_string()),
@@ -211,7 +206,6 @@ fn bind_in(
             output: Vec::new(),
         })
     })?;
-    b.periodic_snapshot = periodic_snapshot;
     let result = run(&mut b);
     b.drain_prints();
     match result {
@@ -223,7 +217,7 @@ fn bind_in(
     }
 }
 
-fn run(b: &mut bind::Binder<'_>) -> Result<(Model, Option<periodic::Role>), BindError> {
+fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
     b.process_spec()?;
     // SpecProcessor snapshots defns immediately after processSpec, before
     // constant definitions replace their entries with values.
@@ -242,15 +236,10 @@ fn run(b: &mut bind::Binder<'_>) -> Result<(Model, Option<periodic::Role>), Bind
     b.build_evaluator()?;
     b.process_constant_defns()?;
     b.process_config()?;
-    let periodic = if b.periodic_snapshot == periodic::Mode::Required
-        || (b.periodic_snapshot == periodic::Mode::Optional && b.cfg.periodic.is_some())
-    {
-        Some(periodic::resolve(b, periodic_definition.as_ref())?)
-    } else {
-        None
-    };
-    if b.periodic_snapshot != periodic::Mode::Ordinary && !b.cfg.possible.is_empty() {
-        return Err(BindError::unsupported("_POSSIBLE"));
+    if let Some(name) = &b.cfg.periodic {
+        // Bound with TLC's errors, then refused: dive does not run the hook.
+        periodic::resolve(b, &name.text, periodic_definition.as_ref())?;
+        return Err(BindError::unsupported("_PERIODIC"));
     }
     let view = b.process_view()?;
     #[cfg(feature = "enumerate")]
@@ -305,5 +294,5 @@ fn run(b: &mut bind::Binder<'_>) -> Result<(Model, Option<periodic::Role>), Bind
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;
-    Ok((model, periodic))
+    Ok(model)
 }

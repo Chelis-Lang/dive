@@ -8,8 +8,10 @@
 //! and scopes and expands WF/SF with checker-side enabledness. The bounded
 //! final-only [`analyze::analyze_final`] coordinator captures model graphs and
 //! finds candidates with their complete attributed property set. Independent
-//! validation is required. TLC-exact planning/selection, parallel graph capture,
-//! periodic scheduling and CLI verdict integration remain pending.
+//! validation is required. Periodic checking at deterministic level boundaries
+//! ([`periodic_backend`]) is pending. [`tlc_plan::classify`] reproduces TLC's
+//! liveness formula refusals for `--compat=tlc`; dive does not emulate TLC's
+//! tableau numbering or SCC and lasso choice.
 #![forbid(unsafe_code)]
 
 mod graph;
@@ -25,42 +27,8 @@ pub mod product;
 
 pub mod analyze;
 
-/// Bounded projections of TLC normalization and ordered liveness grouping.
+/// TLC's 2213/2214 liveness formula refusals, for `--compat=tlc`.
 pub mod tlc_plan;
 
-/// Bounded pinned TLC particle-tableau and promise projections.
-pub mod tlc_tableau;
-
-/// Bounded concrete successor receipts and ordered diagnostic phase-L checks.
-pub mod phase_l;
-
-/// Bounded concrete worker capture and actual null-tableau graph commits.
-pub mod phase_graph;
-
-/// Actual ordered safety/source callbacks and multiple OOS/tableau graph execution.
-pub mod phase_execution;
-
-/// Bounded pinned final SCC visitation over supplied product labels.
-pub mod tlc_scc;
-/// Pinned bounded product witness selection; no concrete validation claim.
-pub mod tlc_witness;
-
-/// Constructed-model final-only pinned SCC/lasso analysis; candidates require validation.
-pub mod tlc_final;
-
-/// Pinned periodic controller callback order; no ordinary backend proof claim.
-pub mod periodic;
-
-/// Source-owned pointer growth and explicit partial-check stopping receipts.
+/// Growth-gated scheduling for checks over a growing graph.
 pub mod periodic_backend;
-
-/// Bounded supplied pure expressions; configured hook binding remains separate.
-pub mod periodic_hook;
-/// Native producer-owned commit-boundary clock/pool diagnostics.
-pub mod periodic_lifecycle;
-pub mod periodic_service;
-pub mod periodic_snapshot;
-
-pub mod periodic_stopped;
-/// Source-owned exhausted-queue controller transaction before joins.
-pub mod periodic_terminal;

@@ -1,102 +1,19 @@
-//! Bounded `Liveness.processLiveness` normalization and grouping projections.
+//! TLC's liveness formula classifier, for `--compat=tlc`.
 //!
-//! This module does not construct TLC tableaux, execute graph checks, select
-//! witnesses, or certify a model. Input formulas must already contain the
-//! caller's pure, correctly bound predicates and expanded fairness. Predicate
-//! visits get fresh tags before rewriting. Repeated visits to one supplied arena
-//! node retain the last tag at every reference, matching TLC object sharing;
-//! separately constructed truth-equivalent predicates are never merged. The existing independent word interpreter can evaluate
-//! every intermediate stage using the retained occurrence-to-input mapping.
+//! TLC's `Liveness.processLiveness` negates the configured properties,
+//! conjoins them with fairness, pushes negation inward, simplifies and
+//! converts to disjunctive normal form. It then refuses two shapes that dive's
+//! general tableau checks without trouble:
+//!
+//! - an action-level predicate inside a temporal formula outside the
+//!   `[]<>A` and `<>[]A` forms (TLC error 2214), and
+//! - a DNF whose branch count overflows a Java `int` (TLC error 2213).
+//!
+//! [`classify`](crate::tlc_plan::classify) reproduces only that verdict. It builds no tableau and
+//! keeps no TLC grouping, tagging or ordering: dive checks liveness with
+//! [`crate::formula::compile`] and [`crate::product`].
 
-use crate::formula::{Atom, AtomKind, Formula, FormulaError, Limits, Node};
-use std::collections::BTreeMap;
-
-/// A supplied temporal formula and the identity of its input table.
-#[derive(Clone, Copy, Debug)]
-pub struct Property<'a> {
-    /// Supplied name, retained without attributing DNF branches. Model role
-    /// labels and original configured identities are separate tables.
-    pub name: &'a str,
-    /// Pure bound formula, prior to negation.
-    pub formula: &'a Formula,
-}
-
-/// An occurrence tag mapped back to a caller's original atom.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Occurrence {
-    /// Input index: fairness first, followed by configured properties.
-    pub input: usize,
-    /// Original atom index and state/action domain in that input.
-    pub atom: Atom,
-}
-
-/// Ordered index arrays into one order-of-solution's predicate bins.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PossibleErrorModel {
-    /// `[]<>action`, in branch encounter order.
-    pub ae_action: Vec<usize>,
-    /// `[]<>state`, in branch encounter order.
-    pub ae_state: Vec<usize>,
-    /// `<>[]predicate` (state or action), in branch encounter order.
-    pub ea_action: Vec<usize>,
-}
-
-/// TLC's first-encounter grouping, before binary/tableau construction.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct OrderOfSolution {
-    /// Other, action-free temporal conjuncts in syntax order. Empty means
-    /// TLC's null temporal formula; one entry is a singleton, multiple entries
-    /// denote an ordered conjunction. Tableau identities remain unimplemented.
-    pub temporal: Vec<usize>,
-    /// Ordered unique state checks; indices reference the projection arena.
-    pub check_state: Vec<usize>,
-    /// Ordered unique action checks; indices reference the projection arena.
-    pub check_action: Vec<usize>,
-    /// Branches in their original DNF encounter order.
-    pub pems: Vec<PossibleErrorModel>,
-}
-
-/// Auditable intermediate expressions and pre-tableau grouping.
-#[derive(Clone, Debug)]
-pub struct Projection {
-    arena: Vec<Node>,
-    /// Supplied temporal-input names in order, never inferred from DNF.
-    /// The model wrapper supplies role labels; original configured identities
-    /// are retained separately in [`BoundProjection::configured_properties`].
-    pub properties: Vec<String>,
-    /// Predicate occurrence mapping; arena atom indices index this table.
-    /// TLC's tag is the table index plus one. Repeated visits of one input
-    /// arena node leave earlier unused tag slots, as in TLC's mutable tag pass.
-    pub occurrences: Vec<Occurrence>,
-    /// Combined fairness AND negated properties, tagged before rewriting.
-    /// `None` means both input lists were empty.
-    pub tagged: Option<usize>,
-    /// Negations pushed to predicates and boolean constants.
-    pub pushed: Option<usize>,
-    /// Pinned LN simplification, without extra boolean/temporal identities.
-    pub simplified: Option<usize>,
-    /// Ordered DNF, including TLC's recurrence-disjunction collection.
-    pub dnf: Option<usize>,
-    /// Pre-tableau order-of-solution and possible-error-model projections.
-    pub orders: Vec<OrderOfSolution>,
-}
-
-impl Projection {
-    /// Checked arena in construction order. All projection indices refer here.
-    #[must_use]
-    pub fn nodes(&self) -> &[Node] {
-        &self.arena
-    }
-
-    /// Builds a checked formula rooted at an intermediate stage or bin entry.
-    /// Its atoms are occurrence tags, mapped through [`Self::occurrences`].
-    ///
-    /// # Errors
-    /// A root outside the retained arena.
-    pub fn formula(&self, root: usize) -> Result<Formula, FormulaError> {
-        Formula::new(self.arena.clone(), root)
-    }
-}
+use crate::formula::{AtomKind, Formula, FormulaError, Limits, Node};
 
 /// A normalization resource/reference failure or TLC's named formula refusal.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -146,12 +63,6 @@ impl std::error::Error for ProjectionError {}
 
 struct Build {
     nodes: Vec<Node>,
-    occurrences: Vec<Occurrence>,
-    // Each input arena node is one reference object. Repeated visits assign a
-    // fresh tag but replace every reference to that object with its final tag.
-    // Mapping entries/references are bounded by already charged input/import
-    // terms; this is not an aggregate metadata-byte budget.
-    shared_atoms: BTreeMap<(usize, usize), Vec<usize>>,
     terms: usize,
     steps: usize,
     limits: Limits,
@@ -222,51 +133,19 @@ impl Build {
         })
     }
 
-    fn import(
-        &mut self,
-        f: &Formula,
-        i: usize,
-        input: usize,
-        depth: usize,
-    ) -> Result<usize, FormulaError> {
+    fn import(&mut self, f: &Formula, i: usize, depth: usize) -> Result<usize, FormulaError> {
         self.step(depth)?;
         let node = match &f.nodes()[i] {
-            Node::Atom(a) => {
-                self.room(1)?;
-                let index = self.occurrences.len();
-                self.occurrences.push(Occurrence { input, atom: *a });
-                let key = (input, i);
-                let count = self.shared_atoms.get(&key).map_or(0, Vec::len);
-                for at in 0..count {
-                    self.step(depth)?;
-                    let reference = self
-                        .shared_atoms
-                        .get(&key)
-                        .and_then(|references| references.get(at))
-                        .copied()
-                        .ok_or(FormulaError::Reference("TLC shared predicate tag".into()))?;
-                    if let Node::Atom(previous) = &mut self.nodes[reference] {
-                        previous.index = index;
-                    }
-                }
-                self.shared_atoms
-                    .entry(key)
-                    .or_default()
-                    .push(self.nodes.len());
-                Node::Atom(Atom {
-                    kind: a.kind,
-                    index,
-                })
-            }
+            Node::Atom(a) => Node::Atom(*a),
             Node::Bool(b) => Node::Bool(*b),
-            Node::Not(c) => Node::Not(self.import(f, *c, input, depth + 1)?),
-            Node::Always(c) => Node::Always(self.import(f, *c, input, depth + 1)?),
-            Node::Eventually(c) => Node::Eventually(self.import(f, *c, input, depth + 1)?),
+            Node::Not(c) => Node::Not(self.import(f, *c, depth + 1)?),
+            Node::Always(c) => Node::Always(self.import(f, *c, depth + 1)?),
+            Node::Eventually(c) => Node::Eventually(self.import(f, *c, depth + 1)?),
             Node::And(cs) | Node::Or(cs) => {
                 self.room(cs.len().saturating_add(1))?;
                 let children = cs
                     .iter()
-                    .map(|c| self.import(f, *c, input, depth + 1))
+                    .map(|c| self.import(f, *c, depth + 1))
                     .collect::<Result<Vec<_>, _>>()?;
                 // Preserve constructor shape until pushNeg uses addConj/addDisj.
                 if matches!(f.nodes()[i], Node::And(_)) {
@@ -522,56 +401,17 @@ impl Build {
         }
     }
 
-    fn same(&mut self, a: usize, b: usize, depth: usize) -> Result<bool, FormulaError> {
-        self.step(depth)?;
-        if a == b {
-            return Ok(true);
-        }
-        match (self.nodes[a].clone(), self.nodes[b].clone()) {
-            (Node::Bool(a), Node::Bool(b)) => Ok(a == b),
-            (Node::Atom(a), Node::Atom(b)) => Ok(a == b),
-            (Node::Not(a), Node::Not(b))
-            | (Node::Always(a), Node::Always(b))
-            | (Node::Eventually(a), Node::Eventually(b)) => self.same(a, b, depth + 1),
-            (Node::And(a), Node::And(b)) | (Node::Or(a), Node::Or(b)) => {
-                self.same_list(&a, &b, depth + 1)
-            }
-            _ => Ok(false),
-        }
-    }
-    fn same_list(&mut self, a: &[usize], b: &[usize], depth: usize) -> Result<bool, FormulaError> {
-        self.step(depth)?;
-        if a.len() != b.len() {
-            return Ok(false);
-        }
-        for (&a, &b) in a.iter().zip(b) {
-            if !self.same(a, b, depth + 1)? {
-                return Ok(false);
-            }
-        }
-        Ok(true)
-    }
-    fn bin(&mut self, i: usize, bin: &mut Vec<usize>) -> Result<usize, FormulaError> {
-        for (index, &other) in bin.iter().enumerate() {
-            if self.same(i, other, 0)? {
-                return Ok(index);
-            }
-        }
-        let index = bin.len();
-        bin.push(i);
-        Ok(index)
-    }
-
-    fn groups(&mut self, dnf: usize) -> Result<Vec<OrderOfSolution>, ProjectionError> {
+    /// processLiveness's per-branch EA/AE split. Any other conjunct that
+    /// mentions an action is TLC's 2214 refusal.
+    fn branches(&mut self, dnf: usize) -> Result<(), ProjectionError> {
         if self.nodes[dnf] == Node::Bool(false) {
-            return Ok(Vec::new());
+            return Ok(());
         }
         let branches = if let Node::Or(cs) = &self.nodes[dnf] {
             cs.clone()
         } else {
             vec![dnf]
         };
-        let mut groups: Vec<OrderOfSolution> = Vec::new();
         for branch in branches {
             let branch = self.flatten(branch, 0)?;
             let children = if let Node::And(cs) = &self.nodes[branch] {
@@ -579,127 +419,77 @@ impl Build {
             } else {
                 vec![branch]
             };
-            let (mut ea, mut ae_state, mut ae_action, mut temporal) =
-                (Vec::new(), Vec::new(), Vec::new(), Vec::new());
             for c in children {
                 if let Node::Eventually(a) = self.nodes[c]
                     && let Node::Always(body) = self.nodes[a]
                     && self.level_action(body, 0)?.0 < 3
                 {
-                    ea.push(body);
                     continue;
                 }
-                if let Some(body) = self.ae_body(c) {
-                    let level = self.level_action(body, 0)?.0;
-                    if level <= 1 {
-                        ae_state.push(body);
-                        continue;
-                    }
-                    if level == 2 {
-                        ae_action.push(body);
-                        continue;
-                    }
+                if let Some(body) = self.ae_body(c)
+                    && self.level_action(body, 0)?.0 <= 2
+                {
+                    continue;
                 }
                 if self.level_action(c, 0)?.1 {
                     return Err(ProjectionError::ActionInTemporal);
                 }
-                temporal.push(c);
             }
-            let mut found = None;
-            for (index, group) in groups.iter().enumerate() {
-                if self.same_list(&temporal, &group.temporal, 0)? {
-                    found = Some(index);
-                    break;
-                }
-            }
-            let index = found.unwrap_or(groups.len());
-            if found.is_none() {
-                groups.push(OrderOfSolution {
-                    temporal,
-                    check_state: Vec::new(),
-                    check_action: Vec::new(),
-                    pems: Vec::new(),
-                });
-            }
-            let group = &mut groups[index];
-            // Match processLiveness's bin calls: AEAction, AEState, EAAction.
-            let ae_action = ae_action
-                .into_iter()
-                .map(|c| self.bin(c, &mut group.check_action))
-                .collect::<Result<Vec<_>, _>>()?;
-            let ae_state = ae_state
-                .into_iter()
-                .map(|c| self.bin(c, &mut group.check_state))
-                .collect::<Result<Vec<_>, _>>()?;
-            let ea_action = ea
-                .into_iter()
-                .map(|c| self.bin(c, &mut group.check_action))
-                .collect::<Result<Vec<_>, _>>()?;
-            group.pems.push(PossibleErrorModel {
-                ae_action,
-                ae_state,
-                ea_action,
-            });
         }
-        Ok(groups)
+        Ok(())
     }
 }
 
-/// Combines, tags, normalizes and groups pure supplied temporal formulas using
-/// the pinned TLC transformation order. This returns a planning projection,
-/// never a model-checking result. Retained formula-arena nodes/references and
-/// transformation work consume the existing formula/expansion budgets. Group
-/// metadata is bounded by charged DNF branches/conjuncts, rather than a separate
-/// aggregate byte budget. No resource defaults are increased.
+/// Applies TLC's liveness formula classifier to fairness conjuncts and
+/// configured properties (each prior to negation), as `--compat=tlc` requires.
+/// `Ok` means TLC would go on to check these formulas; it is not a verdict.
 ///
 /// ```
 /// use dive_liveness::formula::{Atom, AtomKind, Formula, Limits, Node};
-/// use dive_liveness::tlc_plan::{process, Property};
-/// let property = Formula::new(vec![
-///     Node::Atom(Atom {kind: AtomKind::State, index: 0}),
-///     Node::Eventually(0), Node::Always(1)], 2)?;
-/// let projection = process(&[], &[Property {name: "Live", formula: &property}],
-///     Limits::default())?;
-/// assert_eq!(projection.properties, ["Live"]);
-/// assert_eq!(projection.orders[0].pems[0].ea_action, [0]);
+/// use dive_liveness::tlc_plan::{ProjectionError, classify};
+/// let state = Atom { kind: AtomKind::State, index: 0 };
+/// let action = Atom { kind: AtomKind::Action, index: 1 };
+/// // <>[]p is accepted.
+/// let live = Formula::new(vec![Node::Atom(state), Node::Always(0), Node::Eventually(1)], 2)?;
+/// assert_eq!(classify(&[], &[&live], Limits::default()), Ok(()));
+/// // [](p => <>A) puts an action inside a temporal formula: TLC error 2214.
+/// let bad = Formula::new(vec![
+///     Node::Atom(state), Node::Not(0), Node::Atom(action), Node::Eventually(2),
+///     Node::Or(vec![1, 3]), Node::Always(4)], 5)?;
+/// let error = classify(&[], &[&bad], Limits::default()).unwrap_err();
+/// assert_eq!(error, ProjectionError::ActionInTemporal);
+/// assert_eq!(error.tlc_code(), Some(2214));
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 ///
 /// # Errors
-/// Explicit depth, retained-term, DNF cardinality or work bounds, and TLC's
-/// unsupported action-in-temporal formula format. Binding/effect refusals belong
-/// to [`crate::plan::lower`] and cannot be bypassed through a model callback here.
-pub fn process(
+/// TLC's 2214 and 2213 refusals, and dive's own depth, term and work bounds
+/// (which carry no TLC code).
+pub fn classify(
     fairness: &[&Formula],
-    properties: &[Property<'_>],
+    properties: &[&Formula],
     limits: Limits,
-) -> Result<Projection, ProjectionError> {
-    let input_terms = fairness
-        .iter()
-        .chain(properties.iter().map(|p| &p.formula))
-        .try_fold(0usize, |n, f| {
-            n.checked_add(f.terms())
-                .ok_or(FormulaError::Limit("TLC planning input terms"))
-        })?;
+) -> Result<(), ProjectionError> {
+    let input_terms = fairness.iter().chain(properties).try_fold(0usize, |n, f| {
+        n.checked_add(f.terms())
+            .ok_or(FormulaError::Limit("TLC planning input terms"))
+    })?;
     if input_terms > limits.formula_nodes {
         return Err(FormulaError::Limit("TLC planning input terms").into());
     }
     let mut b = Build {
         nodes: Vec::new(),
-        occurrences: Vec::new(),
-        shared_atoms: BTreeMap::new(),
         terms: 0,
         steps: 0,
         limits,
     };
     let mut conjuncts = Vec::new();
-    for (input, f) in fairness.iter().enumerate() {
-        let i = b.import(f, f.root(), input, 0)?;
-        conjuncts.push(i);
+    for f in fairness {
+        conjuncts.push(b.import(f, f.root(), 0)?);
     }
     let mut checks = Vec::new();
-    for (index, p) in properties.iter().enumerate() {
-        let i = b.import(p.formula, p.formula.root(), fairness.len() + index, 0)?;
+    for p in properties {
+        let i = b.import(p, p.root(), 0)?;
         checks.push(b.push(Node::Not(i))?);
     }
     if !checks.is_empty() {
@@ -710,146 +500,13 @@ pub fn process(
         };
         conjuncts.push(i);
     }
-    let tagged = if conjuncts.is_empty() {
-        None
-    } else if fairness.is_empty() {
-        Some(conjuncts[0])
-    } else {
-        Some(b.junction(true, conjuncts)?)
+    let tagged = match conjuncts.len() {
+        0 => return Ok(()),
+        _ if fairness.is_empty() => conjuncts[0],
+        _ => b.junction(true, conjuncts)?,
     };
-    let pushed = tagged.map(|i| b.negation(i, false, 0)).transpose()?;
-    let simplified = pushed.map(|i| b.simplify(i, 0)).transpose()?;
-    let dnf = simplified.map(|i| b.dnf(i, 0)).transpose()?;
-    let orders = dnf.map(|i| b.groups(i)).transpose()?.unwrap_or_default();
-    Ok(Projection {
-        arena: b.nodes,
-        properties: properties.iter().map(|p| p.name.to_owned()).collect(),
-        occurrences: b.occurrences,
-        tagged,
-        pushed,
-        simplified,
-        dnf,
-        orders,
-    })
-}
-
-/// A bound normalization projection with the original predicate tables.
-#[derive(Clone, Debug)]
-pub struct BoundProjection {
-    /// Normalized occurrences and ordered pre-tableau groups.
-    pub projection: Projection,
-    /// Fairness plans followed by property plans, preserving configured order.
-    /// Each occurrence's `input` selects a plan and `atom.index` its predicate.
-    pub inputs: Vec<crate::plan::Plan>,
-    /// Original configured PROPERTY identities and retained predicates, before
-    /// role splitting. These are not replaced by helper/role labels or DNF
-    /// groups, and are not certified merely by successful projection.
-    pub configured_properties: Vec<dive_model::Named>,
-}
-
-/// A model-binding/purity refusal or a bounded normalization failure.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum ModelPlanningError {
-    /// Existing planner diagnostic, with original source context.
-    Bound(crate::plan::PlanningError),
-    /// Normalization/grouping failure; no model evaluation is performed here.
-    Projection {
-        /// Bounded structural diagnostic, including named classifier refusals.
-        error: ProjectionError,
-        /// First configured conjunct's request location, not an invented
-        /// failing operand. Absent only for a model with no temporal inputs.
-        request: Option<Box<crate::plan::Source>>,
-    },
-}
-impl ModelPlanningError {
-    /// Stable diagnostic code from the original binding or projection stage.
-    #[must_use]
-    pub fn code(&self) -> &'static str {
-        match self {
-            Self::Bound(e) => e.code(),
-            Self::Projection { error, .. } => error.code(),
-        }
-    }
-}
-impl std::fmt::Display for ModelPlanningError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Bound(e) => e.fmt(f),
-            Self::Projection { error, request } => {
-                write!(f, "{}: {error}", error.code())?;
-                if let Some(source) = request {
-                    write!(f, " (requested model formula at {})", source.location)?;
-                }
-                Ok(())
-            }
-        }
-    }
-}
-impl std::error::Error for ModelPlanningError {}
-
-/// Lowers every configured fairness conjunct and temporal property through the
-/// existing pure bound planner, then projects TLC's normalization/grouping.
-/// No opaque operator, live checker lookup, or unsupported captured scope is
-/// accepted merely because normalization succeeds. This remains a diagnostic
-/// planning API; strict integrated liveness execution is still unsupported.
-///
-/// # Errors
-/// Existing source-bearing purity/scope/argument/evaluation refusals; the
-/// existing per-predicate lowering budgets; aggregate input, normalization,
-/// depth, retained-term and DNF/work bounds. No resource default is increased.
-pub fn lower_model(
-    model: &dive_model::Model,
-    limits: Limits,
-) -> Result<BoundProjection, ModelPlanningError> {
-    let failure = |error| ModelPlanningError::Projection {
-        error,
-        request: model
-            .temporals
-            .iter()
-            .chain(&model.implied_temporals)
-            .next()
-            .map(|n| Box::new(crate::plan::Source::new(model, n.pred.expr))),
-    };
-    let count = model
-        .temporals
-        .len()
-        .checked_add(model.implied_temporals.len())
-        .filter(|n| {
-            model
-                .configured_properties
-                .len()
-                .checked_add(*n)
-                .is_some_and(|total| total <= limits.formula_nodes)
-        })
-        .filter(|n| *n <= limits.formula_nodes)
-        .ok_or_else(|| failure(FormulaError::Limit("TLC planning input count").into()))?;
-    let mut inputs = Vec::with_capacity(count);
-    let mut terms = 0usize;
-    for named in model.temporals.iter().chain(&model.implied_temporals) {
-        let plan = crate::plan::lower_tlc(model, &named.pred, limits)
-            .map_err(ModelPlanningError::Bound)?;
-        terms = terms
-            .checked_add(plan.formula.terms())
-            .filter(|n| *n <= limits.formula_nodes)
-            .ok_or_else(|| failure(FormulaError::Limit("TLC planning input terms").into()))?;
-        inputs.push(plan);
-    }
-    let fairness = inputs[..model.temporals.len()]
-        .iter()
-        .map(|p| &p.formula)
-        .collect::<Vec<_>>();
-    let properties = inputs[model.temporals.len()..]
-        .iter()
-        .zip(&model.implied_temporals)
-        .map(|(p, n)| Property {
-            name: &n.name,
-            formula: &p.formula,
-        })
-        .collect::<Vec<_>>();
-    let projection = process(&fairness, &properties, limits).map_err(failure)?;
-    Ok(BoundProjection {
-        projection,
-        inputs,
-        configured_properties: model.configured_properties.clone(),
-    })
+    let pushed = b.negation(tagged, false, 0)?;
+    let simplified = b.simplify(pushed, 0)?;
+    let dnf = b.dnf(simplified, 0)?;
+    b.branches(dnf)
 }

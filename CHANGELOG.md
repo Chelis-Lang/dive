@@ -1,5 +1,9 @@
 # Changelog
 
+- Final temporal checking preserves the binding stage's TLC error class and
+  exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks
+  retain their named refusal.
+
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;
   tests keep only the fixtures they read. PlusCal and storage notes are merged into
@@ -33,6 +37,20 @@ All notable changes to this project are documented here. The project will follow
   `Next` disjunct at the pinned translator's 78-column width. Test temp
   directories are claimed atomically, so a recycled PID cannot collide with
   an interrupted run's files.
+
+- Remove the TLC-internal liveness emulation (#241, ADR 0082): TLC tableau
+  numbering, phase-L receipts, SCC visitation, witness selection, the periodic
+  controller, hook, lifecycle, service, snapshot and terminal diagnostics, the
+  `dive_api::tlc_temporal` and `dive_api::periodic_candidate` APIs, the
+  `TemporalMode::FinalTlc` mode, the `--lasso tlc` CLI spelling (now a usage
+  error) and the `dive-final-tlc` harness mode. `tlc_plan` shrinks to
+  `classify`, TLC's 2213/2214 formula refusals for `--compat=tlc`, and
+  `periodic_backend` to the `Growth` trigger. A configured `_PERIODIC` entry
+  now binds with TLC's errors (2229, 2228) before it is refused. Final/short
+  checking (`--lncheck final --lasso short`) remains available through one
+  shared planner. Numeric temporal operands such as `<>1` now retain TLC's
+  evaluation error instead of reporting an unsupported feature, including
+  code 2215 and exit 255 under `--compat=tlc` (13 in the default profile).
 
 - CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
   the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4
