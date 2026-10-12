@@ -395,6 +395,122 @@ impl Value {
     }
 }
 
+/// After this many selections, [`for_each_sorted`] sorts what remains instead.
+const SELECT_BEFORE_SORT: usize = 4;
+
+/// Visits `elems` in ascending [`total_cmp`] order until `visit` decides,
+/// without sorting when the decision comes early: a candidate set usually
+/// differs from the set it is compared with in its first few elements.
+/// `elems` must be pairwise distinct, so that the order is unique.
+pub(crate) fn for_each_sorted<'a, T>(
+    elems: &[&'a Value],
+    order: ValueOrder,
+    mut visit: impl FnMut(&'a Value) -> Result<Option<T>>,
+) -> Result<Option<T>> {
+    let mut rest: Vec<&'a Value> = elems.to_vec();
+    let mut selected = 0usize;
+    while !rest.is_empty() {
+        if selected == SELECT_BEFORE_SORT {
+            rest.sort_unstable_by(|a, b| total_cmp(a, b, order));
+            for x in rest {
+                if let Some(t) = visit(x)? {
+                    return Ok(Some(t));
+                }
+            }
+            return Ok(None);
+        }
+        let mut min = 0;
+        for i in 1..rest.len() {
+            if total_cmp(rest[i], rest[min], order) == Ordering::Less {
+                min = i;
+            }
+        }
+        if let Some(t) = visit(rest.swap_remove(min))? {
+            return Ok(Some(t));
+        }
+        selected += 1;
+    }
+    Ok(None)
+}
+
+/// `Value::set_raw(elems).cmp_with(other, order)` for pairwise-distinct,
+/// mutually comparable `elems` (see [`Value::cmp_distinct_set`]).
+fn cmp_distinct_set(elems: &[&Value], other: &Value, order: ValueOrder) -> Option<Ordering> {
+    let Value::Set(t) = other else {
+        return None;
+    };
+    // The candidate is a small finite set (rank 4); only an enumerated `other`
+    // of the same rank compares element by element.
+    if !matches!(t.repr(), SetRepr::Enum | SetRepr::Raw(_)) || class(t) != Class::Finite {
+        return None;
+    }
+    let n = u128::try_from(elems.len()).ok()?;
+    if n > u128::from(MAX_ENUMERATION) {
+        return None;
+    }
+    let c = n.cmp(&quiet_size(t)?);
+    if c != Ordering::Equal {
+        return Some(c);
+    }
+    let mut theirs = quiet_stream(t, order)?;
+    let mut exhausted = false;
+    let decided = for_each_sorted(elems, order, |x| {
+        let Some(y) = theirs.next() else {
+            exhausted = true;
+            return Ok(Some(Ordering::Equal));
+        };
+        let c = total_cmp(x, &y, order);
+        Ok((c != Ordering::Equal).then_some(c))
+    })
+    .ok()?;
+    if exhausted {
+        return None;
+    }
+    Some(decided.unwrap_or(Ordering::Equal))
+}
+
+impl Value {
+    /// The order [`Value::cmp_with`] gives the set of `elems`, built raw,
+    /// against `other`, computed without building or sorting that set: its
+    /// elements are selected in order only up to the first difference.
+    /// `None` when `other` is not a finite enumerated set, so that the caller
+    /// must build the set and compare it in full.
+    ///
+    /// The caller must guarantee that `elems` are pairwise distinct and
+    /// mutually comparable ([`Value::elements_comparable`]), as the image of a
+    /// normalized set under an injective map that preserves comparability is.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Value};
+    /// let ctx = Ctx::default();
+    /// let (one, two, three) = (Value::Int(1), Value::Int(2), Value::Int(3));
+    /// let other = Value::set_raw(vec![one.clone(), three.clone()], ctx);
+    /// let full = Value::set_raw(vec![two.clone(), one.clone()], ctx).cmp_with(&other, ctx.order);
+    /// assert_eq!(Value::cmp_distinct_set(&[&two, &one], &other, ctx.order), Some(full));
+    /// ```
+    #[must_use]
+    pub fn cmp_distinct_set(
+        elems: &[&Value],
+        other: &Value,
+        order: ValueOrder,
+    ) -> Option<Ordering> {
+        cmp_distinct_set(elems, other, order)
+    }
+
+    /// Whether every pair of `elems` compares in TLC without error, so that a
+    /// set of them normalizes by the total order alone.
+    ///
+    /// ```
+    /// use dive_value::Value;
+    /// assert!(Value::elements_comparable(&[Value::Int(1), Value::Int(2)]));
+    /// assert!(!Value::elements_comparable(&[Value::Int(1), Value::Bool(true)]));
+    /// ```
+    #[must_use]
+    pub fn elements_comparable(elems: &[Value]) -> bool {
+        all_comparable(elems)
+    }
+}
+
 /// A function's `(domain, value)` pairs sorted in `order`.
 fn pairs_in(f: &Fcn, order: ValueOrder) -> Cow<'_, [(Value, Value)]> {
     match &f.0.repr {
@@ -434,6 +550,11 @@ pub(crate) fn total_cmp(a: &Value, b: &Value, order: ValueOrder) -> Ordering {
     if let Some(c) = scalar_cmp(a, b, order) {
         return c;
     }
+    if let (Value::Fcn(f), Value::Fcn(g)) = (a, b)
+        && let Some(c) = flat_fcn_cmp(f, g, order)
+    {
+        return c;
+    }
     let mut work: Vec<(&Value, &Value)> = vec![(a, b)];
     while let Some((x, y)) = work.pop() {
         let c = cmp_step(x, y, order, &mut work);
@@ -442,6 +563,41 @@ pub(crate) fn total_cmp(a: &Value, b: &Value, order: ValueOrder) -> Ordering {
         }
     }
     Ordering::Equal
+}
+
+/// [`fcn_cmp_step`] for tuples, or records in `order`, whose deciding values
+/// are scalars, without a work list; `None` when a compound value would have
+/// to be compared.
+fn flat_fcn_cmp(f: &Fcn, g: &Fcn, order: ValueOrder) -> Option<Ordering> {
+    if f.ptr_eq(g) {
+        return Some(Ordering::Equal);
+    }
+    let c = f.len().cmp(&g.len());
+    if c != Ordering::Equal {
+        return Some(c);
+    }
+    let values = |pairs: &mut dyn Iterator<Item = (&Value, &Value)>| {
+        for (v, w) in pairs {
+            let c = scalar_cmp(v, w, order)?;
+            if c != Ordering::Equal {
+                return Some(c);
+            }
+        }
+        Some(Ordering::Equal)
+    };
+    match (&f.0.repr, &g.0.repr) {
+        (FcnRepr::Tuple(a), FcnRepr::Tuple(b)) => values(&mut a.iter().zip(b.iter())),
+        (FcnRepr::Record(a), FcnRepr::Record(b)) if f.order() == order && g.order() == order => {
+            for ((n, _), (m, _)) in a.iter().zip(b.iter()) {
+                let c = n.cmp_with(m, order);
+                if c != Ordering::Equal {
+                    return Some(c);
+                }
+            }
+            values(&mut a.iter().zip(b.iter()).map(|((_, v), (_, w))| (v, w)))
+        }
+        _ => None,
+    }
 }
 
 /// Compares the top level of `x` and `y`; pushes the pairs that decide a tie, so that
@@ -581,7 +737,58 @@ enum Shape {
     Str,
     Set(Box<Shape>),
     Fcn(Box<Shape>, Box<Shape>),
+    /// Functions with string domains (records, literal or not), by field-name
+    /// list: two of them with different names are told apart by their names
+    /// alone, and two with the same names compare field by field. The names
+    /// are in stored order (see [`join_fields`]).
+    Rcd(Vec<(Vec<Atom>, Vec<Shape>)>),
     Conflict,
+}
+
+/// Joins record shapes: per name list, field by field.
+fn join_rcd(mut acc: Vec<(Vec<Atom>, Vec<Shape>)>, other: Vec<(Vec<Atom>, Vec<Shape>)>) -> Shape {
+    for (names, fields) in other {
+        if !join_fields(&mut acc, &names, |n| n, fields.into_iter()) {
+            return Shape::Conflict;
+        }
+    }
+    Shape::Rcd(acc)
+}
+
+/// Joins one record's field shapes into `acc`, keyed by its field names in
+/// stored order; `false` on a conflict. The same names stored in another
+/// order (records built under different name orders) are a conflict, so the
+/// key never pairs fields by position wrongly.
+fn join_fields<'a, N>(
+    acc: &mut Vec<(Vec<Atom>, Vec<Shape>)>,
+    names: &'a [N],
+    name: impl Fn(&'a N) -> &'a Atom,
+    fields: impl Iterator<Item = Shape>,
+) -> bool {
+    let same =
+        |n: &[Atom]| n.len() == names.len() && n.iter().zip(names).all(|(a, b)| a == name(b));
+    if let Some((_, mine)) = acc.iter_mut().find(|(n, _)| same(n)) {
+        for (field, theirs) in mine.iter_mut().zip(fields) {
+            let joined = join(std::mem::replace(field, Shape::Bottom), theirs);
+            if joined == Shape::Conflict {
+                return false;
+            }
+            *field = joined;
+        }
+        return true;
+    }
+    if acc
+        .iter()
+        .any(|(n, _)| n.len() == names.len() && names.iter().all(|other| n.contains(name(other))))
+    {
+        return false;
+    }
+    let fields: Vec<Shape> = fields.collect();
+    if fields.contains(&Shape::Conflict) {
+        return false;
+    }
+    acc.push((names.iter().map(|n| name(n).clone()).collect(), fields));
+    true
 }
 
 fn join(a: Shape, b: Shape) -> Shape {
@@ -604,6 +811,13 @@ fn join(a: Shape, b: Shape) -> Shape {
             (Conflict, _) | (_, Conflict) => Conflict,
             (d, v) => Fcn(Box::new(d), Box::new(v)),
         },
+        (Shape::Rcd(a), Shape::Rcd(b)) => join_rcd(a, b),
+        // Only the empty tuple compares with a record without error (TLC's
+        // `toRcd` of `<<>>`, and `FcnRcdValue.compareTo` by size); any other
+        // tuple or function fails in one of the two directions.
+        (Shape::Rcd(r), Fcn(d, v)) | (Fcn(d, v), Shape::Rcd(r)) if *d == Bottom && *v == Bottom => {
+            Shape::Rcd(r)
+        }
         (x, y) => {
             if x == y && matches!(x, Shape::Bool | Shape::Int | Shape::Str) {
                 x
@@ -617,6 +831,20 @@ fn join(a: Shape, b: Shape) -> Shape {
 fn join_all<'a>(vals: impl Iterator<Item = &'a Value>) -> Shape {
     let mut acc = Shape::Bottom;
     for v in vals {
+        // Records join into the accumulated record shape in place, without
+        // building a shape of their own.
+        if let (Shape::Rcd(entries), Value::Fcn(f)) = (&mut acc, v)
+            && let FcnRepr::Record(fs) = &f.0.repr
+        {
+            let Ok(_guard) = crate::depth::Guard::enter() else {
+                return Shape::Conflict;
+            };
+            let joined = join_fields(entries, fs, |(n, _)| n, fs.iter().map(|(_, v)| shape(v)));
+            if !joined {
+                return Shape::Conflict;
+            }
+            continue;
+        }
         acc = join(acc, shape(v));
         if acc == Shape::Conflict {
             break;
@@ -658,10 +886,16 @@ fn shape(v: &Value) -> Shape {
                     j => Shape::Fcn(Box::new(d), Box::new(j)),
                 }
             }
-            FcnRepr::Record(fs) => match join_all(fs.iter().map(|(_, v)| v)) {
-                Shape::Conflict => Shape::Conflict,
-                j => Shape::Fcn(Box::new(Shape::Str), Box::new(j)),
-            },
+            FcnRepr::Record(fs) => {
+                let mut acc = Vec::new();
+                if join_fields(&mut acc, fs, |(n, _)| n, fs.iter().map(|(_, v)| shape(v))) {
+                    Shape::Rcd(acc)
+                } else {
+                    Shape::Conflict
+                }
+            }
+            // An empty explicit domain would pass for the empty tuple.
+            FcnRepr::General(ps) if ps.is_empty() => Shape::Conflict,
             FcnRepr::General(ps) => {
                 match (
                     join_all(ps.iter().map(|(d, _)| d)),
