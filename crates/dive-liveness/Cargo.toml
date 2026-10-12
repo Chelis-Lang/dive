@@ -17,7 +17,6 @@ dive-check.workspace = true
 dive-config.workspace = true
 
 [dev-dependencies]
-dive-check = { workspace = true, features = ["test-rendezvous"] }
 dive-sema.workspace = true
 serde_json.workspace = true
 dive-trace.workspace = true

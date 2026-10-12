@@ -38,7 +38,7 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short|tlc] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -316,7 +316,6 @@ fn check_command(
     let mut counters_given = false;
     let mut final_check = false;
     let mut short_lasso = false;
-    let mut tlc_lasso = false;
     let mut file: Option<&str> = None;
     let mut json = false;
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
@@ -357,25 +356,19 @@ fn check_command(
                 _ => {
                     return usage_error(
                         err,
-                        "--lncheck currently supports explicit `final` with --lasso short|tlc",
+                        "--lncheck currently supports explicit `final` with --lasso short",
                     );
                 }
             },
             "--lasso" => match value().as_deref() {
-                Some("short") => {
-                    short_lasso = true;
-                    tlc_lasso = false;
-                }
+                Some("short") => short_lasso = true,
                 Some("tlc") => {
-                    tlc_lasso = true;
-                    short_lasso = false;
-                }
-                _ => {
                     return usage_error(
                         err,
-                        "--lasso expects `short` or `tlc` with --lncheck final",
+                        "--lasso tlc is not supported: dive does not reproduce TLC's lasso choice; use --lasso short (an independently validated counterexample)",
                     );
                 }
+                _ => return usage_error(err, "--lasso expects `short` with --lncheck final"),
             },
             "--store" => match value().as_deref() {
                 Some("exact") => req.store = dive_api::Store::Exact,
@@ -558,18 +551,16 @@ fn check_command(
         }
         req.seen_disk = Some(seen_policy);
     }
-    if final_check != (short_lasso || tlc_lasso) {
+    if final_check != short_lasso {
         return usage_error(
             err,
-            "bounded temporal checking needs --lncheck final and --lasso short|tlc",
+            "bounded temporal checking needs --lncheck final and --lasso short",
         );
     }
     if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
         return usage_error(err, "--frontier-directory requires --frontier-memory-bytes");
     }
-    req.temporal = if final_check && tlc_lasso {
-        dive_api::TemporalMode::FinalTlc
-    } else if final_check && short_lasso {
+    req.temporal = if final_check && short_lasso {
         dive_api::TemporalMode::FinalShort
     } else {
         dive_api::TemporalMode::Ordinary
@@ -1167,7 +1158,7 @@ mod seen_tests {
                 "--lncheck",
                 "final",
                 "--lasso",
-                "tlc",
+                "short",
             ],
         ] {
             let mut arguments = vec!["missing-seen-model.tla".to_owned()];

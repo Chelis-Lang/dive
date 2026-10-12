@@ -75,12 +75,10 @@ fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() 
             matches!(check_file(&request),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0700"))
         );
         request.seen_disk.as_mut().expect("policy").limits.entries = 16;
-        for mode in [TemporalMode::FinalShort, TemporalMode::FinalTlc] {
-            request.temporal = mode;
-            assert!(
-                matches!(check_file(&request),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
-            );
-        }
+        request.temporal = TemporalMode::FinalShort;
+        assert!(
+            matches!(check_file(&request),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
+        );
         request.temporal = TemporalMode::Ordinary;
         let archive = checkpoint::Request {
             path: "missing-seen-archive.cp".into(),
@@ -237,14 +235,6 @@ fn low_level_temporal_facades_refuse_before_startup_prints_or_assumptions() {
                 dive_liveness::analyze::AnalysisError::Unsupported(_)
             )
         ));
-        let strict = dive_api::tlc_temporal::check_final(
-            &ir,
-            &config,
-            &options,
-            dive_liveness::phase_graph::Limits::default(),
-        )
-        .expect_err("unimplemented combination");
-        assert!(strict.evidence.is_none());
     }
 }
 

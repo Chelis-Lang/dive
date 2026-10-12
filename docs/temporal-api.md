@@ -56,6 +56,10 @@ This API uses final checking and deterministic short-lasso selection. Passing
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
 It does not replace the strict TLC conformance path. Ordinary `dive check`
 retains its temporal refusal unless final/short checking is explicitly selected.
+TLC's exact lasso is not reproduced in any mode (ADR 0082); `--lasso tlc` is a
+usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify`
+reproduces TLC's liveness formula refusals (errors 2213 and 2214) for a later
+stage to wire in.
 
 
 Original configured PROPERTY formulas are retained for attribution. A universal
@@ -67,6 +71,11 @@ Pure `IF` formulas use their guard's truth at each position, including temporal
 guards and nested conditionals. Action-level guards and temporal `CASE` remain
 explicit refusals: the pinned TLC also rejects them during liveness planning.
 A formula with an effectful branch is refused before planning executes it.
+The shared `dive_liveness::plan::lower` planner also retains TLC's evaluation
+error for a numeric temporal operand, such as `<>1`, in both profiles. It does
+not turn this malformed formula into a feature refusal. The check report names
+`evaluation-error`, retains code 2215 (`TLC_EXPECTED_VALUE`), and exits 255 under
+`--compat=tlc` or 13 in the default profile, before state exploration.
 
 ## Command-line access
 

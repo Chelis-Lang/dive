@@ -88,8 +88,6 @@ pub struct DiveImplementation {
     pub options: Vec<ImplOption>,
     /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
     pub profile: Profile,
-    /// Explicit pinned final-only mode, separate from ordinary schema-1 checks.
-    pub final_tlc: bool,
     bin: PathBuf,
     module_path: Vec<ClasspathEntry>,
     provenance: Option<DiveProvenance>,
@@ -178,7 +176,6 @@ impl DiveImplementation {
         Ok(Self {
             options: Vec::new(),
             profile: Profile::default(),
-            final_tlc: false,
             bin: executable,
             module_path,
             provenance: Some(provenance),
@@ -211,12 +208,12 @@ impl DiveImplementation {
             extra.push("--module-path".as_ref());
             extra.push(p.path.as_os_str());
         }
-        if final_short || self.final_tlc {
+        if final_short {
             extra.extend::<[&std::ffi::OsStr; 4]>([
                 "--lncheck".as_ref(),
                 "final".as_ref(),
                 "--lasso".as_ref(),
-                if self.final_tlc { "tlc" } else { "short" }.as_ref(),
+                "short".as_ref(),
             ]);
         }
         self.run(
@@ -547,134 +544,6 @@ fn as_i32(v: &Value) -> Option<i32> {
 #[must_use]
 #[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
 pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping {
-    map_check_result(outcome, tlc_profile, false)
-}
-
-/// Tie the reported field identity/ending/state rows to the actual replay input.
-/// This checks report consistency, never substitutes for independent model replay.
-fn final_document_shape(v: &Value) -> std::result::Result<(), String> {
-    let cx = &v["counterexample"];
-    let doc = dive_api::trace::TraceDoc::from_json(&cx["trace"])?;
-    let ending = match cx["ending"].as_str() {
-        Some("stuttering") if cx["back_to"].is_null() => dive_api::trace::Ending::Stuttering,
-        Some("lasso") => dive_api::trace::Ending::Lasso {
-            back_to: cx["back_to"]
-                .as_u64()
-                .and_then(|n| n.checked_sub(1))
-                .and_then(|n| usize::try_from(n).ok())
-                .ok_or("invalid lasso target")?,
-        },
-        _ => return Err("contradictory trace ending/loop marker".into()),
-    };
-    let names: std::collections::BTreeSet<_> = doc.properties.iter().collect();
-    if doc.ending.as_ref() != Some(&ending)
-        || doc.properties.is_empty()
-        || names.len() != doc.properties.len()
-        || v["properties"] != serde_json::json!(doc.properties)
-        || v["property"].as_str() != Some(doc.properties.join(" and ").as_str())
-        || cx["length"].as_u64() != Some(doc.states.len() as u64)
-        || cx["states"].as_array().is_none_or(|rows| {
-            rows.iter()
-                .zip(&doc.states)
-                .any(|(row, state)| row["values"] != serde_json::json!(state))
-        })
-    {
-        return Err(
-            "report property identities, ending or state rows contradict replay input".into(),
-        );
-    }
-    Ok(())
-}
-
-/// Validate report consistency only; `check_model` independently derives the
-/// actual route from fresh source/configuration binding before comparison credit.
-fn final_safety_shape(v: &Value) -> std::result::Result<(), String> {
-    let e = &v["execution"];
-    if e["route"] != "bounded-safety-only" {
-        return Ok(());
-    }
-    if !matches!(
-        e["stage"].as_str(),
-        Some("safety" | "independent-validation")
-    ) || e["temporal_obligations"] != 0
-        || e["temporal_certificate"] != false
-        || e["product_constructed"] != false
-        || v["verdict"] == "liveness-violation"
-        || (v["verdict"] == "success" && e["capture_completed"] != true)
-        || (v["verdict"] != "success" && e["capture_completed"] != false)
-    {
-        return Err("contradictory bounded safety-only route/proof/completion claims".into());
-    }
-    if v["verdict"] == "success" {
-        let bounds = &v["options"]["temporal_bounds"]["capture"];
-        for (stat, ceiling) in [("distinct", "states"), ("generated", "generated")] {
-            let value = v["statistics"][stat]
-                .as_u64()
-                .ok_or("missing completed safety count")?;
-            let cap = bounds[ceiling]
-                .as_u64()
-                .ok_or("missing completed safety ceiling")?;
-            if cap == 0 || value > cap {
-                return Err("completed safety count exceeds declared capture ceiling".into());
-            }
-        }
-        if v["statistics"]["left_on_queue"] != 0 {
-            return Err("completed safety search retains pending frontier states".into());
-        }
-    }
-    if matches!(
-        v["verdict"].as_str(),
-        Some(
-            "invariant-violation" | "property-violation" | "action-property-violation" | "deadlock"
-        )
-    ) {
-        let cx = &v["counterexample"];
-        let doc = dive_api::trace::TraceDoc::from_json(&cx["trace"])?;
-        let expected = match v["verdict"].as_str() {
-            Some("invariant-violation") => dive_api::trace::Ending::Invariant(
-                v["property"]
-                    .as_str()
-                    .ok_or("missing invariant identity")?
-                    .into(),
-            ),
-            Some("property-violation" | "action-property-violation") => {
-                dive_api::trace::Ending::Property(
-                    v["property"]
-                        .as_str()
-                        .ok_or("missing property identity")?
-                        .into(),
-                )
-            }
-            _ => dive_api::trace::Ending::Deadlock,
-        };
-        if cx["ending"] != "finite"
-            || doc.ending != Some(expected)
-            || doc.states.is_empty()
-            || cx["length"].as_u64() != Some(doc.states.len() as u64)
-            || doc.length != Some(doc.states.len())
-            || !doc.properties.is_empty()
-            || cx["states"].as_array().is_none_or(|s| {
-                s.len() != doc.states.len()
-                    || s.iter()
-                        .zip(&doc.states)
-                        .any(|(row, state)| row["values"] != serde_json::json!(state))
-            })
-        {
-            return Err("finite safety witness contradicts verdict/property/ending/rows".into());
-        }
-    }
-    Ok(())
-}
-
-/// Maps only the explicitly selected final-only schema-2 TLC mode. The result's
-/// own validation flag is never independent authority; the harness rebinds/replays.
-#[must_use]
-pub fn check_final_result(outcome: &ProcessOutcome) -> CheckMapping {
-    map_check_result(outcome, true, true)
-}
-
-#[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
-fn map_check_result(outcome: &ProcessOutcome, tlc_profile: bool, final_tlc: bool) -> CheckMapping {
     if outcome.timed_out {
         return CheckMapping::Result(Box::new(bare(
             Verdict::Timeout,
@@ -695,8 +564,7 @@ fn map_check_result(outcome: &ProcessOutcome, tlc_profile: bool, final_tlc: bool
             );
         }
     };
-    if v.get("schema_version").and_then(Value::as_u64)
-        != Some(if final_tlc { 2 } else { DIVE_JSON_SCHEMA })
+    if v.get("schema_version").and_then(Value::as_u64) != Some(DIVE_JSON_SCHEMA)
         || v.get("command").and_then(Value::as_str) != Some("check")
     {
         return unclassified(
@@ -704,105 +572,9 @@ fn map_check_result(outcome: &ProcessOutcome, tlc_profile: bool, final_tlc: bool
             "dive check's report has an unknown schema".to_owned(),
         );
     }
-    if final_tlc {
-        let o = &v["options"];
-        if o["profile"] != "tlc"
-            || o["lncheck"] != "final"
-            || o["lasso"] != "tlc"
-            || o["temporal_scope"] != "bounded-final-only"
-            || o["ordinary_temporal_schedule_supported"] != false
-            || o["int"] != "tlc"
-            || o["choose_order"] != "tlc"
-            || o["explore_order"] != "tlc"
-            || o["comparisons"] != "tlc"
-            || o["store"] != "fingerprint"
-            || o["fingerprint"]["scheme"] != "tlc"
-        {
-            return unclassified(
-                outcome.exit_code,
-                "final-only report does not declare the requested TLC mode/profile".into(),
-            );
-        }
-        if let Err(reason) = final_safety_shape(&v) {
-            return unclassified(outcome.exit_code, reason);
-        }
-        match v["verdict"].as_str() {
-            Some("success") if v["execution"]["route"] == "bounded-safety-only" => {}
-            Some("success" | "liveness-violation")
-                if v["execution"]["stage"] != "complete"
-                    || v["execution"]["capture_completed"] != true =>
-            {
-                return unclassified(
-                    outcome.exit_code,
-                    "incomplete final-only execution cannot certify a temporal verdict".into(),
-                );
-            }
-            _ => {}
-        }
-    }
-    if final_tlc
-        && matches!(
-            v["verdict"].as_str(),
-            Some("success" | "liveness-violation")
-        )
-    {
-        let stats = &v["statistics"];
-        if [
-            "generated",
-            "distinct",
-            "left_on_queue",
-            "depth",
-            "initial_generated",
-        ]
-        .into_iter()
-        .any(|k| stats[k].as_u64().is_none())
-            || stats["reported_by_tlc"] != true
-            || v["options"]["workers"]["used"]
-                .as_u64()
-                .is_none_or(|w| w == 0)
-        {
-            return unclassified(
-                outcome.exit_code,
-                "completed final-only report lacks actual counts/worker evidence".into(),
-            );
-        }
-        if v["verdict"] == "liveness-violation" {
-            let cx = &v["counterexample"];
-            if !matches!(cx["ending"].as_str(), Some("lasso" | "stuttering"))
-                || cx["length"].as_u64().is_none_or(|n| n == 0)
-                || cx["states"]
-                    .as_array()
-                    .is_none_or(|s| Some(s.len() as u64) != cx["length"].as_u64())
-                || (cx["ending"] == "lasso"
-                    && cx["back_to"]
-                        .as_u64()
-                        .is_none_or(|n| n == 0 || Some(n) > cx["length"].as_u64()))
-            {
-                return unclassified(
-                    outcome.exit_code,
-                    "final-only periodic trace has contradictory shape/ending".into(),
-                );
-            }
-        }
-    }
-    if final_tlc
-        && v["verdict"] == "liveness-violation"
-        && let Err(reason) = final_document_shape(&v)
-    {
-        return unclassified(outcome.exit_code, reason);
-    }
     let s = |k: &str| v.get(k).and_then(Value::as_str).map(str::to_owned);
     let verdict = s("verdict").unwrap_or_default();
     let message = s("message").unwrap_or_default();
-    if final_tlc
-        && ((verdict == "success" && v["tlc"]["code"] != 2193)
-            || (verdict == "liveness-violation" && v["tlc"]["code"] != 2116))
-    {
-        return unclassified(
-            outcome.exit_code,
-            "final-only verdict contradicts its deciding TLC class".into(),
-        );
-    }
     match verdict.as_str() {
         "unsupported" | "resource-limit" => {
             if outcome.exit_code != Some(DIVE_EXIT_UNSUPPORTED) {
@@ -864,11 +636,6 @@ fn map_check_result(outcome: &ProcessOutcome, tlc_profile: bool, final_tlc: bool
         _ => {}
     }
     let tlc = &v["tlc"];
-    if final_tlc && tlc["verified"] != true {
-        return CheckMapping::Refused(format!(
-            "final-only deciding TLC class is not verified: {verdict}: {message}"
-        ));
-    }
     let Some(code) = tlc.get("code").and_then(as_i32) else {
         return unclassified(
             outcome.exit_code,
@@ -929,17 +696,7 @@ fn map_check_result(outcome: &ProcessOutcome, tlc_profile: bool, final_tlc: bool
                 .collect();
             Trace {
                 length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
-                ending: if final_tlc {
-                    match v["counterexample"]["ending"].as_str() {
-                        Some("stuttering") => TraceEnding::Stuttering,
-                        Some("lasso") => TraceEnding::Lasso {
-                            back_to: v["counterexample"]["back_to"].as_u64(),
-                        },
-                        _ => TraceEnding::Finite,
-                    }
-                } else {
-                    TraceEnding::Finite
-                },
+                ending: TraceEnding::Finite,
                 // dive's own document (`counterexample.trace`, dive-trace's
                 // format), which the harness validates itself (ADR 0016 §3).
                 json: v["counterexample"]
@@ -1002,12 +759,7 @@ impl Implementation for DiveImplementation {
     }
 
     fn name(&self) -> String {
-        if self.final_tlc {
-            "dive-final-tlc"
-        } else {
-            "dive"
-        }
-        .to_owned()
+        "dive".to_owned()
     }
 
     fn is_oracle(&self) -> bool {
@@ -1058,46 +810,14 @@ impl Implementation for DiveImplementation {
             ));
         }
         let (command, outcome) = self.run_model(req, false)?;
-        if self.final_tlc {
-            let report: Option<Value> = serde_json::from_str(outcome.stdout.trim()).ok();
-            if report
-                .as_ref()
-                .is_some_and(|v| v["execution"]["route"] == "bounded-safety-only")
-            {
-                let paths: Vec<PathBuf> = self.module_path.iter().map(|e| e.path.clone()).collect();
-                match dive_api::tlc_temporal::safety_route_file(
-                    &req.corpus_root.join(&req.model.module),
-                    &req.corpus_root.join(&req.model.id),
-                    &paths,
-                ) {
-                    Ok(true) => {}
-                    Ok(false) => return Ok(ImplResult::Completed {
-                        result: bare(Verdict::Unclassified, outcome.exit_code,
-                            "independent source binding contradicts claimed empty temporal obligations".into()),
-                        command, elapsed: outcome.elapsed,
-                    }),
-                    Err(reason) => {
-                        return Ok(ImplResult::Unsupported(format!(
-                            "independent final safety route admission: {reason}"
-                        )));
-                    }
-                }
-            }
-        }
-        Ok(
-            match if self.final_tlc {
-                check_final_result(&outcome)
-            } else {
-                check_result(&outcome, self.profile == Profile::Tlc)
-            } {
-                CheckMapping::Refused(why) => ImplResult::Unsupported(why),
-                CheckMapping::Result(result) => ImplResult::Completed {
-                    result: *result,
-                    command,
-                    elapsed: outcome.elapsed,
-                },
+        Ok(match check_result(&outcome, self.profile == Profile::Tlc) {
+            CheckMapping::Refused(why) => ImplResult::Unsupported(why),
+            CheckMapping::Result(result) => ImplResult::Completed {
+                result: *result,
+                command,
+                elapsed: outcome.elapsed,
             },
-        )
+        })
     }
 
     fn parse_module(
@@ -1329,188 +1049,5 @@ mod tests {
             Some(ParseVerdict::Reject)
         );
         assert_eq!(v(2, "error: cannot read"), None);
-    }
-    #[test]
-    fn final_only_mapping_requires_its_complete_mode_and_retains_unverified_failures() {
-        let valid = serde_json::json!({
-            "schema_version":2,"command":"check","verdict":"success",
-            "tlc":{"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true},
-            "execution":{"stage":"complete","capture_completed":true},
-            "statistics":{"generated":3,"distinct":2,"left_on_queue":0,"depth":2,"initial_generated":1,"reported_by_tlc":true},
-            "options":{"profile":"tlc","lncheck":"final","lasso":"tlc","temporal_scope":"bounded-final-only","ordinary_temporal_schedule_supported":false,"int":"tlc","choose_order":"tlc","explore_order":"tlc","comparisons":"tlc","store":"fingerprint","fingerprint":{"scheme":"tlc"},"workers":{"used":4}}
-        });
-        assert!(
-            matches!(check_final_result(&outcome(0,&valid.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::Success && r.counts.distinct_states == Some(2))
-        );
-        assert!(
-            !matches!(check_result(&outcome(0,&valid.to_string()),true),CheckMapping::Result(r) if r.verdict == Verdict::Success)
-        );
-        for (path, value) in [
-            (vec!["options", "lasso"], serde_json::json!("short")),
-            (
-                vec!["options", "profile"],
-                serde_json::json!("tlc+overrides"),
-            ),
-            (
-                vec!["execution", "capture_completed"],
-                serde_json::json!(false),
-            ),
-            (vec!["execution", "stage"], serde_json::json!("incomplete")),
-            (vec!["statistics", "distinct"], serde_json::Value::Null),
-            (vec!["options", "workers", "used"], serde_json::json!(0)),
-            (vec!["tlc", "code"], serde_json::json!(2116)),
-        ] {
-            let mut fake = valid.clone();
-            let mut target = &mut fake;
-            for key in path {
-                target = &mut target[key];
-            }
-            *target = value;
-            assert!(
-                !matches!(check_final_result(&outcome(0,&fake.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::Success),
-                "{fake}"
-            );
-        }
-        assert!(
-            !matches!(check_final_result(&outcome(13,&valid.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::Success)
-        );
-        let mut unknown = valid;
-        unknown["verdict"] = serde_json::json!("model-error");
-        unknown["message"] = serde_json::json!("unknown deciding class");
-        unknown["tlc"] = serde_json::Value::Null;
-        assert!(matches!(
-            check_final_result(&outcome(1, &unknown.to_string())),
-            CheckMapping::Refused(_)
-        ));
-    }
-    #[test]
-    fn final_periodic_report_cannot_rename_independently_replayed_claims()
-    -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let doc = dive_api::trace::TraceDoc::behavior(vec![serde_json::json!({"x":false})])?
-            .with_ending(dive_api::trace::Ending::Stuttering)
-            .with_properties(vec!["P".into(), "Q".into()]);
-        let valid = serde_json::json!({
-            "schema_version":2,"command":"check","verdict":"liveness-violation",
-            "property":"P and Q","properties":["P","Q"],
-            "tlc":{"code":2116,"name":"TLC_TEMPORAL_PROPERTY_VIOLATED","exit_status":13,"verified":true},
-            "execution":{"stage":"complete","capture_completed":true},
-            "statistics":{"generated":1,"distinct":1,"left_on_queue":0,"depth":1,"initial_generated":1,"reported_by_tlc":true},
-            "options":{"profile":"tlc","lncheck":"final","lasso":"tlc","temporal_scope":"bounded-final-only","ordinary_temporal_schedule_supported":false,"int":"tlc","choose_order":"tlc","explore_order":"tlc","comparisons":"tlc","store":"fingerprint","fingerprint":{"scheme":"tlc"},"workers":{"used":4}},
-            "counterexample":{"length":1,"ending":"stuttering","back_to":null,"states":[{"values":{"x":false}}],"trace":doc.to_json(),"validation":"valid"}
-        });
-        assert!(
-            matches!(check_final_result(&outcome(13,&valid.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation)
-        );
-        for (path, value) in [
-            (vec!["property"], serde_json::json!("Other")),
-            (vec!["properties"], serde_json::json!(["P"])),
-            (vec!["properties"], serde_json::json!(["P", "P"])),
-            (vec!["counterexample", "ending"], serde_json::json!("lasso")),
-            (vec!["counterexample", "back_to"], serde_json::json!(1)),
-            (
-                vec!["counterexample", "trace"],
-                serde_json::json!({"validation":"valid"}),
-            ),
-        ] {
-            let mut fake = valid.clone();
-            let mut target = &mut fake;
-            for key in path {
-                target = &mut target[key];
-            }
-            *target = value;
-            assert!(
-                !matches!(check_final_result(&outcome(13,&fake.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation),
-                "malformed final report was accepted: {fake}"
-            );
-        }
-        let mut mixed_ending = valid.clone();
-        mixed_ending["counterexample"]["ending"] = serde_json::json!("lasso");
-        mixed_ending["counterexample"]["back_to"] = serde_json::json!(1);
-        assert!(
-            !matches!(check_final_result(&outcome(13,&mixed_ending.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation)
-        );
-        let mut false_state = valid.clone();
-        false_state["counterexample"]["states"][0]["values"]["x"] = serde_json::json!(true);
-        assert!(
-            !matches!(check_final_result(&outcome(13,&false_state.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation)
-        );
-        let loop_doc = dive_api::trace::TraceDoc::behavior(vec![
-            serde_json::json!({"x":false}),
-            serde_json::json!({"x":true}),
-        ])?
-        .with_ending(dive_api::trace::Ending::Lasso { back_to: 0 })
-        .with_properties(vec!["P".into(), "Q".into()]);
-        let mut proper_loop = valid.clone();
-        proper_loop["counterexample"] = serde_json::json!({"length":2,"ending":"lasso","back_to":1,"states":[{"values":{"x":false}},{"values":{"x":true}}],"trace":loop_doc.to_json(),"validation":"valid"});
-        assert!(
-            matches!(check_final_result(&outcome(13,&proper_loop.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation)
-        );
-        // A forged validation flag is never authority; an otherwise consistent
-        // report still proceeds to the harness's fresh independent replay.
-        let mut flagged = valid;
-        flagged["counterexample"]["validation"] = serde_json::json!("invalid");
-        assert!(
-            matches!(check_final_result(&outcome(13,&flagged.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation)
-        );
-        Ok(())
-    }
-    #[test]
-    fn safety_route_fakes_cannot_claim_temporal_proof_or_bounded_completion() {
-        let valid = serde_json::json!({
-            "schema_version":2,"command":"check","verdict":"success",
-            "options":{"profile":"tlc","lncheck":"final","lasso":"tlc",
-                "temporal_scope":"bounded-final-only","ordinary_temporal_schedule_supported":false,
-                "int":"tlc","choose_order":"tlc","explore_order":"tlc","comparisons":"tlc",
-                "store":"fingerprint","fingerprint":{"scheme":"tlc"},"workers":{"used":4},
-                "temporal_bounds":{"capture":{"states":3,"generated":10}}},
-            "execution":{"stage":"safety","route":"bounded-safety-only","capture_completed":true,
-                "temporal_obligations":0,"temporal_certificate":false,"product_constructed":false},
-            "statistics":{"generated":4,"distinct":3,"left_on_queue":0,"depth":3,"initial_generated":1,"reported_by_tlc":true},
-            "tlc":{"code":2193,"exit_status":0,"verified":true}
-        });
-        assert!(
-            matches!(check_final_result(&outcome(0,&valid.to_string())),CheckMapping::Result(r) if r.verdict==Verdict::Success)
-        );
-        for (path, value) in [
-            (
-                vec!["execution", "temporal_obligations"],
-                serde_json::json!(1),
-            ),
-            (
-                vec!["execution", "temporal_certificate"],
-                serde_json::json!(true),
-            ),
-            (
-                vec!["execution", "product_constructed"],
-                serde_json::json!(true),
-            ),
-            (
-                vec!["execution", "capture_completed"],
-                serde_json::json!(false),
-            ),
-            (vec!["statistics", "distinct"], serde_json::json!(4)),
-            (vec!["statistics", "generated"], serde_json::json!(11)),
-            (vec!["statistics", "left_on_queue"], serde_json::json!(1)),
-            (
-                vec!["options", "temporal_bounds", "capture", "states"],
-                serde_json::Value::Null,
-            ),
-        ] {
-            let mut fake = valid.clone();
-            let mut leaf = &mut fake;
-            for key in path {
-                leaf = &mut leaf[key];
-            }
-            *leaf = value;
-            assert!(
-                !matches!(check_final_result(&outcome(0,&fake.to_string())),CheckMapping::Result(r) if r.verdict==Verdict::Success),
-                "{fake}"
-            );
-        }
-        let mut fake = valid.clone();
-        fake["verdict"] = serde_json::json!("liveness-violation");
-        assert!(
-            !matches!(check_final_result(&outcome(13,&fake.to_string())),CheckMapping::Result(r) if r.verdict==Verdict::LivenessViolation)
-        );
     }
 }

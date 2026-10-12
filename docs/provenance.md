@@ -179,6 +179,21 @@ short-word/path-closure checks, resource and discovery-order controls, and three
 `Fw*` probes from the pinned TLC `94d0c50` (MIT reference). No search algorithm
 is added to the independent validator.
 
+## Removed liveness emulation (2026-10-12)
+
+The TLC-internal liveness ports listed below in the sections on TLC planning,
+tableau projection, phase-L receipts, graph capture, ordered temporal execution,
+final-only SCC and witness selection, the periodic controller, lifecycle, hook,
+snapshot, optional role, terminal and stopped-queue services were removed
+(ADR 0082). Their rows are kept as history. The following pieces remain:
+
+| Component | Matched upstream | Licence | Notes |
+| --- | --- | --- | --- |
+| `dive-liveness/src/plan.rs` `lower` | `tlc2/tool/liveness/Liveness.java` `astToLive` at `94d0c50` | MIT | One shared pure planner retains conversion errors, constant guard selection, scoped state/action fallback and WF/SF semantics. Numeric temporal operand `<>1` is checked against the pinned oracle: 2215 (`TLC_EXPECTED_VALUE`), exit 255. No tableau numbering or scheduler order. |
+| `dive-liveness/src/tlc_plan.rs` `classify` | `tlc2/tool/liveness/Liveness.java` `processLiveness`, `classifyExpr`; `LNConj`/`LNDisj` `pushNeg`, `simplify`, `toDNF`, `flattenSingleJunctions` | MIT | Only the verdict: TLC errors 2214 (action outside the EA/AE forms) and 2213 (DNF size beyond a Java `int`). No tags, bins or grouping order. |
+| `dive-liveness/src/periodic_backend.rs` `Growth::due` | `tlc2/tool/liveness/LiveCheck.java` `check` growth test against `TLCGlobals.livenessThreshold` | MIT | The size comparison only, in `f64`; applied to captured distinct-state counts. |
+| `dive-model/src/periodic.rs` `resolve` | `tlc2.tool.impl.SpecProcessor.processPeriodic` | MIT | Binding errors only; the hook is refused. |
+
 ## Symmetry closure foundation
 
 `dive-model/src/symmetry.rs` matches `MVPerms.permutationSubgroup` and

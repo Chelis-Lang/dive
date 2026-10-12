@@ -1,122 +1,28 @@
-//! Actual pinned normalization, grouping, tag and tableau identity controls.
+//! Pinned TLC planning outcomes for temporal operator models: the supported
+//! models plan and pass TLC's liveness formula classifier, and the refused ones
+//! stay refused. TLC's internal normalization fields and tableau numbering are
+//! not compared (ADR 0082).
 #![allow(
     clippy::expect_used,
     clippy::panic,
     reason = "field-level fixture assertions"
 )]
-use dive_liveness::formula::{AtomKind, Limits, Node};
-use dive_liveness::tlc_plan::Projection;
-use dive_liveness::tlc_tableau::{Tableau, Term};
+use dive_liveness::formula::Limits;
 use serde_json::Value;
-use std::collections::BTreeMap;
-fn text(nodes: &[Node], i: usize) -> String {
-    let (op, children) = match &nodes[i] {
-        Node::Bool(b) => return if *b { "T" } else { "F" }.into(),
-        Node::Atom(a) => {
-            return format!(
-                "{}{}",
-                if a.kind == AtomKind::State { "s" } else { "a" },
-                a.index + 1
-            );
-        }
-        Node::Not(c) => ("N", vec![*c]),
-        Node::Always(c) => ("G", vec![*c]),
-        Node::Eventually(c) => ("E", vec![*c]),
-        Node::And(cs) => ("C", cs.clone()),
-        Node::Or(cs) => ("D", cs.clone()),
-    };
-    format!(
-        "{op}({})",
-        children
-            .into_iter()
-            .map(|c| text(nodes, c))
-            .collect::<Vec<_>>()
-            .join(",")
-    )
-}
-fn indexes(xs: &[usize]) -> String {
-    xs.iter()
-        .map(usize::to_string)
-        .collect::<Vec<_>>()
-        .join(",")
-}
-fn fields(p: &Projection) -> BTreeMap<String, String> {
-    let mut out = BTreeMap::new();
-    if p.tagged.is_none() {
-        out.insert("empty".into(), "true".into());
-        return out;
-    }
-    for (key, root) in [
-        ("tagged", p.tagged),
-        ("pushed", p.pushed),
-        ("simplified", p.simplified),
-        ("dnf", p.dnf),
-    ] {
-        out.insert(key.into(), text(p.nodes(), root.expect("stage")));
-    }
-    out.insert("groups".into(), p.orders.len().to_string());
-    for (i, g) in p.orders.iter().enumerate() {
-        let temporal = match g.temporal.as_slice() {
-            [] => "null".into(),
-            [c] => text(p.nodes(), *c),
-            cs => format!(
-                "C({})",
-                cs.iter()
-                    .map(|c| text(p.nodes(), *c))
-                    .collect::<Vec<_>>()
-                    .join(",")
-            ),
-        };
-        out.insert(format!("g{i}.temporal"), temporal);
-        out.insert(
-            format!("g{i}.state"),
-            g.check_state
-                .iter()
-                .map(|c| text(p.nodes(), *c))
-                .collect::<Vec<_>>()
-                .join(";"),
-        );
-        out.insert(
-            format!("g{i}.action"),
-            g.check_action
-                .iter()
-                .map(|c| text(p.nodes(), *c))
-                .collect::<Vec<_>>()
-                .join(";"),
-        );
-        for (j, pem) in g.pems.iter().enumerate() {
-            out.insert(
-                format!("g{i}.p{j}"),
-                format!(
-                    "AEAction={}|AEState={}|EAAction={}",
-                    indexes(&pem.ae_action),
-                    indexes(&pem.ae_state),
-                    indexes(&pem.ea_action)
-                ),
-            );
-        }
-    }
-    out
-}
-fn tableau_text(t: &Tableau, i: usize) -> String {
-    let (op, children) = match t.terms()[i] {
-        Term::Bool(b) => return if b { "T" } else { "F" }.into(),
-        Term::Atom(a) => return format!("s{}", a.index + 1),
-        Term::Not(c) => ("N", vec![c]),
-        Term::Always(c) => ("G", vec![c]),
-        Term::Eventually(c) => ("E", vec![c]),
-        Term::Next(c) => ("X", vec![c]),
-        Term::And(a, b) => ("C", vec![a, b]),
-        Term::Or(a, b) => ("D", vec![a, b]),
-    };
-    format!(
-        "{op}({})",
-        children
-            .into_iter()
-            .map(|c| tableau_text(t, c))
-            .collect::<Vec<_>>()
-            .join(",")
-    )
+
+/// Plans every fairness conjunct and property, as TLC's `processLiveness`
+/// does, then applies TLC's classifier.
+fn project(model: &dive_model::Model, limits: Limits) -> Result<(), String> {
+    let plans = model
+        .temporals
+        .iter()
+        .chain(&model.implied_temporals)
+        .map(|named| dive_liveness::plan::lower(model, &named.pred, limits))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+    let formulas: Vec<_> = plans.iter().map(|p| &p.formula).collect();
+    let (fairness, properties) = formulas.split_at(model.temporals.len());
+    dive_liveness::tlc_plan::classify(fairness, properties, limits).map_err(|e| e.to_string())
 }
 
 #[test]
@@ -147,10 +53,6 @@ fn exact_operator_fields() {
         0,
     );
 }
-#[allow(
-    clippy::too_many_lines,
-    reason = "complete paired field projection and retained reference failures"
-)]
 fn complete_fields(
     family: &str,
     capture_file: &str,
@@ -191,7 +93,7 @@ fn complete_fields(
         let config = dive_config::parse(&config).into_config().expect("cfg");
         let model =
             dive_model::bind(ir, &config, &dive_model::BindOptions::tlc()).expect("binding");
-        let projection = dive_liveness::tlc_plan::lower_model(&model, Limits::default());
+        let projection = project(&model, Limits::default());
         if family == "native-sequence-operators" && !name.contains("Append") {
             refused += 1;
             assert!(
@@ -229,90 +131,7 @@ fn complete_fields(
             continue;
         }
         supported += 1;
-        let bound = projection.expect("supported field projection");
-        let p = &bound.projection;
-        let oracle = &row["fields"];
-        assert_eq!(
-            p.occurrences.len().to_string(),
-            oracle["tag_count"],
-            "{name} visit count includes shared-tag holes"
-        );
-        for (key, value) in fields(p) {
-            assert_eq!(
-                value, oracle[&key],
-                "{name} exact normalization/group field {key}"
-            );
-            let actual_key = format!("actual.{key}");
-            if oracle.get(&actual_key).is_some() {
-                assert_eq!(
-                    value, oracle[&actual_key],
-                    "{name} actual processLiveness field {key}"
-                );
-            }
-        }
-        assert_eq!(
-            bound
-                .configured_properties
-                .iter()
-                .map(|p| p.name.as_str())
-                .collect::<Vec<_>>()
-                .join(";"),
-            oracle["configured_properties"],
-            "{name} configured identity"
-        );
-        assert_eq!(
-            p.properties.join(";"),
-            oracle["temporal_role_names"],
-            "{name} distinct role label"
-        );
-        let tableaux = dive_liveness::tlc_tableau::project(p, Limits::default()).expect("tableaux");
-        assert_eq!(tableaux.len().to_string(), oracle["actual.groups"]);
-        for (g, t) in tableaux.iter().enumerate() {
-            let k = format!("actual.g{g}");
-            assert_eq!(
-                t.as_ref().map_or(0, |t| t.particles.len()).to_string(),
-                oracle[format!("{k}.tableauNodes")],
-                "{name} numbered cardinality"
-            );
-            if let Some(t) = t {
-                assert_eq!(
-                    t.initial_count.to_string(),
-                    oracle[format!("{k}.initial_count")],
-                    "{name} initial identities"
-                );
-                assert_eq!(
-                    t.promises
-                        .iter()
-                        .map(|i| tableau_text(t, *i))
-                        .collect::<Vec<_>>()
-                        .join(";"),
-                    oracle[format!("{k}.promises")],
-                    "{name} promise identity"
-                );
-                for (n, particle) in t.particles.iter().enumerate() {
-                    assert_eq!(
-                        particle
-                            .terms
-                            .iter()
-                            .map(|i| tableau_text(t, *i))
-                            .collect::<Vec<_>>()
-                            .join(";"),
-                        oracle[format!("{k}.n{n}.particle")],
-                        "{name} complete particle {n}"
-                    );
-                    assert_eq!(
-                        particle
-                            .successors
-                            .iter()
-                            .map(usize::to_string)
-                            .collect::<Vec<_>>()
-                            .join(","),
-                        oracle[format!("{k}.n{n}.next")],
-                        "{name} exact edge order {n}"
-                    );
-                }
-            }
-        }
+        projection.unwrap_or_else(|e| panic!("{name}: supported planning: {e}"));
     }
     assert_eq!((supported, refused), (expected_supported, expected_refused));
 }

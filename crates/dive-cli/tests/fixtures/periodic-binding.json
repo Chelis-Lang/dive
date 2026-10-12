@@ -1,0 +1,22 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "controls": [
+    {
+      "file": "ReviewPeriodicMissing.tla",
+      "source": "---- MODULE ReviewPeriodicMissing ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\n====\n",
+      "config": "INIT Init\nNEXT Next\n_PERIODIC Missing\n",
+      "code": 2229,
+      "name": "TLC_CONFIG_SPECIFIED_NOT_DEFINED",
+      "exit": 151
+    },
+    {
+      "file": "ReviewPeriodicArg.tla",
+      "source": "---- MODULE ReviewPeriodicArg ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nArg(a) == a\n====\n",
+      "config": "INIT Init\nNEXT Next\n_PERIODIC Arg\n",
+      "code": 2228,
+      "name": "TLC_CONFIG_ID_REQUIRES_NO_ARG",
+      "exit": 151
+    }
+  ]
+}

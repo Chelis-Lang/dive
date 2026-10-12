@@ -468,6 +468,132 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
 }
 
 #[test]
+fn final_binding_errors_preserve_primary_periodic_classes_and_exits() {
+    let primary: serde_json::Value =
+        serde_json::from_str(include_str!("fixtures/periodic-binding.json")).unwrap_or_default();
+    let controls = primary["controls"]
+        .as_array()
+        .unwrap_or_else(|| unreachable!("missing primary periodic controls"));
+    assert_eq!(controls.len(), 2);
+    for control in controls {
+        let name = control["file"].as_str().unwrap_or_default();
+        let spec = temp_file(name, control["source"].as_str().unwrap_or_default());
+        assert!(
+            std::fs::write(
+                spec.with_extension("cfg"),
+                control["config"].as_str().unwrap_or_default()
+            )
+            .is_ok()
+        );
+        for profile in ["--compat=dive", "--compat=tlc"] {
+            for final_short in [false, true] {
+                let path = spec.to_string_lossy();
+                let mut args = vec!["check", &path, profile, "--seed=0", "--output=json"];
+                if final_short {
+                    args.extend(["--lncheck=final", "--lasso=short"]);
+                }
+                let output = dive(&args);
+                let expected_exit = if profile == "--compat=tlc" {
+                    i32::try_from(control["exit"].as_i64().unwrap_or_default()).unwrap_or_default()
+                } else {
+                    1
+                };
+                assert_eq!(output.status.code(), Some(expected_exit));
+                let report: serde_json::Value =
+                    serde_json::from_slice(&output.stdout).unwrap_or_default();
+                assert_eq!(report["verdict"], "model-error");
+                assert_eq!(report["tlc"]["code"], control["code"]);
+                assert_eq!(report["tlc"]["name"], control["name"]);
+                assert_eq!(report["tlc"]["exit_status"], control["exit"]);
+                assert_eq!(report["tlc"]["reported"], control["code"]);
+                assert_eq!(report["tlc"]["verified"], true);
+                assert!(report["statistics"].is_null());
+                assert!(report["counterexample"].is_null());
+                assert_eq!(report["output"], serde_json::json!([]));
+                if final_short {
+                    assert_eq!(report["execution"]["stage"], "binding");
+                    assert_eq!(report["execution"]["capture_completed"], false);
+                }
+            }
+        }
+    }
+    // A valid hook remains a named refusal until hook execution is supported.
+    let spec = temp_file(
+        "ValidPeriodic.tla",
+        "---- MODULE ValidPeriodic ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nHook == TRUE\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            spec.with_extension("cfg"),
+            "INIT Init\nNEXT Next\n_PERIODIC Hook\n"
+        )
+        .is_ok()
+    );
+    for profile in ["--compat=dive", "--compat=tlc"] {
+        let output = dive(&[
+            "check",
+            &spec.to_string_lossy(),
+            profile,
+            "--lncheck=final",
+            "--lasso=short",
+            "--output=json",
+        ]);
+        assert_eq!(output.status.code(), Some(3));
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        assert_eq!(report["verdict"], "unsupported");
+        assert!(report["tlc"].is_null());
+        assert!(
+            report["message"]
+                .as_str()
+                .is_some_and(|m| m.contains("_PERIODIC"))
+        );
+    }
+}
+
+#[test]
+fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
+    // Pinned TLC 2026.10.06.014338 reports 2215 / TLC_EXPECTED_VALUE and
+    // exits 255 for this complete input, before generating initial states.
+    let spec = temp_file(
+        "BadTemporal.tla",
+        "---- MODULE BadTemporal ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nBad == <>1\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            spec.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY Bad\n"
+        )
+        .is_ok()
+    );
+    for (profile, exit) in [("--compat=dive", 13), ("--compat=tlc", 255)] {
+        let output = dive(&[
+            "check",
+            &spec.to_string_lossy(),
+            "--lncheck=final",
+            "--lasso=short",
+            "--output=json",
+            "--seed=0",
+            profile,
+        ]);
+        assert_eq!(output.status.code(), Some(exit));
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        assert_eq!(report["verdict"], "evaluation-error");
+        assert_eq!(report["tlc"]["code"], 2215);
+        assert_eq!(report["tlc"]["name"], "TLC_EXPECTED_VALUE");
+        assert_eq!(report["tlc"]["exit_status"], 255);
+        assert_eq!(report["tlc"]["verified"], true);
+        assert_eq!(report["execution"]["stage"], "planning");
+        assert_eq!(report["execution"]["capture_completed"], false);
+        assert_eq!(report["output"], serde_json::json!([]));
+        assert!(report["statistics"].is_null());
+        assert!(report["counterexample"].is_null());
+        assert!(report["message"].as_str().is_some_and(|message| {
+            message.contains("TLC expected a boolean value, but did not find one.")
+        }));
+    }
+}
+
+#[test]
 fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     let spec = temp_file(
         "TemporalSafety.tla",
@@ -902,263 +1028,6 @@ fn translate_process_fairness_is_explicit_and_never_a_proof()
         );
     }
     assert_eq!(std::fs::read_to_string(file)?, source);
-    Ok(())
-}
-
-#[test]
-fn explicit_final_tlc_mode_certifies_witnesses_and_reports_actual_execution() {
-    let path = temp_file(
-        "CliFinalTlc.tla",
-        "---- MODULE CliFinalTlc ----\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n",
-    );
-    std::fs::write(
-        path.with_extension("cfg"),
-        "INIT Init\nNEXT Next\nPROPERTY Live\n",
-    )
-    .unwrap_or_else(|e| unreachable!("cfg: {e}"));
-    for width in ["1", "3", "4", "8"] {
-        let out = dive(&[
-            "check",
-            &path.to_string_lossy(),
-            "--compat=tlc",
-            "--seed=0",
-            "--fp=0",
-            "--workers",
-            width,
-            "--lncheck=final",
-            "--lasso=tlc",
-            "--output=json",
-        ]);
-        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
-        assert_eq!(
-            out.status.code(),
-            Some(13),
-            "{v} stderr={}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-        assert_eq!(v["schema_version"], 2);
-        assert_eq!(v["verdict"], "liveness-violation");
-        assert_eq!(v["tlc"]["code"], 2116);
-        assert_eq!(v["tlc"]["verified"], true);
-        assert_eq!(v["property"], "Live");
-        assert_eq!(v["counterexample"]["validation"], "valid");
-        assert_eq!(v["options"]["profile"], "tlc");
-        assert_eq!(v["options"]["lncheck"], "final");
-        assert_eq!(v["options"]["lasso"], "tlc");
-        assert_eq!(v["options"]["ordinary_temporal_schedule_supported"], false);
-        assert_eq!(
-            v["options"]["temporal_bounds"]["aggregate_byte_budget"],
-            false
-        );
-        assert_eq!(
-            v["options"]["workers"]["used"].as_u64(),
-            width.parse::<u64>().ok()
-        );
-        assert_eq!(v["execution"]["capture_completed"], true);
-    }
-    for extra in [vec![], vec!["--store=exact"], vec!["--sequential"]] {
-        let mut args = vec![
-            "check",
-            path.to_str().unwrap_or_default(),
-            "--seed=0",
-            "--fp=0",
-            "--lncheck=final",
-            "--lasso=tlc",
-            "--output=json",
-        ];
-        if !extra.is_empty() {
-            args.push("--compat=tlc");
-        }
-        args.extend(extra);
-        let out = dive(&args);
-        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
-        assert_eq!(out.status.code(), Some(3), "{v}");
-        assert_eq!(v["verdict"], "unsupported");
-        assert_eq!(v["options"]["workers"]["used"], 0);
-        assert!(v["statistics"].is_null());
-        assert!(v["tlc"].is_null());
-        assert!(v["counterexample"].is_null());
-    }
-    let ordinary = dive(&[
-        "check",
-        &path.to_string_lossy(),
-        "--compat=tlc",
-        "--output=json",
-    ]);
-    assert_eq!(ordinary.status.code(), Some(3));
-    let v: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
-    assert_eq!(v["schema_version"], 1);
-    assert_eq!(v["verdict"], "unsupported");
-}
-
-#[test]
-fn final_tlc_effects_are_refused_without_startup_output_or_proof() {
-    let path = temp_file(
-        "CliFinalEffect.tla",
-        "---- MODULE CliFinalEffect ----\nEXTENDS TLC\nASSUME PrintT(TRUE)\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n",
-    );
-    std::fs::write(
-        path.with_extension("cfg"),
-        "INIT Init\nNEXT Next\nPROPERTY Live\n",
-    )
-    .unwrap_or_else(|e| unreachable!("cfg: {e}"));
-    let out = dive(&[
-        "check",
-        &path.to_string_lossy(),
-        "--compat=tlc",
-        "--lncheck=final",
-        "--lasso=tlc",
-        "--output=json",
-    ]);
-    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
-    assert_eq!(out.status.code(), Some(3), "{v}");
-    assert_eq!(v["output"], serde_json::json!([]));
-    assert_eq!(v["options"]["workers"]["used"], 0);
-    assert!(v["statistics"].is_null());
-    assert!(v["counterexample"].is_null());
-    assert!(v["tlc"].is_null());
-}
-
-#[test]
-fn final_mode_safety_route_retains_actual_finite_verdicts_without_temporal_claims() {
-    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/tlc-final-safety/models");
-    for (name, code, kind) in [
-        ("SafetyHold", 0, "success"),
-        ("SafetyIf", 0, "success"),
-        ("SafetyInvariant", 12, "invariant-violation"),
-        ("SafetyInitial", 12, "invariant-violation"),
-        ("SafetyAction", 13, "action-property-violation"),
-        ("SafetyPropertyInitial", 13, "property-violation"),
-    ] {
-        let path = base.join(name).join(format!("{name}.tla"));
-        let out = dive(&[
-            "check",
-            &path.to_string_lossy(),
-            "--compat=tlc",
-            "--lncheck=final",
-            "--lasso=tlc",
-            "--seed=0",
-            "--fp=0",
-            "--workers=4",
-            "--output=json",
-        ]);
-        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
-        assert_eq!(out.status.code(), Some(code), "{name}: {v}");
-        assert_eq!(v["schema_version"], 2);
-        assert_eq!(v["verdict"], kind);
-        assert_eq!(v["execution"]["stage"], "safety");
-        assert_eq!(v["execution"]["route"], "bounded-safety-only");
-        assert_eq!(v["execution"]["capture_completed"], kind == "success");
-        assert_eq!(v["execution"]["temporal_certificate"], false);
-        assert_eq!(v["execution"]["product_constructed"], false);
-        assert_eq!(v["execution"]["temporal_obligations"], 0);
-        if kind == "success" {
-            assert_eq!(v["options"]["workers"]["used"], 4);
-        } else {
-            assert_eq!(v["counterexample"]["validation"], "valid");
-            assert_eq!(v["counterexample"]["ending"], "finite");
-        }
-        let ordinary = dive(&[
-            "check",
-            &path.to_string_lossy(),
-            "--compat=tlc",
-            "--seed=0",
-            "--fp=0",
-            "--workers=4",
-            "--output=json",
-        ]);
-        let o: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
-        assert_eq!(o["schema_version"], 1);
-        assert_eq!(o["verdict"], v["verdict"]);
-        assert_eq!(o["statistics"], v["statistics"]);
-        assert!(o["execution"].is_null());
-    }
-}
-
-#[test]
-fn pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode()
--> Result<(), Box<dyn std::error::Error>> {
-    let base =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-state-if/models");
-    for (name, exit) in [
-        ("IfStateViolation", 13),
-        ("IfLet", 13),
-        ("IfEntry", 13),
-        ("IfHoldTrue", 0),
-        ("IfTableau", 13),
-    ] {
-        for workers in ["1", "3", "4", "8"] {
-            let path = base.join(name).join(format!("{name}.tla"));
-            let output = dive(&[
-                "check",
-                &path.to_string_lossy(),
-                "--compat=tlc",
-                "--seed=0",
-                "--fp=0",
-                "--lncheck=final",
-                "--lasso=tlc",
-                "--workers",
-                workers,
-                "--output=json",
-            ]);
-            let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(output.status.code(), Some(exit), "{name}: {report}");
-            assert_eq!(report["schema_version"], 2);
-            assert_eq!(
-                report["options"]["ordinary_temporal_schedule_supported"],
-                false
-            );
-            if exit == 3 {
-                assert_eq!(report["options"]["workers"]["used"], 0);
-                assert!(report["counterexample"].is_null());
-                assert!(report["tlc"].is_null());
-            } else {
-                assert_eq!(
-                    report["options"]["workers"]["used"],
-                    workers.parse::<usize>()?
-                );
-                assert_eq!(report["tlc"]["verified"], true);
-                if exit == 13 {
-                    assert_eq!(report["counterexample"]["validation"], "valid");
-                    assert_eq!(report["properties"], serde_json::json!(["Live"]));
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-#[test]
-fn final_temporal_if_retains_exported_forwarding_refusal() -> Result<(), Box<dyn std::error::Error>>
-{
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/tlc-temporal-if-final/models/TiForward/TiForward.tla");
-    for workers in ["1", "3", "4", "8"] {
-        let output = dive(&[
-            "check",
-            &path.to_string_lossy(),
-            "--compat=tlc",
-            "--seed=0",
-            "--fp=0",
-            "--lncheck=final",
-            "--lasso=tlc",
-            "--workers",
-            workers,
-            "--output=json",
-        ]);
-        let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(output.status.code(), Some(3), "{report}");
-        assert_eq!(report["schema_version"], 2);
-        assert_eq!(report["verdict"], "unsupported");
-        assert_eq!(report["options"]["workers"]["used"], 0);
-        assert!(report["counterexample"].is_null());
-        assert!(report["tlc"].is_null());
-        assert_eq!(
-            report["options"]["ordinary_temporal_schedule_supported"],
-            false
-        );
-    }
     Ok(())
 }
 
