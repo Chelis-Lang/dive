@@ -1,7 +1,46 @@
 [profile.default]
 fail-fast = false
 
+# CI's `Workspace gate` (`cargo xtask gate --fast`). It leaves out the slow,
+# evidence-oriented and multi-worker matrix tests, which `cargo xtask gate
+# --full` (default profile) still runs. Selected from per-test durations of
+# main CI run 38214486988 (4-vCPU runners, 1768 tests, 8385 test-seconds):
+# the selection keeps 1309 tests and about 535 test-seconds, and at least one
+# test binary of every crate. To run the excluded tests on their own:
+#   cargo nextest run --workspace --profile ci --ignore-default-filter
 [profile.ci]
 fail-fast = false
 failure-output = "immediate-final"
 slow-timeout = { period = "60s", terminate-after = 3 }
+default-filter = """
+not (
+    binary_id(dive-api::native_checkpoint_spill)
+    | binary_id(dive-api::native_checkpoint_runtime_names)
+    | binary_id(dive-api::native_checkpoint_keys)
+    | binary_id(dive-api::view_normalization)
+    | binary_id(dive-api::storage_tuple_function)
+    | binary_id(dive-liveness::periodic_snapshot)
+    | (binary_id(dive-api::native_checkpoint) & test(/^frontier_recovery_/))
+    | (binary_id(dive-check::native_checkpoint) & (
+        test(=actual_resume_matches_uninterrupted_and_tlc_reset_is_explicit)
+        | test(/^native_counter_prefix_/)
+        | test(=recovery_can_change_pool_width_and_resume_an_actual_later_level)
+        | test(=coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt)
+        | test(=concrete_compound_model_values_and_name_prefixes_restore_losslessly)
+    ))
+    | (binary_id(dive-api::predecessor_spill) & test(=zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos))
+    | (binary_id(dive-check::capture) & test(=mid_wave_safety_stops_preserve_ordered_prints_counts_and_predecessors))
+    | (binary_id(dive-check::checkpoint_runtime_names) & test(=corrupt_name_tables_refuse_without_continuation_or_a_witness))
+    | (binary_id(dive-check::fingerprints) & (
+        test(=compat_and_exact_agree_on_mc_write_through_cache)
+        | test(=default_profile_finds_every_state_of_mc_write_through_cache)
+    ))
+    | (binary_id(dive-check::dfid) & test(=resource_sweep_keeps_partial_evidence_and_no_false_completion))
+    | (binary_id(dive-check::checkpoint_keys) & (
+        test(=configured_view_key_failure_is_import_failure_not_a_model_verdict)
+        | test(=native_override_authority_and_substitutions_preserve_pre_effect_refusals)
+    ))
+    | (binary_id(dive-check::invariance) & test(=wide_levels_stop_identically_at_every_worker_count))
+    | (binary_id(dive-store::state_fingerprint) & test(=fingerprint_and_exact_membership_agree_on_a_large_sample))
+)
+"""

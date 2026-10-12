@@ -20,6 +20,13 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
+  the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4
+  workers) instead of twenty. `cargo xtask gate --fast` mirrors it locally;
+  `cargo xtask gate --full` runs the whole suite, the CM1 and validation-smoke
+  gates and the small corpus tier, and writes `target/gate-report.md`.
+  `conformance.yml` now runs on manual dispatch only (#241).
+
 - Prevent lost notifications in the test-only returned-prefix rendezvous; retain
   its five-second bound, actual timer/request controls and default behavior.
 

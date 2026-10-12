@@ -1,0 +1,17 @@
+# CI smoke gate: the required `Conformance gate` job in ci.yml runs
+# `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`.
+# Eight of the fastest CM1 models (cm1.txt), four violations and four
+# successes, each well under a second at 1 and 4 workers on a laptop
+# (2026-10-12). The whole CM1 list and the validation-smoke corpus run at
+# 1, 4 and 8 workers in `cargo xtask gate --full`.
+#
+# Violations
+specifications/DieHard/MCDieHarder.cfg
+specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg
+specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg
+specifications/spanning/MC_spanning.cfg
+# Successes
+specifications/CigaretteSmokers/CigaretteSmokers.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg
+specifications/transaction_commit/TCommit.cfg
+specifications/TwoPhase/MCTwoPhase.cfg
