@@ -10,6 +10,8 @@
 //! on the checking run's stream position, which only the successor
 //! generator determines. A check that draws is refused by name
 //! ([`RANDOM_UNSUPPORTED`]), whatever its outcome.
+//! Register reads and writes are also refused ([`REGISTERS_UNSUPPORTED`]):
+//! the evaluator may retain values written by off-trace checker evaluations.
 //!
 //! **Runtime names.** Under TLC's value or exploration order, strings and
 //! model values compare by the order in which they were first encountered.
@@ -156,6 +158,9 @@ pub const RUNTIME_NAMES_UNSUPPORTED: &str = "runtime string encounter order: dec
 /// The reason given when a check draws a random value.
 pub const RANDOM_UNSUPPORTED: &str = "a random draw: the value depends on the checking run's stream position, which only the successor generator determines, so the independent validator cannot check it";
 
+/// The reason given when a check accesses search-dependent TLC registers.
+pub const REGISTERS_UNSUPPORTED: &str = "TLCGet/TLCSet registers: their contents depend on evaluations outside the trace, so the independent validator cannot read or write them";
+
 /// The random-stream replay that the validator used to accept. It was
 /// removed: the validator refuses every draw by name
 /// ([`RANDOM_UNSUPPORTED`]). The type has no values, so the parameter that
@@ -211,6 +216,7 @@ impl<'a> Run<'a> {
             inner: inner.clone(),
             drew: Mutex::new(None),
             any: AtomicBool::new(false),
+            registers: AtomicBool::new(false),
         });
         model.evaluator.set_host(host.clone());
         Self {
@@ -234,7 +240,7 @@ impl<'a> Run<'a> {
     }
 
     /// Why the run's verdict cannot stand, whatever it is: a check drew a
-    /// random value, or a name was created after binding.
+    /// random value, accessed registers, or a name was created after binding.
     pub(crate) fn refusal(&self) -> Option<String> {
         if self.host.any.load(Ordering::Relaxed) {
             let op = self
@@ -244,6 +250,9 @@ impl<'a> Run<'a> {
                 .unwrap_or_else(PoisonError::into_inner)
                 .map_or_else(|| "a random operator".to_owned(), StdOp::qualified_name);
             return Some(format!("{op}: {RANDOM_UNSUPPORTED}"));
+        }
+        if self.host.registers.load(Ordering::Relaxed) {
+            return Some(REGISTERS_UNSUPPORTED.to_owned());
         }
         self.model
             .has_runtime_names()
@@ -810,12 +819,10 @@ impl Drop for Run<'_> {
 
 /// What the validator provides of a checking run: the level of the state
 /// being checked (`TLCGet("level")`) and `TLCGet("config")` from the host the
-/// model was bound with, if any. Registers are the evaluator's own and
-/// follow the trace's history: a register a specification writes while
-/// checking depends on the order of TLC's search, so the validator sees the
-/// values the trace's own steps wrote. The live counters depend on the
-/// search, not on the trace, so they are refused by name. Random draws are
-/// refused, and remembered so that the whole verdict is refused.
+/// model was bound with, if any. Registers and live counters depend on
+/// evaluations outside the trace, so they are refused by name. Register
+/// access and random draws are remembered so the whole verdict is refused,
+/// including when an optional label check swallowed the evaluation error.
 #[derive(Debug)]
 struct TraceHost {
     level: AtomicI64,
@@ -824,9 +831,19 @@ struct TraceHost {
     drew: Mutex<Option<StdOp>>,
     /// Whether any check drew.
     any: AtomicBool,
+    /// Whether any check attempted a register read or write.
+    registers: AtomicBool,
 }
 
 impl Host for TraceHost {
+    fn check_register_access(&self) -> Result<(), HostError> {
+        self.registers.store(true, Ordering::Relaxed);
+        Err(HostError {
+            code: 0,
+            message: REGISTERS_UNSUPPORTED.to_owned(),
+        })
+    }
+
     fn random(&self, op: StdOp, _args: &[Value], _ctx: Ctx) -> Option<Result<Value, HostError>> {
         if !self.any.swap(true, Ordering::Relaxed) {
             *self.drew.lock().unwrap_or_else(PoisonError::into_inner) = Some(op);

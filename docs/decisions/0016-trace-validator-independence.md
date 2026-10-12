@@ -323,6 +323,16 @@ stream-position certificate (`random_position`) and the replay are deleted.
 `dive_trace::Replay` is an uninhabited type kept only until the remaining
 callers drop the argument.
 
+**Registers.** Integer/named `TLCGet`, aggregate `TLCGet("all")` and
+`TLCGet("all:named")`, and integer/named `TLCSet` are refused at evaluation
+time (`REGISTERS_UNSUPPORTED`). A shared evaluator can contain values written
+by checker evaluations outside the trace, even without runtime names. The
+defaulted `Host::check_register_access` permits ordinary evaluator/checker
+access; the replay host refuses before any read or write and remembers the
+attempt, so optional label checks cannot swallow it and produce a verdict.
+Untaken register calls remain supported, caller registers remain unchanged,
+and non-register introspection retains its existing behavior.
+
 **Removed.** The negative-control mutants (`dive_trace::mutate`): the
 harness's `trace-controls` and `SpecModel::controls` run the positive control
 and the dive-format round trip only. The opt-in stored-representation trace

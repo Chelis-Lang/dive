@@ -29,6 +29,8 @@
 //!   draw is refused by name ([`RANDOM_UNSUPPORTED`]), and so is a string
 //!   created at run time when strings follow encounter order
 //!   ([`RUNTIME_NAMES_UNSUPPORTED`]).
+//!   TLC register reads and writes are refused ([`REGISTERS_UNSUPPORTED`])
+//!   because their contents can depend on evaluations outside the trace.
 //! - [`tlc`]: reading TLC's lossy JSON by interpretation.
 //!
 //! Evaluation recurses on the caller's stack: run validation on a thread
@@ -79,8 +81,8 @@ use dive_model::Model;
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
-    Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED, RUNTIME_NAMES_UNSUPPORTED, Replay,
-    Report, Validation, validate,
+    Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED, REGISTERS_UNSUPPORTED,
+    RUNTIME_NAMES_UNSUPPORTED, Replay, Report, Validation, validate,
 };
 
 /// Reads a document in either format against `model` and validates it.

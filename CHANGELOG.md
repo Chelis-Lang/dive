@@ -15,6 +15,8 @@
   `SpecModel::controls` no longer build mutants. TLC JSON interpretation scoring
   now evaluates only pure predicates, preventing register writes from making
   invalid initial states validate, and leaves untaken effects unevaluated.
+  Register reads and writes during replay are refused by name because they
+  depend on off-trace evaluations; validation leaves caller registers intact.
 
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;
