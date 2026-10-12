@@ -1,46 +1,57 @@
-# Workspace CI scheduling
+# CI
 
-The protected `Workspace gate` requires successful authorship checks, all
-`Workspace checks`, and each of eight `Workspace tests` jobs. Every matrix job
-executes one disjoint hash partition of the full workspace suite. A failure,
-timeout, cancellation, skipped prerequisite or missing result fails the gate.
+`.github/workflows/ci.yml` runs three jobs on every PR and every push to
+`main`. Their names are the required checks applied by `cargo xtask
+protect-main`:
 
-Run the complete local gate in [AGENTS.md](../../AGENTS.md) before pushing.
-To reproduce partition coverage and one CI partition:
+- **No AI authorship markers**: `scripts/check-ai-markers.sh` over the pushed
+  or PR commits.
+- **Workspace gate**: one job and one compile. It runs rustfmt, clippy, the
+  nextest `ci` profile, doctests, rustdoc with `-D warnings`, the layering
+  check and a standalone `dive-trace` build. `cargo deny` runs only when the
+  PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
+  check always reports), and on every push to `main`.
+- **Conformance gate**: release builds of the harness and `dive`, then
+  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`.
+
+The push run on `main` checks the merged result (branch protection is not
+strict) and saves the rust-cache entries that PR runs restore.
+
+## The `ci` nextest profile
+
+`.config/nextest.toml` gives the `ci` profile a `default-filter` that leaves out
+the slow tests: the checkpoint, spill, view-normalization, storage, PlusCal
+checksum and disk-role evidence binaries, the periodic-snapshot worker matrix,
+individual multi-worker or whole-model sweeps, and the evidence source guards
+that run `scripts/check-*.py` (those pin hashes of repository files, including
+this workflow). The selection was taken from per-test durations of main and PR
+CI runs. It keeps about 1230 of 1768 tests and about 400 of 8385
+test-seconds, about three minutes on the 2-vCPU hosted runner, with tests of
+every crate.
+
+The job sets `CARGO_PROFILE_DEV_DEBUG=0` and `CARGO_PROFILE_TEST_DEBUG=0` and
+deletes unused preinstalled SDKs in the background: the whole test inventory
+does not otherwise fit on the runner disk (the linker dies with SIGBUS).
+
+Run the excluded tests alone with
+`cargo nextest run --workspace --profile ci --ignore-default-filter`, or the
+whole suite with the default profile.
+
+## Local gates
 
 ```sh
-python3 -I scripts/check-test-partitions.py
-python3 -I scripts/test-workspace-gate.py
-cargo nextest run --workspace --locked --profile ci --partition hash:1/8
+cargo xtask gate --fast                 # what CI's Workspace gate runs
+cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier
+cargo xtask gate --full --skip-corpus   # without the small corpus tier
 ```
 
-Repeat the last command with partitions 2/8 through 8/8 to run all tests locally.
-The coverage verifier queries nextest for the full inventory and each actual
-partition, rejects empty inventories, duplicate tests, missing tests and extra
-tests, and reports each partition's selected count. It also verifies ignored
-tests stay unselected and no partition introduces another filter reason.
-No count is hard-coded: newly added workspace tests must be covered too.
+`--full` keeps going after a failure and writes `target/gate-report.md` (under
+`CARGO_TARGET_DIR` if set): each step's result and duration, and the corpus
+tier's outcome counts. Paste it into the PR body. It is required before PRs
+that touch `dive-eval`, `dive-check`, `dive-value`, `dive-store`,
+`dive-liveness`, `dive-model` or `dive-trace`. It needs `cargo-nextest`, and
+`cargo-deny` when the dependency policy inputs change. On a shared machine,
+set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
-Each test job and Workspace checks retain their 15-minute budget. Nextest CI
-retains its three 60-second slow-test periods and `fail-fast = false`. The
-required aggregation job has five minutes and performs no test selection.
-The dependency check controls exercise all 125 combinations of success,
-failure, cancellation, skipped and missing prerequisite results.
-
-The initial cancellation at main 8b0b7db is recorded in issue #173 and the
-[workspace ADR](../decisions/0001-workspace-toolchain-and-ci.md). It is not a
-passing suite receipt. Partitioning changes scheduling, not TLC conformance
-coverage, generated goldens or the user-facing checker contract.
-
-The runtime-name checkpoint matrix has separate store/worker tests so each
-retains the existing 180-second bound on Linux. All original profile, chaos,
-pause, recovery-counter and witness assertions remain. PR #179’s initial timing
-failure and a mechanical equality check of the original assertion body are
-retained in `conformance/probes/native-parity-integration/current-controls/full-runtime-ci-before-scheduling-repair/`.
-
-Splitting a matrix must preserve comparison scope as well as assertions. Each
-runtime-name wrapper now obtains actual fingerprint and same-store reference
-runs at one worker, and retains the original store/width index for its spill
-family. The first split lost those shared comparisons; its interrupted source
-and gate remain in `current-controls/full-runtime-ci-split-before-reference-repair/`.
-The corrected matrix equality includes all 360 spill-family/boundary groups.
+`.github/workflows/conformance.yml` runs the small or deep tier, including the
+TLC self-checks, on manual dispatch only.

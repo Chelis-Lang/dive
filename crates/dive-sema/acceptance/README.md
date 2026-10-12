@@ -186,7 +186,7 @@ dive-conformance run --impl dive --tier all \
   `crates/dive-conformance/README.md`.
 - The SANY goldens are the harness's own `-error-codes` runs (`kind: sany-module`), one
   per module, in the module's directory.
-- The nightly `conformance` workflow runs this comparison.
+- The `conformance` workflow (manual dispatch) runs this comparison.
 
 The minimal cases (`tests/sany-cases/`) and the mutation campaign stay here. Mutants are
 a natural deep-tier job for the harness.
