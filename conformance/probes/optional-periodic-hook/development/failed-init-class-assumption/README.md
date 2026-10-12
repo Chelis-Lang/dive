@@ -1,1 +1,0 @@
-Failed draft asserted deciding class2179 from selected direct doInit exception. Actual full TLC model checking reports GENERAL1000 containing inner2179 then deciding nested-expression2103/exit75. Fresh untouched primary retained separately. Native preserves same layered class, no production change.

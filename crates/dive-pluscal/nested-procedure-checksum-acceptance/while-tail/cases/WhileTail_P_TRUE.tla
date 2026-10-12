@@ -1,4 +1,0 @@
----- MODULE WhileTail_P_TRUE ----
-EXTENDS Integers, Sequences, TLC
-(* --algorithm A variable x=0; procedure Put(z=0,a=0) begin P:x:=z+a; R:return; end procedure; begin L:while TRUE do skip; end while; if TRUE then call Put(1,2); goto E; else skip; end if; E:skip; end algorithm; *)
-====

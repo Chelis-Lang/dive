@@ -1,1 +1,0 @@
-Development compile failure: newly added transport mutant controls assigned Ending directly to TraceDoc.ending, whose type is Option<Ending>; Rust rejected both assignments (E0308). No tests executed and no runtime credit. Both controls remain and wrap the ending in Some.\n

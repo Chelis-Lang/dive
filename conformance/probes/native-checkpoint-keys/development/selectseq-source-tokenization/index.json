@@ -1,8 +1,0 @@
-{
-  "reason": "New pure SelectSeq closure control lacked a space at = <<; lossless lexer rejects the adjacent token sequence. Source corrected; original acceptance/admission assertions retained.",
-  "files": {
-    "checkpoint_keys.rs": "60a54f19bdf35acf752874ef2b8994f7065f167284dca1028ad38a158854241d",
-    "NativeAdmission.tla": "056c743473f892923cc813e3be6e947208cd32dd977651cbeb2b1c5f8fca9187",
-    "focused.log": "44901530d6a5673108aeb527587d774661336794795449e11a60334a461ccf9c"
-  }
-}

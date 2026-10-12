@@ -1,8 +1,0 @@
-{
-  "stage": "before-native-copy/history-current-matrix-archive",
-  "failure": "Some retained forwarding/material matrices intentionally retain historical source SHA; live source is not authority for those old fields.",
-  "failed_source": "crates/dive-check/src/capture/pure.rs",
-  "expected_historical_sha256": "73195b6094279104f3bb2d90ec146878d493c07bb22d61790aaddce1c8972276",
-  "partial_archive": "development-focus/package-history0",
-  "runtime_or_compiled_producer_changed": false
-}

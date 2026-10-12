@@ -1,6 +1,0 @@
-{
-  "runtime_source_unchanged": true,
-  "cause": "Draft verifier incorrectly required TLC exit12 for default dive invariant exit10; actual native fields and TLC profile are kept distinct.",
-  "first_verifier_exit": 1,
-  "error": "model outcome"
-}

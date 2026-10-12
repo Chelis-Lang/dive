@@ -1,4 +1,0 @@
-deciding_failure_code	2213
-deciding_failure_message	@!@!@STARTMSG 2213:0 @!@!@
-TLC cannot handle the temporal formula line 6, col 57 to line 6, col 69 of module TiLet
-@!@!@ENDMSG 2213 @!@!@

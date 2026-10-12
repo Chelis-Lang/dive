@@ -1,1 +1,0 @@
-{"command":"validate-trace","failure":{"check":"shape","detail":"variable `s`: Attempted to compare record:\n[a |-> 1, b |-> 1]\nwith non-record\n<<1>>","state":0},"length":4,"notes":[],"result":"invalid","schema_version":1}

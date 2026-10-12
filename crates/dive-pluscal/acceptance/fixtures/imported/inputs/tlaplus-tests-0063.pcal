@@ -1,5 +1,0 @@
---algorithm MissingBodyInWith
-begin
-    with x = 0 do
-    end with;
-end algorithm

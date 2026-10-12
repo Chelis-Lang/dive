@@ -1,3 +1,0 @@
-   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.26s
-     Running `/Users/jeff/code/dive-trace-representation-target/debug/examples/disk_seen_replay`

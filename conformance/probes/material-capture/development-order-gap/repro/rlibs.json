@@ -1,8 +1,0 @@
-{
-  "dive_config": "/Users/jeff/code/dive-material-capture-target/debug/deps/libdive_config-d490ff0b2f7743f7.rlib",
-  "dive_value": "/Users/jeff/code/dive-material-capture-target/debug/deps/libdive_value-83a6583f9a1ce6a9.rlib",
-  "dive_ir": "/Users/jeff/code/dive-material-capture-target/debug/deps/libdive_ir-2035f08601442d7f.rlib",
-  "dive_model": "/Users/jeff/code/dive-material-capture-target/debug/deps/libdive_model-e11b36503433907e.rlib",
-  "dive_sema": "/Users/jeff/code/dive-material-capture-target/debug/deps/libdive_sema-cb43222dedd45d2b.rlib",
-  "dive_check": "/Users/jeff/code/dive-material-capture-target/debug/deps/libdive_check-a87f31e0af65f5ae.rlib"
-}

@@ -1,9 +1,0 @@
-RUN compare.py
-{"token-artifact-match": 94, "native-refusal": 49, "rejection-match": 15, "invalid-reference-artifact": 8}
-EXIT 0
-RUN validate.py
-{"artifact_summary": {"native-sany-match": 94}, "model_summary": {"finite-model-match": 74, "disagree": 68}}
-EXIT 1
-RUN qualified-replay.py
-{"strict-complete-model-match": 74, "strict-witness-pending": 66, "strict-deadlock-pending": 2}
-EXIT 0

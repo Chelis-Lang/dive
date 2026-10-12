@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-disk-safety-roles.py", line 189, in <module>
-    p=argparse.ArgumentParser();p.add_argument('packet',nargs='?',type=pathlib.Path,default=pathlib.Path(__file__).resolve().parent.parent/'conformance/probes/disk-safety-roles/implemented-epoch');p.add_argument('--source-root',type=pathlib.Path);p.add_argument('--binary-root',type=pathlib.Path);a=p.parse_args();verify(a.packet,a.source_root,a.binary_root)
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-disk-safety-roles.py", line 65, in verify
-    assert actual==set(index['payload_sha256'])
-AssertionError

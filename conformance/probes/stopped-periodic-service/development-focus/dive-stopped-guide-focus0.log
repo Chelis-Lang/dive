@@ -1,4 +1,0 @@
-   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.57s
-     Running `/Users/jeff/code/dive-periodic-snapshot-target/debug/examples/stopped_periodic_candidate`
-original=invariant-violation code=2110 source=0 workers=4 joined=true hook_calls=0 model_proof=false

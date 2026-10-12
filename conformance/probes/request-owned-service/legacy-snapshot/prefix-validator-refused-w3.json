@@ -1,8 +1,0 @@
-{
-  "json": "Unsupported(\"unsupported temporal validation: predicate quantifier bindings: resource limit: quantifier domain materialization work\")",
-  "memory": "Unsupported(\"unsupported temporal validation: predicate quantifier bindings: resource limit: quantifier domain materialization work\")",
-  "model_proof": false,
-  "ordinary_schedule_certified": false,
-  "source": "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == \\E i \\in 1..8192 : x'=x+1\nLive == <>(x=2)\nHook == FALSE\n====\n",
-  "width": 3
-}

@@ -1,8 +1,0 @@
-{
-  "source_sha256": {
-    "crates/dive-api/tests/tlc_final_scopes.rs": "5ad2b6ca2713294efa63499a8082434d2a2ded6f063eaaf8b624fd19bc999c88",
-    "crates/dive-liveness/tests/tlc_final_scopes.rs": "422f46ffd0e706ce58d9963db38eb07dec0f855ab46b230d975557a62234d056"
-  },
-  "log_sha256": "4350af1a3f12dfdc5747a7d8a62e8cbdb9440c79b29f58fdf65ec7194cbc88ce",
-  "native_result": "actual exposed derived role mismatch; no conformance credit"
-}

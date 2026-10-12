@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-state-if.py", line 44, in <module>
-    for path,digest in current['source_sha256'].items():assert sha(ROOT/path)==digest,path
-AssertionError: conformance/parity-features.json

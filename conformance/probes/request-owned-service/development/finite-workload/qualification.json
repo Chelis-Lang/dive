@@ -1,9 +1,0 @@
-{
-  "status": "failed-independent-replay",
-  "source_sha256": "c30386714ed0e24f41849670d98904fe23b9214c3573a349f4e385966edabc4f",
-  "actual_nonempty_candidate_selected": true,
-  "validation": "Unsupported(scoped temporal purity resource bound)",
-  "bounds_raised": false,
-  "model_proof": false,
-  "ordinary_schedule_certified": false
-}

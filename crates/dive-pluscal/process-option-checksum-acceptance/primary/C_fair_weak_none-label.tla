@@ -1,4 +1,0 @@
----- MODULE C_fair_weak_none_label ----
-EXTENDS Integers, TLC, Sequences
-(* --fair algorithm A {variables g=0; fair process(P \in {1,2}){L:g:=1; E:skip;}} *)
-====

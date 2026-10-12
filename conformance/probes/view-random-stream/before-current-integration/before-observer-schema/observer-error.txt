@@ -1,1 +1,0 @@
-Frozen 2c2eb native output is retained unchanged. First baseline observer assumed verdict was an object; schema1 verdict is a string. TypeError before any implementation change. Corrected observer checks the original typed string field; no assertion or runtime source changed.\n

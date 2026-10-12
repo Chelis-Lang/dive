@@ -1,3 +1,0 @@
---algorithm A { variable x = 0, y; {
- assert (TRUE;
-} }

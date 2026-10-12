@@ -1,8 +1,0 @@
-{
-  "producer": "860e8e5d718fd6db6df6cc53a61619ca07db7aef",
-  "inputs_unchanged": true,
-  "passed": true,
-  "stages": 38,
-  "expected": 38,
-  "log_sha256": "d10dad784829df0d86be1d865f6591928e8a4e99b855c9f5f3a078d9fd7ecc69"
-}

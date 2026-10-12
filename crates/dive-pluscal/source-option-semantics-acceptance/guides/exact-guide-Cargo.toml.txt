@@ -1,8 +1,0 @@
-[package]
-name="source-options-guide"
-version="0.0.0"
-edition="2024"
-[workspace]
-[dependencies]
-dive-api={path="/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-api"}
-dive-pluscal={path="/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal"}

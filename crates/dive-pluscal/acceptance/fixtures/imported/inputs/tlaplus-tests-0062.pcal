@@ -1,5 +1,0 @@
---algorithm MissingBodyInWhile
-begin
-    while TRUE do
-    end while;
-end algorithm

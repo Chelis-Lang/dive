@@ -1,3 +1,0 @@
-completion	tlc-error
-error_code	2215
-message	TLC expected a boolean value, but did not find one. 42

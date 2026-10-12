@@ -1,1 +1,0 @@
-Historical current-map bytes from the composed receiving parent before range-admission refresh. Runtime component producers and payloads remain separately frozen. These maps are not current-source or new semantic qualification.

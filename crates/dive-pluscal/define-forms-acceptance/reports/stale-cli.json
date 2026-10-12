@@ -1,8 +1,0 @@
-{
-  "first_producer": "final/producer.json",
-  "production_source_compile_claim": "not established for first CLI: examples-only selector left prior executable",
-  "observed_failure": "final-models.log",
-  "current_producer": "runtime-corrected/producer.json",
-  "source_changed": false,
-  "historical_runtime_retagged": false
-}

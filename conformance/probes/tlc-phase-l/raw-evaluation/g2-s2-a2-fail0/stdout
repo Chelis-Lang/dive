@@ -1,6 +1,0 @@
-initial.log	
-completion	bin-and-disk-insertion
-log	g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-;g1.a0:source:first;g1.a1:source:first;g1.a0:source:second;g1.a1:source:second;g1.a0:source:source-copy;g1.a1:source:source-copy;g1.s0:source:-;g1.s1:source:-
-slots	0:first;1:second;2:source-copy
-capacity	16
-count	3

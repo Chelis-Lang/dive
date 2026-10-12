@@ -1,7 +1,0 @@
----- MODULE Pc_P_process ----
-EXTENDS Integers, Sequences, FiniteSets, TLC
-(*
---fair algorithm A variable x = 0; fair + process P \in {1, 2} variable a = 3; begin L: skip; end process; process Q = 3 begin M: skip; end process; end algorithm
-
-*)
-====

@@ -1,3 +1,0 @@
-terminal=EofWitness graph_states=2 final_checks=1/1 post_passed=false model_proof=false
-terminal=PostconditionFailure { code: Some(2405) } graph_states=2 final_checks=1/1 post_passed=false model_proof=false
-terminal=FinalSelectionsComplete graph_states=2 final_checks=1/1 post_passed=true model_proof=false

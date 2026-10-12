@@ -1,6 +1,0 @@
-{
-  "scope": "Equivalent shared name-construction method moved from macro impl to the pinned parent public impl; no semantic/field credit change",
-  "source_sha256": {
-    "historical-std-helper-macro.rs": "3cd3d3acd69b5e04be4ff1cbf83c0ad88f1a045d9cfc65a148aea95f19123e5b"
-  }
-}

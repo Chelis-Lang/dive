@@ -1,3 +1,0 @@
-error: usage error: unknown option `--dive`
-gate: 0 of 20 models run in 1s
-gate: FAILED (harness exit 2)

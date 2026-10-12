@@ -1,7 +1,0 @@
-initial.log	
-failure_class	java.lang.IllegalStateException
-failure_message	diagnostic failure at g0.a0:source:second
-log	g0.a0:source:first;g0.a1:source:first;g0.a0:source:second
-slots	0:first;1:second;2:source-copy
-capacity	16
-count	3

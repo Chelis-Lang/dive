@@ -1,5 +1,0 @@
-{
-  "exit": 101,
-  "source_sha256": "cff318195b6212b40f767371a1e38f81424fa3752cd4261145a9f7408929365d",
-  "reason": "Draft back_to=0 mutation preserves an actual stuttering partial candidate. Keep this valid positive, and construct a real 0-to-1 forward edge followed by invalid 1-to-0 closing Next for the semantic negative."
-}

@@ -1,9 +1,0 @@
-{
-  "exit": 101,
-  "source_sha256": "d94dbf5eb0d0fa4a8aa521aa6d09cd3f01146291f84755ce4c703f841c342763",
-  "source_mtime_ns": 1791767252234375454,
-  "reused_executable_sha256": "1d95405e03c464f914db9c5faa07b7ce1738b98a3ba9bbed1edc36c24defacd1",
-  "executable_mtime_ns": 1791767259814662750,
-  "qualification": "Cargo reused earlier executable after copy2 preserved input timestamp. Test panic line198 differs from receiving source line218. No corrected-source test credit. Original log retained; update timestamp and remove closed test executable to force compilation.",
-  "model_proof": false
-}

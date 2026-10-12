@@ -1,7 +1,0 @@
-{
-  "status": "preserved-interpreter-sentinel-failure",
-  "native_observations": 0,
-  "original_script_sha256": "6673f50c7f6c59e3063857fd9ed132971ed97a7bb6ff2b4cb5d12dddbe8c2bb8",
-  "repair": "explicit equal-length assertion before ordinary zip",
-  "model_proof": false
-}

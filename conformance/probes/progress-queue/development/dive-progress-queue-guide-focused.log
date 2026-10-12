@@ -1,7 +1,0 @@
-   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
-   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-sim)
-   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-pluscal)
-   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.43s
-     Running `/Users/jeff/code/dive-periodic-snapshot-target/debug/examples/progress_requests`
-configured=Hook request=1 actual_pool=4 uncommitted=0 model_proof=false

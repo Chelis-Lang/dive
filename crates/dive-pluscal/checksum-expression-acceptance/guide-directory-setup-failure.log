@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-pluscal-checksum-expressions-work/crates/dive-pluscal/checksum-expression-acceptance/check-guide.py", line 37, in <module>
-    main(p.parse_args())
-  File "/Users/jeff/code/dive-pluscal-checksum-expressions-work/crates/dive-pluscal/checksum-expression-acceptance/check-guide.py", line 10, in main
-    sources=[text+'\n' for text in tla];out=BASE/'guide';out.mkdir();rows=[]
-  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
-    self._accessor.mkdir(self, mode)
-FileExistsError: [Errno 17] File exists: '/Users/jeff/code/dive-pluscal-checksum-expressions-work/crates/dive-pluscal/checksum-expression-acceptance/guide'

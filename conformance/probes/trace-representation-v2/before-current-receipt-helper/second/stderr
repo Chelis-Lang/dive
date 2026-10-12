@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-trace-representation.py", line 108, in <module>
-    assert doc["options"]["store"] == row["store"]
-AssertionError

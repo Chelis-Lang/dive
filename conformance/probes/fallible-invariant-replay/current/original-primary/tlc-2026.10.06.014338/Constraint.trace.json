@@ -1,1 +1,0 @@
-{"counterexample":{"action":[[[1,{"x":0}],{"name":"Next","location":{"beginLine":5,"beginColumn":9,"endLine":5,"endColumn":29,"module":"Constraint"}},[2,{"x":1}]],[[2,{"x":1}],{"name":"Next","location":{"beginLine":5,"beginColumn":9,"endLine":5,"endColumn":29,"module":"Constraint"}},[3,{"x":3}]]],"state":[[1,{"x":0}],[2,{"x":1}],[3,{"x":3}]]},"vars":["x"]}

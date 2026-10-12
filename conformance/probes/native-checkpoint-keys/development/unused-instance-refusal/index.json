@@ -1,8 +1,0 @@
-{
-  "description": "First named TLC-instance positive refused unused T!Print; imported native definitions do not run their bodies at startup. Actual selected role/config targets must be seeded explicitly.",
-  "sha256": {
-    "checkpoint_keys.rs": "8d6df37f4ab9e03142713f074a163db12580cd6f5829669abb61a8dc56475280",
-    "checkpoint.rs": "e4aad1f8eb6eaae483196519a27541980fd7250b0dbad076936ed5708c43f67d",
-    "focused.log": "fe6819504b963ae9e5377bf9ae82f259690328469aa5b438a171d7e217490b13"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "scope": "After frozen270 integration, before CASE arrow grouping repair; one unchanged exact primary C/P CST regression fails. Complete d7 failed304-CST campaign is retained separately. No passed-gate claim.",
-  "files_sha256": {
-    "failed-test.log": "0a492f0e5b6a23e66e4f8d001a18cfdae74551b02a46ab1b818ca3e02a75ba21",
-    "checksum_cst.rs": "13e5bfc0560064f97b1086783a58d13a57d03aecdbc6807e830a1f36f64f2f8e",
-    "emit.rs": "78f69d75d6596c54d234001216adfac3d355dd9229faa605ff8aa7effe95b2ad",
-    "diagnosis.md": "04c721187dcc3baaa8e07c1cf7a0a030063d33abff8fef794b1dee6ce8f3160f"
-  }
-}

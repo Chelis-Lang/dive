@@ -1,1 +1,0 @@
-{"counterexample":{"action":[[[1,{"x":0}],{"name":"Next","location":{"beginLine":5,"beginColumn":10,"endLine":5,"endColumn":24,"module":"EarlyInvariant"}},[2,{"x":1}]]],"state":[[1,{"x":0}],[2,{"x":1}]]},"vars":["x"]}

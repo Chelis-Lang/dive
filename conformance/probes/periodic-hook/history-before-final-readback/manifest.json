@@ -1,9 +1,0 @@
-{
-  "producer": "b160992a04454a2a340def57c4b7222c7c613161",
-  "scope": "Unchanged committed Rust/Cargo full gate and runtime. Preserve pre-final-readback Python/current maps; only metadata and independent raw verification follow.",
-  "source_sha256": {
-    "scripts/check-periodic-hook.py": "372b7cd9f4a565c86c850ffaed6d03b901b674400fd21ef5f3c509184bd8eec3",
-    "conformance/probes/periodic-hook/source-matrix.json": "1fc19e954002ad50249b213e6570d63d324f8afb9ca0a7ee6402205487b732ac",
-    "conformance/probes/native-parity-integration/current-source.json": "f9214a391d1b017f81abda1dd004661d970c3b648fc3cf4a18fd4bb57974193c"
-  }
-}

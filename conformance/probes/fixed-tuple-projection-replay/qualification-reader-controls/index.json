@@ -1,9 +1,0 @@
-{
-  "scope": "Eight actual semantic reader mutations rejected; distinct from compiled Rust false-proof mutation and producer runtime",
-  "guard_sha256": "d5ece2a1d47a6194e0e00249979076482272d68f19a14d2d2d7ab136d9c2a5a3",
-  "all_rejected": true,
-  "files_sha256": {
-    "dive-fixed-tuple-projection-guard-mutation-receipt.json.gz": "e912e234876dc7ee4d52e2aadd42805708fa3ff411ffa04d45106729366b1b9f",
-    "dive-fixed-tuple-projection-guard-mutations.py.gz": "a6e5b5f081212c3972a5d90c7fde6a1554b6bb6c1b99b986cf8bac2053bbdcbc"
-  }
-}

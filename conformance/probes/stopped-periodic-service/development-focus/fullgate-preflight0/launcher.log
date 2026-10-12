@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/tmp/dive-stopped-service-gate.py", line 29, in <module>
-    assert not subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=no'],text=True).strip()
-AssertionError

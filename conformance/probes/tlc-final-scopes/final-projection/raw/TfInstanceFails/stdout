@@ -1,4 +1,0 @@
-deciding_failure_code	2213
-deciding_failure_message	@!@!@STARTMSG 2213:0 @!@!@
-TLC cannot handle the temporal formula line 10, col 13 to line 10, col 22 of module TfInstanceFails
-@!@!@ENDMSG 2213 @!@!@

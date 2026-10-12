@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py", line 377, in <module>
-    print(json.dumps(verify(args.base, args.index_sha), sort_keys=True))
-  File "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py", line 286, in verify
-    assert sha(raw(stem + '.' + stream)) == row[stream + '_sha256']
-AssertionError

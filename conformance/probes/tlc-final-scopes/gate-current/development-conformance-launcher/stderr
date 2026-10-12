@@ -1,3 +1,0 @@
-  File "/tmp/run-final-scopes-conformance.py", line 16
-    rust=json.loads((out/'before.json').read_text());assert all(sha(r/p)==d for p,d in rust['source_sha256'].items())
-IndentationError: unexpected indent

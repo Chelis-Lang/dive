@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-temporal-operators.py", line 127, in <module>
-    for path,digest in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==digest,path
-AssertionError: CHANGELOG.md

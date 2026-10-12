@@ -1,9 +1,0 @@
-tagged	N(C(T,s1))
-pushed	D(F,N(s1))
-simplified	N(s1)
-dnf	N(s1)
-groups	1
-g0.temporal	N(s1)
-g0.p0	AEAction=|AEState=|EAAction=
-g0.state	
-g0.action	

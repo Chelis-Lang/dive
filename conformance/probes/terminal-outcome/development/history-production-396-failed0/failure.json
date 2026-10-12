@@ -1,8 +1,0 @@
-{
-  "scope": "Preserved failed packaging observer assumption: some original current-map inventories intentionally retain qualified historical source hashes",
-  "production_commit": "3968821ee1dedf9a486896443a16f3af7e348570",
-  "path": "crates/dive-check/src/capture/pure.rs",
-  "recorded_sha256": "73195b6094279104f3bb2d90ec146878d493c07bb22d61790aaddce1c8972276",
-  "actual_git396_sha256": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-  "model_proof": false
-}

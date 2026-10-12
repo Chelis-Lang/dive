@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-trace-representation.py", line 71, in <module>
-    assert "reader=false" in (BASE / "before-decoder-admission-gate/nested-raw-counterexample/stdout").read_text()
-AssertionError

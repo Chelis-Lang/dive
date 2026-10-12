@@ -1,9 +1,0 @@
-   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-check)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.80s
-     Running unittests src/lib.rs (/Users/jeff/code/dive-checkpoint-spill-target/debug/deps/dive_check-a9e8475370aeaa66)
-
-running 1 test
-test checkpoint::tests::committed_archive_receipt_retains_identity_after_actual_transient_close_failure ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.02s
-

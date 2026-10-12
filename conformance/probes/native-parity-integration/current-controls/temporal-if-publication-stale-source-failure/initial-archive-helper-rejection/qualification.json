@@ -1,5 +1,0 @@
-{
-  "source_commit": "c0ec90d935a48f3f6835db4ad7e7858cb0764f77",
-  "failed_input": "conformance/parity-features.json",
-  "reason": "Archive helper correctly refused to treat a stale temporal-IF matrix digest as current c0 bytes. The preserved partial archive is uncredited; a separate archive uses the validated c0 combined current-source authority."
-}

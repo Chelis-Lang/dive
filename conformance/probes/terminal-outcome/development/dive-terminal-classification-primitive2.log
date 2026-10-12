@@ -1,9 +1,0 @@
-   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.27s
-     Running unittests src/lib.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_liveness-8177f3dcfe0a85f2)
-
-running 1 test
-test phase_execution::partial_origin_tests::final_records_reject_unwritten_missing_foreign_and_incomplete_metadata ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
-

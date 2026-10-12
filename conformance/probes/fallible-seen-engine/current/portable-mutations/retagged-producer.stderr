@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-engine.py", line 104, in <module>
-    if __name__=='__main__':main()
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-engine.py", line 20, in main
-    source=load(safe(manifest['runtime_source_index']));producer=manifest['runtime_commit'];assert source['producer_commit']==producer
-AssertionError

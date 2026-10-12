@@ -1,4 +1,0 @@
-START fmt
-END fmt [0]
-START python
-END python [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]

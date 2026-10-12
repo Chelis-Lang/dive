@@ -1,1 +1,0 @@
-TypeError: string indices must be integers; validator stdout was intentionally retained as decoded exact text, not a nested digest object. Original captures remain unchanged.

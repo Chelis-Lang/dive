@@ -1,9 +1,0 @@
-tagged	C(N(D(G(s1),E(s2))))
-pushed	C(E(N(s1)),G(N(s2)))
-simplified	C(E(N(s1)),G(N(s2)))
-dnf	C(E(N(s1)),G(N(s2)))
-groups	1
-g0.temporal	C(E(N(s1)),G(N(s2)))
-g0.p0	AEAction=|AEState=|EAAction=
-g0.state	
-g0.action	

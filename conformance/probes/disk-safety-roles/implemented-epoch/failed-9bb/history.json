@@ -1,5 +1,0 @@
-{
-  "producer": "9bb256a65a70513d0894ddd16d7773be68ec9d6f",
-  "original_packet_root": "seen-roles-current",
-  "qualification": "Original source archive and failed gate preserved. 1326 run, 1325 passed, one stale public role Unsupported assertion failed; zero skipped. Stages 3-7 not run. Original consumer and source identities unchanged."
-}

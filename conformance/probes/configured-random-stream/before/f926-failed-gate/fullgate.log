@@ -1,8 +1,0 @@
-START fmt
-END fmt [0]
-START python
-END python [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-START clippy
-END clippy [0]
-START nextest
-END nextest [100]

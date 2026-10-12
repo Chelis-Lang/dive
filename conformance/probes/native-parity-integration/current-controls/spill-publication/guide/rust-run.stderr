@@ -1,4 +1,0 @@
-     Locking 45 packages to highest Rust 1.99.0 compatible versions
-   Compiling spill-publication-guide v0.0.0 (/private/tmp/dive-spill-publication-executed-guide/caller)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.76s
-     Running `/Users/jeff/code/dive-checkpoint-spill-shipping-target/debug/spill-publication-guide`

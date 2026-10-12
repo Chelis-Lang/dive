@@ -1,9 +1,0 @@
-{
-  "producer": "3bcdc0113569542af988b350d852bf2bb9ffdcbe",
-  "tests_run": 1045,
-  "passed": 1044,
-  "failed": 1,
-  "skipped": 0,
-  "failed_control": "deciding_graph_callback_before_append_prevents_request_owned_service",
-  "observation": "Four actual empty timer requests preceded the first graph callback at a selected width; expected exactly one was not supported by the asynchronous contract. All twelve service controls passed. Retain this complete failed epoch; the replacement control must establish unique actual request identities, empty source prefixes, genuine initial service and no service after fault, not a fixed natural timer count."
-}

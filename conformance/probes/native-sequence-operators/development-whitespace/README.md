@@ -1,1 +1,0 @@
-The complete initial 33-model selection was rejected by SANY and native parsing because `=<<` lexes ambiguously without spacing. All initial source, primary/projection and native raw observations remain here. Fresh corrected captures are separate and carry no result credit from these failures.

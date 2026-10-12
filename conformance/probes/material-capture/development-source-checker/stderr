@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-material-capture-work/scripts/check-material-capture.py", line 57, in <module>
-    pinned=[s.lines()[2]=='x = TRUE' for s in raw.split('@!@!@STARTMSG 2217:4 @!@!@')[1:]]
-  File "/Users/jeff/code/dive-material-capture-work/scripts/check-material-capture.py", line 57, in <listcomp>
-    pinned=[s.lines()[2]=='x = TRUE' for s in raw.split('@!@!@STARTMSG 2217:4 @!@!@')[1:]]
-AttributeError: 'str' object has no attribute 'lines'

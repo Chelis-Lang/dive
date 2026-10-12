@@ -1,4 +1,0 @@
-   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-hook-work/crates/dive-liveness)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
-     Running tests/periodic_hook.rs (/Users/jeff/code/dive-periodic-hook-target/debug/deps/periodic_hook-0035c7634f9ba080)
-error: test failed, to rerun pass `-p dive-liveness --test periodic_hook`

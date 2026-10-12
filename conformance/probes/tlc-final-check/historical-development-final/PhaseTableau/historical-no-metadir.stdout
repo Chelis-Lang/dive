@@ -1,7 +1,0 @@
-groups	1
-action_names	Live
-role_names	Live
-configured_names	Live
-g0.state_bins	0
-g0.action_bins	0
-g0.tableau	true

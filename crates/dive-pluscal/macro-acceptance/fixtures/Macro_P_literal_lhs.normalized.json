@@ -1,2 +1,0 @@
-pcal.exception.ParseAlgorithmException: Macro expansion substitutes `1' for assignment variable
-    at line 3, column 60 of macro called at line 3, column 88

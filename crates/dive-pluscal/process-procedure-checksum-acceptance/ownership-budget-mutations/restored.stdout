@@ -1,8 +1,0 @@
-
-running 3 tests
-test process_calls_share_the_existing_expansion_and_output_bounds ... ok
-test unproved_process_owners_fairness_and_scoped_names_have_no_crc ... ok
-test process_original_header_bytes_and_crc_match_every_admitted_row ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
-

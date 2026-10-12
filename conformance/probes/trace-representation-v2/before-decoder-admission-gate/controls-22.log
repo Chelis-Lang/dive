@@ -1,5 +1,0 @@
-Verified complete15 conditional controls:11 complete projections/4 reference errors; all histories retained; no periodic or family certification
-Verified complete15 clean final TLC controls, including all four deciding reference errors
-Verified all60 historical native rows:40 supported final-only outcomes/20 named refusals; no reference-error or periodic credit
-Verified executable user API example and retained first compilation failure
-Verified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained

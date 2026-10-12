@@ -1,7 +1,0 @@
-{
-  "scope": "initial test helper lacked INSTANCE module loading; production source unchanged",
-  "files": {
-    "test.rs": "4e222a3730f5d716002193bcf05adde2e775f2d6d1b1871b48f4d4c83738947a",
-    "test.log": "2613486aa89305bdeaf4b65925afbdc4bf4312d22db33ab19c9e6fa39a0c790d"
-  }
-}

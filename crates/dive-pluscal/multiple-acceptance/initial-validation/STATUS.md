@@ -1,1 +1,0 @@
-Partial validation interrupted before delivery to rerun with aggregate allocation guards and the strict complete-report comparator. No complete or certification claim is made by these retained streams.

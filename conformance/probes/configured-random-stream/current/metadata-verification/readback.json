@@ -1,9 +1,0 @@
-{
-  "runtime_source_commit": "2c2ebda3940109fae34a033749b63a8560f8834c",
-  "gate_source_commit": "4cbe698ca97eb0469ebcaaa0a9700ffb89cb0dee",
-  "verified_evidence_files": 6664,
-  "verified_runtime_inputs": 259,
-  "verified_test_and_model_inputs": 2502,
-  "compiled_rust_cargo_inputs_equal": 434,
-  "method": "All archived input hashes checked; each frozen runtime/test source compared to git show and current bytes; runtime binaries retain their original producer identity."
-}

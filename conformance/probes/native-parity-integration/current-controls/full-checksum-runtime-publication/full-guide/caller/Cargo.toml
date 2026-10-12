@@ -1,7 +1,0 @@
-[package]
-name="full-rewrite-publication-guide"
-version="0.0.0"
-edition="2024"
-publish=false
-[dependencies]
-dive-api={path="/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-api"}

@@ -1,1 +1,0 @@
-{"command":"validate-trace","failure":{"check":"ending","detail":"the model has no invariant named `NotAnInvariant`","state":1},"length":2,"notes":[],"result":"invalid","schema_version":1}

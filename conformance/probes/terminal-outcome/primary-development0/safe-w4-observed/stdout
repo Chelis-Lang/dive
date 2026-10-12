@@ -1,9 +1,0 @@
-Parsing file /private/tmp/dive-terminal-outcome-primary-candidate0/safe-w4-observed/Terminal.tla
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-10644335207969283399/Naturals.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Semantic processing of module Naturals
-Semantic processing of module Terminal
-Linting of module Terminal
-Starting... (2026-10-11 22:43:16)
-EVENT	tool-actions:1
-EVENT	tool-postconditions:0
-Implied-temporal checking--satisfiability problem has 1 branches.

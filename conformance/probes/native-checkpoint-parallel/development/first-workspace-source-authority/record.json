@@ -1,4 +1,0 @@
-{
-  "source_commit": "32916a53dac005ffa16edd2145b31fa4653fd72b",
-  "failure": "check-tlc-planning correctly rejected stale current combined source hash for parallel.rs before Rust tests. Original capture/source authorities preserved before regenerating current integration hashes. No runtime/assertion/oracle changes."
-}

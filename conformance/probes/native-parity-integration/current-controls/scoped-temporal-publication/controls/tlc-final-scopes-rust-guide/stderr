@@ -1,4 +1,0 @@
-     Locking 45 packages to highest Rust 1.99.0 compatible versions
-   Compiling tlc-final-scopes-publication-guide v0.0.0 (/private/tmp/dive-scoped-temporal-publication-controls/tlc-final-scopes-rust-guide)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.69s
-     Running `/Users/jeff/code/dive-temporal-if-final-target/debug/tlc-final-scopes-publication-guide`

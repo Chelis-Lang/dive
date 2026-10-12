@@ -1,4 +1,0 @@
----- MODULE Macro_P_literal_lhs ----
-EXTENDS Integers, TLC
-(* --algorithm A variables x=0, y=0; macro Put(v, a) begin v := a; end macro; begin L: Put(1,2); E: skip; end algorithm; *)
-====

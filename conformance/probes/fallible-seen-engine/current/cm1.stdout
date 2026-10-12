@@ -1,3 +1,0 @@
-error: configuration error: the dive binary /Users/jeff/code/dive-trace-representation-work/target/release/dive does not exist; build it with `cargo build --release -p dive-cli` or pass --dive-bin
-gate: 0 of 21 models run in 0s
-gate: FAILED (harness exit 3)

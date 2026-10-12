@@ -1,4 +1,0 @@
-source Tlc verdict=Unsupported { feature: "pure safety role admission found runtime effects/checker reads in TLC!PrintT" } output=[] stats=None seen=None
-source Dive verdict=Unsupported { feature: "pure safety role admission found runtime effects/checker reads in TLC!PrintT" } output=[] stats=None seen=None
-caller-standard-root Tlc verdict=Unsupported { feature: "pure safety role admission found runtime effects/checker reads in TLC!PrintT" } output=[] stats=None seen=None
-caller-standard-root Dive verdict=Unsupported { feature: "pure safety role admission found runtime effects/checker reads in TLC!PrintT" } output=[] stats=None seen=None

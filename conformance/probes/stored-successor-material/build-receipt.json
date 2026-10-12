@@ -1,9 +1,0 @@
-{
-  "source_commit": "c8114616825629d2f54e3d3c7ec224fc1ced91da",
-  "exit": 0,
-  "log_sha256": "a6e580d67ebbeaad3d01b4bd7f44c0a6068f4f5e9b80fc2fb2d354669b8d31a3",
-  "binary_sha256": {
-    "dive": "53a558841afaa41dbc7a60c5cf374d73c1244dc9f5b19eb7593f6f15446e05b5",
-    "dive-conformance": "069b978d5befe1a904135ff7168363d4a9e2fb4a778514aee7aa5f5cd27820f8"
-  }
-}

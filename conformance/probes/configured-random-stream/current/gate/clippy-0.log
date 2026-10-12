@@ -1,7 +1,0 @@
-    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-trace)
-    Checking dive-api v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-api)
-    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-liveness)
-    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-conformance)
-    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-cli)
-    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-bench)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.44s

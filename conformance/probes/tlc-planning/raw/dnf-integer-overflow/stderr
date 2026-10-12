@@ -1,6 +1,0 @@
-Exception in thread "main" util.Assert$TLCRuntimeException: TLC cannot handle the temporal formula because it exceeds the maximum supported size in disjunctive normal form.
-	at util.Assert.fail(Assert.java:86)
-	at tlc2.tool.liveness.LNConj.toDNF(LNConj.java:208)
-	at tlc2.tool.liveness.PlanningProbe.show(PlanningProbe.java:128)
-	at tlc2.tool.liveness.PlanningProbe.run(PlanningProbe.java:121)
-	at tlc2.tool.liveness.PlanningProbe.main(PlanningProbe.java:89)

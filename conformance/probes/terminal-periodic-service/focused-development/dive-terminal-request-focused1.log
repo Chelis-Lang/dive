@@ -1,9 +1,0 @@
-   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.14s
-     Running unittests src/lib.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_api-c4d06276412d5783)
-
-running 1 test
-test periodic_candidate::tests::actual_request_candidate_stops_before_new_terminal_transaction ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.15s
-

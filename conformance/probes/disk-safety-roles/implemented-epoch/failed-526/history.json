@@ -1,4 +1,0 @@
-{
-  "producer": "526acaef1aeecb6f57a79ff05e87289e8bb9ce62",
-  "qualification": "Stage0 all45actual CI Python commands+fmt/census1326zeroignored PASS; stage1 Clippy function-length failure. No nextest/full gate credit. Source/archive and consumer logs immutable."
-}

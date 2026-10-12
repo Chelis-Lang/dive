@@ -1,8 +1,0 @@
---algorithm Github136
-variables x = 0;
-define
-    Inner == INSTANCE Github136Inner WITH Foo1 <- 3, Foo2 <- 4
-end define;
-begin
-    Step: x := Inner!Sum;
-end algorithm;

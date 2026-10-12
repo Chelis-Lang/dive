@@ -1,8 +1,0 @@
-{
-  "reason": "Gate interrupted after sibling demonstrated that standard local zero-arity closure definitions must not be independent startup roots. SIGTERM tests are interruption, not semantic failures.",
-  "files": {
-    "checkpoint_keys.rs": "1a17aaace0fe309eb1cec2fb53018b9deb1019227f2e8d3453055cfed76d37a2",
-    "checkpoint.rs": "9b80661d3985f929a0405f911356f5854dcae1080f404d2ed33479d820e0d18b",
-    "workspace-gate-interrupted.log": "7dc2a02593aa54050fb1d461ef1eb188164d7731ac2c65c7700842cf0d6d1273"
-  }
-}

@@ -1,9 +1,0 @@
-tagged	C(G(T))
-pushed	C(G(T))
-simplified	G(T)
-dnf	G(T)
-groups	1
-g0.temporal	G(T)
-g0.p0	AEAction=|AEState=|EAAction=
-g0.state	
-g0.action	

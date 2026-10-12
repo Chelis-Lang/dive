@@ -1,8 +1,0 @@
-{
-  "scope": "Development gate intentionally interrupted before completion after read-only ownership audit; no gate pass or constructor certification is claimed",
-  "source_matrix": "source-matrix.json",
-  "stage": "nextest build cancelled; fmt/Python/scoped clippy earlier passed",
-  "source_sha256": {
-    "cancelled-gate.log": "c052fc3b2f6e60dde3379c789e9f0652989d1350bbc2deca07ce3bb1dea50948"
-  }
-}

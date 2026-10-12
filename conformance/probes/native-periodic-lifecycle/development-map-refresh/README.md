@@ -1,1 +1,0 @@
-The first metadata convenience refresher used later integration paths absent from this producer and failed before native execution. The attempted maps remain here, uncredited. Original exact maps were restored from765/f4; current maps are refreshed separately without absent paths or historical retagging.

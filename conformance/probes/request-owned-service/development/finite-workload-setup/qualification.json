@@ -1,3 +1,0 @@
-{
-  "scope": "Setup failure: fixture helper imported Integers but omitted Sequences for Len; semantic lowering refused before backend setup. No timer/native/error parity credit."
-}

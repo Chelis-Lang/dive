@@ -1,5 +1,0 @@
-RUN cargo fmt --all --check
-RESULT 0 /tmp/dive-full-runtime-ci-partition-repair-gate-0.log
-RUN cargo clippy --workspace --all-targets --locked -- -D warnings
-RESULT 0 /tmp/dive-full-runtime-ci-partition-repair-gate-1.log
-RUN cargo nextest run --workspace --locked --profile ci

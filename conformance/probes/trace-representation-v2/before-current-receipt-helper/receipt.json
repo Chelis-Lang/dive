@@ -1,9 +1,0 @@
-{
-  "scope": "First new metadata helper expected the wrong printed marker for immutable92 counterexample. No production/source/oracle assertion changed; correction checks the actual two encodedOk/decodedErr rows exactly.",
-  "exit": 1,
-  "files_sha256": {
-    "source.py": "12f3ee089745ac29589164b0bd23f1debe2326d73ab926fe37db19cb3e39e306",
-    "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "stderr": "489cdaa3627e1bfc9a862daf54191ccafbebb51e223e181db0f3b040363dc7e4"
-  }
-}

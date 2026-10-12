@@ -1,1 +1,0 @@
-Current integrity inventory still held the pre-qualification documentation hashes. This exact metadata-only guard failure is retained before refreshing the inventory. No Rust/Cargo input, golden or historical runtime observation changed.

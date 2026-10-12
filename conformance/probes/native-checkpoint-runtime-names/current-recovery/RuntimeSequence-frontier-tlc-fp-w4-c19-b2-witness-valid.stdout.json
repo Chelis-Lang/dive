@@ -1,1 +1,0 @@
-{"command":"validate-trace","length":4,"notes":[],"result":"unsupported","schema_version":1,"unsupported":"runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"}

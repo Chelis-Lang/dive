@@ -1,7 +1,0 @@
-{
-  "documentation_sha256": "7f53a7415be82a51a0d23d88820db724345bd26f0a2302cb24f58ca1037ed148",
-  "cargo_example_sha256": "1b7a411fdf6fb370ccaf4ff4a07d6fbd2ea925434d737a6728e3af358bac7221",
-  "rust_body_exact": true,
-  "tla_blocks_exact": 2,
-  "qualification": "Cargo-only crate documentation header excluded from exact Markdown Rust body comparison; code unchanged"
-}

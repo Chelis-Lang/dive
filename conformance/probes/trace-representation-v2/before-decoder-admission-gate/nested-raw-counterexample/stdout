@@ -1,4 +1,0 @@
-Ctx { int_mode: Tlc, order: Tlc }: encoded Ok(Object {"items": Array [Object {"items": Array [Number(2), Number(1)], "normalized": Bool(false), "order": String("tlc"), "repr": String("raw-set")}, Object {"items": Array [Number(3)], "normalized": Bool(false), "order": String("tlc"), "repr": String("raw-set")}], "normalized": Bool(true), "order": String("tlc"), "repr": String("raw-set")})
-decoded Err("stored representation disagrees with checked constructor")
-Ctx { int_mode: Big, order: Canonical }: encoded Ok(Object {"items": Array [Object {"items": Array [Number(2), Number(1)], "normalized": Bool(false), "order": String("canonical"), "repr": String("raw-set")}, Object {"items": Array [Number(3)], "normalized": Bool(false), "order": String("canonical"), "repr": String("raw-set")}], "normalized": Bool(true), "order": String("canonical"), "repr": String("raw-set")})
-decoded Err("stored representation disagrees with checked constructor")

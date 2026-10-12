@@ -1,6 +1,0 @@
-    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-pluscal)
-    Checking dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-api)
-    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-conformance)
-    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-bench)
-    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-cli)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 33.97s

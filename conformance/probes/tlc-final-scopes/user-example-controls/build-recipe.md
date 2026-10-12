@@ -1,1 +1,0 @@
-Compile user-example.rs in a Cargo-owned package with path dependencies on dive-api, dive-check, dive-liveness, dive-ir, dive-sema, dive-config and dive-trace. The package uses edition 2024 and a private workspace; Cargo.lock records the resolved dependency versions. This avoids mixing feature-built standalone rlibs.

@@ -1,5 +1,0 @@
-{
-  "test_source_sha256": "12b59082a6aa3842a5c134e13848f42b11a4bd2fa72813cf13eecbcbafb3a082",
-  "log_sha256": "df157db2e415484a35d869d95167010d0224bf8047d8d46b0a03485ed132b325",
-  "reason": "The supposed pure positive imported Randomization, whose unused source definitions invoke random natives. The conservative source-wide guard correctly refused; change the positive source to import only Naturals/TLC, without weakening its verdict/count/trace assertions."
-}

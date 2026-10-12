@@ -1,5 +1,0 @@
-tagged	C(E(a1))
-pushed	C(E(a1))
-simplified	E(a1)
-dnf	E(a1)
-refusal	util.Assert$TLCRuntimeException:Temporal formulas containing actions must be of forms <>[]A or []<>A.

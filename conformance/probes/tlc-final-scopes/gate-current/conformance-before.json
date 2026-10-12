@@ -1,6 +1,0 @@
-{
-  "cli_sha256": "20050c351b8ce73cf834bb2feab20b378962437c58f09a60a36b93cf67bced1e",
-  "harness_sha256": "0bf05c9e3be1677a3bb0edc0cea02f9e5ff5fdfecfb07f5fa7d2b2a8e434f26a",
-  "gate_test_profile_cli_sha256": "0badabb1e08d656295b92a1a52a4d14e08a373d71028e4e24a45f24e49822bcc",
-  "scope": "same frozen source; conformance CLI is exact native-capture producer, gate profile binary remains separate"
-}

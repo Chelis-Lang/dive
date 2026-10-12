@@ -1,7 +1,0 @@
-{
-  "schema_version": 1,
-  "outcome": "runner-startup-failure",
-  "reason": "The bounded comparison started before the immutable candidate binary copy finished; no native artifact comparison or admission credit.",
-  "native_comparisons": 0,
-  "captured_failure_sha256": "2803f554fbf17e07a2a7816913756293eb118018e771f13344228c4a779c8370"
-}

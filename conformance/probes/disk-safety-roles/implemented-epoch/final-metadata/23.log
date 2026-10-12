@@ -1,1 +1,0 @@
-{"producer": "7fae387c11675b6a72119cc0013dd18f4eac33cb", "selected_source": 1347, "literal_sites": 61, "gate": "8/8;1326/1326;0skipped", "cli_rows": 2320, "public_rows": 2088, "independent_valid_words": 432, "semantic_mutants_invalid": 2592, "family_certified": false}

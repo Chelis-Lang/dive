@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-phase-l.py", line 64, in <module>
-    if __name__=='__main__':main()
-  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-phase-l.py", line 59, in main
-    for path,digest in combined['source_sha256'].items():assert sha(ROOT/path)==digest,path
-AssertionError: crates/dive-check/src/engine.rs

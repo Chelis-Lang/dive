@@ -1,9 +1,0 @@
-{
-  "raw_capture_completed": true,
-  "raw_observations": 80,
-  "capture_timeout_count": 0,
-  "wrapper_failure": "Python zip() strict keyword unavailable on this interpreter",
-  "repair": "Explicit equal-length assertion retained; readback rerun against closed raw observations without rerunning capture. All source and binary identities verified before and after.",
-  "comparison_passed": true,
-  "raw_epoch_unchanged": true
-}

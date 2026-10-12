@@ -1,7 +1,0 @@
-step.0.fp	100
-step.0.transitions	100:-1:1;42:-1:0;42:-1:1
-step.1.fp	42
-step.1.transitions	42:-1:0;42:-1:1
-step.2.fp	100
-step.2.transitions	100:-1:1;42:-1:0;42:-1:1
-completion	forced-collision-written-unwritten-projection-no-fingerprint-proof

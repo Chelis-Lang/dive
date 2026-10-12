@@ -1,8 +1,0 @@
-{
-  "reason": "Existing public IR refusal remained effect-free, but diagnostic used runtime/temporal rather than the required runtime effects wording. Retain assertion and give explicit effect-class message; no behavior relaxation.",
-  "source_sha256": {
-    "checkpoint.rs": "8cdfe50f464e79c40d8123b3582cdfad36a7edbc4c14f83d479dd16e0f222679",
-    "focused.log": "fea40419824936d7c126aef2965e5f0b94dee334f60d1d7710356e8e1cdf8b59",
-    "public_ir.rs": "5c309a3ba87bfbc573f94b60a38ac5a5eb658f01562578c0eb3f1f1345d781d8"
-  }
-}

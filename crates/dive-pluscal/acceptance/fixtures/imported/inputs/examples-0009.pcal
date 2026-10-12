@@ -1,7 +1,0 @@
---fair algorithm SumSequence {
-    variables seq \in Seq(Values), sum = 0, n = 1 ;
-    { a: while (n =< Len(seq)) 
-          { sum := sum + seq[n] ;
-             n := n+1 ;           }
-    }
-}

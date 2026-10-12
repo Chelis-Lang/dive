@@ -1,8 +1,0 @@
-Parsing file /Users/jeff/code/dive-temporal-if-work/conformance/probes/tlc-temporal-if/models/IfTableau/IfTableau.tla
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-12793307199782237143/Integers.tla (jar:file:/Users/jeff/code/dive-temporal-if-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-12793307199782237143/Naturals.tla (jar:file:/Users/jeff/code/dive-temporal-if-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Semantic processing of module Naturals
-Semantic processing of module Integers
-Semantic processing of module IfTableau
-Linting of module IfTableau
-Starting... (2026-10-10 23:12:57)

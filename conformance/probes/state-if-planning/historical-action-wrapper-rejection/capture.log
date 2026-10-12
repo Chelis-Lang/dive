@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-state-if-planning-work/conformance/probes/state-if-planning/capture.py", line 49, in <module>
-    assert r.returncode==0 and 'completion' in fields, name
-AssertionError: ActionThenError

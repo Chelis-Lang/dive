@@ -1,7 +1,0 @@
-{
-  "files": {
-    "test.rs": "ce041553fd9fdad51f592277653d4dc805a46b2dc0c3ee663a0bfc4b512c09e4",
-    "test.log": "d28e292ead2acf0b2900b431a2a399a54bf9a9cbffa90c5a2feca092a7265b47"
-  },
-  "scope": "failed overly-specific unused-model budget-site assertion; no bound or success claim from this attempt"
-}

@@ -1,6 +1,0 @@
-# Development-only javac output, never runtime or retained source evidence.
-/fixtures/adapter/
-/interactions/fixtures/adapter/
-__pycache__/
-**/adapter/
-*.class

@@ -1,1 +1,0 @@
-The first Clippy pass rejected a long matrix wrapper and an empty-vector assertion style. Only the documented test allowance and diagnostic assertion style changed; implementation, cases, expected values, timeouts and oracle evidence stayed unchanged.

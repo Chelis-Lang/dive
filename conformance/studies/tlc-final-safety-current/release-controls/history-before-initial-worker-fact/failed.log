@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/tmp/dive-final-safety-release-controls/safety.py", line 20, in <module>
-    assert v['options']['workers']['used']==width
-AssertionError

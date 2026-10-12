@@ -1,9 +1,0 @@
-{
-  "source_sha256": {
-    "crates/dive-model/src/spec.rs": "06c0489dc1b15fa2b245a97b9af81792350ff5550f34f5b6d09bc154a3d6eb55",
-    "crates/dive-liveness/src/tlc_plan.rs": "00820e3299de74c702e4ee6ed380d955a1930b012f3d0b67954adce2f82bcc33",
-    "crates/dive-liveness/tests/tlc_final_scopes.rs": "422f46ffd0e706ce58d9963db38eb07dec0f855ab46b230d975557a62234d056"
-  },
-  "log_sha256": "b77f91d192dfcea8e5ca96c48fa6f5b5e6bbff2d0ee83cb935bd5842a2593d29",
-  "failure": "exact pinned DNF shape differs despite matching final graph/witness"
-}

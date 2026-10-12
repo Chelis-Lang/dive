@@ -1,7 +1,0 @@
-   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-store)
-   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
-   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
-   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
-   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-conformance)
-   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-cli)
-    Finished `release` profile [optimized + debuginfo] target(s) in 40.29s

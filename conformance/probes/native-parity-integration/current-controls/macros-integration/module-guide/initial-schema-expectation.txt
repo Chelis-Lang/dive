@@ -1,1 +1,0 @@
-Initial guide verifier expected result=success; actual safety schema1 uses verdict=success. It rejected a valid zero-exit result with3distinct/4generated/depth3. Original captured bytes retained. Corrected verifier checks the actual schema1 verdict, statistics and resolved profile. No input or implementation changed.

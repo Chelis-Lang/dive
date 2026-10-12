@@ -1,9 +1,0 @@
-{
-  "source_commit": "bd7f874f8378a2f5a069bad8e25bfb4d4b0d603b",
-  "scope": "original combined Clippy failure, retained without semantic credit",
-  "sha256": {
-    "dive-native-parity-combined-full-gate.log.gz": "a89e3226f4d9cf9e6a0f65f92c0e14201baa09f24b574ef87da821685e9f98a9",
-    "dive-native-parity-combined-gate-1.log.gz": "714a43779523d4a6f3273126ab439f6d930ba43513d6854190aaef190436a7e6",
-    "phase_graph.rs.gz": "e4bc9229aaf69c4e3e0a6e83f772caad70126e19cc3f36114d1054c0f2630211"
-  }
-}

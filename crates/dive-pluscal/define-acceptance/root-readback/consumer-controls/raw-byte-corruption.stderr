@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/tmp/dive-define-portable-verification-draft/verify-delivery.py", line 35, in <module>
-    assert sha((portable/relative).read_bytes())==digest,name
-AssertionError: raw-final/Define_C_case.stderr.gz

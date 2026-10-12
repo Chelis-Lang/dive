@@ -1,5 +1,0 @@
-   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-trace)
-   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-api)
-   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-conformance)
-   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-cli)
-    Finished `release` profile [optimized + debuginfo] target(s) in 1m 51s

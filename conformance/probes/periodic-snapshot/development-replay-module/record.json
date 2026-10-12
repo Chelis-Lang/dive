@@ -1,5 +1,0 @@
-{
-  "exit": 101,
-  "test_sha256": "a43d7ed319025a3f7bb636caac248816f84318d0e4a307ee506c62da0f52932d",
-  "cause": "Fixture source MODULE Replay passed to helper filename Bounded.tla; semantic rejection before any replay. Eleven other controls passed."
-}

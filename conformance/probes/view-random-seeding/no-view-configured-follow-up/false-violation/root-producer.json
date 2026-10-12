@@ -1,9 +1,0 @@
-{
-  "source_commit": "b8fb13cdab443e7ad0206a467d9a392075f31397",
-  "binary_sha256": {
-    "dive": "e779ccf8f9ed5e3c293fe7c143a29b838b48b791b97d568283c0f41f32ae682a",
-    "dive-conformance": "c6bfa60046e2a10584a4cade13550ca3a83947c77e94892c3c888561bea793d3",
-    "editor": "80b27bea24f9284da977e75faad35ad05699f37121228047ebf8af1ef48fd8fb",
-    "cst": "5a1fef045ba50cd88abb48abf53ed73555a538fe77517e1db1a6a71a7d673ce8"
-  }
-}

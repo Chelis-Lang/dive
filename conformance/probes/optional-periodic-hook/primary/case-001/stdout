@@ -1,4 +1,0 @@
-EVENT	setup-complete
-EVENT	configured-name:
-EVENT	snapshot-class:null
-EVENT	body-present:false

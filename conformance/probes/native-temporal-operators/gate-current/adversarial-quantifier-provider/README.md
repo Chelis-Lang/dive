@@ -1,1 +1,0 @@
-Additional post-gate read-only public Word probe on the same production libraries: native Len formal nested under a state-dependent finite quantifier. Both profiles return opaque-deferred-binder-domain refusal with zero provider callbacks. External probe, not a new Rust-gate test or model proof. Source/kernel gate inputs were unchanged.

@@ -1,6 +1,0 @@
-{
-  "scope": "Runner failure, not an API conformance disagreement.",
-  "cause": "CLI controls and the Rust example initially shared cp-spill.cp. The documented create-new/no-overwrite policy refused the already existing archive; the paused status assertion then failed.",
-  "correction": "Run the unchanged documented Rust example in a fresh runtime directory with a read-only conformance symlink. Original sources, stdout/stderr and archive are retained.",
-  "family_certified": false
-}

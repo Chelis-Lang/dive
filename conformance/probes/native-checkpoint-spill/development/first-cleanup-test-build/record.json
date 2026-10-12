@@ -1,4 +1,0 @@
-{
-  "source_sha256": "df57d7dfc3e8c04b247b8373f11356293cf3886c5dfd5d90915009efac89c276",
-  "qualification": "New test used three incorrect constructor/helper spellings; the test did not execute. Correcting valid_snapshot, CheckOptions::tlc and Value::int(Int::Small) changes no production behavior or test assertion."
-}

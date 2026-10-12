@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-view-random-stream.py", line 34, in <module>
-    assert sha(ROOT / path) == expected, f"Current VIEW/random source authority changed: {path}"
-AssertionError: Current VIEW/random source authority changed: crates/dive-store/src/lib.rs

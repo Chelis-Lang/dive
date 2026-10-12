@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "source_commit": "1f30d869634618046ecd6e43007d9273befc134b",
-  "scope": "Preserved source map before CI scheduling integration; original feature runtime and gate receipts remain bound to their own producers.",
-  "files_sha256": {
-    "conformance/probes/native-parity-integration/current-source.json": "70d5917de49b5e6f5e5b6f768762a3ba7a0d0523763acca2b2d7f77d649e4e27",
-    "CHANGELOG.md": "6b5dcc0ba9de7f778a60ec4442d0e42698a91fb35467d9a94b7e86af7bf70bfe"
-  }
-}

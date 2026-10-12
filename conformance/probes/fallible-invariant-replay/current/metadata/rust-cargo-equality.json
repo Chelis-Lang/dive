@@ -1,6 +1,0 @@
-{
-  "runtime_commit": "881b75992d0ef5dc11539018da526e5e55066027",
-  "selected_original_input_pairs": 1226,
-  "all_git_live_archived_bytes_equal": true,
-  "scope": "No original production/test Rust or Cargo input changed after frozen gate/runtime; newly copied proof source and helpers are metadata only."
-}

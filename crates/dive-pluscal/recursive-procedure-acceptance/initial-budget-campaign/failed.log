@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-pluscal-recursive-work/crates/dive-pluscal/recursive-procedure-acceptance/check-budgets.py", line 48, in <module>
-    main(p.parse_args())
-  File "/Users/jeff/code/dive-pluscal-recursive-work/crates/dive-pluscal/recursive-procedure-acceptance/check-budgets.py", line 38, in main
-    if process.returncode:raise ValueError(name+':'+process.stderr.decode())
-ValueError: Recursive_C_mutual_tail_unbounded:Error: "not a bounded stop: Unsupported { feature: \"graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)\" }"
-

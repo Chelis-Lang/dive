@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/tmp/dive-define-portable-verification-draft/verify-delivery.py", line 41, in <module>
-    assert readback['separate_promotion_authority']['crates/dive-pluscal/tests/macro_checksum.rs']['original_current_map_sha256'] is None
-AssertionError

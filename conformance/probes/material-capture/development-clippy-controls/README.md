@@ -1,1 +1,0 @@
-All64 selected native outcomes completed before test-only lint repairs. Full focused clippy returned101 for5 new test diagnostics (explicit default types/useless u64 conversion). Original source/raw64/clippylog retained. Production behavior unchanged; new native capture will bind the current source rather than retagging this history.

@@ -1,8 +1,0 @@
-{
-  "scope": "original staged direct and forwarded temporal IF refusal, before runtime admission",
-  "source_sha256": {
-    "crates/dive-liveness/src/phase_l.rs": "5996b79a1c09ee6860a39f7e4a7a18930b1f5d0cfa761da037110d685933db0a",
-    "crates/dive-api/tests/tlc_state_if.rs": "85c03e05dfaf55e63a04e7f7627d5dcccde11832ae59faeec8f134681a28e392",
-    "crates/dive-liveness/tests/tlc_temporal_if.rs": "4f3a7c5d9c4b45c4d01ff427756c198da3cfb93cade8148d7b65f8e67e72a3cd"
-  }
-}

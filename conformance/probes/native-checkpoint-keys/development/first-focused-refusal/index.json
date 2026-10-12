@@ -1,9 +1,0 @@
-{
-  "description": "First strict transformed-key recovery matrix: VIEW groups pass; symmetry refused by unused standard-module bodies. Original assertions retained.",
-  "sha256": {
-    "focused.log": "960c33edadb01c5c27b374bd470c62fcfb51262d01a3ac56f7fd6be31ceda4cd",
-    "checkpoint.rs": "c01a17bcee0639dcb5299884b12aa0c2871205f5bfe773d4a4bf3a7f96466739",
-    "native_checkpoint_keys.rs": "dca91187c997a8e4149a27edd8cdc4805d26c483df0aad511e081d1c249c136e",
-    "checkpoint_keys.rs": "a8f95b399ecf47684ebcc0f06617ec190d1fb7c8b90b71a324c29a4034da256c"
-  }
-}

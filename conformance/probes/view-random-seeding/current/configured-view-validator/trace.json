@@ -1,1 +1,0 @@
-{"format": "dive-trace", "version": 1, "variables": ["n", "x"], "length": 4, "ending": {"kind": "invariant", "name": "Inv"}, "states": [{"action": null, "values": {"n": 0, "x": 0}}, {"action": null, "values": {"n": 1, "x": 74}}, {"action": null, "values": {"n": 2, "x": 75}}, {"action": null, "values": {"n": 3, "x": 35}}]}

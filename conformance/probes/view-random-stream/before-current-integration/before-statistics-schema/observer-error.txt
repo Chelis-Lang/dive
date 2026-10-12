@@ -1,1 +1,0 @@
-Pre-binding Unsupported reports statistics=null and actual usedworkers0; observer incorrectly expected a numeric zero-generated report. Original native bytes retained. Corrected observer requires statistics=None, no counterexample/output, exact named refusal; no implementation or oracle assertions changed.\n

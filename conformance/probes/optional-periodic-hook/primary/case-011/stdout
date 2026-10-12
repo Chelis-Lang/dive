@@ -1,6 +1,0 @@
-EVENT	exception-class:util.Assert$TLCRuntimeException
-EVENT	exception-code:2229
-MESSAGE-BEGIN
-The periodic Missing specified in the configuration file
-is not defined in the specification.
-MESSAGE-END

@@ -1,7 +1,0 @@
-[type     |-> "uniprocess", 
- name  |-> "A", 
- decls  |-> <<[var |-> "defaultInitValue", eqOrIn |-> "=", val |-> << "defaultInitValue" >>]>>,
- defs   |-> <<  >>,
- prcds  |-> <<>>,
- body  |-> <<[label |-> "L",
-              stmts |-> <<[type |-> "skip"]>>]>>]

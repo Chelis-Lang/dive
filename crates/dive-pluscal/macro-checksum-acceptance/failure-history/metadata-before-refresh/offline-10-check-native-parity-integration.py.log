@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-pluscal-macro-checksum-work/scripts/check-native-parity-integration.py", line 42, in <module>
-    assert sha((ROOT / name).read_bytes()) == digest, name
-AssertionError: CHANGELOG.md

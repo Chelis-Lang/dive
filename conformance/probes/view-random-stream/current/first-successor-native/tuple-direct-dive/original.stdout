@@ -1,1 +1,0 @@
-{"command":"validate-trace","length":2,"notes":["label `Next` draws random values on its own; not checked"],"result":"valid","schema_version":1}

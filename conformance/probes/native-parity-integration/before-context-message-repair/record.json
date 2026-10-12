@@ -1,9 +1,0 @@
-{
-  "source_commit": "9699950299f6b7ea5f87b3e44a81872530c511a0",
-  "scope": "814/815 passed; original test required retired free-text instead of stable typed context code",
-  "sha256": {
-    "dive-native-parity-combined-fixed-full-gate.log.gz": "c3fc87a47e85b008e523d9165a366fefb25ee37fa421c9afc3b29643a32cdb0e",
-    "dive-native-parity-combined-fixed-gate-2.log.gz": "9894c589a8887f9aa439c9e96d8206c8d782671d5af456315d6c365736330e21",
-    "capture.rs.gz": "26648259a429b2b9f5a8a8ceaf6296701936a6598c62055fd28f0f7ca02ac1c8"
-  }
-}

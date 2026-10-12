@@ -1,6 +1,0 @@
-COMMAND ["cargo", "build", "-p", "dive-trace", "--locked"]
-   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-eval)
-   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-stdlib)
-   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-model)
-   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-view-normalization-work/crates/dive-trace)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.54s

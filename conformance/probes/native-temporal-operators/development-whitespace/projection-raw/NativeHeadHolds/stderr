@@ -1,8 +1,0 @@
-Parsing file /Users/jeff/code/dive-native-operator-work/conformance/probes/native-temporal-operators/models/NativeHeadHolds/NativeHeadHolds.tla
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-13480737059275238209/Sequences.tla (jar:file:/Users/jeff/code/dive-native-operator-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-13480737059275238209/Naturals.tla (jar:file:/Users/jeff/code/dive-native-operator-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Semantic processing of module Naturals
-Semantic processing of module Sequences
-Semantic processing of module NativeHeadHolds
-Linting of module NativeHeadHolds
-Starting... (2026-10-11 04:50:32)

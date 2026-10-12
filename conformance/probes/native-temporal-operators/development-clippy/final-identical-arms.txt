@@ -1,1 +1,0 @@
-Development lint failure retained: identical Action/Temporal match arms in planner and independent Word level inspection. The subsequent repair merges structurally equivalent patterns; it does not change behavior. This log earns no gate credit.

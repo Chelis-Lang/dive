@@ -1,1 +1,0 @@
-{"command":"validate-trace","failure":{"check":"shape","detail":"the lasso loops back to state 2, past the end","state":1},"length":2,"notes":[],"result":"invalid","schema_version":1}

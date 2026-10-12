@@ -1,7 +1,0 @@
-{
-  "manifest": "conformance/probes/fallible-seen-engine/delivery-index.json",
-  "key": "payload_sha256[docs/user/disk-seen-safety.md]",
-  "old_sha256": "83189d58193a9ad771b07ea1cd18f83c10a81334a0f8747e968340c347b30034",
-  "current_sha256": "ec770383094a6ad0a1df9cc03f35caac22227013a98e189296df339099157a0c",
-  "scope": "Explicit maintained current guide only. Original engine source/gate/runtime producer untouched; failed pre-freeze sweep retained separately. This is not retrospective runtime qualification."
-}

@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/jeff/code/dive-native-operator-integration-work/scripts/check-terminal-outcome.py", line 123, in <module>
-    assert sha((ROOT / path).read_bytes()) == digest, path
-AssertionError: conformance/probes/terminal-outcome/source-matrix.json

@@ -1,1 +1,0 @@
-Focused clippy exit101: checksum_transfers.rs process_called rustdoc missing backticks around GetProcess; source-only documentation repaired before final producer. Original diagnostic: clippy::doc_markdown at line35. No runtime or parity credit.

@@ -1,5 +1,0 @@
-EVENT	exception-class:java.lang.ClassCastException
-EVENT	exception-code:-1
-MESSAGE-BEGIN
-class tlc2.value.impl.ModelValue cannot be cast to class tla2sany.semantic.OpDefNode (tlc2.value.impl.ModelValue and tla2sany.semantic.OpDefNode are in unnamed module of loader 'app')
-MESSAGE-END

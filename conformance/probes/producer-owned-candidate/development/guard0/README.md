@@ -1,1 +1,0 @@
-Initial integrity-guard setup failed with KeyError: label. The raw final manifest uses name, while the material manifest uses case. No runtime outcome changed; corrected guard follows each actual schema.

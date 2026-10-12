@@ -1,9 +1,0 @@
-{
-  "initial_complete_selection": 98,
-  "generator_module_name_error_ids": [
-    "Forms_C_function_constant_unicode-comment",
-    "Forms_P_function_constant_unicode-comment"
-  ],
-  "not_a_translator_regression": true,
-  "correction": "Only source module identifier hyphen to underscore; original98 capture remains immutable outside worktree."
-}
