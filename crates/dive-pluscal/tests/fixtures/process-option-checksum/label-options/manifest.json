@@ -1,0 +1,200 @@
+{
+ "rows": [
+  {
+   "id": "C_unlabelled_report",
+   "flags": [
+    "-reportLabels"
+   ],
+   "primary_translated": true,
+   "primary_crc": "defc937a",
+   "stages": {
+    "translated": {
+     "crc": "defc937a"
+    }
+   }
+  },
+  {
+   "id": "C_unlabelled_report-root",
+   "flags": [
+    "-reportLabels",
+    "-labelRoot",
+    "X_"
+   ],
+   "primary_translated": true,
+   "primary_crc": "9ffa0764",
+   "stages": {
+    "translated": {
+     "crc": "9ffa0764"
+    }
+   }
+  },
+  {
+   "id": "C_unlabelled_invalid-root",
+   "flags": [
+    "-label",
+    "-labelRoot",
+    "0Bad"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_unlabelled_bad-punctuation",
+   "flags": [
+    "-labelRoot",
+    "A-b"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_fair_unlabelled_report",
+   "flags": [
+    "-reportLabels"
+   ],
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_unlabelled_report-root",
+   "flags": [
+    "-reportLabels",
+    "-labelRoot",
+    "X_"
+   ],
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_unlabelled_invalid-root",
+   "flags": [
+    "-label",
+    "-labelRoot",
+    "0Bad"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_fair_unlabelled_bad-punctuation",
+   "flags": [
+    "-labelRoot",
+    "A-b"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_unlabelled_report",
+   "flags": [
+    "-reportLabels"
+   ],
+   "primary_translated": true,
+   "primary_crc": "defc937a",
+   "stages": {
+    "translated": {
+     "crc": "defc937a"
+    }
+   }
+  },
+  {
+   "id": "P_unlabelled_report-root",
+   "flags": [
+    "-reportLabels",
+    "-labelRoot",
+    "X_"
+   ],
+   "primary_translated": true,
+   "primary_crc": "9ffa0764",
+   "stages": {
+    "translated": {
+     "crc": "9ffa0764"
+    }
+   }
+  },
+  {
+   "id": "P_unlabelled_invalid-root",
+   "flags": [
+    "-label",
+    "-labelRoot",
+    "0Bad"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_unlabelled_bad-punctuation",
+   "flags": [
+    "-labelRoot",
+    "A-b"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_fair_unlabelled_report",
+   "flags": [
+    "-reportLabels"
+   ],
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_unlabelled_report-root",
+   "flags": [
+    "-reportLabels",
+    "-labelRoot",
+    "X_"
+   ],
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_unlabelled_invalid-root",
+   "flags": [
+    "-label",
+    "-labelRoot",
+    "0Bad"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_fair_unlabelled_bad-punctuation",
+   "flags": [
+    "-labelRoot",
+    "A-b"
+   ],
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  }
+ ]
+}

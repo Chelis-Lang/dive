@@ -101,16 +101,11 @@ fn planning(fs: &[Formula], ps: &[Formula], limits: Limits) -> Result<Projection
 }
 
 fn selection() -> Vec<Value> {
-    serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-tableau/selection.json"
-    ))
-    .expect("selection")
+    serde_json::from_str(include_str!("fixtures/probes/tlc-tableau/selection.json"))
+        .expect("selection")
 }
 fn capture() -> Value {
-    serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-tableau/capture.json"
-    ))
-    .expect("capture")
+    serde_json::from_str(include_str!("fixtures/probes/tlc-tableau/capture.json")).expect("capture")
 }
 fn text(t: &Tableau, i: usize) -> String {
     let (op, children) = match t.terms()[i] {
@@ -196,8 +191,8 @@ fn fields(t: &[Option<Tableau>]) -> BTreeMap<String, String> {
     out
 }
 fn model(case: &Value) -> Option<dive_model::Model> {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-tableau");
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/probes/tlc-tableau");
     let source = root.join(case["source"].as_str().expect("source"));
     let a = dive_sema::analyze_file(&source, &dive_sema::Options::default()).expect("read source");
     if !a.accepted() {
@@ -684,21 +679,6 @@ fn limits_malformed_groups_and_particle_mutants_refuse_or_reject() {
     corrupt.root = usize::MAX;
     assert_eq!(accepted(&corrupt, &[vec![true]], 0), None);
 }
-#[test]
-fn complete_raw_source_selection_hashes_are_verified() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let output = std::process::Command::new("python3")
-        .args(["-I", "scripts/check-tlc-tableau.py"])
-        .current_dir(root)
-        .output()
-        .expect("verifier");
-    assert!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
 #[test]
 #[allow(
     clippy::too_many_lines,

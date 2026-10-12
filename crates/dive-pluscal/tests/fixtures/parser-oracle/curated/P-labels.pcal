@@ -1,0 +1,3 @@
+--algorithm A variable x = 0, y; begin
+ L: + x := 1; M: - skip;
+end algorithm

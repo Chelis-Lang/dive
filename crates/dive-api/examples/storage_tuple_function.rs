@@ -4,7 +4,7 @@ use dive_api::{CheckRequest, check_file_checkpoint, checkpoint};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/storage-tuple-function/specs/Witness/TupleStorage.tla");
+        .join("examples/data/storage-tuple-function/TupleStorage.tla");
     let request = CheckRequest {
         config: Some(file.with_extension("cfg")),
         file,

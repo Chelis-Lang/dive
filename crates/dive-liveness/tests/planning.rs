@@ -406,11 +406,11 @@ fn temporal_nonstuttering_checks_subscript_before_body() {
 fn direct_temporal_and_runtime_atoms_match_pinned_order_controls() {
     use dive_liveness::plan::{AtomTest, PredicateAtom};
     let model = bound(
-        include_str!("../../../conformance/probes/temporal-action-order/ActionOrder.tla"),
+        include_str!("fixtures/probes/temporal-action-order/ActionOrder.tla"),
         "INIT Init\nNEXT Next\n",
     );
     let capture: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../conformance/probes/temporal-action-order/capture.json"
+        "fixtures/probes/temporal-action-order/capture.json"
     ))
     .expect("pinned capture");
     let state = |x| Arc::from([Some(Value::Int(x))]);

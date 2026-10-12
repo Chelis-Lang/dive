@@ -1,0 +1,1706 @@
+{
+ "rows": [
+  {
+   "id": "Pc_C_assert_print",
+   "input": "Pc_C_assert_print.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_assert_print.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_assign",
+   "input": "Pc_C_assign.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_await",
+   "input": "Pc_C_await.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_await.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_block",
+   "input": "Pc_C_block.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_block.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_definitions",
+   "input": "Pc_C_definitions.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_definitions.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_either",
+   "input": "Pc_C_either.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_elsif",
+   "input": "Pc_C_elsif.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_elsif.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_emptyeither",
+   "input": "Pc_C_emptyeither.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_goto",
+   "input": "Pc_C_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_if",
+   "input": "Pc_C_if.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_labels",
+   "input": "Pc_C_labels.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_labels_macro",
+   "input": "Pc_C_labels_macro.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_macro",
+   "input": "Pc_C_macro.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_missingsemi",
+   "input": "Pc_C_missingsemi.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_parallel",
+   "input": "Pc_C_parallel.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_procedure",
+   "input": "Pc_C_procedure.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_procedure.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_process",
+   "input": "Pc_C_process.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_quantifier",
+   "input": "Pc_C_quantifier.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_quantifier.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_recordfields",
+   "input": "Pc_C_recordfields.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_recordfields.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_reservedlabel",
+   "input": "Pc_C_reservedlabel.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_selectors",
+   "input": "Pc_C_selectors.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_selectors.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_skip",
+   "input": "Pc_C_skip.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_skip.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_unicode",
+   "input": "Pc_C_unicode.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_unicode.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_unterminatedexpr",
+   "input": "Pc_C_unterminatedexpr.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_C_while",
+   "input": "Pc_C_while.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_C_with",
+   "input": "Pc_C_with.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_C_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_assert_print",
+   "input": "Pc_P_assert_print.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_assert_print.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_assign",
+   "input": "Pc_P_assign.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_await",
+   "input": "Pc_P_await.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_await.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_call_goto",
+   "input": "Pc_P_call_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_call_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_call_return",
+   "input": "Pc_P_call_return.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_comments",
+   "input": "Pc_P_comments.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_definitions",
+   "input": "Pc_P_definitions.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_definitions.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_either",
+   "input": "Pc_P_either.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_elsif",
+   "input": "Pc_P_elsif.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_elsif.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_emptyeither",
+   "input": "Pc_P_emptyeither.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_fcn",
+   "input": "Pc_P_fcn.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_fcn.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_goto",
+   "input": "Pc_P_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_if",
+   "input": "Pc_P_if.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_labels",
+   "input": "Pc_P_labels.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_labels_macro",
+   "input": "Pc_P_labels_macro.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_macro",
+   "input": "Pc_P_macro.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_macro_label_invalid",
+   "input": "Pc_P_macro_label_invalid.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_missingsemi",
+   "input": "Pc_P_missingsemi.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_parallel",
+   "input": "Pc_P_parallel.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_procedure",
+   "input": "Pc_P_procedure.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_procedure.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_process",
+   "input": "Pc_P_process.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_quantifier",
+   "input": "Pc_P_quantifier.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_quantifier.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_recordfields",
+   "input": "Pc_P_recordfields.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_recordfields.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_reservedlabel",
+   "input": "Pc_P_reservedlabel.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_selectors",
+   "input": "Pc_P_selectors.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_selectors.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_skip",
+   "input": "Pc_P_skip.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_skip.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_unicode",
+   "input": "Pc_P_unicode.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_unicode.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_unicode_expr",
+   "input": "Pc_P_unicode_expr.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_unicode_expr.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_unterminatedexpr",
+   "input": "Pc_P_unterminatedexpr.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_P_while",
+   "input": "Pc_P_while.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_P_with",
+   "input": "Pc_P_with.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_P_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_assert_failure",
+   "input": "Pc_seq_assert_failure.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_assert_failure.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_await_reads",
+   "input": "Pc_seq_await_reads.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_await_reads.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_branch_unchanged",
+   "input": "Pc_seq_branch_unchanged.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_branch_unchanged.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_assert",
+   "input": "Pc_seq_c_assert.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_await",
+   "input": "Pc_seq_c_await.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_either",
+   "input": "Pc_seq_c_complete_either.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_elsif",
+   "input": "Pc_seq_c_complete_elsif.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_elsif.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_finite_loop",
+   "input": "Pc_seq_c_complete_finite_loop.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_finite_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_group",
+   "input": "Pc_seq_c_complete_group.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_group.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_if",
+   "input": "Pc_seq_c_complete_if.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_nested_labels",
+   "input": "Pc_seq_c_complete_nested_labels.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_nested_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_with_equal",
+   "input": "Pc_seq_c_complete_with_equal.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_with_equal.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_complete_with_member",
+   "input": "Pc_seq_c_complete_with_member.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_complete_with_member.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_assert",
+   "input": "Pc_seq_c_current_assert.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_assert.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_await",
+   "input": "Pc_seq_c_current_await.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_await.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_either",
+   "input": "Pc_seq_c_current_either.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_elsif",
+   "input": "Pc_seq_c_current_elsif.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_fields",
+   "input": "Pc_seq_c_current_fields.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_fields.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_finite_loop",
+   "input": "Pc_seq_c_current_finite_loop.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_goto",
+   "input": "Pc_seq_c_current_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_group",
+   "input": "Pc_seq_c_current_group.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_if",
+   "input": "Pc_seq_c_current_if.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_infinite_loop",
+   "input": "Pc_seq_c_current_infinite_loop.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_infinite_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_nested_labels",
+   "input": "Pc_seq_c_current_nested_labels.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_parallel_swap",
+   "input": "Pc_seq_c_current_parallel_swap.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_parallel_swap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_print",
+   "input": "Pc_seq_c_current_print.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_print.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_sequential_reads",
+   "input": "Pc_seq_c_current_sequential_reads.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_c_current_sequential_reads.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_with_equal",
+   "input": "Pc_seq_c_current_with_equal.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_current_with_member",
+   "input": "Pc_seq_c_current_with_member.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_either",
+   "input": "Pc_seq_c_either.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_elsif",
+   "input": "Pc_seq_c_elsif.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_empty",
+   "input": "Pc_seq_c_empty.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_fields",
+   "input": "Pc_seq_c_fields.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_finite_loop",
+   "input": "Pc_seq_c_finite_loop.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_goto",
+   "input": "Pc_seq_c_goto.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_group",
+   "input": "Pc_seq_c_group.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_if",
+   "input": "Pc_seq_c_if.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_infinite_loop",
+   "input": "Pc_seq_c_infinite_loop.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_assert",
+   "input": "Pc_seq_c_native_assert.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_await",
+   "input": "Pc_seq_c_native_await.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_either",
+   "input": "Pc_seq_c_native_either.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_elsif",
+   "input": "Pc_seq_c_native_elsif.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_fields",
+   "input": "Pc_seq_c_native_fields.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_finite_loop",
+   "input": "Pc_seq_c_native_finite_loop.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_goto",
+   "input": "Pc_seq_c_native_goto.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_group",
+   "input": "Pc_seq_c_native_group.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_if",
+   "input": "Pc_seq_c_native_if.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_infinite_loop",
+   "input": "Pc_seq_c_native_infinite_loop.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_nested_labels",
+   "input": "Pc_seq_c_native_nested_labels.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_parallel_swap",
+   "input": "Pc_seq_c_native_parallel_swap.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_print",
+   "input": "Pc_seq_c_native_print.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_sequential_reads",
+   "input": "Pc_seq_c_native_sequential_reads.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_with_equal",
+   "input": "Pc_seq_c_native_with_equal.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_native_with_member",
+   "input": "Pc_seq_c_native_with_member.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_nested_labels",
+   "input": "Pc_seq_c_nested_labels.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_parallel_swap",
+   "input": "Pc_seq_c_parallel_swap.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_print",
+   "input": "Pc_seq_c_print.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_sequential_reads",
+   "input": "Pc_seq_c_sequential_reads.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_with_equal",
+   "input": "Pc_seq_c_with_equal.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_c_with_member",
+   "input": "Pc_seq_c_with_member.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_comparison_rhs",
+   "input": "Pc_seq_comparison_rhs.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_comparison_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_condition_reads",
+   "input": "Pc_seq_condition_reads.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_condition_reads.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_default_initial",
+   "input": "Pc_seq_default_initial.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_default_initial.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_done_label",
+   "input": "Pc_seq_done_label.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_either_goto",
+   "input": "Pc_seq_either_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_either_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_either_unchanged",
+   "input": "Pc_seq_either_unchanged.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_either_unchanged.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_elsif",
+   "input": "Pc_seq_elsif.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_elsif.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_empty_variables",
+   "input": "Pc_seq_empty_variables.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_empty_variables.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_fair_algorithm",
+   "input": "Pc_seq_fair_algorithm.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_field_updates",
+   "input": "Pc_seq_field_updates.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_field_updates.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_finite_loop",
+   "input": "Pc_seq_finite_loop.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_finite_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_goto_done",
+   "input": "Pc_seq_goto_done.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_goto_done.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_goto_not_last",
+   "input": "Pc_seq_goto_not_last.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_if_goto",
+   "input": "Pc_seq_if_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_if_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_indexed_update",
+   "input": "Pc_seq_indexed_update.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_infinite_loop",
+   "input": "Pc_seq_infinite_loop.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_infinite_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_label_assert",
+   "input": "Pc_seq_label_assert.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_label_assert.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_label_conflict",
+   "input": "Pc_seq_label_conflict.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_label_conflict.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_label_minus",
+   "input": "Pc_seq_label_minus.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_label_plus",
+   "input": "Pc_seq_label_plus.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_member_initial",
+   "input": "Pc_seq_member_initial.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_member_initial.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_multiline_junction",
+   "input": "Pc_seq_multiline_junction.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_multiline_junction.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_nested_labels",
+   "input": "Pc_seq_nested_labels.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_nested_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_nested_with",
+   "input": "Pc_seq_nested_with.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_nested_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_next_conflict",
+   "input": "Pc_seq_next_conflict.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_next_conflict.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_parallel_swap",
+   "input": "Pc_seq_parallel_swap.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_parallel_swap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_parenthesized_true",
+   "input": "Pc_seq_parenthesized_true.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_parenthesized_true.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_pc_conflict",
+   "input": "Pc_seq_pc_conflict.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_print_reads",
+   "input": "Pc_seq_print_reads.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_print_reads.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_quoted_done",
+   "input": "Pc_seq_quoted_done.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_quoted_done.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_record_field_keys",
+   "input": "Pc_seq_record_field_keys.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_record_field_keys.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_repeated_write",
+   "input": "Pc_seq_repeated_write.tla",
+   "primary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_sequential_reads",
+   "input": "Pc_seq_sequential_reads.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_sequential_reads.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_unicode_exists",
+   "input": "Pc_seq_unicode_exists.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_unicode_exists.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_unicode_forall",
+   "input": "Pc_seq_unicode_forall.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_unicode_forall.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_unicode_function",
+   "input": "Pc_seq_unicode_function.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_unicode_function.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_unicode_record",
+   "input": "Pc_seq_unicode_record.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_unicode_record.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_unicode_subscript",
+   "input": "Pc_seq_unicode_subscript.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_unicode_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_vars_conflict",
+   "input": "Pc_seq_vars_conflict.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_vars_conflict.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_with_conflict",
+   "input": "Pc_seq_with_conflict.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_with_conflict.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Pc_seq_with_equal",
+   "input": "Pc_seq_with_equal.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_with_equal.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_with_goto",
+   "input": "Pc_seq_with_goto.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_with_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Pc_seq_with_member",
+   "input": "Pc_seq_with_member.tla",
+   "primary": {
+    "status": "translated"
+   },
+   "translated": {
+    "path": "Pc_seq_with_member.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

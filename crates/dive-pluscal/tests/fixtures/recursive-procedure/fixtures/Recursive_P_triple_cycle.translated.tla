@@ -1,0 +1,130 @@
+---- MODULE Recursive_P_triple_cycle ----
+EXTENDS Integers, Sequences, TLC
+(* --algorithm A
+variable x=0;
+procedure First(a=0)
+
+begin
+F:if a>0 then call Second(a-1); else x:=a; end if; R:return;
+end procedure;
+procedure Second(b=0)
+
+begin
+S:if b>0 then call Third(b-1); else x:=b; end if; T:return;
+end procedure;
+procedure Third(c=0)
+
+begin
+U:if c>0 then call First(c-1); else x:=c; end if; V:return;
+end procedure;
+begin
+L:call First(4); E:skip;
+end algorithm; *)
+\* BEGIN TRANSLATION (chksum(pcal) = "954e44a3" /\ chksum(tla) = "4a4debf6")
+VARIABLES pc, x, stack, a, b, c
+
+vars == << pc, x, stack, a, b, c >>
+
+Init == (* Global variables *)
+        /\ x = 0
+        (* Procedure First *)
+        /\ a = 0
+        (* Procedure Second *)
+        /\ b = 0
+        (* Procedure Third *)
+        /\ c = 0
+        /\ stack = << >>
+        /\ pc = "L"
+
+F == /\ pc = "F"
+     /\ IF a>0
+           THEN /\ /\ b' = a-1
+                   /\ stack' = << [ procedure |->  "Second",
+                                    pc        |->  "R",
+                                    b         |->  b ] >>
+                                \o stack
+                /\ pc' = "S"
+                /\ x' = x
+           ELSE /\ x' = a
+                /\ pc' = "R"
+                /\ UNCHANGED << stack, b >>
+     /\ UNCHANGED << a, c >>
+
+R == /\ pc = "R"
+     /\ pc' = Head(stack).pc
+     /\ a' = Head(stack).a
+     /\ stack' = Tail(stack)
+     /\ UNCHANGED << x, b, c >>
+
+First == F \/ R
+
+S == /\ pc = "S"
+     /\ IF b>0
+           THEN /\ /\ c' = b-1
+                   /\ stack' = << [ procedure |->  "Third",
+                                    pc        |->  "T",
+                                    c         |->  c ] >>
+                                \o stack
+                /\ pc' = "U"
+                /\ x' = x
+           ELSE /\ x' = b
+                /\ pc' = "T"
+                /\ UNCHANGED << stack, c >>
+     /\ UNCHANGED << a, b >>
+
+T == /\ pc = "T"
+     /\ pc' = Head(stack).pc
+     /\ b' = Head(stack).b
+     /\ stack' = Tail(stack)
+     /\ UNCHANGED << x, a, c >>
+
+Second == S \/ T
+
+U == /\ pc = "U"
+     /\ IF c>0
+           THEN /\ /\ a' = c-1
+                   /\ stack' = << [ procedure |->  "First",
+                                    pc        |->  "V",
+                                    a         |->  a ] >>
+                                \o stack
+                /\ pc' = "F"
+                /\ x' = x
+           ELSE /\ x' = c
+                /\ pc' = "V"
+                /\ UNCHANGED << stack, a >>
+     /\ UNCHANGED << b, c >>
+
+V == /\ pc = "V"
+     /\ pc' = Head(stack).pc
+     /\ c' = Head(stack).c
+     /\ stack' = Tail(stack)
+     /\ UNCHANGED << x, a, b >>
+
+Third == U \/ V
+
+L == /\ pc = "L"
+     /\ /\ a' = 4
+        /\ stack' = << [ procedure |->  "First",
+                         pc        |->  "E",
+                         a         |->  a ] >>
+                     \o stack
+     /\ pc' = "F"
+     /\ UNCHANGED << x, b, c >>
+
+E == /\ pc = "E"
+     /\ TRUE
+     /\ pc' = "Done"
+     /\ UNCHANGED << x, stack, a, b, c >>
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == pc = "Done" /\ UNCHANGED vars
+
+Next == First \/ Second \/ Third \/ L \/ E
+           \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(pc = "Done")
+
+\* END TRANSLATION 
+====

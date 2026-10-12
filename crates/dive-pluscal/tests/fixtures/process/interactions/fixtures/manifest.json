@@ -1,0 +1,300 @@
+{
+ "rows": [
+  {
+   "id": "ProcInteraction_C_duplicate_label",
+   "input": "ProcInteraction_C_duplicate_label.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_duplicate_label.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcInteraction_C_empty_body",
+   "input": "ProcInteraction_C_empty_body.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcInteraction_C_empty_body.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcInteraction_C_fair_algorithm",
+   "input": "ProcInteraction_C_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_C_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_C_minus",
+   "input": "ProcInteraction_C_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_C_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_C_plus",
+   "input": "ProcInteraction_C_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_C_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_C_same_id",
+   "input": "ProcInteraction_C_same_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_same_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_C_same_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_C_two",
+   "input": "ProcInteraction_C_two.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_two.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_C_two.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_C_unicode",
+   "input": "ProcInteraction_C_unicode.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_C_unicode.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_C_unicode.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_P_duplicate_label",
+   "input": "ProcInteraction_P_duplicate_label.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_duplicate_label.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcInteraction_P_empty_body",
+   "input": "ProcInteraction_P_empty_body.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_empty_body.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcInteraction_P_fair_algorithm",
+   "input": "ProcInteraction_P_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_P_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_P_minus",
+   "input": "ProcInteraction_P_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_P_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_P_plus",
+   "input": "ProcInteraction_P_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_P_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_P_same_id",
+   "input": "ProcInteraction_P_same_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_same_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_P_same_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_P_two",
+   "input": "ProcInteraction_P_two.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_two.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_P_two.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcInteraction_P_unicode",
+   "input": "ProcInteraction_P_unicode.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcInteraction_P_unicode.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcInteraction_P_unicode.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

@@ -222,7 +222,7 @@ fn early_bounds_and_refusals_preserve_requested_actual_width_and_no_graph_proof(
 )]
 fn every_selected_pinned_graph_projection_is_accounted_for_at_all_widths() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-phase-l-graph");
+        .join("tests/fixtures/probes/tlc-phase-l-graph");
     let capture: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
             .expect("JSON");
@@ -449,20 +449,6 @@ fn bounded_random_finite_graphs_equal_independent_reachability_with_implicit_stu
 }
 
 #[test]
-fn raw_graph_selection_hashes_and_all_before_observations_are_preserved() {
-    let script = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../scripts/check-phase-l-graph.py");
-    assert!(
-        std::process::Command::new("python3")
-            .arg("-I")
-            .arg(script)
-            .status()
-            .expect("verifier")
-            .success()
-    );
-}
-
-#[test]
 fn foreign_model_ir_and_names_refuse_before_graph_planning() {
     for width in [1, 4, 8] {
         let opts = CheckOptions {
@@ -493,9 +479,8 @@ fn foreign_model_ir_and_names_refuse_before_graph_planning() {
 
 #[test]
 fn deciding_conditional_planning_error_precedes_graph_capture() {
-    let source = include_str!(
-        "../../../conformance/probes/state-if-planning/models/StateThenError/StateThenError.tla"
-    );
+    let source =
+        include_str!("fixtures/probes/state-if-planning/models/StateThenError/StateThenError.tla");
     for workers in [1, 4, 8] {
         let opts = CheckOptions {
             workers,

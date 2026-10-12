@@ -1,0 +1,1 @@
+{"name":"Increase","syntax":"C","fair":false,"declarations":[["x","Equal",["0"]]],"definitions":null,"macros":[],"procedures":[],"body":["Sequential",[["",["While",["TRUE"],[["",["Assign",[["x",[],["x","+","2"]]]]]]]]]]}

@@ -1,0 +1,154 @@
+{
+ "rows": [
+  {
+   "id": "MarkerExtra_C_fair_split",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MarkerExtra_C_fair_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MarkerExtra_C_fair_spaces",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MarkerExtra_C_fair_malformed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MarkerExtra_C_unfair_malformed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MarkerExtra_P_fair_split",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MarkerExtra_P_fair_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MarkerExtra_P_fair_spaces",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MarkerExtra_P_fair_malformed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MarkerExtra_P_unfair_malformed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  }
+ ]
+}

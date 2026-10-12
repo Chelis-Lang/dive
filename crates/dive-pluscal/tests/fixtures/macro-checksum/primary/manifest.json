@@ -1,0 +1,4124 @@
+{
+ "rows": [
+  {
+   "id": "Macro_C_simple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_zero",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_compound",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f4d7d988",
+    "97ff4564"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f4d7d988"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_nested_rhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6375d1cd",
+    "da4714c2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6375d1cd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_simultaneous",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6569fd9a",
+    "f3308f0f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6569fd9a"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Macro_C_duplicate_params",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_duplicate_macro",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_prior_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1fe989fe",
+    "8ac63cc7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1fe989fe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_forward_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_unknown",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_arity_low",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_arity_high",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_literal_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_compound_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "17f0d87",
+    "87586879"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "17f0d87"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Macro_C_index_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4d586894",
+    "fee4f784"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4d586894"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_selector_append",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "879e7344",
+    "fd56aa8c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "879e7344"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_field_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "94ac6685",
+    "e99b1207"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "94ac6685"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_selector_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7080aa65",
+    "828cbb78"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7080aa65"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_field_rhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "834ccbde",
+    "de8eac6c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "834ccbde"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_record_type",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c3a6d45e",
+    "d68dd302"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c3a6d45e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_string_rhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "44f5a2d4",
+    "e3d7b2e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "44f5a2d4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_bound_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "eec928b1",
+    "1adf49f9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "eec928b1"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Macro_C_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d1e7dc2e",
+    "4a4e7376"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d1e7dc2e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_with_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "274c66f9",
+    "a80f3583"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "274c66f9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_if",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "abc6ab1",
+    "a4487e82"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "abc6ab1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "34690460",
+    "c521a43"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "34690460"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_while",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "df6994d",
+    "9f8816c8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "df6994d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9ffe7d0",
+    "5a8a5787"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9ffe7d0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_label_body",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_assert",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b94376c5",
+    "21ad5f3f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b94376c5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_await",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f27688c",
+    "ff87e0cb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f27688c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_print",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "59ffecf2",
+    "2d9c5664"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "59ffecf2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_parallel",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a4af2064",
+    "faa8e273"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a4af2064"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_repeated",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "43385af1",
+    "db955b4f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "43385af1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_same_action_twice",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_auto_label",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f3bd1b0f",
+    "102cbc2f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f3bd1b0f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_fair_modifier",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_utf8",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_newline_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f4d7d988",
+    "35cc5785"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f4d7d988"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_tab",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_C_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_fair_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_C_multiple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_simple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c63c8dd0",
+    "8dfbbac9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c63c8dd0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_zero",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_compound",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f4d7d988",
+    "97ff4564"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f4d7d988"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_nested_rhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6375d1cd",
+    "da4714c2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6375d1cd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_simultaneous",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6569fd9a",
+    "f3308f0f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6569fd9a"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Macro_P_duplicate_params",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_duplicate_macro",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_prior_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1fe989fe",
+    "8ac63cc7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1fe989fe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_forward_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_unknown",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_arity_low",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_arity_high",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_literal_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_compound_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "17f0d87",
+    "87586879"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "17f0d87"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Macro_P_index_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4d586894",
+    "fee4f784"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4d586894"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_selector_append",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "879e7344",
+    "fd56aa8c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "879e7344"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_field_lhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "94ac6685",
+    "e99b1207"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "94ac6685"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_selector_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7080aa65",
+    "828cbb78"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7080aa65"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_field_rhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "834ccbde",
+    "de8eac6c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "834ccbde"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_record_type",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c3a6d45e",
+    "d68dd302"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c3a6d45e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_string_rhs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "44f5a2d4",
+    "e3d7b2e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "44f5a2d4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_bound_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "eec928b1",
+    "1adf49f9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "eec928b1"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Macro_P_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d1e7dc2e",
+    "4a4e7376"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d1e7dc2e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_with_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "274c66f9",
+    "a80f3583"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "274c66f9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_if",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "abc6ab1",
+    "a4487e82"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "abc6ab1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "34690460",
+    "c521a43"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "34690460"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_while",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "df6994d",
+    "9f8816c8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "df6994d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9ffe7d0",
+    "5a8a5787"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9ffe7d0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_label_body",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_assert",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b94376c5",
+    "47c42e47"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b94376c5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_await",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f27688c",
+    "ff87e0cb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f27688c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_print",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "59ffecf2",
+    "2d9c5664"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "59ffecf2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_parallel",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a4af2064",
+    "faa8e273"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a4af2064"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_repeated",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "43385af1",
+    "db955b4f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "43385af1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_same_action_twice",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_auto_label",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f3bd1b0f",
+    "102cbc2f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f3bd1b0f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_fair_modifier",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_utf8",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_newline_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f4d7d988",
+    "35cc5785"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f4d7d988"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_tab",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Macro_P_fair_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Macro_P_multiple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "48ad1bbd",
+    "c5b00722"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "48ad1bbd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_fair_modifier",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "be24f006"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_fair_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_auto_if",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "54e5f807",
+    "6bbeb21"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "54e5f807"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_auto_assert",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4d4f619b",
+    "bb4f71ac"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4d4f619b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_auto_while",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f61a712",
+    "a2856bc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f61a712"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_nested_assert",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3e45acb9",
+    "efd25be2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3e45acb9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_nested_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_free_self",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_foreign_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_unused_foreign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_cross_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_with_rename",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ae4baffc",
+    "1770aac"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ae4baffc"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_C_quoted",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b633c648",
+    "32db134f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b633c648"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_escape",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cf73c8f5",
+    "c49a5b1a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cf73c8f5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_latin1",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_control_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_record_field",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dc49df3",
+    "175c59ff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dc49df3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_free_global",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1b3d21f8",
+    "e8591cc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1b3d21f8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_triple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f7e21278",
+    "34669a86"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f7e21278"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_function_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f82a082e",
+    "fb55967a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f82a082e"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_C_quantifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "37664c9f",
+    "ac0cff15"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "37664c9f"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_C_free_done",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_C_multiple_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_C_unicode_actual",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e4284063",
+    "14ceac34"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e4284063"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_fair_modifier",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "be24f006"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_fair_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "599650fe",
+    "214eed07"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "599650fe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_auto_if",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "54e5f807",
+    "6bbeb21"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "54e5f807"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_auto_assert",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4d4f619b",
+    "65caa0ae"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4d4f619b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_auto_while",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f61a712",
+    "a2856bc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f61a712"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_nested_assert",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3e45acb9",
+    "43b370fd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3e45acb9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_nested_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_free_self",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dd04a554",
+    "f9b73501"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dd04a554"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_P_foreign_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "202252c3",
+    "ed2740f5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "202252c3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_unused_foreign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "48ad1bbd",
+    "c5b00722"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "48ad1bbd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_cross_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_P_with_rename",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ae4baffc",
+    "1770aac"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ae4baffc"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_P_quoted",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b633c648",
+    "32db134f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b633c648"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_escape",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cf73c8f5",
+    "c49a5b1a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cf73c8f5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_latin1",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_P_control_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroExtra_P_record_field",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dc49df3",
+    "175c59ff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dc49df3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_free_global",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1b3d21f8",
+    "e8591cc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1b3d21f8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_triple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f7e21278",
+    "34669a86"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f7e21278"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_function_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f82a082e",
+    "fb55967a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f82a082e"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_P_quantifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "37664c9f",
+    "ac0cff15"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "37664c9f"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroExtra_P_free_done",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_multiple_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4044b287",
+    "bfac6234"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4044b287"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroExtra_P_unicode_actual",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e4284063",
+    "14ceac34"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e4284063"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_P_with",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5dfc1d70",
+    "3257a98f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5dfc1d70"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_P_assert",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4d4f619b",
+    "7f074fb7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4d4f619b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_P_if",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "54e5f807",
+    "6bbeb21"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "54e5f807"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_P_while",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f61a712",
+    "a2856bc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f61a712"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_C_with",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5dfc1d70",
+    "3257a98f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5dfc1d70"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_C_assert",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4d4f619b",
+    "6347c828"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4d4f619b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_C_if",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "54e5f807",
+    "6bbeb21"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "54e5f807"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroOrigin_C_while",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f61a712",
+    "a2856bc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f61a712"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_P_with_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c75f02f6",
+    "2da0fd41"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c75f02f6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_P_let_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a26b7b4",
+    "9e7b623"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a26b7b4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_P_function_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1d0e4ddc",
+    "3e66d812"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1d0e4ddc"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_P_quantifier_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8781c5f0",
+    "2689d5f6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8781c5f0"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_P_qualified_formal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c43a8184",
+    "b91b6eb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c43a8184"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_P_qualified_actual",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5804d4a4",
+    "dc99445f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5804d4a4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_P_record_selector",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "950bcaa6",
+    "77acdd00"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "950bcaa6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_P_simultaneous_defined",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cf113bc1",
+    "27fe155e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cf113bc1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_C_with_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c75f02f6",
+    "2da0fd41"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c75f02f6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_C_let_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a26b7b4",
+    "9e7b623"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a26b7b4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_C_function_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1d0e4ddc",
+    "3e66d812"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1d0e4ddc"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_C_quantifier_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8781c5f0",
+    "2689d5f6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8781c5f0"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_C_qualified_formal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c43a8184",
+    "b91b6eb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c43a8184"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroScope_C_qualified_actual",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5804d4a4",
+    "dc99445f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5804d4a4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_C_record_selector",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "950bcaa6",
+    "77acdd00"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "950bcaa6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroScope_C_simultaneous_defined",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cf113bc1",
+    "27fe155e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cf113bc1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_set",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_id",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2fced719",
+    "3fd2af7a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2fced719"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroProcess_C_mixed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dd04a554",
+    "f9b73501"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dd04a554"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroProcess_C_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "942e6ff3",
+    "641fd245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "942e6ff3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_strong",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2f87b809",
+    "dccaeff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2f87b809"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_plus",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "415bdd1f",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "415bdd1f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_minus",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "657a84e6",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "657a84e6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_nof",
+   "flags": [
+    "-nof"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_wf",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "942e6ff3",
+    "641fd245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "942e6ff3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_sf",
+   "flags": [
+    "-sf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2f87b809",
+    "dccaeff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2f87b809"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_wfnext",
+   "flags": [
+    "-wfNext"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "311954c0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_auto",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "fb2e719c",
+    "4c39459"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "fb2e719c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a4d126c3",
+    "3474af23"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a4d126c3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_free_self",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2fced719",
+    "3fd2af7a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2fced719"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroProcess_C_foreign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "950e8d45",
+    "b979869b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "950e8d45"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_C_unused_foreign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6925c57c",
+    "f92ea659"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6925c57c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_set",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_id",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2fced719",
+    "3fd2af7a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2fced719"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroProcess_P_mixed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dd04a554",
+    "f9b73501"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dd04a554"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroProcess_P_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "942e6ff3",
+    "641fd245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "942e6ff3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_strong",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2f87b809",
+    "dccaeff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2f87b809"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_plus",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "415bdd1f",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "415bdd1f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_minus",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "657a84e6",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "657a84e6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_nof",
+   "flags": [
+    "-nof"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "1f38108d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_wf",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "942e6ff3",
+    "641fd245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "942e6ff3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_sf",
+   "flags": [
+    "-sf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2f87b809",
+    "dccaeff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2f87b809"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_wfnext",
+   "flags": [
+    "-wfNext"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "14263a29",
+    "311954c0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "14263a29"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_auto",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "fb2e719c",
+    "4c39459"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "fb2e719c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a4d126c3",
+    "3474af23"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a4d126c3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_free_self",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2fced719",
+    "3fd2af7a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2fced719"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "MacroProcess_P_foreign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "950e8d45",
+    "b979869b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "950e8d45"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroProcess_P_unused_foreign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6925c57c",
+    "f92ea659"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6925c57c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_space",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ecd841e7",
+    "5df67014"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ecd841e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_tilde",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "af85d730",
+    "6d41d5ff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "af85d730"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_unit_separator",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_C_delete",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_C_emoji",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_C_escape_unicode",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_C_escape_hex",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_C_escaped_tab",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "49c2df19",
+    "5fcc1148"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "49c2df19"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_newline",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e83ce5a1",
+    "bc775e90"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e83ce5a1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_formfeed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2ed0f2b5",
+    "ee8b6170"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2ed0f2b5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1b0fd156",
+    "620d0140"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1b0fd156"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_quote",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cc735eda",
+    "3d878b43"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cc735eda"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_backslash",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "227c98df",
+    "9db1d769"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "227c98df"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_space",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ecd841e7",
+    "5df67014"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ecd841e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_tilde",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "af85d730",
+    "6d41d5ff"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "af85d730"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_unit_separator",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_P_delete",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_P_emoji",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_P_escape_unicode",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_P_escape_hex",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "MacroLexical_P_escaped_tab",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "49c2df19",
+    "5fcc1148"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "49c2df19"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_newline",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e83ce5a1",
+    "bc775e90"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e83ce5a1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_formfeed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2ed0f2b5",
+    "ee8b6170"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2ed0f2b5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1b0fd156",
+    "620d0140"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1b0fd156"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_quote",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cc735eda",
+    "3d878b43"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cc735eda"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_backslash",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "227c98df",
+    "9db1d769"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "227c98df"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_plain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_source_weak",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "be24f006"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "be24f006"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_nested",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "685f7a3",
+    "4a203edf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "685f7a3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "61a3c7e7",
+    "bdf014ef"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "61a3c7e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_C_source_label",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "12edf602",
+    "9b6c5bfe"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "12edf602"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_plain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_source_weak",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "be24f006"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "be24f006"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d06ecb2b",
+    "665e7a4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d06ecb2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_nested",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "685f7a3",
+    "4a203edf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "685f7a3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "61a3c7e7",
+    "bdf014ef"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "61a3c7e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroChecksum_P_source_label",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "12edf602",
+    "9b6c5bfe"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "12edf602"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Lock",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f820ffbb",
+    "24b4f3dd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f820ffbb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Barriers",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7a2331f4",
+    "4cd2e9fd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7a2331f4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  }
+ ]
+}

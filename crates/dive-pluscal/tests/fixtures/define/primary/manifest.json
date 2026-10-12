@@ -1,0 +1,1711 @@
+{
+ "rows": [
+  {
+   "id": "Define_C_constant",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4bc0bb",
+    "358d95b2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4bc0bb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_constant_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a7fb8be9",
+    "c22268eb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a7fb8be9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_state",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "867ec86a",
+    "144086fc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "867ec86a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_state_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e6ed1761",
+    "32516c14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e6ed1761"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_parameter_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "54fc38e3",
+    "a7b61611"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "54fc38e3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_two_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ae2fe22",
+    "ddae6c4f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ae2fe22"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_helper",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "686635aa",
+    "3cc6c8d3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "686635aa"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_forward",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c341eab4",
+    "5e0cb6e7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c341eab4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_multiline",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d60612d",
+    "1b539799"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d60612d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_junction",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "321782c3",
+    "d5fd5d28"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "321782c3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_junction_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5599dde8",
+    "fbddacd8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5599dde8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_record",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3ceb0c05",
+    "9f8a55d1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3ceb0c05"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_function",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "642eefc5",
+    "e0f123c2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "642eefc5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_quantifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d7d87ba",
+    "bf730131"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d7d87ba"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_choose",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e499b188",
+    "f0f7e85a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e499b188"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_let",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9bb8f3e4",
+    "3db95315"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9bb8f3e4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_sequence",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d9a1e2c7",
+    "bff3aea"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d9a1e2c7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_set",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "719c997a",
+    "71356b93"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "719c997a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "72239d83",
+    "49114856"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "72239d83"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f2ad2864",
+    "e2559993"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f2ad2864"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_nested_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4bc0bb",
+    "ef3950d4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4bc0bb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_unknown",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "35578790",
+    "892618d0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "35578790"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_duplicate",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "73d2cc72",
+    "aa529070"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "73d2cc72"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_variable_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6cf10202",
+    "cc91fba0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6cf10202"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_generated_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f985348",
+    "1c58e826"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f985348"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_pc_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ed746ee",
+    "7bee6462"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ed746ee"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_vars_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2f334c10",
+    "fa79010a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2f334c10"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_initial",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4bc0bb",
+    "358d95b2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4bc0bb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_prime",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9b65a5f4",
+    "4a7c824d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9b65a5f4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_temporal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "da2dd3ed",
+    "eeaf97dc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "da2dd3ed"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9321f997",
+    "959ca906"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9321f997"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_self",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "86b0ca62",
+    "db291e74"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "86b0ca62"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_self_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c5271e74",
+    "42cc88b4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c5271e74"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_with_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1b8df56c",
+    "afef5ea7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1b8df56c"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_formal_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5ce620c0",
+    "74a95f8d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5ce620c0"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_formal_shadow_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9174279",
+    "aafec27b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9174279"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_process_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6aaf28c4",
+    "6e655f70"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6aaf28c4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_process_local_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bd7b720",
+    "cf27d49d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bd7b720"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_malformed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "52374d3b",
+    "4c96b642"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "52374d3b"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_no_definition",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3723740f",
+    "8644c639"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3723740f"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_C_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "52ddcc2b",
+    "765b92b7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "52ddcc2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_escaped",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "63f78299",
+    "bf5fbd32"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "63f78299"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_C_case",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "66c01a25",
+    "3c420ed9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "66c01a25"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_constant",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4bc0bb",
+    "358d95b2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4bc0bb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_constant_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a7fb8be9",
+    "c22268eb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a7fb8be9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_state",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "867ec86a",
+    "144086fc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "867ec86a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_state_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e6ed1761",
+    "32516c14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e6ed1761"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_parameter_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "54fc38e3",
+    "a7b61611"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "54fc38e3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_two_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ae2fe22",
+    "ddae6c4f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ae2fe22"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_helper",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "686635aa",
+    "3cc6c8d3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "686635aa"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_forward",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c341eab4",
+    "5e0cb6e7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c341eab4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_multiline",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d60612d",
+    "1b539799"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d60612d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_junction",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "321782c3",
+    "d5fd5d28"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "321782c3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_junction_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5599dde8",
+    "fbddacd8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5599dde8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_record",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3ceb0c05",
+    "9f8a55d1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3ceb0c05"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_function",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "642eefc5",
+    "e0f123c2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "642eefc5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_quantifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d7d87ba",
+    "bf730131"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d7d87ba"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_choose",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e499b188",
+    "f0f7e85a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e499b188"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_let",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9bb8f3e4",
+    "3db95315"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9bb8f3e4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_sequence",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d9a1e2c7",
+    "bff3aea"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d9a1e2c7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_set",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "719c997a",
+    "71356b93"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "719c997a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "72239d83",
+    "49114856"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "72239d83"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f2ad2864",
+    "e2559993"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f2ad2864"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_nested_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4bc0bb",
+    "ef3950d4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4bc0bb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_unknown",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "35578790",
+    "892618d0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "35578790"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_duplicate",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "73d2cc72",
+    "aa529070"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "73d2cc72"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_variable_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6cf10202",
+    "cc91fba0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6cf10202"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_generated_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f985348",
+    "1c58e826"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f985348"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_pc_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ed746ee",
+    "7bee6462"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ed746ee"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_vars_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2f334c10",
+    "fa79010a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2f334c10"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_initial",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4bc0bb",
+    "358d95b2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4bc0bb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_prime",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9b65a5f4",
+    "4a7c824d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9b65a5f4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_temporal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "da2dd3ed",
+    "eeaf97dc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "da2dd3ed"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9321f997",
+    "959ca906"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9321f997"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_self",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "86b0ca62",
+    "db291e74"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "86b0ca62"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_self_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c5271e74",
+    "42cc88b4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c5271e74"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_with_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1b8df56c",
+    "afef5ea7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1b8df56c"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_formal_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5ce620c0",
+    "74a95f8d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5ce620c0"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_formal_shadow_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9174279",
+    "aafec27b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9174279"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_process_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6aaf28c4",
+    "6e655f70"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6aaf28c4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_process_local_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bd7b720",
+    "cf27d49d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bd7b720"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_malformed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "52374d3b",
+    "4c96b642"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "52374d3b"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_no_definition",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3723740f",
+    "8644c639"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3723740f"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Define_P_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "52ddcc2b",
+    "765b92b7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "52ddcc2b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_escaped",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "63f78299",
+    "bf5fbd32"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "63f78299"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Define_P_case",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "66c01a25",
+    "3c420ed9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "66c01a25"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Echo",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "1c76a9eb"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "FindHighest",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "31f24270",
+    "3d0da968"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "31f24270"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

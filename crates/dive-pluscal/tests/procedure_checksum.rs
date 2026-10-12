@@ -7,7 +7,7 @@ use std::path::Path;
 #[test]
 fn all_declared_procedure_rows_preserve_exact_bytes_or_named_boundaries()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("procedure-checksum-acceptance");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/procedure-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -78,7 +78,8 @@ fn all_declared_procedure_rows_preserve_exact_bytes_or_named_boundaries()
 #[test]
 fn nested_transfer_promotions_preserve_pin_and_tiny_budgets_never_produce_partial_crc()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("procedure-checksum-acceptance/cases");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/procedure-checksum/cases");
     for syntax in ["C", "P"] {
         for shape in ["if_call", "with_call", "either_call"] {
             let source =

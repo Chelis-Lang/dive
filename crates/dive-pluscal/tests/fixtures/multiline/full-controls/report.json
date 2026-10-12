@@ -1,0 +1,1593 @@
+{
+ "summary": {
+  "dive": {}
+ },
+ "rows": [
+  {
+   "id": "C_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_blank",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_block-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_line-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_tuple",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_record",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_if-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_case-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_declaration",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_parallel",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_multiline-selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_await",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_assert",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_print",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_if-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_while-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_with-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_junction-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_unicode-junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_function-binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_empty-then",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_empty-else",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_malformed",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_missing-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_macro",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_fair_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_blank",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_block-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_line-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_tuple",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_record",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_if-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_case-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_declaration",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_fair_parallel",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_fair_multiline-selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_fair_await",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_fair_assert",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_fair_print",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_if-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_fair_while-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_fair_with-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "C_fair_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_fair_junction-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_fair_unicode-junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_fair_binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_fair_function-binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "C_fair_empty-then",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_fair_empty-else",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "C_fair_malformed",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_fair_missing-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "C_fair_macro",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_blank",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_block-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_line-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_tuple",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_record",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_if-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_case-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_declaration",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_parallel",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_multiline-selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_await",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_assert",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_print",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_if-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_while-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_with-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_junction-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_unicode-junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_function-binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_empty-then",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_empty-else",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_malformed",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_missing-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_macro",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_blank",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_block-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_line-comment",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_tuple",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_record",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_if-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_case-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_declaration",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_fair_parallel",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_fair_multiline-selector",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "P_fair_await",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_fair_assert",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_fair_print",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_if-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_fair_while-test",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_fair_with-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_junction-value",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_unicode-junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_function-binder",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_empty-then",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "P_fair_empty-else",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "P_fair_malformed",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_fair_missing-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "primary-invalid-rejected"
+   }
+  },
+  {
+   "id": "P_fair_macro",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "layout-controls__C_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__C_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__C_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__C_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "layout-controls__C_fair_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__C_fair_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__C_fair_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__C_fair_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "layout-controls__P_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__P_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__P_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__P_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "layout-controls__P_fair_arithmetic",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__P_fair_changed-read",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__P_fair_record-field",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "layout-controls__P_fair_junction",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "supplemental__C_spaced-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__C_spaced-selector-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__C_macro-empty-parameters",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "supplemental__C_process-lines",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "supplemental__C_fair_spaced-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__C_fair_spaced-selector-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__C_fair_macro-empty-parameters",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "supplemental__C_fair_process-lines",
+   "primary_translated": false,
+   "dive": {
+    "outcome": "rejected"
+   }
+  },
+  {
+   "id": "supplemental__P_spaced-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__P_spaced-selector-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__P_macro-empty-parameters",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "supplemental__P_process-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "supplemental__P_fair_spaced-selector",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__P_fair_spaced-selector-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "supplemental__P_fair_macro-empty-parameters",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "supplemental__P_fair_process-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "named-refusal"
+   }
+  },
+  {
+   "id": "bool-controls__C_await-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_assert-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_if-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_while-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_fair_await-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_fair_assert-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_fair_if-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__C_fair_while-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_await-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_assert-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_if-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_while-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_fair_await-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_fair_assert-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_fair_if-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "bool-controls__P_fair_while-test-valid",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_case-true-one",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_case-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_case-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_case-first-body",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_case-parentheses",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_if-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_if-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_if-else-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_case-declaration",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_arrow-string",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_case-true-one",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_case-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_case-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_case-first-body",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_case-parentheses",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_if-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_if-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_if-else-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_case-declaration",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__C_fair_arrow-string",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_case-true-one",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_case-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_case-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_case-first-body",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_case-parentheses",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_if-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_if-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_if-else-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_case-declaration",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_arrow-string",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_case-true-one",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_case-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_case-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_case-first-body",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_case-parentheses",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_if-true-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_if-first-line",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_if-else-lines",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_case-declaration",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  },
+  {
+   "id": "conditional-controls__P_fair_arrow-string",
+   "primary_translated": true,
+   "dive": {
+    "outcome": "full-derivation-and-admission",
+    "sany": {}
+   }
+  }
+ ]
+}

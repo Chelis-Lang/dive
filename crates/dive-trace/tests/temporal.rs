@@ -371,7 +371,7 @@ fn temporal_action_subscript_short_circuit_includes_closing_edge() {
         );
     }
     let captured: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../conformance/probes/temporal-action-order/capture.json"
+        "../../dive-liveness/tests/fixtures/probes/temporal-action-order/capture.json"
     ))
     .expect("pinned capture");
     for before in 0..3 {

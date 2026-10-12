@@ -1,0 +1,10 @@
+--algorithm Simple {
+    variables x = [i \in 0..N-1 |-> 0],
+              y = [i \in 0..N-1 |-> 0],
+              z \in 1..3;
+
+    process (proc \in 0..N-1) {
+      a: x[self] := 1 ;
+      b: y[self] := x[(self-1) % N]
+    }
+}

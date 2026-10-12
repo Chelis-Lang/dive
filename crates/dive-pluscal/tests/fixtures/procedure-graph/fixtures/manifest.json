@@ -1,0 +1,2266 @@
+{
+ "rows": [
+  {
+   "id": "ProcedureGraph_C_arity_high",
+   "input": "ProcedureGraph_C_arity_high.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_arity_high.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_arity_low",
+   "input": "ProcedureGraph_C_arity_low.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_arity_low.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_auto_labels",
+   "input": "ProcedureGraph_C_auto_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_auto_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_auto_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_branch_nested",
+   "input": "ProcedureGraph_C_branch_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_branch_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_branch_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_call_done",
+   "input": "ProcedureGraph_C_call_done.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_call_done.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_call_done.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_call_goto",
+   "input": "ProcedureGraph_C_call_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_call_goto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_call_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_call_return",
+   "input": "ProcedureGraph_C_call_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_call_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_call_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_call_return_assign",
+   "input": "ProcedureGraph_C_call_return_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_call_return_assign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_call_return_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_call_return_local",
+   "input": "ProcedureGraph_C_call_return_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_call_return_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_call_return_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_call_return_main",
+   "input": "ProcedureGraph_C_call_return_main.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_call_return_main.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_callee_invalid",
+   "input": "ProcedureGraph_C_callee_invalid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_callee_invalid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_callee_invalid.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_callee_name_collision",
+   "input": "ProcedureGraph_C_callee_name_collision.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_callee_name_collision.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_conditional_cycle",
+   "input": "ProcedureGraph_C_conditional_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_conditional_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_conditional_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_cross_goto",
+   "input": "ProcedureGraph_C_cross_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_cross_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_cross_param_read",
+   "input": "ProcedureGraph_C_cross_param_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_cross_param_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_cross_param_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_default_decls",
+   "input": "ProcedureGraph_C_default_decls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_default_decls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_default_decls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_duplicate_locals",
+   "input": "ProcedureGraph_C_duplicate_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_duplicate_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_duplicate_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_duplicate_param_scopes",
+   "input": "ProcedureGraph_C_duplicate_param_scopes.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_duplicate_param_scopes.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_duplicate_param_scopes.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_duplicate_proc",
+   "input": "ProcedureGraph_C_duplicate_proc.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_duplicate_proc.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_either_nested",
+   "input": "ProcedureGraph_C_either_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_either_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_either_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_fair_algorithm",
+   "input": "ProcedureGraph_C_fair_algorithm.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_foreign_read",
+   "input": "ProcedureGraph_C_foreign_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_foreign_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_foreign_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_four_chain",
+   "input": "ProcedureGraph_C_four_chain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_four_chain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_four_chain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_global_collision",
+   "input": "ProcedureGraph_C_global_collision.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_global_collision.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_implicit_callee",
+   "input": "ProcedureGraph_C_implicit_callee.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_implicit_callee.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_implicit_callee.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_implicit_caller",
+   "input": "ProcedureGraph_C_implicit_caller.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_implicit_caller.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_implicit_caller.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_label_collision",
+   "input": "ProcedureGraph_C_label_collision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_label_collision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_label_collision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_local_restore",
+   "input": "ProcedureGraph_C_local_restore.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_local_restore.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_local_restore.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_main_both",
+   "input": "ProcedureGraph_C_main_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_main_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_main_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_main_empty",
+   "input": "ProcedureGraph_C_main_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_C_main_empty.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_main_proc_goto",
+   "input": "ProcedureGraph_C_main_proc_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_main_proc_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_mutual",
+   "input": "ProcedureGraph_C_mutual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_mutual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_mutual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_nested",
+   "input": "ProcedureGraph_C_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_nested_local",
+   "input": "ProcedureGraph_C_nested_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_nested_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_nested_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_nested_modifier",
+   "input": "ProcedureGraph_C_nested_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_C_nested_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_nested_nonlast",
+   "input": "ProcedureGraph_C_nested_nonlast.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_C_nested_nonlast.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_nested_return_only",
+   "input": "ProcedureGraph_C_nested_return_only.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_nested_return_only.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_nested_return_only.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_no_params",
+   "input": "ProcedureGraph_C_no_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_no_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_no_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_order_reverse",
+   "input": "ProcedureGraph_C_order_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_order_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_order_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_parallel_params",
+   "input": "ProcedureGraph_C_parallel_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_parallel_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_parallel_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_parameter_order",
+   "input": "ProcedureGraph_C_parameter_order.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_parameter_order.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_parameter_order.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_read_stack",
+   "input": "ProcedureGraph_C_read_stack.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_read_stack.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_read_stack.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_repeat_nested",
+   "input": "ProcedureGraph_C_repeat_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_repeat_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_repeat_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_reserved_parameter",
+   "input": "ProcedureGraph_C_reserved_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_reserved_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_reserved_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_reserved_wrapper",
+   "input": "ProcedureGraph_C_reserved_wrapper.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_reserved_wrapper.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_reserved_wrapper.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_restore_order",
+   "input": "ProcedureGraph_C_restore_order.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_restore_order.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_restore_order.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_return_transfer_assign",
+   "input": "ProcedureGraph_C_return_transfer_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_C_return_transfer_assign.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_self_recursive",
+   "input": "ProcedureGraph_C_self_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_self_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_self_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_self_tail",
+   "input": "ProcedureGraph_C_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_separate_local_init",
+   "input": "ProcedureGraph_C_separate_local_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_separate_local_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_separate_local_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_strong_algorithm",
+   "input": "ProcedureGraph_C_strong_algorithm.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_strong_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_strong_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_three_chain",
+   "input": "ProcedureGraph_C_three_chain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_three_chain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_three_chain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_three_tail",
+   "input": "ProcedureGraph_C_three_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_three_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_three_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_two_params",
+   "input": "ProcedureGraph_C_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_two_unused",
+   "input": "ProcedureGraph_C_two_unused.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_two_unused.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_two_unused.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_unknown_nested",
+   "input": "ProcedureGraph_C_unknown_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_unknown_nested.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_unused_cycle",
+   "input": "ProcedureGraph_C_unused_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_unused_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_unused_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_unused_invalid",
+   "input": "ProcedureGraph_C_unused_invalid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_unused_invalid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_unused_invalid.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_while_nested",
+   "input": "ProcedureGraph_C_while_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_while_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_while_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_C_with_nested",
+   "input": "ProcedureGraph_C_with_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_C_with_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_C_with_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_arity_high",
+   "input": "ProcedureGraph_P_arity_high.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_arity_high.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_arity_low",
+   "input": "ProcedureGraph_P_arity_low.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_arity_low.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_auto_labels",
+   "input": "ProcedureGraph_P_auto_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_auto_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_auto_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_branch_nested",
+   "input": "ProcedureGraph_P_branch_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_branch_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_branch_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_call_done",
+   "input": "ProcedureGraph_P_call_done.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_call_done.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_call_done.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_call_goto",
+   "input": "ProcedureGraph_P_call_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_call_goto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_call_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_call_return",
+   "input": "ProcedureGraph_P_call_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_call_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_call_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_call_return_assign",
+   "input": "ProcedureGraph_P_call_return_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_call_return_assign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_call_return_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_call_return_local",
+   "input": "ProcedureGraph_P_call_return_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_call_return_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_call_return_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_call_return_main",
+   "input": "ProcedureGraph_P_call_return_main.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_call_return_main.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_callee_invalid",
+   "input": "ProcedureGraph_P_callee_invalid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_callee_invalid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_callee_invalid.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_callee_name_collision",
+   "input": "ProcedureGraph_P_callee_name_collision.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_callee_name_collision.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_conditional_cycle",
+   "input": "ProcedureGraph_P_conditional_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_conditional_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_conditional_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_cross_goto",
+   "input": "ProcedureGraph_P_cross_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_cross_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_cross_param_read",
+   "input": "ProcedureGraph_P_cross_param_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_cross_param_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_cross_param_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_default_decls",
+   "input": "ProcedureGraph_P_default_decls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_default_decls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_default_decls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_duplicate_locals",
+   "input": "ProcedureGraph_P_duplicate_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_duplicate_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_duplicate_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_duplicate_param_scopes",
+   "input": "ProcedureGraph_P_duplicate_param_scopes.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_duplicate_param_scopes.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_duplicate_param_scopes.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_duplicate_proc",
+   "input": "ProcedureGraph_P_duplicate_proc.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_duplicate_proc.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_either_nested",
+   "input": "ProcedureGraph_P_either_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_either_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_either_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_fair_algorithm",
+   "input": "ProcedureGraph_P_fair_algorithm.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_foreign_read",
+   "input": "ProcedureGraph_P_foreign_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_foreign_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_foreign_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_four_chain",
+   "input": "ProcedureGraph_P_four_chain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_four_chain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_four_chain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_global_collision",
+   "input": "ProcedureGraph_P_global_collision.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_global_collision.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_implicit_callee",
+   "input": "ProcedureGraph_P_implicit_callee.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_implicit_callee.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_implicit_callee.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_implicit_caller",
+   "input": "ProcedureGraph_P_implicit_caller.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_implicit_caller.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_implicit_caller.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_label_collision",
+   "input": "ProcedureGraph_P_label_collision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_label_collision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_label_collision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_local_restore",
+   "input": "ProcedureGraph_P_local_restore.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_local_restore.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_local_restore.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_main_both",
+   "input": "ProcedureGraph_P_main_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_main_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_main_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_main_empty",
+   "input": "ProcedureGraph_P_main_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_main_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_main_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_main_proc_goto",
+   "input": "ProcedureGraph_P_main_proc_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_main_proc_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_mutual",
+   "input": "ProcedureGraph_P_mutual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_mutual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_mutual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_nested",
+   "input": "ProcedureGraph_P_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_nested_local",
+   "input": "ProcedureGraph_P_nested_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_nested_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_nested_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_nested_modifier",
+   "input": "ProcedureGraph_P_nested_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_P_nested_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_nested_nonlast",
+   "input": "ProcedureGraph_P_nested_nonlast.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_P_nested_nonlast.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_nested_return_only",
+   "input": "ProcedureGraph_P_nested_return_only.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_nested_return_only.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_nested_return_only.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_no_params",
+   "input": "ProcedureGraph_P_no_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_no_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_no_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_order_reverse",
+   "input": "ProcedureGraph_P_order_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_order_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_order_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_parallel_params",
+   "input": "ProcedureGraph_P_parallel_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_parallel_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_parallel_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_parameter_order",
+   "input": "ProcedureGraph_P_parameter_order.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_parameter_order.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_parameter_order.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_read_stack",
+   "input": "ProcedureGraph_P_read_stack.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_read_stack.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_read_stack.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_repeat_nested",
+   "input": "ProcedureGraph_P_repeat_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_repeat_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_repeat_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_reserved_parameter",
+   "input": "ProcedureGraph_P_reserved_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_reserved_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_reserved_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_reserved_wrapper",
+   "input": "ProcedureGraph_P_reserved_wrapper.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_reserved_wrapper.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_reserved_wrapper.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_restore_order",
+   "input": "ProcedureGraph_P_restore_order.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_restore_order.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_restore_order.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_return_transfer_assign",
+   "input": "ProcedureGraph_P_return_transfer_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcedureGraph_P_return_transfer_assign.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_self_recursive",
+   "input": "ProcedureGraph_P_self_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_self_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_self_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_self_tail",
+   "input": "ProcedureGraph_P_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_separate_local_init",
+   "input": "ProcedureGraph_P_separate_local_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_separate_local_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_separate_local_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_strong_algorithm",
+   "input": "ProcedureGraph_P_strong_algorithm.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_strong_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_strong_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_three_chain",
+   "input": "ProcedureGraph_P_three_chain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_three_chain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_three_chain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_three_tail",
+   "input": "ProcedureGraph_P_three_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_three_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_three_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_two_params",
+   "input": "ProcedureGraph_P_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_two_unused",
+   "input": "ProcedureGraph_P_two_unused.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_two_unused.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_two_unused.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_unknown_nested",
+   "input": "ProcedureGraph_P_unknown_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_unknown_nested.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_unused_cycle",
+   "input": "ProcedureGraph_P_unused_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_unused_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_unused_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_unused_invalid",
+   "input": "ProcedureGraph_P_unused_invalid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_unused_invalid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_unused_invalid.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_while_nested",
+   "input": "ProcedureGraph_P_while_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_while_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_while_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcedureGraph_P_with_nested",
+   "input": "ProcedureGraph_P_with_nested.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcedureGraph_P_with_nested.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcedureGraph_P_with_nested.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

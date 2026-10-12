@@ -1,0 +1,4 @@
+---- MODULE MultiExtra_C_ids_select ----
+EXTENDS Naturals,TLC
+(* --algorithm A { variable g=0;  process (P =1) variable x=[a |-> 0]; { L: x.a:=1; LE: g:=x.a; }  process (Q =2) variable y=[a |-> 0]; { M: y.a:=2; ME: g:=y.a; }  process (R =3) variable z=[a |-> 0]; { N: z.a:=3; NE: g:=z.a; } } *)
+====

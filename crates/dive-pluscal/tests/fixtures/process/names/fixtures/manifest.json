@@ -1,0 +1,88 @@
+{
+ "rows": [
+  {
+   "id": "ProcNames_C_process_finite",
+   "input": "ProcNames_C_process_finite.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcNames_C_process_finite.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcNames_C_process_infinite",
+   "input": "ProcNames_C_process_infinite.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcNames_C_process_infinite.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcNames_C_sequential_infinite",
+   "input": "ProcNames_C_sequential_infinite.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcNames_C_sequential_infinite.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcNames_P_process_finite",
+   "input": "ProcNames_P_process_finite.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcNames_P_process_finite.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcNames_P_process_infinite",
+   "input": "ProcNames_P_process_infinite.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcNames_P_process_infinite.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcNames_P_sequential_infinite",
+   "input": "ProcNames_P_sequential_infinite.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcNames_P_sequential_infinite.normalized.json"
+    }
+   }
+  }
+ ]
+}

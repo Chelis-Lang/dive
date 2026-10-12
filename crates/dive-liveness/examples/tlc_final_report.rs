@@ -8,7 +8,7 @@ use dive_liveness::{phase_graph::Limits, tlc_final};
 use std::{path::Path, sync::Arc};
 fn main() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let base = root.join("conformance/probes/tlc-final-check");
+    let base = root.join("crates/dive-liveness/tests/fixtures/probes/tlc-final-check");
     let capture: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
             .expect("JSON");

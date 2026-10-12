@@ -1,0 +1,36 @@
+--algorithm Map {
+    variables  ltok, rtok,  \* The positions of the left and right TLATokens 
+                            \* selected by tpRegion
+               rtokDepth, minDepth, i,
+               tpregion  = tpRegion , \* use the variable instead of tpRegion 
+                                      \* to allow debugging 
+\*                        \in { Reg(r[1], r[2]) : 
+\*                               r \in {rr \in (1..7)\X(1..7) : rr[1] =< rr[2]} } 
+               bParen, eParen    \* set to the position of the Paren objects
+                                 \* that bracket the 
+    ;  
+    { with (tp = RegionToTokPair(tpSpec, tpregion)) {
+         ltok := tp[1];
+         rtok := tp[2]
+       } ;
+       
+      \* If d is the depth of ltok, then set rtokDepth and minDepth
+      \* such that d + rtokDepth is the depth of rtok and
+      \* d + minDepth is the minimum depth of tokens
+      rtokDepth := 0;
+      minDepth := 0 ;
+      i := ltok+1;
+      while (i =< rtok) {
+         rtokDepth := rtokDepth + CASE tpSpec[i].type = "begin" -> 1  []
+                                       tpSpec[i].type = "end"  -> -1 []
+                                       OTHER                    -> 0 ;
+         if (rtokDepth < minDepth) {minDepth := rtokDepth} ;
+         i := i+1
+       };
+      assert /\ ParenDepth(tpSpec, rtok) = ParenDepth(tpSpec, ltok) + rtokDepth
+             /\ minDepth + ParenDepth(tpSpec, ltok) =
+                  Min({ParenDepth(tpSpec, k) : k \in ltok..rtok})
+      
+      
+    }
+}

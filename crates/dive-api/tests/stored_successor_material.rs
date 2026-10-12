@@ -11,7 +11,7 @@ fn paired_stored_successor_controls_replay_fresh_memory_and_json() {
     use dive_api::tlc_temporal::Outcome;
     use dive_trace::{Ending, Validation};
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/stored-successor-material");
+        .join("tests/fixtures/stored-successor-material");
     let rows: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("selection.json")).expect("selection"))
             .expect("JSON");
@@ -139,7 +139,7 @@ fn stored_words_are_independently_evaluated_at_every_closing_position() {
     use dive_model::Pred;
     use dive_value::{Ctx, Value};
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/stored-successor-material/models");
+        .join("tests/fixtures/stored-successor-material/models");
     let mut cases = 0;
     for shape in [
         "Set",

@@ -1,0 +1,1 @@
+{"name":"Dijkstra1","syntax":"P","fair":false,"declarations":[],"definitions":null,"macros":[],"procedures":[["Foo",[["a","Equal",["1"]]],[["x","Equal",["42"]],["y","Equal",["x"]]],[["Foo1",["Return"]]]]],"body":["Processes",[["P","Unfair","Member",["1","..","3"],[],[["P1",["Assert",["x","=","y"]]],["",["Skip"]],["P2",["Call","Foo",[["17"]]]]]]]]}

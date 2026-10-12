@@ -1,0 +1,244 @@
+{
+ "rows": [
+  {
+   "id": "ProcessProcedureExtra_C_member_parallel_args",
+   "input": "ProcessProcedureExtra_C_member_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_C_member_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_C_member_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_C_member_tail_two_locals",
+   "input": "ProcessProcedureExtra_C_member_tail_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_C_member_tail_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_C_member_tail_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_C_member_two_locals",
+   "input": "ProcessProcedureExtra_C_member_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_C_member_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_C_member_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_C_member_two_params",
+   "input": "ProcessProcedureExtra_C_member_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_C_member_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_C_member_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_C_pc_indexed",
+   "input": "ProcessProcedureExtra_C_pc_indexed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_C_pc_indexed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_C_pc_indexed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_C_pc_whole",
+   "input": "ProcessProcedureExtra_C_pc_whole.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_C_pc_whole.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_C_pc_whole.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_P_member_parallel_args",
+   "input": "ProcessProcedureExtra_P_member_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_P_member_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_P_member_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_P_member_tail_two_locals",
+   "input": "ProcessProcedureExtra_P_member_tail_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_P_member_tail_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_P_member_tail_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_P_member_two_locals",
+   "input": "ProcessProcedureExtra_P_member_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_P_member_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_P_member_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_P_member_two_params",
+   "input": "ProcessProcedureExtra_P_member_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_P_member_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_P_member_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_P_pc_indexed",
+   "input": "ProcessProcedureExtra_P_pc_indexed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_P_pc_indexed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_P_pc_indexed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedureExtra_P_pc_whole",
+   "input": "ProcessProcedureExtra_P_pc_whole.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedureExtra_P_pc_whole.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedureExtra_P_pc_whole.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

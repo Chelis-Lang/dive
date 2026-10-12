@@ -1,0 +1,3142 @@
+{
+ "rows": [
+  {
+   "id": "Procedure_P_simple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_no_params",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "aff6d3f9",
+    "9d4ea5c9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "aff6d3f9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_default_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9a9b58a9",
+    "8ee72245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9a9b58a9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8155ad3",
+    "64e6d8b8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8155ad3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_local_from_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f429e9de",
+    "79aa5264"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f429e9de"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_default_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "75591b26",
+    "aa805d8f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "75591b26"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_two_params",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c529297f",
+    "45e6cb48"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c529297f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_repeat",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4a4d218e",
+    "51cbe6fe"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4a4d218e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_return_same_label",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b7678288",
+    "8f4d0053"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b7678288"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_implicit_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ff0c1238",
+    "b88bb30"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ff0c1238"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_return_only",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f0bb3f0",
+    "585f6393"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f0bb3f0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_call_to_done",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bf00c9ba",
+    "41c1b3c3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bf00c9ba"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_loop",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cdc74064",
+    "ab312b14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cdc74064"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_branch",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f9b34b21",
+    "ac1eaa14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f9b34b21"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3fe1871d",
+    "6a183214"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3fe1871d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bd0ef6f4",
+    "debdacee"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bd0ef6f4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_local_update",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_parallel",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cd5a596a",
+    "51bb4b0c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cd5a596a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_initial_expr",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c6a2d300",
+    "3bbba9f2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c6a2d300"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_arity_low",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_arity_high",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_unknown",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_return_main",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a8784968",
+    "5f28a64a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a8784968"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_tail_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3fded8a7",
+    "7f679cb0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3fded8a7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "10866ec5",
+    "8f4d0053"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "10866ec5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_call_follows_assign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "146badf3",
+    "33f2e35c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "146badf3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_call_missing_follow_label",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_auto",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "89fdfcc4",
+    "815b86b2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "89fdfcc4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "82955c5b",
+    "fa50644d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "82955c5b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_unused_invalid",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1c163840",
+    "aa751282"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1c163840"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Procedure_P_global_param_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_param_local_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_duplicate_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_reserved_stack",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_reserved_pc",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_operator_names",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "61e7d7ee",
+    "69a5777"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "61e7d7ee"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Procedure_P_proc_label_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8a6b27a0",
+    "2593a843"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8a6b27a0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_cross_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_P_source_assert",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e370e159",
+    "6b9e94f5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e370e159"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_param_read_main",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dfca8c15",
+    "5db0dcd1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dfca8c15"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_P_local_read_main",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "fdfe7d25",
+    "72970350"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "fdfe7d25"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_simple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_no_params",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "aff6d3f9",
+    "9d4ea5c9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "aff6d3f9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_default_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9a9b58a9",
+    "8ee72245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9a9b58a9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8155ad3",
+    "64e6d8b8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8155ad3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_local_from_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f429e9de",
+    "79aa5264"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f429e9de"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_default_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "75591b26",
+    "aa805d8f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "75591b26"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_two_params",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c529297f",
+    "45e6cb48"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c529297f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_repeat",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4a4d218e",
+    "51cbe6fe"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4a4d218e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_return_same_label",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b7678288",
+    "8f4d0053"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b7678288"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_implicit_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ff0c1238",
+    "b88bb30"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ff0c1238"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_return_only",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f0bb3f0",
+    "585f6393"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f0bb3f0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_call_to_done",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bf00c9ba",
+    "41c1b3c3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bf00c9ba"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_loop",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cdc74064",
+    "ab312b14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cdc74064"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_branch",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f9b34b21",
+    "ac1eaa14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f9b34b21"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3fe1871d",
+    "6a183214"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3fe1871d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bd0ef6f4",
+    "debdacee"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bd0ef6f4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_local_update",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_parallel",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cd5a596a",
+    "51bb4b0c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cd5a596a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_initial_expr",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c6a2d300",
+    "3bbba9f2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c6a2d300"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_arity_low",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_arity_high",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_unknown",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_return_main",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a8784968",
+    "5f28a64a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a8784968"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_tail_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3fded8a7",
+    "7f679cb0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3fded8a7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "10866ec5",
+    "8f4d0053"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "10866ec5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_call_follows_assign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "146badf3",
+    "33f2e35c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "146badf3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_call_missing_follow_label",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_auto",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "89fdfcc4",
+    "815b86b2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "89fdfcc4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "82955c5b",
+    "fa50644d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "82955c5b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_unused_invalid",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1c163840",
+    "aa751282"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1c163840"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Procedure_C_global_param_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_param_local_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_duplicate_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_reserved_stack",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_reserved_pc",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_operator_names",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "61e7d7ee",
+    "69a5777"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "61e7d7ee"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Procedure_C_proc_label_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8a6b27a0",
+    "2593a843"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8a6b27a0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_cross_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Procedure_C_source_assert",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e370e159",
+    "6b9e94f5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e370e159"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_param_read_main",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dfca8c15",
+    "5db0dcd1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dfca8c15"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Procedure_C_local_read_main",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "fdfe7d25",
+    "72970350"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "fdfe7d25"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_basic",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_zero_slots",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5563ddf3",
+    "731e407"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5563ddf3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_zero_params_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a0ad46a",
+    "dd52994f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a0ad46a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_two_params_swap",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f841b8",
+    "6e0b131a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f841b8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_local_from_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "83b7137c",
+    "f1b1a92b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "83b7137c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_two_locals_chain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d0e2018a",
+    "46cb6816"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d0e2018a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_default_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9a9b58a9",
+    "8ee72245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9a9b58a9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_default_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "534c3dff",
+    "70a63994"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "534c3dff"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_call_after_assign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "10143806",
+    "723545c2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "10143806"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_repeat_calls",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b717bf91",
+    "3b33d84f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b717bf91"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "baf868db",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "baf868db"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_return_only",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f0bb3f0",
+    "585f6393"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f0bb3f0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_unused_pure",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7205a12c",
+    "324065d1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7205a12c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "45aac90e",
+    "fd73e53b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "45aac90e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_with_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f495d2e",
+    "94d4a20a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f495d2e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_either_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2e063572",
+    "480c53d7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2e063572"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_lf_comments",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "83b7137c",
+    "f1b1a92b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "83b7137c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "179564fd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_option_wf",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "179564fd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_C_unknown_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcedureCrc_C_wrong_arity",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcedureCrc_C_no_param_self_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6b91ec5c",
+    "99a21bbf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6b91ec5c"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_basic",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_zero_slots",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5563ddf3",
+    "731e407"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5563ddf3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_zero_params_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a0ad46a",
+    "dd52994f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a0ad46a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_two_params_swap",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f841b8",
+    "6e0b131a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f841b8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_local_from_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "83b7137c",
+    "f1b1a92b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "83b7137c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_two_locals_chain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d0e2018a",
+    "46cb6816"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d0e2018a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_default_param",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9a9b58a9",
+    "8ee72245"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9a9b58a9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_default_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "534c3dff",
+    "70a63994"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "534c3dff"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_call_after_assign",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "10143806",
+    "723545c2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "10143806"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_repeat_calls",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b717bf91",
+    "3b33d84f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b717bf91"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "baf868db",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "baf868db"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_return_only",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f0bb3f0",
+    "585f6393"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f0bb3f0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_unused_pure",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7205a12c",
+    "324065d1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7205a12c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "45aac90e",
+    "fd73e53b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "45aac90e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_with_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f495d2e",
+    "94d4a20a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f495d2e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_either_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2e063572",
+    "480c53d7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2e063572"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_lf_comments",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "83b7137c",
+    "f1b1a92b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "83b7137c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "9f510ab6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "179564fd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_option_wf",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "46170852",
+    "179564fd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "46170852"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcedureCrc_P_unknown_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcedureCrc_P_wrong_arity",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcedureCrc_P_no_param_self_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6b91ec5c",
+    "99a21bbf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6b91ec5c"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_call_one",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7b1ec07",
+    "7d2acbd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7b1ec07"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_call_one",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7b1ec07",
+    "7d2acbd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7b1ec07"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_call_empty_else",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_call_empty_else",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ca986304",
+    "2726139"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ca986304"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_call_no_else",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ca986304",
+    "2726139"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ca986304"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_call_no_else",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ca986304",
+    "2726139"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ca986304"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_call_implicit_next",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "45aac90e",
+    "fd73e53b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "45aac90e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_call_implicit_next",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "45aac90e",
+    "fd73e53b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "45aac90e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_with_call_implicit_next",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f495d2e",
+    "94d4a20a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f495d2e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_with_call_implicit_next",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1f495d2e",
+    "94d4a20a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1f495d2e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_with_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "434b066c",
+    "67bc3cf8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "434b066c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_with_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "434b066c",
+    "67bc3cf8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "434b066c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_either_call_mixed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f09bf425",
+    "1d6801c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f09bf425"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_either_call_mixed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f09bf425",
+    "1d6801c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f09bf425"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_either_call_implicit_next",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2e063572",
+    "480c53d7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2e063572"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_either_call_implicit_next",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2e063572",
+    "480c53d7"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2e063572"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_with_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c6298aeb",
+    "ff1c0728"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c6298aeb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_with_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c6298aeb",
+    "ff1c0728"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c6298aeb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_either_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ea405aa4",
+    "af9fa3d2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ea405aa4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_either_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ea405aa4",
+    "af9fa3d2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ea405aa4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_while_direct_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1057f68f",
+    "df6f733"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1057f68f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_while_direct_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1057f68f",
+    "df6f733"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1057f68f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_while_nested_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e4fb6d7f",
+    "178d4e1d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e4fb6d7f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_while_nested_if_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e4fb6d7f",
+    "178d4e1d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e4fb6d7f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_while_nested_with_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "592b301d",
+    "62660aad"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "592b301d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_while_nested_with_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "592b301d",
+    "62660aad"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "592b301d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_while_nested_either_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92484cd",
+    "3d406577"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92484cd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_while_nested_either_call",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92484cd",
+    "3d406577"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92484cd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_call_after_assignment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6be3e879",
+    "e9cd735a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6be3e879"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_call_after_assignment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6be3e879",
+    "e9cd735a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6be3e879"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_nested_arg_record",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3562366e",
+    "77423139"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3562366e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_nested_arg_record",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3562366e",
+    "77423139"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3562366e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3d0711eb",
+    "abcfca4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3d0711eb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3d0711eb",
+    "abcfca4b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3d0711eb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_with_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6f919a5d",
+    "8fa74eee"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6f919a5d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_with_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6f919a5d",
+    "8fa74eee"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6f919a5d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_either_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "41e50c0b",
+    "7d214b9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "41e50c0b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_either_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "41e50c0b",
+    "7d214b9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "41e50c0b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_nested_with_if_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40a0c720",
+    "4a17b065"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40a0c720"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_nested_with_if_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40a0c720",
+    "4a17b065"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40a0c720"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_while_direct_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c0cfb2e9",
+    "941bb8cb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c0cfb2e9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_while_direct_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c0cfb2e9",
+    "941bb8cb"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c0cfb2e9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_while_nested_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2e3c0493",
+    "717e0d3d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2e3c0493"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_while_nested_return",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2e3c0493",
+    "717e0d3d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2e3c0493"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_if_return_both",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1654f731",
+    "b99c4e4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1654f731"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_if_return_both",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1654f731",
+    "b99c4e4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1654f731"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_C_either_return_both",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a9d366d",
+    "995e870c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a9d366d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "NestedProcedureCrc_P_either_return_both",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a9d366d",
+    "995e870c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a9d366d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

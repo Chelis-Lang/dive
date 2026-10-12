@@ -7,14 +7,14 @@ use std::path::Path;
 #[test]
 fn every_selected_definition_form_ast_is_exact_or_named_refusal()
 -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("define-forms-acceptance");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/define-forms");
     let mut counts = [0usize; 4];
     for folder in [
         "",
-        "../define-acceptance",
-        "../define-acceptance/contexts",
-        "../define-acceptance/corpus",
-        "../define-acceptance/promoted",
+        "../define",
+        "../define/contexts",
+        "../define/corpus",
+        "../define/promoted",
     ] {
         let base = root.join(folder);
         let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(

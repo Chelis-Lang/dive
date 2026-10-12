@@ -1,0 +1,11 @@
+{
+ "inserted": [
+  "Lbl_1",
+  "Lbl_2"
+ ],
+ "locations": [
+  "line 3, column 43",
+  "line 3, column 77"
+ ],
+ "default_initialization": false
+}

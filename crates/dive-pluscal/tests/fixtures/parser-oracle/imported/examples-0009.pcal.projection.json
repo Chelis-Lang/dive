@@ -1,0 +1,1 @@
+{"name":"SumSequence","syntax":"C","fair":true,"declarations":[["seq","Member",["Seq","(","Values",")"]],["sum","Equal",["0"]],["n","Equal",["1"]]],"definitions":null,"macros":[],"procedures":[],"body":["Sequential",[["a",["While",["n","=<","Len","(","seq",")"],[["",["Assign",[["sum",[],["sum","+","seq","[","n","]"]]]]],["",["Assign",[["n",[],["n","+","1"]]]]]]]]]]}

@@ -1,0 +1,30 @@
+{
+ "rows": [
+  {
+   "id": "Inline_C",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "Inline_P",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  }
+ ]
+}

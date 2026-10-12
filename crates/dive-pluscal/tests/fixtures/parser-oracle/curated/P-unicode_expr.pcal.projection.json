@@ -1,0 +1,1 @@
+{"name":"A","syntax":"P","fair":false,"declarations":[["x","Member",["{","1",",","2","}"]]],"definitions":null,"macros":[],"procedures":[],"body":["Sequential",[["",["Assert",["\u2203","a","\u2208","{","1",",","2","}",":","a","=","a"]]],["",["Assign",[["x",[],["\u27e8","1",",","2","\u27e9"]]]]]]]}

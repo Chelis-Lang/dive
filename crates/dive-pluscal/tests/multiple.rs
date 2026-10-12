@@ -14,7 +14,7 @@ fn retained_selection(
     expected_artifacts: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("multiple-acceptance")
+        .join("tests/fixtures/multiple")
         .join(directory);
     let manifest: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;

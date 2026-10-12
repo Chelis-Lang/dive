@@ -56,11 +56,11 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
     assert_eq!(
         checksum.serialized_ast,
         include_str!(
-            "../checksum-expression-acceptance/rewrite-boundary-controls/P_elsif-stale.translated.ast"
+            "fixtures/checksum-expression/rewrite-boundary-controls/P_elsif-stale.translated.ast"
         )
     );
     let manifest: serde_json::Value = serde_json::from_str(include_str!(
-        "../checksum-expression-acceptance/rewrite-boundary-controls/manifest.json"
+        "fixtures/checksum-expression/rewrite-boundary-controls/manifest.json"
     ))?;
     assert_eq!(checksum.checksum, manifest["rows"][0]["primary_crc"]);
     let start = supported.find("--algorithm").ok_or("missing algorithm")?;
@@ -74,7 +74,7 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
         .map_err(|error| error.message)?;
     let native = dive_syntax::parse_module(&generated.module_source);
     let primary = dive_syntax::parse_module(include_str!(
-        "../checksum-expression-acceptance/rewrite-boundary-controls/P_elsif-stale.translated.tla"
+        "fixtures/checksum-expression/rewrite-boundary-controls/P_elsif-stale.translated.tla"
     ));
     assert!(native.is_ok() && primary.is_ok());
     assert_eq!(structure(&native.syntax()), structure(&primary.syntax()));
@@ -87,7 +87,7 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
     assert_eq!(
         macro_checksum.serialized_ast,
         include_str!(
-            "../macro-checksum-acceptance/regression/primary/UnusedMacroRewrite.translated.ast"
+            "fixtures/macro-checksum/regression/primary/UnusedMacroRewrite.translated.ast"
         )
     );
     verify_define_boundary(&source)?;
@@ -169,7 +169,7 @@ fn verify_define_boundary(source: &str) -> Result<(), Box<dyn std::error::Error>
     let supported_define = source.replace("begin L:", "define F == 1 end define; begin L:");
     assert_eq!(
         supported_define,
-        include_str!("../define-acceptance/promoted/cases/DefineBlockRewrite.tla")
+        include_str!("fixtures/define/promoted/cases/DefineBlockRewrite.tla")
     );
     let define_plan = rewrite_document(&supported_define, "x == 1", &RewriteOptions::default())?;
     let define_checksum = define_plan
@@ -177,10 +177,10 @@ fn verify_define_boundary(source: &str) -> Result<(), Box<dyn std::error::Error>
         .ok_or("missing DEFINE checksum")?;
     assert_eq!(
         define_checksum.serialized_ast,
-        include_str!("../define-acceptance/promoted/primary/DefineBlockRewrite.translated.ast")
+        include_str!("fixtures/define/promoted/primary/DefineBlockRewrite.translated.ast")
     );
     let define_manifest: serde_json::Value = serde_json::from_str(include_str!(
-        "../define-acceptance/promoted/primary/manifest.json"
+        "fixtures/define/promoted/primary/manifest.json"
     ))?;
     let primary_define = define_manifest["rows"]
         .as_array()
@@ -205,7 +205,7 @@ fn verify_define_boundary(source: &str) -> Result<(), Box<dyn std::error::Error>
     )?;
     let native_define = dive_syntax::parse_module(&generated_define.module_source);
     let reference_define = dive_syntax::parse_module(include_str!(
-        "../define-acceptance/promoted/primary/DefineBlockRewrite.translated.tla"
+        "fixtures/define/promoted/primary/DefineBlockRewrite.translated.tla"
     ));
     assert!(native_define.is_ok() && reference_define.is_ok());
     assert_eq!(

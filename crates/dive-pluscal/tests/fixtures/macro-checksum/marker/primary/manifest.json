@@ -1,0 +1,308 @@
+{
+ "rows": [
+  {
+   "id": "Marker_C_fair_first_next_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_fair_first_next_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_fair_first_same_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f9034b6",
+    "3a9ebb2e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f9034b6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_fair_first_same_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f9034b6",
+    "3a9ebb2e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f9034b6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_unfair_first_next_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_unfair_first_next_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_unfair_first_same_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_C_unfair_first_same_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_fair_first_next_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_fair_first_next_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e10f188"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_fair_first_same_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f9034b6",
+    "3a9ebb2e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f9034b6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_fair_first_same_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f9034b6",
+    "3a9ebb2e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f9034b6"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_unfair_first_next_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_unfair_first_next_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_unfair_first_same_line_lf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Marker_P_unfair_first_same_line_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

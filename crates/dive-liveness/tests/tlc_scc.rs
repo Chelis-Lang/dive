@@ -252,7 +252,7 @@ fn bind(
 )]
 fn actual_pinned_worker_anchor_pop_order_and_first_visits_match() {
     use dive_liveness::phase_execution;
-    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes");
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/probes");
     let capture: serde_json::Value = serde_json::from_str(
         &std::fs::read_to_string(base.join("tlc-final-check/capture.json")).expect("capture"),
     )

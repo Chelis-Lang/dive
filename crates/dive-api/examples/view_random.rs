@@ -7,9 +7,8 @@ use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, check_file};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let file = PathBuf::from(
-        "conformance/probes/view-random-stream/primary/scalar/configured/ViewStream.tla",
-    );
+    let file =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples/data/view-random/ViewStream.tla");
     let report = check_file(&CheckRequest {
         file: file.clone(),
         compat_tlc: true,

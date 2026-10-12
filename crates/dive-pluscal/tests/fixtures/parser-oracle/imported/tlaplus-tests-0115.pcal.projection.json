@@ -1,0 +1,1 @@
+{"name":"MultiprocDefine","syntax":"P","fair":false,"declarations":[["n","Equal",["0"]]],"definitions":["nplus1","==","n","+","1","nplus2","==","nplus1","+","1"],"macros":[],"procedures":[],"body":["Processes",[["Proc","Unfair","Member",["{","1",",","2",",","3","}"],[["i","Equal",null]],[["main",["Assign",[["i",[],["nplus2"]]]]],["",["Assert",["i","=","2"]]]]]]]}

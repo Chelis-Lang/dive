@@ -1,0 +1,32 @@
+--algorithm MinSpanningTree {
+    variables msgs = [q \in Queues |-> IF q[1] = root THEN <<0>> ELSE << >>] ;
+    fair process (nd \in NodePs) 
+      variables depth = IF self[1] = root THEN 0 ELSE MaxNodes,
+                parent = self[1], 
+                acked = [n \in Nbrs(self[1]) |->  
+                           IF self[1] = <<root>> THEN FALSE ELSE TRUE];           
+      { a: while (TRUE) { 
+\*            either {
+              with (q \in {r \in QueuesTo(self[1]) : msgs[r] /= << >>}) {
+                 if (Head(msgs[q]) < depth - 1) {
+                    depth := Head(msgs[q]) + 1;
+                    parent := q[1] ;
+                    msgs := [r \in Queues |->
+                              IF r = q 
+                                THEN Tail(msgs[q])
+                                ELSE IF r \in QueuesFrom(self[1]) \ {<<self[1], q[1]>>}
+                                       THEN Append(msgs[r], depth)
+                                       ELSE msgs[r] ];
+                   acked := [b \in Nbrs(self[1]) |-> b /= q[1]] 
+                              
+                 } else { 
+                     msgs[q] := Tail(msgs[q]) ;
+                     if (Head(msgs[q]) =< depth+1) {acked[q[1]] := TRUE} 
+                 }
+               }
+\*           }
+         }
+      }
+\*    process (qu \in Queues) {
+\*   }
+}

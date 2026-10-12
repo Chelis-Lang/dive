@@ -22,8 +22,8 @@ fn structure(node: &dive_syntax::SyntaxNode) -> serde_json::Value {
 #[test]
 fn case_arrows_preserve_assignment_scope_in_both_syntaxes() -> Result<(), Box<dyn std::error::Error>>
 {
-    let base =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("ast-checksum-acceptance/expression-controls");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/ast-checksum/expression-controls");
     for id in ["C_expression_case", "P_expression_case"] {
         let source = std::fs::read_to_string(base.join(format!("{id}.tla")))?;
         let start = source.find("--algorithm").ok_or("missing algorithm")?;

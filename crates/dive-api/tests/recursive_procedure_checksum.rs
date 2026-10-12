@@ -6,7 +6,7 @@ use std::path::Path;
 fn recursive_full_and_body_admission_does_not_claim_model_or_invalid_artifact()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/recursive-procedure-checksum-acceptance");
+        .join("../dive-pluscal/tests/fixtures/recursive-procedure-checksum");
     for syntax in ["C", "P"] {
         for shape in [
             "self_base",
@@ -75,7 +75,7 @@ fn recursive_full_and_body_admission_does_not_claim_model_or_invalid_artifact()
 fn recursive_arity_and_resource_errors_never_emit_successful_replacement()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/recursive-procedure-checksum-acceptance");
+        .join("../dive-pluscal/tests/fixtures/recursive-procedure-checksum");
     let source = std::fs::read_to_string(base.join("cases/RecursiveHeader_P_mutual_local.tla"))?;
     for compat_tlc in [false, true] {
         for limit in [0, 1, 256] {

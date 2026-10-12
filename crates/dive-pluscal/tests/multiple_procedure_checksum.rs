@@ -7,7 +7,8 @@ use std::{fmt::Write, path::Path};
 #[test]
 fn all_declared_multiple_procedure_rows_match_original_header_bytes_and_crc()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("multiple-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/multiple-procedure-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -103,7 +104,8 @@ fn aggregate_expansion_budget_is_shared_across_owners() -> Result<(), Box<dyn st
 #[test]
 fn multiple_owner_checksum_preserves_exact_output_budget() -> Result<(), Box<dyn std::error::Error>>
 {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("multiple-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/multiple-procedure-checksum");
     for shape in [
         "both",
         "reverse_declarations",

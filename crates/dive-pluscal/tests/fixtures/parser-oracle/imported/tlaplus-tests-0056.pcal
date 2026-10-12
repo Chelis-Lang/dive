@@ -1,0 +1,56 @@
+--algorithm DistributedMutex {
+    variables num  = [n \in Nodes |-> 0] ,
+              rnum = [n \in Nodes |-> [m \in Nodes \ {n} |-> 0]],
+              acks = [n \in Nodes |-> {}],
+              net  = [i \in Nodes |-> [j \in Nodes \ {i} |-> << >>]]             ;
+             
+   macro Broadcast(msg) {
+     net[self.node] := [i \in Nodes \ {self.node} |-> Append(net[self.node][i], msg)]
+   } 
+   
+  macro Rcv(from) {
+    net[from][self.node] := Tail(net[from][self.node])
+  }
+   macro RcvAndReply(from, msg) {
+        net[from][self.node] := Tail(net[from][self.node])  
+     || net[self.node][from] := Append(net[self.node][from], msg)
+   }
+     
+   fair process(mu \in MutexProcs) {
+    ncs:- while (TRUE) {
+            skip;  \* non-critical section
+   enter:   with (nonZeros = {i \in Nodes \ {self.node} : rnum[self.node][i] # 0},
+                  competition = {<<rnum[i], i>> : i \in nonZeros} ) {
+              num[self.node] := IF competition = { } 
+                                  THEN 1
+                                  ELSE NextHigher(MaxPr(competition), self.node) ;
+\*              print <<num[self.node], self>>
+            } ;
+            acks[self.node] := {self.node};
+            Broadcast(Write(num[self.node])) ; 
+      e1:   await  /\ acks[self.node] = Nodes
+                   /\ \A n \in Nodes \ {self.node} : <<num[self.node],self.node>> \prec <<rnum[self.node][n],n>>;
+      cs:   skip;
+    exit:   \* num[self.node] := num[self.node] + 1;
+            Broadcast(Write(0)) ;
+          } \* end while
+   }
+
+
+   fair process(mg \in MsgProcs) {
+    a: while (TRUE) {
+          with (n \in Nodes \ {self.node}) {
+             await net[n][self.node] /= << >> ;
+             with (msg = Head(net[n][self.node]), 
+                   me = self.node) {             
+                if (msg.type = "write") {
+                    rnum[me][n] := msg.num;
+                    if (msg.num = 0) { Rcv(n) }
+                    else { RcvAndReply(n, Ack) } ;
+                }                                                                   
+                else{ acks[me] := acks[me] \cup {n} }
+             }  \* end with
+           }  \* end with
+        }  \* end while
+   }
+}

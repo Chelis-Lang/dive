@@ -15,7 +15,7 @@ fn retained(
     invalid: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("multiple-procedure-acceptance")
+        .join("tests/fixtures/multiple-procedure")
         .join(directory);
     let manifest: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("primary/manifest.json"))?)?;

@@ -8,7 +8,8 @@ use std::{fmt::Write, path::Path};
 #[test]
 fn all_new_acyclic_rows_match_original_header_bytes_and_crc()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("acyclic-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/acyclic-procedure-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -51,7 +52,8 @@ fn all_new_acyclic_rows_match_original_header_bytes_and_crc()
 #[test]
 fn former_recursive_boundary_now_matches_exact_primary_header()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("acyclic-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/acyclic-procedure-checksum");
     for syntax in ["C", "P"] {
         for shape in ["self_recursion", "mutual_recursion"] {
             let id = format!("MultipleOwner_{syntax}_{shape}");
@@ -95,7 +97,8 @@ fn graph_and_expansion_share_one_unchanged_budget() -> Result<(), Box<dyn std::e
 
 #[test]
 fn acyclic_checksum_preserves_exact_output_budget() -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("acyclic-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/acyclic-procedure-checksum");
     for shape in [
         "forward",
         "reverse",

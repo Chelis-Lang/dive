@@ -1,0 +1,244 @@
+{
+ "rows": [
+  {
+   "id": "ProcExtra_C_id_local_member_dependency",
+   "input": "ProcExtra_C_id_local_member_dependency.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_C_id_local_member_dependency.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_C_id_local_member_dependency.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_C_id_parallel_subscript",
+   "input": "ProcExtra_C_id_parallel_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_C_id_parallel_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_C_id_parallel_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_C_id_subscript",
+   "input": "ProcExtra_C_id_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_C_id_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_C_id_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_C_set_local_member_dependency",
+   "input": "ProcExtra_C_set_local_member_dependency.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_C_set_local_member_dependency.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_C_set_local_member_dependency.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_C_set_parallel_subscript",
+   "input": "ProcExtra_C_set_parallel_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_C_set_parallel_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_C_set_parallel_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_C_set_subscript",
+   "input": "ProcExtra_C_set_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_C_set_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_C_set_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_P_id_local_member_dependency",
+   "input": "ProcExtra_P_id_local_member_dependency.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_P_id_local_member_dependency.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_P_id_local_member_dependency.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_P_id_parallel_subscript",
+   "input": "ProcExtra_P_id_parallel_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_P_id_parallel_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_P_id_parallel_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_P_id_subscript",
+   "input": "ProcExtra_P_id_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_P_id_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_P_id_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_P_set_local_member_dependency",
+   "input": "ProcExtra_P_set_local_member_dependency.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_P_set_local_member_dependency.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_P_set_local_member_dependency.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_P_set_parallel_subscript",
+   "input": "ProcExtra_P_set_parallel_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_P_set_parallel_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_P_set_parallel_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcExtra_P_set_subscript",
+   "input": "ProcExtra_P_set_subscript.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcExtra_P_set_subscript.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcExtra_P_set_subscript.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

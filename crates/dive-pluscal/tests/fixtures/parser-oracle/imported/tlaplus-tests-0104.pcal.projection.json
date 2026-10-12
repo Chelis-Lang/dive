@@ -1,0 +1,1 @@
+{"name":"Github136","syntax":"P","fair":false,"declarations":[["x","Equal",["0"]]],"definitions":["Inner","==","INSTANCE","Github136Inner","WITH","Foo1","<-","3",",","Foo2","<-","4"],"macros":[],"procedures":[],"body":["Sequential",[["Step",["Assign",[["x",[],["Inner","!","Sum"]]]]]]]}

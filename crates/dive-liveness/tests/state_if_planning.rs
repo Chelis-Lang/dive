@@ -10,7 +10,7 @@ use std::{path::Path, sync::Arc};
 #[test]
 fn complete_pinned_conditional_selection_preserves_error_phase_and_fallback() {
     let root =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes/state-if-planning");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/probes/state-if-planning");
     let capture: Value = serde_json::from_slice(
         &std::fs::read(root.join("capture.json")).expect("pinned complete capture"),
     )

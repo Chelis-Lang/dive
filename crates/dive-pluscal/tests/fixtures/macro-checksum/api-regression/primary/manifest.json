@@ -1,0 +1,42 @@
+{
+ "rows": [
+  {
+   "id": "InvokedMacroApiRewrite",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "DefineBlockApiRewrite",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c3b157cb",
+    "e3faf4f0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c3b157cb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

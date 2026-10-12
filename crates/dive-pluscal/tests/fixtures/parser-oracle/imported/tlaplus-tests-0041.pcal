@@ -1,0 +1,1893 @@
+--algorithm Pcal
+  variables  
+   i ; j ; \* Temporary index variables.
+   gtemp1 ; gtemp2 ; gtemp3 ; gtemp4 ; \* temporary variable
+   result = << >>; \* used to accumulate the translation
+   rVal ; \* Used to return procedure values.
+   pMap ; 
+    (***********************************************************************)
+    (* A record with a component for each procedure, where the pMap["P"]   *)
+    (* for the procedure named "P" has fields:                             *)
+    (*                                                                     *)
+    (*    params: the sequence of the procedure's parameters               *)
+    (*                                                                     *)
+    (*    vars:    the sequence of the procedure's local variables         *)
+    (*                                                                     *)
+    (*    vals:    the sequence of the procedure's local variables initial *)
+    (*             values.                                                 *)
+    (*                                                                     *)
+    (*    label:   the first label of the procedure's body                 *)
+    (*                                                                     *)
+    (*    tlavars: the set of all parameters and local variables of the    *)
+    (*             procedure.                                              *)
+    (***********************************************************************)
+
+  prcdVars ;
+    (***********************************************************************)
+    (* Set to the set of all procedure variables (parameter and local      *)
+    (* variables).                                                         *)
+    (***********************************************************************)
+    
+  procSeq ;
+    (***********************************************************************)
+    (* A sequence with in which the i'th entry has the following           *)
+    (* information for process i :                                         *)
+    (*                                                                     *)
+    (*    vars:    the sequence of the process's local variables           *)
+    (*                                                                     *)
+    (*    label:   the first label of the process's body                   *)
+    (***********************************************************************)
+    
+  globalVars ;    \* Set equal to the set of variables in the global 
+                  \* variable declaration.
+  nonGlobalVars ; \* Set equal to the set of all TLA+ variables not in 
+                  \* globalVars
+
+  allVarSeq ;  \* Set to the sequence of all TLA+ variables of the algorithm.
+
+   (************************************************************************)
+   (* The following variable must be set to the appropriate value before   *)
+   (* calling XlateLabStmtSeq.  I should probably rewrite the algorithm to *)
+   (* pass it as a parameter, which requires adding it as a paramter to    *)
+   (* XlateLabStmtSeq, XlateSStmtSeq, XlateSStmt, PrimeAndAddSub, and      *)
+   (* ProcessVars.                                                         *)
+   (************************************************************************)
+   localVars ;  \* The set of variables to which localSub should be
+                \* added as a subscript.
+               
+  define FinalStmtType(rec) == 
+            rec.type \in {"if", "either", "with", "return", "callReturn", 
+                          "call", "goto"}
+  end define ;
+
+
+\********************* BEGIN recursive definition of IsAlgorithm ***********
+  (*************************************************************************)
+  (* Algorithm = [type   : {"uniprocess"},                                 *)
+  (*              name   : STRING,                                         *)
+  (*              defs   : Expr,                                           *)
+  (*              decls  : Seq(VarDecl),                                   *)
+  (*              prcds  : Seq(Procedure),                                 *)
+  (*              body   : NonemptySeq(LabeledStmt)]                       *)
+  (*           \cup                                                        *)
+  (*            [type   : {"multiprocess"},                                *)
+  (*             name   : STRING,                                          *)
+  (*             decls  : Seq(VarDecl),                                    *)
+  (*             defs   : Expr,                                            *)
+  (*             prcds  : Seq(Procedure),                                  *)
+  (*             procs  : NonemptySeq(Process)]                            *)
+  (*************************************************************************)
+  procedure IsAlgorithm(A)
+    variable res = FALSE ; ia = 0 ;
+    begin IA1: assert \/ /\ A.type = "uniprocess"
+                         /\ DOMAIN A = {"type", "name", "defs", 
+                                           "decls", "prcds", "body"}
+                      \/ /\ A.type = "multiprocess"
+                         /\ DOMAIN A = {"type", "name", "defs", 
+                                            "decls", "prcds", "procs"};
+               assert A.name \in STRING ;
+               call IsExpr(A.defs) ;
+          IA2: assert IsSeq(A.decls) ;
+               ia := Len(A.decls) ;
+          IA3: while ia > 0 do call IsVarDecl(A.decls[ia]) ;
+                        IA4: ia := ia-1 
+               end while ;
+               ia := Len(A.prcds) ;
+          IA5: while ia > 0 do call IsProcedure(A.prcds[ia]) ;
+                        IA6: ia := ia-1 
+               end while ;
+               if A.type = "uniprocess"
+                 then assert Len(A.body) > 0 ;
+                      call IsLabeledStmtSeq(A.body) ;
+                 else assert IsNonemptySeq(A.procs) ;
+                             ia := Len(A.procs) ;
+                IA10: while ia > 0 do call IsProcess(A.procs[ia])  ;
+                               IA11: ia := ia-1 
+                      end while ;
+               end if ;
+         IA12: return ;
+    end procedure
+
+  (*************************************************************************)
+  (* Procedure = [name   : STRING,                                         *)
+  (*              params : Seq(PVarDecl),                                  *)
+  (*              decls  : Seq(PVarDecl),                                  *)
+  (*              body   : Seq(LabeledStmt)]                               *)
+  (*************************************************************************)
+  procedure IsProcedure(prcdr)
+    variable ipr ;
+    begin IPr1: assert DOMAIN prcdr = {"name", "params", "decls", "body"} ;
+                assert IsSeq(prcdr.params) ;
+                ipr := Len(prcdr.params) ;
+          IPr2: while ipr > 0 do call IsPVarDecl(prcdr.params[ipr]) ;
+                           IPr3: ipr := ipr-1 
+                end while ;
+                assert IsSeq(prcdr.decls) ;
+                ipr := Len(prcdr.decls) ;
+          IPr4: while ipr > 0 do call IsPVarDecl(prcdr.decls[ipr]) ;
+                           IPr5: ipr := ipr-1 
+                end while ;
+                assert IsSeq(prcdr.decls) ;
+                ipr := Len(prcdr.decls) ;
+                assert Len(prcdr.body) > 0 ;
+          IPr6: call IsLabeledStmtSeq(prcdr.body) ;
+                return 
+    end procedure
+
+  (*************************************************************************)
+  (* Process = [name   : STRING,                                           *)
+  (*            eqOrIn : {"=", "\\in"},                                    *)
+  (*            id     : Expr,                                             *)
+  (*            decls  : Seq(VarDecl),                                     *)
+  (*            body   : NonemptySeq(LabeledStmt)]                         *)
+  (*************************************************************************)
+  procedure IsProcess(proc)
+    variable ip ;
+    begin IP1: assert DOMAIN proc = 
+                              {"name", "eqOrIn", "id", "decls", "body"} ;
+               assert proc.name \in STRING ;
+               assert proc.eqOrIn \in {"=", "\\in"} ;
+               call IsExpr(proc.id) ;
+          IP2: assert IsSeq(proc.decls) ;
+               ip := Len(proc.decls) ;
+          IP3: while ip > 0 do  call IsVarDecl(proc.decls[ip]) ;
+                           IP4: ip := ip-1 
+               end while ;
+               call IsLabeledStmtSeq(proc.body) ;  
+               return ;
+    end procedure
+
+  (*************************************************************************)
+  (* LabeledStmtSeq = Seq(LabeledStmt)                                     *)
+  (*************************************************************************)
+  procedure IsLabeledStmtSeq(lsseq)  \* may be empty
+    variable ilss ;
+    begin ILSS1: assert IsSeq(lsseq) ;
+                 ilss := Len(lsseq) ;
+          ILSS2:  while ilss > 0 do  
+                     call IsLabeledStmt(lsseq[ilss])  ;
+              ILSS3: ilss := ilss-1 
+                end while ;
+                return 
+    end procedure
+
+  (*************************************************************************)
+  (* LabeledStmt = [label : STRING,                                        *)
+  (*                stmts : LabelSeq                                       *)
+  (*                          \cup                                         *)
+  (*                        {<<w>>> \o s : w \in While, s \in LabelSeq}    *)
+  (*************************************************************************)
+  procedure IsLabeledStmt(lstmt) \* may be empty
+    begin IL1: assert DOMAIN lstmt = {"label", "stmts"} ;
+               assert lstmt.label \in STRING ;
+               if lstmt.stmts[1].type = "while"
+                  then call IsWhile(lstmt.stmts[1]) ;
+                  IL2: call IsLabelSeq(Tail(lstmt.stmts))
+                  else call IsLabelSeq(lstmt.stmts) ;
+               end if;
+          IL3: return 
+    end procedure
+
+  (*************************************************************************)
+  (* While = [type    : {"while"},                                         *)
+  (*          test    : Expr,                                              *)
+  (*          unlabDo : LabelSeq,                                          *)
+  (*          labDo   : LabeledStmtSeq]                                    *)
+  (*************************************************************************)
+  procedure IsWhile(whl)
+    begin IW1: assert DOMAIN whl = {"type", "test", "unlabDo", "labDo"};
+               assert whl.type = "while" ;
+               call IsExpr(whl.test) ;
+          IW2: call IsLabelSeq(whl.unlabDo) ;
+          IW3: if whl.labDo # << >> 
+                 then call IsLabeledStmtSeq(whl.labDo) ;
+               end if;
+          IW4: return
+    end procedure
+
+  (*************************************************************************)
+  (* LabelSeq = SimpleStmtSeq \cup                                         *)
+  (*              {ss \o <<e>> : ss \in SimpleStmtSeq,                     *)
+  (*                             e  \in LabelIf \cup                       *)
+  (*                                     LabelEither \cup FinalStmt}       *)
+  (*************************************************************************)
+  procedure IsLabelSeq(ls)  \* may be empty
+    variable ils ; ilLast ;
+    begin ILS1: assert IsSeq(ls) ;
+                ils := Len(ls) - 1 ;
+          ILS2: while ils > 0 do
+                  call IsSimpleStmt(ls[ils]) ;
+            ILS3: ils := ils - 1 ;
+                end while ;
+          ILS4: if ls = << >> then return end if;
+          ILS5: ilLast := ls[Len(ls)] ;
+                if ilLast.type = "labelIf"
+                  then call IsLabelIf(ilLast) ;
+                  elsif ilLast.type = "labelEither"
+                     then call IsLabelEither(ilLast) ;
+                  elsif FinalStmtType(ilLast)
+                     then call IsFinalStmt(ilLast)
+                  else call IsSimpleStmt(ilLast) ;
+                end if ;
+          ILS6: return
+    end procedure
+
+  (*************************************************************************)
+  (* LabelIf = [type      : {"labelIf"},                                   *)
+  (*            test      : Expr,                                          *)
+  (*            unlabThen : LabelSeq,                                      *)
+  (*            labThen   : LabeledStmtSeq,                                *)
+  (*            unlabElse : LabelSeq,                                      *)
+  (*            labElse   : LabeledStmtSeq]                                *)
+  (*************************************************************************)
+  procedure IsLabelIf(ili)
+    begin ILI1: assert DOMAIN ili = {"type", "test", "unlabThen", "labThen", 
+                                     "unlabElse", "labElse"} ;
+                call IsExpr(ili.test) ;
+          ILI2: call IsLabelSeq(ili.unlabThen) ;
+          ILI3: call IsLabeledStmtSeq(ili.labThen) ;
+          ILI4: call IsLabelSeq(ili.unlabElse) ;
+          ILI5: call IsLabeledStmtSeq(ili.labElse) ;
+                return ;
+  end procedure
+
+  (*************************************************************************)
+  (* LabelEither = [type    : {"labelEither"},                             *)
+  (*                clauses : Seq([unlabOr : LabelSeq,                     *)
+  (*                               labOr   : LabeledStmtSeq])]             *)
+  (*************************************************************************)
+  procedure IsLabelEither(le)
+    variable ile ; 
+    begin ILE1: assert DOMAIN le = {"type", "clauses"} ;
+                assert IsSeq(le.clauses) ;
+                ile := Len(le.clauses) ;
+          ILE2: while ile > 0 do
+                  assert DOMAIN le.clauses[ile] = {"unlabOr", "labOr"} ;
+                  call IsLabelSeq(le.clauses[ile].unlabOr) ;
+            ILE3: call IsLabeledStmtSeq(le.clauses[ile].labOr) ;
+            ILE4: ile := ile - 1 ;
+                end while ;
+                return
+  end procedure
+
+  (*************************************************************************)
+  (* FinalStmt = FinalIf \cup FinalEither \cup FinalWith \cup              *)
+  (*               CallOrReturn \cup Goto                                  *)
+  (*************************************************************************)
+  procedure IsFinalStmt(fs)
+    begin IFS1: if fs.type = "if"
+                  then call IsFinalIf(fs)
+                elsif fs.type = "either"
+                  then call IsFinalEither(fs)
+                elsif fs.type = "with"
+                  then call IsFinalWith(fs)
+                elsif fs.type \in {"return", "callReturn", "call"}
+                  then call IsCallOrReturn(fs)
+                elsif fs.type = "goto"
+                  then call IsGoto(fs)
+                else assert FALSE
+                end if;
+          IFS2: return
+  end procedure
+
+  (*************************************************************************)
+  (* FinalIf = [type : {"if"},                                             *)
+  (*            test : Expr,                                               *)
+  (*            then : SimpleStmtSeq \cup                                  *)
+  (*                     {ss \o <<fs>> : ss \in SimpleStmtSeq,             *)
+  (*                                     fs \in FinalStmt},                *)
+  (*            else : SimpleStmtSeq \cup                                  *)
+  (*                     {ss \o <<fs>> : ss \in SimpleStmtSeq,             *)
+  (*                                     fs \in FinalStmt}]                *)
+  (*************************************************************************)
+  procedure IsFinalIf(fi)
+    variable ifi ; ifLast ;
+    begin IFI1: assert DOMAIN fi = {"type", "test", "then", "else"} ;
+                call IsExpr(fi.test) ;
+          IFI2: assert IsSeq(fi.then) ;
+                ifi := Len(fi.then) - 1 ;
+          IFI3: while ifi > 0 do
+                  call IsSimpleStmt(fi.then[ifi]) ;
+            IFI4: ifi := ifi - 1 ;
+                end while ;
+                if fi.then = << >> then return end if;
+          IFI5: ifLast := fi.then[Len(fi.then)] ;
+                if FinalStmtType(ifLast)
+                  then call IsFinalStmt(ifLast)
+                else call IsSimpleStmt(ifLast) ;
+                end if ;
+          IFI6: assert IsSeq(fi.else) ;
+                ifi := Len(fi.else) - 1 ;
+          IFI7: while ifi > 0 do
+                  call IsSimpleStmt(fi.else[ifi]) ;
+            IFI8: ifi := ifi - 1 ;
+                end while ;
+                if fi.else = << >> then return end if;
+          IFI9: ifLast := fi.else[Len(fi.else)] ;
+                if FinalStmtType(ifLast)
+                  then call IsFinalStmt(ifLast)
+                else call IsSimpleStmt(ifLast) ;
+                end if ;
+         IFI10: return 
+  end procedure
+
+  (*************************************************************************)
+  (* FinalEither = [type : {"either"},                                     *)
+  (*                ors  : (SimpleStmtSeq \ {<< >>}) \cup                  *)
+  (*                          {ss \o <<fs>> : ss \in SimpleStmtSeq,        *)
+  (*                                          fs \in FinalStmt}]           *)
+  (*************************************************************************)
+  procedure IsFinalEither(fe)
+    variable ife ; ife2 ; feSeq ; feSeqLast ;
+    begin IFE1: assert DOMAIN fe = {"type", "ors"} ;
+                 assert IsNonemptySeq(fe.ors) ;
+                 ife := Len(fe.ors) ;
+          IFE2: while ife > 0 do
+                  feSeq := fe.ors[ife] ;
+                  assert IsSeq(feSeq) ;
+                  ife2 := Len(feSeq) - 1 ;
+            IFE3: while ife2 > 0 do
+                    call IsSimpleStmt(feSeq[ife2]) ;
+              IFE4: ife2 := ife2 - 1 ;
+                  end while ;
+                  if Len(feSeq) > 0
+                    then feSeqLast := feSeq[Len(feSeq)] ;
+                         if FinalStmtType(feSeqLast)
+                           then call IsFinalStmt(feSeqLast) 
+                           else call IsSimpleStmt(feSeqLast) 
+                         end if ;
+                  end if ;
+            IEF5: ife := ife - 1 ;
+                end while ;
+          IFE6: return ;
+  end procedure
+
+  (*************************************************************************)
+  (* FinalWith = [type   : {"with"},                                       *)
+  (*              var    : Variable,                                       *)
+  (*              eqOrIn : {"=", "\\in"},                                  *)
+  (*              exp    : Expr,                                           *)
+  (*              do     : (SimpleStmtSeq \ {<< >>}) \cup                  *)
+  (*                         {ss \o <<fs>> : ss \in SimpleStmtSeq,         *)
+  (*                                         fs \in FinalStmt}]            *)
+  (*************************************************************************)
+  procedure IsFinalWith(fw)
+    variables ifw ; fwLast ;
+    begin IFW1: assert DOMAIN fw = {"type",  "var", "eqOrIn", "exp", "do"} ;
+                assert fw.var \in STRING ;
+                assert fw.eqOrIn \in {"=", "\\in"} ;
+                call IsExpr(fw.exp) ;
+          IFW2: assert IsSeq(fw.do) ;
+                assert fw.do # << >> ;
+                ifw := Len(fw.do) - 1 ;
+          IFW3: while ifw > 0 do
+                  call IsSimpleStmt(fw.do[ifw]) ;
+            IFW4: ifw := ifw - 1 ;
+                end while ;
+                fwLast := fw.do[Len(fw.do)] ;
+                if FinalStmtType(fwLast)
+                  then call IsFinalStmt(fwLast)
+                  else call IsSimpleStmt(fwLast)
+                end if ;
+          IFW5: return 
+  end procedure
+
+  (*************************************************************************)
+  (* CallOrReturn = [type     : {"call"},                                  *)
+  (*                 returnTo : STRING,                                    *)
+  (*                 to       : STRING,                                    *)
+  (*                 args     : Seq(Expr)]    \cup                         *)
+  (*                [type : {"return"},  from : STRING]   \cup             *)
+  (*                [type : {"callReturn"},                                *)
+  (*                 from : STRING,                                        *)
+  (*                 to   : STRING,                                        *)
+  (*                 args : Seq(Expr)]                                     *)
+  (*************************************************************************)
+  procedure IsCallOrReturn(cr)
+    variable icr ;
+    begin ICR1: if cr.type = "call"
+                  then assert DOMAIN cr = {"type", "returnTo", "to", "args"} ;
+                       assert cr.returnTo \in STRING ;
+                elsif cr.type = "return"
+                  then assert DOMAIN cr = {"type", "from"}
+                elsif cr.type = "callReturn"
+                  then assert DOMAIN cr = {"type", "from", "to", "args"} ;
+                else assert FALSE
+                end if ;
+                if cr.type # "return"
+                  then assert cr.to \in STRING ;
+                       assert IsSeq(cr.args) ;
+                       icr := Len(cr.args) ;
+                 ICR2: while icr > 0 do
+                         call IsExpr(cr.args[icr]) ;
+                   ICR3: icr := icr - 1 ;
+                       end while      
+                end if ;
+          ICR4: if cr.type # "call"
+                  then assert cr.from \in STRING
+                end if ; 
+                return 
+  end procedure
+
+  (*************************************************************************)
+  (* Goto = [type : {"goto"},  to : STRING]                                *)
+  (*************************************************************************)
+  procedure IsGoto(gt)
+    begin IGT1: assert DOMAIN gt = {"type", "to"} ;
+                assert gt.to \in STRING ;
+                return 
+  end procedure
+
+  (*************************************************************************)
+  (* SimpleStmtSeq == Seq(SimpleStmt)                                      *)
+  (*************************************************************************)
+  procedure IsSimpleStmtSeq(sss)
+    variable isss ;
+    begin ISSS1: assert IsSeq(sss) ;
+                 isss := Len(sss) ;
+          ISSS2: while isss > 0 do
+                   call IsSimpleStmt(sss[isss]) ;
+            ISSS3: isss := isss - 1 
+                 end while ;
+          ISSS4: return
+  end procedure 
+
+  (*************************************************************************)
+  (* SimpleStmt = Assign \cup If \cup Either \cup With \cup                *)
+  (*                 [type : {"when"},   exp : Expr]   \cup                *)
+  (*                 [type : {"print"},  exp : Expr]  \cup                 *)
+  (*                 [type : {"assert"}, exp : Expr]  \cup                 *)
+  (*                 [type : {"skip"}]                                     *)
+  (*************************************************************************)
+  procedure IsSimpleStmt(ss) 
+    begin ISS1: if ss.type = "assignment"
+                  then call IsAssign(ss)
+                elsif ss.type = "if"
+                  then call IsIf(ss)
+                elsif ss.type = "either"
+                  then call IsEither(ss)
+                elsif ss.type = "with"
+                  then call IsWith(ss)
+                elsif ss.type \in {"when", "assert", "print"}
+                  then call IsExpr(ss.exp)
+                elsif ss.type = "skip"
+                  then skip
+                else assert FALSE 
+                end if;
+          ISS2: return
+  end procedure
+
+  (*************************************************************************)
+  (* Assign = [type : {"assignment"},                                      *)
+  (*           ass  : NonemptySeq([lhs: [var : STRING,  sub : Expr],       *)
+  (*                               rhs : Expr]) ]                          *)
+  (*************************************************************************)
+  procedure IsAssign(asg)
+    variable ias ;
+    begin IAS1: assert DOMAIN asg = {"type", "ass"} ;
+                assert IsNonemptySeq(asg.ass) ;
+                ias := Len(asg.ass) ;
+          IAS2: while ias > 0 do
+                  assert DOMAIN asg.ass[ias] = {"lhs", "rhs"} ;
+                  call IsExpr(asg.ass[ias].rhs) ;
+            IAS3: assert DOMAIN asg.ass[ias].lhs = {"var", "sub"} ;
+                  assert asg.ass[ias].lhs.var \in STRING ;
+                  call IsExpr(asg.ass[ias].lhs.sub) ;
+            IAS4: ias := ias - 1
+                end while ;
+          IAS5: return
+  end procedure
+
+  (*************************************************************************)
+  (* If = [type : {"if"},                                                  *)
+  (*       test : Expr,                                                    *)
+  (*       then : SimpleStmtSeq                                            *)
+  (*       else : SimpleStmtSeq]                                           *)
+  (*************************************************************************)
+  procedure IsIf(ifst)
+    begin IIF1: assert DOMAIN ifst = {"type", "test", "then", "else"} ;
+                call IsExpr(ifst.test) ;
+          IIF2: call IsSimpleStmtSeq(ifst.then) ;
+          IIF3: call IsSimpleStmtSeq(ifst.else) ;
+                return
+  end procedure
+
+  (*************************************************************************)
+  (* Either = [type : {"either"}, ors  : Seq(SimpleStmtSeq)]               *)
+  (*************************************************************************)
+  procedure IsEither(estmt)
+    variable iee ;
+    begin ISE1: assert DOMAIN estmt = {"type", "ors"} ;
+                assert IsNonemptySeq(estmt.ors) ;
+                iee := Len(estmt.ors) ;                          
+          ISE2: while iee > 0 do
+                  call IsSimpleStmtSeq(estmt.ors[iee]) ;           ISE3:
+                  iee := iee - 1 ;
+                end while ;
+                return
+  end procedure
+
+  (*************************************************************************)
+  (* With = [type   : {"with"},                                            *)
+  (*         var    : STRING,                                              *)
+  (*         eqOrIn : {"=", "\\in"},                                       *)
+  (*         exp    : Expr,                                                *)
+  (*         do     : NonemptySeq(SimpleStmt)]                             *)
+  (*************************************************************************)
+  procedure IsWith(wi)
+    variable iw ;
+    begin IWI1: assert DOMAIN wi = {"type", "var", "eqOrIn", "exp", "do"} ;
+                assert wi.var \in STRING ;
+                assert wi.eqOrIn \in {"=", "\\in"} ;
+                call IsExpr(wi.exp) ;
+          IWI2: assert IsNonemptySeq(wi.do) ;
+                call IsSimpleStmtSeq(wi.do) ;                
+                return
+  end procedure
+
+
+  (*************************************************************************)
+  (* VarDecl = [var : STRING,  eqOrIn : {"=", "\\in"},  val : Expr]        *)
+  (*************************************************************************)
+  procedure IsVarDecl(vdcl)
+    begin IV1 : assert DOMAIN vdcl = {"var", "eqOrIn", "val"} ;
+                assert vdcl.var \in STRING ;
+                assert vdcl.eqOrIn \in {"=", "\\in"} ;
+                call IsExpr(vdcl.val) ;
+                return ;
+    end procedure
+
+  (*************************************************************************)
+  (* PVarDecl = [var : Variable,  eqOrIn : {"="}, val : Expr]              *)
+  (*************************************************************************)
+  procedure IsPVarDecl(pvdcl)
+    begin IPV1: assert DOMAIN pvdcl = {"var", "eqOrIn", "val"} ;
+                assert pvdcl.var \in STRING ;
+                assert pvdcl.eqOrIn = "=" ;
+                call IsExpr(pvdcl.val) ;
+                return ;
+    end procedure
+
+  (*************************************************************************)
+  (* Expr = Seq(STRING)                                                    *)
+  (*************************************************************************)
+  procedure IsExpr(exp)
+    variable ie ;
+    begin IE1 : assert IsSeq(exp) ;
+               ie := Len(exp) ;
+          IE2: while ie > 0 do assert exp[ie] \in STRING  ;
+                            ie := ie-1 
+               end while ;
+               return               
+    end procedure
+
+\********************* BEGIN recursive definition of ExpandSeq ***********
+  procedure ExpandSeq(elseq, nxt)
+    (***********************************************************************)
+    (* lseq is a sequence of LabeledStmts, and nxt is the label to which   *)
+    (* control should go upon completion of the execution of that          *)
+    (* sequence.  This sets rVal to the result of turning lseq into a      *)
+    (* sequence of Labeled Simple Statements, meaning that all LabelIf,    *)
+    (* LabelEither, and FinalStmt's have been replaced by their            *)
+    (* expansions.  Moreover, the sequence of simple statements contains   *)
+    (* explicit assignments to pc to indicate the flow of control.         *)
+    (***********************************************************************)
+    variables ixs ;  res = << >>;
+    begin EX1: ixs := 1 ;
+          EX2: while ixs \leq Len(elseq) do
+                 if ixs < Len(elseq) 
+                   then call ExpandLStmt(elseq[ixs], elseq[ixs+1].label)
+                   else call ExpandLStmt(elseq[ixs], nxt)
+                 end if ;
+            EX3: res := res \o rVal ;
+                 ixs := ixs + 1 ;
+               end while ;
+               rVal := res ;
+               return ;
+    end procedure
+
+  procedure ExpandLStmt(lst, nxt)
+    (***********************************************************************)
+    (* Expands the single LabeledStmt ls into a sequence of labeled simple *)
+    (* statements, where nxt is the label to which control should go upon  *)
+    (* completing execution of the statement.                              *)
+    (***********************************************************************)
+    variable temp ; 
+    begin ELS1: if Len(lst.stmts) = 0
+                  then call Error("1: LabeledStmt with no statements.") ;
+                end if;
+          ELS2: if lst.stmts[1].type = "while"
+                  then if lst.stmts[1].labDo = << >>
+                         then call ExpandLSeq(lst.stmts[1].unlabDo, lst.label)
+                         else call ExpandLSeq(lst.stmts[1].unlabDo, 
+                                              lst.stmts[1].labDo[1].label)
+                       end if ;
+                 ELS3: temp := rVal ;
+                       call ExpandSeq(lst.stmts[1].labDo, lst.label) ;
+                 ELS4: temp.rst := temp.rst \o rVal ;
+                       call ExpandLSeq(Tail(lst.stmts), nxt) ;
+                 ELS5: rVal := << [label |-> lst.label,
+                                   stmts |-> 
+                                   << [then |-> temp.ss,
+                                       type |-> "if",
+                                       test |-> lst.stmts[1].test,
+                                       else |-> rVal.ss] >>] >> \o
+                                temp.rst \o rVal.rst
+
+                  else call ExpandLSeq(lst.stmts, nxt) ;
+                 ELS6: rVal := <<[label |-> lst.label,
+                                  stmts |-> rVal.ss] >> \o rVal.rst
+                end if;
+          ELS7: return ;
+    end procedure
+
+  procedure IsFinalSeq(flseq)
+    (***********************************************************************)
+    (* When flseq is a LabelSeq not containing a label, it sets rVal to    *)
+    (* TRUE or FALSE depending on whether or not flseq is nonempty and its *)
+    (* last element is a call, return, or goto or has one in it.           *)
+    (***********************************************************************)
+    variable temp ; ifsqi ;
+    begin  IFS1: if flseq = << >>
+                   then rVal := FALSE
+                 elsif FinalStmtType(Last(flseq))
+                   then rVal := TRUE
+                 elsif Last(flseq).type = "if"
+                   then call IsFinalSeq(Last(flseq).then) ;
+                  IFS2: if ~ rVal
+                           then call IsFinalSeq(Last(flseq).else) 
+                        end if
+                 elsif Last(flseq).type = "with"
+                   then call IsFinalSeq(Last(flseq).do) ;
+                 elsif Last(flseq).type = "either"
+                   then temp := FALSE ;
+                        ifsqi := Len(Last(flseq).ors) ;
+                  IFS3: while (~temp) /\ (ifsqi > 0) do
+                          call IsFinalSeq(Last(flseq).ors[ifsqi]) ;
+                    IFS4: temp := temp \/ rVal ;
+                          ifsqi := ifsqi - 1
+                        end while ;
+                        rVal := temp
+                 else rVal := FALSE
+                 end if;
+           IFS9: return 
+    end procedure    
+
+  procedure ExpandLSeq(lseq, nxt)
+    (***********************************************************************)
+    (* If lseq is a LabelSeq, then sets rVal to the record                 *)
+    (*                                                                     *)
+    (*    [ss  |-> a sequence of SimpleStmts,                              *)
+    (*     rst |-> a sequence of LabeledStmts]                             *)
+    (*                                                                     *)
+    (* where executing lseq executes the simple statements, which set pc   *)
+    (* appropriately to transfer control, and rst is the sequence of       *)
+    (* labeled statements (if any) obtained from the final statement of    *)
+    (* lseq, if that statement is a LabelIf or LabelEither.  As usual, nxt *)
+    (* is the label after the sequence lseq.                               *)
+    (***********************************************************************)
+    variable xxtemp1 ; temp2 ; temp3; temp4; exlsq ; 
+
+    begin ELSq1: 
+      if /\ lseq # << >> 
+         /\ Last(lseq).type \in {"labelIf", "labelEither"}
+        then rVal := TRUE
+        else call IsFinalSeq(lseq)
+      end if ;                                                ELSq2:  
+      if ~ rVal
+        (*******************************************************************)
+        (* CASE: Last statement not a final statement, LabelIf or          *)
+        (* LabelEither.                                                    *)
+        (*******************************************************************)
+        then rVal := [ss  |-> lseq \o <<PCAssign(nxt)>>, 
+                      rst |-> << >>]
+      elsif Last(lseq).type = "labelIf"
+        (*******************************************************************)
+        (* CASE: Last statement a LabelIf.                                 *)
+        (*******************************************************************)
+        then (**************************************************************)
+             (* Set xxtemp1 to the ExpandLSeq expansion of unlabThen.        *)
+             (**************************************************************)
+             if Last(lseq).labThen = << >>
+               then call ExpandLSeq(Last(lseq).unlabThen, nxt)
+               else call ExpandLSeq(Last(lseq).unlabThen, 
+                                    Last(lseq).labThen[1].label)
+             end if ;                                                 ELSq31:
+             xxtemp1 := rVal ;                                          ELSq32:
+
+             (**************************************************************)
+             (* Set temp2 to the ExpandLSeq expansion of unlabElse.        *)
+             (**************************************************************)
+             if Last(lseq).labElse = << >>
+               then call ExpandLSeq(Last(lseq).unlabElse, nxt)
+               else call ExpandLSeq(Last(lseq).unlabElse, 
+                                    Last(lseq).labElse[1].label)
+             end if ;                                                 ELSq33:
+             temp2 := rVal ; 
+
+             (**************************************************************)
+             (* Set temp3 to the expansion of labThen \o expansion of      *)
+             (* labElse                                                    *)
+             (**************************************************************)
+             call ExpandSeq(Last(lseq).labThen, nxt) ;                ELSq34:
+             temp3 := rVal ;
+             call ExpandSeq(Last(lseq).labElse, nxt) ;                ELSq35:
+             temp3 := temp3 \o rVal ; 
+
+             rVal := [ss  |-> Front(lseq) \o
+                                << [type |-> "if",
+                                    test |-> Last(lseq).test,
+                                    then |-> xxtemp1.ss ,
+                                    else |-> temp2.ss] >> ,
+                      rst |-> xxtemp1.rst \o temp2.rst \o temp3 ]
+
+      elsif Last(lseq).type = "labelEither"
+        then if Last(lseq).clauses = << >> 
+               then call Error("2: labelEither with no clauses")
+               end if ;                                               ELSq71:
+
+             (**************************************************************)
+             (* Set xxtemp1 to the sequence of ss fields in the ExpandLSeq   *)
+             (* expansion of all the unlabOrs, and temp2 to the            *)
+             (* concatenation of all their rst fields.                     *)
+             (**************************************************************)
+             xxtemp1 := << >> ;
+             temp2 := << >> ;
+             exlsq := Len(Last(lseq).clauses) ;                       ELSq72:
+             while exlsq > 0 do
+               if Last(lseq).clauses[exlsq].labOr = << >>
+                 then call ExpandLSeq(Last(lseq).clauses[exlsq].unlabOr, nxt)
+                 else call ExpandLSeq(Last(lseq).clauses[exlsq].unlabOr, 
+                                      Last(lseq).clauses[exlsq].labOr[1].label)
+               end if ;                                               ELSq73:
+               xxtemp1 := <<rVal.ss>> \o xxtemp1 ;
+               temp2 := rVal.rst \o temp2 ;
+               exlsq := exlsq - 1
+             end while ;
+
+             (**************************************************************)
+             (* Set temp3 to the concatenation of the ExpandSeq expansions *)
+             (* of all the labOr clauses.                                  *)
+             (**************************************************************)
+             temp3 := << >> ;
+             exlsq := Len(Last(lseq).clauses) ;                       ELSq74:
+             while exlsq > 0 do
+               call ExpandSeq(Last(lseq).clauses[exlsq].labOr, nxt); ELSq75:
+               temp3 := rVal \o temp3 ;
+               exlsq := exlsq - 1
+             end while ;
+
+             rVal := [ss  |-> Front(lseq) \o << [type    |-> "either",
+                                                 clauses |-> xxtemp1] >>,
+                      rst |-> temp2 \o temp3 ]
+
+      elsif Last(lseq).type = "if"
+        (*******************************************************)
+        (* CASE: Last statement a final If.                    *)
+        (*******************************************************)
+        then call ExpandLSeq(Last(lseq).then, nxt) ;      ELSq11: 
+             if rVal.rst # << >>
+               then call Error("3: Label in `then' cls of `if'");
+             end if;                                      ELSq12: 
+             xxtemp1 := rVal ;                              ELSq13: 
+             call ExpandLSeq(Last(lseq).else, nxt);       ELSq14: 
+             if rVal.rst # << >>
+               then call Error("4: Label in `else' cls of `if'");
+             end if;                                      ELSq15: 
+             temp2 := rVal ;
+             rVal := [ss |-> Front(lseq) \o << [type |-> "if",
+                                                test |-> Last(lseq).test,
+                                                then |-> xxtemp1.ss, 
+                                                else |-> temp2.ss] >>,
+                      rst |-> << >>] 
+       elsif Last(lseq).type = "with"
+         (*******************************************************)
+         (* CASE: Last statement a final With.                  *)
+         (*******************************************************)
+         then call ExpandLSeq(Last(lseq).do, nxt) ;        ELSq41: 
+              if rVal.rst # << >>
+                then call Error("5: Label in `with'") ;
+              end if ;                                     ELSq42: 
+              rVal := [ss  |-> Front(lseq) \o
+                                    << [type   |-> "with",
+                                        var    |-> Last(lseq).var ,
+                                        eqOrIn |-> Last(lseq).eqOrIn ,
+                                        exp    |-> Last(lseq).exp ,
+                                        do     |-> rVal.ss] >> ,
+                       rst |-> << >>]
+
+       elsif Last(lseq).type = "either"
+         (*******************************************************)
+         (* CASE: Last statement a final Either.                *)
+         (*******************************************************)
+         then exlsq := Len(Last(lseq).ors);
+              temp2 := << >> ;                                   ELSq51:
+              while exlsq > 0 do
+                call ExpandLSeq(Last(lseq).ors[exlsq], nxt) ;    ELSq52:
+                if rVal.rst # << >> then call Error("6: Label in `either'")
+                end if ;                                         ELSq53:
+                temp2 := <<rVal.ss>> \o temp2 ;
+                exlsq := exlsq - 1
+              end while ;
+              rVal :=  [ss  |-> Front(lseq) \o
+                                    << [type |-> "either",
+                                        ors  |-> temp2] >> ,
+                       rst |-> << >>]
+
+       elsif Last(lseq).type = "call"
+         then \* xxtemp1 := name of procedure being called
+              xxtemp1 := Last(lseq).to ;
+              if xxtemp1 \notin DOMAIN pMap
+                then   call Error("14: Call of nonexistent procedure " 
+                                  \o xxtemp1) ;
+              end if;                                                ELSq60:
+
+              (*************************************************************)
+              (* Set temp2 to the element to be put at the head of the     *)
+              (* stack.                                                    *)
+              (*************************************************************)
+              temp2 := <<"[", "procedure", "|->">> \o Quote(Last(lseq).to)                                \o  << ",", "@pc@", "|->" >> 
+                          \o  Quote(nxt)  ;
+              exlsq := 1 ;                                            ELSq61:
+              while exlsq \leq Len(pMap[xxtemp1].params) do
+                temp2 := temp2 \o 
+                          <<",", pMap[xxtemp1].params[exlsq], "|->",
+                             pMap[xxtemp1].params[exlsq]>> ;
+                exlsq := exlsq + 1;
+              end while ;
+
+              exlsq := 1 ;                                            ELSq62:
+              while exlsq \leq Len(pMap[xxtemp1].vars) do
+                temp2 := temp2 \o 
+                          <<",", pMap[xxtemp1].vars[exlsq], "|->",
+                             pMap[xxtemp1].vars[exlsq]>> ;
+                exlsq := exlsq + 1;
+              end while ;                                             ELSq63:
+              temp2 := temp2 \o <<"]">> ;
+
+              \* Set temp3 to the statements to initialize the procedures'
+              \* variables
+              call SetPrcdVarsOnCall(Last(lseq), xxtemp1) ;             ELSq64:
+              temp3 := rVal ;
+              rVal := [ss |-> 
+                        Front(lseq) \o 
+                          <<PCAssign(pMap[xxtemp1].label),
+                            [type |-> "assignment",
+                             ass  |-> 
+                               << [lhs |-> [var |-> "@stack@", sub |-> << >>],
+                                   rhs |-> <<"<<" >> \o temp2 \o
+                                            << ">>", "\\o", "@stack@">>]
+                               >> ] >> \o
+                        temp3,
+                       rst |-> << >>] ;
+
+       elsif Last(lseq).type = "return"
+         then call RestorePrcdVarsFrom(Last(lseq).from);              ELSq65:
+              rVal := [ss |-> 
+                        Front(lseq) \o 
+                          << [type |-> "assignment",
+                              ass  |-> << [lhs |-> [var |-> "@pc@", 
+                                                    sub |-> << >>],
+                                           rhs |-> <<"Head", "(", "@stack@", 
+                                                        ")", ".", "@pc@">> ]
+                                         >>] >> \o
+                          rVal \o 
+                           << [type |-> "assignment",
+                               ass  |-> << [lhs |-> [var |-> "@stack@", 
+                                                     sub |-> << >>],
+                                             rhs |-> <<"Tail", "(", 
+                                                        "@stack@", ")">>
+                                           ] >>] >> ,
+                       rst |-> << >>] ;
+
+       elsif Last(lseq).type = "callReturn"
+         then  \* Set temp4 to a sequence containing the assignment to pc.
+               temp4 := << [type |-> "assignment",
+                            ass  |-> << [lhs |-> [var |-> "@pc@", 
+                                                  sub |-> << >>],
+                                         rhs  |-> 
+                                           Quote(pMap[Last(lseq).to].label) 
+                                        ] >>] >>  ;
+                if Last(lseq).to = Last(lseq).from
+                then \* call and return to/from same procedure.
+                     call SetPrcdVarsOnCall(Last(lseq),
+                                                      Last(lseq).to); ELSq8:
+                     rVal := [ss  |-> Front(lseq) \o temp4 \o rVal,
+                              rst |-> << >>] 
+                else \* call and return to/from different procedures.
+                     \* Set temp2 to the new head of the stack, 
+                     temp2 := <<"[", "procedure", "|->">>
+                                 \o Quote(Last(lseq).to) \o 
+                                << ",", "@pc@", "|->", "Head", "(", 
+                                  "@stack@", ")", ".", "@pc@" >> ;
+                     xxtemp1 := Last(lseq).to ;
+                    if xxtemp1 \notin DOMAIN pMap
+                      then   call Error("16: Call of nonexistent procedure " 
+                                  \o xxtemp1) ;
+                     end if;                                         ELSq80:
+                     exlsq := 1 ;                                    ELSq81:
+                     while exlsq \leq Len(pMap[xxtemp1].params) do
+                       temp2 := temp2 \o 
+                                 <<",", pMap[xxtemp1].params[exlsq], "|->",
+                                    pMap[xxtemp1].params[exlsq]>> ;
+                       exlsq := exlsq + 1 ;
+                     end while ;                   
+                     exlsq := 1 ;                                    ELSq82:
+                     while exlsq \leq Len(pMap[xxtemp1].vars) do
+                       temp2 := temp2 \o 
+                                 <<",", pMap[xxtemp1].vars[exlsq], "|->",
+                                    pMap[xxtemp1].vars[exlsq]>> ;
+                       exlsq := exlsq + 1 ;
+                     end while ;                                     ELSq83:
+                     temp2 := temp2 \o <<"]">> ;
+                     call SetPrcdVarsOnCall(Last(lseq), 
+                                            Last(lseq).to) ;         ELSq84:
+                     temp3 := rVal ;
+                     call RestorePrcdVarsFrom(Last(lseq).from) ;     ELSq85:
+                     temp3 := temp3 \o rVal;
+
+                     rVal := [ss  |-> Front(lseq) \o temp4 \o
+                               <<AssSeqToMultiAss(
+                                  <<[type |-> "assignment",
+                                     ass  |-> << [lhs |-> 
+                                                   [var |-> "@stack@", 
+                                                    sub |-> <<"[", "1", "]">>],
+                                                  rhs |-> temp2] 
+                                               >>]>> 
+                                   \o temp3 ) >>, 
+                              rst |-> << >>] ;
+              end if ;
+
+       elsif Last(lseq).type = "goto"
+         (*******************************************************)
+         (* CASE: Last statement a Goto.                        *)
+         (*******************************************************)
+         then rVal := [ss  |-> Front(lseq) \o <<PCAssign(Last(lseq).to)>>, 
+                       rst |-> << >>]
+
+      else call Error("7: Unknown statement type.") 
+      end if ;                                                     ELSq3: 
+      return;
+    end procedure
+
+  procedure SetPrcdVarsOnCall(callStmt, prcd)
+  (*************************************************************************)
+  (* Sets rVal equal to a sequence of 0-2 multiple assignment statements   *)
+  (* to set the TLA+ variables of procedure prcd when called by a Call or  *)
+  (* callReturn `callStmt'.                                                *)
+  (*************************************************************************)
+  variables svoci ; \* index
+            temp ;
+            res = << >>;
+  begin SPV1:
+    (***********************************************************************)
+    (* Set temp to the sequence of assignments                             *)
+    (* prcd.params[i] := callStmt.args[i].                                 *)
+    (***********************************************************************)
+    svoci := 1 ;  
+    temp := << >> ;
+    if Len(pMap[prcd].params) # Len(callStmt.args)
+      then call Error("15: Procedure " \o <<prcd>> \o 
+              "called with wrong number of variables") 
+    end if ;                                                           SVP2:
+    while svoci \leq Len(pMap[prcd].params) do 
+      temp := temp \o 
+               << [lhs |-> [var |-> pMap[prcd].params[svoci], sub |-> << >>],
+                   rhs |-> callStmt.args[svoci] ] >> ;
+      svoci := svoci + 1
+    end while ;
+    if temp # << >>
+      then res := res \o <<[type |-> "assignment",
+                            ass  |-> temp] >>
+    end if;
+
+    (***********************************************************************)
+    (* Set temp to the sequence of assignments                             *)
+    (* prcd.decls[i].var := prcd.decls[i].val                              *)
+    (***********************************************************************)
+    svoci := 1 ;  
+    temp := << >> ;                                                     SVP3:
+    while svoci \leq Len(pMap[prcd].vars) do 
+      temp := temp \o 
+               << [lhs |-> [var |-> pMap[prcd].vars[svoci], sub |-> << >>],
+                   rhs |-> pMap[prcd].vals[svoci] ] >> ;
+      svoci := svoci + 1
+    end while ;
+    if temp # << >>
+      then res := res \o <<[type |-> "assignment",
+                            ass  |-> temp] >>
+    end if;
+    rVal := res ;                                                      SVP4:
+    return
+  end procedure 
+
+  procedure RestorePrcdVarsFrom(rprcd) 
+   (************************************************************************)
+   (* Sets rVal to a sequence of 0-2 multi-assignment statements to        *)
+   (* restore the variables of procedure prcd when returning from the      *)
+   (* procedure.  The saved values are obtained from Head(stack).          *)
+   (************************************************************************)
+   variables rpvi ; rpctemp ; res = << >>;
+   begin                                                              RPV1:
+     \* Set rpctemp to a sequence of single assignments to restore
+     \* the parameters.
+     rpctemp := << >> ;
+     rpvi := 1 ;                                                      RPV2:
+     while rpvi \leq Len(pMap[rprcd].params) do
+       rpctemp := rpctemp \o 
+               << [lhs |-> [var |-> pMap[rprcd].params[rpvi], sub |-> << >>],
+                   rhs |-> <<"Head", "(", "@stack@", ")", ".", 
+                             pMap[rprcd].params[rpvi] >>] >> ;
+       rpvi := rpvi + 1 
+     end while ;
+
+     if rpctemp # << >> 
+        then res := <<[type |-> "assignment", ass  |-> rpctemp]>> ;
+     end if ;
+
+     \* Set rpctemp to a sequence of single assignments to restore
+     \* the local variables. 
+     rpctemp := << >> ;
+     rpvi := 1 ;                                                      RPV3:
+     while rpvi \leq Len(pMap[rprcd].vars) do
+       rpctemp := rpctemp \o 
+               << [lhs |-> [var |-> pMap[rprcd].vars[rpvi], sub |-> << >>],
+                   rhs |-> <<"Head", "(", "@stack@", ")", ".", 
+                             pMap[rprcd].vars[rpvi] >>] >> ;
+       rpvi := rpvi + 1 
+     end while ;
+     if rpctemp # << >> 
+        then res := res \o <<[type |-> "assignment", ass  |-> rpctemp]>> ;
+     end if ;
+
+     rVal := res ;                                                      RPV4:
+     return
+   end procedure
+   
+(**************  thesed will go somewhere else
+  call Error("15: Procedure " \o <<prcd>> \o 
+              called with wrong number of variables") ;
+***********)
+    
+\***************************** END definition of ExpandSeq ************
+  procedure ProcessVars(vrs, addExpr, pvexpr)
+    (***********************************************************************)
+    (* Sets rVal to the expression obtained from the expression pvexpr by  *)
+    (* inserting the sequence addExpr of strings after every occurrence of *)
+    (* a variable in the set vrs of variables.  The procedure is used to   *)
+    (* insert subscripts and prime variables in expressions.               *)
+    (***********************************************************************)
+    variables pvi = 1 ; \* the next token in pvexpr to be checked
+              stk = << >> ;
+                (***********************************************************)
+                (* A sequence of Booleans whose length is the number of    *)
+                (* unmatched "["s at the current point in pvexpr, and an   *)
+                (* element of this sequence equals TRUE iff the            *)
+                (* corresponding unmatched "[" began an expression of the  *)
+                (* form [v : S, ...  ] or [v |-> S, ...  ]                 *)
+                (***********************************************************)
+             test = TRUE ;                
+  begin PV1:        
+    rVal := << >> ;                                                     PV2:
+    while pvi \leq Len(pvexpr) do
+      if pvexpr[pvi] = "["
+        then if pvi + 2 > Len(pvexpr)
+               then call Error("8: premature end of expression") 
+               elsif pvexpr[pvi+2] \in {":", "|->"}
+                 then stk  := <<TRUE>> \o stk ;
+                      rVal := rVal \o <<pvexpr[pvi], pvexpr[pvi+1]>> ;
+                      pvi  := pvi+2 
+               else stk := stk \o <<FALSE>>
+             end if 
+      elsif pvexpr[pvi] = "]"
+        then if Len(stk) = 0
+               then call Error("9: unmatched `]' in expression")
+               else stk := Tail(stk)
+             end if ;
+      elsif pvexpr[pvi] = "."
+        then rVal := rVal \o <<pvexpr[pvi]>> ;
+             pvi := pvi + 1 ;
+             test := FALSE
+      elsif /\ pvexpr[pvi] = ","
+            /\ (Len(stk) > 0) /\ Head(stk)
+            /\ pvi + 2 \leq Len(pvexpr)
+            /\ pvexpr[pvi+2] \in {":", "|->"}
+        then rVal := rVal \o <<pvexpr[pvi], pvexpr[pvi+1]>> ;
+             pvi  := pvi+2 
+      elsif pvexpr[pvi] = "\""
+        then if \/ pvi + 2 > Len(pvexpr)
+                \/ pvexpr[pvi+2] # "\""
+               then call Error("10: unmatched quote in expression")
+               else rVal := rVal \o <<pvexpr[pvi], pvexpr[pvi+1]>> ;
+                    pvi  := pvi+2 
+             end if
+      end if ;                                                         PV8:
+      if test /\ (pvi \leq Len(pvexpr)) \* test needed for bad expression.
+              /\ pvexpr[pvi] \in vrs
+        then rVal := rVal \o <<pvexpr[pvi]>> \o addExpr ;
+        else rVal := rVal \o <<pvexpr[pvi]>> ;
+      end if;
+      pvi := pvi + 1;
+      test := TRUE
+    end while ;                                                        PV9:
+    return
+  end procedure
+
+
+(****************** It appears that this procedure is not used
+  procedure AddSubscript(vrs, sub, asstmts)
+    (***********************************************************************)
+    (* Sets rVal to the the sequence of simple statements obtained from    *)
+    (* the sequence of simple statements asstmts by putting the expression *)
+    (* sub after after each instance of v, for each v in the set vrs of    *)
+    (* variables.                                                          *)
+    (***********************************************************************)
+    variables assi = 1 ; assi2 ; res = << >> ; temp1 ; temp2 ; newstmt ;
+    begin                                                              ASS1:
+      while assi \leq Len(asstmts) do
+        if asstmts[assi].type = "assignment"
+          then temp1 := << >> ;
+               assi2 := 1 ;                                            ASS2:
+               while assi2 \leq Len(asstmts[assi].ass) do
+                 temp2 := asstmts[assi].ass[assi2] ;                   ASS3:
+                 call ProcessVars(vrs, sub, temp2.lhs.sub) ;           ASS4:
+                 temp2.lhs.sub := rVal ;                               
+                 if temp2.lhs.var \in vrs then                         ASS5: 
+                   temp2.lhs.sub := sub \o temp2.lhs.sub 
+                 end if ;                                              ASS6:
+                 call ProcessVars(vrs, sub, temp2.rhs) ;               ASS7:
+                 temp2.rhs := rVal ;
+                 temp1 := temp1 \o <<temp2>> ;
+                 assi2 := assi2 + 1
+               end while ;
+               newstmt := [type |-> "assignment", ass |-> temp1] 
+
+        elsif asstmts[assi].type = "if"
+          then call ProcessVars(vrs, sub, asstmts[assi].test) ;        ASS71:
+               newstmt := [type |-> "if", 
+                           test |-> rVal, 
+                           then |-> << >>,
+                           else |-> << >>] ;                           ASS72:
+               call AddSubscript(vrs, sub, asstmts[assi].then);        ASS73:
+               newstmt.then := rVal ;                                  ASS74:
+               call AddSubscript(vrs, sub, asstmts[assi].else);        ASS75:
+               newstmt.else := rVal ;                                  
+
+        elsif asstmts[assi].type = "either"
+          then temp1 := << >> ;
+               assi2 := 1 ;                                            ASS8:
+               while assi2 \leq Len(asstmts[assi].ors) do
+                 call AddSubscript(vrs, sub, asstmts[assi].ors[assi2]); ASS9:
+                 temp1 := temp1 \o <<rVal>> ;
+                 assi2 := assi2 + 1
+               end while ;
+               newstmt := [type |-> "either", ors |-> temp1] 
+
+        elsif asstmts[assi].type = "with"
+          then call ProcessVars(vrs, sub, asstmts[assi].exp) ;        ASS10:
+               temp1 := rVal ;                                        ASS11:
+               call AddSubscript(vrs, sub, asstmts[assi].do) ;        ASS12:
+               newstmt := [asstmts[assi] EXCEPT !.exp = temp1,
+                                                !.do  = rVal] 
+
+        elsif asstmts[assi].type \in {"when", "print", "assert"}
+          then call ProcessVars(vrs, sub, asstmts[assi].exp) ;        ASS13:
+               newstmt := [type |-> asstmts[assi].type, exp |-> rVal]
+
+        elsif asstmts[assi].type = "skip"
+          then newstmt := asstmts[assi]
+
+        else call Error("11: Unknown simple statement type " 
+                           \o asstmts[assi].type )
+        end if;                                                       ASS14:
+        res := res \o <<newstmt>> ;
+        assi := assi + 1 ;
+      end while ;
+      rVal := res ;
+      return ;
+    end procedure 
+***************** end of unused procedure ********)
+
+\**** RECURSIVE DEFINITIONS OF XlateSStmtSeq, XlateSStmt
+
+  procedure PrimeAndAddSub(primeVars, sub, expr)
+    (***********************************************************************)
+    (* Returns the expression obtained from expr by adding the subscript   *)
+    (* "[ sub ]" after every variable in localVars and priming all the     *)
+    (* variables in primeVars.                                             *)
+    (***********************************************************************)
+    begin PAAS1: call ProcessVars(localVars, sub, expr) ;
+          PAAS2: call ProcessVars(primeVars, <<"'">>, rVal) ;
+          PAAS3: return
+    end procedure
+
+  procedure XlateSStmt(sst, primedVars, localSub)
+    (***********************************************************************)
+    (* Translate a single simple statement into an action.  The            *)
+    (* arguments are                                                       *)
+    (*                                                                     *)
+    (*   sst        : The simple statement                                 *)
+    (*   primedVars : The subset of SeqToSet(allVars) of variables         *)
+    (*                that should be primed.                               *)
+    (*   localSub   : The expression to be added as a subscript to local   *)
+    (*                variables.                                           *)
+    (*                                                                     *)
+    (* It sets rVal to a record with fields:                               *)
+    (*                                                                     *)
+    (*    action: the action, represented as a sequence of expressions     *)
+    (*            whose conjunction represents the action,                 *)
+    (*    pVars: the union of primedVars and all the variables that        *)
+    (*           are assigned a value by the action.                       *)
+    (***********************************************************************)
+    variables xlssi ; xltemp1 ; \* must be unique ident because of bug
+                                \* in translator
+              temp1; temp2 ; temp3 ;
+              res = [action |-> << >>,
+                     pVars  |-> primedVars ] ;
+    begin XSt1: 
+      res := [action |-> << >>,        \* needed because of bug in Pcal makes
+              pVars  |-> primedVars] ; \* initialization not work right
+      if sst.type = "assignment"
+        then (**************************************************************)
+             (* Set xltemp1 to a sequence of elements of the form          *)
+             (*                                                            *)
+             (*   [var    |-> variable name,                               *)
+             (*    assign |-> NonEmptySeq([sub |->  expr, rhs |-> expr]) ] *)
+             (*                                                            *)
+             (* obtained by combining the individual assignments to the    *)
+             (* same variable in sst.ass and performing the appropriate    *)
+             (* priming and adding of local subscripts to the subscripts   *)
+             (* and right-hand sides.                                      *)
+             (**************************************************************)
+             xltemp1 := << >> ;
+             xlssi := 1 ;                                               XSt11:
+             while xlssi \leq Len(sst.ass) do
+                call PrimeAndAddSub(primedVars, localSub, 
+                                    sst.ass[xlssi].lhs.sub);            XSt12:
+                     temp2 := rVal ;
+                call PrimeAndAddSub(primedVars, localSub, 
+                                    sst.ass[xlssi].rhs);                XSt13:
+                with newElt = << [sub |-> temp2, rhs |-> rVal] >> do  
+                  if \E x \in 1..Len(xltemp1) : 
+                         xltemp1[x].var = sst.ass[xlssi].lhs.var
+                      then with y = CHOOSE x \in 1..Len(xltemp1) : 
+                                      xltemp1[x].var = sst.ass[xlssi].lhs.var
+                             do xltemp1[y].assign := 
+                                  xltemp1[y].assign \o newElt
+                           end with                             
+                      else xltemp1 := 
+                            xltemp1 \o <<[var    |-> sst.ass[xlssi].lhs.var,
+                                          assign |-> newElt] >>
+                  end if
+                end with ;
+                xlssi := xlssi + 1 
+             end while ;
+             xlssi := 1 ;                                               XSt14:
+             while xlssi \leq Len(xltemp1) do
+               if \/ xltemp1[xlssi].var \in primedVars 
+                  \/ /\ Len(xltemp1[xlssi].assign) > 1
+                     /\ \E x \in 1..Len(xltemp1[xlssi].assign) :
+                            xltemp1[xlssi].assign[x].sub = << >>
+                 then call Error("12: Multiple assignment to  " \o 
+                                   xltemp1[xlssi].var) ;
+               end if ;                                                XSt15:
+
+              (*************************************************************)
+              (* Set temp3 to the rhs of the action var' = rhs.            *)
+              (*************************************************************)
+               temp2 := IF xltemp1[xlssi].var \in localVars
+                        THEN localSub 
+                        ELSE << >> ;
+               if temp2 \o xltemp1[xlssi].assign[1].sub = << >>
+                 then temp3 := xltemp1[xlssi].assign[1].rhs
+                 else temp3 := 
+                        <<"[", xltemp1[xlssi].var, "EXCEPT">>
+                          \o
+                        SeqConcat([x \in 1..Len(xltemp1[xlssi].assign) |->
+                                    << "!" >> \o temp2 \o
+                                     xltemp1[xlssi].assign[x].sub \o
+                                    <<"=">> \o xltemp1[xlssi].assign[x].rhs
+                                    \o IF x = Len(xltemp1[xlssi].assign)
+                                         THEN << >>
+                                         ELSE << "," >>])
+                            \o <<"]">>
+               end if ; 
+
+               res := [action |-> res.action \** extra << >> ?
+                                   \o << <<  xltemp1[xlssi].var, "'", "=">>
+                                   \o temp3 >>
+,
+                       pVars  |-> res.pVars \cup {xltemp1[xlssi].var}] ;
+
+               xlssi := xlssi + 1 
+             end while ;
+
+      elsif sst.type = "if"
+        then call XlateSStmtSeq(sst.then, primedVars, localSub) ;  XSt21:
+             temp1 := rVal ;
+             call XlateSStmtSeq(sst.else, primedVars, localSub) ;  XSt22:
+             temp2 := rVal ;
+             call PrimeAndAddSub(primedVars, localSub, sst.test) ;  XSt23:
+             temp3 := rVal ;
+             temp1.action := temp1.action \o 
+                              MakeUnchanged(
+                                   CompSetToSubseq(
+                                      temp1.pVars,
+                                      SetToSubseq(temp1.pVars \cup temp2.pVars,
+                                               allVarSeq)))  ;
+             temp2.action := temp2.action \o 
+                               MakeUnchanged(
+                                   CompSetToSubseq(
+                                      temp2.pVars,
+                                      SetToSubseq(temp1.pVars \cup temp2.pVars,
+                                               allVarSeq))) ;
+             res.action :=
+               << << "(", "IF">> \o temp3 \o <<"THEN">> \o 
+                            MakeConj(temp1.action)
+                   \o <<"ELSE">> \o MakeConj(temp2.action) \o <<")">> >> ||
+             res.pVars := temp1.pVars \cup temp2.pVars 
+             
+      elsif sst.type = "either"
+        then (**************************************************************)
+             (* Set xltemp1 to the sequence of results from calling        *)
+             (* XlateSStmtSeq on the elements of sst.ors, and set temp2 to *)
+             (* the union all the pVars values returned.                   *)
+             (**************************************************************)
+             xltemp1 := << >> ;                                       XSt31:
+             temp2 := {} ;
+             xlssi := 1 ;                                             XSt32:
+             while xlssi \leq Len(sst.ors) do                         XSt33:
+               call XlateSStmtSeq(sst.ors[xlssi], primedVars, localSub); XSt34:
+               xltemp1 := xltemp1 \o <<rVal>> ;
+               temp2 := temp2 \cup rVal.pVars ;
+               xlssi := xlssi + 1
+             end while ;                                              
+
+             (**************************************************************)
+             (* Set temp3 to the sequence of all `ors' actions.            *)
+             (**************************************************************)
+             temp3 := [x \in 1..Len(xltemp1) |->
+                        xltemp1[x].action \o 
+                            MakeUnchanged(
+                                   CompSetToSubseq(
+                                      xltemp1[x].pVars,
+                                      SetToSubseq(temp2 ,
+                                                  allVarSeq))) ] ;
+             res := [action |-> MakeDisj([x \in 1..Len(temp3) |->
+                                            <<"(">> \o MakeConj(temp3[x])
+                                               \o <<")">>]),
+                     pVars  |-> temp2]
+             
+      elsif sst.type = "with"
+        then call PrimeAndAddSub(primedVars, localSub, sst.exp) ;     XSt41:
+             temp1 := rVal ;
+             call XlateSStmtSeq(sst.do, primedVars, localSub) ;       XSt42:
+             temp2 := MakeConj(rVal.action) ;
+             res.pVars := rVal.pVars ;                                XSt43:
+             if sst.eqOrIn = "="
+               then res.action := 
+                      << <<"LET", sst.var, "==">> \o temp1 \o <<"IN">> \o
+                           temp2 >>
+               else res.action := 
+                      << <<"\\E", sst.var, "\\in">> \o temp1 \o <<":">> \o
+                           temp2 >>
+             end if;
+      elsif sst.type = "when"
+        then call PrimeAndAddSub(primedVars, localSub, sst.exp) ;     XSt6:
+             res.action := res.action \o  << rVal >>  \** << >> added 18 Dec 05
+                        
+      elsif sst.type = "print"
+        then call PrimeAndAddSub(primedVars, localSub, sst.exp) ;     XSt7:
+             res.action := res.action \o 
+                            << <<"PrintT", "(">> \o rVal \o <<")">> >>
+
+      elsif sst.type = "assert"
+        then call PrimeAndAddSub(primedVars, localSub, sst.exp) ;     XSt8:
+             res.action := res.action \o 
+                            << <<"Assert", "(">> \o rVal \o 
+                                  <<",">> \o Quote("Failed assert") \o 
+                                << ")">> >>
+
+      elsif sst.type = "skip"
+        then skip
+
+      else call Error("13: Unknown simple statement type " \o sst.type )
+      end if ;                                                        XSt99:
+      rVal := res ;
+      return
+    end procedure
+
+
+  procedure XlateSStmtSeq(sstsq, xprimedVars, localSub)
+    (***********************************************************************)
+    (* Calls XlateSStmt iteratively to translate the sequence sstsq of     *)
+    (* simple statements to a single action.  It sets rVal to a record     *)
+    (* with fields:                                                        *)
+    (*                                                                     *)
+    (*    action: the action, represented as a sequence of expressions     *)
+    (*            whose conjunction represents the action,                 *)
+    (*    pVars: the union of primedVars and all the variables that        *)
+    (*           are assigned a value by the action.                       *)
+    (***********************************************************************)
+    variables res ; xlsssqi = 1;
+    begin XStSq1: 
+      res := [action |-> << >>, pVars  |-> xprimedVars] ;            XStSq2:
+      while xlsssqi \leq Len(sstsq) do
+        call XlateSStmt(sstsq[xlsssqi], res.pVars, localSub) ;       XStSq3:
+        res.action := res.action \o rVal.action ||
+        res.pVars  := rVal.pVars ;
+        xlsssqi := xlsssqi + 1 
+      end while ;
+      rVal := res ;
+     return
+    end procedure
+
+\*****************************************************************
+
+  procedure XlateLabStmtSeq(lsstsq, localSub, defSub, nxt)
+    (***********************************************************************)
+    (* Uses XlateSStmtSeq to translate a sequence of labeled statements,   *)
+    (* where                                                               *)
+    (*                                                                     *)
+    (*  lsstsq   : The sequence of labeled statements.                     *)
+    (*  localSub : The expression to be added as a subscript to local      *)
+    (*             variables.                                              *)
+    (*  defSub   : Either << >> or << "(", self, ")" >>.  Each definition  *)
+    (*             produced by the translation has the form                *)
+    (*                  label defsub == action                             *)
+    (*  nxt      : The label at the end of the sequence.                   *)
+    (*                                                                     *)
+    (* It sets rVal to a record with fields                                *)
+    (*                                                                     *)
+    (*    defs : An expression that is a sequence of definitions of the    *)
+    (*           actions produced by the statement, each definition of the *)
+    (*           form label defsub == action, where defSub is going        *)
+    (*           to be either << >> or <<"(", self, ")">>                  *)
+    (*                                                                     *)
+    (*    disj : An expression that is the disjunction of all the defined  *)
+    (*           actions.                                                  *)
+    (*                                                                     *)
+    (* NOTE: We use the strings "@pc@" and "@stack@" instead of "pc" and   *)
+    (* "stack" for the variables that we introduce.  As the final step of  *)
+    (* the translation, we replace them with "pc" and "stack".  This means *)
+    (* that any "pc" and "stack" in user expressions are not subscripted.  *)
+    (* This makes the translation handle user-introduced instances of      *)
+    (* these variables almost correctly.                                   *)
+    (*                                                                     *)
+    (* This introduces the bug that any strings "@pc@" and "@stack@" in    *)
+    (* expressions will be translated to "pc" and "stack", but we're not   *)
+    (* going to worry about that.                                          *)
+    (***********************************************************************)
+    variables lsstqi = 1 ; lsstemp ; disjs = << >> ; defs = << >> ;
+    begin                                                              XLS1:
+      call ExpandSeq(lsstsq, nxt) ;                                    XLS2:
+      lsstemp := rVal ;                                                XLS3:
+      while lsstqi \leq Len(lsstemp) do
+        call XlateSStmtSeq(lsstemp[lsstqi].stmts, {}, localSub) ;      XLS4:
+        defs := defs \o 
+                        << lsstemp[lsstqi].label >> 
+                           \o defSub \o <<"==">> 
+                           \o MakeConj( << <<"@pc@">> \o localSub \o <<"=">> 
+                                             \o Quote(lsstemp[lsstqi].label)
+                                         >> \o rVal.action \o
+                                         MakeUnchanged(
+                                          CompSetToSubseq(rVal.pVars, 
+                                                          allVarSeq))) ;
+        disjs := Append(disjs, << lsstemp[lsstqi].label >> \o defSub) ;
+        lsstqi := lsstqi + 1 
+      end while ;
+      rVal := [defs |-> defs, disj |-> MakeDisj(disjs)] ;
+      return; 
+    end procedure
+
+
+\****************************  
+
+
+\******************** UTILITY Procedures
+       
+  procedure Error(str) 
+    (***********************************************************************)
+    (* Reports an error and halts.                                         *)
+    (***********************************************************************)
+    begin Error1: print "<<@Error@" \o str \o "@EndError@";
+                  goto Done ;
+          Error2: return ;   \* Needed because translator requires a return.
+    end procedure 
+\********************* main body of algorithm *************************
+  begin PC1: 
+    call IsAlgorithm(ast) ;                                              PC2: 
+    print ast.name \o " is a legal Algorithm" ;
+
+    (**************************************************************)
+    (* Set pMap and prcdVars.                                     *)
+    (**************************************************************)
+    pMap := << >>  ; \* The empty record
+    i := 1 ;                                                            PC3: 
+    while i \leq Len(ast.prcds) do
+      pMap := pMap @@ 
+                (ast.prcds[i].name :> 
+                  [params  |-> [x \in 1..Len(ast.prcds[i].params) |-> 
+                                          ast.prcds[i].params[x].var],
+                   vars    |-> [x \in 1..Len(ast.prcds[i].decls) |-> 
+                                          ast.prcds[i].decls[x].var],
+                   vals    |-> [x \in 1..Len(ast.prcds[i].decls) |-> 
+                                          ast.prcds[i].decls[x].val],
+                   label   |-> ast.prcds[i].body[1].label,
+                   tlavars |-> {ast.prcds[i].params[y].var :
+                                   y \in 1..Len(ast.prcds[i].params)}
+                                 \cup
+                               {ast.prcds[i].decls[y].var :
+                                   y \in 1..Len(ast.prcds[i].decls)}] ) ;
+      i := i+1 ;
+      end while ;
+      prcdVars := UNION {SeqToSet(pMap[x].params) \cup
+                          SeqToSet(pMap[x].vars) : x \in DOMAIN pMap} ;
+      (**************************************************************)
+      (* Set procSeq.                                               *)
+      (**************************************************************)
+      if ast.type = "multiprocess"  
+        then procSeq := [y \in 1.. Len(ast.procs) |-> 
+                           [vars  |-> [x \in 1..Len(ast.procs[y].decls) 
+                                          |-> ast.procs[y].decls[x].var],
+                            label |-> ast.procs[y].body[1].label] ] ;
+        else procSeq := << >>  ; 
+      end if ;
+
+      (**************************************************************)
+      (* Compute globalVars, nonGlobalVars, and allVarSeq           *)
+      (**************************************************************)
+      allVarSeq  := [x \in 1..Len(ast.decls) |-> ast.decls[x].var] 
+                      \o <<"@pc@">>
+;
+      globalVars := SeqToSet(allVarSeq) ;                              PC4:
+      if ast.prcds # << >>
+        then allVarSeq := allVarSeq \o <<"@stack@">> \o
+                          \* sequence of all procedure vars and params.
+                          SeqConcat( 
+                            [x \in 1..Len(ast.prcds) |->
+                              [y \in 1..Len(ast.prcds[x].decls) |-> 
+                                 ast.prcds[x].decls[y].var]
+                              \o
+                              [y \in 1..Len(ast.prcds[x].params) |->
+                                 ast.prcds[x].params[y].var] ]) ;       
+             globalVars := globalVars \cup {"@stack@"}
+      end if ;                                                          PC5:
+      if ast.type = "multiprocess"
+        then allVarSeq := allVarSeq \o
+                             SeqConcat(
+                                 [x \in 1..Len(ast.procs) |->
+                                   [y \in 1..Len(ast.procs[x].decls) |->
+                                      ast.procs[x].decls[y].var]]) 
+      end if ;
+      nonGlobalVars := SeqToSet(allVarSeq) \ globalVars ;
+
+
+      
+      (*********************************************************************)
+      (* Produce variable declarations and output of `definition'          *)
+      (* statement.                                                        *)
+      (*********************************************************************)
+      if (ast.defs = << >>) \/ (globalVars = {})
+        then result := ast.defs \o <<"VARIABLES">> \o CommaSeq(allVarSeq)
+        else result := <<"VARIABLES">> \o 
+                          CommaSeq(SetToSubseq(globalVars, allVarSeq)) \o
+                       ast.defs \o <<"VARIABLES">> \o 
+                          CommaSeq(SetToSubseq(nonGlobalVars, allVarSeq)) 
+      end if ;                                                           PC6:
+
+      (*********************************************************************)
+      (* Output definition of `vars'.                                      *)
+      (*********************************************************************)
+      result := result \o <<"vars", "==", "<<">> \o CommaSeq(allVarSeq)
+                 \o <<">>">> ;                                           PC7:
+
+      (*********************************************************************)
+      (* Output definition of ProcSet for a multiprocess algorithm.        *)
+      (*********************************************************************)
+      if ast.type = "multiprocess"
+        then result := result \o <<"ProcSet", "==">> \o
+                        MakeUnion(SeqConcat([x \in 1..Len(ast.procs) |->
+                                   IF ast.procs[x].eqOrIn = "\\in"
+                                     THEN <<ast.procs[x].id>>
+                                     ELSE << <<"{">> \o  ast.procs[x].id
+                                               \o << "}">>
+                                          >> ] ) )
+      end if ;                                                           PC8:
+
+      (*********************************************************************)
+      (* Output Init, setting gtemp1 to the sequence of its conjuncts.     *)
+      (*                                                                   *)
+      (* First set it to the the initialization of the globally declared   *)
+      (* variables.                                                        *)
+      (*********************************************************************)
+      gtemp1 := << >> ;
+      i := 1 ;                                                           PC9:
+      while i \leq Len(ast.decls) do 
+        gtemp1 := gtemp1 \o << <<ast.decls[i].var, ast.decls[i].eqOrIn>> 
+                   \o ast.decls[i].val >> ;
+        i := i + 1;
+      end while ;
+
+      (*********************************************************************)
+      (* Append the initializations of procedure parameters and procedure  *)
+      (* declarations.                                                     *)
+      (*********************************************************************)
+      i := 1 ;                                                          PC10:
+      while i \leq Len(ast.prcds) do 
+        j := 1 ;                                                        PC11:
+        while j \leq Len(ast.prcds[i].params) do 
+          if ast.type = "uniprocess"
+            then gtemp1 := gtemp1 \o << <<ast.prcds[i].params[j].var, "=">>
+                             \o ast.prcds[i].params[j].val >>
+            else gtemp1 := gtemp1 \o 
+                             << <<ast.prcds[i].params[j].var, "=", "[", 
+                                "self", "\\in", "ProcSet", "|->">>
+                             \o ast.prcds[i].params[j].val \o <<"]">> >>
+          end if ;
+          j := j + 1;
+        end while ;
+        j := 1 ;                                                        PC12:
+        while j \leq Len(ast.prcds[i].decls) do 
+          if ast.type = "uniprocess"
+            then gtemp1 := gtemp1 \o << <<ast.prcds[i].decls[j].var, "=">>
+                             \o ast.prcds[i].decls[j].val >>
+            else gtemp1 := gtemp1 \o 
+                             << <<ast.prcds[i].decls[j].var, "=", "[", 
+                                "self", "\\in", "ProcSet", "|->">>
+                             \o ast.prcds[i].decls[j].val \o <<"]">> >>
+          end if ;
+          j := j + 1;
+        end while ;
+        i := i + 1;
+      end while ;
+
+      (*********************************************************************)
+      (* Append initializations of process variables.                      *)
+      (*********************************************************************)
+      if ast.type = "multiprocess" then 
+        i := 1 ;                                                       PC13:
+        while i \leq Len(ast.procs) do
+          j := 1 ;                                                     PC14:
+          while j \leq Len(ast.procs[i].decls) do
+            if ast.procs[i].eqOrIn = "="
+              then \* single process
+                   gtemp1 := gtemp1 \o << <<ast.procs[i].decls[j].var, 
+                                            ast.procs[i].decls[j].eqOrIn>> 
+                                          \o ast.procs[i].decls[j].val >>
+              else \* process set
+                   if ast.procs[i].decls[j].eqOrIn = "="
+                     then \* var = ...
+                          gtemp1 := gtemp1 \o 
+                                     << <<ast.procs[i].decls[j].var, "=",
+                                          "[", "self", "\\in">> \o
+                                          ast.procs[i].id \o <<"|->" >>
+                                          \o ast.procs[i].decls[j].val 
+                                          \o <<"]">> >>
+                     else \* var \in ...
+                          gtemp1 := gtemp1 \o 
+                                     << <<ast.procs[i].decls[j].var, "\\in",
+                                          "[">> \o ast.procs[i].id \o <<"->">>
+                                          \o ast.procs[i].decls[j].val 
+                                          \o <<"]">> >>
+                   end if ;
+            end if ;
+            j := j + 1 ;
+          end while ; 
+          i := i + 1 ;
+        end while ;
+      end if ;                                                        PC15:
+
+      (*********************************************************************)
+      (* Append initialization of `stack'.                                 *)
+      (*********************************************************************)
+      if ast.prcds # << >> then
+        if ast.type = "uniprocess"
+          then gtemp1 := gtemp1 \o << <<"@stack@", "=", "<<", ">>" >> >>
+          else gtemp1 := gtemp1 \o << <<"@stack@", "=", "[", "self", "\\in",
+                                        "ProcSet", "|->", "<<", ">>", "]" >> >>
+        end if ;
+      end if ;                                                          PC16:
+      
+      (*********************************************************************)
+      (* Append initialization of pc.                                      *)
+      (*********************************************************************)
+      if ast.type = "uniprocess"
+          then gtemp1 := gtemp1 \o << <<"@pc@", "=">> \o 
+                                  Quote(ast.body[1].label) >>
+          else gtemp2 := <<"@pc@", "=", "[", "self", "\\in", "ProcSet",
+                                "|->", "CASE">> ;
+               i := 1 ;                                                PC17:
+               while i \leq Len(ast.procs) do
+                 if i > 1 then gtemp2 := gtemp2 \o <<"[]">> end if;    PC18:
+                 gtemp2 := gtemp2 \o
+                            <<"self", ast.procs[i].eqOrIn>> \o
+                               ast.procs[i].id \o <<"->">> \o
+                              Quote(ast.procs[i].body[1].label) ;             
+                 i := i + 1 ;
+               end while ;
+               gtemp1 := gtemp1 \o <<gtemp2 \o <<"]">>>> 
+      end if;                                                          PC19:
+      result := result \o <<"Init", "==">> \o MakeConj(gtemp1) ;
+
+      (*********************************************************************)
+      (* Append procedures' definitions.                                   *)
+      (*********************************************************************)
+      if ast.prcds # << >> then
+        i := 1 ;                                                       PC20:
+        while i \leq Len(ast.prcds) do
+          if ast.type = "uniprocess"
+            then localVars := {} ;
+                 call XlateLabStmtSeq(ast.prcds[i].body, 
+                                         << >>, << >>, "Error")
+            else localVars := prcdVars \cup {"@pc@", "@stack@"} ;
+                 call XlateLabStmtSeq(ast.prcds[i].body, 
+                                      <<"[", "self", "]">>, 
+                                      <<"(", "self", ")">>, "Error")
+          end if ;                                                    PC21:
+          result := result \o rVal.defs
+                     \o <<ast.prcds[i].name>>
+                     \o (IF ast.type = "uniprocess" 
+                           THEN << "==" >>
+                           ELSE <<"(", "self", ")", "==">>)
+                     \o rVal.disj ;
+          i := i + 1 
+        end while ;
+      end if;                                                          PC29:
+
+      (*********************************************************************)
+      (* For a multiprocess algorithm, append processes' definitions and   *)
+      (* append definition of Next.                                        *)
+      (*********************************************************************)
+      if ast.type = "multiprocess" then 
+        i := 1 ;                                                       PC30:
+        while i \leq Len(ast.procs) do
+          if ast.procs[i].eqOrIn = "=" 
+            then localVars := {"@pc@", "@stack@"} \cup prcdVars ;
+                 call XlateLabStmtSeq(ast.procs[i].body, 
+                                      <<"[">> \o ast.procs[i].id \o <<"]">>,
+                                      << >>, "Done")
+            else localVars := SeqToSet(procSeq[i].vars) \cup prcdVars \cup 
+                                         {"@pc@", "@stack@"} ;
+                 call XlateLabStmtSeq(ast.procs[i].body, 
+                                      <<"[", "self", "]">>,
+                                      <<"(", "self", ")">>, "Done")
+          end if ;                                                    PC31:
+          result := result \o rVal.defs ;                             
+
+          \* set gtemp1 to the lhs of the process's next-state definition
+          if ast.procs[i].eqOrIn = "="
+            then gtemp1 := <<ast.procs[i].name>>
+            else gtemp1 := <<ast.procs[i].name, "(", "self", ")">>
+          end if;                                                     PC32:
+          result := result \o gtemp1 \o <<"==">> \o rVal.disj ;
+          i := i + 1;
+        end while ;                                                   PC33:
+        result := result \o <<"Next", "==">> \o
+                   MakeDisj([x \in 1..Len(ast.procs) |->
+                               IF ast.procs[x].eqOrIn = "="
+                                   THEN << ast.procs[x].name >>
+                                   ELSE <<"(", "\\E", "self" , "\\in">> \o
+                                          ast.procs[x].id \o 
+                                        <<":", ast.procs[x].name, "(",
+                                          "self", ")", ")">>
+                              ]) ;                                 PC34:
+        if ast.prcds # << >> then    
+          result := result \o <<"\\/", "(", "\\E", "self", "\\in",
+                                "ProcSet", ":">> \o 
+                      MakeDisj([x \in 1..Len(ast.prcds) |->
+                                  << ast.prcds[x].name, "(", "self", ")">>
+                                 ]) \o <<")">> 
+        end if ;                                                     PC35:
+        result := result \o 
+                    <<"\\/", "(", "(", "\\A", "self", "\\in", "ProcSet", ":", 
+                       "@pc@", "[", "self", "]", "=">> \o Quote("Done") \o
+                    <<")", "/\\" , "(", "UNCHANGED", "vars", ")", ")" >> ;
+        
+      end if ;                                                       PC36:
+
+
+      (*********************************************************************)
+      (* Define Next for a uniprocess algorithm.                           *)
+      (*********************************************************************)
+      if ast.type = "uniprocess" then 
+        localVars := {};
+        call XlateLabStmtSeq(ast.body, << >>, << >>, "Done") ;       PC41:
+        result := result \o rVal.defs \o <<"Next", "==" >> \o rVal.disj \o
+                  (IF ast.prcds # << >> 
+                     THEN <<"\\/">> \o 
+                          MakeDisj([x \in 1..Len(ast.prcds) |->
+                                  << ast.prcds[x].name>> ])
+                     ELSE << >>) \o
+                    <<"\\/", "(", "(", "@pc@", "=">> \o Quote("Done") \o
+                    << ")", "/\\", "UNCHANGED", "vars", ")" >> 
+      end if;                                                        PC49:
+
+      (*********************************************************************)
+      (* Set gtemp1 to the fairness conjunct.                              *)
+      (*********************************************************************)
+      if fairness = ""
+        then gtemp1 := << >>
+        else gtemp1 := << "/\\" >> ;                                   PC50:
+             if (fairness \in {"wf", "sf"}) /\ (ast.type = "multiprocess")
+               then i := 1 ;
+                    gtemp2 := << (IF fairness = "wf" 
+                                  THEN "WF_" ELSE "SF_") \o "vars", "(">> ;
+                    \* set gtemp3 to the sequence of WF/SF conjuncts
+                    gtemp3 := << >> ;                                  PC51:
+
+                    \* fairness of next-state actions for processes
+                    while i \leq Len(ast.procs) do 
+                      if ast.procs[i].eqOrIn = "="
+                        then gtemp3 := gtemp3 \o
+                                        << gtemp2 \o 
+                                              <<ast.procs[i].name, ")">> >>
+                        else gtemp3 := 
+                               gtemp3 \o
+                               <<  << "\\A", "self", "\\in">> \o
+                                  ast.procs[i].id \o << ":" >> \o gtemp2 \o
+                               <<ast.procs[i].name, "(", "self", ")", ")">> >>
+                      end if ;
+                      i := i + 1 ;
+                    end while ;
+
+                    \* fairness of next-state actions for procedures.
+                    gtemp4 := << >> ;
+                    i := 1 ;                                            PC59:
+                    while i \leq Len(ast.prcds) do 
+                      gtemp4 := gtemp4 \o 
+                                 << gtemp2 \o
+                                     <<ast.prcds[i].name, "(", "self", 
+                                         ")", ")">> >> ;
+                      i := i + 1 ;
+                    end while ;
+                    gtemp3 := gtemp3 \o
+                               <<  << "\\A", "self", "\\in", "ProcSet", 
+                                      ":" >> \o
+                                     MakeConj(gtemp4) >> ;
+
+                    gtemp1 := gtemp1 \o MakeConj(gtemp3) ;
+               else gtemp1 := gtemp1 \o <<"WF_", "vars", "(", "Next", ")">>
+             end if;
+      end if ;                                                         PC52:
+
+      result := result \o 
+                 <<"Spec", "==", "Init", "/\\", "[]", "[", "Next", "]_",
+                   "vars">> \o gtemp1 ;                                PC53:
+     
+     (**********************************************************************)
+     (* Add definition of Termination.                                     *)
+     (**********************************************************************)
+     if ast.type = "uniprocess"
+       then result := result \o <<"Termination", "==", "<>", "(", "@pc@", "=">>
+                        \o Quote("Done") \o <<")">>
+       else result := result \o 
+                        <<"Termination", "==", "<>", "(", "\\A", "self", 
+                           "\\in", "ProcSet", ":", "@pc@", "[", "self", "]",  
+                          "=">>
+                        \o Quote("Done") \o <<")">>
+     end if ;
+
+ PC999: print FixPCandStack(result)
+ 
+  end algorithm

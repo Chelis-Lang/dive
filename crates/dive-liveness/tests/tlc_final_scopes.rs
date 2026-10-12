@@ -130,7 +130,7 @@ fn scoped_normalization_group_and_tableau_identity_selection() {
 )]
 fn complete_fields(family: &str, expected_supported: usize) {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes")
+        .join("tests/fixtures/probes")
         .join(family);
     let capture: Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
@@ -249,7 +249,7 @@ fn complete_fields(family: &str, expected_supported: usize) {
 #[test]
 fn singleton_disjunction_and_scoped_inputs_keep_existing_bounds() {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-scopes/models/TfClaimPairFails");
+        .join("tests/fixtures/probes/tlc-final-scopes/models/TfClaimPairFails");
     let a = dive_sema::analyze_file(
         &base.join("TfClaimPairFails.tla"),
         &dive_sema::Options::default(),

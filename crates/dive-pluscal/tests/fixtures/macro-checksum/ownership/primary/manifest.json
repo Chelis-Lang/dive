@@ -1,0 +1,192 @@
+{
+ "rows": [
+  {
+   "id": "Ownership_C_identifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_C_second_algorithm",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_C_unicode_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_C_unclosed_quote",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Ownership_C_bad_token",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_C_missing_end",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Ownership_P_identifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_P_second_algorithm",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_P_unicode_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_P_unclosed_quote",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Ownership_P_bad_token",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Ownership_P_missing_end",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  }
+ ]
+}

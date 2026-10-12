@@ -1,0 +1,1312 @@
+{
+ "rows": [
+  {
+   "id": "ProcessHeader_C_constant_ordinary",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7ef95e26",
+    "ebf64973"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7ef95e26"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "39337b95",
+    "e9a58626"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "39337b95"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_two_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "63cb9df8",
+    "2493fd54"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "63cb9df8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_swap_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c6da14c1",
+    "37a47358"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c6da14c1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3235a445",
+    "4d3592f2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3235a445"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_prior_initializer",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "202b4929",
+    "ccbedef2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "202b4929"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "15b8247e",
+    "e9a58626"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "15b8247e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_self_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "186f6a8d",
+    "725785cc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "186f6a8d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_recursive_base",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3665f8cd",
+    "bba9cd98"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3665f8cd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_nested_if",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8ac35ff4",
+    "3da6e589"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8ac35ff4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_nested_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d964a6cf",
+    "f8176c32"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d964a6cf"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_nested_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e7d26c39",
+    "c80e9bfd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e7d26c39"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_while_false",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9b382b20",
+    "701b8090"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9b382b20"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_constant_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "50ecf06a",
+    "772a8539"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "50ecf06a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_ordinary",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e89ddc4b",
+    "86500f51"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e89ddc4b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d3c8177",
+    "e6745a5f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d3c8177"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_two_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2a21716b",
+    "81e6fdc3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2a21716b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_swap_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dd430008",
+    "d790c27c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dd430008"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "369182dc",
+    "f27a5b2a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "369182dc"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_prior_initializer",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c8e973f",
+    "32fb42d3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c8e973f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ff458162",
+    "e6745a5f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ff458162"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_self_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "45bd5301",
+    "799c6c36"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "45bd5301"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_recursive_base",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4a0f9b58",
+    "2adf64d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4a0f9b58"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_nested_if",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2a334ccf",
+    "932d58e8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2a334ccf"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_nested_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a69c3ee8",
+    "32197c52"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a69c3ee8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_nested_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "22af7d54",
+    "13694db3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "22af7d54"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_while_false",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3a9cd569",
+    "c8650839"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3a9cd569"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_member_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "602f63e7",
+    "521f6e23"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "602f63e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_boundary_duplicate_global",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcessHeader_C_boundary_label_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5d5b5966",
+    "bbc6794d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5d5b5966"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_boundary_unknown_target",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcessHeader_C_boundary_arity",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcessHeader_C_boundary_scoped_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9176f73c",
+    "3741b9ea"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9176f73c"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "ProcessHeader_C_boundary_fair_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a48ada85",
+    "2b7ee62c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a48ada85"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_boundary_mixed_blocks",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "57345899",
+    "5400b6a8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "57345899"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_C_boundary_nonfinite_domain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cec9bba2",
+    "e3f94968"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cec9bba2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_ordinary",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7ef95e26",
+    "ebf64973"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7ef95e26"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "39337b95",
+    "e9a58626"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "39337b95"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_two_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "63cb9df8",
+    "2493fd54"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "63cb9df8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_swap_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c6da14c1",
+    "37a47358"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c6da14c1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3235a445",
+    "4d3592f2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3235a445"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_prior_initializer",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "202b4929",
+    "ccbedef2"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "202b4929"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "15b8247e",
+    "e9a58626"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "15b8247e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_self_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "186f6a8d",
+    "725785cc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "186f6a8d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_recursive_base",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3665f8cd",
+    "bba9cd98"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3665f8cd"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_nested_if",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8ac35ff4",
+    "3da6e589"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8ac35ff4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_nested_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d964a6cf",
+    "f8176c32"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d964a6cf"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_nested_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e7d26c39",
+    "c80e9bfd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e7d26c39"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_while_false",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9b382b20",
+    "701b8090"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9b382b20"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_constant_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "50ecf06a",
+    "772a8539"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "50ecf06a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_ordinary",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e89ddc4b",
+    "86500f51"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e89ddc4b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d3c8177",
+    "e6745a5f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d3c8177"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_two_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2a21716b",
+    "81e6fdc3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2a21716b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_swap_parameters",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dd430008",
+    "d790c27c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dd430008"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "369182dc",
+    "f27a5b2a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "369182dc"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_prior_initializer",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c8e973f",
+    "32fb42d3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c8e973f"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_call_goto",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ff458162",
+    "e6745a5f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ff458162"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_self_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "45bd5301",
+    "799c6c36"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "45bd5301"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_recursive_base",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4a0f9b58",
+    "2adf64d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4a0f9b58"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_nested_if",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2a334ccf",
+    "932d58e8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2a334ccf"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_nested_with",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a69c3ee8",
+    "32197c52"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a69c3ee8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_nested_either",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "22af7d54",
+    "13694db3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "22af7d54"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_while_false",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3a9cd569",
+    "c8650839"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3a9cd569"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_member_unused",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "602f63e7",
+    "521f6e23"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "602f63e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_boundary_duplicate_global",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcessHeader_P_boundary_label_collision",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5d5b5966",
+    "209c8a37"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5d5b5966"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_boundary_unknown_target",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcessHeader_P_boundary_arity",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "ProcessHeader_P_boundary_scoped_capture",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9176f73c",
+    "3741b9ea"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9176f73c"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "ProcessHeader_P_boundary_fair_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a48ada85",
+    "2b7ee62c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a48ada85"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_boundary_mixed_blocks",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "57345899",
+    "5400b6a8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "57345899"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ProcessHeader_P_boundary_nonfinite_domain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "cec9bba2",
+    "e3f94968"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "cec9bba2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

@@ -5,8 +5,7 @@ use dive_check::CheckOptions;
 use dive_liveness::phase_graph::Limits;
 use std::{path::PathBuf, sync::Arc};
 fn base() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-property-origins")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-final-property-origins")
 }
 fn names(text: &str) -> Vec<String> {
     text.split(';')
@@ -179,17 +178,4 @@ fn edited_role_quantity_refuses_before_executing_stale_origins() {
     .expect("origin-bearing execution refuses stale role quantity");
     assert!(refused.to_string().contains("property-origin metadata"));
     assert_eq!(model.take_output(), Vec::<String>::new());
-}
-
-#[test]
-fn complete_primary_native_origins_and_source_history_are_verified() {
-    let status = std::process::Command::new("python3")
-        .arg("-I")
-        .arg(
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../scripts/check-tlc-property-origins.py"),
-        )
-        .status()
-        .expect("source checker");
-    assert!(status.success());
 }

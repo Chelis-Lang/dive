@@ -1,0 +1,2200 @@
+{
+ "rows": [
+  {
+   "id": "Multi_C_crossgoto",
+   "input": "Multi_C_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Multi_C_crosslocal",
+   "input": "Multi_C_crosslocal.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_crosslocal.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_crosslocal.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_dup_set",
+   "input": "Multi_C_dup_set.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_dup_set.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_dup_set.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_empty",
+   "input": "Multi_C_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_empty_id",
+   "input": "Multi_C_empty_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_empty_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_empty_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids",
+   "input": "Multi_C_ids.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_default",
+   "input": "Multi_C_ids_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_flag_nof",
+   "input": "Multi_C_ids_flag_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_flag_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_flag_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_flag_sf",
+   "input": "Multi_C_ids_flag_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_flag_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_flag_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_flag_wf",
+   "input": "Multi_C_ids_flag_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_flag_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_flag_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_flag_wfNext",
+   "input": "Multi_C_ids_flag_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_flag_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_flag_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_globalfair",
+   "input": "Multi_C_ids_globalfair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_globalfair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_globalfair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_mixed",
+   "input": "Multi_C_ids_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_modifiers",
+   "input": "Multi_C_ids_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_parallel",
+   "input": "Multi_C_ids_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_strong",
+   "input": "Multi_C_ids_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_ids_weak",
+   "input": "Multi_C_ids_weak.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_ids_weak.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_ids_weak.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset",
+   "input": "Multi_C_idset.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_default",
+   "input": "Multi_C_idset_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_flag_nof",
+   "input": "Multi_C_idset_flag_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_flag_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_flag_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_flag_sf",
+   "input": "Multi_C_idset_flag_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_flag_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_flag_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_flag_wf",
+   "input": "Multi_C_idset_flag_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_flag_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_flag_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_flag_wfNext",
+   "input": "Multi_C_idset_flag_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_flag_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_flag_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_globalfair",
+   "input": "Multi_C_idset_globalfair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_globalfair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_globalfair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_mixed",
+   "input": "Multi_C_idset_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_modifiers",
+   "input": "Multi_C_idset_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_parallel",
+   "input": "Multi_C_idset_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_strong",
+   "input": "Multi_C_idset_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_idset_weak",
+   "input": "Multi_C_idset_weak.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_idset_weak.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_idset_weak.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_infinite",
+   "input": "Multi_C_infinite.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_infinite.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_infinite.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_infinite_one",
+   "input": "Multi_C_infinite_one.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_infinite_one.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_infinite_one.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_intervals",
+   "input": "Multi_C_intervals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_intervals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_intervals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_labelcollision",
+   "input": "Multi_C_labelcollision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_labelcollision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_labelcollision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_localcollision",
+   "input": "Multi_C_localcollision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_localcollision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_localcollision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_mixed",
+   "input": "Multi_C_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_nonliteral",
+   "input": "Multi_C_nonliteral.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_nonliteral.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_nonliteral.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_overlap",
+   "input": "Multi_C_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_overlap_sets",
+   "input": "Multi_C_overlap_sets.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_overlap_sets.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_overlap_sets.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_processcollision",
+   "input": "Multi_C_processcollision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_processcollision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_processcollision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_self",
+   "input": "Multi_C_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_setid",
+   "input": "Multi_C_setid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_setid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_setid.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets",
+   "input": "Multi_C_sets.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_default",
+   "input": "Multi_C_sets_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_flag_nof",
+   "input": "Multi_C_sets_flag_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_flag_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_flag_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_flag_sf",
+   "input": "Multi_C_sets_flag_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_flag_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_flag_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_flag_wf",
+   "input": "Multi_C_sets_flag_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_flag_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_flag_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_flag_wfNext",
+   "input": "Multi_C_sets_flag_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_flag_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_flag_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_globalfair",
+   "input": "Multi_C_sets_globalfair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_globalfair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_globalfair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_mixed",
+   "input": "Multi_C_sets_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_modifiers",
+   "input": "Multi_C_sets_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_parallel",
+   "input": "Multi_C_sets_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_strong",
+   "input": "Multi_C_sets_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_sets_weak",
+   "input": "Multi_C_sets_weak.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_sets_weak.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_sets_weak.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_C_strings",
+   "input": "Multi_C_strings.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_C_strings.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_C_strings.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_crossgoto",
+   "input": "Multi_P_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Multi_P_crosslocal",
+   "input": "Multi_P_crosslocal.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_crosslocal.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_crosslocal.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_dup_set",
+   "input": "Multi_P_dup_set.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_dup_set.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_dup_set.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_empty",
+   "input": "Multi_P_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_empty_id",
+   "input": "Multi_P_empty_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_empty_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_empty_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids",
+   "input": "Multi_P_ids.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_default",
+   "input": "Multi_P_ids_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_flag_nof",
+   "input": "Multi_P_ids_flag_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_flag_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_flag_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_flag_sf",
+   "input": "Multi_P_ids_flag_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_flag_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_flag_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_flag_wf",
+   "input": "Multi_P_ids_flag_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_flag_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_flag_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_flag_wfNext",
+   "input": "Multi_P_ids_flag_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_flag_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_flag_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_globalfair",
+   "input": "Multi_P_ids_globalfair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_globalfair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_globalfair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_mixed",
+   "input": "Multi_P_ids_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_modifiers",
+   "input": "Multi_P_ids_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_parallel",
+   "input": "Multi_P_ids_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_strong",
+   "input": "Multi_P_ids_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_ids_weak",
+   "input": "Multi_P_ids_weak.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_ids_weak.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_ids_weak.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset",
+   "input": "Multi_P_idset.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_default",
+   "input": "Multi_P_idset_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_flag_nof",
+   "input": "Multi_P_idset_flag_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_flag_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_flag_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_flag_sf",
+   "input": "Multi_P_idset_flag_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_flag_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_flag_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_flag_wf",
+   "input": "Multi_P_idset_flag_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_flag_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_flag_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_flag_wfNext",
+   "input": "Multi_P_idset_flag_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_flag_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_flag_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_globalfair",
+   "input": "Multi_P_idset_globalfair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_globalfair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_globalfair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_mixed",
+   "input": "Multi_P_idset_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_modifiers",
+   "input": "Multi_P_idset_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_parallel",
+   "input": "Multi_P_idset_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_strong",
+   "input": "Multi_P_idset_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_idset_weak",
+   "input": "Multi_P_idset_weak.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_idset_weak.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_idset_weak.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_infinite",
+   "input": "Multi_P_infinite.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_infinite.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_infinite.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_infinite_one",
+   "input": "Multi_P_infinite_one.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_infinite_one.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_infinite_one.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_intervals",
+   "input": "Multi_P_intervals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_intervals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_intervals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_labelcollision",
+   "input": "Multi_P_labelcollision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_labelcollision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_labelcollision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_localcollision",
+   "input": "Multi_P_localcollision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_localcollision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_localcollision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_mixed",
+   "input": "Multi_P_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_nonliteral",
+   "input": "Multi_P_nonliteral.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_nonliteral.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_nonliteral.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_overlap",
+   "input": "Multi_P_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_overlap_sets",
+   "input": "Multi_P_overlap_sets.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_overlap_sets.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_overlap_sets.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_processcollision",
+   "input": "Multi_P_processcollision.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_processcollision.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_processcollision.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_self",
+   "input": "Multi_P_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_setid",
+   "input": "Multi_P_setid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_setid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_setid.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets",
+   "input": "Multi_P_sets.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_default",
+   "input": "Multi_P_sets_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_flag_nof",
+   "input": "Multi_P_sets_flag_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_flag_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_flag_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_flag_sf",
+   "input": "Multi_P_sets_flag_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_flag_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_flag_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_flag_wf",
+   "input": "Multi_P_sets_flag_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_flag_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_flag_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_flag_wfNext",
+   "input": "Multi_P_sets_flag_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_flag_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_flag_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_globalfair",
+   "input": "Multi_P_sets_globalfair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_globalfair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_globalfair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_mixed",
+   "input": "Multi_P_sets_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_modifiers",
+   "input": "Multi_P_sets_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_parallel",
+   "input": "Multi_P_sets_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_strong",
+   "input": "Multi_P_sets_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_sets_weak",
+   "input": "Multi_P_sets_weak.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_sets_weak.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_sets_weak.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Multi_P_strings",
+   "input": "Multi_P_strings.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Multi_P_strings.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Multi_P_strings.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

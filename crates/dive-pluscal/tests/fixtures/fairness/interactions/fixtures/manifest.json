@@ -1,0 +1,164 @@
+{
+ "rows": [
+  {
+   "id": "FairInteraction_C_comment",
+   "input": "FairInteraction_C_comment.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_C_comment.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_C_comment.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_C_multiline",
+   "input": "FairInteraction_C_multiline.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_C_multiline.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_C_multiline.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_C_tab",
+   "input": "FairInteraction_C_tab.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_C_tab.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_C_tab.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_C_wrapped",
+   "input": "FairInteraction_C_wrapped.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_C_wrapped.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_C_wrapped.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_P_comment",
+   "input": "FairInteraction_P_comment.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_P_comment.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_P_comment.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_P_multiline",
+   "input": "FairInteraction_P_multiline.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_P_multiline.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_P_multiline.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_P_tab",
+   "input": "FairInteraction_P_tab.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_P_tab.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_P_tab.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairInteraction_P_wrapped",
+   "input": "FairInteraction_P_wrapped.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairInteraction_P_wrapped.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairInteraction_P_wrapped.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

@@ -72,7 +72,7 @@ fn metadata(v: &serde_json::Value, store: Store, compat_tlc: bool) {
 )]
 fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: usize) {
     let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../../conformance/probes/native-checkpoint-runtime-names/specs/{name}/{name}.tla"
+        "tests/fixtures/native-checkpoint-runtime-names/{name}/{name}.tla"
     ));
     let base = CheckRequest {
         file: file.clone(),

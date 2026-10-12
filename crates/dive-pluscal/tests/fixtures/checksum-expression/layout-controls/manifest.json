@@ -1,0 +1,244 @@
+{
+ "rows": [
+  {
+   "id": "C_layout_utf16-prefix",
+   "primary_translated": true,
+   "primary_crc": "900a3dac",
+   "stages": {
+    "translated": {
+     "crc": "900a3dac"
+    }
+   }
+  },
+  {
+   "id": "C_layout_tab-prefix",
+   "primary_translated": true,
+   "primary_crc": "26a5f4fe",
+   "stages": {
+    "translated": {
+     "crc": "26a5f4fe"
+    }
+   }
+  },
+  {
+   "id": "C_layout_utf16-line-comment",
+   "primary_translated": true,
+   "primary_crc": "77d2bfa4",
+   "stages": {
+    "translated": {
+     "crc": "77d2bfa4"
+    }
+   }
+  },
+  {
+   "id": "C_layout_multiline-block-comment",
+   "primary_translated": true,
+   "primary_crc": "7102c225",
+   "stages": {
+    "translated": {
+     "crc": "7102c225"
+    }
+   }
+  },
+  {
+   "id": "C_layout_crlf",
+   "primary_translated": true,
+   "primary_crc": "77d2bfa4",
+   "stages": {
+    "translated": {
+     "crc": "77d2bfa4"
+    }
+   }
+  },
+  {
+   "id": "C_layout_empty-comment-line",
+   "primary_translated": true,
+   "primary_crc": "d9e0c86b",
+   "stages": {
+    "translated": {
+     "crc": "d9e0c86b"
+    }
+   }
+  },
+  {
+   "id": "C_fair_layout_utf16-prefix",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_layout_tab-prefix",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_layout_utf16-line-comment",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_layout_multiline-block-comment",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_layout_crlf",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_layout_empty-comment-line",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_layout_utf16-prefix",
+   "primary_translated": true,
+   "primary_crc": "b654a28e",
+   "stages": {
+    "translated": {
+     "crc": "b654a28e"
+    }
+   }
+  },
+  {
+   "id": "P_layout_tab-prefix",
+   "primary_translated": true,
+   "primary_crc": "26a5f4fe",
+   "stages": {
+    "translated": {
+     "crc": "26a5f4fe"
+    }
+   }
+  },
+  {
+   "id": "P_layout_utf16-line-comment",
+   "primary_translated": true,
+   "primary_crc": "1d311ec2",
+   "stages": {
+    "translated": {
+     "crc": "1d311ec2"
+    }
+   }
+  },
+  {
+   "id": "P_layout_multiline-block-comment",
+   "primary_translated": true,
+   "primary_crc": "7102c225",
+   "stages": {
+    "translated": {
+     "crc": "7102c225"
+    }
+   }
+  },
+  {
+   "id": "P_layout_crlf",
+   "primary_translated": true,
+   "primary_crc": "1d311ec2",
+   "stages": {
+    "translated": {
+     "crc": "1d311ec2"
+    }
+   }
+  },
+  {
+   "id": "P_layout_empty-comment-line",
+   "primary_translated": true,
+   "primary_crc": "d9e0c86b",
+   "stages": {
+    "translated": {
+     "crc": "d9e0c86b"
+    }
+   }
+  },
+  {
+   "id": "P_fair_layout_utf16-prefix",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_layout_tab-prefix",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_layout_utf16-line-comment",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_layout_multiline-block-comment",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_layout_crlf",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_layout_empty-comment-line",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  }
+ ]
+}

@@ -1,9 +1,8 @@
 //! Inspect source-produced partial temporal diagnostics without claiming a model proof.
 use std::{path::Path, sync::Arc};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let file = Path::new(
-        "conformance/probes/tlc-partial-scc/models/PartialGrowthSafe/PartialGrowthSafe.tla",
-    );
+    let file = &Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples/data/partial-temporal-checks/PartialGrowthSafe.tla");
     let analysis = dive_sema::analyze_file(file, &dive_sema::Options::default())?;
     let ir = Arc::new(dive_ir::lower(&analysis)?);
     let cfg = dive_config::parse("SPECIFICATION Spec\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n")
