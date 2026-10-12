@@ -77,9 +77,10 @@ A resource stop never reports `Holds`.
   classifier (`dive_liveness::tlc_plan::classify`, errors 2213 and 2214, for
   `--compat=tlc`) and the size-based growth trigger
   (`dive_liveness::periodic_backend::Growth`) for deterministic periodic checks.
-  `plan.rs` keeps two lowering entry points: `lower` for final/short checking
-  and `lower_tlc`, which follows TLC's conversion rules for `IF`, `~ENABLED`,
-  numeric operands and evaluation errors, for use with the classifier.
+  `plan.rs` keeps one lowering entry point, `lower`, for final/short checking
+  and the classifier. It follows TLC's conversion rules for `IF`, `~ENABLED`,
+  numeric operands and evaluation errors; unsupported scopes and effects remain
+  explicit refusals before evaluation.
 - `--compat=tlc` still selects TLC's observable behaviour where it is
   deterministic (ADR 0010). It does not promise TLC's internal visitation order.
 - A remaining liveness gap is an explicit refusal tracked in

@@ -468,6 +468,49 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
 }
 
 #[test]
+fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
+    // Pinned TLC 2026.10.06.014338 reports 2215 / TLC_EXPECTED_VALUE and
+    // exits 255 for this complete input, before generating initial states.
+    let spec = temp_file(
+        "BadTemporal.tla",
+        "---- MODULE BadTemporal ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nBad == <>1\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            spec.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY Bad\n"
+        )
+        .is_ok()
+    );
+    for (profile, exit) in [("--compat=dive", 13), ("--compat=tlc", 255)] {
+        let output = dive(&[
+            "check",
+            &spec.to_string_lossy(),
+            "--lncheck=final",
+            "--lasso=short",
+            "--output=json",
+            "--seed=0",
+            profile,
+        ]);
+        assert_eq!(output.status.code(), Some(exit));
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        assert_eq!(report["verdict"], "evaluation-error");
+        assert_eq!(report["tlc"]["code"], 2215);
+        assert_eq!(report["tlc"]["name"], "TLC_EXPECTED_VALUE");
+        assert_eq!(report["tlc"]["exit_status"], 255);
+        assert_eq!(report["tlc"]["verified"], true);
+        assert_eq!(report["execution"]["stage"], "planning");
+        assert_eq!(report["execution"]["capture_completed"], false);
+        assert_eq!(report["output"], serde_json::json!([]));
+        assert!(report["statistics"].is_null());
+        assert!(report["counterexample"].is_null());
+        assert!(report["message"].as_str().is_some_and(|message| {
+            message.contains("TLC expected a boolean value, but did not find one.")
+        }));
+    }
+}
+
+#[test]
 fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     let spec = temp_file(
         "TemporalSafety.tla",

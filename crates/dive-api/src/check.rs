@@ -136,7 +136,7 @@ enum Phase {
     Checked(Box<CheckResult>),
     /// Independently validated bounded final temporal analysis.
     Temporal(Box<crate::temporal::Report>),
-    /// No temporal verdict: a refusal, limit or internal failure.
+    /// No temporal verdict: a refusal, limit, evaluation or internal failure.
     TemporalError(Box<crate::temporal::Failure>),
 }
 
@@ -476,6 +476,15 @@ impl CheckReport {
             Phase::TemporalError(e) => match temporal_failure_kind(e.error()) {
                 "internal-error" => exit::INTERNAL,
                 "model-error" => exit::REJECTED,
+                "evaluation-error" => {
+                    if tlc {
+                        temporal_planning_evaluation(e.error()).map_or(exit::INTERNAL, |error| {
+                            dive_check::tlc_exit_status(error.ec().code())
+                        })
+                    } else {
+                        exit::EVALUATION
+                    }
+                }
                 _ => exit::UNSUPPORTED,
             },
             Phase::Checked(r) => {
@@ -744,6 +753,15 @@ impl CheckReport {
                     json!({"stage": e.stage().name(), "capture_completed": e.capture_completed()});
                 doc["elapsed_ms"] =
                     json!(u64::try_from(e.elapsed().as_millis()).unwrap_or(u64::MAX));
+                if let Some(error) = temporal_planning_evaluation(e.error()) {
+                    let code = error.ec().code();
+                    doc["tlc"] = json!({
+                        "code": code,
+                        "name": error.ec().name(),
+                        "exit_status": dive_check::tlc_exit_status(code),
+                        "verified": error.ec() == dive_eval::Ec::ExpectedValue,
+                    });
+                }
                 if let Some(capture) = e.exploration() {
                     temporal_evidence_json(&mut doc, capture, self.opts.tlc_fingerprints);
                     doc["notes"] = json!([
@@ -1091,6 +1109,15 @@ fn trace_doc(
     Ok(doc.to_json())
 }
 
+fn temporal_planning_evaluation(error: &crate::temporal::Error) -> Option<&dive_eval::EvalError> {
+    match error {
+        crate::temporal::Error::Analysis(dive_liveness::analyze::AnalysisError::Planning(
+            dive_liveness::plan::PlanningError::Evaluation { error, .. },
+        )) => Some(error),
+        _ => None,
+    }
+}
+
 fn temporal_failure_kind(error: &crate::temporal::Error) -> &'static str {
     use crate::temporal::Error;
     use dive_liveness::analyze::AnalysisError;
@@ -1098,6 +1125,9 @@ fn temporal_failure_kind(error: &crate::temporal::Error) -> &'static str {
     use dive_liveness::plan::PlanningError;
     use dive_liveness::product::ProductError;
     match error {
+        Error::Analysis(AnalysisError::Planning(PlanningError::Evaluation { .. })) => {
+            "evaluation-error"
+        }
         Error::Validation { report, .. }
             if matches!(report.validation, dive_trace::Validation::Invalid(_)) =>
         {

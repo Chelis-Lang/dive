@@ -45,7 +45,7 @@ fn complete_pinned_conditional_selection_preserves_error_phase_and_fallback() {
             .temporals
             .iter()
             .chain(&model.implied_temporals)
-            .map(|named| dive_liveness::plan::lower_tlc(&model, &named.pred, Limits::default()))
+            .map(|named| dive_liveness::plan::lower(&model, &named.pred, Limits::default()))
             .collect::<Result<Vec<_>, _>>();
         if row["fields"]["completion"] == "planned" {
             let plans = result.expect(name);

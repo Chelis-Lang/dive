@@ -1,8 +1,7 @@
 //! Pure bound-predicate lowering to the formula language kernel.
 //!
-//! This M6 L1 foundation expands WF/SF through enabledness and non-stuttering
-//! occurrences. TLC's DNF/order and numbering remain
-//! pending. Refusals name the
+//! Expands WF/SF through enabledness and non-stuttering occurrences, following
+//! TLC's observable source-conversion errors. Refusals name the
 //! source expression; callers must not remove a model's liveness refusal merely
 //! because an individual predicate lowers successfully.
 
@@ -240,7 +239,6 @@ impl std::fmt::Display for PlanningError {
 impl std::error::Error for PlanningError {}
 
 struct Lower<'a> {
-    tlc_shape: bool,
     model: &'a Model,
     limits: Limits,
     nodes: Vec<Node>,
@@ -301,10 +299,7 @@ impl Lower<'_> {
             .eval_scoped(scope, expr, &St::constant())
         {
             Ok(Value::Bool(b)) => Ok(b),
-            Ok(_)
-                if self.tlc_shape
-                    && matches!(&self.model.ir.nodes()[expr.index()].expr, Expr::Num(_)) =>
-            {
+            Ok(_) if matches!(&self.model.ir.nodes()[expr.index()].expr, Expr::Num(_)) => {
                 let Expr::Num(text) = &self.model.ir.nodes()[expr.index()].expr else {
                     return Err(self.refused(expr, "constant expression shape changed"));
                 };
@@ -324,12 +319,10 @@ impl Lower<'_> {
                     v.kind_name()
                 ),
             )),
-            Err(error) if self.tlc_shape && error.class() == ErrorClass::Eval => {
-                Err(PlanningError::Evaluation {
-                    error,
-                    source: Box::new(Source::new(self.model, expr)),
-                })
-            }
+            Err(error) if error.class() == ErrorClass::Eval => Err(PlanningError::Evaluation {
+                error,
+                source: Box::new(Source::new(self.model, expr)),
+            }),
             Err(e) => Err(self.refused(expr, format!("constant temporal operand: {e}"))),
         }
     }
@@ -1159,8 +1152,7 @@ impl Lower<'_> {
                     // then retains the original state/action call. Unsupported
                     // features and resource refusals must never use that fallback.
                     Err(PlanningError::Evaluation { .. })
-                        if self.tlc_shape
-                            && self.scoped_level(expr, scope, depth)? <= Level::Action =>
+                        if self.scoped_level(expr, scope, depth)? <= Level::Action =>
                     {
                         self.nodes.truncate(saved.0);
                         self.atoms.truncate(saved.1);
@@ -1181,8 +1173,7 @@ impl Lower<'_> {
             return self.expr(ir.def(def).body, &called, depth + 1);
         }
         let level = self.scoped_level(expr, scope, depth)?;
-        if self.tlc_shape
-            && let Expr::Not(child) = &node.expr
+        if let Expr::Not(child) = &node.expr
             && let Expr::Enabled(action) = ir.expr(*child)
         {
             // Pinned OPCODE_lnot falls back to one LNStateAST for this
@@ -1197,9 +1188,7 @@ impl Lower<'_> {
             );
         }
 
-        if self.tlc_shape
-            && let Expr::If { cond, then, other } = &node.expr
-        {
+        if let Expr::If { cond, then, other } = &node.expr {
             // Liveness.astToLive attempts the guard at the empty state, then
             // converts guard/then/else in source order before level fallback.
             if self.scoped_level(*cond, scope, depth)? <= Level::Action {
@@ -1225,7 +1214,7 @@ impl Lower<'_> {
                 self.atoms.truncate(saved.1);
             }
         }
-        if self.tlc_shape && level <= Level::Action {
+        if level <= Level::Action {
             let children = match &node.expr {
                 Expr::Junction { items, .. } => items.to_vec(),
                 Expr::Not(child) => vec![*child],
@@ -1387,22 +1376,16 @@ impl Lower<'_> {
                     AtomTest::Nonstuttering { sub: *sub },
                 )?;
                 let disabled = self.push(Node::Not(en))?;
-                if self.tlc_shape && matches!(node.expr, Expr::Wf { .. }) {
+                if matches!(node.expr, Expr::Wf { .. }) {
                     // Pinned astToLive WF shape: []<>(~ENABLED <A>_v \/ <A>_v).
-                    // The language kernel's equivalent disjunction remains unchanged.
                     let disjunction = self.push(Node::Or(vec![disabled, action]))?;
                     let eventual = self.push(Node::Eventually(disjunction))?;
                     return self.push(Node::Always(eventual));
                 }
                 let recurring = self.push(Node::Eventually(action))?;
                 let recurring = self.push(Node::Always(recurring))?;
-                let not_enabled = if matches!(node.expr, Expr::Wf { .. }) {
-                    let some = self.push(Node::Eventually(disabled))?;
-                    self.push(Node::Always(some))?
-                } else {
-                    let all = self.push(Node::Always(disabled))?;
-                    self.push(Node::Eventually(all))?
-                };
+                let all = self.push(Node::Always(disabled))?;
+                let not_enabled = self.push(Node::Eventually(all))?;
                 Node::Or(vec![not_enabled, recurring])
             }
             other => {
@@ -1418,38 +1401,17 @@ impl Lower<'_> {
 /// constant conditionals, direct ENABLED, WF/SF over pure actions and
 /// state-level subscripts, finite constant domains and temporal definitions
 /// with pure constant/state arguments, plus action arguments to value helpers. Planning alone
-/// does not validate a behavior or enable model-checking liveness.
+/// does not validate a behavior or enable model-checking liveness. Numeric
+/// constant operands and constant evaluation failures retain TLC's evaluation
+/// errors. Constant-evaluable `IF` guards select their branch; state/action calls
+/// whose bodies fail constant conversion remain whole atoms. Unsupported scopes
+/// and effects are refused before they can execute.
 ///
 /// # Errors
 /// Effects, nested opaque ENABLED, dynamic/opaque scopes, unsupported temporal
 /// constructors, constant evaluation failures and explicit construction bounds.
 pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
-    lower_with_shape(model, pred, limits, false)
-}
-
-/// Lowers like [`lower`], but converts as TLC's `astToLive` does: a numeric
-/// constant operand or an evaluation error in a constant guard is TLC's
-/// evaluation error rather than a refusal, constant-evaluable `IF` guards
-/// select their branch, `~ENABLED A` is one state atom, a state or action call
-/// whose body fails to convert is kept whole, and `WF` keeps TLC's
-/// `[]<>(~ENABLED <A>_v \/ <A>_v)` shape. Use it with
-/// [`crate::tlc_plan::classify`] under `--compat=tlc`. Final/short checking
-/// uses [`lower`] and [`lower_violation`].
-///
-/// # Errors
-/// As [`lower`], with TLC's evaluation errors in place of the refusals above.
-pub fn lower_tlc(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
-    lower_with_shape(model, pred, limits, true)
-}
-
-fn lower_with_shape(
-    model: &Model,
-    pred: &Pred,
-    limits: Limits,
-    tlc_shape: bool,
-) -> Result<Plan, PlanningError> {
     let mut cx = Lower {
-        tlc_shape,
         model,
         limits,
         nodes: Vec::new(),
@@ -1488,7 +1450,6 @@ pub fn lower_violation(
     limits: Limits,
 ) -> Result<Plan, PlanningError> {
     let mut cx = Lower {
-        tlc_shape: false,
         model,
         limits,
         nodes: Vec::new(),

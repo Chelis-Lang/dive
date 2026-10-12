@@ -43,7 +43,10 @@ All notable changes to this project are documented here. The project will follow
   `classify`, TLC's 2213/2214 formula refusals for `--compat=tlc`, and
   `periodic_backend` to the `Growth` trigger. A configured `_PERIODIC` entry
   now binds with TLC's errors (2229, 2228) before it is refused. Final/short
-  checking (`--lncheck final --lasso short`) is unchanged.
+  checking (`--lncheck final --lasso short`) remains available through one
+  shared planner. Numeric temporal operands such as `<>1` now retain TLC's
+  evaluation error instead of reporting an unsupported feature, including
+  code 2215 and exit 255 under `--compat=tlc` (13 in the default profile).
 
 - CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
   the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4

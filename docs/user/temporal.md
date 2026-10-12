@@ -38,6 +38,11 @@ TLC's own lasso choice is not reproduced: it depends on hash-table and SCC
 visitation order, which are not parity obligations (ADR 0082, ADR 0086).
 `--lasso tlc` is a usage error. Periodic scheduling is not implemented yet.
 
+Malformed numeric temporal operands, such as `Bad == <>1`, report
+`evaluation-error` before exploration, with TLC code 2215 (`TLC_EXPECTED_VALUE`).
+The process exits 255 under `--compat=tlc` and 13 in the default profile. Effects
+and unsupported scopes still refuse before planning executes them.
+
 ## Rust APIs
 
 `dive_api::temporal` is the Rust entry point (see

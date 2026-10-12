@@ -71,6 +71,11 @@ Pure `IF` formulas use their guard's truth at each position, including temporal
 guards and nested conditionals. Action-level guards and temporal `CASE` remain
 explicit refusals: the pinned TLC also rejects them during liveness planning.
 A formula with an effectful branch is refused before planning executes it.
+The shared `dive_liveness::plan::lower` planner also retains TLC's evaluation
+error for a numeric temporal operand, such as `<>1`, in both profiles. It does
+not turn this malformed formula into a feature refusal. The check report names
+`evaluation-error`, retains code 2215 (`TLC_EXPECTED_VALUE`), and exits 255 under
+`--compat=tlc` or 13 in the default profile, before state exploration.
 
 ## Command-line access
 

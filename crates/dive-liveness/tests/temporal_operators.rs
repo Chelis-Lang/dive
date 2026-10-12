@@ -17,7 +17,7 @@ fn project(model: &dive_model::Model, limits: Limits) -> Result<(), String> {
         .temporals
         .iter()
         .chain(&model.implied_temporals)
-        .map(|named| dive_liveness::plan::lower_tlc(model, &named.pred, limits))
+        .map(|named| dive_liveness::plan::lower(model, &named.pred, limits))
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| e.to_string())?;
     let formulas: Vec<_> = plans.iter().map(|p| &p.formula).collect();
