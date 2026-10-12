@@ -222,14 +222,14 @@ impl SpecModel {
     /// [`dive_trace::validate_doc`]).
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<Trace>) {
-        on_big_stack(|| dive_trace::validate_doc(&self.model, doc, &self.model_values, None))
+        on_big_stack(|| dive_trace::validate_doc(&self.model, doc, &self.model_values))
             .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
     }
 
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {
-        on_big_stack(|| dive_trace::validate(&self.model, trace, None))
+        on_big_stack(|| dive_trace::validate(&self.model, trace))
             .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
     }
 

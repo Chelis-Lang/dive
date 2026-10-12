@@ -42,7 +42,7 @@ use serde_json::{Map, Value as J};
 
 use crate::format::{Ending, TraceDoc};
 use crate::trace::{Trace, decode_state, variables};
-use crate::validate::{Check, Failure, Replay, Report, Run, Validation};
+use crate::validate::{Check, Failure, Report, Run, Validation};
 
 /// The most interpretations tried exhaustively (`2^10`).
 const EXHAUSTIVE_LIMIT: u32 = 10;
@@ -432,12 +432,7 @@ fn variable_states(
     clippy::too_many_lines,
     reason = "one search, read top to bottom: default, hill-climb, exhaustive, verdict"
 )]
-pub fn validate_tlc(
-    model: &Model,
-    doc: &TraceDoc,
-    model_values: &[String],
-    _replay: Option<&Replay>,
-) -> TlcReading {
+pub fn validate_tlc(model: &Model, doc: &TraceDoc, model_values: &[String]) -> TlcReading {
     let length = doc.states.len();
     let report = |validation, notes| Report {
         validation,

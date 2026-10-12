@@ -54,7 +54,7 @@
 //!                {"action": {"name": "Next"}, "values": {"x": 1}},
 //!                {"action": {"name": "Next"}, "values": {"x": 2}}],
 //!     "ending": {"kind": "invariant", "name": "Inv"}}"#).unwrap();
-//! let (report, _) = validate_doc(&model, &doc, &cfg.model_values, None);
+//! let (report, _) = validate_doc(&model, &doc, &cfg.model_values);
 //! assert_eq!(report.validation, Validation::Valid);
 //!
 //! // Skipping a state is not a step of the specification.
@@ -62,7 +62,7 @@
 //!     serde_json::json!({"x": 0}),
 //!     serde_json::json!({"x": 2}),
 //! ]).unwrap();
-//! let (report, _) = validate_doc(&model, &doc, &cfg.model_values, None);
+//! let (report, _) = validate_doc(&model, &doc, &cfg.model_values);
 //! let Validation::Invalid(failure) = report.validation else { panic!() };
 //! assert_eq!((failure.state, failure.check), (1, dive_trace::Check::Next));
 //! ```
@@ -82,21 +82,20 @@ pub use format::{Ending, Label, Source, TraceDoc};
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
     Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED, REGISTERS_UNSUPPORTED,
-    RUNTIME_NAMES_UNSUPPORTED, Replay, Report, Validation, validate,
+    RUNTIME_NAMES_UNSUPPORTED, Report, Validation, validate,
 };
 
 /// Reads a document in either format against `model` and validates it.
 /// `model_values` are the configuration's model value names
 /// (`dive_config::ModelConfig::model_values`), which reading TLC's format
 /// needs. Returns the report and the trace as read (for a TLC document, the
-/// interpretation the verdict is about; see [`tlc`]). `replay` is always
-/// `None` (see [`Replay`]).
+/// interpretation the verdict is about; see [`tlc`]). Random draws are refused
+/// by name ([`RANDOM_UNSUPPORTED`]).
 #[must_use]
 pub fn validate_doc(
     model: &Model,
     doc: &TraceDoc,
     model_values: &[String],
-    replay: Option<&Replay>,
 ) -> (Report, Option<Trace>) {
     // Decoding uses public variable metadata too, so validate structural
     // ownership before reading either document format, not only at replay.
@@ -112,11 +111,11 @@ pub fn validate_doc(
     }
     match doc.source {
         Source::Tlc => {
-            let r = tlc::validate_tlc(model, doc, model_values, replay);
+            let r = tlc::validate_tlc(model, doc, model_values);
             (r.report, r.trace)
         }
         Source::Dive => match Trace::decode(model, doc) {
-            Ok(t) => (validate(model, &t, replay), Some(t)),
+            Ok(t) => (validate(model, &t), Some(t)),
             Err(e) => (
                 validate::guard_runtime_names(
                     model,

@@ -72,7 +72,7 @@ fn foreign_scopes_and_replaced_model_arenas_never_certify() {
                 Err(dive_trace::exists::ExistsError::Unsupported(_))
             ));
             assert!(matches!(
-                dive_trace::validate(&m, &trace, None).validation,
+                dive_trace::validate(&m, &trace).validation,
                 Validation::Unsupported(_)
             ));
             let doc = dive_trace::TraceDoc::from_json(&serde_json::json!({
@@ -81,7 +81,7 @@ fn foreign_scopes_and_replaced_model_arenas_never_certify() {
             .expect("TLC document")
             .with_ending(Ending::Behavior);
             assert!(matches!(
-                dive_trace::validate_doc(&m, &doc, &[], None).0.validation,
+                dive_trace::validate_doc(&m, &doc, &[]).0.validation,
                 Validation::Unsupported(_)
             ));
             assert_eq!(
@@ -123,7 +123,7 @@ fn admitted_clones_and_complete_words_remain_valid() {
             properties: vec![],
         };
         assert_eq!(
-            dive_trace::validate(&m, &trace, None).validation,
+            dive_trace::validate(&m, &trace).validation,
             Validation::Valid
         );
     }
@@ -161,7 +161,7 @@ fn malformed_public_predicate_roots_and_locations_are_refused_before_replay() {
                     // A true Init must not hide malformed metadata; a false
                     // Init must not panic when rendering its source location.
                     assert!(matches!(
-                        dive_trace::validate(&m, &trace, None).validation,
+                        dive_trace::validate(&m, &trace).validation,
                         Validation::Unsupported(reason) if reason.contains("DIVE-EVAL-C001")
                     ));
                     for lossy in [false, true] {
@@ -176,7 +176,7 @@ fn malformed_public_predicate_roots_and_locations_are_refused_before_replay() {
                                 .expect("native document")
                         };
                         assert!(matches!(
-                            dive_trace::validate_doc(&m, &doc, &[], None).0.validation,
+                            dive_trace::validate_doc(&m, &doc, &[]).0.validation,
                             Validation::Unsupported(reason) if reason.contains("DIVE-EVAL-C001")
                         ));
                     }

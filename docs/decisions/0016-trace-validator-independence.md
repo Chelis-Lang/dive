@@ -323,8 +323,9 @@ effects.
 **Random draws** (replaces amendment 2's replay). Any check that draws a
 random value makes the result `unsupported` (`RANDOM_UNSUPPORTED`). The
 stream-position certificate (`random_position`) and the replay are deleted.
-`dive_trace::Replay` is an uninhabited type kept only until the remaining
-callers drop the argument.
+`dive_trace::Replay` and the ignored replay parameters are removed. The public
+validation functions accept only the model, supplied word and model-value names
+needed for TLC JSON interpretation.
 
 **Registers.** Integer/named `TLCGet`, aggregate `TLCGet("all")` and
 `TLCGet("all:named")`, and integer/named `TLCSet` are refused at evaluation

@@ -35,6 +35,10 @@ dependencies. `Behavior` checks the supplied finite execution; it does not claim
 an invariant counterexample or exhaustive model proof. Counterexample endings
 and periodic lassos carry separate claims and closing-edge obligations.
 
+The lower-level `dive_trace` API exposes `validate(&model, &trace)` and
+`validate_doc(&model, &document, &model_values)`. Neither takes a random replay
+token; a random draw during validation remains explicitly unsupported.
+
 Validation distinguishes valid, invalid and explicitly refused. Random draws,
 search-dependent register access, unavailable finite deadlock/ENABLED covers,
 effects and unknown closing evidence do not become `valid`. Supply the original

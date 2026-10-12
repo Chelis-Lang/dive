@@ -315,7 +315,7 @@ fn run(
                 length: Some(candidate.states.len()),
                 properties: candidate.properties.clone(),
             };
-            let report = dive_trace::validate(&validation_model, &trace, None);
+            let report = dive_trace::validate(&validation_model, &trace);
             if report.validation != Validation::Valid {
                 let exploration = Some(Box::new(
                     dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
@@ -340,8 +340,7 @@ fn run(
             // Validate the serialized form too; a conversion bug must not turn
             // a certified in-memory word into an incorrect user-facing trace.
             let report =
-                dive_trace::validate_doc(&validation_model, &document, &config.model_values, None)
-                    .0;
+                dive_trace::validate_doc(&validation_model, &document, &config.model_values).0;
             if report.validation != Validation::Valid {
                 let exploration = Some(Box::new(
                     dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),

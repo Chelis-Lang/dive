@@ -75,6 +75,9 @@ All notable changes to this project are documented here. The project will follow
   evaluation error instead of reporting an unsupported feature, including
   code 2215 and exit 255 under `--compat=tlc` (13 in the default profile).
 
+- Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
+  from the trace-validation API. Random draws remain explicitly unsupported.
+
 - CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
   the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4
   workers) instead of twenty. `cargo xtask gate --fast` mirrors it locally;

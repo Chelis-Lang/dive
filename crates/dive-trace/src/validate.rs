@@ -161,14 +161,6 @@ pub const RANDOM_UNSUPPORTED: &str = "a random draw: the value depends on the ch
 /// The reason given when a check accesses search-dependent TLC registers.
 pub const REGISTERS_UNSUPPORTED: &str = "TLCGet/TLCSet registers: their contents depend on evaluations outside the trace, so the independent validator cannot read or write them";
 
-/// The random-stream replay that the validator used to accept. It was
-/// removed: the validator refuses every draw by name
-/// ([`RANDOM_UNSUPPORTED`]). The type has no values, so the parameter that
-/// takes it is always `None`; it stays only until its remaining callers
-/// drop the argument (#241).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Replay {}
-
 /// What stopped a run early.
 pub(crate) enum Stop {
     Invalid(Failure),
@@ -861,10 +853,10 @@ impl Host for TraceHost {
     }
 }
 
-/// Validates a trace already read against `model`. `_replay` is always
-/// `None` ([`Replay`]): random draws are refused by name.
+/// Validates a trace already read against `model`. Random draws are refused
+/// by name ([`RANDOM_UNSUPPORTED`]).
 #[must_use]
-pub fn validate(model: &Model, trace: &Trace, _replay: Option<&Replay>) -> Report {
+pub fn validate(model: &Model, trace: &Trace) -> Report {
     let admitted = model.validate_context().and_then(|()| {
         for &def in &model.assumptions {
             model.evaluator.scope(def)?;
@@ -928,7 +920,7 @@ mod negative_controls {
     }
 
     fn rejected(model: &dive_model::Model, t: &Trace) -> Check {
-        match validate(model, t, None).validation {
+        match validate(model, t).validation {
             Validation::Invalid(f) => f.check,
             other => panic!("{other:?}"),
         }
@@ -938,7 +930,7 @@ mod negative_controls {
     fn edits_of_a_valid_counterexample_are_rejected() {
         let m = model();
         let original = trace(&m, &[0, 1, 2, 3]);
-        assert_eq!(validate(&m, &original, None).validation, Validation::Valid);
+        assert_eq!(validate(&m, &original).validation, Validation::Valid);
         // A dropped middle state, a dropped initial state, swapped states
         // and a changed value are not steps of the specification.
         assert_eq!(rejected(&m, &trace(&m, &[0, 1, 3])), Check::Next);

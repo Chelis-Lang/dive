@@ -71,7 +71,7 @@ fn strict_whole_words_admit_proved_tuple_calls_and_reject_forged_steps() {
             assert!(model.runtime_name_order, "{expression}");
             let actual_word = tuple_replay_doc(actual, lossy);
             assert_eq!(
-                validate_doc(&model, &actual_word, &[], None).0.validation,
+                validate_doc(&model, &actual_word, &[]).0.validation,
                 Validation::Valid,
                 "{expression}; lossy={lossy}"
             );
@@ -79,7 +79,7 @@ fn strict_whole_words_admit_proved_tuple_calls_and_reject_forged_steps() {
             let fresh = tuple_replay_model(&source, "");
             let forged = tuple_replay_doc(if actual == 1 { 2 } else { 1 }, lossy);
             assert!(matches!(
-                validate_doc(&fresh, &forged, &[], None).0.validation,
+                validate_doc(&fresh, &forged, &[]).0.validation,
                 Validation::Invalid(_)
             ));
         }
@@ -129,7 +129,7 @@ fn string_operands_refuse_only_when_replay_creates_a_name() {
             let model = tuple_replay_model(&source, "");
             assert!(model.runtime_name_order);
             assert_eq!(
-                validate_doc(&model, &tuple_replay_doc(1, lossy), &[], None)
+                validate_doc(&model, &tuple_replay_doc(1, lossy), &[])
                     .0
                     .validation,
                 expected,
@@ -149,7 +149,7 @@ fn configured_sequence_aliases_follow_the_same_rule() {
         let source = tuple_replay_source("Alias(v) == v", expression);
         let model = tuple_replay_model(&source, "CONSTANT Alias <- Tail\n");
         assert!(model.runtime_name_order);
-        let actual = validate_doc(&model, &tuple_replay_doc(1, false), &[], None)
+        let actual = validate_doc(&model, &tuple_replay_doc(1, false), &[])
             .0
             .validation;
         assert_eq!(
@@ -173,7 +173,7 @@ fn pure_native_string_constructors_are_not_trusted() {
         let model = tuple_replay_model(&source, "");
         assert!(model.runtime_name_order);
         assert!(matches!(
-            validate_doc(&model, &tuple_replay_doc(1, lossy), &[], None)
+            validate_doc(&model, &tuple_replay_doc(1, lossy), &[])
                 .0
                 .validation,
             Validation::Unsupported(_)
@@ -222,7 +222,7 @@ fn tuple_histories_validate_by_replay_without_witness_shape_as_proof() {
             ])
             .expect("tuple stack word")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-            let result = validate_doc(&model, &doc, &[], None).0.validation;
+            let result = validate_doc(&model, &doc, &[]).0.validation;
             if init_holds && final_x == 1 {
                 assert_eq!(result, Validation::Valid, "{next}");
             } else {
@@ -277,7 +277,7 @@ fn tuple_histories_with_string_alternatives_validate_the_actual_word() {
         ])
         .expect("stack history")
         .with_ending(Ending::Invariant("Inv".into()));
-        let result = validate_doc(&model, &doc, &[], None).0.validation;
+        let result = validate_doc(&model, &doc, &[]).0.validation;
         assert_eq!(result, Validation::Valid, "{init}; {next}");
         let trace = Trace::decode(&model, &doc).expect("decode stack");
         let decision = dive_trace::exists::exists_successor(
@@ -310,7 +310,7 @@ fn joint_tuple_histories_validate_the_actual_word() {
         ])
         .expect("joint history")
         .with_ending(Ending::Invariant("Inv".into()));
-        let result = validate_doc(&model, &doc, &[], None).0.validation;
+        let result = validate_doc(&model, &doc, &[]).0.validation;
         assert_eq!(result, Validation::Valid, "{next_t}");
     }
 }
@@ -338,13 +338,13 @@ fn forged_lossless_and_lossy_witnesses_cannot_prove_their_own_namespace() {
     assert!(m.runtime_name_order);
     let trace = Trace::decode(&m, &doc).expect("decode");
     let refused = Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned());
-    assert_eq!(validate(&m, &trace, None).validation, refused);
-    assert_eq!(validate_doc(&m, &doc, &[], None).0.validation, refused);
+    assert_eq!(validate(&m, &trace).validation, refused);
+    assert_eq!(validate_doc(&m, &doc, &[]).0.validation, refused);
     let lossy =
         TraceDoc::from_json(&json!({"vars":["x","s"],"counterexample":{"action":[],"state":[[1,{"x":6,"s":"unset"}],[2,{"x":6,"s":"7"}]]}}))
             .expect("TLC document")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-    assert_eq!(validate_doc(&m, &lossy, &[], None).0.validation, refused);
+    assert_eq!(validate_doc(&m, &lossy, &[]).0.validation, refused);
 }
 
 #[test]
@@ -354,12 +354,12 @@ fn canonical_validation_still_distinguishes_actual_and_forged_steps() {
     let actual = TraceDoc::behavior(vec![json!({"x":6,"s":"unset"}), json!({"x":6,"s":"6"})])
         .expect("actual");
     assert_eq!(
-        validate_doc(&m, &actual, &[], None).0.validation,
+        validate_doc(&m, &actual, &[]).0.validation,
         Validation::Valid
     );
     let forged = TraceDoc::parse(include_str!("fixtures/runtime-names/bad.json")).expect("forged");
     assert!(matches!(
-        validate_doc(&m, &forged, &[], None).0.validation,
+        validate_doc(&m, &forged, &[]).0.validation,
         Validation::Invalid(_)
     ));
 }
@@ -374,7 +374,7 @@ fn literal_names_remain_supported_in_tlc_order() {
     let actual = TraceDoc::behavior(vec![json!({"x":6,"s":"unset"}), json!({"x":6,"s":"6"})])
         .expect("actual");
     assert_eq!(
-        validate_doc(&m, &actual, &[], None).0.validation,
+        validate_doc(&m, &actual, &[]).0.validation,
         Validation::Valid
     );
 }
@@ -685,7 +685,7 @@ fn configured_operator_constants_follow_their_native_bindings() {
             ])
             .expect("configured native word")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-            let actual = validate_doc(&model, &word, &[], None).0.validation;
+            let actual = validate_doc(&model, &word, &[]).0.validation;
             match expected {
                 None if final_x == 1 => assert_eq!(actual, Validation::Valid),
                 None | Some(false) => {
@@ -715,7 +715,7 @@ fn forged_initial_or_successor_values_are_never_valid() {
         ])
         .expect("adversarial concrete input")
         .with_ending(Ending::Invariant("Inv".to_owned()));
-        let actual = validate_doc(&model, &word, &[], None).0.validation;
+        let actual = validate_doc(&model, &word, &[]).0.validation;
         if admitted {
             assert_eq!(actual, Validation::Valid);
         } else if initial == json!("zab") {
@@ -745,7 +745,7 @@ fn fixed_unchanged_tuple_projections_keep_actual_variable_identity() {
             ])
             .expect("actual tuple states")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-            let actual = validate_doc(&model, &word, &[], None).0.validation;
+            let actual = validate_doc(&model, &word, &[]).0.validation;
             if final_x == 1 {
                 assert_eq!(actual, Validation::Valid, "{definitions}");
             } else {
@@ -770,7 +770,7 @@ fn unchanged_conditional_permutation_validates_by_replay() {
     .with_ending(Ending::Invariant("Inv".to_owned()));
     let model = tuple_replay_model(source, "");
     assert_eq!(
-        validate_doc(&model, &word, &[], None).0.validation,
+        validate_doc(&model, &word, &[]).0.validation,
         Validation::Valid
     );
     let analysis =
@@ -785,7 +785,7 @@ fn unchanged_conditional_permutation_validates_by_replay() {
     )
     .expect("canonical binding");
     assert_eq!(
-        validate_doc(&canonical, &word, &[], None).0.validation,
+        validate_doc(&canonical, &word, &[]).0.validation,
         Validation::Valid
     );
 }
@@ -810,7 +810,7 @@ fn unchanged_projections_of_any_shape_or_depth_validate_by_replay() {
         .expect("actual tuple states")
         .with_ending(Ending::Invariant("Inv".to_owned()));
         assert_eq!(
-            validate_doc(&model, &word, &[], None).0.validation,
+            validate_doc(&model, &word, &[]).0.validation,
             Validation::Valid
         );
     }
@@ -825,10 +825,10 @@ fn a_refutation_that_needs_a_created_name_is_refused_not_invalid() {
     let word = TraceDoc::behavior(vec![json!({"x":6,"s":"unset"}), json!({"x":6,"s":"8"})])
         .expect("forged word");
     let tlc = model(true, source);
-    assert_eq!(validate_doc(&tlc, &word, &[], None).0.validation, refused());
+    assert_eq!(validate_doc(&tlc, &word, &[]).0.validation, refused());
     let canonical = model(false, source);
     assert!(matches!(
-        validate_doc(&canonical, &word, &[], None).0.validation,
+        validate_doc(&canonical, &word, &[]).0.validation,
         Validation::Invalid(_)
     ));
 }
@@ -861,14 +861,12 @@ fn sequences_of_model_values_validate_in_tlc_order() {
     .expect("word")
     .with_ending(Ending::Invariant("Inv".to_owned()));
     assert_eq!(
-        validate_doc(&model, &word, &cfg.model_values, None)
-            .0
-            .validation,
+        validate_doc(&model, &word, &cfg.model_values).0.validation,
         Validation::Valid
     );
     let forged = TraceDoc::behavior(vec![state(&["b"]), state(&["b", "b"])]).expect("forged word");
     assert!(matches!(
-        validate_doc(&model, &forged, &cfg.model_values, None)
+        validate_doc(&model, &forged, &cfg.model_values)
             .0
             .validation,
         Validation::Invalid(_)
@@ -889,7 +887,7 @@ fn existing_runtime_names_refuse_malformed_words_too() {
         "vars": ["x"], "counterexample": {"action": [], "state": [[1, {"x": 0}]]}
     }))
     .expect("TLC document without an ending");
-    assert_eq!(validate_doc(&m, &doc, &[], None).0.validation, refused());
+    assert_eq!(validate_doc(&m, &doc, &[]).0.validation, refused());
 }
 
 #[test]
@@ -932,7 +930,7 @@ fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
                     properties: Vec::new(),
                 };
                 assert!(!m.has_runtime_names());
-                let report = validate(&m, &trace, None);
+                let report = validate(&m, &trace);
                 let temporal =
                     evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&here), 0);
                 let enabled =
@@ -940,7 +938,7 @@ fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
                 if owned {
                     let mut behavior = trace.clone();
                     behavior.ending = Ending::Behavior;
-                    assert_eq!(validate(&m, &behavior, None).validation, Validation::Valid);
+                    assert_eq!(validate(&m, &behavior).validation, Validation::Valid);
                     // The actual start-up names make Inv true: this claimed
                     // invariant violation is rejected, not a counterexample.
                     assert!(
@@ -1002,7 +1000,7 @@ fn opaque_typed_states_refuse_without_evaluation_or_callbacks() {
             properties: Vec::new(),
         };
         assert!(
-            matches!(validate(&m, &trace, None).validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0042"))
+            matches!(validate(&m, &trace).validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0042"))
         );
         assert!(
             matches!(dive_trace::temporal::evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&state), 0), Err(dive_trace::temporal::TemporalError::Unsupported(reason)) if reason.contains("DIVE-V0042"))

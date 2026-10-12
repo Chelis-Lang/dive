@@ -57,7 +57,7 @@ fn document(xs: &[i64], lossy: bool) -> TraceDoc {
 #[test]
 fn scoring_cannot_supply_a_register_value_that_makes_init_true() {
     let m = model("x=0 /\\ TLCGet(0)=1 /\\ TLCSet(0,1)");
-    let report = validate_doc(&m, &word(0), &[], None).0;
+    let report = validate_doc(&m, &word(0), &[]).0;
     assert_eq!(report.validation, registers_refused());
     // Scoring and replay must leave the previously absent register absent.
     let init = m.ir.root_def("Init").expect("Init");
@@ -68,7 +68,7 @@ fn scoring_cannot_supply_a_register_value_that_makes_init_true() {
 #[test]
 fn scoring_does_not_print_an_untaken_conjunct() {
     let m = model("x=0 /\\ PrintT(TRUE)");
-    let report = validate_doc(&m, &word(1), &[], None).0;
+    let report = validate_doc(&m, &word(1), &[]).0;
     assert!(matches!(
         report.validation,
         Validation::Invalid(failure) if failure.check == Check::Init
@@ -95,7 +95,7 @@ fn scoring_never_draws_from_the_inherited_host() {
         let m = model(init);
         let host = Arc::new(DrawHost::default());
         m.evaluator.set_host(host.clone());
-        let report = validate_doc(&m, &word(x), &[], None).0;
+        let report = validate_doc(&m, &word(x), &[]).0;
         if draws {
             assert!(matches!(
                 report.validation,
@@ -137,7 +137,7 @@ fn register_reads_writes_and_aggregates_refuse_without_changing_caller_registers
                         );
                     }
                     assert!(!m.has_runtime_names());
-                    let report = validate_doc(&m, &document(&[0], lossy), &[], None).0;
+                    let report = validate_doc(&m, &document(&[0], lossy), &[]).0;
                     assert_eq!(
                         report.validation,
                         registers_refused(),
@@ -173,9 +173,7 @@ fn untaken_register_access_remains_a_valid_replay() {
                 );
                 let m = bind(&source, tlc);
                 assert_eq!(
-                    validate_doc(&m, &document(&[0], lossy), &[], None)
-                        .0
-                        .validation,
+                    validate_doc(&m, &document(&[0], lossy), &[]).0.validation,
                     Validation::Valid
                 );
             }
@@ -195,7 +193,7 @@ fn swallowed_optional_label_errors_still_refuse_the_whole_verdict() {
                 location: None,
             });
             assert_eq!(
-                validate_doc(&m, &doc, &[], None).0.validation,
+                validate_doc(&m, &doc, &[]).0.validation,
                 registers_refused()
             );
         }
