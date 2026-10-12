@@ -2,13 +2,12 @@
 mod checksum;
 mod checksum_transfers;
 mod definitions;
-mod emit;
 pub use checksum::{AlgorithmChecksum, algorithm_checksum_at};
-mod fairness;
 mod labels;
 mod lower;
 mod macros;
 mod options;
+mod pcal;
 mod procedures;
 mod process;
 pub use options::{
@@ -234,18 +233,10 @@ pub fn translate_at(
                         }
                     })?;
                 let context = resolve_translation_options(source, options)?;
-                let options = &context.effective;
-                let mut parsed = macros::expand(parsed, options)?;
-                let mut translate = || {
-                    let inserted = labels::normalize(&mut parsed, options)?;
-                    let model = lower::normalize(&parsed, options)?;
-                    let mut artifact = emit::generate(&parsed, &model, options)?;
-                    artifact.inserted_labels = inserted;
-                    artifact.option_context = context.clone();
-                    Ok(artifact)
-                };
-                translate().map_err(|mut failure: TranslationError| {
-                    failure.diagnostic.span = parsed.origin(failure.diagnostic.span);
+                generate(source, &parsed, &context).map_err(|mut failure: TranslationError| {
+                    if failure.diagnostic.span == Span::default() {
+                        failure.diagnostic.span = parsed.algorithm.span;
+                    }
                     failure
                 })
             })
@@ -265,5 +256,149 @@ pub fn translate_at(
                 "PlusCal translation worker failed; report this input as a bug",
             )
         })?
+    })
+}
+
+fn fairness_name(fairness: FairnessOption) -> &'static str {
+    match fairness {
+        FairnessOption::Declared => "",
+        FairnessOption::None => "nof",
+        FairnessOption::Weak => "wf",
+        FairnessOption::Strong => "sf",
+        FairnessOption::Next => "wfNext",
+    }
+}
+
+/// Runs the translator and packages its output.
+fn generate(
+    source: &str,
+    parsed: &crate::Parsed,
+    context: &TranslationContext,
+) -> Result<Translation, TranslationError> {
+    let options = &context.effective;
+    let root = &options.label_root;
+    if root.len() > 256 {
+        return Err(error(
+            TranslationStage::Normalization,
+            Code::Resource,
+            parsed.algorithm.span,
+            "PlusCal label-root byte limit (256) reached",
+        ));
+    }
+    let mut chars = root.chars();
+    if !chars.next().is_some_and(|c| c.is_ascii_alphabetic())
+        || !chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+    {
+        return Err(error(
+            TranslationStage::Normalization,
+            Code::Label,
+            parsed.algorithm.span,
+            "Label root must be a valid PlusCal identifier (must start with a letter and contain only letters, numbers, and underscores)",
+        ));
+    }
+    let settings = pcal::Settings {
+        label: options.insert_missing_labels,
+        label_root: root.clone(),
+        fairness: fairness_name(options.fairness).to_owned(),
+        max_depth: options.parser.max_depth.min(256),
+        ..pcal::Settings::default()
+    };
+    let output = pcal::translate(parsed, &settings).map_err(|failure| {
+        let span = failure.at.map_or(Span::default(), |at| {
+            parsed
+                .tokens
+                .iter()
+                .find(|t| t.span.start >= at)
+                .map_or(Span { start: at, end: at }, |t| t.span)
+        });
+        let stage = if failure.code == Code::Internal {
+            TranslationStage::Generation
+        } else {
+            TranslationStage::Normalization
+        };
+        error(stage, failure.code, span, failure.message)
+    })?;
+    if output.actions.len() > options.max_actions.min(10_000) {
+        return Err(error(
+            TranslationStage::Generation,
+            Code::Resource,
+            parsed.algorithm.span,
+            "PlusCal labelled-action limit reached",
+        ));
+    }
+    let tla = output.lines.join("\n");
+    if tla.len() > options.max_output_bytes.min(4_194_304) {
+        return Err(error(
+            TranslationStage::Generation,
+            Code::Resource,
+            parsed.algorithm.span,
+            "PlusCal generated-output byte limit reached",
+        ));
+    }
+    let _ = source;
+    // Source expressions are scanned, not parsed, so a generated body can be
+    // malformed (pcal.trans then writes it anyway). Never return one.
+    let module = format!("---- MODULE NativePlusCal ----\nEXTENDS TLC\n{tla}\n====\n");
+    if !dive_syntax::parse_module(&module).is_ok() {
+        return Err(error(
+            TranslationStage::Generation,
+            Code::Expression,
+            parsed.algorithm.span,
+            "generated TLA syntax rejected; source expression validation failed",
+        ));
+    }
+    let processes = match &parsed.algorithm.body {
+        crate::ast::Body::Processes(list) => list
+            .iter()
+            .zip(&output.processes)
+            .map(|(process, info)| ProcessTranslation {
+                name: info.name.clone(),
+                binding_kind: process.id.kind,
+                id_source: process.id.expression.span,
+                local_variables: info.local_variables.clone(),
+                source: process.span,
+            })
+            .collect(),
+        crate::ast::Body::Sequential(_) => Vec::new(),
+    };
+    let warnings = if output.renamed.is_empty() {
+        Vec::new()
+    } else {
+        vec![TranslationWarning {
+            code: "symbols-renamed".into(),
+            span: parsed.algorithm.span,
+            message: "symbols were renamed.".into(),
+        }]
+    };
+    Ok(Translation {
+        tla,
+        mappings: Vec::new(),
+        actions: output.actions,
+        program_counter: output.program_counter,
+        warnings,
+        inserted_labels: output
+            .added_labels
+            .iter()
+            .map(|label| InsertedLabel {
+                name: label.name.clone(),
+                source: Span {
+                    start: label.at,
+                    end: label.at,
+                },
+                position: crate::ast::Position {
+                    line: label.line,
+                    column: label.column,
+                },
+                macro_definition: None,
+                macro_definition_position: None,
+            })
+            .collect(),
+        configuration: if output.default_init {
+            "CONSTANT defaultInitValue = defaultInitValue\n".into()
+        } else {
+            String::new()
+        },
+        processes,
+        option_context: context.clone(),
     })
 }
