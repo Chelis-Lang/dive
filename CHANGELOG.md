@@ -27,6 +27,13 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- A model with no bound action now ends after Init without checking
+  POSTCONDITION, as TLC does, and the depth is 1 when constraints exclude
+  every generated initial state (#231). PlusCal wraps a long multi-procedure
+  `Next` disjunct at the pinned translator's 78-column width. Test temp
+  directories are claimed atomically, so a recycled PID cannot collide with
+  an interrupted run's files.
+
 - CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
   the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4
   workers) instead of twenty. `cargo xtask gate --fast` mirrors it locally;

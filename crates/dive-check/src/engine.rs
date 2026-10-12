@@ -2319,6 +2319,7 @@ fn search_in<S: Keyed>(
     } else {
         Ok(None)
     };
+    let mut no_actions = false;
     let (stop, stats) = match recovered {
         Ok(Some(level)) => s.begin_levels(next, opts, &mut workers, level),
         Err(verdict) => {
@@ -2347,6 +2348,9 @@ fn search_in<S: Keyed>(
                 }
                 (Some(stop), stats)
             } else {
+                // TLC reports depth 1 once Init generated a state, even when
+                // the constraints excluded all of them (#231).
+                s.depth = s.depth.max(u64::from(s.initial_generated > 0));
                 let stats = s.stats(next.len() as u64);
                 let callback = s
                     .observer
@@ -2368,6 +2372,17 @@ fn search_in<S: Keyed>(
                         }),
                         stats,
                     )
+                } else if m.actions.is_empty() {
+                    // TLC's `ModelChecker.modelCheck` returns after a
+                    // successful Init when no action is bound: it starts no
+                    // workers and checks no POSTCONDITION (#231). A nonempty
+                    // queue was already reported by `initial_states`.
+                    no_actions = true;
+                    workers.used = 1;
+                    workers.sequential = true;
+                    workers.reason = Some("no actions: the search ends after Init".into());
+                    drop(next);
+                    (None, stats)
                 } else {
                     s.begin_levels(next, opts, &mut workers, 1)
                 }
@@ -2432,7 +2447,11 @@ fn search_in<S: Keyed>(
         ] {
             host.set_counter(counter, i64::try_from(value).ok());
         }
-        let verdict = postconditions(m).unwrap_or(Verdict::Success);
+        let verdict = if no_actions {
+            Verdict::Success
+        } else {
+            postconditions(m).unwrap_or(Verdict::Success)
+        };
         output.extend(m.take_output());
         return crate::seen::finish(
             &mut s.disk,
