@@ -27,6 +27,17 @@ All notable changes to this project are documented here. The project will follow
   gates and the small corpus tier, and writes `target/gate-report.md`.
   `conformance.yml` now runs on manual dispatch only (#241).
 
+- Symmetry reduction compares a candidate set by selecting its elements in
+  order, with each element's images under every permutation cached per thread
+  and ranked, instead of building and sorting every permuted set (#242).
+  `SimplifiedFastPaxos/FastPaxos.cfg` drops from 162 s to 20 s of CPU at one
+  worker under `--compat=tlc`, and from 570 s to 17 s in the default profile,
+  with unchanged counts. Records now count as comparable field by field, so
+  sets of records with differently typed fields normalize by the total order.
+  A set mixing a record with a function that is neither a record nor the
+  empty tuple now normalizes through TLC's checked insertion sort, so it
+  raises the comparison error wherever TLC does; it was sorted silently.
+
 - Prevent lost notifications in the test-only returned-prefix rendezvous; retain
   its five-second bound, actual timer/request controls and default behavior.
 
