@@ -2596,14 +2596,14 @@ budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
 no-action and checkpoint composition are unfinished. No Holds, model-proof or
 family credit is claimed; F-023 remains missing/audit-required.
 
-### Public Rust IR: Strict context admission (#234)
+### Public Rust IR: Strict context admission (#234): withdrawn
 
-Independent trace context inspection conservatively refuses an expression
-substitution passed as `Pass::Strict` before entering its scope. This includes
-an actually inert Strict binding: caller-supplied expression effects metadata
-is not an independent proof that eager entry cannot execute effects. Lazy and
-Direct substitution expressions remain thunks; ordinary evaluator Strict
-execution is unchanged. See [the endpoint contract](user/strict-context-admission.md).
+The structural pre-entry proof for `Pass::Strict` substitutions was removed on
+2026-10-12 (ADR 0016, amendment 3). The validator now refuses only bindings
+whose effects annotation is impure or whose context belongs to another model.
+A caller that forges an inert annotation on an effectful call can make
+validation run that effect (a `Print`, for example). This never changes a
+verdict.
 
 The retained public serialized-IR control references `Noise(v) == PrintT(v)`
 from a Strict binding but annotates that copied call `Effects::NONE`. Its valid

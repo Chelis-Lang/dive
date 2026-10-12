@@ -166,8 +166,8 @@ impl SpecModel {
             }
         };
         let model_values = cfg.model_values.clone();
-        let mut bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
-        if let (Ok(model), Some(h), Some((seed, fp_index))) = (&mut bound, &host, opts.run) {
+        let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
+        if let (Ok(model), Some(h), Some((seed, fp_index))) = (&bound, &host, opts.run) {
             model.evaluator.intern_checker_names();
             #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
             let fingerprint = dive_value::fp64::POLYS.get(fp_index).copied().unwrap_or(0) as i64;
@@ -181,8 +181,6 @@ impl SpecModel {
                     .unwrap_or_default(),
             };
             model.evaluator.intern_bfs_config(&config);
-            // TLC interns these before it evaluates an ASSUME or a state.
-            model.seal_startup_names();
             h.set_config(Some(config));
         }
         match bound {

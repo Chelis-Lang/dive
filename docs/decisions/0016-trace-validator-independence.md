@@ -294,12 +294,14 @@ checked with the word semantics of `temporal.rs`. The successor enumerator is
 still not compiled in (§2).
 
 **Runtime names** (replaces the namespace-provenance amendment of
-2026-10-10). The model records the interner's size when binding finishes
-(`Model::names_at_bind`; a caller that interns TLC's checker start-up names
-afterwards reseals it). The validator validates as usual. If, under TLC's
-value or exploration order, any name was interned after that point (while
-decoding the trace, while evaluating an `ASSUME`, a check, an `ENABLED`
-decision or a lasso formula), the result is `unsupported: runtime string
+2026-10-10). The evaluator records how many names were interned when binding
+finished (`Evaluator::startup_names`). Interning TLC's checker start-up names
+and configuration strings (`intern_checker_names`, `intern_bfs_config`)
+extends that count only when no run-time name came before them. The
+validator validates as usual. If, under TLC's value or exploration order, any
+name was interned after the start-up names (while decoding the trace, while
+evaluating an `ASSUME`, a check, an `ENABLED` decision or a lasso formula, or
+by a checker sharing the model), the result is `unsupported: runtime string
 encounter order`, whatever the verdict would have been. Names interned at
 binding have the same order as in TLC, so a verdict that only compared those
 names is TLC's. The static admission proofs (`runtime_order`,

@@ -288,7 +288,6 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         sequential: Vec::new(),
         sequential_names_only: false,
         runtime_name_order: false,
-        names_at_bind: 0,
     };
     model.unsupported = reach::unsupported(b, &model);
     let sequential = reach::sequential(b, &model);

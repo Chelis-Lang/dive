@@ -283,21 +283,58 @@ impl Evaluator {
     /// ([`TLCGET_NAMES`]), in TLC's order. A driver that reproduces TLC's
     /// name order calls it after the binding stage and before checking the
     /// assumptions, where TLC creates its `ModelChecker`.
+    /// They are start-up names ([`Self::startup_names`]) if every name
+    /// interned before them was.
     pub fn intern_checker_names(&self) {
-        for n in TLCGET_NAMES {
-            self.core.names.intern(n);
-        }
+        self.extend_startup_names(|| {
+            for n in TLCGET_NAMES {
+                self.core.names.intern(n);
+            }
+        });
     }
 
     /// Interns the actual configuration strings constructed eagerly by
     /// TLC's `AbstractChecker.createConfig`, after [`Self::intern_checker_names`]
     /// and before assumptions. Even a spec that never reads the config can
     /// observe these tokens through runtime `CHOOSE` ordering.
+    /// They are start-up names ([`Self::startup_names`]) if every name
+    /// interned before them was.
     pub fn intern_bfs_config(&self, config: &RunConfig) {
-        self.core.names.intern("bfs");
-        self.core.names.intern(&config.seed.to_string());
-        self.core.names.intern(&config.fingerprint.to_string());
-        self.core.names.intern(&config.install);
+        self.extend_startup_names(|| {
+            self.core.names.intern("bfs");
+            self.core.names.intern(&config.seed.to_string());
+            self.core.names.intern(&config.fingerprint.to_string());
+            self.core.names.intern(&config.install);
+        });
+    }
+
+    /// Records every name interned so far as a start-up name: one TLC
+    /// interns, in the same order, before it evaluates an `ASSUME` or a
+    /// state. The binding stage calls it when it finishes.
+    pub fn seal_startup_names(&self) {
+        self.core
+            .startup_names
+            .store(self.core.names.len(), ::std::sync::atomic::Ordering::SeqCst);
+    }
+
+    /// The number of start-up names ([`Self::seal_startup_names`]). A name
+    /// with a higher token was created at run time: its position in TLC's
+    /// encounter order depends on what was evaluated before it.
+    #[must_use]
+    pub fn startup_names(&self) -> usize {
+        self.core
+            .startup_names
+            .load(::std::sync::atomic::Ordering::SeqCst)
+    }
+
+    /// Runs `f`, which interns start-up names, and counts them as start-up
+    /// names only if no run-time name was interned before them.
+    fn extend_startup_names(&self, f: impl FnOnce()) {
+        let contiguous = self.core.names.len() == self.startup_names();
+        f();
+        if contiguous {
+            self.seal_startup_names();
+        }
     }
 
     /// Compares two given values with this evaluator's comparison profile.

@@ -972,24 +972,8 @@ family credit is claimed; F-023 remains missing/audit-required.
 2026-10-12 (ADR 0016, amendment 3).
 
 
-### Independent Strict substitution admission (#234)
+### Independent Strict substitution admission (#234): removed
 
-The native trace context guard inspects `Arg::Expr`/`Pass::Strict` before
-`Evaluator::scope_subst`. Existing `Core::bind_subst` evaluates Strict
-expressions while Lazy/Direct bindings remain thunks; operator lookup does not
-execute an expression. Eleven trace-side entry sites in tuple shape/range,
-whole-word tuple history, runtime-order and temporal inspection are guarded.
-This is an independent native admission repair, not a Java algorithm port or
-a claim that naturally lowered TLA+ emits the retained caller-forged metadata.
-The regression fixture preserves owned IR, original impure-annotation refusal,
-actual inert/lazy contexts and ordinary evaluator execution separately.
-
-### Independent eager-substitution admission (#234)
-
-`Core::new` plans literal values/errors and record field atoms; `eval_inner`
-reads those caches. `Core::bind_subst` evaluates all Strict operands against its
-original outer environment. Trace admission matches that boundary with bounded
-callback-free literal/tuple/record and scoped-value forwarding inspection. It
-performs no evaluator call/provider forcing and trusts no effects annotation.
-Stored atoms require receiving-token identity. The original 1,762/1,764 failure
-is retained; corrected compilation/qualification remain pending separately.
+The trace-side pre-entry proof for Strict substitutions (`context_admission`)
+was removed on 2026-10-12 (ADR 0016, amendment 3). `dive-trace` now checks
+only the bindings' effects annotations and contexts before entry.

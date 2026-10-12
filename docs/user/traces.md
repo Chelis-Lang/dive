@@ -70,8 +70,7 @@ name (a string the specification never mentions, or one an operator such as
 A check that draws a random value (`RandomElement`, `Randomization`) is
 likewise refused by name.
 
-Public serialized IR with Strict substitution expressions requires independent
-pre-entry proof from the actual operand and captured scope. Closed literals
-and safe forwarding are admitted; calls and unproved operands remain refused. See
-[strict context admission](strict-context-admission.md) for the Rust endpoint
-contract and unchanged lazy/ordinary-evaluator behavior.
+Before entering an `INSTANCE ... WITH` substitution, whose strict bindings are
+evaluated eagerly, the validator refuses a binding from another model's
+context or one whose effects annotation is not pure. It trusts the IR's
+effects annotations; it does not re-prove them.
