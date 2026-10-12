@@ -49,7 +49,7 @@ fn identity(id: &dive_liveness::tlc_witness::Identity) -> String {
 )]
 fn actual_source_prefixes_match_complete_pinned_partial_selection() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-partial-scc");
+        .join("tests/fixtures/probes/tlc-partial-scc");
     let reference: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("capture.json")).expect("capture"))
             .expect("JSON");
@@ -324,7 +324,7 @@ fn concrete_word(
 fn actual_partial_candidates_require_independent_memory_json_and_mutant_replay() {
     use dive_trace::{Ending, Trace, Validation};
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-partial-scc");
+        .join("tests/fixtures/probes/tlc-partial-scc");
     let mut validated = 0;
     for name in [
         "PartialRoots",

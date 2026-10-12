@@ -1,0 +1,12 @@
+--fair algorithm Reachable {
+  variables marked = {}, vroot = {Root};
+  { a: while (vroot /= {})
+        { with (v \in vroot)
+           { if (v \notin marked)
+                  { marked := marked \cup {v};
+                    vroot  := vroot \cup Succ[v] }
+             else { vroot := vroot \ {v} }
+           }
+        }
+  }
+}

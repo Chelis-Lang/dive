@@ -1,0 +1,21 @@
+--algorithm Lock{
+    variables lock = 1;
+    
+    macro Lock(l){
+      await l = 1;
+      l := 0;
+    }
+    
+    macro Unlock(l){
+      l := 1;
+    }
+  
+    process(proc \in 1..2){
+l0:   while(TRUE){
+        skip; \* non-critical section
+l1:     Lock(lock);
+cs:     skip; \* critical section
+l2:     Unlock(lock);
+      }
+    }
+}

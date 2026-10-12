@@ -1,0 +1,308 @@
+{
+ "rows": [
+  {
+   "id": "MacroLayout_C_multiline_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "550dfca8",
+    "c261faa8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "550dfca8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_inline_junction_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ee2ebea",
+    "1f6da274"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ee2ebea"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_body_junction",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "476a3b24",
+    "ca6f2328"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "476a3b24"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_unchanged_junction",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ee2ebea",
+    "1f6da274"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ee2ebea"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_multiline_body",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ad80fbc1",
+    "e7e8438e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ad80fbc1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_comment_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "845ca6bc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_ascii_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8736f128",
+    "f5824edf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8736f128"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_C_unicode_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_multiline_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "550dfca8",
+    "7c70405c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "550dfca8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_inline_junction_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ee2ebea",
+    "1f6da274"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ee2ebea"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_body_junction",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "476a3b24",
+    "ca6f2328"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "476a3b24"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_unchanged_junction",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "1ee2ebea",
+    "1f6da274"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "1ee2ebea"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_multiline_body",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ad80fbc1",
+    "e316d696"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ad80fbc1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_comment_arg",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "845ca6bc"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_ascii_string",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8736f128",
+    "f5824edf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8736f128"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroLayout_P_unicode_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

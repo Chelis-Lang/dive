@@ -1,0 +1,464 @@
+{
+ "rows": [
+  {
+   "id": "MacroLexical_C_delete",
+   "input": "MacroLexical_C_delete.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_C_delete.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_C_emoji",
+   "input": "MacroLexical_C_emoji.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_C_emoji.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_C_escape_hex",
+   "input": "MacroLexical_C_escape_hex.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_C_escape_hex.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_C_escape_unicode",
+   "input": "MacroLexical_C_escape_unicode.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_C_escape_unicode.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_backslash",
+   "input": "MacroLexical_C_escaped_backslash.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_escaped_backslash.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_escaped_backslash.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_formfeed",
+   "input": "MacroLexical_C_escaped_formfeed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_escaped_formfeed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_escaped_formfeed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_newline",
+   "input": "MacroLexical_C_escaped_newline.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_escaped_newline.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_escaped_newline.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_quote",
+   "input": "MacroLexical_C_escaped_quote.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_escaped_quote.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_escaped_quote.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_return",
+   "input": "MacroLexical_C_escaped_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_escaped_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_escaped_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_escaped_tab",
+   "input": "MacroLexical_C_escaped_tab.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_escaped_tab.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_escaped_tab.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_space",
+   "input": "MacroLexical_C_space.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_space.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_space.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_tilde",
+   "input": "MacroLexical_C_tilde.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_C_tilde.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_C_tilde.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_C_unit_separator",
+   "input": "MacroLexical_C_unit_separator.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_C_unit_separator.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_P_delete",
+   "input": "MacroLexical_P_delete.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_P_delete.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_P_emoji",
+   "input": "MacroLexical_P_emoji.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_P_emoji.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_P_escape_hex",
+   "input": "MacroLexical_P_escape_hex.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_P_escape_hex.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_P_escape_unicode",
+   "input": "MacroLexical_P_escape_unicode.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_P_escape_unicode.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_backslash",
+   "input": "MacroLexical_P_escaped_backslash.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_escaped_backslash.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_escaped_backslash.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_formfeed",
+   "input": "MacroLexical_P_escaped_formfeed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_escaped_formfeed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_escaped_formfeed.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_newline",
+   "input": "MacroLexical_P_escaped_newline.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_escaped_newline.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_escaped_newline.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_quote",
+   "input": "MacroLexical_P_escaped_quote.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_escaped_quote.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_escaped_quote.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_return",
+   "input": "MacroLexical_P_escaped_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_escaped_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_escaped_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_escaped_tab",
+   "input": "MacroLexical_P_escaped_tab.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_escaped_tab.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_escaped_tab.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_space",
+   "input": "MacroLexical_P_space.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_space.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_space.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_tilde",
+   "input": "MacroLexical_P_tilde.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroLexical_P_tilde.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroLexical_P_tilde.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroLexical_P_unit_separator",
+   "input": "MacroLexical_P_unit_separator.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MacroLexical_P_unit_separator.normalized.json"
+    }
+   }
+  }
+ ]
+}

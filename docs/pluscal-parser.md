@@ -45,9 +45,9 @@ certifies normalized/translated output or the complete F-034 family.
 Selection scans every `.tla` in pinned Examples (`6a7b26a`) and tlaplus
 (`94d0c50`), preserving all 159 markers, file hashes and byte regions. Fifty-seven
 owned grammar controls and six edge controls supplement the extracts. Inputs,
-raw primary/secondary responses, hashes and MIT notices are retained under
-`crates/dive-pluscal/acceptance/`. Transcript gzip is lossless; digests identify
-decompressed bytes.
+the projected pinned-oracle ASTs and MIT notices are kept under
+`crates/dive-pluscal/tests/fixtures/parser-oracle/`; raw oracle transcripts are
+regenerated from the pinned translator rather than committed.
 
 `cargo test -p dive-pluscal` compares the complete selection offline without
 Java. Ten full-document mutations must fail: wrong names/fairness, removed or
@@ -57,7 +57,7 @@ and deep input on a normal 2 MiB caller stack. F-034 remains **partial**.
 
 ## Reproduction
 
-See [acceptance/README.md](../crates/dive-pluscal/acceptance/README.md). Java/javac
+See acceptance/README.md. Java/javac
 are development probe inputs only. The secondary adapter never replaces the
 translation oracle. Generated `conformance/golden/` files are untouched.
 

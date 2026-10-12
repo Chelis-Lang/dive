@@ -8,7 +8,7 @@ use std::{fmt::Write, path::Path};
 
 #[test]
 fn every_selected_define_ast_is_exact_or_named_refusal() -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("define-acceptance");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/define");
     let mut counts = [0usize; 4];
     for folder in ["", "contexts", "corpus", "promoted"] {
         let base = root.join(folder);
@@ -72,7 +72,7 @@ fn every_selected_define_ast_is_exact_or_named_refusal() -> Result<(), Box<dyn s
 #[test]
 fn scoped_definitions_and_prestate_helpers_keep_reference_order()
 -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("define-acceptance/cases");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/define/cases");
     for id in [
         "Define_C_constant_process",
         "Define_P_constant_process",

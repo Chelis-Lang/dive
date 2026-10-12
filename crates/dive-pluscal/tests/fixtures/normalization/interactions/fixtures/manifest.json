@@ -1,0 +1,294 @@
+{
+ "rows": [
+  {
+   "id": "Inter_C_either",
+   "input": "Inter_C_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_C_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_C_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_C_elsif",
+   "input": "Inter_C_elsif.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Inter_C_elsif.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Inter_C_group",
+   "input": "Inter_C_group.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_C_group.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_C_group.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_C_nested_with",
+   "input": "Inter_C_nested_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_C_nested_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_C_nested_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_C_utf_position",
+   "input": "Inter_C_utf_position.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_C_utf_position.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_C_utf_position.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_C_with_after",
+   "input": "Inter_C_with_after.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_C_with_after.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_C_with_after.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_C_with_loop",
+   "input": "Inter_C_with_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Inter_C_with_loop.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Inter_C_with_prior",
+   "input": "Inter_C_with_prior.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_C_with_prior.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Inter_P_either",
+   "input": "Inter_P_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_P_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_P_elsif",
+   "input": "Inter_P_elsif.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_elsif.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_P_elsif.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_P_group",
+   "input": "Inter_P_group.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_group.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_P_group.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_P_nested_with",
+   "input": "Inter_P_nested_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_nested_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_P_nested_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_P_utf_position",
+   "input": "Inter_P_utf_position.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_utf_position.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_P_utf_position.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_P_with_after",
+   "input": "Inter_P_with_after.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_with_after.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Inter_P_with_after.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Inter_P_with_loop",
+   "input": "Inter_P_with_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Inter_P_with_loop.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Inter_P_with_prior",
+   "input": "Inter_P_with_prior.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Inter_P_with_prior.normalized.json"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,156 @@
+{
+ "rows": [
+  {
+   "id": "RecursiveTail_C_self_tail_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d2271fed",
+    "6287dabf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d2271fed"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_C_self_tail_two_args",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a1426e2d",
+    "549e17f8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a1426e2d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_C_mutual_tail_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "50daee9a",
+    "97373bd3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "50daee9a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_C_mutual_tail_reverse",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8a407392",
+    "e0a73d33"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8a407392"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_P_self_tail_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d2271fed",
+    "6287dabf"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d2271fed"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_P_self_tail_two_args",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a1426e2d",
+    "549e17f8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a1426e2d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_P_mutual_tail_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "50daee9a",
+    "97373bd3"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "50daee9a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "RecursiveTail_P_mutual_tail_reverse",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8a407392",
+    "e0a73d33"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8a407392"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

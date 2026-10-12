@@ -635,11 +635,9 @@ mod written_controls {
     use std::sync::Arc;
     #[test]
     fn actual_pinned_unwritten_duplicates_and_no_rewrite_are_retained() {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../conformance/probes/tlc-phase-l-graph");
-        let capture: serde_json::Value = serde_json::from_str(
-            &std::fs::read_to_string(root.join("collision-capture.json")).expect("capture"),
-        )
+        let capture: serde_json::Value = serde_json::from_str(include_str!(
+            "testdata/phase-l-graph-collision-capture.json"
+        ))
         .expect("JSON");
         let fields = &capture["rows"][0]["fields"];
         let mut nodes = vec![];

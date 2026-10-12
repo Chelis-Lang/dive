@@ -1,0 +1,1 @@
+{"name":"showBug","syntax":"P","fair":false,"declarations":[],"definitions":null,"macros":[],"procedures":[],"body":["Processes",[["Proc","Unfair","Member",["1","..","2"],[["x","Equal",["[","f1","|->","1",",","f2","|->","self","]"]]],[["start",["Assign",[["x",[".","f1"],["self"]]]]],["",["Assert",["x",".","f1","=","self"]]]]]]]}

@@ -31,7 +31,7 @@ fn bind(source: &str, config: &str, options: &CheckOptions) -> dive_model::Model
 )]
 fn actual_final_words_match_and_independently_replay_with_all_claims() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-check");
+        .join("tests/fixtures/probes/tlc-final-check");
     let capture: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
             .expect("JSON");
@@ -255,18 +255,6 @@ fn foreign_and_effectful_models_stop_without_pool_or_predicate_output() {
         assert_eq!(model.take_output(), Vec::<String>::new());
     }
 }
-#[test]
-fn complete_selection_and_source_histories_are_verified() {
-    let script =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../scripts/check-tlc-final.py");
-    let status = std::process::Command::new("python3")
-        .arg("-I")
-        .arg(script)
-        .status()
-        .expect("verifier");
-    assert!(status.success());
-}
-
 #[test]
 fn malformed_bound_role_ids_stop_before_planning() {
     let opts = CheckOptions::tlc(0, 0);

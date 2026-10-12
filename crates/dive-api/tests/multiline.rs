@@ -4,7 +4,8 @@ use std::path::Path;
 #[test]
 fn complete_selected_multiline_artifacts_match_primary_trees()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/multiline-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/tests/fixtures/multiline");
     let report: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("full-controls/report.json"),
     )?)?;

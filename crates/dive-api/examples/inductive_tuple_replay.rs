@@ -4,7 +4,7 @@ use dive_api::{CheckRequest, check_file};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/inductive-tuple-replay/specs/TupleHistory.tla");
+        .join("examples/data/inductive-tuple-replay/TupleHistory.tla");
     let report = check_file(&CheckRequest {
         file: file.clone(),
         compat_tlc: true,

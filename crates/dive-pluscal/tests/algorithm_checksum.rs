@@ -7,7 +7,7 @@ use std::path::Path;
 #[test]
 fn retained_reference_ast_bytes_are_exact_or_explicitly_unsupported()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("ast-checksum-acceptance");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ast-checksum");
     let mut total = 0;
     let mut exact = 0;
     let mut refused = 0;

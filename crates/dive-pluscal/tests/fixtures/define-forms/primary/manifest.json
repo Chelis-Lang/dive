@@ -1,0 +1,1874 @@
+{
+ "rows": [
+  {
+   "id": "Forms_C_local_constant",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "34659b7",
+    "a0629e95"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "34659b7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "873db946",
+    "bc6ffa7f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "873db946"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_state",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7b47b043",
+    "9409cf88"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7b47b043"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_constant",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_state",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "142584c2",
+    "842cb583"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "142584c2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_state_domain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dfb915f1",
+    "491f4602"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dfb915f1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_function",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "574abab0",
+    "b1dd6523"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "574abab0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_tuple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b4fe21a5",
+    "67c7c3e9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b4fe21a5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_multiple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8ba735b8",
+    "8e3a5eda"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8ba735b8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_chain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7839a02d",
+    "bf14963"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7839a02d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_calls_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "21ce4322",
+    "a047fc88"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "21ce4322"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_calls_function",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "901e4dd9",
+    "525aa856"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "901e4dd9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_let",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2ad5deb3",
+    "5e93639d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2ad5deb3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_quantifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7ac9d41c",
+    "3204dbc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7ac9d41c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_case",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5361ffde",
+    "668eee95"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5361ffde"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_record",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9ede4e4a",
+    "7648947a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9ede4e4a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e697476d",
+    "86b81f90"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e697476d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_bound_dependency",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a57f809c",
+    "75f42afd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a57f809c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ad97e45c",
+    "7adab161"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ad97e45c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "625294e7",
+    "b3f5d843"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "625294e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_bound_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "55e67943",
+    "a07836e4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "55e67943"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_action_domain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "59beae45",
+    "3d2cf259"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "59beae45"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_action_body",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8ac9e1dc",
+    "e291d330"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8ac9e1dc"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_temporal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bb82b540",
+    "dc4838d8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bb82b540"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_conflict",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "33cc4c35",
+    "80a600b5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "33cc4c35"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_init_conflict",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f6d8e03d",
+    "370acd45"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f6d8e03d"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_duplicate",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9ce30b76",
+    "e89e8420"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9ce30b76"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_parameter_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "35ef6c35",
+    "3738553f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "35ef6c35"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_helper_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "42f04965",
+    "c915e8db"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "42f04965"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_fields",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f145ffe",
+    "bf79206a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f145ffe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_undefined",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "289e811e",
+    "1e1dc0ec"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "289e811e"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_undefined_bound",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5eb2d477",
+    "9590546a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5eb2d477"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_forward",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "82abfbd1",
+    "59795d4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "82abfbd1"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_C_function_multiple_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8b37b76c",
+    "eb0df60d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8b37b76c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_symbolic_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c1a05fb7",
+    "ffbaf738"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c1a05fb7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_constant_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9d74bccc",
+    "d9691058"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9d74bccc"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_parameter_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c8a24c39",
+    "d51739f9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c8a24c39"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_state_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "986e490e",
+    "ab2e7e8f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "986e490e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_constant_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9334f505",
+    "d5c7826d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9334f505"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_state_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6b57b5b2",
+    "dc9cf709"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6b57b5b2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_state_domain_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dab6f939",
+    "a50cf980"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dab6f939"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_local_function_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3aa52ad7",
+    "27946c5b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3aa52ad7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_tuple_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a8ea8125",
+    "c77fdd3e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a8ea8125"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_constant_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_constant_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_constant_unicode-comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_constant_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "523c0734"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_wf",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "523c0734"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_C_function_sf",
+   "flags": [
+    "-sf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "523c0734"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_constant",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "34659b7",
+    "a0629e95"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "34659b7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_parameter",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "873db946",
+    "bc6ffa7f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "873db946"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_state",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7b47b043",
+    "9409cf88"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7b47b043"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_constant",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_state",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "142584c2",
+    "842cb583"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "142584c2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_state_domain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dfb915f1",
+    "491f4602"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dfb915f1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_function",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "574abab0",
+    "b1dd6523"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "574abab0"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_tuple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b4fe21a5",
+    "67c7c3e9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b4fe21a5"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_multiple",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8ba735b8",
+    "8e3a5eda"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8ba735b8"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_chain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7839a02d",
+    "bf14963"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7839a02d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_calls_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "21ce4322",
+    "a047fc88"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "21ce4322"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_calls_function",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "901e4dd9",
+    "525aa856"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "901e4dd9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_let",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2ad5deb3",
+    "5e93639d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2ad5deb3"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_quantifier",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7ac9d41c",
+    "3204dbc6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7ac9d41c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_case",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5361ffde",
+    "668eee95"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5361ffde"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_record",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9ede4e4a",
+    "7648947a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9ede4e4a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e697476d",
+    "86b81f90"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e697476d"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_bound_dependency",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a57f809c",
+    "75f42afd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a57f809c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "ad97e45c",
+    "7adab161"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "ad97e45c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "625294e7",
+    "b3f5d843"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "625294e7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_bound_recursive",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "55e67943",
+    "a07836e4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "55e67943"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_action_domain",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "59beae45",
+    "3d2cf259"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "59beae45"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_action_body",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8ac9e1dc",
+    "e291d330"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8ac9e1dc"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_temporal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "bb82b540",
+    "dc4838d8"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "bb82b540"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_conflict",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "33cc4c35",
+    "80a600b5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "33cc4c35"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_init_conflict",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f6d8e03d",
+    "370acd45"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f6d8e03d"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_duplicate",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9ce30b76",
+    "e89e8420"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9ce30b76"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_parameter_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "35ef6c35",
+    "3738553f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "35ef6c35"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_helper_shadow",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "42f04965",
+    "c915e8db"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "42f04965"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_fields",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7f145ffe",
+    "bf79206a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7f145ffe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_undefined",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "289e811e",
+    "1e1dc0ec"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "289e811e"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_undefined_bound",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5eb2d477",
+    "9590546a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5eb2d477"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_forward",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "82abfbd1",
+    "59795d4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "82abfbd1"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Forms_P_function_multiple_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "8b37b76c",
+    "eb0df60d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "8b37b76c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_symbolic_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c1a05fb7",
+    "ffbaf738"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c1a05fb7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_constant_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9d74bccc",
+    "d9691058"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9d74bccc"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_parameter_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c8a24c39",
+    "d51739f9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c8a24c39"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_state_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "986e490e",
+    "ab2e7e8f"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "986e490e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_constant_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "9334f505",
+    "d5c7826d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "9334f505"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_state_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6b57b5b2",
+    "dc9cf709"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6b57b5b2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_state_domain_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dab6f939",
+    "a50cf980"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dab6f939"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_local_function_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3aa52ad7",
+    "27946c5b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3aa52ad7"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_tuple_process",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "a8ea8125",
+    "c77fdd3e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "a8ea8125"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_constant_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_constant_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_constant_unicode-comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "2b5b5f14"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_constant_fair",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "523c0734"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_wf",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "523c0734"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Forms_P_function_sf",
+   "flags": [
+    "-sf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "5a5bdb72",
+    "523c0734"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "5a5bdb72"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,180 @@
+{
+ "rows": [
+  {
+   "id": "MacroOrigin_C_assert",
+   "input": "MacroOrigin_C_assert.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_C_assert.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_C_assert.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_C_if",
+   "input": "MacroOrigin_C_if.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_C_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_C_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_C_while",
+   "input": "MacroOrigin_C_while.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_C_while.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_C_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_C_with",
+   "input": "MacroOrigin_C_with.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_C_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_C_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_P_assert",
+   "input": "MacroOrigin_P_assert.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_P_assert.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_P_assert.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_P_if",
+   "input": "MacroOrigin_P_if.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_P_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_P_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_P_while",
+   "input": "MacroOrigin_P_while.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_P_while.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_P_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroOrigin_P_with",
+   "input": "MacroOrigin_P_with.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroOrigin_P_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroOrigin_P_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

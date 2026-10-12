@@ -1,0 +1,42 @@
+{
+ "rows": [
+  {
+   "id": "UnusedMacroRewrite",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dbedd2a2",
+    "d14ef4d6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "DefineBlockRewrite",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2b2547fe",
+    "1752912d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2b2547fe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

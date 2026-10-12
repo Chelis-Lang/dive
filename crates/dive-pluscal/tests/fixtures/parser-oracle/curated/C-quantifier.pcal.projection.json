@@ -1,0 +1,1 @@
+{"name":"A","syntax":"C","fair":false,"declarations":[["x","Equal",["0"]],["y","Equal",null]],"definitions":null,"macros":[],"procedures":[],"body":["Sequential",[["",["Assert",["\\A","a",",","b","\\in","{","1",",","2","}",":","a","=","b"]]]]]}

@@ -1,0 +1,124 @@
+{
+ "rows": [
+  {
+   "id": "C_tight-open",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "C_tight-line",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "C_punctuation",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "C_separated-punctuation",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "C_tight-options",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "C_split",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "C_tabs",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "C_prefix",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "C_missing-parenthesis",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "C_multiline-open",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "P_tight-open",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "P_tight-line",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "P_punctuation",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "P_separated-punctuation",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "P_tight-options",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "P_split",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "P_tabs",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "P_prefix",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": false
+  },
+  {
+   "id": "P_missing-parenthesis",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  },
+  {
+   "id": "P_multiline-open",
+   "primary": {},
+   "primary_translated": true,
+   "native_guarded": true
+  }
+ ]
+}

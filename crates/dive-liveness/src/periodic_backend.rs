@@ -232,7 +232,7 @@ mod tests {
     #[test]
     fn growth_threshold_matches_complete_pinned_numeric_projection() {
         let reference: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../conformance/probes/periodic-backend/capture-tables.json"
+            "testdata/periodic-backend-capture-tables.json"
         ))
         .expect("tracked reference JSON");
         let fields = reference["rows"][0]["fields"]

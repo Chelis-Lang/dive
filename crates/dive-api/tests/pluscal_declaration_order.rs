@@ -5,7 +5,7 @@ use std::path::Path;
 #[test]
 fn generated_declarations_precede_trailing_definitions() -> Result<(), Box<dyn std::error::Error>> {
     let root =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/macro-checksum-acceptance");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/tests/fixtures/macro-checksum");
     for syntax in ["C", "P"] {
         for compat_tlc in [false, true] {
             for (folder, prefix) in [("insertion", "Trailing"), ("insertion-old", "OldTrailing")] {
@@ -60,7 +60,7 @@ fn generated_declarations_precede_trailing_definitions() -> Result<(), Box<dyn s
 #[test]
 fn closing_line_context_matches_reference_admission() -> Result<(), Box<dyn std::error::Error>> {
     let root =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/macro-checksum-acceptance");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/tests/fixtures/macro-checksum");
     for folder in ["closing-line", "inline"] {
         let base = root.join(folder);
         let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
@@ -107,7 +107,7 @@ fn closing_line_context_matches_reference_admission() -> Result<(), Box<dyn std:
 #[test]
 fn marker_order_and_lexical_boundaries_match_primary() -> Result<(), Box<dyn std::error::Error>> {
     let root =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/macro-checksum-acceptance");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/tests/fixtures/macro-checksum");
     for folder in ["marker", "marker-extra", "marker-single"] {
         let base = root.join(folder);
         let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(

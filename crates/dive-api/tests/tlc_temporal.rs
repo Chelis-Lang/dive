@@ -19,7 +19,7 @@ fn inputs(source: &str, config: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelCo
 #[test]
 fn real_model_final_witness_is_independently_certified_at_each_width() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-check/models");
+        .join("tests/fixtures/tlc-final-check/models");
     for name in [
         "FinalState",
         "FinalAction",
@@ -244,7 +244,7 @@ fn configured_context_alias_roots_the_actual_target_before_binding() {
 #[test]
 fn check_file_exposes_only_the_explicit_final_tlc_certificate() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-check/models");
+        .join("tests/fixtures/tlc-final-check/models");
     for name in ["FinalState", "FinalSafe", "ExecMultiple"] {
         let request = dive_api::CheckRequest {
             file: base.join(name).join(format!("{name}.tla")),

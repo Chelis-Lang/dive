@@ -27,112 +27,36 @@ Schema 2 distinguishes opt-in temporal checking from ordinary safety schema 1.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
-and indexing conventions. The separately exposed bounded pinned final-only
-contract is documented in [the final TLC guide](../tlc-final-api.md).
+and indexing conventions.
 
-For Rust tool builders, the separate [ordered execution API](../temporal-execution-api.md)
-retains concrete graph and deciding-prefix evidence. Its completion is explicitly
-not a temporal verdict and it is not exposed as a CLI checking mode.
+## Final checking in the TLC profile
 
 The explicit command `dive check --compat=tlc --lncheck final --lasso tlc`
-uses bounded final-only pinned selection and schema 2, with a private witness
-certificate followed by fresh independent replay. It does not enable ordinary
-periodic TLC scheduling. Only the separately named `dive-final-tlc` harness
-mode evaluates that contract. Its first full small-model census refused every
-selected model; focused-control success must not be presented as broad parity.
-Read [the final TLC API/CLI contract](../tlc-final-api.md) for complete flags, bounds, workers, refusal classes,
-property identities and stuttering/loop report obligations.
+uses bounded final-only checking and schema 2, with fresh independent replay of
+every reported counterexample. It does not enable TLC's periodic schedule. Only
+the separately named `dive-final-tlc` harness mode evaluates this contract.
 
-Models with no implied temporal obligations use the actual ordinary safety engine
-inside the final mode's unchanged capture ceilings. The report names the
-`bounded-safety-only` route, keeps the real stopping/completion and worker facts,
-and explicitly states that no temporal product or certificate was constructed.
-A finite counterexample must pass fresh independent replay before earning
-violation credit. A resource stop is never a safety success. See the
-[safety-only route contract](../tlc-final-api.md#safety-only-route).
+- Models with no temporal obligations run the ordinary safety engine inside the
+  final mode's capture limits. The report names the `bounded-safety-only` route.
+  A finite counterexample must pass independent replay, and a resource stop is
+  never a safety success.
+- Pure state-level and temporal-level `IF` conditions, caller-context forwarding
+  of property arguments, and pure user operator formals (with their LET and
+  INSTANCE scopes) are supported. So are direct `Len`, `Head`, `Cardinality` and
+  fixed-arity `Append` actuals.
+- Results name the configured property before any split, and keep derived role
+  labels separate from the user's names.
+- Stored scalar and composite action and constant captures, and concrete set and
+  function successor values, are supported within recursive admission limits.
+- Configured native random replacements such as `CONSTANT C <- RandomElement`
+  are refused before graph capture. Configuration-origin-ambiguous, recursive,
+  opaque and other native operator targets are refused by name.
 
-[Pure conditional final checks](../tlc-state-if.md) documents the admitted
-state-IF subset, executable CLI/Rust examples, replay and remaining refusals.
+## Rust diagnostic APIs
 
-The proven direct temporal-IF subset now runs through bounded explicit final/TLC
-checking with fresh independent witness replay. Read the
-[temporal conditional guide](../tlc-temporal-if.md) for executable CLI/Rust
-examples, unchanged bounds and refused forwarding/early-witness combinations.
-Ordinary periodic scheduling remains unavailable.
-
-For caller-context forwarding and property names, see the
-[scoped final guide](../tlc-final-scopes.md).
-
-The [expanded property identity guide](../tlc-property-origins.md) explains
-configured-before-split names, expanded original Action names and derived role
-labels exposed by completed bounded final TLC results. These metadata fields
-do not replace independent witness replay or add ordinary scheduling support.
-
-Stored scalar and composite action/constant captures are described in the
-[concrete capture guide](../material-capture.md), with runnable CLI/Rust examples,
-recursive admission limits and deferred/provider refusals.
-
-Pure user operator formals in bounded explicit final TLC mode retain local and
-INSTANCE scopes; see [operator arguments](../temporal-operators.md). Direct pure
-`Len`, `Head`, `Cardinality`, and fixed-arity `Append` actuals also work within the bounded final TLC
-contract; the [native operator guide](../native-temporal-operators.md) provides
-CLI examples and a Cargo-owned Rust example. Configured-origin-ambiguous,
-recursive, opaque and other native targets remain named refusals.
-
-
-Configured native random replacements are refused before graph capture, including
-`CONSTANT C <- RandomElement`. A supplied bound model is checked through its
-actual constant bindings and native redirects; its earlier construction/startup
-is outside the capture guard. Pure captures remain available. Pinned final/TLC
-selection retains its existing pre-binding effect admission. See the
-[configured RNG repair and backend evidence](../../conformance/probes/configured-random-admission/README.md).
-
-Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
-[Pure native temporal operator arguments](../native-temporal-operators.md), with
-executable CLI/Rust examples and retained refusal boundaries.
-
-See [Stored successor values](../stored-successor-material.md) for concrete set/function admission, namespace/order requirements and provider refusals.
-
-[Fixed-arity Append operator arguments](../native-sequence-operators.md) retain
-both operand scopes; Tail/SubSeq runtime-name admission remains pending.
-
-The [partial SCC diagnostic guide](../partial-temporal-checks.md) describes the
-separate Rust checkpoint API. A partial check can return a candidate requiring
-fresh independent replay, but never temporal Holds or an ordinary schedule
-certificate. Original graph/partial inspection bounds remain shared.
-
-Backend authors can use the [periodic-work controller](../ordinary-periodic-controller.md)
-to preserve pinned suspension, force, PERIODIC and checkpoint callback order.
-Its successful invocation is not a model verdict and does not enable ordinary
-strict temporal checking. Actual graph-growth, clock and checkpoint authority
-remain separate integration obligations.
-
-Rust backend authors can inspect source-owned graph growth and explicit partial stopping with the [periodic backend diagnostic](../periodic-backend.md). This API does not enable ordinary clock scheduling, Java queue suspension, partial Holds or a model-checking verdict.
-
-
-The [native lifecycle diagnostic](../native-periodic-lifecycle.md) connects internally sampled clocks, real dispatch pauses and actual EOF final checking. Its commit-boundary polling does not certify TLC’s asynchronous ordinary schedule.
-
-[Pure supplied periodic expressions](../periodic-hook.md) can be composed diagnostically at real native pauses. Ordinary configured hook binding, checkpoints and scheduler verdicts remain refused; no TRUE hook result means temporal Holds.
-
-The [configuration-owned snapshot diagnostic](../configured-periodic-snapshot.md) selects the actual pure `_PERIODIC` body before constant caching and preserves its configured name and original definition. This separate Rust API does not enable ordinary CLI scheduling or temporal proof.
-
-The [producer-owned request diagnostic](../producer-progress-requests.md) adds real expansion claim/pause receipts to the configured snapshot. Completed uncommitted output is not a temporal graph write; ordinary periodic checking remains unsupported. Its runnable Cargo example documents the separate request/controller force policies.
-
-[Committed request prefixes](../committed-periodic-prefix.md) publish actual returned contiguous work under the existing owned pause. The Cargo example and typed receipts distinguish expansion, graph publication and physical frontier append; ordinary temporal checking remains unsupported.
-
-The [request-owned service diagnostic](../request-owned-periodic-service.md) runs the actual configuration hook/controller once after successful prefix append, including genuinely empty requests. Its executable Cargo example and receipts remain nonproof; ordinary scheduling is unsupported.
-
-For original-value reconstruction and fresh independent memory/JSON replay of an actual diagnostic request/EOF candidate, see the [producer-owned candidate Rust guide](../producer-owned-temporal-candidate.md). This separate API does not enable ordinary periodic CLI checking or certify temporal absence/completion.
-
-The additive [exhausted-queue terminal Rust diagnostic](../terminal-periodic-service.md) services genuine frontier exhaustion before joins and independently replays deciding words. It does not enable ordinary temporal verdicts or certify absence.
-
-The Rust [stopped-worker service diagnostic](../stopped-periodic-service.md)
-keeps original source errors separate from controller faults and successful EOF.
-It does not expose ordinary scheduling or temporal Holds.
-
-
-The [terminal outcome diagnostic](../terminal-outcome.md) adds actual private
-graph finalization and final-before-post ordering to the owned candidate route.
-Inspect `terminal()` and `run().lifecycle().finalization()`; neither a complete
-selection nor absence of a word is a temporal Holds certificate. The runnable
-Cargo example documents post errors, render refusals and unchanged bounds.
+`dive-liveness` also exposes diagnostic Rust APIs: ordered temporal execution,
+partial SCC checks and periodic-work, backend and terminal diagnostics. They
+retain concrete graph and candidate evidence, but their completion is never a
+temporal verdict and they do not enable ordinary periodic checking. Under ADR
+0086 these TLC-internal projections are not parity obligations, and they may be
+simplified or removed.

@@ -4,7 +4,7 @@ use dive_api::{CheckRequest, check_file};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/indexed-stack-replay/specs/IndexedStack.tla");
+        .join("examples/data/indexed-stack-replay/IndexedStack.tla");
     for compat_tlc in [true, false] {
         for trace_encoding in [TraceEncoding::LegacyV1, TraceEncoding::RepresentationV2] {
             let report = check_file(&CheckRequest {

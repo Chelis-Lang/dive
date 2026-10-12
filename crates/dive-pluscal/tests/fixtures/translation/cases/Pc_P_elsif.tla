@@ -1,0 +1,9 @@
+---- MODULE Pc_P_elsif ----
+EXTENDS Integers, Sequences, FiniteSets, TLC
+(*
+--algorithm A variable x = 0, y; begin
+ if x = 0 then skip; elsif x = 1 then skip; else skip; end if;
+end algorithm
+
+*)
+====

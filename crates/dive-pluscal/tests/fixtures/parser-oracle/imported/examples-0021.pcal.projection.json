@@ -1,0 +1,1 @@
+{"name":"Consensus","syntax":"C","fair":false,"declarations":[["chosen","Equal",["{","}"]]],"definitions":null,"macros":[["Choose",[],[["",["When",["chosen","=","{","}"]]],["",["With","v","Member",["Value"],[["",["Assign",[["chosen",[],["{","v","}"]]]]]]]]]]],"procedures":[],"body":["Sequential",[["lbl",["While",["TRUE"],[["",["MacroCall","Choose",[]]]]]]]]}

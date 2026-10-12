@@ -27,7 +27,7 @@ visited keys. Unsupported representative/startup/value interactions refuse.
 Ordinary `RandomElement` checking supports a closed pure VIEW and pure startup/Init.
 Expansion draws use the VIEW value's TLC fingerprint, while counterexamples retain
 concrete variable values. Direct calls and proved configured native replacements
-use the same authority. The [runnable paired example](../../conformance/probes/view-random-stream/README.md)
+use the same authority. The runnable paired example
 shows the reported seed, polynomial, requested width and actual inline width.
 Unproved VIEW/startup contexts still return `unsupported` before binding, output
 or search. The conservative source walk includes unused definitions and native
@@ -42,7 +42,7 @@ Pure VIEW and direct source-call random checking without VIEW remain available.
 VIEW normalizes all concrete variables before computing a visited key, even
 variables the projection ignores. If a value cannot be normalized on the
 proved bounded path, the result is `unsupported`; an unprintable state never
-becomes a validated counterexample. See [the measured boundary](../../conformance/probes/view-concrete-normalization/README.md).
+becomes a validated counterexample. See the measured boundary.
 Random checking reports its actual inline width separately from requested workers.
 Ordinary safety checking admits the configured `RandomElement` route, for example
 `CONSTANT C <- RandomElement`, using the actual bound native operator for startup
@@ -54,7 +54,7 @@ parallel engine where admitted.
 The committed configured-operator example is runnable directly:
 
 ```sh
-dive check conformance/probes/configured-random-stream/primary/natural/Stream.tla --compat=tlc --seed 7 --fp 0 --workers 8 --output json
+dive check docs/user/examples/Stream.tla --compat=tlc --seed 7 --fp 0 --workers 8 --output json
 ```
 
 It reports an invariant violation with generated/distinct/depth `4/4/4` and
@@ -78,8 +78,8 @@ Configured `Randomization` replacements, SYMMETRY with randomness, graph
 capture, temporal random checking and seeded native recovery remain explicitly
 refused. The callback-free configured-target scan remains conservative across
 matching modules and aliases.
-See the [original wrong-answer repair](../../conformance/probes/configured-random-admission/README.md)
-and [bound-stream controls and remaining replay limits](../../conformance/probes/configured-random-stream/README.md).
+See the original wrong-answer repair
+and bound-stream controls and remaining replay limits.
 The corrected standalone campaign independently validates 144 of 180 original
 witness controls, refuses 36 unproved draw positions, and rejects all 180
 changed-Init controls. The remaining refusals cover two draws, a discarded random
@@ -92,7 +92,7 @@ operators, unknown finite deadlock covers, resource stops and internal failures
 must never be treated as `success`.
 
 See [compatibility](compatibility.md), [storage](storage-recovery.md),
-[reports](reports-and-errors.md) and the [complete coverage ledger](../tlc-parity.md).
+[reports](reports-and-errors.md) and the [complete coverage ledger](../scoreboard.md).
 
 A lazy filter ignored by VIEW does not require evaluating its predicate. The
 checker normalizes its stored bound set only. `x = {i \in Nat : Print(i,
@@ -106,13 +106,13 @@ normalizable. A reversed heterogeneous set may refuse even in the default
 profile. A forward heterogeneous set can produce a checker report whose
 canonical structured trace then fails decoder shape admission in both profiles.
 Treat that report as an unvalidated witness; checking counts or a displayed
-trace do not confer independent validation. See [the measured selection and
-refusals](../../conformance/probes/view-concrete-normalization/README.md) and
+trace do not confer independent validation. See the measured selection and
+refusals and
 [follow-up #190](https://github.com/Chelis-Lang/dive/issues/190).
 
 For admitted compound counterexamples, explicitly select
 `--trace-format representation-v2`; the embedded document changes version while
 checker semantics/profile/counts stay unchanged. Inspect `trace_encoding` and
 validate the word independently. Legacy version1 remains default. See the
-[stored trace transport guide](../trace-representation.md) for schema, refusals,
+stored trace transport guide for schema, refusals,
 known legacy failures and runnable Rust/CLI examples.

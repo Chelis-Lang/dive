@@ -1,0 +1,2248 @@
+{
+ "rows": [
+  {
+   "id": "Norm_C_branch_default",
+   "input": "Norm_C_branch_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_branch_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_branch_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_branch_inner_default",
+   "input": "Norm_C_branch_inner_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_branch_inner_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_branch_inner_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_branch_label",
+   "input": "Norm_C_branch_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_branch_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_branch_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_branch_label_root",
+   "input": "Norm_C_branch_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_branch_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_branch_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_branch_report",
+   "input": "Norm_C_branch_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_branch_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_branch_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_branch_root",
+   "input": "Norm_C_branch_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_branch_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_branch_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_default_default",
+   "input": "Norm_C_default_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_default_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_default_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_default_loop_default",
+   "input": "Norm_C_default_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_default_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_default_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_default_name_default",
+   "input": "Norm_C_default_name_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_default_name_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_fair_plus_loop_default",
+   "input": "Norm_C_fair_plus_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_fair_plus_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_fair_plus_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_goto_default",
+   "input": "Norm_C_goto_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_goto_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_goto_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_goto_label",
+   "input": "Norm_C_goto_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_goto_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_goto_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_goto_label_root",
+   "input": "Norm_C_goto_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_goto_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_goto_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_goto_report",
+   "input": "Norm_C_goto_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_goto_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_goto_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_goto_root",
+   "input": "Norm_C_goto_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_goto_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_goto_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_inner_repeat_default",
+   "input": "Norm_C_inner_repeat_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_inner_repeat_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_inner_repeat_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_minus_default",
+   "input": "Norm_C_minus_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_minus_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_minus_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_minus_loop_default",
+   "input": "Norm_C_minus_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_minus_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_minus_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_mixed_default_default",
+   "input": "Norm_C_mixed_default_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_mixed_default_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_mixed_default_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_partial_default",
+   "input": "Norm_C_partial_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_partial_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_partial_label",
+   "input": "Norm_C_partial_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_partial_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_partial_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_partial_label_root",
+   "input": "Norm_C_partial_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_partial_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_partial_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_partial_report",
+   "input": "Norm_C_partial_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_partial_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_partial_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_partial_root",
+   "input": "Norm_C_partial_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_partial_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_plus_default",
+   "input": "Norm_C_plus_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_plus_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_plus_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_plus_loop_default",
+   "input": "Norm_C_plus_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_plus_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_plus_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_repeat_default",
+   "input": "Norm_C_repeat_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_repeat_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_repeat_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_repeat_label",
+   "input": "Norm_C_repeat_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_repeat_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_repeat_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_repeat_label_root",
+   "input": "Norm_C_repeat_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_repeat_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_repeat_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_repeat_report",
+   "input": "Norm_C_repeat_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_repeat_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_repeat_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_repeat_root",
+   "input": "Norm_C_repeat_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_repeat_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_repeat_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_simple_default",
+   "input": "Norm_C_simple_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_simple_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_simple_digit_root",
+   "input": "Norm_C_simple_digit_root.tla",
+   "options": [
+    "-labelRoot",
+    "1Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_digit_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_simple_invalid_root",
+   "input": "Norm_C_simple_invalid_root.tla",
+   "options": [
+    "-labelRoot",
+    "_Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_invalid_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_simple_label",
+   "input": "Norm_C_simple_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_simple_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_simple_label_root",
+   "input": "Norm_C_simple_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_simple_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_simple_report",
+   "input": "Norm_C_simple_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_simple_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_simple_root",
+   "input": "Norm_C_simple_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_simple_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_simple_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_typed_collision_default",
+   "input": "Norm_C_typed_collision_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_typed_collision_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_typed_collision_label",
+   "input": "Norm_C_typed_collision_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_typed_collision_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_typed_collision_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_typed_collision_label_root",
+   "input": "Norm_C_typed_collision_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_typed_collision_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_typed_collision_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_typed_collision_report",
+   "input": "Norm_C_typed_collision_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_typed_collision_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_typed_collision_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_typed_collision_root",
+   "input": "Norm_C_typed_collision_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_typed_collision_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_variable_collision_default",
+   "input": "Norm_C_variable_collision_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_variable_collision_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_variable_collision_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_while_default",
+   "input": "Norm_C_while_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_while_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_while_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_while_label",
+   "input": "Norm_C_while_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_while_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_while_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_while_label_root",
+   "input": "Norm_C_while_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_while_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_while_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_while_report",
+   "input": "Norm_C_while_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_while_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_while_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_while_root",
+   "input": "Norm_C_while_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_while_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_while_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_with_default",
+   "input": "Norm_C_with_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_C_with_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_C_with_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_C_with_repeat_default",
+   "input": "Norm_C_with_repeat_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_with_repeat_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_with_repeat_label",
+   "input": "Norm_C_with_repeat_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_with_repeat_label.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_with_repeat_label_root",
+   "input": "Norm_C_with_repeat_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_with_repeat_label_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_with_repeat_report",
+   "input": "Norm_C_with_repeat_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_with_repeat_report.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_C_with_repeat_root",
+   "input": "Norm_C_with_repeat_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_C_with_repeat_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_branch_default",
+   "input": "Norm_P_branch_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_branch_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_branch_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_branch_inner_default",
+   "input": "Norm_P_branch_inner_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_branch_inner_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_branch_inner_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_branch_label",
+   "input": "Norm_P_branch_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_branch_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_branch_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_branch_label_root",
+   "input": "Norm_P_branch_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_branch_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_branch_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_branch_report",
+   "input": "Norm_P_branch_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_branch_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_branch_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_branch_root",
+   "input": "Norm_P_branch_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_branch_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_branch_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_default_default",
+   "input": "Norm_P_default_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_default_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_default_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_default_loop_default",
+   "input": "Norm_P_default_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_default_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_default_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_default_name_default",
+   "input": "Norm_P_default_name_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_default_name_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_fair_plus_loop_default",
+   "input": "Norm_P_fair_plus_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_fair_plus_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_fair_plus_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_goto_default",
+   "input": "Norm_P_goto_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_goto_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_goto_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_goto_label",
+   "input": "Norm_P_goto_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_goto_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_goto_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_goto_label_root",
+   "input": "Norm_P_goto_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_goto_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_goto_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_goto_report",
+   "input": "Norm_P_goto_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_goto_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_goto_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_goto_root",
+   "input": "Norm_P_goto_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_goto_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_goto_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_inner_repeat_default",
+   "input": "Norm_P_inner_repeat_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_inner_repeat_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_inner_repeat_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_minus_default",
+   "input": "Norm_P_minus_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_minus_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_minus_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_minus_loop_default",
+   "input": "Norm_P_minus_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_minus_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_minus_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_mixed_default_default",
+   "input": "Norm_P_mixed_default_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_mixed_default_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_mixed_default_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_partial_default",
+   "input": "Norm_P_partial_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_partial_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_partial_label",
+   "input": "Norm_P_partial_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_partial_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_partial_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_partial_label_root",
+   "input": "Norm_P_partial_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_partial_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_partial_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_partial_report",
+   "input": "Norm_P_partial_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_partial_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_partial_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_partial_root",
+   "input": "Norm_P_partial_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_partial_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_plus_default",
+   "input": "Norm_P_plus_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_plus_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_plus_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_plus_loop_default",
+   "input": "Norm_P_plus_loop_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_plus_loop_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_plus_loop_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_repeat_default",
+   "input": "Norm_P_repeat_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_repeat_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_repeat_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_repeat_label",
+   "input": "Norm_P_repeat_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_repeat_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_repeat_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_repeat_label_root",
+   "input": "Norm_P_repeat_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_repeat_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_repeat_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_repeat_report",
+   "input": "Norm_P_repeat_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_repeat_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_repeat_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_repeat_root",
+   "input": "Norm_P_repeat_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_repeat_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_repeat_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_simple_default",
+   "input": "Norm_P_simple_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_simple_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_simple_digit_root",
+   "input": "Norm_P_simple_digit_root.tla",
+   "options": [
+    "-labelRoot",
+    "1Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_digit_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_simple_invalid_root",
+   "input": "Norm_P_simple_invalid_root.tla",
+   "options": [
+    "-labelRoot",
+    "_Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_invalid_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_simple_label",
+   "input": "Norm_P_simple_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_simple_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_simple_label_root",
+   "input": "Norm_P_simple_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_simple_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_simple_report",
+   "input": "Norm_P_simple_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_simple_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_simple_root",
+   "input": "Norm_P_simple_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_simple_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_simple_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_typed_collision_default",
+   "input": "Norm_P_typed_collision_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_typed_collision_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_typed_collision_label",
+   "input": "Norm_P_typed_collision_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_typed_collision_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_typed_collision_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_typed_collision_label_root",
+   "input": "Norm_P_typed_collision_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_typed_collision_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_typed_collision_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_typed_collision_report",
+   "input": "Norm_P_typed_collision_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_typed_collision_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_typed_collision_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_typed_collision_root",
+   "input": "Norm_P_typed_collision_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_typed_collision_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_variable_collision_default",
+   "input": "Norm_P_variable_collision_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_variable_collision_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_variable_collision_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_while_default",
+   "input": "Norm_P_while_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_while_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_while_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_while_label",
+   "input": "Norm_P_while_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_while_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_while_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_while_label_root",
+   "input": "Norm_P_while_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_while_label_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_while_label_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_while_report",
+   "input": "Norm_P_while_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_while_report.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_while_report.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_while_root",
+   "input": "Norm_P_while_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_while_root.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_while_root.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_with_default",
+   "input": "Norm_P_with_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Norm_P_with_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Norm_P_with_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Norm_P_with_repeat_default",
+   "input": "Norm_P_with_repeat_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_with_repeat_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_with_repeat_label",
+   "input": "Norm_P_with_repeat_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_with_repeat_label.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_with_repeat_label_root",
+   "input": "Norm_P_with_repeat_label_root.tla",
+   "options": [
+    "-label",
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_with_repeat_label_root.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_with_repeat_report",
+   "input": "Norm_P_with_repeat_report.tla",
+   "options": [
+    "-reportLabels"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_with_repeat_report.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Norm_P_with_repeat_root",
+   "input": "Norm_P_with_repeat_root.tla",
+   "options": [
+    "-labelRoot",
+    "Step"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Norm_P_with_repeat_root.normalized.json"
+    }
+   }
+  }
+ ]
+}

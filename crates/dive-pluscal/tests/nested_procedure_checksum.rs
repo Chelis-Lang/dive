@@ -7,7 +7,8 @@ use std::path::Path;
 #[test]
 fn all_declared_procedure_rows_preserve_exact_bytes_or_named_boundaries()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("nested-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/nested-procedure-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -78,7 +79,8 @@ fn all_declared_procedure_rows_preserve_exact_bytes_or_named_boundaries()
 #[test]
 fn typed_nested_expansion_obeys_preallocation_and_final_byte_bounds()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("nested-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/nested-procedure-checksum");
     for syntax in ["C", "P"] {
         for shape in [
             "if_call_one",
@@ -119,7 +121,8 @@ fn typed_nested_expansion_obeys_preallocation_and_final_byte_bounds()
 #[test]
 fn while_tail_generation_visit_and_token_lines_match_primary()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("nested-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/nested-procedure-checksum");
     for study in ["while-tail", "while-lines"] {
         let root = base.join(study);
         let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(

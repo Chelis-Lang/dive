@@ -600,8 +600,8 @@ This is a native representation admission change, not a changed TLC semantic
 default. Cached provider/deferred sets remain refused. Existing8m/depth256
 Session bounds and separate50k/128 context bounds are unchanged. Pinned
 `LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
-[stored-state guide](stored-successor-material.md) and
-[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+stored-state guide and
+paired source/evidence.
 Ordinary schedules and whole-family parity remain partial.
 
 ### Actual-bound RandomElement stream authority (2026-10-11)
@@ -660,7 +660,7 @@ compared against actual selected `DiskStateQueue` thread controls at MIT-license
 pin `94d0c50`. The 296 controller, 196 updater and 96 queue observations retain
 separate producers. Borrowed native dispatch authority and the internal
 source-commit timer/EOF SCC seam are diagnostics; they do not establish ordinary
-scheduler equivalence. See [ADR 0052](decisions/0052-native-periodic-lifecycle.md).
+scheduler equivalence. See [ADR 0052](decisions/0086-rescue-reset.md).
 
 ### VIEW-backed RandomElement authority (2026-10-11)
 
@@ -707,7 +707,7 @@ budgets and construction witnesses are dive's own design. The storage codec's
 native format is not exposed to untrusted words. The frozen version2 transport
 producer used the older native codec whose tuple tag lost the nonliteral tuple
 distinction; its preserved spill/recovery study records that historical defect.
-The separate [structural storage repair](../conformance/probes/storage-tuple-function/README.md)
+The separate structural storage repair
 retains the distinction in the current native codec. Neither producer's archived
 observations are retagged as execution of the composed receiving source.
 Encoder witness probes use the existing Quiet marker authority solely to keep
@@ -834,8 +834,8 @@ original header formatting. All source references use pinned commit `94d0c50`
 (MIT). Iterative finite graph admission/shared reservations are dive's design,
 not runtime unrolling or termination analysis. The 162 primary and separate
 exploded rows retain two generated/SANY-invalid artifacts without public credit.
-See [ADR0077](decisions/0077-recursive-procedure-header-checksums.md) and
-[the executable contract](pluscal-recursive-procedure-checksums.md).
+See [ADR0077](decisions/0084-pluscal-translation.md) and
+[the executable contract](pluscal-translation.md).
 
 Candidate delivery10af preserves full45-stage/1057-test source receipts, default release feature isolation,27 separately corrected public outcomes, fresh memory/JSON witness mutants and all37 required safety gate models at1/4/8. The original unparenthesized IF material workload correctly produced an incomplete successor (four pin exit75 controls); four separately parenthesized controls give exit13. Every failed observer/source/script epoch remains retained, with no ordinary scheduling or corpus/family gain claimed.
 
@@ -868,7 +868,7 @@ assumption is retained. No ordinary schedule/model/family certification follows.
 
 ### Exhausted-queue terminal service (#222)
 
-Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+Bounded additive Rust terminal diagnostics preserve
 pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
 `Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
 queue refuses suspension and skips the hook before final selection. The complete
@@ -878,7 +878,7 @@ compile failures are retained; independent replay confirms their legal stutter.
 No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
 checkpoint/error/count equivalence remains unproved; F-023 stays missing and
 audit-required. Controller Complete and independently Valid concrete words are
-not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+not temporal Holds or model completion. See [ADR0076](decisions/0086-rescue-reset.md).
 
 
 ### Distinct partial-stop and full-CLI observations (#222)
@@ -902,7 +902,7 @@ and no 2104 message. The declared 512MiB heap and 30s observer bound remain reco
 This is an intentional-boundary observation, not a newly declared TLC bug. A
 native early hook/service stop remains incomplete or refused and cannot be Holds.
 All original selections, cleanup events and raw command/timing facts are retained
-in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+in the evidence.
 
 ## Stopped-queue worker diagnostics (ADR 0078, issue 224)
 
@@ -913,8 +913,8 @@ actual integer returns and independent CLI exits at 1/4/8, plus all earlier
 rejected selections. Native private transaction facts retain original source
 error/counters through joins; no claim reproduces Java graph writes after errors,
 natural clock scheduling or ordinary model proof. See
-[ADR0078](decisions/0078-stopped-queue-worker-errors.md) and the
-[executable guide](stopped-periodic-service.md).
+[ADR0078](decisions/0086-rescue-reset.md) and the
+executable guide.
 
 ### Source-owned disk safety role admission (#221)
 
@@ -961,7 +961,7 @@ development-only. Artifact and strict saved-frame replay credit remain separate.
 
 ## Terminal finalization and postcondition order (#228, ADR0080)
 
-The bounded [Rust terminal guide](terminal-outcome.md) exposes actual private
+The bounded Rust terminal guide exposes actual private
 capture/resource completion, OOS/PEM final checks, independently replayed words
 and subsequent direct post errors. `ModelChecker.modelCheck` runs finalCheck
 before normal `Tool.checkPostCondition`; `LiveWorker.printTrace` also calls
@@ -972,7 +972,7 @@ candidate getter exception/CLI1 with no method return. These are measured
 ordering contracts, not a newly declared TLC defect or approved default change.
 The unchanged8820 wrong post-before-final observation and all84/84/84/96
 reference development/selection epochs remain in
-[the acceptance evidence](../conformance/probes/terminal-outcome/README.md).
+the acceptance evidence.
 
 Only direct bounded scalar/Boolean posts are admitted; calls, effects, configured
 constants, constructors and unproved partial-render/getter exceptions refuse.
@@ -1002,7 +1002,7 @@ and executable guides. Portable Git commit/tree proofs preserve the selected
 producer blob identity without requiring an unpublished Git object in CI.
 The current reader checks the old and qualified epochs separately; this
 selected-source proof is not a hermetic build or full namespace certificate
-([probe evidence](../conformance/probes/indexed-stack-replay/README.md)).
+(probe evidence).
 
 ### Independent Strict substitution admission (#234)
 

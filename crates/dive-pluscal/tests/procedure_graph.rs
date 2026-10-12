@@ -15,7 +15,7 @@ fn retained(
     invalid: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("procedure-graph-acceptance")
+        .join("tests/fixtures/procedure-graph")
         .join(directory);
     let manifest: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;
@@ -106,7 +106,7 @@ fn pinned_nonrecursive_graph_artifacts_and_invalid_output() -> Result<(), Box<dy
 #[test]
 fn historical_cycles_now_match_the_retained_primary_artifacts()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("procedure-graph-acceptance/cases");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/procedure-graph/cases");
     for kind in [
         "self_recursive",
         "self_tail",

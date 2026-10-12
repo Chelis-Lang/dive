@@ -82,6 +82,8 @@ jobs:
           # dependency-policy diff below.
           fetch-depth: 2
           persist-credentials: false
+      - name: Repository budget (ADR 0086)
+        run: python3 -I scripts/check-repo-budget.py
       - name: Install pinned toolchain (rust-toolchain.toml)
         run: rustup show active-toolchain || rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2

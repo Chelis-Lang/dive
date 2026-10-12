@@ -6,7 +6,7 @@ use dive_liveness::phase_graph::Limits;
 use dive_trace::{Ending, Validation};
 use std::{path::PathBuf, sync::Arc};
 fn base() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes/tlc-temporal-if-final")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-temporal-if-final")
 }
 fn inputs(name: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let dir = base().join("models").join(name);
@@ -43,9 +43,8 @@ fn temporal_if_final_words_counts_and_all_independent_mutations() {
         let (ir, cfg) = inputs(name);
         let stderr = std::fs::read_to_string(
             base()
-                .join("final-projection/raw")
-                .join(name)
-                .join("stderr"),
+                .join("final-projection/tlc")
+                .join(format!("{name}.txt")),
         )
         .expect("raw unmodified finalCheck");
         for workers in [1, 3, 4, 8] {
@@ -282,18 +281,4 @@ fn unused_direct_temporal_if_admits_with_erased_annotations_and_retained_bounds(
         assert_eq!(refusal.progress.predicates, 0);
         assert!(refusal.partial.is_none());
     }
-}
-
-#[test]
-fn complete_current_source_raw_and_user_example_guard() {
-    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../scripts/check-tlc-temporal-if-final.py");
-    assert!(
-        std::process::Command::new("python3")
-            .arg("-I")
-            .arg(script)
-            .status()
-            .expect("source/evidence checker")
-            .success()
-    );
 }

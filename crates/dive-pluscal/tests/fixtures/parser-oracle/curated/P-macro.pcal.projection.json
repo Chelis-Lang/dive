@@ -1,0 +1,1 @@
+{"name":"A","syntax":"P","fair":false,"declarations":[],"definitions":null,"macros":[["M",["v"],[["",["Assign",[["x",[],["v"]]]]]]]],"procedures":[],"body":["Sequential",[["",["MacroCall","M",[["1"]]]]]]}

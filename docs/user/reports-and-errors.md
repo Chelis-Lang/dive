@@ -31,6 +31,6 @@ DFID and simulation require their report qualifications even on exit zero.
 
 Stable diagnostic codes and spans belong to the report; display text is intended
 for people. Full TLC deciding-error-class coverage is unfinished and tracked in
-[the status](../sprint-status.md). Generated harness reports in
+the status. Generated harness reports in
 [conformance](../conformance.md) are development evidence, not the schema for
 user commands. Keep profile and schema version in any automation protocol.

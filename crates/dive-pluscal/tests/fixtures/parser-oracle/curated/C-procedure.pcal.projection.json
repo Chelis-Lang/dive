@@ -1,0 +1,1 @@
+{"name":"A","syntax":"C","fair":false,"declarations":[],"definitions":null,"macros":[],"procedures":[["P",[["a","Equal",["0"]],["b","Equal",null]],[["z","Equal",["1"]]],[["R",["Return"]]]]],"body":["Sequential",[["L",["Call","P",[["1"],["2"]]]],["N",["Skip"]]]]}

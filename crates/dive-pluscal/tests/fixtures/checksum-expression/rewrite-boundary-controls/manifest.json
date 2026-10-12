@@ -1,0 +1,24 @@
+{
+ "rows": [
+  {
+   "id": "P_elsif-stale",
+   "primary_translated": true,
+   "primary_crc": "ec16a3e4",
+   "stages": {
+    "translated": {
+     "crc": "ec16a3e4"
+    }
+   }
+  },
+  {
+   "id": "P_macro-unproved",
+   "primary_translated": true,
+   "primary_crc": "dbedd2a2",
+   "stages": {
+    "translated": {
+     "crc": "dbedd2a2"
+    }
+   }
+  }
+ ]
+}

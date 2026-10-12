@@ -1,0 +1,48 @@
+--algorithm Echo {
+    variable inbox = [n \in Node |-> {}];  \* model communication between nodes
+    define { \* sending and receiving messages
+      \* network obtained from net when p sends message of kind knd to q
+      send(net, p, q, knd) == [net EXCEPT ![q] = @ \cup {[kind |-> knd, sndr |-> p]}]
+      \* network obtained from net when p receives a message
+      receive(net, p, msg) == [net EXCEPT ![p] = @ \ {msg}]
+      \* network obtained from net when p send message of kind knd to all nodes in dest
+      multicast(net, p, dest, knd) ==
+        [m \in Node |-> IF m \in dest THEN net[m] \cup {[kind |-> knd, sndr |-> p]}
+                        ELSE net[m]]
+    }
+
+  process (node \in Node) 
+    variables parent = NoNode,
+              children = {},
+              rcvd = 0,
+              nbrs = neighbors(self);        {
+  n0: if (self = initiator) {
+         \* initiator sends first message to all its neighbors
+         inbox := multicast(inbox, self, nbrs, "m")
+      };
+  n1: while (rcvd < Cardinality(nbrs)) {
+         \* receive some message from a neighbor
+         with (msg \in inbox[self],
+               net = receive(inbox, self, msg)) {
+            rcvd := rcvd+1;
+            if (self # initiator /\ rcvd = 1) {
+               assert(msg.kind = "m");  \* the first received message is always of type "m"
+               \* note the sender as the node's parent and send an "m" message to all remaining neighbors
+               parent := msg.sndr;
+               inbox := multicast(net, self, nbrs \ {msg.sndr}, "m")
+            }
+            else {
+               \* subsequent messages are counted but don't give rise to another message
+               inbox := net
+            };
+            if (msg.kind = "c") { children := children \cup {msg.sndr} }
+         }  \* end with
+      }; \* end while
+  n2: if (self # initiator) {
+         \* when non-initiator has received messages from all neighbors, acknowledge
+         \* child relationship to the parent
+         assert(parent \in nbrs);
+         inbox := send(inbox, self, parent, "c")
+      }
+  } \* end process
+}

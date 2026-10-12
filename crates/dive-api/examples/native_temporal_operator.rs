@@ -2,9 +2,8 @@
 use std::{path::Path, sync::Arc};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let path = Path::new(
-        "conformance/probes/native-temporal-operators/models/NativeHeadFails/NativeHeadFails.tla",
-    );
+    let path = &Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples/data/native-temporal-operator/NativeHeadFails.tla");
     let analysis = dive_sema::analyze_file(path, &dive_sema::Options::default())?;
     let ir = Arc::new(dive_ir::lower(&analysis)?);
     let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\n")

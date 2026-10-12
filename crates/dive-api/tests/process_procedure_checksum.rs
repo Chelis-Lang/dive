@@ -3,7 +3,7 @@ use dive_api::{ChecksumPolicy, RewriteRequest, rewrite_source};
 use std::path::Path;
 fn admitted(syntax: &str, owner: &str) -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/process-procedure-checksum-acceptance");
+        .join("../dive-pluscal/tests/fixtures/process-procedure-checksum");
     for shape in [
         "ordinary",
         "parameter",
@@ -76,7 +76,7 @@ fn p_member_full_body_and_profiles() -> Result<(), Box<dyn std::error::Error>> {
 fn boundary_and_resource_refusals_never_emit_a_crc_or_replacement()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/process-procedure-checksum-acceptance");
+        .join("../dive-pluscal/tests/fixtures/process-procedure-checksum");
     for syntax in ["C", "P"] {
         for shape in [
             "duplicate_global",

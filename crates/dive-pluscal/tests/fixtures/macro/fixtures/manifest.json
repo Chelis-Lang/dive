@@ -1,0 +1,1678 @@
+{
+ "rows": [
+  {
+   "id": "Macro_C_arity_high",
+   "input": "Macro_C_arity_high.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_arity_high.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_arity_low",
+   "input": "Macro_C_arity_low.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_arity_low.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_assert",
+   "input": "Macro_C_assert.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_assert.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_assert.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_auto_label",
+   "input": "Macro_C_auto_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_auto_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_auto_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_await",
+   "input": "Macro_C_await.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_await.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_await.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_bound_capture",
+   "input": "Macro_C_bound_capture.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_bound_capture.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_bound_capture.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Macro_C_compound",
+   "input": "Macro_C_compound.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_compound.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_compound.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_compound_lhs",
+   "input": "Macro_C_compound_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_compound_lhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_compound_lhs.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Macro_C_duplicate_macro",
+   "input": "Macro_C_duplicate_macro.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_duplicate_macro.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_duplicate_params",
+   "input": "Macro_C_duplicate_params.tla",
+   "options": [],
+   "primary": {
+    "status": "oracle-error"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_duplicate_params.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_either",
+   "input": "Macro_C_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_empty",
+   "input": "Macro_C_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_empty.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_fair_modifier",
+   "input": "Macro_C_fair_modifier.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_fair_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_fair_process",
+   "input": "Macro_C_fair_process.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_fair_process.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_field_lhs",
+   "input": "Macro_C_field_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_field_lhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_field_lhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_field_rhs",
+   "input": "Macro_C_field_rhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_field_rhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_field_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_forward_call",
+   "input": "Macro_C_forward_call.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_forward_call.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_goto",
+   "input": "Macro_C_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_goto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_if",
+   "input": "Macro_C_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_index_lhs",
+   "input": "Macro_C_index_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_index_lhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_index_lhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_label_body",
+   "input": "Macro_C_label_body.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_label_body.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_literal_lhs",
+   "input": "Macro_C_literal_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_literal_lhs.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_multiple",
+   "input": "Macro_C_multiple.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_multiple.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_nested_rhs",
+   "input": "Macro_C_nested_rhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_nested_rhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_nested_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_newline_arg",
+   "input": "Macro_C_newline_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_newline_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_newline_arg.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_parallel",
+   "input": "Macro_C_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_print",
+   "input": "Macro_C_print.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_print.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_print.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_prior_call",
+   "input": "Macro_C_prior_call.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_prior_call.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_prior_call.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_process",
+   "input": "Macro_C_process.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_process.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_record_type",
+   "input": "Macro_C_record_type.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_record_type.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_record_type.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_recursive",
+   "input": "Macro_C_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_recursive.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_repeated",
+   "input": "Macro_C_repeated.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_repeated.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_repeated.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_same_action_twice",
+   "input": "Macro_C_same_action_twice.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_same_action_twice.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_selector_append",
+   "input": "Macro_C_selector_append.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_selector_append.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_selector_append.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_selector_arg",
+   "input": "Macro_C_selector_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_selector_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_selector_arg.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_simple",
+   "input": "Macro_C_simple.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_simple.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_simple.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_simultaneous",
+   "input": "Macro_C_simultaneous.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_simultaneous.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_simultaneous.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Macro_C_string_rhs",
+   "input": "Macro_C_string_rhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_string_rhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_string_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_tab",
+   "input": "Macro_C_tab.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_tab.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_tab.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_unknown",
+   "input": "Macro_C_unknown.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_unknown.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_unused",
+   "input": "Macro_C_unused.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_unused.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_unused.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_utf8",
+   "input": "Macro_C_utf8.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_C_utf8.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_C_while",
+   "input": "Macro_C_while.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_while.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_with",
+   "input": "Macro_C_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_with_capture",
+   "input": "Macro_C_with_capture.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_with_capture.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_with_capture.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_C_zero",
+   "input": "Macro_C_zero.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_C_zero.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_C_zero.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_arity_high",
+   "input": "Macro_P_arity_high.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_arity_high.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_arity_low",
+   "input": "Macro_P_arity_low.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_arity_low.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_assert",
+   "input": "Macro_P_assert.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_assert.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_assert.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_auto_label",
+   "input": "Macro_P_auto_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_auto_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_auto_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_await",
+   "input": "Macro_P_await.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_await.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_await.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_bound_capture",
+   "input": "Macro_P_bound_capture.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_bound_capture.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_bound_capture.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Macro_P_compound",
+   "input": "Macro_P_compound.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_compound.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_compound.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_compound_lhs",
+   "input": "Macro_P_compound_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_compound_lhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_compound_lhs.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Macro_P_duplicate_macro",
+   "input": "Macro_P_duplicate_macro.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_duplicate_macro.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_duplicate_params",
+   "input": "Macro_P_duplicate_params.tla",
+   "options": [],
+   "primary": {
+    "status": "oracle-error"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_duplicate_params.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_either",
+   "input": "Macro_P_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_empty",
+   "input": "Macro_P_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_fair_modifier",
+   "input": "Macro_P_fair_modifier.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_fair_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_fair_process",
+   "input": "Macro_P_fair_process.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_fair_process.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_field_lhs",
+   "input": "Macro_P_field_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_field_lhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_field_lhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_field_rhs",
+   "input": "Macro_P_field_rhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_field_rhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_field_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_forward_call",
+   "input": "Macro_P_forward_call.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_forward_call.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_goto",
+   "input": "Macro_P_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_goto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_if",
+   "input": "Macro_P_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_index_lhs",
+   "input": "Macro_P_index_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_index_lhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_index_lhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_label_body",
+   "input": "Macro_P_label_body.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_label_body.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_literal_lhs",
+   "input": "Macro_P_literal_lhs.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_literal_lhs.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_multiple",
+   "input": "Macro_P_multiple.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_multiple.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_multiple.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_nested_rhs",
+   "input": "Macro_P_nested_rhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_nested_rhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_nested_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_newline_arg",
+   "input": "Macro_P_newline_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_newline_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_newline_arg.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_parallel",
+   "input": "Macro_P_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_print",
+   "input": "Macro_P_print.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_print.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_print.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_prior_call",
+   "input": "Macro_P_prior_call.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_prior_call.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_prior_call.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_process",
+   "input": "Macro_P_process.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_process.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_record_type",
+   "input": "Macro_P_record_type.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_record_type.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_record_type.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_recursive",
+   "input": "Macro_P_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_recursive.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_repeated",
+   "input": "Macro_P_repeated.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_repeated.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_repeated.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_same_action_twice",
+   "input": "Macro_P_same_action_twice.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_same_action_twice.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_selector_append",
+   "input": "Macro_P_selector_append.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_selector_append.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_selector_append.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_selector_arg",
+   "input": "Macro_P_selector_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_selector_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_selector_arg.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_simple",
+   "input": "Macro_P_simple.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_simple.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_simple.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_simultaneous",
+   "input": "Macro_P_simultaneous.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_simultaneous.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_simultaneous.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Macro_P_string_rhs",
+   "input": "Macro_P_string_rhs.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_string_rhs.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_string_rhs.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_tab",
+   "input": "Macro_P_tab.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_tab.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_tab.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_unknown",
+   "input": "Macro_P_unknown.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_unknown.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_unused",
+   "input": "Macro_P_unused.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_unused.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_unused.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_utf8",
+   "input": "Macro_P_utf8.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Macro_P_utf8.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Macro_P_while",
+   "input": "Macro_P_while.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_while.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_with",
+   "input": "Macro_P_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_with_capture",
+   "input": "Macro_P_with_capture.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_with_capture.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_with_capture.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Macro_P_zero",
+   "input": "Macro_P_zero.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Macro_P_zero.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Macro_P_zero.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

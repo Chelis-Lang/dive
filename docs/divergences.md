@@ -313,7 +313,7 @@ not TLC parity certification or a new result-changing default.
 
 The sequential normalization follow-up matches pinned automatic-label option
 defaults, default model-value initialization and sequential label modifiers;
-[its full selection](pluscal-normalization.md) retains branch/name refusals. No
+[its full selection](pluscal-translation.md) retains branch/name refusals. No
 alternate label/fairness default is introduced. Process/procedure/macro and
 historical/checksum/map contracts remain pending.
 
@@ -332,11 +332,11 @@ No alternate default is adopted: independent formula evaluation keeps its
 existing semantics, and strict integrated liveness remains unsupported. Complete
 24 current controls, original18 and the native false completion are retained in
 `conformance/probes/state-if-planning/`. That capture predates the bounded
-[pure state-IF admission](tlc-state-if.md) in explicit final TLC mode (#168);
+pure state-IF admission in explicit final TLC mode (#168);
 ordinary periodic scheduling and upstream-refused temporal-argument IF forwarding remain refused.
 This is a native limitation repair, not family certification.
 
-The [single-process increment](pluscal-processes.md) matches unfair constant-ID
+The [single-process increment](pluscal-translation.md) matches unfair constant-ID
 and finite-membership process storage/action semantics and the distinct process
 `-label` default. Subsequent bounded fairness and multiple-block support is
 described below; unproved names remain named refusals.
@@ -357,7 +357,7 @@ Checkpoint evidence for D-007 is preserved in
 original totals are an opt-in proposed native capability, not an approved default.
 An incomplete native pause must never report a complete model-checking verdict.
 
-The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+The [bounded process-fairness increment](pluscal-translation.md) adds weak/strong
 declarations, label guards and explicit pinned fairness options. Translation
 artifacts remain nonproof results. Unproved/overlapping process domains, procedure fairness, renaming
 and unproved domain normalization are still named refusals; full-family
@@ -374,7 +374,7 @@ contexts refuse before effects; error-report metadata cannot index an invalid
 variable declaration. Stable context codes and original panic evidence are
 retained in `conformance/probes/public-ir-admission/`; F-035 stays partial.
 
-The [multiple finite-process increment](pluscal-multiple-processes.md) proves
+The [multiple finite-process increment](pluscal-translation.md) proves
 per-block storage, label and fairness ownership for disjoint literal domains.
 Overlapping IDs, namespace rewrites and cross-process local references remain
 explicit refusals in both profiles. Full translation families remain partial.
@@ -392,7 +392,7 @@ unused-standard-body refusal are preserved in
 ### D-008 progress: native PlusCal artifact admission
 
 
-The bounded [native macro translator](pluscal-macros.md) retains all invalid
+The bounded [native macro translator](pluscal-translation.md) retains all invalid
 primary outputs as diagnostic evidence. Under D-008, public CLI/API module
 admission rejects them in both profiles and never grants artifact/proof credit.
 Lexical macro substitution itself remains reference-compatible; general binders,
@@ -413,7 +413,7 @@ silent repair/default is adopted.
 ### D-013 historical increment: ordered temporal execution
 
 The earlier staged source records this scope; the later explicit final CLI
-contract is described in [the current user guide](tlc-final-api.md).
+contract is described in the current user guide.
 
 The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
 source order, with initial consistency before initial invariants and immediate
@@ -454,7 +454,7 @@ never carry their own validation certificate. F-019 through F-022 remain partial
 audit-required, F-023 missing and #140 open. Old broad studies retain their original
 outcomes; no default or ordinary strict conformance credit changes.
 
-See [final-only Rust API guide](tlc-final-api.md) for examples, resolved schedule,
+See final-only Rust API guide for examples, resolved schedule,
 actual evidence and refusal boundaries. The API admits startup sources before
 binding creates a host; effectful ASSUMEs, unused top-level constants, config
 replacement candidates and hooks return named refusal with zero used workers.
@@ -470,7 +470,7 @@ exact-store, accepting-sink, recovery, effect or resource refusals. The separate
 `dive-final-tlc` harness mode requires a final-schedule golden and fresh independent
 replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
 alias targets are admitted through actual module contexts before any startup
-binding effect. See [the user guide](tlc-final-api.md).
+binding effect. See the user guide.
 
 
 ### D-013 progress: explicit final-mode safety-only routing
@@ -490,7 +490,7 @@ success or completed capture. Constraint/property combinations whose stopping
 order the independent validator has not proven remain explicitly refused before
 pool work. No ordinary schedule, liveness-family or broad corpus credit follows.
 Original all-refusal studies and the constant `Next == FALSE` binding rejection
-are preserved. See [the safety-only user contract](tlc-final-api.md#safety-only-route)
+are preserved. See the safety-only user contract
 and `conformance/probes/tlc-final-safety` for clean paired evidence.
 
 D-013 conditional-admission progress (#168): pure state IF atoms are admitted
@@ -499,12 +499,12 @@ removes the older duplicate syntax refusal without changing conversion/error
 order, resource defaults or ordinary periodic scheduling. All original refusal
 and failed-capture histories remain available. Effects, opaque bindings and
 unverified errors remain explicit; no whole-family certification is claimed.
-See [conditional user guide](tlc-state-if.md), ADR 0036 and
+See conditional user guide, ADR 0036 and
 `conformance/probes/tlc-state-if/`.
 
 Temporal-kind IF remains a named bounded final-mode refusal (#170). Its
 shared-guard normalization/numbered-particle repair is now implemented as
-[diagnostic language evidence](tlc-temporal-if.md), with actual final execution
+diagnostic language evidence, with actual final execution
 and independent witnesses still pending. D-013 and temporal families stay partial.
 
 The proven direct temporal-IF subset now runs in explicit final/TLC mode after
@@ -514,7 +514,7 @@ upstream 2213/2214 errors and source-prefix 2116/exit-12 cases as named refusals
 without matching-error credit. Compound guards and INSTANCE claim/role identity
 are separately checked. Existing arena/work ceilings and whole-arena forwarding
 admission remain; no aggregate memory bound or periodic-family claim is added.
-See [the user guide](tlc-temporal-if.md) and
+See the user guide and
 `conformance/probes/tlc-temporal-if-final/`.
 
 
@@ -552,7 +552,7 @@ See the minimal user log examples and shared procedure acceptance manifest.
 **D-008 PlusCal procedure fairness status:** native bounded finite processes can
 now generate caller-owned weak/strong fairness for syntactically reachable
 procedures, including process/procedure label modifiers and pinned fairness
-options. The [fair procedure guide](pluscal-procedure-fairness.md) describes exact
+options. The [fair procedure guide](pluscal-translation.md) describes exact
 use and admission. Generation is nonproof; strict runtime-name witness replay,
 scoped renaming, unproved multiline fairness domains and sequential procedure
 modifiers remain separately refused or pending. Original malformed modifier
@@ -573,8 +573,8 @@ frontiers/parents are reconstructed into fresh transient stores in reference
 order. Archive/discovery workspace is excluded from both budgets; no total RAM,
 Java byte-interop or archive certificate claim. Counter reset/Retain and pure
 VIEW/symmetry witnesses retain their existing semantics. See
-[the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
-and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
+[the runnable recovery guide](user/storage-recovery.md)
+and separate preserved study.
 
 ## D-020: fair-algorithm checksum collision (candidate)
 
@@ -592,7 +592,7 @@ refusals; `--rewrite --checksums tla` explicitly disables algorithm CRC. See D-0
 source-edit controls.
 
 Bounded final scope evidence (#134) now distinguishes configured names from
-local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
+local/formal/INSTANCE derived roles; see the scoped final guide.
 Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
@@ -625,12 +625,12 @@ role labels. This matches the pinned binder and adds no semantic divergence.
 Conjunctive `PROPERTY P` can expose Action names `P;P` while the trace claims `P`
 once. The complete18 source-bound selection retains two exported-formal failures
 as refusals; ordinary schedules and broad family certification remain pending.
-See [the identity guide](tlc-property-origins.md).
+See the identity guide.
 
 Callback-free captured concrete values now have a bounded matching admission
 in explicit final mode; this resolves a native limitation, not a new divergence.
 Stored representations, context/name authority, fixed recursive work/depth and
-deferred/opaque refusals are documented in [the guide](material-capture.md).
+deferred/opaque refusals are documented in the guide.
 No ordinary scheduling or whole-corpus certification is implied.
 
 
@@ -647,7 +647,7 @@ Known user targets preserve caller scopes and are inspected even when unused;
 opaque/native/recursive/higher-order and configured-origin-ambiguous targets
 remain refused. Clean accepted INSTANCE operator-formal controls are separate
 from older exported temporal-expression failures2213. Full periodic/corpus/family
-parity is unclaimed; see [the operator guide](temporal-operators.md).
+parity is unclaimed; see the operator guide.
 
 ## D-021: PlusCal option context is absent from checksum headers (candidate)
 
@@ -662,7 +662,7 @@ silently ignoring their semantics.
 No stronger checksum/default policy is adopted. Explicit typed/CLI options have
 proved bounded process AST serialization; replacement reports record them.
 D-020's fair-only CRC weakness remains. See [D-021 user evidence](tlc-differences.md#d-021-pluscal-checksums-need-the-generation-options),
-[option use](pluscal-process-checksum-options.md), and all clean configured,
+[option use](pluscal-translation.md), and all clean configured,
 unconfigured and original ignored-option native captures in
 `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
 
@@ -687,7 +687,7 @@ unproved normalization/error-class case instead of a four-state violation
 with unprintable values. This is an honest implementation refusal, not a new
 result-changing default. See `conformance/probes/view-concrete-normalization/`.
 
-The subsequent bounded [native operator actual slice](native-temporal-operators.md)
+The subsequent bounded native operator actual slice
 accepts Len/Head/Cardinality with separately proved constant/state arguments and
 stored-input admission. It changes no result default or schedule. Other native,
 configured/opaque/effectful and unsupported state-storage/error boundaries retain
@@ -708,8 +708,8 @@ This is a native representation admission change, not a changed TLC semantic
 default. Cached provider/deferred sets remain refused. Existing8m/depth256
 Session bounds and separate50k/128 context bounds are unchanged. Pinned
 `LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
-[stored-state guide](stored-successor-material.md) and
-[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+stored-state guide and
+paired source/evidence.
 Ordinary schedules and whole-family parity remain partial.
 
 Bounded final native forwarding additionally admits `Append` with exactly two
@@ -726,8 +726,8 @@ graph quota. Successful partial checks never mean temporal `Holds`; ordinary
 strict checking remains refused until real clock/quiescence/error/stop-count
 contracts are implemented. The complete32 explicit-prefix projections and8
 repeated forced original checks are diagnostics, not ordinary schedule runs.
-See the [user/API guide](partial-temporal-checks.md) and
-[complete controls](../conformance/probes/tlc-partial-scc/README.md).
+See the user/API guide and
+complete controls.
 No new result-changing default or family certification is claimed.
 
 ### D-008 macro checksum stage qualification
@@ -739,7 +739,7 @@ Embedded ASCII-star decoration is now selected without source mutation, while
 two C/P arbitrary trailing-prose native syntax
 disagreements remain archived, with exact parser-consumed embedded end ownership
 now matching the paired controls. Full procedural/scoped layout and multiline/junction actuals
-remain explicit refusals. See [macro checksum scope](pluscal-macro-checksums.md).
+remain explicit refusals. See [macro checksum scope](pluscal-translation.md).
 D-020 fair-header-only CRC weakness remains unchanged in both profiles.
 
 
@@ -754,10 +754,10 @@ runtime. Original 16-case controls retain four raw and eight public wrong-answer
 rows. The repair uses pinned line order, preferring unfair only when both markers
 share the same line, in both profiles. Expanded split/tab/space and malformed
 controls preserve real reference rejection boundaries. See the
-[macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
+macro checksum study.
 Artifact admission and CRC equality still never establish model correctness.
 
-D-008 bounded DEFINE progress: [DEFINE helpers](pluscal-definitions.md) can be
+D-008 bounded DEFINE progress: [DEFINE helpers](pluscal-translation.md) can be
 serialized and emitted with reference declaration ordering. Raw AST/CRC equality
 is separate from enclosing-module SANY/native admission and finite-model
 checking. Invalid primary artifacts stay uncredited; recursive, symbolic,
@@ -766,14 +766,14 @@ inlines helpers or silently repairs the reference output.
 
 ## Supplied pure periodic expressions (bounded diagnostic limitation)
 
-ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).
+ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See the guide and complete59 controls.
 
-D-008 bounded LOCAL/function DEFINE progress: [the executable guide](pluscal-definition-forms.md)
+D-008 bounded LOCAL/function DEFINE progress: [the executable guide](pluscal-translation.md)
 preserves local export visibility, pre-state helper lookup and function domains.
 Domains and bodies share the action/temporal/cycle guard. Exact raw CRC equality
 is distinct from public enclosing-module admission and model proof; invalid
 reference outputs remain uncredited. Both profiles keep these same semantics.
-Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See the current user contract.
 D-009 trace transport boundary (#190): default legacy version 1 retains the
 known mixed-set shape failures. Opt-in `--trace-format representation-v2`
 preserves admitted forward stored sets and nonliteral tuple/record functions
@@ -781,14 +781,14 @@ through checked constructor witnesses and independent replay. This changes no
 comparison, construction or Random/VIEW shape policy. A transported word is not
 a certificate. Reverse construction, arbitrary deferred/symbolic values and
 trusted-storage tuple bit loss (#195) is repaired by explicitly versioned structural storage format 2; older ambiguous archives refuse. See
-[the schema and bounded CLI/API guide](trace-representation.md).
+the schema and bounded CLI/API guide.
 
 
-Producer request limitation (#201): [the bounded Rust diagnostic](producer-progress-requests.md) stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
+Producer request limitation (#201): the bounded Rust diagnostic stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
 
 ### Actual committed request-prefix limitation (#204)
 
-The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+The Rust request diagnostic publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
 D-007 storage increment (ADR 0063): additive `dive_store::seen::DiskSeen`
 provides actual fallible disk fingerprint/exact membership with bounded
 workspaces and explicit owned cleanup. ADR0063 qualified the standalone library only. ADR0068 now also admits
@@ -811,18 +811,18 @@ process/scoped and modifier boundaries emit no replacement or CRC. Both profiles
 retain the pinned header behavior, unchanged global quotas and D-020 weakness.
 Invalid `-fair` commands are command-stage uncredited controls, not language
 rejection or exit-equivalence credit. Artifact and strict saved-frame replay
-remain separately qualified. See [the runnable guide](pluscal-multiple-procedure-checksums.md).
+remain separately qualified. See [the runnable guide](pluscal-translation.md).
 ## Supplied pure periodic expressions (bounded diagnostic limitation)
 
-ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).
+ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See the guide and complete59 controls.
 
-Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See the current user contract.
 
-Producer request limitation (#201): [the bounded Rust diagnostic](producer-progress-requests.md) stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
+Producer request limitation (#201): the bounded Rust diagnostic stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
 
 ### Actual committed request-prefix limitation (#204)
 
-The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+The Rust request diagnostic publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
 
 D-007 ordinary disk-seen increment (ADR0068): `--seen-disk-entries N` now admits
 bounded inline safety membership for full fingerprint/exact keys. The resident
@@ -840,7 +840,7 @@ counter remains frozen. First query/insertion/bound/cleanup failures retain the
 original error and ordered prefix and refuse completion. This adds no new
 result-changing default, disk parallel/capture/recovery support or family credit.
 Original guarded and incorrect-count epochs remain separately linked in
-[the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+the replay study.
 
 ADR0072's D-007 disk continuation retains an explicit actual-Print/PrintT
 error-reconstruction refusal. Clean `ReplayPrint` has three output events,
@@ -856,7 +856,7 @@ original-header/CRC, exploded frames, public artifact and replay evidence remain
 separate. Real recursive/process/scoped graphs and other unproved checksum
 shapes remain named refusals with no Full replacement. Shared quotas and
 D-020 fair-header weakness are unchanged. See
-[the executable guide](pluscal-acyclic-procedure-checksums.md); F-034/F-035 remain
+[the executable guide](pluscal-translation.md); F-034/F-035 remain
 partial and strict saved-frame replay stays qualified under #124.
 
 
@@ -869,7 +869,7 @@ not change. The 162-case selection keeps all 130 predecessors and two new
 primary-generated/SANY-invalid zero-parameter self-tail artifacts uncredited.
 Process/scoped checksum and strict #124 saved-frame replay remain qualified;
 CRC equality is neither artifact admission nor a model proof. See
-[the executable guide](pluscal-recursive-procedure-checksums.md).
+[the executable guide](pluscal-translation.md).
 
 D-007 role continuation (#221, ADR0075): opt-in disk checking uses the actual
 shared configured role splitter for a bounded pure safety slice, before startup

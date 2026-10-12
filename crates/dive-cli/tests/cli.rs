@@ -1022,7 +1022,7 @@ fn final_tlc_effects_are_refused_without_startup_output_or_proof() {
 #[test]
 fn final_mode_safety_route_retains_actual_finite_verdicts_without_temporal_claims() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-safety/models");
+        .join("tests/fixtures/tlc-final-safety/models");
     for (name, code, kind) in [
         ("SafetyHold", 0, "success"),
         ("SafetyIf", 0, "success"),
@@ -1079,8 +1079,8 @@ fn final_mode_safety_route_retains_actual_finite_verdicts_without_temporal_claim
 #[test]
 fn pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-state-if/models");
+    let base =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-state-if/models");
     for (name, exit) in [
         ("IfStateViolation", 13),
         ("IfLet", 13),
@@ -1133,7 +1133,7 @@ fn pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode()
 fn final_temporal_if_retains_exported_forwarding_refusal() -> Result<(), Box<dyn std::error::Error>>
 {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-temporal-if-final/models/TiForward/TiForward.tla");
+        .join("tests/fixtures/tlc-temporal-if-final/models/TiForward/TiForward.tla");
     for workers in ["1", "3", "4", "8"] {
         let output = dive(&[
             "check",

@@ -8,7 +8,7 @@ use std::path::Path;
 #[test]
 fn complete_nesting_layout_selection_matches_or_refuses() -> Result<(), Box<dyn std::error::Error>>
 {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("checksum-expression-acceptance");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checksum-expression");
     let mut total = 0;
     let mut exact = 0;
     let mut refused = 0;

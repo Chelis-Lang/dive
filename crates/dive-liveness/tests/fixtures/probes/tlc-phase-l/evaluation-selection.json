@@ -1,0 +1,492 @@
+[
+  {
+    "name": "g0-s0-a0-fail0",
+    "groups": 0,
+    "states": 0,
+    "actions": 0,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g0-s0-a0-fail1",
+    "groups": 0,
+    "states": 0,
+    "actions": 0,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g0-s0-a0-fail3",
+    "groups": 0,
+    "states": 0,
+    "actions": 0,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g0-s0-a0-fail8",
+    "groups": 0,
+    "states": 0,
+    "actions": 0,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g0-s0-a0-fail20",
+    "groups": 0,
+    "states": 0,
+    "actions": 0,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a0-fail0",
+    "groups": 1,
+    "states": 0,
+    "actions": 0,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a0-fail1",
+    "groups": 1,
+    "states": 0,
+    "actions": 0,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a0-fail3",
+    "groups": 1,
+    "states": 0,
+    "actions": 0,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a0-fail8",
+    "groups": 1,
+    "states": 0,
+    "actions": 0,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a0-fail20",
+    "groups": 1,
+    "states": 0,
+    "actions": 0,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a2-fail0",
+    "groups": 1,
+    "states": 0,
+    "actions": 2,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a2-fail1",
+    "groups": 1,
+    "states": 0,
+    "actions": 2,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a2-fail3",
+    "groups": 1,
+    "states": 0,
+    "actions": 2,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a2-fail8",
+    "groups": 1,
+    "states": 0,
+    "actions": 2,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s0-a2-fail20",
+    "groups": 1,
+    "states": 0,
+    "actions": 2,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a0-fail0",
+    "groups": 1,
+    "states": 2,
+    "actions": 0,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a0-fail1",
+    "groups": 1,
+    "states": 2,
+    "actions": 0,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a0-fail3",
+    "groups": 1,
+    "states": 2,
+    "actions": 0,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a0-fail8",
+    "groups": 1,
+    "states": 2,
+    "actions": 0,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a0-fail20",
+    "groups": 1,
+    "states": 2,
+    "actions": 0,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a2-fail0",
+    "groups": 1,
+    "states": 2,
+    "actions": 2,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a2-fail1",
+    "groups": 1,
+    "states": 2,
+    "actions": 2,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a2-fail3",
+    "groups": 1,
+    "states": 2,
+    "actions": 2,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a2-fail8",
+    "groups": 1,
+    "states": 2,
+    "actions": 2,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g1-s2-a2-fail20",
+    "groups": 1,
+    "states": 2,
+    "actions": 2,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g2-s2-a2-fail0",
+    "groups": 2,
+    "states": 2,
+    "actions": 2,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g2-s2-a2-fail1",
+    "groups": 2,
+    "states": 2,
+    "actions": 2,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g2-s2-a2-fail3",
+    "groups": 2,
+    "states": 2,
+    "actions": 2,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g2-s2-a2-fail8",
+    "groups": 2,
+    "states": 2,
+    "actions": 2,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g2-s2-a2-fail20",
+    "groups": 2,
+    "states": 2,
+    "actions": 2,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g3-s1-a3-fail0",
+    "groups": 3,
+    "states": 1,
+    "actions": 3,
+    "fail": 0,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g3-s1-a3-fail1",
+    "groups": 3,
+    "states": 1,
+    "actions": 3,
+    "fail": 1,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g3-s1-a3-fail3",
+    "groups": 3,
+    "states": 1,
+    "actions": 3,
+    "fail": 3,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g3-s1-a3-fail8",
+    "groups": 3,
+    "states": 1,
+    "actions": 3,
+    "fail": 8,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  },
+  {
+    "name": "g3-s1-a3-fail20",
+    "groups": 3,
+    "states": 1,
+    "actions": 3,
+    "fail": 20,
+    "capacity": 16,
+    "records": [
+      "32:first:i1",
+      "16:second:i2",
+      "48:duplicate:i1",
+      "0:source-copy:i0"
+    ]
+  }
+]

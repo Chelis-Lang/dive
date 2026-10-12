@@ -5,7 +5,7 @@ use dive_api::{CheckRequest, Store, check_file};
 
 fn verify(name: &str) {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/trace-representation-v2/specs")
+        .join("tests/fixtures/trace-representation-v2/specs")
         .join(name)
         .join("Transport.tla");
     for compat_tlc in [true, false] {

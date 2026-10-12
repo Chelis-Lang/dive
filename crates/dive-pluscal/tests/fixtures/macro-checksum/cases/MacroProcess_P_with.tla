@@ -1,0 +1,4 @@
+---- MODULE MacroProcess_P_with ----
+EXTENDS Integers, TLC
+(* --algorithm A variable x=0,y=0; macro Put(v,a) begin with t=a do v:=t; end with; end macro; process P\in {1,2} variable z=0; begin L: Put(z,self); E: skip; end process; end algorithm; *)
+====

@@ -1,0 +1,1 @@
+{"name":"A","syntax":"P","fair":false,"declarations":[],"definitions":null,"macros":[],"procedures":[],"body":["Sequential",[["",["Assign",[["x",[],["<<","1",",","2",">>"]]]]],["",["PrintS",["\"end; begin \\\"\""]]]]]}

@@ -1,0 +1,3092 @@
+{
+ "rows": [
+  {
+   "id": "FairPositive_C_empty_domain",
+   "input": "FairPositive_C_empty_domain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_empty_domain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_empty_domain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_both",
+   "input": "FairPositive_C_id_strong_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_fair_algorithm",
+   "input": "FairPositive_C_id_strong_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_minus",
+   "input": "FairPositive_C_id_strong_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_minus_pair",
+   "input": "FairPositive_C_id_strong_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_option_nof",
+   "input": "FairPositive_C_id_strong_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_option_sf",
+   "input": "FairPositive_C_id_strong_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_option_wf",
+   "input": "FairPositive_C_id_strong_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_option_wfNext",
+   "input": "FairPositive_C_id_strong_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_plain",
+   "input": "FairPositive_C_id_strong_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_strong_plus",
+   "input": "FairPositive_C_id_strong_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_strong_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_strong_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_both",
+   "input": "FairPositive_C_id_unfair_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_fair_algorithm",
+   "input": "FairPositive_C_id_unfair_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_minus",
+   "input": "FairPositive_C_id_unfair_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_minus_pair",
+   "input": "FairPositive_C_id_unfair_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_option_nof",
+   "input": "FairPositive_C_id_unfair_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_option_sf",
+   "input": "FairPositive_C_id_unfair_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_option_wf",
+   "input": "FairPositive_C_id_unfair_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_option_wfNext",
+   "input": "FairPositive_C_id_unfair_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_plain",
+   "input": "FairPositive_C_id_unfair_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_unfair_plus",
+   "input": "FairPositive_C_id_unfair_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_unfair_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_unfair_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_both",
+   "input": "FairPositive_C_id_weak_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_fair_algorithm",
+   "input": "FairPositive_C_id_weak_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_minus",
+   "input": "FairPositive_C_id_weak_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_minus_pair",
+   "input": "FairPositive_C_id_weak_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_option_nof",
+   "input": "FairPositive_C_id_weak_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_option_sf",
+   "input": "FairPositive_C_id_weak_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_option_wf",
+   "input": "FairPositive_C_id_weak_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_option_wfNext",
+   "input": "FairPositive_C_id_weak_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_plain",
+   "input": "FairPositive_C_id_weak_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_id_weak_plus",
+   "input": "FairPositive_C_id_weak_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_id_weak_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_id_weak_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_strong_minus",
+   "input": "FairPositive_C_infinite_strong_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_strong_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_strong_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_strong_plain",
+   "input": "FairPositive_C_infinite_strong_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_strong_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_strong_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_strong_plus",
+   "input": "FairPositive_C_infinite_strong_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_strong_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_strong_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_unfair_minus",
+   "input": "FairPositive_C_infinite_unfair_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_unfair_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_unfair_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_unfair_plain",
+   "input": "FairPositive_C_infinite_unfair_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_unfair_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_unfair_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_unfair_plus",
+   "input": "FairPositive_C_infinite_unfair_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_unfair_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_unfair_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_weak_minus",
+   "input": "FairPositive_C_infinite_weak_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_weak_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_weak_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_weak_plain",
+   "input": "FairPositive_C_infinite_weak_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_weak_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_weak_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_infinite_weak_plus",
+   "input": "FairPositive_C_infinite_weak_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_infinite_weak_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_infinite_weak_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_label_action_keyword",
+   "input": "FairPositive_C_label_action_keyword.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_label_action_keyword.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_label_action_keyword.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_missing_default",
+   "input": "FairPositive_C_missing_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairPositive_C_missing_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairPositive_C_missing_label",
+   "input": "FairPositive_C_missing_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_missing_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_missing_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_both",
+   "input": "FairPositive_C_set_strong_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_fair_algorithm",
+   "input": "FairPositive_C_set_strong_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_minus",
+   "input": "FairPositive_C_set_strong_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_minus_pair",
+   "input": "FairPositive_C_set_strong_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_option_nof",
+   "input": "FairPositive_C_set_strong_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_option_sf",
+   "input": "FairPositive_C_set_strong_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_option_wf",
+   "input": "FairPositive_C_set_strong_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_option_wfNext",
+   "input": "FairPositive_C_set_strong_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_plain",
+   "input": "FairPositive_C_set_strong_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_strong_plus",
+   "input": "FairPositive_C_set_strong_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_strong_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_strong_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_both",
+   "input": "FairPositive_C_set_unfair_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_fair_algorithm",
+   "input": "FairPositive_C_set_unfair_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_minus",
+   "input": "FairPositive_C_set_unfair_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_minus_pair",
+   "input": "FairPositive_C_set_unfair_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_option_nof",
+   "input": "FairPositive_C_set_unfair_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_option_sf",
+   "input": "FairPositive_C_set_unfair_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_option_wf",
+   "input": "FairPositive_C_set_unfair_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_option_wfNext",
+   "input": "FairPositive_C_set_unfair_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_plain",
+   "input": "FairPositive_C_set_unfair_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_unfair_plus",
+   "input": "FairPositive_C_set_unfair_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_unfair_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_unfair_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_both",
+   "input": "FairPositive_C_set_weak_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_fair_algorithm",
+   "input": "FairPositive_C_set_weak_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_minus",
+   "input": "FairPositive_C_set_weak_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_minus_pair",
+   "input": "FairPositive_C_set_weak_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_option_nof",
+   "input": "FairPositive_C_set_weak_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_option_sf",
+   "input": "FairPositive_C_set_weak_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_option_wf",
+   "input": "FairPositive_C_set_weak_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_option_wfNext",
+   "input": "FairPositive_C_set_weak_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_plain",
+   "input": "FairPositive_C_set_weak_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_set_weak_plus",
+   "input": "FairPositive_C_set_weak_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_set_weak_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_set_weak_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_string_id",
+   "input": "FairPositive_C_string_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_string_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_string_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_C_two_blocks",
+   "input": "FairPositive_C_two_blocks.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_C_two_blocks.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_C_two_blocks.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_empty_domain",
+   "input": "FairPositive_P_empty_domain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_empty_domain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_empty_domain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_both",
+   "input": "FairPositive_P_id_strong_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_fair_algorithm",
+   "input": "FairPositive_P_id_strong_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_minus",
+   "input": "FairPositive_P_id_strong_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_minus_pair",
+   "input": "FairPositive_P_id_strong_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_option_nof",
+   "input": "FairPositive_P_id_strong_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_option_sf",
+   "input": "FairPositive_P_id_strong_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_option_wf",
+   "input": "FairPositive_P_id_strong_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_option_wfNext",
+   "input": "FairPositive_P_id_strong_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_plain",
+   "input": "FairPositive_P_id_strong_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_strong_plus",
+   "input": "FairPositive_P_id_strong_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_strong_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_strong_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_both",
+   "input": "FairPositive_P_id_unfair_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_fair_algorithm",
+   "input": "FairPositive_P_id_unfair_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_minus",
+   "input": "FairPositive_P_id_unfair_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_minus_pair",
+   "input": "FairPositive_P_id_unfair_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_option_nof",
+   "input": "FairPositive_P_id_unfair_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_option_sf",
+   "input": "FairPositive_P_id_unfair_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_option_wf",
+   "input": "FairPositive_P_id_unfair_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_option_wfNext",
+   "input": "FairPositive_P_id_unfair_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_plain",
+   "input": "FairPositive_P_id_unfair_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_unfair_plus",
+   "input": "FairPositive_P_id_unfair_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_unfair_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_unfair_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_both",
+   "input": "FairPositive_P_id_weak_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_fair_algorithm",
+   "input": "FairPositive_P_id_weak_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_minus",
+   "input": "FairPositive_P_id_weak_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_minus_pair",
+   "input": "FairPositive_P_id_weak_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_option_nof",
+   "input": "FairPositive_P_id_weak_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_option_sf",
+   "input": "FairPositive_P_id_weak_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_option_wf",
+   "input": "FairPositive_P_id_weak_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_option_wfNext",
+   "input": "FairPositive_P_id_weak_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_plain",
+   "input": "FairPositive_P_id_weak_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_id_weak_plus",
+   "input": "FairPositive_P_id_weak_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_id_weak_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_id_weak_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_strong_minus",
+   "input": "FairPositive_P_infinite_strong_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_strong_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_strong_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_strong_plain",
+   "input": "FairPositive_P_infinite_strong_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_strong_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_strong_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_strong_plus",
+   "input": "FairPositive_P_infinite_strong_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_strong_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_strong_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_unfair_minus",
+   "input": "FairPositive_P_infinite_unfair_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_unfair_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_unfair_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_unfair_plain",
+   "input": "FairPositive_P_infinite_unfair_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_unfair_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_unfair_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_unfair_plus",
+   "input": "FairPositive_P_infinite_unfair_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_unfair_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_unfair_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_weak_minus",
+   "input": "FairPositive_P_infinite_weak_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_weak_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_weak_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_weak_plain",
+   "input": "FairPositive_P_infinite_weak_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_weak_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_weak_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_infinite_weak_plus",
+   "input": "FairPositive_P_infinite_weak_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_infinite_weak_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_infinite_weak_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_label_action_keyword",
+   "input": "FairPositive_P_label_action_keyword.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_label_action_keyword.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_label_action_keyword.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_missing_default",
+   "input": "FairPositive_P_missing_default.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairPositive_P_missing_default.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairPositive_P_missing_label",
+   "input": "FairPositive_P_missing_label.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_missing_label.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_missing_label.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_both",
+   "input": "FairPositive_P_set_strong_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_fair_algorithm",
+   "input": "FairPositive_P_set_strong_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_minus",
+   "input": "FairPositive_P_set_strong_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_minus_pair",
+   "input": "FairPositive_P_set_strong_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_option_nof",
+   "input": "FairPositive_P_set_strong_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_option_sf",
+   "input": "FairPositive_P_set_strong_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_option_wf",
+   "input": "FairPositive_P_set_strong_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_option_wfNext",
+   "input": "FairPositive_P_set_strong_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_plain",
+   "input": "FairPositive_P_set_strong_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_strong_plus",
+   "input": "FairPositive_P_set_strong_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_strong_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_strong_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_both",
+   "input": "FairPositive_P_set_unfair_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_fair_algorithm",
+   "input": "FairPositive_P_set_unfair_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_minus",
+   "input": "FairPositive_P_set_unfair_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_minus_pair",
+   "input": "FairPositive_P_set_unfair_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_option_nof",
+   "input": "FairPositive_P_set_unfair_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_option_sf",
+   "input": "FairPositive_P_set_unfair_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_option_wf",
+   "input": "FairPositive_P_set_unfair_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_option_wfNext",
+   "input": "FairPositive_P_set_unfair_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_plain",
+   "input": "FairPositive_P_set_unfair_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_unfair_plus",
+   "input": "FairPositive_P_set_unfair_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_unfair_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_unfair_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_both",
+   "input": "FairPositive_P_set_weak_both.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_both.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_both.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_fair_algorithm",
+   "input": "FairPositive_P_set_weak_fair_algorithm.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_fair_algorithm.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_fair_algorithm.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_minus",
+   "input": "FairPositive_P_set_weak_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_minus_pair",
+   "input": "FairPositive_P_set_weak_minus_pair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_minus_pair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_minus_pair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_option_nof",
+   "input": "FairPositive_P_set_weak_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_option_sf",
+   "input": "FairPositive_P_set_weak_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_option_wf",
+   "input": "FairPositive_P_set_weak_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_option_wfNext",
+   "input": "FairPositive_P_set_weak_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_plain",
+   "input": "FairPositive_P_set_weak_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_set_weak_plus",
+   "input": "FairPositive_P_set_weak_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_set_weak_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_set_weak_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_string_id",
+   "input": "FairPositive_P_string_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_string_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_string_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairPositive_P_two_blocks",
+   "input": "FairPositive_P_two_blocks.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairPositive_P_two_blocks.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairPositive_P_two_blocks.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

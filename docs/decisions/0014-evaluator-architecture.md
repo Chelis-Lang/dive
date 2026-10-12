@@ -327,5 +327,5 @@ opaque operator contexts and startup prefixes that cannot be reproduced from a
 fresh Init stream. TLC's initial-predecessor trace fast path retains a consumed
 stream by state-object identity; strict checking refuses that unproved printing
 boundary rather than attach a different witness. See the source-bound
-[controls](../../conformance/probes/configured-random-stream/README.md). Historical
+controls. Historical
 admission receipts remain evidence for the previous refused epoch.

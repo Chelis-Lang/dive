@@ -1,0 +1,324 @@
+{
+ "rows": [
+  {
+   "id": "MacroScope_C_function_shadow",
+   "input": "MacroScope_C_function_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_function_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_function_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_C_let_shadow",
+   "input": "MacroScope_C_let_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_let_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_let_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_C_qualified_actual",
+   "input": "MacroScope_C_qualified_actual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_qualified_actual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_qualified_actual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_C_qualified_formal",
+   "input": "MacroScope_C_qualified_formal.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_qualified_formal.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_qualified_formal.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_C_quantifier_shadow",
+   "input": "MacroScope_C_quantifier_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_quantifier_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_quantifier_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_C_record_selector",
+   "input": "MacroScope_C_record_selector.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_record_selector.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_record_selector.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_C_simultaneous_defined",
+   "input": "MacroScope_C_simultaneous_defined.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_simultaneous_defined.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_simultaneous_defined.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_C_with_shadow",
+   "input": "MacroScope_C_with_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_C_with_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_C_with_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_P_function_shadow",
+   "input": "MacroScope_P_function_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_function_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_function_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_P_let_shadow",
+   "input": "MacroScope_P_let_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_let_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_let_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_P_qualified_actual",
+   "input": "MacroScope_P_qualified_actual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_qualified_actual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_qualified_actual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_P_qualified_formal",
+   "input": "MacroScope_P_qualified_formal.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_qualified_formal.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_qualified_formal.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_P_quantifier_shadow",
+   "input": "MacroScope_P_quantifier_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_quantifier_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_quantifier_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroScope_P_record_selector",
+   "input": "MacroScope_P_record_selector.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_record_selector.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_record_selector.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_P_simultaneous_defined",
+   "input": "MacroScope_P_simultaneous_defined.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_simultaneous_defined.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_simultaneous_defined.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroScope_P_with_shadow",
+   "input": "MacroScope_P_with_shadow.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroScope_P_with_shadow.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroScope_P_with_shadow.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

@@ -130,7 +130,7 @@ fn complete_model_normalization_group_and_tableau_identity_selection() {
 )]
 fn complete_fields(family: &str, expected_supported: usize) {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes")
+        .join("tests/fixtures/probes")
         .join(family);
     let capture: Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
@@ -395,7 +395,7 @@ fn sharing_preserves_independent_words_and_every_closing_position() {
 }
 fn independent_words(family: &str, expected_models: usize, expected_comparisons: usize) {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes")
+        .join("tests/fixtures/probes")
         .join(family);
     let capture: Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
@@ -568,18 +568,4 @@ fn shared_objects_keep_last_tags_holes_and_bounded_rewrite_work() {
             dive_liveness::formula::FormulaError::Limit("TLC planning work")
         ))
     ));
-}
-
-#[test]
-fn complete_raw_capture_history_and_source_guard() {
-    let script = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../scripts/check-tlc-temporal-if.py");
-    assert!(
-        std::process::Command::new("python3")
-            .arg("-I")
-            .arg(script)
-            .status()
-            .expect("checker")
-            .success()
-    );
 }

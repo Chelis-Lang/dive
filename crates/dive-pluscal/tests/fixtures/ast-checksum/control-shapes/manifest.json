@@ -1,0 +1,604 @@
+{
+ "rows": [
+  {
+   "id": "C_shape_if",
+   "primary_translated": true,
+   "primary_crc": "cf9a30e6",
+   "stages": {
+    "translated": {
+     "crc": "cf9a30e6"
+    }
+   }
+  },
+  {
+   "id": "C_shape_if-no-else",
+   "primary_translated": true,
+   "primary_crc": "5c5ff3aa",
+   "stages": {
+    "translated": {
+     "crc": "5c5ff3aa"
+    }
+   }
+  },
+  {
+   "id": "C_shape_elsif",
+   "primary_translated": true,
+   "primary_crc": "ec16a3e4",
+   "stages": {
+    "translated": {
+     "crc": "ec16a3e4"
+    }
+   }
+  },
+  {
+   "id": "C_shape_either",
+   "primary_translated": true,
+   "primary_crc": "e7c15ecc",
+   "stages": {
+    "translated": {
+     "crc": "e7c15ecc"
+    }
+   }
+  },
+  {
+   "id": "C_shape_either-three",
+   "primary_translated": true,
+   "primary_crc": "6ba02066",
+   "stages": {
+    "translated": {
+     "crc": "6ba02066"
+    }
+   }
+  },
+  {
+   "id": "C_shape_with",
+   "primary_translated": true,
+   "primary_crc": "ceb20d5c",
+   "stages": {
+    "translated": {
+     "crc": "ceb20d5c"
+    }
+   }
+  },
+  {
+   "id": "C_shape_with-member",
+   "primary_translated": true,
+   "primary_crc": "f6a8437",
+   "stages": {
+    "translated": {
+     "crc": "f6a8437"
+    }
+   }
+  },
+  {
+   "id": "C_shape_with-two",
+   "primary_translated": true,
+   "primary_crc": "e2bc84a9",
+   "stages": {
+    "translated": {
+     "crc": "e2bc84a9"
+    }
+   }
+  },
+  {
+   "id": "C_shape_while",
+   "primary_translated": true,
+   "primary_crc": "29bf749a",
+   "stages": {
+    "translated": {
+     "crc": "29bf749a"
+    }
+   }
+  },
+  {
+   "id": "C_shape_while-mixed",
+   "primary_translated": true,
+   "primary_crc": "7f1c2782",
+   "stages": {
+    "translated": {
+     "crc": "7f1c2782"
+    }
+   }
+  },
+  {
+   "id": "C_shape_while-true",
+   "primary_translated": true,
+   "primary_crc": "4e3c0790",
+   "stages": {
+    "translated": {
+     "crc": "4e3c0790"
+    }
+   }
+  },
+  {
+   "id": "C_shape_nested-if",
+   "primary_translated": true,
+   "primary_crc": "9964651d",
+   "stages": {
+    "translated": {
+     "crc": "9964651d"
+    }
+   }
+  },
+  {
+   "id": "C_shape_nested-with",
+   "primary_translated": true,
+   "primary_crc": "e2bc84a9",
+   "stages": {
+    "translated": {
+     "crc": "e2bc84a9"
+    }
+   }
+  },
+  {
+   "id": "C_shape_inner-label",
+   "primary_translated": true,
+   "primary_crc": "93b01db0",
+   "stages": {
+    "translated": {
+     "crc": "93b01db0"
+    }
+   }
+  },
+  {
+   "id": "C_shape_goto-done",
+   "primary_translated": true,
+   "primary_crc": "39e59272",
+   "stages": {
+    "translated": {
+     "crc": "39e59272"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_if",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_if-no-else",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_elsif",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_either",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_either-three",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_with",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_with-member",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_with-two",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_while",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_while-mixed",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_while-true",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_nested-if",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_nested-with",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_inner-label",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_shape_goto-done",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_shape_if",
+   "primary_translated": true,
+   "primary_crc": "cf9a30e6",
+   "stages": {
+    "translated": {
+     "crc": "cf9a30e6"
+    }
+   }
+  },
+  {
+   "id": "P_shape_if-no-else",
+   "primary_translated": true,
+   "primary_crc": "5c5ff3aa",
+   "stages": {
+    "translated": {
+     "crc": "5c5ff3aa"
+    }
+   }
+  },
+  {
+   "id": "P_shape_elsif",
+   "primary_translated": true,
+   "primary_crc": "ec16a3e4",
+   "stages": {
+    "translated": {
+     "crc": "ec16a3e4"
+    }
+   }
+  },
+  {
+   "id": "P_shape_either",
+   "primary_translated": true,
+   "primary_crc": "e7c15ecc",
+   "stages": {
+    "translated": {
+     "crc": "e7c15ecc"
+    }
+   }
+  },
+  {
+   "id": "P_shape_either-three",
+   "primary_translated": true,
+   "primary_crc": "6ba02066",
+   "stages": {
+    "translated": {
+     "crc": "6ba02066"
+    }
+   }
+  },
+  {
+   "id": "P_shape_with",
+   "primary_translated": true,
+   "primary_crc": "ceb20d5c",
+   "stages": {
+    "translated": {
+     "crc": "ceb20d5c"
+    }
+   }
+  },
+  {
+   "id": "P_shape_with-member",
+   "primary_translated": true,
+   "primary_crc": "f6a8437",
+   "stages": {
+    "translated": {
+     "crc": "f6a8437"
+    }
+   }
+  },
+  {
+   "id": "P_shape_with-two",
+   "primary_translated": true,
+   "primary_crc": "e2bc84a9",
+   "stages": {
+    "translated": {
+     "crc": "e2bc84a9"
+    }
+   }
+  },
+  {
+   "id": "P_shape_while",
+   "primary_translated": true,
+   "primary_crc": "29bf749a",
+   "stages": {
+    "translated": {
+     "crc": "29bf749a"
+    }
+   }
+  },
+  {
+   "id": "P_shape_while-mixed",
+   "primary_translated": true,
+   "primary_crc": "7f1c2782",
+   "stages": {
+    "translated": {
+     "crc": "7f1c2782"
+    }
+   }
+  },
+  {
+   "id": "P_shape_while-true",
+   "primary_translated": true,
+   "primary_crc": "4e3c0790",
+   "stages": {
+    "translated": {
+     "crc": "4e3c0790"
+    }
+   }
+  },
+  {
+   "id": "P_shape_nested-if",
+   "primary_translated": true,
+   "primary_crc": "9964651d",
+   "stages": {
+    "translated": {
+     "crc": "9964651d"
+    }
+   }
+  },
+  {
+   "id": "P_shape_nested-with",
+   "primary_translated": true,
+   "primary_crc": "e2bc84a9",
+   "stages": {
+    "translated": {
+     "crc": "e2bc84a9"
+    }
+   }
+  },
+  {
+   "id": "P_shape_inner-label",
+   "primary_translated": true,
+   "primary_crc": "93b01db0",
+   "stages": {
+    "translated": {
+     "crc": "93b01db0"
+    }
+   }
+  },
+  {
+   "id": "P_shape_goto-done",
+   "primary_translated": true,
+   "primary_crc": "39e59272",
+   "stages": {
+    "translated": {
+     "crc": "39e59272"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_if",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_if-no-else",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_elsif",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_either",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_either-three",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_with",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_with-member",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_with-two",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_while",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_while-mixed",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_while-true",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_nested-if",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_nested-with",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_inner-label",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_shape_goto-done",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  }
+ ]
+}

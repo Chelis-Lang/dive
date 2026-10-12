@@ -1,0 +1,612 @@
+{
+ "rows": [
+  {
+   "id": "FairSequential_C_fair_modifiers_nof",
+   "input": "FairSequential_C_fair_modifiers_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_modifiers_nof.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_modifiers_sf",
+   "input": "FairSequential_C_fair_modifiers_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_modifiers_sf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_modifiers_wf",
+   "input": "FairSequential_C_fair_modifiers_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_modifiers_wf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_modifiers_wfNext",
+   "input": "FairSequential_C_fair_modifiers_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_modifiers_wfNext.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_plain_nof",
+   "input": "FairSequential_C_fair_plain_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_plain_nof.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_plain_sf",
+   "input": "FairSequential_C_fair_plain_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_plain_sf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_plain_wf",
+   "input": "FairSequential_C_fair_plain_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_plain_wf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_fair_plain_wfNext",
+   "input": "FairSequential_C_fair_plain_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_fair_plain_wfNext.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_modifiers_nof",
+   "input": "FairSequential_C_plain_modifiers_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_modifiers_nof.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_modifiers_sf",
+   "input": "FairSequential_C_plain_modifiers_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_modifiers_sf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_modifiers_wf",
+   "input": "FairSequential_C_plain_modifiers_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_modifiers_wf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_modifiers_wfNext",
+   "input": "FairSequential_C_plain_modifiers_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_modifiers_wfNext.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_plain_nof",
+   "input": "FairSequential_C_plain_plain_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_plain_nof.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_plain_sf",
+   "input": "FairSequential_C_plain_plain_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_plain_sf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_plain_wf",
+   "input": "FairSequential_C_plain_plain_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_plain_wf.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_C_plain_plain_wfNext",
+   "input": "FairSequential_C_plain_plain_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "FairSequential_C_plain_plain_wfNext.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_modifiers_nof",
+   "input": "FairSequential_P_fair_modifiers_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_modifiers_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_modifiers_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_modifiers_sf",
+   "input": "FairSequential_P_fair_modifiers_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_modifiers_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_modifiers_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_modifiers_wf",
+   "input": "FairSequential_P_fair_modifiers_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_modifiers_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_modifiers_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_modifiers_wfNext",
+   "input": "FairSequential_P_fair_modifiers_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_modifiers_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_modifiers_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_plain_nof",
+   "input": "FairSequential_P_fair_plain_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_plain_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_plain_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_plain_sf",
+   "input": "FairSequential_P_fair_plain_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_plain_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_plain_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_plain_wf",
+   "input": "FairSequential_P_fair_plain_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_plain_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_plain_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_fair_plain_wfNext",
+   "input": "FairSequential_P_fair_plain_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_fair_plain_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_fair_plain_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_modifiers_nof",
+   "input": "FairSequential_P_plain_modifiers_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_modifiers_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_modifiers_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_modifiers_sf",
+   "input": "FairSequential_P_plain_modifiers_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_modifiers_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_modifiers_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_modifiers_wf",
+   "input": "FairSequential_P_plain_modifiers_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_modifiers_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_modifiers_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_modifiers_wfNext",
+   "input": "FairSequential_P_plain_modifiers_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_modifiers_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_modifiers_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_plain_nof",
+   "input": "FairSequential_P_plain_plain_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_plain_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_plain_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_plain_sf",
+   "input": "FairSequential_P_plain_plain_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_plain_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_plain_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_plain_wf",
+   "input": "FairSequential_P_plain_plain_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_plain_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_plain_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "FairSequential_P_plain_plain_wfNext",
+   "input": "FairSequential_P_plain_plain_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "FairSequential_P_plain_plain_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "FairSequential_P_plain_plain_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

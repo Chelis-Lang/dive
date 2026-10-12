@@ -1,0 +1,80 @@
+{
+ "rows": [
+  {
+   "id": "WhileTail_C_TRUE",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "59824eac",
+    "ae79eb8a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "59824eac"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileTail_C_Test",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c761b32b",
+    "ba58f7f9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c761b32b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileTail_P_TRUE",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "59824eac",
+    "ae79eb8a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "59824eac"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileTail_P_Test",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c761b32b",
+    "ba58f7f9"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c761b32b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

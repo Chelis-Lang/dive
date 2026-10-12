@@ -1,7 +1,8 @@
 //! Full procedure editing and resource/unsupported boundaries never claim proof.
 use dive_api::{ChecksumPolicy, RewriteRequest, rewrite_source};
-const SOURCE: &str =
-    include_str!("../../dive-pluscal/procedure-checksum-acceptance/cases/ProcedureCrc_P_basic.tla");
+const SOURCE: &str = include_str!(
+    "../../dive-pluscal/tests/fixtures/procedure-checksum/cases/ProcedureCrc_P_basic.tla"
+);
 #[test]
 fn procedure_full_and_body_only_admission_are_explicit_and_idempotent()
 -> Result<(), Box<dyn std::error::Error>> {
@@ -45,7 +46,7 @@ fn procedure_full_and_body_only_admission_are_explicit_and_idempotent()
 #[test]
 fn proved_nested_mutation_is_admitted_but_resource_limits_have_no_replacement() {
     let nested = include_str!(
-        "../../dive-pluscal/procedure-checksum-acceptance/cases/ProcedureCrc_P_if_call.tla"
+        "../../dive-pluscal/tests/fixtures/procedure-checksum/cases/ProcedureCrc_P_if_call.tla"
     );
     for compat_tlc in [false, true] {
         let mut request = RewriteRequest::default();
@@ -57,7 +58,7 @@ fn proved_nested_mutation_is_admitted_but_resource_limits_have_no_replacement() 
         assert_eq!(
             doc["replacement"]["algorithm_checksum"]["serialized_ast"],
             include_str!(
-                "../../dive-pluscal/procedure-checksum-acceptance/primary/ProcedureCrc_P_if_call.translated.ast"
+                "../../dive-pluscal/tests/fixtures/procedure-checksum/primary/ProcedureCrc_P_if_call.translated.ast"
             )
         );
         assert_eq!(doc["model_proved"], false);

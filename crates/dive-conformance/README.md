@@ -393,7 +393,7 @@ model checking alone. Combining these two selection flags is a usage error.
 
 `study final` observes schema-2 final/short runs separately from strict
 conformance. It compares final truth and counts and validates periodic witnesses
-independently. See [the study guide](../../docs/design/final-temporal-study.md)
+independently. See the study guide
 and `scripts/final-temporal-study.sh conformance/studies/lm1.txt`. Named refusals
 and all selected model/worker pairs remain visible; these observations never
 count as strict `agree` or alter the conformance gate.

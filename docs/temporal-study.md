@@ -1,7 +1,7 @@
 # Expanded final/short temporal study, 2026-10-10
 
 The [raw generated study](../conformance/reports/studies/small-temporal-53-final-short-tlc.json)
-records all 53 configurations in the [explicit selection](../conformance/studies/small-temporal-53.txt).
+records all 53 configurations in the explicit selection.
 The selection comes from temporal-refused Examples entries in the committed
 `20261009T134501007-dive-small.json` baseline. Every selected model has one row,
 including refusals and timeouts; no entry is dropped.

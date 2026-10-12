@@ -1,0 +1,4 @@
+---- MODULE P_fair_branch_label ----
+EXTENDS Integers, TLC, Sequences
+(* --fair algorithm A variables g=0; process P = 1 begin L:if g=0 then M:g:=1; else g:=2; end if; E:skip; end process; end algorithm; *)
+====

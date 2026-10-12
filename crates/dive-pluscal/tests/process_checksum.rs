@@ -7,7 +7,7 @@ use std::path::Path;
 #[test]
 fn retained_process_serialization_matches_each_primary_stage()
 -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("process-checksum-acceptance");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/process-checksum");
     let mut outcomes = [0_usize; 3];
     for folder in [
         "primary",
@@ -61,7 +61,7 @@ fn retained_process_serialization_matches_each_primary_stage()
 #[test]
 fn process_option_checksum_captures_match_bytes_and_declared_precedence()
 -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("process-option-checksum-acceptance");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/process-option-checksum");
     let mut outcomes = [0_usize; 4];
     for folder in ["primary", "context", "label-options"] {
         let base = root.join(folder);
@@ -170,8 +170,8 @@ fn process_ast_budgets_are_global_and_never_admit_partial_crc()
 #[test]
 fn source_option_comments_have_proved_artifact_and_full_crc()
 -> Result<(), Box<dyn std::error::Error>> {
-    let root =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("source-option-semantics-acceptance/primary-v2");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/source-option-semantics/primary-v2");
     for name in ["weak", "strong", "labels", "root-last"] {
         let id = format!("P_plain_{name}_cli_sf");
         let source = std::fs::read_to_string(root.join(format!("{id}.tla")))?;

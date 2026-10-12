@@ -1,0 +1,19 @@
+--algorithm ParallelReachability {
+  variables marked = {}, vroot = {Root};
+  fair process (p \in Procs) 
+    variables u = Root, toVroot = {} ;
+    { a: while (vroot /= {}) 
+       {    with (v \in vroot) { u := v };
+         b: if (u \notin marked)
+              {    marked := marked \cup {u};
+                   toVroot := Succ[u] ;
+                c: while (toVroot /= {})
+                     { with (w \in toVroot) {
+                         vroot := vroot \cup {w} ;
+                         toVroot := toVroot \ {w} }
+                     }
+               }
+             else { vroot := vroot \ {u} }     
+       }
+    }
+}
