@@ -6,5 +6,5 @@ Rust entry points, reports and current limits, with [runnable examples](user/exa
 The [developer documentation map](developer/README.md) connects the architecture,
 implementation sequence, conformance evidence, issue tracking and maintenance rules.
 [Known TLC differences](tlc-differences.md) explains reference behavior, dive's
-choices and compatibility switches. The [feature ledger](tlc-parity.md) records
-remaining coverage obligations; it does not turn a working example into parity certification.
+choices and compatibility switches. The [scoreboard](scoreboard.md) records corpus results and the roadmap feature
+checklist.

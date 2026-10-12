@@ -57,7 +57,7 @@ states. The native snapshot can retain the original totals as explicit
 `--checkpoint-counters retain`; the default remains `tlc` until approved.
 Recommendation: make retained totals the default for the default profile once
 resume controls prove uninterrupted counts/trace equivalence, and keep TLC reset
-under `--compat=tlc`. Evidence: `conformance/probes/native-checkpoint/README.md`.
+under `--compat=tlc`.
 
 ## Finite liveness runtime ratio (D-014, under consideration)
 

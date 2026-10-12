@@ -1,5 +1,12 @@
 # Changelog
 
+- Rescue reset (ADR 0086): parity is defined by observable results. Vendored
+  evidence trees, per-increment docs and evidence checker scripts are removed;
+  tests keep only the fixtures they read. PlusCal and storage notes are merged into
+  `docs/pluscal-translation.md` and `docs/user/storage-recovery.md`, coverage is
+  summarized in `docs/scoreboard.md`, and a pre-commit repository budget guard
+  (`scripts/check-repo-budget.py`) is added.
+
 
 - Add source-owned stopped-worker periodic diagnostics through
   `periodic_candidate::check_optional_stopped`. Eligible ordered source errors

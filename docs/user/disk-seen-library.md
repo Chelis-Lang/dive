@@ -68,9 +68,9 @@ The first library permits coordinated exclusive calls. Parallel read views,
 recovery and graph routing remain pending. Ordinary inline safety admission
 and separately budgeted seen/frontier/predecessor combinations use the explicit
 [engine contract](disk-seen-safety.md). See
-[ADR 0063](../decisions/0063-fallible-disk-seen-state-library.md).
+[ADR 0063](../decisions/0083-storage-and-checkpoint.md).
 
-The [source-bound control study](../../conformance/probes/fallible-seen-store/README.md)
+The source-bound control study
 records full key identity, rehash, poisoned-error and owned-cleanup controls, the
 actual Cargo example and current engine regression gates. It supplies library
 evidence; the later engine increment supplies its own evidence and option contract. It

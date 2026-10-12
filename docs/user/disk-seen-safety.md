@@ -145,8 +145,8 @@ The Rust `CheckRequest` above also works with
 contains both `SPECIFICATION Spec` and `PROPERTY Bound`. No new request flag
 selects the role policy: the same disk opt-in invokes admission, and output still
 reports requested8/actual1 workers. Separately add frontier/predecessor budgets
-when needed; their scopes remain independent. [ADR0075](../decisions/0075-source-owned-pure-safety-role-admission.md)
-and [the complete declared selection](../../conformance/probes/disk-safety-roles/declared-selection.json)
+when needed; their scopes remain independent. [ADR0075](../decisions/0083-storage-and-checkpoint.md)
+and the complete declared selection
 record support and refused rows. The frozen `7fae387c` producer passed all
 eight local gate stages and 1,326 tests with zero skips. Its complete 29-model
 selection retains 2,320 CLI rows and 2,088 public API comparisons, with 432
@@ -157,8 +157,8 @@ models at widths 1/4/8 also pass. These bounded observations do not certify
 the entire storage or role family.
 
 See [the storage library](disk-seen-library.md),
-[ADR0068](../decisions/0068-fallible-disk-seen-safety.md) and the current
-[source-bound study](../../conformance/probes/fallible-seen-engine/README.md).
+[ADR0068](../decisions/0083-storage-and-checkpoint.md) and the current
+source-bound study.
 
 
 An invariant evaluation error now uses positioned fallible disk replay. For
@@ -211,14 +211,14 @@ first cause. No resident-memory print behavior is changed by this disk guard.
 For the minimal already-seen successor case, pinned TLC and resident checking
 report 3 generated, 3 distinct and 1 queued. The original failed disk epoch gave
 4 distinct/2 queued; the first guarded epoch refused replay. Both remain
-[immutable observations](../../conformance/probes/fallible-seen-engine/invariant-replay-before/).
+immutable observations.
 The positioned implementation, clean probes and current validation status are
-in [ADR0072](../decisions/0072-fallible-invariant-error-replay.md) and
-[the replay study](../../conformance/probes/fallible-invariant-replay/README.md).
+in [ADR0072](../decisions/0083-storage-and-checkpoint.md) and
+the replay study.
 The bounded role-admission and other mode restrictions above remain.
 Per-action replay successor buffers are outside the disk-key budget.
 
-The [current replay source-bound controls](../../conformance/probes/fallible-invariant-replay/current/)
+The current replay source-bound controls
 include real VIEW and symmetry counterexamples, separately checked by the
 independent validator at both profiles/stores and requested 1/4/8 workers. They
 retain 144 Valid original words and 864 rejected mutants. The actual VIEW case
@@ -232,7 +232,7 @@ The positioned-replay campaign separately retains 432 pure disk comparisons
 and 504 explicit Print-output refusals against 104 inline references. Those
 refusals receive no output/error-class or certificate agreement credit. All
 original named witness mutants remain selected; the varied five/six/seven
-mutants per word total 864. The [portable readback](../../scripts/check-fallible-invariant-replay.py)
+mutants per word total 864. The portable readback
 checks the immutable packet without running the checker. Hash integrity is not
 a safety proof or archive authentication.
 
@@ -242,5 +242,4 @@ four distinct states, one queued state, depth3, and the concrete diagnostic
 prefix `(0,0) -> (1,0) -> (2,0)` equally in resident/public/private disk checks.
 This is error-reconstruction evidence; it is not an independently validated
 violation word. Temporal or effectful roles and Print-dependent error replay
-still refuse explicitly. See [the preserved boundary control](
-../../conformance/probes/disk-safety-roles/replay-property-before/).
+still refuse explicitly.

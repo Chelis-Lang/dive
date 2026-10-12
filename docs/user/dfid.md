@@ -21,4 +21,4 @@ use `DfidRequest` and `dfid_file`; `to_json()` carries the completion evidence
 and `exit_status()` the process disposition.
 
 See [DFID reference controls](../../crates/dive-check/tests/fixtures/dfid/README.md),
-[ADR 0021](../decisions/0021-native-dfid.md) and [report interpretation](reports-and-errors.md).
+[ADR 0021](../decisions/0083-storage-and-checkpoint.md) and [report interpretation](reports-and-errors.md).

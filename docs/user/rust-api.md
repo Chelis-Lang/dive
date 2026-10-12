@@ -61,68 +61,68 @@ model result. The independent trace crate builds without the successor enumerato
 For exact type signatures and compiled examples run `cargo doc -p dive-api --no-deps`
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md), [temporal guide](temporal.md) and
-[the final TLC API/CLI contract](../tlc-final-api.md).
+the final TLC API/CLI contract.
 
 For pure conditional predicates through `FinalTlc`/`tlc_temporal::check_final`,
-see [the conditional API example](../tlc-state-if.md). Ordinary periodic
+see the conditional API example. Ordinary periodic
 scheduling, exact temporal identity and unproved captured bindings remain
 explicitly unavailable in this bounded path.
 
 
-The [fair procedure guide](../pluscal-procedure-fairness.md) includes a compiled
+The [fair procedure guide](../pluscal-translation.md) includes a compiled
 Rust caller using `TranslationRequest.limits.fairness`. Shared finite process
 procedures retain per-ID ownership; their admitted translation reports still
 carry `model_proved: false`. Read [PlusCal boundaries](pluscal.md) before
 interpreting a generated Spec as a checker result.
 
 For pure operator formals through `tlc_temporal::check_final`, use the runnable
-[operator example](../temporal-operators.md). The low-level
+operator example. The low-level
 `Evaluator::scope_operator_analysis` exposes a callback-free known user scope for
 analysis only; its unknown formals cannot be forced or certify a model. Actual
 applications use real arguments and fresh independent witness replay.
 
 For stored concrete values and original claim names in final checking, use the
-compiled examples in [material captures](../material-capture.md) and
-[property origins](../tlc-property-origins.md). Their ownership, ordering and
+compiled examples in material captures and
+property origins. Their ownership, ordering and
 work/depth admission checks are separate from finite graph construction.
 
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
-[Pure native temporal operator arguments](../native-temporal-operators.md), with
+Pure native temporal operator arguments, with
 executable CLI/Rust examples and retained refusal boundaries.
 
-The [source-owned periodic backend](../periodic-backend.md) is a separate `dive_liveness::periodic_backend::execute` diagnostic. Its Cargo-owned example binds a real model and retains source-growth/check snapshots, actual caller limits and joined native-wave evidence. A candidate remains unvalidated and no outcome certifies ordinary temporal checking.
+The source-owned periodic backend is a separate `dive_liveness::periodic_backend::execute` diagnostic. Its Cargo-owned example binds a real model and retains source-growth/check snapshots, actual caller limits and joined native-wave evidence. A candidate remains unvalidated and no outcome certifies ordinary temporal checking.
 
 
-The [native clock/dispatch lifecycle](../native-periodic-lifecycle.md) adds `dive_liveness::periodic_lifecycle::execute`, with a Cargo-owned example. It polls only at committed source boundaries under real dispatch authority and checks SCCs at actual EOF; it grants no ordinary temporal verdict.
+The native clock/dispatch lifecycle adds `dive_liveness::periodic_lifecycle::execute`, with a Cargo-owned example. It polls only at committed source boundaries under real dispatch authority and checks SCCs at actual EOF; it grants no ordinary temporal verdict.
 
-The [pure supplied periodic-expression diagnostic](../periodic-hook.md) adds `dive_liveness::periodic_hook::execute`. It holds real native dispatch authority, but does not bind configured `_PERIODIC` or certify an ordinary verdict. Its Cargo-owned example documents original typed errors and bounds.
+The pure supplied periodic-expression diagnostic adds `dive_liveness::periodic_hook::execute`. It holds real native dispatch authority, but does not bind configured `_PERIODIC` or certify an ordinary verdict. Its Cargo-owned example documents original typed errors and bounds.
 
-The [configuration-owned periodic snapshot](../configured-periodic-snapshot.md) adds `dive_liveness::periodic_snapshot::bind` and private `Snapshot::execute`. Run `cargo run -p dive-api --example periodic_snapshot --locked`; source/startup admission precedes binding. The exposed Model retains ordinary-check refusal, and the diagnostic result never certifies a model.
+The configuration-owned periodic snapshot adds `dive_liveness::periodic_snapshot::bind` and private `Snapshot::execute`. Run `cargo run -p dive-api --example periodic_snapshot --locked`; source/startup admission precedes binding. The exposed Model retains ordinary-check refusal, and the diagnostic result never certifies a model.
 
-`PeriodicSnapshot::execute_requests` exposes producer-clock expansion request diagnostics; [Cargo example and receipt contract](../producer-progress-requests.md). It adds no ordinary model verdict or schedule proof.
+`PeriodicSnapshot::execute_requests` exposes producer-clock expansion request diagnostics; Cargo example and receipt contract. It adds no ordinary model verdict or schedule proof.
 
-[Committed request prefixes](../committed-periodic-prefix.md) use `PeriodicSnapshot::execute_requests` with producer-owned claims and actual source publication. The Cargo example retains completed safety counters and typed nonproof receipts; ordinary temporal checking remains unsupported.
+Committed request prefixes use `PeriodicSnapshot::execute_requests` with producer-owned claims and actual source publication. The Cargo example retains completed safety counters and typed nonproof receipts; ordinary temporal checking remains unsupported.
 
-[`Snapshot::execute_service`](../request-owned-periodic-service.md) is an additive request-owned Rust diagnostic with actual post-append counters, optional graph source and separate hook evaluations. TLC evaluator-option consistency is required; this is not an ordinary checker result.
+`Snapshot::execute_service` is an additive request-owned Rust diagnostic with actual post-append counters, optional graph source and separate hook evaluations. TLC evaluator-option consistency is required; this is not an ordinary checker result.
 
-The [producer-owned temporal candidate API](../producer-owned-temporal-candidate.md) adds `dive_api::periodic_candidate::check`. Run `cargo run -p dive-api --example periodic_candidate --locked`. Only an actual privately produced word with fresh memory and JSON Valid replay has a witness; absence is never Holds, and ordinary scheduling/count/model-proof authority remains unavailable.
+The producer-owned temporal candidate API adds `dive_api::periodic_candidate::check`. Run `cargo run -p dive-api --example periodic_candidate --locked`. Only an actual privately produced word with fresh memory and JSON Valid replay has a witness; absence is never Holds, and ordinary scheduling/count/model-proof authority remains unavailable.
 
-The [optional configuration-owned diagnostic](../optional-periodic-hook.md) adds
+The optional configuration-owned diagnostic adds
 `dive_liveness::periodic_snapshot::bind_optional` and
 `dive_api::periodic_candidate::check_optional`. Run
 `cargo run -p dive-api --example optional_periodic_candidate --locked`.
 An absent original role remains None, never TRUE; ordinary scheduling remains
 unsupported and both independent replay routes are required for an admitted word.
 
-`periodic_candidate::check_optional_terminal` is an additive [terminal diagnostic](../terminal-periodic-service.md): actual exhausted queue service before joins, bounded final candidates and fresh memory/JSON replay. No witness absence or controller Complete establishes temporal Holds or ordinary scheduling/count equality.
+`periodic_candidate::check_optional_terminal` is an additive terminal diagnostic: actual exhausted queue service before joins, bounded final candidates and fresh memory/JSON replay. No witness absence or controller Complete establishes temporal Holds or ordinary scheduling/count equality.
 
 `periodic_candidate::check_optional_stopped` adds an eligible ordered-worker-stop
 transaction to the optional configured-hook diagnostic. The original source
 result remains authoritative; no diagnostic receipt certifies ordinary scheduling
-or Holds. See the [Cargo example and exact contract](../stopped-periodic-service.md).
+or Holds. See the Cargo example and exact contract.
 
 
-The [terminal outcome diagnostic](../terminal-outcome.md) adds actual private
+The terminal outcome diagnostic adds actual private
 graph finalization and final-before-post ordering to the owned candidate route.
 Inspect `terminal()` and `run().lifecycle().finalization()`; neither a complete
 selection nor absence of a word is a temporal Holds certificate. The runnable

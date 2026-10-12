@@ -12,8 +12,8 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > independently validated counterexamples. Pure safety symmetry now retains
 > concrete validated traces; unsupported symmetry interactions and ordinary
 > temporal checking still refuse. Configured native random replacements refuse
-> before startup until their stream authority is proved. See [`docs/sprint-status.md`](docs/sprint-status.md)
-> for measured coverage and the remaining roadmap.
+> before startup until their stream authority is proved. See `docs/scoreboard.md`
+> for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
 
 
 ## Documentation
@@ -26,12 +26,12 @@ issues, provenance and conformance evidence.
 - [`docs/CHARTER.md`](docs/CHARTER.md): mission, scope, soundness contract and architecture.
 - [`AGENTS.md`](AGENTS.md): how to work in this repo, for humans and agents.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): milestones.
-- [`docs/tlc-parity.md`](docs/tlc-parity.md): the pinned feature ledger and remaining path to full TLC parity.
+- [`docs/scoreboard.md`](docs/scoreboard.md): corpus results and the roadmap feature checklist.
 - [`docs/tlc-differences.md`](docs/tlc-differences.md): where dive differs from TLC and why, with `--compat=tlc` restoring TLC's exact behaviour.
 - [`docs/temporal-api.md`](docs/temporal-api.md): final temporal checking for Rust callers.
-- [`docs/tuple-only-trace-replay.md`](docs/tuple-only-trace-replay.md): strict independent replay of proved tuple sequence calls and remaining namespace limits.
+- `docs/tuple-only-trace-replay.md`: strict independent replay of proved tuple sequence calls and remaining namespace limits.
 - [`crates/dive-sim/README.md`](crates/dive-sim/README.md): seeded finite simulation and its current limits.
-- [`docs/pluscal-rewriting.md`](docs/pluscal-rewriting.md): bounded in-memory block replacement and explicit translation-body checksums.
+- [`docs/pluscal-rewriting.md`](docs/pluscal-translation.md): bounded in-memory block replacement and explicit translation-body checksums.
 - [`docs/decisions/`](docs/decisions/): architecture decision records.
 - [`docs/survey/`](docs/survey/): oracles, corpora and the competitive analysis.
 - [`docs/conformance.md`](docs/conformance.md): latest conformance summary (generated).

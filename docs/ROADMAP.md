@@ -7,11 +7,8 @@ Milestones match the GitHub milestones on `Chelis-Lang/dive`. Each milestone end
 
 The charter's soundness contract applies throughout.
 
-See [the current sprint status](sprint-status.md) for shipped work, the latest
-conformance evidence and the remaining M1, M5 and M6 packages.
-The [TLC parity delivery plan](design/tlc-parity-plan.md) is the approved path
-through the complete pinned feature set. The [parity ledger](tlc-parity.md)
-separates semantic certification from literal source surfaces and model counts.
+The [scoreboard](scoreboard.md) records the latest corpus results and the
+roadmap feature checklist. Parity means observable results (ADR 0086).
 
 ## M0: Foundation
 
@@ -79,7 +76,7 @@ This is not a build-or-buy gate: `dive` is built regardless.
 - **Trace validation:** the `dive-trace` validator replays every counterexample.
 - **Conformance gate:** the standard conformance tier becomes a PR gate on a small subset.
 
-The design is in ADRs 0013–0016. The sequenced plan, with work packages, conformance milestones, the gate subset and benchmark targets, is `docs/design/m5-plan.md`. The safety checker and parallel engine are implemented; storage, errors, performance and corpus follow-ups remain open.
+The design is in ADRs 0013–0016. The safety checker and parallel engine are implemented; storage, errors, performance and corpus follow-ups remain open.
 
 ## M6: Liveness, fairness and symmetry
 
@@ -93,7 +90,7 @@ It does not increase the historical standard 83/71 report totals or certify
 complete symmetry parity. The required CM1 gate now exercises symmetry-bearing
 Paxos Voting at 1/4/8 workers without removing an existing case.
 
-The design is in ADRs 0017–0019 (proposed). The plan, with work packages, conformance milestones, gate additions and benchmark targets, is `docs/design/m6-plan.md`.
+The design is in ADRs 0017–0019 (proposed).
 
 ## Through full TLC parity
 
@@ -103,8 +100,8 @@ operators/configuration/output/debugger services, bounded-memory spill, native
 checkpoint/recovery, native distributed checking, PlusCal and release
 certification. Independent tracks can implement modes and corpus coverage while
 exact liveness selection is completed. Each phase has explicit acceptance
-criteria in [the plan](design/tlc-parity-plan.md); current capabilities and
-remaining interactions are in [the ledger](tlc-parity.md).
+criteria in the plan; current capabilities and
+remaining interactions are in [the ledger](scoreboard.md).
 
 Native protocols/checkpoints satisfy the approved scope; interoperability with
 Java workers/checkpoints and arbitrary JVM plugin loading are excluded. Host
@@ -129,14 +126,14 @@ forced reference checks do not establish the wall-clock threshold/quiescence/
 error/stop/checkpoint schedule; that execution contract must be ported next
 without routing ordinary strict checks through final-only or short witnesses.
 
-Periodic backend increment #189 now derives actual pointer-bucket growth/check-size snapshots and stops the native source capture on its first explicit partial candidate. The [user guide](periodic-backend.md) qualifies that diagnostic contract. Real ordinary clock, queue suspension, ratio/PERIODIC/checkpoint transactions and complete stopping witnesses still gate ordinary temporal admission.
+Periodic backend increment #189 now derives actual pointer-bucket growth/check-size snapshots and stops the native source capture on its first explicit partial candidate. The user guide qualifies that diagnostic contract. Real ordinary clock, queue suspension, ratio/PERIODIC/checkpoint transactions and complete stopping witnesses still gate ordinary temporal admission.
 
 
 Issue #189 now has a bounded native clock/dispatch diagnostic seam: internally sampled source-commit polling plus actual EOF final SCCs. Ordinary periodic CLI support still requires queue/timer stop-prefix equivalence, hook/checkpoint transactions and independent deciding witness certification.
 
 F-023 next-stage evidence now includes a bounded pure supplied-expression hook at actual native pauses. Configured PERIODIC snapshot binding, host/checkpoint effects, asynchronous queue timing, exact stop counts and ordinary deciding-witness replay remain open; diagnostic hook results earn no family/model credit.
 
-Issue #197 adds a bounded pure configuration-owned snapshot diagnostic. Startup effects and unproved constructor/alias work refuse before binding; configured and selected identities remain separate. Ordinary scheduler admission still requires real queue/timer stop-prefix, checkpoint, exact count and independently certified deciding-witness contracts. See [the configured snapshot guide](configured-periodic-snapshot.md).
+Issue #197 adds a bounded pure configuration-owned snapshot diagnostic. Startup effects and unproved constructor/alias work refuse before binding; configured and selected identities remain separate. Ordinary scheduler admission still requires real queue/timer stop-prefix, checkpoint, exact count and independently certified deciding-witness contracts. See the configured snapshot guide.
 
 F-023/#201: producer-owned timer requests now have a real claim barrier/joined mutex pause diagnostic. Next: publish the maximal contiguous completed prefix through the same safety/output/count/graph authority before controller checks, retaining out-of-order scratch. Ordinary CLI scheduling and checkpoints stay refused until the complete queue/clock/stop/witness contracts compose.
 
@@ -148,12 +145,12 @@ F-023/#220 retains genuinely absent configured hooks through the shared binder,
 owned request service and independent candidate admission. Existing mandatory
 APIs remain required; no supplied TRUE replaces absence. This removes a source
 injection prerequisite without proving ordinary clock/queue/stop/count/checkpoint
-composition or Holds. See the [current executable contract](optional-periodic-hook.md).
+composition or Holds. See the current executable contract.
 
 
 ### Exhausted-queue terminal service (#222)
 
-Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+Bounded additive Rust terminal diagnostics preserve
 pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
 `Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
 queue refuses suspension and skips the hook before final selection. The complete
@@ -163,4 +160,4 @@ compile failures are retained; independent replay confirms their legal stutter.
 No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
 checkpoint/error/count equivalence remains unproved; F-023 stays missing and
 audit-required. Controller Complete and independently Valid concrete words are
-not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).
+not temporal Holds or model completion. See [ADR0076](decisions/0086-rescue-reset.md).
