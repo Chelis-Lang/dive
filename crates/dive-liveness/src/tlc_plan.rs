@@ -9,7 +9,7 @@
 //!   `[]<>A` and `<>[]A` forms (TLC error 2214), and
 //! - a DNF whose branch count overflows a Java `int` (TLC error 2213).
 //!
-//! [`classify`] reproduces only that verdict. It builds no tableau and
+//! [`classify`](crate::tlc_plan::classify) reproduces only that verdict. It builds no tableau and
 //! keeps no TLC grouping, tagging or ordering: dive checks liveness with
 //! [`crate::formula::compile`] and [`crate::product`].
 
