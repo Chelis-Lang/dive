@@ -163,9 +163,37 @@ pub struct Model {
     /// under the selected value or exploration order. Remains true when other
     /// sequential effects are also reachable.
     pub runtime_name_order: bool,
+    /// The number of names interned when binding finished (constant
+    /// definitions, configuration and SANY's encounter order; before any
+    /// `ASSUME`, initial predicate or trace is evaluated). Names with a
+    /// smaller token have the same token in TLC; a name interned later was
+    /// created at run time, and its token depends on what was evaluated
+    /// before it. A caller that interns further start-up names TLC also
+    /// interns before checking (its checker names) raises it with
+    /// [`Model::seal_startup_names`].
+    pub names_at_bind: usize,
 }
 
 impl Model {
+    /// Records every name interned so far as a start-up name
+    /// ([`Model::names_at_bind`]). Call it only after interning names TLC
+    /// interns before it evaluates any `ASSUME` or state.
+    pub fn seal_startup_names(&mut self) {
+        self.names_at_bind = self.names.len();
+    }
+
+    /// Whether a name was interned after start-up ([`Model::names_at_bind`])
+    /// and string order follows encounter order (TLC's value or exploration
+    /// order), so that the name's position relative to the others depends
+    /// on evaluations outside a given trace.
+    #[must_use]
+    pub fn has_runtime_names(&self) -> bool {
+        let opts = self.evaluator.options();
+        (opts.ctx.order == dive_value::ValueOrder::Tlc
+            || opts.exploration == dive_eval::ExplorationOrder::Tlc)
+            && self.names.len() > self.names_at_bind
+    }
+
     /// Admits public bound-model metadata before backend startup or host effects.
     /// Checks evaluator ownership and every predicate/action scope without
     /// evaluating expressions or forcing captured values.

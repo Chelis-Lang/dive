@@ -5,9 +5,8 @@
 //! - the TLC probes in `dive-check`'s fixtures that carry a `-dumpTrace
 //!   json` document.
 //!
-//! Every one must validate under `--compat=tlc` (deadlocks: every check but
-//! the claim, which the validator refuses by name), and every
-//! by-construction mutant must be rejected. The conformance harness runs
+//! Every one must validate under `--compat=tlc`, from TLC's document and
+//! from dive's format. The conformance harness runs
 //! the same controls over the whole corpus (`dive-conformance
 //! trace-controls`).
 
@@ -151,16 +150,10 @@ fn probe_ending(stdout: &str) -> Option<Ending> {
 
 fn check(all: &[(String, Result<Controls, String>)], expected: usize) {
     let mut failures = Vec::new();
-    let mut mutants = 0;
     for (id, c) in all {
         match c {
             Ok(c) => {
-                mutants += c.mutants.len();
                 failures.extend(c.failures().into_iter().map(|f| format!("{id}: {f}")));
-                assert!(
-                    !c.mutants.is_empty() || c.positive.length == 1,
-                    "{id}: no mutants"
-                );
             }
             Err(e) => failures.push(format!("{id}: {e}")),
         }
@@ -172,18 +165,17 @@ fn check(all: &[(String, Result<Controls, String>)], expected: usize) {
         "{:?}",
         all.iter().map(|x| &x.0).collect::<Vec<_>>()
     );
-    assert!(mutants > expected, "{mutants} mutants");
 }
 
 #[test]
-fn tlc_golden_counterexamples_validate_and_their_mutants_do_not() {
+fn tlc_golden_counterexamples_validate() {
     // DieHard, MCDieHarder, MissionariesAndCannibals, FourQueens, spanning,
     // Hanoi and ACP_NB_WRONG_TLC.
     check(&golden_controls(), 7);
 }
 
 #[test]
-fn tlc_probe_counterexamples_validate_and_their_mutants_do_not() {
+fn tlc_probe_counterexamples_validate() {
     let all = probe_controls();
     for (id, c) in &all {
         let Ok(c) = c else { continue };

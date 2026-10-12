@@ -6,29 +6,26 @@
 //! of states. Nothing here constructs a state; the successor enumerator is
 //! not even compiled into this crate (ADR 0016 §2).
 //!
-//! **Random draws** (`RandomElement`, the `Randomization` operators) are
-//! replayed from the checking run's seed when a [`Replay`] is given (ADR
-//! 0016, amendment 2): the initial predicate draws from a fresh start-up
-//! stream, and the step out of state `k` from the stream TLC seeds with
-//! state `k`'s fingerprint, as the checker's own trace reconstruction does
-//! (D-002). The predicate draws in its own evaluation order, from the
-//! start of the stream; the successor generator may have drawn for other
-//! successors first. Random checks are decisive only when a conservative
-//! certificate proves the two evaluation orders consume the same draws.
-//! Otherwise the validator reports unsupported, for either a match or a
-//! mismatch. A finite search of stream offsets cannot establish validity
-//! or invalidity. A draw anywhere else is refused by name.
+//! **Random draws** (`RandomElement`, the `Randomization` operators) depend
+//! on the checking run's stream position, which only the successor
+//! generator determines. A check that draws is refused by name
+//! ([`RANDOM_UNSUPPORTED`]), whatever its outcome.
+//!
+//! **Runtime names.** Under TLC's value or exploration order, strings and
+//! model values compare by the order in which they were first encountered.
+//! Names interned when the model was bound have the same order as in TLC.
+//! If decoding the trace or any check interned a name after that
+//! ([`Model::has_runtime_names`]), the validator cannot know where TLC
+//! placed it, and the result, valid or invalid, becomes
+//! [`RUNTIME_NAMES_UNSUPPORTED`].
 
 use std::collections::BTreeSet;
-use std::sync::atomic::{AtomicBool, AtomicI64, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, Host, HostError, St, StateRef};
 use dive_ir::StdOp;
 use dive_model::{Model, Pred};
-use dive_stdlib::host::RunHost;
-use dive_stdlib::random::{Stream, Streams};
-use dive_value::fp64::{Fingerprinter, TlcFingerprint};
 use dive_value::{Ctx, Value};
 
 use crate::format::Ending;
@@ -152,74 +149,20 @@ pub struct Report {
 /// The reason given for a deadlock ending (ADR 0016, amendment 1).
 pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: the independent finite-cover check could not decide absence of successors; every other check passed (ADR 0016, amendment 1)";
 
-/// Runtime string tokens depend on evaluations outside the supplied trace.
-/// Reading witness strings must never establish the order that validates them.
-pub const RUNTIME_NAMES_UNSUPPORTED: &str = "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)";
+/// The reason given when the trace or a check created a name after the
+/// model was bound, under an order where names compare by encounter.
+pub const RUNTIME_NAMES_UNSUPPORTED: &str = "runtime string encounter order: decoding the trace or checking it created a string or model value that was not interned when the model was bound, and its order relative to other names depends on evaluations outside the trace (#124)";
 
-/// The checking run's random streams, for replaying its draws: the seed
-/// and seeding mode ([`Streams`]) and the fingerprint polynomial's index
-/// (`-fp`), which keys the stream of each expanded state.
-///
-/// The per-state stream is keyed by TLC's state fingerprint (FP64 over the
-/// values in TLC's variable order, `dive_ir::Ir::tlc_var_order`), which is
-/// what both of dive's profiles seed with; the validator computes it itself
-/// from the trace's values.
-///
-/// ```
-/// use dive_stdlib::random::{RandomMode, Streams};
-/// use dive_trace::Replay;
-/// let r = Replay::new(Streams::new(0, RandomMode::Tlc), 0).ok_or("index 0 exists")?;
-/// assert_eq!(r.fp_index(), 0);
-/// assert!(Replay::new(Streams::new(0, RandomMode::Tlc), 131).is_none());
-/// # Ok::<(), &str>(())
-/// ```
+/// The reason given when a check draws a random value.
+pub const RANDOM_UNSUPPORTED: &str = "a random draw: the value depends on the checking run's stream position, which only the successor generator determines, so the independent validator cannot check it";
+
+/// The random-stream replay that the validator used to accept. It was
+/// removed: the validator refuses every draw by name
+/// ([`RANDOM_UNSUPPORTED`]). The type has no values, so the parameter that
+/// takes it is always `None`; it stays only until its remaining callers
+/// drop the argument (#241).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Replay {
-    streams: Streams,
-    fp_index: usize,
-}
-
-impl Replay {
-    /// The streams of a run with `streams` and fingerprint polynomial
-    /// `fp_index`; `None` when the index is out of range (`0..131`).
-    #[must_use]
-    pub fn new(streams: Streams, fp_index: usize) -> Option<Self> {
-        TlcFingerprint::new(fp_index).map(|_| Self { streams, fp_index })
-    }
-
-    /// The run's streams.
-    #[must_use]
-    pub const fn streams(&self) -> Streams {
-        self.streams
-    }
-
-    /// The fingerprint polynomial's index.
-    #[must_use]
-    pub const fn fp_index(&self) -> usize {
-        self.fp_index
-    }
-}
-
-/// A random draw made while a check replayed the run's stream: the
-/// operator, its arguments and the value drawn.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct Draw {
-    /// The state (0-based) whose check drew it: the initial predicate for
-    /// state 0, the step into state `k` otherwise.
-    pub(crate) state: usize,
-    pub(crate) op: StdOp,
-    pub(crate) args: Vec<Value>,
-    pub(crate) value: Value,
-}
-
-/// Which stream a replayed check draws from.
-#[derive(Clone, Copy)]
-enum Place {
-    /// A fresh start-up stream (`ASSUME`s, the initial predicate).
-    Startup,
-    /// The stream of expanding this state.
-    Expand(usize),
-}
+pub enum Replay {}
 
 /// What stopped a run early.
 pub(crate) enum Stop {
@@ -254,176 +197,57 @@ pub(crate) struct Run<'a> {
     host: Arc<TraceHost>,
     /// The host installed before the run, restored after it.
     inner: Option<Arc<dyn Host>>,
-    /// TLC's state fingerprint, for the per-state streams.
-    fingerprint: Option<TlcFingerprint>,
     pub(crate) passed: u64,
     pub(crate) notes: BTreeSet<String>,
-    /// The draws the initial predicate and the steps made, when recording.
-    pub(crate) draws: Vec<Draw>,
     /// Concrete periodic predicates must obey the finite-binding entry bounds.
     periodic: bool,
 }
 
 impl<'a> Run<'a> {
-    pub(crate) fn new(model: &'a Model, replay: Option<&Replay>) -> Self {
+    pub(crate) fn new(model: &'a Model) -> Self {
         let inner = model.evaluator.host();
         let host = Arc::new(TraceHost {
             level: AtomicI64::new(0),
             inner: inner.clone(),
-            replay: replay.map(|r| RunHost::new(r.streams, None)),
-            placed: AtomicBool::new(false),
-            draws: AtomicU64::new(0),
-            log: Mutex::new(None),
+            drew: Mutex::new(None),
+            any: AtomicBool::new(false),
         });
         model.evaluator.set_host(host.clone());
         Self {
             model,
             host,
             inner,
-            fingerprint: replay.and_then(|r| TlcFingerprint::new(r.fp_index)),
             passed: 0,
             notes: BTreeSet::new(),
-            draws: Vec::new(),
             periodic: false,
         }
     }
 
-    /// Records the draws of the initial predicate and of the steps into
-    /// [`Run::draws`].
-    pub(crate) fn record_draws(&mut self) {
-        *self.host.log.lock().unwrap_or_else(PoisonError::into_inner) = Some(Vec::new());
-    }
-
-    /// The stream a check at `at` draws from, at its start. `None` without
-    /// a replay, under `SYMMETRY` or an unproved VIEW (not guessed), or
-    /// for a state whose transformed fingerprint cannot be computed;
-    /// draws then stay refused.
-    fn base(&self, trace: &Trace, at: Place) -> Option<Stream> {
-        let streams = self.host.replay.as_ref()?.streams();
-        match at {
-            Place::Startup => Some(streams.startup()),
-            Place::Expand(k) => {
-                let m = self.model;
-                if m.symmetry.is_some() || !crate::random_position::pure_random_view(m) {
-                    return None;
-                }
-                Some(streams.state(self.state_fingerprint(&trace.states[k])?))
-            }
-        }
-    }
-
-    /// Points the replay host at `base`, `skip` generator steps in, so that
-    /// draws are allowed until [`Run::unplace`].
-    fn place(&self, base: Option<Stream>, skip: u64) {
-        if let (Some(replay), Some(base)) = (&self.host.replay, base) {
-            replay.set_stream(base);
-            replay.skip(skip);
-            self.host.placed.store(true, Ordering::Relaxed);
-        }
-    }
-
-    /// Makes a check that draws from the run's stream at `at`. Draws only
-    /// establish a result if `aligned` proves the generator and predicate
-    /// consume the same stream positions. Successful certified draws are
-    /// recorded as state `record`'s, if given.
-    fn replayed(
-        &mut self,
-        trace: &Trace,
-        at: Place,
-        record: Option<usize>,
-        aligned: bool,
-        check: impl Fn(&mut Self) -> Result<(), Stop>,
-    ) -> Result<(), Stop> {
-        let base = self.base(trace, at);
-        self.place(base, 0);
-        let before = self.draw_count();
-        let r = check(self);
-        self.unplace();
-        let drew = self.draw_count() != before;
-        if drew && !aligned {
-            self.discard_draws();
-            return Err(Stop::Unsupported(
-                "random draws: the successor generator may have consumed draws for other successors; the independent validator cannot prove the predicate's stream position (ADR 0016, amendment 2)".to_owned(),
-            ));
-        }
-        match (&r, record, base) {
-            (Ok(()), Some(k), Some(_)) => self.collect_draws(k),
-            _ => self.discard_draws(),
-        }
-        r
-    }
-
-    fn unplace(&self) {
-        self.host.placed.store(false, Ordering::Relaxed);
-    }
-
-    /// TLC's stream identity: FP64 of an admitted VIEW value, otherwise
-    /// concrete values in TLC's variable order. Symmetry is still refused.
-    fn state_fingerprint(&self, state: &crate::trace::State) -> Option<u64> {
-        let f = self.fingerprint.as_ref()?;
-        let ctx: Ctx = self.model.evaluator.options().ctx;
-        if let Some(view) = &self.model.view {
-            let values = state.iter().cloned().collect::<Option<Vec<_>>>()?;
-            dive_model::random_view::admit_values(&values).ok()?;
-            dive_model::symmetry::Reduction::normalize_concrete(&values, ctx).ok()?;
-            let st = St::state(state.clone());
-            let value = self.model.eval(&view.pred, &st).ok()?;
-            dive_model::random_view::admit_values(std::slice::from_ref(&value)).ok()?;
-            return f.fingerprint(&value, ctx).ok();
-        }
-        let ordered: Option<Vec<Value>> = self
-            .model
-            .ir
-            .tlc_var_order()
-            .iter()
-            .map(|v| state.get(v.index()).cloned().flatten())
-            .collect();
-        f.fingerprint_state(&ordered?, ctx).ok()
-    }
-
-    /// Moves the draws logged while checking state `k` into
-    /// [`Run::draws`].
-    fn collect_draws(&mut self, k: usize) {
-        let mut log = self.host.log.lock().unwrap_or_else(PoisonError::into_inner);
-        if let Some(log) = log.as_mut() {
-            for (op, args, value) in log.drain(..) {
-                self.draws.push(Draw {
-                    state: k,
-                    op,
-                    args,
-                    value,
-                });
-            }
-        }
-    }
-
-    /// Forgets the draws logged since the last [`Run::collect_draws`].
-    fn discard_draws(&self) {
-        if let Some(log) = self
-            .host
-            .log
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .as_mut()
-        {
-            log.clear();
-        }
-    }
-
-    fn draw_count(&self) -> u64 {
-        self.host.draws.load(Ordering::Relaxed)
-    }
-
     /// Validates `trace`.
     pub(crate) fn validate(&mut self, trace: &Trace) -> Validation {
-        if !crate::runtime_order::admitted(self.model) {
-            return Validation::Unsupported(RUNTIME_NAMES_UNSUPPORTED.to_owned());
-        }
-        match self.run(trace) {
+        let v = match self.run(trace) {
             Ok(None) => Validation::Valid,
             Ok(Some(why)) => Validation::Unsupported(why),
             Err(stop) => stop.into(),
+        };
+        self.refusal().map_or(v, Validation::Unsupported)
+    }
+
+    /// Why the run's verdict cannot stand, whatever it is: a check drew a
+    /// random value, or a name was created after binding.
+    pub(crate) fn refusal(&self) -> Option<String> {
+        if self.host.any.load(Ordering::Relaxed) {
+            let op = self
+                .host
+                .drew
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .map_or_else(|| "a random operator".to_owned(), StdOp::qualified_name);
+            return Some(format!("{op}: {RANDOM_UNSUPPORTED}"));
         }
+        self.model
+            .has_runtime_names()
+            .then(|| RUNTIME_NAMES_UNSUPPORTED.to_owned())
     }
 
     #[allow(
@@ -466,23 +290,7 @@ impl<'a> Run<'a> {
         if named_lasso {
             self.prepare_periodic(&trace.ending, &trace.properties)?;
         }
-        // The ASSUMEs draw from the start-up stream, after the constant
-        // definitions (evaluated when the model was bound).
-        let startup = self.base(trace, Place::Startup);
-        self.place(startup, 0);
-        let before = self.draw_count();
-        let assumed = self.assumptions();
-        self.unplace();
-        self.discard_draws();
-        if let Err(Stop::Invalid(f)) = &assumed
-            && self.draw_count() != before
-        {
-            return Err(Stop::Unsupported(format!(
-                "an ASSUME that draws random values is false on a fresh start-up stream ({}), but the run drew its constant definitions from that stream first, which the validator does not replay",
-                f.detail
-            )));
-        }
-        assumed?;
+        self.assumptions()?;
         let last = n - 1;
         let goal = self.goal(&trace.ending, last)?;
         let full_last = !matches!(goal, Goal::Invariant(_));
@@ -493,37 +301,22 @@ impl<'a> Run<'a> {
                 (k > 0).then(|| St::action(trace.states[k - 1].clone(), trace.states[k].clone()));
             match &step {
                 None => {
-                    // TLC rebuilds a counterexample's initial state from a
-                    // fresh start-up stream (D-002), and so does dive.
-                    let aligned = m.init.len() == 1
-                        && crate::random_position::aligned(m, &m.init[0].pred, &here, true);
-                    self.replayed(trace, Place::Startup, Some(0), aligned, |run| {
-                        m.init.iter().try_for_each(|init| {
-                            run.require(&init.pred, &here, 0, Check::Init, || {
-                                format!(
-                                    "the initial predicate {} is false in the first state",
-                                    m.location(&init.pred)
-                                )
-                            })
-                        })
-                    })?;
+                    for init in &m.init {
+                        self.require(&init.pred, &here, 0, Check::Init, || {
+                            format!(
+                                "the initial predicate {} is false in the first state",
+                                m.location(&init.pred)
+                            )
+                        })?;
+                    }
                 }
                 Some(step) => {
-                    // TLC reseeds with the fingerprint of the state it
-                    // expands, for every action of the next-state relation.
-                    let aligned = m
-                        .next
-                        .as_ref()
-                        .is_some_and(|p| crate::random_position::aligned(m, p, step, false));
-                    self.replayed(trace, Place::Expand(k - 1), Some(k), aligned, |run| {
-                        if named_lasso && trace.states[k - 1] == trace.states[k] {
-                            Ok(()) // The implicit full-state stuttering closure.
-                        } else {
-                            run.next(step, k, "the step into this state")
-                        }
-                    })?;
+                    if !(named_lasso && trace.states[k - 1] == trace.states[k]) {
+                        // Otherwise the implicit full-state stuttering closure.
+                        self.next(step, k, "the step into this state")?;
+                    }
                     if let Some(label) = &trace.labels[k] {
-                        self.label(trace, &label.name, step, k)?;
+                        self.label(&label.name, step, k)?;
                     }
                 }
             }
@@ -613,13 +406,7 @@ impl<'a> Run<'a> {
                     "the loop from the last state back to state {} (numbered from 1)",
                     back_to + 1
                 );
-                let aligned = m
-                    .next
-                    .as_ref()
-                    .is_some_and(|p| crate::random_position::aligned(m, p, &step, false));
-                self.replayed(trace, Place::Expand(last), None, aligned, |run| {
-                    run.next(&step, last, &what)
-                })?;
+                self.next(&step, last, &what)?;
             }
         }
         Ok(match goal {
@@ -876,7 +663,7 @@ impl<'a> Run<'a> {
     /// The label's definition must hold on the step, if it can be checked.
     /// TLC labels a step with the definition its action was split from, and
     /// that action implies the definition's body.
-    fn label(&mut self, trace: &Trace, name: &str, step: &St, k: usize) -> Result<(), Stop> {
+    fn label(&mut self, name: &str, step: &St, k: usize) -> Result<(), Stop> {
         let m = self.model;
         let ev = &m.evaluator;
         let Some(d) = m.ir.root_def(name) else {
@@ -892,21 +679,7 @@ impl<'a> Run<'a> {
             ));
             return Ok(());
         }
-        // Alone, the label's definition draws from the start of the step's
-        // stream, but in the search it may come after other actions that
-        // drew: a label whose evaluation draws is not checked.
-        let base = self.base(trace, Place::Expand(k - 1));
-        self.place(base, 0);
-        let before = self.draw_count();
         let r = ev.eval_def(d, step);
-        self.unplace();
-        self.discard_draws();
-        if self.draw_count() != before {
-            self.notes.insert(format!(
-                "label `{name}` draws random values on its own; not checked"
-            ));
-            return Ok(());
-        }
         match r {
             Ok(Value::Bool(true)) => {
                 self.passed += 1;
@@ -1035,59 +808,30 @@ impl Drop for Run<'_> {
     }
 }
 
-/// A logged draw: the operator, its arguments and the value drawn.
-type Logged = (StdOp, Vec<Value>, Value);
-
-/// The reason a random draw is refused when the validator cannot place it
-/// in the run's streams.
-pub const RANDOM_UNPLACED: &str = "drawn outside the initial predicate and the next-state relation (in an ASSUME after constant draws, an invariant, a constraint, a property or a label), or under an unproved VIEW or SYMMETRY: the run draws it at a position of its stream that only the successor generator determines, so the independent validator cannot replay it (ADR 0016, amendment 2)";
-
 /// What the validator provides of a checking run: the level of the state
-/// being checked (`TLCGet("level")`), `TLCGet("config")` from the host the
-/// model was bound with, if any, and, with a [`Replay`], the run's random
-/// streams for the checks that can place them. Registers are the
-/// evaluator's own and follow the trace's history: a register a
-/// specification writes while checking depends on the order of TLC's
-/// search, so the validator sees the values the trace's own steps wrote.
-/// The live counters depend on the search, not on the trace, so they are
-/// refused by name.
+/// being checked (`TLCGet("level")`) and `TLCGet("config")` from the host the
+/// model was bound with, if any. Registers are the evaluator's own and
+/// follow the trace's history: a register a specification writes while
+/// checking depends on the order of TLC's search, so the validator sees the
+/// values the trace's own steps wrote. The live counters depend on the
+/// search, not on the trace, so they are refused by name. Random draws are
+/// refused, and remembered so that the whole verdict is refused.
 #[derive(Debug)]
 struct TraceHost {
     level: AtomicI64,
     inner: Option<Arc<dyn Host>>,
-    /// The run's streams, in `dive-stdlib`'s [`RunHost`], whose random
-    /// operators are the checker's own (TLC's algorithms), when replaying.
-    replay: Option<RunHost>,
-    /// Whether the replay host points at the stream of the check being
-    /// made; a draw is refused otherwise.
-    placed: AtomicBool,
-    /// Draws attempted so far.
-    draws: AtomicU64,
-    /// The draws logged while recording.
-    log: Mutex<Option<Vec<Logged>>>,
+    /// The first operator that drew.
+    drew: Mutex<Option<StdOp>>,
+    /// Whether any check drew.
+    any: AtomicBool,
 }
 
 impl Host for TraceHost {
-    fn random(&self, op: StdOp, args: &[Value], ctx: Ctx) -> Option<Result<Value, HostError>> {
-        let replay = self.replay.as_ref()?;
-        self.draws.fetch_add(1, Ordering::Relaxed);
-        if !self.placed.load(Ordering::Relaxed) {
-            return Some(Err(HostError {
-                code: 0,
-                message: format!("{}, {RANDOM_UNPLACED}", op.qualified_name()),
-            }));
+    fn random(&self, op: StdOp, _args: &[Value], _ctx: Ctx) -> Option<Result<Value, HostError>> {
+        if !self.any.swap(true, Ordering::Relaxed) {
+            *self.drew.lock().unwrap_or_else(PoisonError::into_inner) = Some(op);
         }
-        let r = replay.random(op, args, ctx)?;
-        if let Ok(v) = &r
-            && let Some(log) = self
-                .log
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner)
-                .as_mut()
-        {
-            log.push((op, args.to_vec(), v.clone()));
-        }
-        Some(r)
+        None
     }
 
     fn level(&self) -> Option<i64> {
@@ -1099,11 +843,10 @@ impl Host for TraceHost {
     }
 }
 
-/// Validates a trace already read against `model`. With `replay`, random
-/// draws in the initial predicate and the next-state relation are replayed
-/// from the checking run's streams; without, they are refused by name.
+/// Validates a trace already read against `model`. `_replay` is always
+/// `None` ([`Replay`]): random draws are refused by name.
 #[must_use]
-pub fn validate(model: &Model, trace: &Trace, replay: Option<&Replay>) -> Report {
+pub fn validate(model: &Model, trace: &Trace, _replay: Option<&Replay>) -> Report {
     let admitted = model
         .evaluator
         .validate_model_context(&model.ir, &model.names)
@@ -1138,11 +881,81 @@ pub fn validate(model: &Model, trace: &Trace, replay: Option<&Replay>) -> Report
             length: trace.states.len(),
         };
     }
-    let mut run = Run::new(model, replay);
+    let mut run = Run::new(model);
     let validation = run.validate(trace);
     Report {
         validation,
         notes: std::mem::take(&mut run.notes).into_iter().collect(),
         length: trace.states.len(),
+    }
+}
+
+/// `report`, refused if a name was created after the model was bound
+/// ([`RUNTIME_NAMES_UNSUPPORTED`]).
+pub(crate) fn guard_runtime_names(model: &Model, mut report: Report) -> Report {
+    if model.has_runtime_names() {
+        report.validation = Validation::Unsupported(RUNTIME_NAMES_UNSUPPORTED.to_owned());
+    }
+    report
+}
+
+/// Negative controls: by-construction invalid edits of a valid
+/// breadth-first counterexample must be rejected.
+#[cfg(test)]
+mod negative_controls {
+    #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
+
+    use std::sync::Arc;
+
+    use super::{Check, Validation, validate};
+    use crate::{Ending, Trace, TraceDoc};
+
+    const SPEC: &str = "---- MODULE Count ----\nEXTENDS Naturals\nVARIABLE x\n\
+        Init == x = 0\nNext == x' = x + 1\nSmall == x < 3\nTiny == x < 5\n====\n";
+
+    fn model() -> dive_model::Model {
+        let analysis = dive_sema::analyze_source("Count.tla", SPEC, &dive_sema::Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Tiny Small\n")
+            .into_config()
+            .expect("cfg");
+        dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind")
+    }
+
+    fn trace(model: &dive_model::Model, xs: &[i64]) -> Trace {
+        let states = xs.iter().map(|x| serde_json::json!({ "x": x })).collect();
+        let doc = TraceDoc::behavior(states)
+            .expect("states")
+            .with_ending(Ending::Invariant("Small".to_owned()));
+        Trace::decode(model, &doc).expect("decode")
+    }
+
+    fn rejected(model: &dive_model::Model, t: &Trace) -> Check {
+        match validate(model, t, None).validation {
+            Validation::Invalid(f) => f.check,
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn edits_of_a_valid_counterexample_are_rejected() {
+        let m = model();
+        let original = trace(&m, &[0, 1, 2, 3]);
+        assert_eq!(validate(&m, &original, None).validation, Validation::Valid);
+        // A dropped middle state, a dropped initial state, swapped states
+        // and a changed value are not steps of the specification.
+        assert_eq!(rejected(&m, &trace(&m, &[0, 1, 3])), Check::Next);
+        assert_eq!(rejected(&m, &trace(&m, &[1, 2, 3])), Check::Init);
+        assert_eq!(rejected(&m, &trace(&m, &[0, 2, 1, 3])), Check::Next);
+        assert_eq!(rejected(&m, &trace(&m, &[0, 1, 7, 3])), Check::Next);
+        // Cut short, the claimed invariant holds at the end.
+        assert_eq!(rejected(&m, &trace(&m, &[0, 1, 2])), Check::Ending);
+        // Another invariant is not violated at the end.
+        let mut claim = original.clone();
+        claim.ending = Ending::Invariant("Tiny".to_owned());
+        assert_eq!(rejected(&m, &claim), Check::Ending);
+        // An invariant the model does not have.
+        claim.ending = Ending::Invariant("Missing".to_owned());
+        assert_eq!(rejected(&m, &claim), Check::Ending);
     }
 }

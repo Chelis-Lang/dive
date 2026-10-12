@@ -11,7 +11,6 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
 | `dive-pluscal` bounded sequential procedure checksum (`translate/checksum.rs`) | tlaplus `pcal/AST.java` (`Procedure`, `PVarDecl`, `Call`, `Return`, `CallGoto`, `VectorToSeqString`), `ParseAlgorithm.java` (`GetProcedure`, `GetCall` mutable proceduresCalled alias and CallGoto fold), `PCalTLAGenerator.translate`, `PcalTranslate.Explode`; commit `94d0c50` | MIT | Exact original post-generation header AST templates; independent development-only expanded ownership captures; shared nested-vector mutation stays refused. ADR 0058; complete 132-case selection preserves failed/native/reference stage distinctions |
-| `dive-trace` tuple-only whole-word admission (`runtime_order.rs`, existing `exists.rs` tuple proof) | tlaplus `tlc2/module/Sequences.java` (`Tail`, `Concat`, `SubSeq`), `util/UniqueString.java` string encounter behavior; commit `94d0c50` | MIT reference | Native bounded scoped shape proof, not a Java algorithm port. Sequence evaluation is unchanged; audit never evaluates operands or uses supplied states to infer missing namespace history (ADR 0064). |
 | `dive-check` native checkpoint/resume (`checkpoint.rs`, ordered completed-level engine) | tlaplus `tlc2/tool/ModelChecker.java` (`checkpoint`, `recover`, `doInit`), `AbstractChecker.java`, `Worker.java`, `TLCTrace.java`, `queue/DiskStateQueue.java`, `fp/MemFPSet.java`, `util/InternTable.java`, commit `94d0c50` | MIT | Recovery resumes queue without Init, preserves concrete trace/order and restores intern names before evaluation; ADR 0038 recomputes VIEW/symmetry keys via the live configured path, retaining actual concrete discoveries; TLC generated/initial counter reset matched. Pure parallel recovery retains resolved configured keys and concrete discoveries in ordered commits, resumes the actual saved level and resolves counter/record limits at the inline prefix (ADR0038 addendum). Native bounded single-file format and completed-level pausing are dive designs, not Java byte interoperability. Source hashes/raw counts in `conformance/probes/native-checkpoint/` |
 | `dive-eval` `Evaluator::intern_bfs_config` and `dive-check` startup | tlaplus `tlc2/tool/AbstractChecker.java` constructor and `createConfig`, commit `94d0c50` | MIT | Eagerly intern bfs, seed, fingerprint polynomial and install strings in source order; clean seed 0/7/14 captures in `crates/dive-check/tests/fixtures/runtime-names/` reproduce counts and chosen violation |
 | `dive-syntax` lexer (`crates/dive-syntax/src/lexer.rs`) | tlaplus `tlatools/org.lamport.tlatools/javacc/tla+.jj`: token definitions and the `DEFAULT`, `PRAGMA`, `SPEC` and comment lexical states; `tla2sany/parser/SimpleCharStream.java` `UpdateLineColumn` (column counting); commit `94d0c50` | MIT | Semantics matched: same tokens, longest-match and tie-break order, same columns |
@@ -258,8 +257,9 @@ word/ENABLED algorithms and no successor enumeration feature.
 Runtime namespace startup matches pinned `AbstractChecker.createConfig`
 (`tlc2/tool/AbstractChecker.java`, revision `94d0c50`): mode, seed, fingerprint
 and installation strings are interned before assumptions. The independent
-validator's runtime-name refusal is dive's own admission rule (#124), supported
-by the clean pinned capture and prior false-positive trace in
+validator's runtime-name refusal is dive's own rule (#124; ADR 0016, amendment
+3): any name interned after binding refuses the verdict. It is supported by
+the clean pinned capture and prior false-positive trace in
 `crates/dive-trace/tests/fixtures/runtime-names/`.
 ## Native DFID (ADR 0021)
 
@@ -635,9 +635,8 @@ Ordinary schedules and whole-family parity remain partial.
 `RandomEnumerableValues.TLCStateRandom.initialize/initializedFor` at pin
 `94d0c50`: startup uses the run seed, and expansion uses predecessor fingerprint
 XOR seed. Actual ConstBinding/redirect authority participates independently of
-source operator references. The bounded `dive-trace::random_position` proof is
-independent dive code; it resolves those targets without enumerating successors
-and refuses unknown startup/guard draw positions. `TLCTrace.printTrace` and
+source operator references. The independent validator refuses every random
+draw (ADR 0016, amendment 3). `TLCTrace.printTrace` and
 `Tool.getState(TLCState,TLCState)` initial-object reuse is captured as a remaining
 strict trace-printing refusal, not ported or certified. Clean raw primary and
 current native producer identities are separated in
@@ -689,7 +688,7 @@ scheduler equivalence. See [ADR 0052](decisions/0086-rescue-reset.md).
 
 ### VIEW-backed RandomElement authority (2026-10-11)
 
-`dive-check::Search::seed_state` and independent `dive-trace::Run` match pinned
+`dive-check::Search::seed_state` matches pinned
 `RandomEnumerableValues.TLCStateRandom.initializedFor` and
 `TLCStateMut.fingerPrint` (`94d0c50`, MIT): state fingerprint applies concrete
 normalization and VIEW before stream selection. Concrete predecessor retention
@@ -722,45 +721,10 @@ The lifecycle foundation retains the separately captured controller, runtime-rat
 
 `dive-model::periodic` and the diagnostic flag in the shared binder match pinned `tlc2.tool.impl.SpecProcessor` constructor snapshot timing and `processPeriodic` (1634–1650), with `tlc2.tool.Defns.snapshot`: substitutions precede snapshot, constant caching precedes role validation, selected original body and configured spelling remain distinct. Pin `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT); actual Java reflection reads metadata only. `dive-liveness::periodic_snapshot` prebinding grammar is a conservative native policy, not a port of TLC evaluation. Its structural nonconstant witness follows the shared `dive-model::LevelCx::try_level` cache authority rather than editable node/definition levels. All 38 primary controls and raw captures are retained in `conformance/probes/periodic-snapshot`; startup restrictions and Java-exception refusals earn no error-class parity credit.
 
-## Checked stored trace transport
+## Checked stored trace transport (removed)
 
-`dive-trace/src/value_repr.rs` is dive's native version2 transport (ADR0055),
-using the existing `Value::set`, `Value::fcn`, record and tuple constructors.
-Pinned `SetEnumValue.normalize`, `ValueVec.sort`, `TupleValue` and `FcnRcdValue`
-representation are semantic references at `94d0c50`, under MIT; JSON, admission
-budgets and construction witnesses are dive's own design. The storage codec's
-native format is not exposed to untrusted words. The frozen version2 transport
-producer used the older native codec whose tuple tag lost the nonliteral tuple
-distinction; its preserved spill/recovery study records that historical defect.
-The separate structural storage repair
-retains the distinction in the current native codec. Neither producer's archived
-observations are retagged as execution of the composed receiving source.
-Encoder witness probes use the existing Quiet marker authority solely to keep
-shared operand normalization markers unchanged. Provider/opaque representation
-is refused before probing. `dive-trace` retains its standalone generator-free
-build; transport success proves shape, not Init/Next/ending or reachability.
-
-Stored v2 constructor probes additionally reconstruct function kind/literal/order
-and Raw normalized flags through the existing constructors, under Quiet marker
-suppression. They do not authorize trusted-storage flags or change canonical
-keys. The first frozen 249f gate passed all 1,156 tests and every other stage but
-failed Clippy helper placement; the unchanged failed epoch is retained separately.
-
-The stored transport's final encoder admission uses fresh owned reconstruction
-through the same checked reader, with a bounded original-Atom resolver and shared
-normalization reservation; receiving Model tokens are checked separately. The
-green92e full gate and its later nested-Raw writer/reader counterexample are retained
-in `conformance/probes/trace-representation-v2/before-decoder-admission-gate/`.
-No value/storage/comparison algorithm is replaced by the admission correction.
-
-The corrected e6 stored-transport producer has its own full 1,159-test/eight-stage
-gate, fresh release binary identity, 72 independently valid version-2 words and
-216 altered-word rejections in
-`conformance/probes/trace-representation-v2/current/`. Twelve interval encoding
-refusals remain separate from semantic replay. Existing 21/16 conformance gates
-and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
-checks all 443 producing workspace Rust/Cargo inputs against archived and Git
-bytes; earlier source and runtime histories are not relabelled.
+The opt-in trace format version 2 (`dive-trace/src/value_repr.rs`) was removed
+on 2026-10-12 (ADR 0016, amendment 3). No code from it remains.
 
 | Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |
 
@@ -801,15 +765,10 @@ open-addressed disk indexing, private ownership, bounded rehash/audit and
 first-error poisoning are dive designs (ADR 0063). Fingerprint gap uses existing
 `collision::closer`/subset authority; bounded pair work refuses explicitly.
 No ordinary engine or checkpoint admission is established by this library.
-The independent tuple-history admission (ADR 0067) is a bounded Rust logical
-proof of necessary Init facts and all-branches Next preservation. It ports no
-checker enumeration algorithm and uses neither supplied witness states nor
-TLC's encounter-order side effects as type evidence.
+The independent tuple-history admission (ADR 0067) was removed on 2026-10-12
+(ADR 0016, amendment 3).
 
-- `dive-trace::tuple_history` fixed tuple projection rule (ADR 0071): matches
-  TLA+ function/tuple equality and UNCHANGED semantics, using original actual
-  bound definitions and scopes. It is an independent logical admission proof,
-  not a port of the successor enumerator. Conditional/permuted projections refuse.
+- `dive-trace::tuple_history` (ADR 0071): removed on 2026-10-12.
 
 ### Positioned disk invariant-error replay (#217)
 
@@ -1009,25 +968,9 @@ family credit is claimed; F-023 remains missing/audit-required.
 
 ### Independent indexed tuple-stack replay (#227)
 
-`dive-trace::tuple_history` and private `exists::TupleProof` extend the native
-logical admission with finite function-range tuple invariants (ADR 0081). The
-reference semantics are TLA+ function construction/application, EXCEPT and
-UNCHANGED as evaluated by pinned MIT `tlc2.tool.impl.Tool.eval` at 94d0c50.
-No Java state generation or checker enumeration algorithm is ported. Proof
-construction uses checked bound scopes and source expressions only; selectors,
-Init/Next/ending predicates and transport namespace authority remain independently
-checked. Original 32 sequential and eight process before-profile observations
-retain separate producer/raw identity. No whole-family or arbitrary-state
-namespace certification is claimed.
+`dive-trace::tuple_history` and `exists::TupleProof` (ADR 0081) were removed on
+2026-10-12 (ADR 0016, amendment 3).
 
-The indexed-stack admission's separately frozen qualification archives all
-70 literal include sites/65 targets before its complete 1,698-test gate and
-records the fresh original 80/384/80 replay selections, clean primary pairs
-and executable guides. Portable Git commit/tree proofs preserve the selected
-producer blob identity without requiring an unpublished Git object in CI.
-The current reader checks the old and qualified epochs separately; this
-selected-source proof is not a hermetic build or full namespace certificate
-(probe evidence).
 
 ### Independent Strict substitution admission (#234)
 

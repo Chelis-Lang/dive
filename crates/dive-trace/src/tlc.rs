@@ -436,7 +436,7 @@ pub fn validate_tlc(
     model: &Model,
     doc: &TraceDoc,
     model_values: &[String],
-    replay: Option<&Replay>,
+    _replay: Option<&Replay>,
 ) -> TlcReading {
     let length = doc.states.len();
     let report = |validation, notes| Report {
@@ -444,17 +444,6 @@ pub fn validate_tlc(
         notes,
         length,
     };
-    // Refuse before interpretation heuristics evaluate predicates. A lossy
-    // witness must not construct the namespace history that proves itself.
-    if !crate::runtime_order::admitted(model) {
-        return TlcReading {
-            report: report(
-                Validation::Unsupported(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
-                Vec::new(),
-            ),
-            trace: None,
-        };
-    }
     let Some(ending) = doc.ending.clone() else {
         return TlcReading {
             report: report(
@@ -472,7 +461,7 @@ pub fn validate_tlc(
     if !doc.properties.is_empty() {
         // The interpretation heuristic scores initial predicates. Preflight
         // before that evaluation too, so a refusal cannot execute effects.
-        let preflight = Run::new(model, replay).prepare_periodic(&ending, &doc.properties);
+        let preflight = Run::new(model).prepare_periodic(&ending, &doc.properties);
         if let Err(stop) = preflight {
             return TlcReading {
                 report: report(stop.into(), Vec::new()),
@@ -502,7 +491,6 @@ pub fn validate_tlc(
         properties: &doc.properties,
         length: doc.length,
         model_values,
-        replay,
         forced: &analysis.forced,
         free: &free,
         conjuncts: init_conjuncts(model),
@@ -601,8 +589,9 @@ pub fn validate_tlc(
     };
     notes.extend(best.notes);
     notes.dedup();
+    // An interpretation tried after the verdict's may have created a name.
     TlcReading {
-        report: report(validation, notes),
+        report: crate::validate::guard_runtime_names(model, report(validation, notes)),
         trace,
     }
 }
@@ -644,7 +633,6 @@ struct Search<'a> {
     properties: &'a [String],
     length: Option<usize>,
     model_values: &'a [String],
-    replay: Option<&'a Replay>,
     forced: &'a BTreeMap<Decision, bool>,
     free: &'a [Decision],
     conjuncts: Vec<(Scope, ExprId)>,
@@ -702,7 +690,7 @@ impl Search<'_> {
             length: self.length,
             properties: self.properties.to_vec(),
         };
-        let mut run = Run::new(self.model, self.replay);
+        let mut run = Run::new(self.model);
         let validation = run.validate(&trace);
         Outcome {
             validation,

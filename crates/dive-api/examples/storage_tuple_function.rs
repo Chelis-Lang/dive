@@ -1,5 +1,5 @@
 //! Run from the repository root: native recovery keeps the stored function kind.
-use dive_api::trace::{SpecModel, TraceDoc, TraceEncoding, TraceOptions, Validation};
+use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, check_file_checkpoint, checkpoint};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -14,7 +14,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         workers: Some(4),
         frontier_memory_bytes: Some(0),
         predecessor_memory_bytes: Some(0),
-        trace_encoding: TraceEncoding::RepresentationV2,
         ..CheckRequest::default()
     };
     let path = std::env::temp_dir().join(format!(

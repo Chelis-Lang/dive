@@ -82,255 +82,6 @@ struct Cover {
     impossible: bool,
     domains: Domains,
 }
-// A shape proof never evaluates an expression or interns a name. The ordinary
-// scoped purity walk still checks every argument and tuple element separately.
-// Exhausting this private proof budget means refusal, never guessed safety.
-struct TupleProof<'a> {
-    model: &'a Model,
-    fuel: usize,
-    variables: &'a BTreeSet<VarId>,
-    ranges: &'a BTreeSet<VarId>,
-}
-impl TupleProof<'_> {
-    fn value(value: &Value) -> bool {
-        matches!(value, Value::Fcn(f) if f.as_tuple().is_some())
-    }
-    fn slot(&mut self, slot: SlotView) -> bool {
-        match slot {
-            SlotView::Value(v) => Self::value(&v),
-            SlotView::Lazy(body, sc) => self.tuple(body, &sc),
-            _ => false,
-        }
-    }
-    fn native(&mut self, op: StdOp, args: &[Arg], scope: &Scope) -> bool {
-        let required = match op {
-            StdOp::SequencesTail | StdOp::SequencesSubSeq => 1,
-            StdOp::SequencesConcat => 2,
-            _ => return false,
-        };
-        args.len() >= required
-            && args[..required].iter().all(|arg| match arg {
-                Arg::Expr { expr, .. } => self.tuple(*expr, scope),
-                Arg::Op { .. } => false,
-            })
-    }
-    fn definition(&mut self, id: DefId, scope: &Scope) -> bool {
-        let ev = &self.model.evaluator;
-        let id = ev.redirected(id);
-        let Some(def) = self.model.ir.defs().get(id.index()) else {
-            return false;
-        };
-        if def.recursive || !def.params.is_empty() || def.std.is_some() || ev.is_value_override(id)
-        {
-            return false;
-        }
-        let body = def.body;
-        ev.scope_enter(scope, id)
-            .is_ok_and(|sc| self.tuple(body, &sc))
-    }
-    // Resolve only authoritative configured native metadata. This never
-    // evaluates a constant/provider or transfers a user operator's context.
-    fn configured_native(&mut self, id: dive_ir::ConstId) -> Option<StdOp> {
-        if self.fuel == 0 {
-            return None;
-        }
-        self.fuel -= 1;
-        let ev = &self.model.evaluator;
-        let ConstBinding::Def(id) = ev.constant_binding(id)? else {
-            return None;
-        };
-        let id = ev.redirected(id);
-        let def = self.model.ir.defs().get(id.index())?;
-        if def.recursive || ev.is_value_override(id) {
-            return None;
-        }
-        def.std
-    }
-    // Only sealed whole-model facts admit indexed reads. The selector is not
-    // guessed or evaluated here: the ordinary scoped walk audits it, and the
-    // actual relation/ending evaluation must still succeed independently.
-    fn range(&mut self, expr: ExprId, scope: &Scope) -> bool {
-        if self.fuel == 0 {
-            return false;
-        }
-        self.fuel -= 1;
-        let ev = &self.model.evaluator;
-        let Some(node) = self.model.ir.nodes().get(expr.index()) else {
-            return false;
-        };
-        match &node.expr {
-            Expr::Var { var, primed: false } => self.ranges.contains(var),
-            Expr::Local(slot) => match ev.scope_slot(scope, *slot) {
-                SlotView::Lazy(body, entered) => self.range(body, &entered),
-                _ => false,
-            },
-            Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(scope, *decl) {
-                SlotView::Lazy(body, entered) => self.range(body, &entered),
-                _ => false,
-            },
-            Expr::Let { body, .. } => ev
-                .scope_let(scope, expr)
-                .is_ok_and(|entered| self.range(*body, &entered)),
-            Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
-                    && ev
-                        .scope_subst(scope, expr)
-                        .is_ok_and(|entered| self.range(*body, &entered))
-            }
-            Expr::Def(id) => self.range_definition(*id, &[], scope),
-            Expr::Apply {
-                callee: OpRef::Def(id),
-                args,
-            } => self.range_definition(*id, args, scope),
-            _ => false,
-        }
-    }
-
-    fn range_definition(&mut self, id: DefId, args: &[Arg], scope: &Scope) -> bool {
-        let ev = &self.model.evaluator;
-        let id = ev.redirected(id);
-        let Some(def) = self.model.ir.defs().get(id.index()) else {
-            return false;
-        };
-        if def.recursive
-            || def.std.is_some()
-            || ev.is_value_override(id)
-            || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
-        {
-            return false;
-        }
-        ev.scope_apply(scope, id, args)
-            .is_ok_and(|entered| self.range(def.body, &entered))
-    }
-
-    fn tuple(&mut self, expr: ExprId, scope: &Scope) -> bool {
-        if self.fuel == 0 {
-            return false;
-        }
-        self.fuel -= 1;
-        let ev = &self.model.evaluator;
-        let Some(node) = self.model.ir.nodes().get(expr.index()) else {
-            return false;
-        };
-        match &node.expr {
-            Expr::Tuple(_) => true,
-            Expr::Var { var, primed: false } => self.variables.contains(var),
-            Expr::FcnApply { fcn, .. } => self.range(*fcn, scope),
-            Expr::If { then, other, .. } => self.tuple(*then, scope) && self.tuple(*other, scope),
-            Expr::Local(slot) => self.slot(ev.scope_slot(scope, *slot)),
-            Expr::SubstRef { decl, .. } => self.slot(ev.scope_subst_slot(scope, *decl)),
-            Expr::Const(c) => match ev.constant_binding(*c) {
-                Some(ConstBinding::Value(v)) => Self::value(&v),
-                Some(ConstBinding::Def(d)) => self.definition(d, scope),
-                None => false,
-            },
-            Expr::Def(d) => self.definition(*d, scope),
-            Expr::Prime(body) => {
-                // Current-state hypotheses cannot prove a future-state shape:
-                // s' = s' is not tuple preservation. Closed literal proofs
-                // still work, with the remaining original budget.
-                let empty = BTreeSet::new();
-                let mut future = TupleProof {
-                    model: self.model,
-                    fuel: self.fuel,
-                    variables: &empty,
-                    ranges: &empty,
-                };
-                let result = future.tuple(*body, scope);
-                self.fuel = future.fuel;
-                result
-            }
-            Expr::Let { body, .. } => ev
-                .scope_let(scope, expr)
-                .is_ok_and(|sc| self.tuple(*body, &sc)),
-            Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
-                    && ev
-                        .scope_subst(scope, expr)
-                        .is_ok_and(|sc| self.tuple(*body, &sc))
-            }
-            Expr::Apply { callee, args } => {
-                let op = match callee {
-                    OpRef::Const(id) => self.configured_native(*id),
-                    OpRef::Std(op) => Some(*op),
-                    OpRef::Def(id) => {
-                        let id = ev.redirected(*id);
-                        if ev.is_value_override(id) {
-                            None
-                        } else {
-                            let Some(def) = self.model.ir.defs().get(id.index()) else {
-                                return false;
-                            };
-                            if def.recursive {
-                                return false;
-                            }
-                            if def.std.is_none() {
-                                if self.variables.is_empty() && self.ranges.is_empty() {
-                                    return false;
-                                }
-                                return ev
-                                    .scope_apply(scope, id, args)
-                                    .is_ok_and(|entered| self.tuple(def.body, &entered));
-                            }
-                            def.std
-                        }
-                    }
-                    _ => None,
-                };
-                op.is_some_and(|op| self.native(op, args, scope))
-            }
-            _ => false,
-        }
-    }
-}
-
-/// Proves that a string-capable sequence native only receives tuples. Neither
-/// the proof nor scope construction evaluates the arguments; opaque shapes
-/// refuse. Callers must still run their independent scoped purity walk.
-pub(crate) fn native_tuple_only(model: &Model, op: StdOp, args: &[Arg], scope: &Scope) -> bool {
-    TupleProof {
-        model,
-        fuel: 256,
-        variables: &BTreeSet::new(),
-        ranges: &BTreeSet::new(),
-    }
-    .native(op, args, scope)
-}
-
-/// Sealed whole-word tuple/function-range hypotheses; never supplied by JSON.
-pub(crate) fn tuple_with_histories(
-    model: &Model,
-    expr: ExprId,
-    scope: &Scope,
-    variables: &BTreeSet<VarId>,
-    ranges: &BTreeSet<VarId>,
-) -> bool {
-    TupleProof {
-        model,
-        fuel: 256,
-        variables,
-        ranges,
-    }
-    .tuple(expr, scope)
-}
-
-pub(crate) fn native_with_histories(
-    model: &Model,
-    op: StdOp,
-    args: &[Arg],
-    scope: &Scope,
-    variables: &BTreeSet<VarId>,
-    ranges: &BTreeSet<VarId>,
-) -> bool {
-    TupleProof {
-        model,
-        fuel: 256,
-        variables,
-        ranges,
-    }
-    .native(op, args, scope)
-}
-
 struct Search<'a> {
     model: &'a Model,
     state: &'a State,
@@ -346,25 +97,9 @@ impl Search<'_> {
             Ok(())
         }
     }
-    fn check_native(
-        &self,
-        op: Option<StdOp>,
-        args: &[Arg],
-        scope: &Scope,
-    ) -> Result<(), ExistsError> {
+    fn check_native(op: Option<StdOp>) -> Result<(), ExistsError> {
         if op == Some(StdOp::TlcTLCGet) {
             return Err(ExistsError::Unsupported("checker introspection".into()));
-        }
-        let opts = self.model.evaluator.options();
-        if (opts.ctx.order == dive_value::ValueOrder::Tlc
-            || opts.exploration == dive_eval::ExplorationOrder::Tlc)
-            && op.is_some_and(|op| {
-                op.creates_runtime_names() && !native_tuple_only(self.model, op, args, scope)
-            })
-        {
-            return Err(ExistsError::Unsupported(
-                crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
-            ));
         }
         Ok(())
     }
@@ -442,7 +177,7 @@ impl Search<'_> {
                             "recursive/parameterized action definition".into(),
                         ));
                     }
-                    self.check_native(def.std, &[], scope)?;
+                    Self::check_native(def.std)?;
                     if def.std.is_none() {
                         let sc = self
                             .model
@@ -465,7 +200,7 @@ impl Search<'_> {
                             "indirect priming action operator".into(),
                         ));
                     }
-                    OpRef::Std(op) => self.check_native(Some(*op), args, scope)?,
+                    OpRef::Std(op) => Self::check_native(Some(*op))?,
                     OpRef::Def(d) => {
                         let d = self.model.evaluator.redirected(*d);
                         let def = self.model.ir.def(d);
@@ -474,7 +209,7 @@ impl Search<'_> {
                             return self.scan(def.body, &sc, prime, needed, depth + 1);
                         }
                         if !self.model.evaluator.is_value_override(d) {
-                            self.check_native(def.std, args, scope)?;
+                            Self::check_native(def.std)?;
                         }
                     }
                     OpRef::Param(_) | OpRef::Const(_) | OpRef::Subst(_) => {
@@ -511,7 +246,7 @@ impl Search<'_> {
                         ));
                     }
                     if !self.model.evaluator.is_value_override(d) {
-                        self.check_native(def.std, &[], scope)?;
+                        Self::check_native(def.std)?;
                     }
                     let sc = self
                         .model
@@ -929,8 +664,26 @@ impl Search<'_> {
 ///
 /// # Errors
 /// Unsupported contexts/unbounded reads, malformed states, evaluation or
-/// comparison errors, and the explicit work/entry limits.
+/// comparison errors, and the explicit work/entry limits. A string or model
+/// value created after binding under encounter order refuses
+/// ([`crate::RUNTIME_NAMES_UNSUPPORTED`]), whatever the decision.
 pub fn exists_successor(
+    model: &Model,
+    action: &Pred,
+    state: &State,
+    nonstuttering: Option<&Pred>,
+    limits: Limits,
+) -> Result<Decision, ExistsError> {
+    let decision = decide(model, action, state, nonstuttering, limits);
+    if model.has_runtime_names() {
+        return Err(ExistsError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+        ));
+    }
+    decision
+}
+
+fn decide(
     model: &Model,
     action: &Pred,
     state: &State,
@@ -1035,52 +788,4 @@ pub fn exists_successor(
         return Ok(Decision::Enabled { witness });
     }
     Ok(Decision::Disabled)
-}
-
-#[cfg(test)]
-mod tuple_shape_tests {
-    use super::*;
-
-    #[test]
-    #[allow(clippy::expect_used, reason = "fixture construction and assertions")]
-    fn invalid_ids_and_lazy_captures_cannot_prove_a_tuple() {
-        let source = "---- MODULE Shape ----\nVARIABLE x\nInit == x=0\nNext == x'=x\nIdentity(v) == v\nPair == <<1,2>>\n====\n";
-        let analysis =
-            dive_sema::analyze_source("Shape.tla", source, &dive_sema::Options::default());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
-            .into_config()
-            .expect("cfg");
-        let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind");
-        let id = model.ir.root_def("Identity").expect("identity");
-        let scope = model.evaluator.scope(id).expect("valid scope");
-        let bad = ExprId(u32::MAX);
-        let arg = Arg::Expr {
-            expr: bad,
-            pass: dive_ir::Pass::Lazy,
-        };
-        let error = model
-            .evaluator
-            .scope_apply(&scope, id, &[arg])
-            .expect_err("malformed capture refused");
-        assert!(error.message().contains("DIVE-EVAL-C001"));
-        let mut proof = TupleProof {
-            model: &model,
-            fuel: 256,
-            variables: &BTreeSet::new(),
-            ranges: &BTreeSet::new(),
-        };
-        assert!(!proof.tuple(bad, &scope));
-        assert!(!proof.definition(DefId(u32::MAX), &scope));
-        assert_eq!(model.take_output(), Vec::<String>::new());
-        let pair = model.ir.root_def("Pair").expect("pair");
-        assert!(proof.tuple(model.ir.def(pair).body, &scope));
-        let mut exhausted = TupleProof {
-            model: &model,
-            fuel: 0,
-            variables: &BTreeSet::new(),
-            ranges: &BTreeSet::new(),
-        };
-        assert!(!exhausted.tuple(model.ir.def(pair).body, &scope));
-    }
 }

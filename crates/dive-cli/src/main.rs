@@ -344,13 +344,6 @@ fn check_command(
                 Some(c) => req.config = Some(c.into()),
                 None => return usage_error(err, "--config expects a .cfg file"),
             },
-            "--trace-format" => match value().as_deref() {
-                Some("v1") => req.trace_encoding = dive_api::trace::TraceEncoding::LegacyV1,
-                Some("representation-v2") => {
-                    req.trace_encoding = dive_api::trace::TraceEncoding::RepresentationV2;
-                }
-                _ => return usage_error(err, "--trace-format expects v1 or representation-v2"),
-            },
             "--lncheck" => match value().as_deref() {
                 Some("final") => final_check = true,
                 _ => {

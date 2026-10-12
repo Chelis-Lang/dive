@@ -1,6 +1,6 @@
 //! Structural storage keeps function diagnostics and independently checked words.
 #![allow(clippy::expect_used, reason = "captured storage regression assertions")]
-use dive_api::trace::{SpecModel, TraceDoc, TraceEncoding, TraceOptions, Validation};
+use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -16,7 +16,6 @@ fn request(name: &str, compat_tlc: bool) -> CheckRequest {
         compat_tlc,
         seed: Some(7),
         fp: Some(0),
-        trace_encoding: TraceEncoding::RepresentationV2,
         ..CheckRequest::default()
     }
 }

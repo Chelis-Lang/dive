@@ -288,11 +288,13 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         sequential: Vec::new(),
         sequential_names_only: false,
         runtime_name_order: false,
+        names_at_bind: 0,
     };
     model.unsupported = reach::unsupported(b, &model);
     let sequential = reach::sequential(b, &model);
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;
+    model.seal_startup_names();
     Ok(model)
 }

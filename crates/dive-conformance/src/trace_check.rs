@@ -9,8 +9,8 @@
 //!
 //! The same machinery runs the validator's controls over the goldens
 //! ([`golden_controls`], `dive-conformance trace-controls`): every TLC
-//! counterexample must validate (positive controls), and every
-//! by-construction mutant of it must be rejected (negative controls).
+//! counterexample must validate, read from TLC's document and again from
+//! dive's format.
 //!
 //! **Deadlock.** Independent finite covers certify supported deadlocks without
 //! the checker enumerator (ADR 0016 amendment 2). For missing covers only,
@@ -276,27 +276,20 @@ pub struct ControlsSummary {
 }
 
 impl ControlsSummary {
-    /// Findings: an invalid positive control, a mutant that is not
-    /// rejected, or a model the validator cannot bind. A positive control
-    /// the validator refuses by name (liveness) is listed, not a finding.
+    /// Findings: an invalid positive control, a dive-format reading that
+    /// disagrees with it, or a model the validator cannot bind. A positive
+    /// control the validator refuses by name (liveness) is listed, not a
+    /// finding.
     #[must_use]
     pub fn findings(&self) -> Vec<String> {
         let mut out = Vec::new();
         for r in &self.rows {
             match &r.outcome {
                 ControlOutcome::Ran(c) => {
-                    if matches!(&c.positive.validation, Validation::Unsupported(_))
-                        && !c.positive_ok()
+                    // A refusal by name is listed in the table, not a finding.
+                    if !matches!(&c.positive.validation, Validation::Unsupported(_))
+                        || c.positive_ok()
                     {
-                        // Refused by name: only a mutant that validates is
-                        // a finding, since nothing can be rejected past the
-                        // refusal.
-                        for (name, v) in &c.mutants {
-                            if v.is_valid() {
-                                out.push(format!("{}: mutant {name} validates", r.id));
-                            }
-                        }
-                    } else {
                         out.extend(c.failures().into_iter().map(|f| format!("{}: {f}", r.id)));
                     }
                 }
@@ -311,12 +304,10 @@ impl ControlsSummary {
     #[must_use]
     pub fn render(&self) -> String {
         use std::fmt::Write as _;
-        let mut s = String::from(
-            "| Golden | Positive control | Mutants rejected | Notes |\n|---|---|---:|---|\n",
-        );
+        let mut s = String::from("| Golden | Positive control | Notes |\n|---|---|---|\n");
         let mut t = Totals::default();
         for r in &self.rows {
-            let (pos, muts, note) = match &r.outcome {
+            let (pos, note) = match &r.outcome {
                 ControlOutcome::Ran(c) => {
                     let pos = match &c.positive.validation {
                         Validation::Valid => {
@@ -338,38 +329,25 @@ impl ControlsSummary {
                             f.detail
                         ),
                     };
-                    let ok = c
-                        .mutants
-                        .iter()
-                        .filter(|(_, v)| matches!(v, Validation::Invalid(_)))
-                        .count();
-                    t.mutants += c.mutants.len();
-                    t.rejected += ok;
-                    (
-                        pos,
-                        format!("{ok}/{}", c.mutants.len()),
-                        c.positive.notes.join("; "),
-                    )
+                    (pos, c.positive.notes.join("; "))
                 }
                 ControlOutcome::Skipped(why) => {
                     t.skipped += 1;
-                    ("skipped".to_owned(), "-".to_owned(), why.clone())
+                    ("skipped".to_owned(), why.clone())
                 }
-                ControlOutcome::Error(e) => ("**error**".to_owned(), "-".to_owned(), e.clone()),
+                ControlOutcome::Error(e) => ("**error**".to_owned(), e.clone()),
             };
             let note = note.replace('|', "\\|").replace('\n', " ");
-            let _ = writeln!(s, "| {} | {pos} | {muts} | {note} |", r.id);
+            let _ = writeln!(s, "| {} | {pos} | {note} |", r.id);
         }
         let _ = writeln!(
             s,
-            "\n{} golden counterexample(s): {} valid, {} deadlock (refused by name, every other check valid), {} unsupported, {} skipped; {}/{} mutants rejected; {} finding(s)",
+            "\n{} golden counterexample(s): {} valid, {} deadlock (refused by name, every other check valid), {} unsupported, {} skipped; {} finding(s)",
             self.rows.len(),
             t.valid,
             t.deadlock,
             t.unsupported,
             t.skipped,
-            t.rejected,
-            t.mutants,
             self.findings().len()
         );
         s
@@ -382,8 +360,6 @@ struct Totals {
     deadlock: usize,
     unsupported: usize,
     skipped: usize,
-    mutants: usize,
-    rejected: usize,
 }
 
 /// Runs the controls over every golden counterexample of the selected

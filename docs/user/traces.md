@@ -61,27 +61,14 @@ receives validation credit. The separate homogeneous checkpoint matrix proves
 source-bound campaign
 retain the exact outputs and incomplete coverage.
 
-Opt-in `--trace-format representation-v2` addresses the admitted forward mixed
-record/tuple set and nonliteral function transport boundary. Version1 stays the
-default with its existing observed failures; it is not silently retagged as
-lossless. See the schema, runnable CLI/Rust guide and limits.
-Reverse construction, arbitrary deferred/symbolic values and Random/VIEW shape
-extensions remain unsupported. No prior shape failure earns new replay credit.
-
-The current v2 selection separately records 72 independently valid originals
-and 216 semantic altered-word rejections, including both profiles, both stores
-and 1/4/8 workers. An encoder may still refuse the stored shape: inspect
-`counterexample.trace_encoding`, whose `semantic_validation` remains false even
-when encoding succeeds. Unknown/mismatched receiving-model name tokens and
-constructor-changing nested Raw representations refuse before Model-based
-emission. Read the current scope and evidence
-without treating transport admission as a certificate.
-
-For TLC-profile sequence calls, literal tuple admission
-and bounded tuple-variable histories
-prove operand shape without using the report itself as evidence. The latter
-requires Init and every Next branch to establish/preserve the invariant.
-A bounded finite function-range proof additionally admits tuple stacks indexed by process owners when Init and every Next branch establish/preserve the range. Arbitrary-state APIs and general saved procedure stacks remain refused.
+Under `--compat=tlc`, strings and model values compare in the order TLC first
+encountered them. The validator knows that order for every name interned when
+the model is bound. If reading the trace or checking it creates any other
+name (a string the specification never mentions, or one an operator such as
+`ToString` or `Tail` builds on these states), the result is
+`unsupported: runtime string encounter order`, never `valid` or `invalid`.
+A check that draws a random value (`RandomElement`, `Randomization`) is
+likewise refused by name.
 
 Public serialized IR with Strict substitution expressions requires independent
 pre-entry proof from the actual operand and captured scope. Closed literals

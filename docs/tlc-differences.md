@@ -1417,26 +1417,27 @@ validator accepted it because loading `"7"` before constructing `"6"` changed
 what `CHOOSE` selected. The raw false positive is retained with the safe oracle
 capture, source hashes and reproduction flags.
 
-TLC-order trace validation now reports **unsupported: runtime string encounter
-order** for reachable runtime-name constructors, before predicate evaluation
-or lossy trace interpretation. A seed and fingerprint do not supply missing
-namespace history. This applies to direct decoded traces, JSON traces and the
-Rust API. Canonical default validation accepts the actual `"6"` behavior and
-rejects the forged `"7"` step. Ordinary literal strings remain supported.
+TLC-order trace validation follows one rule. Names interned when dive binds
+the model (SANY's encounter order, constants and configuration, and the
+checker's own start-up names) have the same order as in TLC. The validator
+validates as usual. If decoding the trace or evaluating any check interned a
+name after binding, it reports **unsupported: runtime string encounter order**,
+whether the trace would otherwise be valid or invalid. A seed and fingerprint
+do not supply missing namespace history. The rule applies to dive's documents,
+TLC's JSON documents, the Rust API, `ENABLED` decisions and lasso formulas.
 
-This is dive's own limitation, not a new language default. Establishing namespace
-provenance independently is required before lifting the refusal. The admission
-analysis conservatively includes operators with both tuple and string forms.
-Whole-word replay can now discharge that guard for independently proved
-tuple-only `Tail`, concatenation and `SubSeq` operands, without evaluating
-their arguments or using witness values as type evidence. Strings, mixed
-branches and nested name constructors retain the refusal. A separately bounded
-source-wide tuple-history proof can admit
-some variable sequence histories; general saved-frame provenance remains
-unproved. Fixed nested tuple aliases through `UNCHANGED vars` have a bounded
-projection proof (#215); conditional tuple permutations cannot establish
-per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. A finite tuple-range proof additionally permits indexed reads only when Init and every Next branch prove a tuple range. Strings, opaque maps, nested updates, primed self-reference and effects keep the refusal; public arbitrary-state APIs do not inherit these facts. See the literal operand slice.
+On `ReplayNames`, both the forged `"7"` word and the actual `"6"` behavior are
+refused under `--compat=tlc`: each creates a string the specification never
+mentions. Canonical default validation accepts the actual behavior and
+rejects the forged step. Literal strings remain supported, and so do models
+whose name-capable operators (`Tail`, `\o`, `SubSeq`, `ToString`) only build
+values from start-up names on the trace's own steps: for example
+`MCCheckpointCoordinationFailure`, whose `SubSeq` and `\o` apply only to
+sequences of model values.
 
+This is dive's own limitation, not a new language default. A validator that
+shares the checker's model sees the checker's runtime names and refuses; the
+harness validates on a freshly bound model.
 
 Finite safety simulation also refuses TLC runtime-name models before sampling
 until its simulator startup and independent namespace provenance are proved.
@@ -2260,26 +2261,13 @@ admission or proof credit. Neither profile silently repairs the reference output
 
 `_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. User contract and executable example; [ADR 0057](decisions/0086-rescue-reset.md). No ordinary-schedule or family certification is granted.
 
-### Opt-in stored trace transport (#190)
+### Stored trace transport (#190): withdrawn
 
-Trace version 1 remains the default and retains the measured 36 original/108
-altered shape failures above. Version 2 (`--trace-format representation-v2`)
-uses checked stored representation for admitted forward mixed record/tuple sets
-and nonliteral tuple/record functions. It recomputes construction witnesses under
-the bound profile; normalized/order/literal claims never substitute for semantic
-Init/Next/ending validation. The transport does not alter comparison semantics,
-reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
-and unproved witness shapes remain explicit transport refusals. The
-guide and schema specify limits and migration.
-Historical shape failures remain excluded from certificate credit. The separate
-current v2 selection proves 72 independently valid words and 216 semantic mutant
-rejections; 24 matching legacy mixed-value shape failures stay explicit. The
-Model-based writer checks existing name tokens before emission, and fresh owned
-constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
-interval encoding controls retain the concrete violation but emit no transport
-or certificate. See the source-bound receipt;
-this does not certify arbitrary stored representations.
-
+The opt-in version-2 trace format (`--trace-format representation-v2`) was
+removed on 2026-10-12. It carried TLC's internal stored representation of
+values, which is not part of a trace's meaning. dive writes and reads trace
+format version 1 only, and the flag is gone. The 36 original and 108 altered
+shape failures of version 1 described above remain.
 
 D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
 labelled sequential procedure can now use Full editing. The pinned original

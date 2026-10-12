@@ -278,3 +278,47 @@ Requested workers are separate from actual inline width 1. First-successor
 partial trace printing, startup draws, symmetry, Randomization families,
 graph/temporal randomness and seeded recovery remain outside this proof slice.
 No archive, complete family or shortest-trace certificate follows from admission.
+
+## Amendment 3: sound replay only (2026-10-12, #241, #242)
+
+The rescue plan (#241, stage V) reduces the validator to a replay checker.
+Where this amendment differs from the sections and amendments above, it holds.
+
+**What the validator does.** It decodes the trace against the bound model and
+checks each claim by evaluation: the first state satisfies `Init`, each step
+satisfies the next-state relation as an action predicate on the two given
+states, constraints, invariants and action properties hold where the search
+would have checked them, and the ending holds. A deadlock is decided by the
+independent finite-cover search (`exists_successor`). A liveness lasso is
+checked with the word semantics of `temporal.rs`. The successor enumerator is
+still not compiled in (§2).
+
+**Runtime names** (replaces the namespace-provenance amendment of
+2026-10-10). The model records the interner's size when binding finishes
+(`Model::names_at_bind`; a caller that interns TLC's checker start-up names
+afterwards reseals it). The validator validates as usual. If, under TLC's
+value or exploration order, any name was interned after that point (while
+decoding the trace, while evaluating an `ASSUME`, a check, an `ENABLED`
+decision or a lasso formula), the result is `unsupported: runtime string
+encounter order`, whatever the verdict would have been. Names interned at
+binding have the same order as in TLC, so a verdict that only compared those
+names is TLC's. The static admission proofs (`runtime_order`,
+`tuple_history`, the tuple-shape proof in `exists`, `context_admission`) are
+deleted. `INSTANCE ... WITH` bindings are entered only when they have no side
+effects.
+
+**Random draws** (replaces amendment 2's replay). Any check that draws a
+random value makes the result `unsupported` (`RANDOM_UNSUPPORTED`). The
+stream-position certificate (`random_position`) and the replay are deleted.
+`dive_trace::Replay` is an uninhabited type kept only until the remaining
+callers drop the argument.
+
+**Removed.** The negative-control mutants (`dive_trace::mutate`): the
+harness's `trace-controls` and `SpecModel::controls` run the positive control
+and the dive-format round trip only. The opt-in stored-representation trace
+format version 2 (`value_repr`, `--trace-format representation-v2`): dive
+writes and reads version 1 only.
+
+**Effect.** `MCCheckpointCoordinationFailure`, whose `SubSeq` and `\o` only
+build sequences of model values on the trace, validates under `--compat=tlc`
+instead of being refused.

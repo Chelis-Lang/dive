@@ -4,6 +4,16 @@
   exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks
   retain their named refusal.
 
+- The independent trace validator is a plain replay checker (ADR 0016,
+  amendment 3). Under `--compat=tlc` it validates as usual and reports
+  `unsupported: runtime string encounter order` only when decoding or
+  checking the trace created a name after the model was bound, so models
+  whose sequence operators only build tuples (for example
+  `MCCheckpointCoordinationFailure`) now validate. Random draws in a check are
+  refused by name instead of replayed. The `--trace-format representation-v2`
+  flag and trace format version 2 are removed, and `trace-controls` and
+  `SpecModel::controls` no longer build mutants.
+
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;
   tests keep only the fixtures they read. PlusCal and storage notes are merged into

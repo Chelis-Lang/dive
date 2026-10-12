@@ -25,11 +25,11 @@
 //!   and mixed-set round-trip limitations.
 //! - [`validate()`]: the checks, giving [`Validation::Valid`],
 //!   [`Validation::Invalid`] (the first failing state and check) or
-//!   [`Validation::Unsupported`] (naming what cannot be checked). Given the
-//!   run's seed and fingerprint polynomial ([`Replay`]), it replays the
-//!   run's random draws in the initial predicate and the steps.
+//!   [`Validation::Unsupported`] (naming what cannot be checked). A random
+//!   draw is refused by name ([`RANDOM_UNSUPPORTED`]), and so is a string
+//!   created at run time when strings follow encounter order
+//!   ([`RUNTIME_NAMES_UNSUPPORTED`]).
 //! - [`tlc`]: reading TLC's lossy JSON by interpretation.
-//! - [`mutate`]: by-construction invalid mutants, the negative controls.
 //!
 //! Evaluation recurses on the caller's stack: run validation on a thread
 //! with [`dive_eval::RECOMMENDED_STACK`], as `dive-api` does.
@@ -66,26 +66,20 @@
 //! ```
 #![forbid(unsafe_code)]
 
-mod context_admission;
 pub mod exists;
 pub mod format;
-pub mod mutate;
-mod random_position;
-mod runtime_order;
 pub mod temporal;
 pub mod tlc;
 mod trace;
-mod tuple_history;
 mod validate;
 pub mod value_json;
-pub mod value_repr;
 
 use dive_model::Model;
 
-pub use format::{Ending, Label, Source, TraceDoc, TraceEncoding};
+pub use format::{Ending, Label, Source, TraceDoc};
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
-    Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNPLACED, RUNTIME_NAMES_UNSUPPORTED, Replay,
+    Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED, RUNTIME_NAMES_UNSUPPORTED, Replay,
     Report, Validation, validate,
 };
 
@@ -93,8 +87,8 @@ pub use validate::{
 /// `model_values` are the configuration's model value names
 /// (`dive_config::ModelConfig::model_values`), which reading TLC's format
 /// needs. Returns the report and the trace as read (for a TLC document, the
-/// interpretation the verdict is about; see [`tlc`]). `replay` is the
-/// checking run's random streams, if known (see [`validate()`]).
+/// interpretation the verdict is about; see [`tlc`]). `replay` is always
+/// `None` (see [`Replay`]).
 #[must_use]
 pub fn validate_doc(
     model: &Model,
@@ -107,18 +101,21 @@ pub fn validate_doc(
             let r = tlc::validate_tlc(model, doc, model_values, replay);
             (r.report, r.trace)
         }
-        Source::Dive | Source::DiveRepresentation => match Trace::decode(model, doc) {
+        Source::Dive => match Trace::decode(model, doc) {
             Ok(t) => (validate(model, &t, replay), Some(t)),
             Err(e) => (
-                Report {
-                    validation: Validation::Invalid(Failure {
-                        state: e.state.unwrap_or(0),
-                        check: Check::Shape,
-                        detail: e.detail,
-                    }),
-                    notes: Vec::new(),
-                    length: doc.states.len(),
-                },
+                validate::guard_runtime_names(
+                    model,
+                    Report {
+                        validation: Validation::Invalid(Failure {
+                            state: e.state.unwrap_or(0),
+                            check: Check::Shape,
+                            detail: e.detail,
+                        }),
+                        notes: Vec::new(),
+                        length: doc.states.len(),
+                    },
+                ),
                 None,
             ),
         },

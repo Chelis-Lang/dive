@@ -38,10 +38,8 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-pub use dive_trace::mutate::Mutant;
 pub use dive_trace::{
-    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, TraceEncoding,
-    Validation,
+    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
 };
 use serde_json::{Value, json};
 
@@ -60,14 +58,11 @@ pub struct TraceOptions {
     /// TLC's `-deadlock` flag: the model does not check for deadlock.
     pub no_deadlock: bool,
     /// The checking run's `-seed` and `-fp` index, when known (the TLC
-    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them,
-    /// constant definitions and `ASSUME`s draw from the run's start-up
-    /// stream, and the validator replays the run's random draws in the
-    /// initial predicate and the steps (TLC's seeding under `compat_tlc`,
-    /// dive's otherwise; D-002). Without them, all of these are refused by
-    /// name.
-    /// Random checks are decisive only where generator and predicate draw
-    /// positions can be proved equal; other orders are explicitly refused.
+    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
+    /// constant definitions draw from the run's start-up stream (TLC's
+    /// seeding under `compat_tlc`, dive's otherwise; D-002). Without them,
+    /// both are refused by name. The validator refuses every random draw in
+    /// the checks themselves (`dive_trace::RANDOM_UNSUPPORTED`).
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
@@ -80,7 +75,6 @@ pub struct TraceOptions {
 pub struct SpecModel {
     model: dive_model::Model,
     model_values: Vec<String>,
-    replay: Option<dive_trace::Replay>,
 }
 
 impl SpecModel {
@@ -147,18 +141,21 @@ impl SpecModel {
         } else {
             dive_stdlib::random::RandomMode::Dive
         };
-        let replay = match opts.run {
-            Some((seed, fp_index)) => Some(
-                dive_trace::Replay::new(dive_stdlib::random::Streams::new(seed, mode), fp_index)
-                    .ok_or_else(|| ApiError::Rejected {
+        let streams = match opts.run {
+            Some((seed, fp_index)) => {
+                if fp_index >= dive_value::fp64::POLYS.len() {
+                    return Err(ApiError::Rejected {
                         message: format!(
-                            "fingerprint polynomial index {fp_index} is out of range (0..131)"
+                            "fingerprint polynomial index {fp_index} is out of range (0..{})",
+                            dive_value::fp64::POLYS.len()
                         ),
-                    })?,
-            ),
+                    });
+                }
+                Some(dive_stdlib::random::Streams::new(seed, mode))
+            }
             None => None,
         };
-        let host = replay.map(|r| Arc::new(dive_stdlib::host::RunHost::new(r.streams(), None)));
+        let host = streams.map(|s| Arc::new(dive_stdlib::host::RunHost::new(s, None)));
         let bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
             host: host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }),
@@ -169,8 +166,8 @@ impl SpecModel {
             }
         };
         let model_values = cfg.model_values.clone();
-        let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
-        if let (Ok(model), Some(h), Some((seed, fp_index))) = (&bound, &host, opts.run) {
+        let mut bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
+        if let (Ok(model), Some(h), Some((seed, fp_index))) = (&mut bound, &host, opts.run) {
             model.evaluator.intern_checker_names();
             #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
             let fingerprint = dive_value::fp64::POLYS.get(fp_index).copied().unwrap_or(0) as i64;
@@ -184,13 +181,14 @@ impl SpecModel {
                     .unwrap_or_default(),
             };
             model.evaluator.intern_bfs_config(&config);
+            // TLC interns these before it evaluates an ASSUME or a state.
+            model.seal_startup_names();
             h.set_config(Some(config));
         }
         match bound {
             Ok(model) => Ok(Self {
                 model,
                 model_values,
-                replay,
             }),
             Err(f) => match &f.error.kind {
                 dive_model::ErrorKind::Unsupported { feature } => Err(ApiError::Unsupported {
@@ -226,40 +224,15 @@ impl SpecModel {
     /// [`dive_trace::validate_doc`]).
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<Trace>) {
-        on_big_stack(|| {
-            dive_trace::validate_doc(&self.model, doc, &self.model_values, self.replay.as_ref())
-        })
-        .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
+        on_big_stack(|| dive_trace::validate_doc(&self.model, doc, &self.model_values, None))
+            .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
     }
 
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {
-        on_big_stack(|| dive_trace::validate(&self.model, trace, self.replay.as_ref()))
+        on_big_stack(|| dive_trace::validate(&self.model, trace, None))
             .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
-    }
-
-    /// The by-construction invalid mutants of a valid trace
-    /// ([`dive_trace::mutate`]): negative controls.
-    #[must_use]
-    pub fn mutants(&self, trace: &Trace) -> Vec<Mutant> {
-        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace, self.replay.as_ref()))
-            .unwrap_or_default()
-    }
-
-    /// Writes opt-in stored representation without changing the trace claim.
-    /// Successful transport is not semantic validation.
-    ///
-    /// # Errors
-    /// Unsupported stored shape or bounded transport admission.
-    pub fn to_doc_with_encoding(
-        &self,
-        trace: &Trace,
-        encoding: dive_trace::TraceEncoding,
-    ) -> Result<TraceDoc, ApiError> {
-        trace
-            .to_doc_with_encoding(&self.model, encoding)
-            .map_err(|message| ApiError::Rejected { message })
     }
 
     /// The trace in dive's format.
@@ -348,8 +321,8 @@ pub fn render_report(report: &Report) -> String {
 }
 
 /// The result of running the validator's controls on one counterexample
-/// known to be valid (TLC's, or dive's): the positive control, and every
-/// by-construction mutant (ADR 0016 §3).
+/// known to be valid (TLC's, or dive's): the positive control, and the same
+/// trace written in dive's format and read back (ADR 0016 §3).
 #[derive(Debug, Clone)]
 pub struct Controls {
     /// The original trace's report.
@@ -357,8 +330,6 @@ pub struct Controls {
     /// The trace as read, written in dive's format and validated again: it
     /// must agree with the positive control.
     pub dive_format: Option<Validation>,
-    /// Each mutant's name and verdict. Every one must be invalid.
-    pub mutants: Vec<(String, Validation)>,
 }
 
 impl Controls {
@@ -392,24 +363,17 @@ impl Controls {
                 self.positive.validation.kind()
             ));
         }
-        for (name, v) in &self.mutants {
-            if !matches!(v, Validation::Invalid(_)) {
-                out.push(format!("mutant {name} is not rejected: {}", v.kind()));
-            }
-        }
         out
     }
 }
 
 impl SpecModel {
     /// Runs the controls on `doc`, a counterexample known to be valid: the
-    /// document must validate, and each mutant of the trace it reads as
-    /// must be rejected. Mutants are also round-tripped through dive's
-    /// format, so the format is exercised as well.
+    /// document must validate, and so must the trace it reads as, written
+    /// in dive's format, so the format is exercised as well.
     #[must_use]
     pub fn controls(&self, doc: &TraceDoc) -> Controls {
         let (positive, trace) = self.read(doc);
-        let mut mutants = Vec::new();
         let mut dive_format = None;
         if let Some(trace) = trace.filter(|_| {
             matches!(
@@ -421,24 +385,10 @@ impl SpecModel {
                 Ok(d) => self.validate(&d).validation,
                 Err(e) => Validation::Unsupported(e.to_string()),
             });
-            for m in self.mutants(&trace) {
-                let direct = self.validate_trace(&m.trace).validation;
-                let via_format = match self.to_doc(&m.trace) {
-                    Ok(d) => self.validate(&d).validation,
-                    Err(e) => Validation::Unsupported(e.to_string()),
-                };
-                let v = if matches!(direct, Validation::Invalid(_)) {
-                    via_format
-                } else {
-                    direct
-                };
-                mutants.push((m.name, v));
-            }
         }
         Controls {
             positive,
             dive_format,
-            mutants,
         }
     }
 }
