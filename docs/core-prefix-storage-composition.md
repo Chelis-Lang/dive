@@ -202,3 +202,36 @@ keeps its actual source index and compiler log. The correction names the
 default types and compares output to an empty vector, preserving every
 assertion and expected result. A new full gate and runtime campaign are required
 for the corrected source; the failed producer has no passing-gate credit.
+
+
+### Safe substitution forwarding regression
+
+The next complete receiving test run on `555f4e99` passed all 73 literal
+Python checks, formatting and Clippy. It ran every one of the 1,764 tests:
+1,762 passed, two failed, and none were skipped. The failures were the existing
+`instance_substitutions_match_pinned_final_truth_and_validate_independently`
+and `substituted_words_keep_nested_state_and_priming_lazy` temporal tests.
+Their original assertions and failing logs are preserved in the
+[receiving regression record](../conformance/probes/core-terminal-procedure-integration/strict-admission-temporal-regression-receiving/index.json).
+
+The blanket Strict guard rejected safe literal/constant forwarding in nested
+INSTANCE contexts. The repair must establish safety from the actual operand
+and captured scope before entry, while still rejecting caller-annotated calls
+that can Print. Neither an effects annotation nor a refusal in place of an
+already-supported valid temporal word meets that contract. The two existing
+tests remain unchanged. This failed producer has no complete-gate or fresh
+combined-runtime credit; the revised source needs both before shipping.
+
+
+The narrow receiving repair passes both original failing tests unchanged,
+all four Strict endpoint controls and three new private proof controls. Its
+first targeted Clippy run rejected one rustdoc backtick omission; that
+[focused epoch](../conformance/probes/core-terminal-procedure-integration/safe-forwarding-focused-receiving/index.json)
+is preserved. After the documentation-only style correction, targeted
+trace/API Clippy passes and the complete temporal/Strict API targets pass
+49 tests with none skipped
+([retry evidence](../conformance/probes/core-terminal-procedure-integration/safe-forwarding-style-retry-receiving/index.json)).
+All eleven entry sites use the same owned, bounded, callback-free operand
+proof in the original outer scope. The repaired producer still requires its
+own complete gate and fresh original combined runtime selections; these
+focused checks do not qualify the wider composition.

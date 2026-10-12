@@ -223,7 +223,8 @@ impl Proof<'_> {
                     .is_ok_and(|entered| self.walk(*body, &entered, depth + 1));
             }
             Expr::Subst { body, bindings } => {
-                if !crate::context_admission::substitution_is_lazy(bindings) {
+                if !crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
+                {
                     return false;
                 }
                 return ev

@@ -6,7 +6,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
     "AGENTS.md": "7a520dea2aef94a68bd3452c25d7fa86723c87b17210900f8e9451aacbfcb1ee",
-    "CHANGELOG.md": "eba43ec64f8c44360485aa81cd7e2a16113a734f8b291167ae7afa9f1dabadaf",
+    "CHANGELOG.md": "fb009d4dd948002a28858870c546530a6f8ef5c5399dd7b20397cefa15e9b3fd",
     "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
@@ -3053,8 +3053,8 @@
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
     "docs/divergences.md": "196dc1c494c64ac331b5be23f1b59b423ec4fdec94ce14443d84c7a5167af925",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
-    "docs/provenance.md": "44d4c9a87eff4f8904734b71036b31d735a6eb148adab6451d65ea155417ae12",
-    "docs/tlc-differences.md": "a856e91c766d3a0934cf144b71bf01bbda0f01e7d5a49307144df6caa634c14f",
+    "docs/provenance.md": "fc21e2f859b3c026d18c4f487ea25e5b3aae832a3ff1f5794b5624d8844e400d",
+    "docs/tlc-differences.md": "55bd42cb42a71be6d27dac368cccbc9196409ce58f9dac1109f27d47f4170319",
     "docs/user/temporal.md": "ea8733de49d3e6266e0001877059a45686ac57569789bf577443dc2a455eaff9",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"

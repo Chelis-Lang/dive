@@ -1015,3 +1015,13 @@ This is an independent native admission repair, not a Java algorithm port or
 a claim that naturally lowered TLA+ emits the retained caller-forged metadata.
 The regression fixture preserves owned IR, original impure-annotation refusal,
 actual inert/lazy contexts and ordinary evaluator execution separately.
+
+### Independent eager-substitution admission (#234)
+
+`Core::new` plans literal values/errors and record field atoms; `eval_inner`
+reads those caches. `Core::bind_subst` evaluates all Strict operands against its
+original outer environment. Trace admission matches that boundary with bounded
+callback-free literal/tuple/record and scoped-value forwarding inspection. It
+performs no evaluator call/provider forcing and trusts no effects annotation.
+Stored atoms require receiving-token identity. The original 1,762/1,764 failure
+is retained; corrected compilation/qualification remain pending separately.

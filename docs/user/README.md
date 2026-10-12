@@ -16,7 +16,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
-| Inspect public Strict contexts | [Strict context admission](strict-context-admission.md) | Pre-entry refusal; ordinary evaluator semantics unchanged; receiving qualification pending |
+| Inspect public Strict contexts | [Strict context admission](strict-context-admission.md) | Bounded structural proof before entry; calls remain refused; receiving qualification pending |
 | Replay tuple sequence calls in TLC mode | [Tuple-only replay](../tuple-only-trace-replay.md) | Unevaluated shape proof; variable stack histories remain refused |
 | Replay tuple-valued variables | [Inductive tuple replay](../inductive-tuple-trace-replay.md) | Bounded Init/all-branches Next proof; arbitrary states and general saved stacks remain refused |
 | Replay finite process-owned tuple stacks | [Indexed stack replay](../indexed-stack-trace-replay.md) | Bounded Init/all-Next function-range proof; arbitrary-state and general histories remain refused |

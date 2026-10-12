@@ -172,7 +172,7 @@ impl TupleProof<'_> {
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.range(*body, &entered)),
             Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_lazy(bindings)
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
                     && ev
                         .scope_subst(scope, expr)
                         .is_ok_and(|entered| self.range(*body, &entered))
@@ -244,7 +244,7 @@ impl TupleProof<'_> {
                 .scope_let(scope, expr)
                 .is_ok_and(|sc| self.tuple(*body, &sc)),
             Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_lazy(bindings)
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
                     && ev
                         .scope_subst(scope, expr)
                         .is_ok_and(|sc| self.tuple(*body, &sc))

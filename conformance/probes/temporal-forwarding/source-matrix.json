@@ -25,7 +25,7 @@
   "source_sha256": {
     "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
-    "crates/dive-trace/src/temporal.rs": "652f7198869dfbfaa6ddee5dd06963289a1f95492d09c87070dc2809f0d8a599",
+    "crates/dive-trace/src/temporal.rs": "5c5ad7f7b16fe6ff2394c39311ead232334db3dfd21b648bb1b818b8cfa05dfb",
     "crates/dive-api/tests/temporal_forwarding.rs": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",
     "crates/dive-api/tests/deferred_domains.rs": "e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2",
     "conformance/studies/temporal-scopes-53-map.json": "602f7d67b104b6c51b7fcda4238199806215218f82ee174235460ee7a82d0227"

@@ -382,13 +382,19 @@ fn ordinary_evaluator_keeps_strict_execution_and_inert_bindings() {
         let next = model.next.as_ref().expect("Next");
         assert!(!model.evaluator.has_print_event());
         assert_eq!(model.take_output(), Vec::<String>::new());
-        // Independent admission now conservatively refuses both cases; it
-        // must not infer eager safety from caller expression annotations.
+        // Genuine closed literal structure is admitted independently; a
+        // forged Print call remains unsupported regardless of its annotation.
         assert_eq!(
             dive_trace::validate_doc(&model, &word(), &[], None)
                 .0
                 .validation,
-            dive_trace::Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+            if printing {
+                dive_trace::Validation::Unsupported(
+                    dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+                )
+            } else {
+                dive_trace::Validation::Valid
+            }
         );
         assert!(!model.evaluator.has_print_event());
         assert_eq!(model.take_output(), Vec::<String>::new());

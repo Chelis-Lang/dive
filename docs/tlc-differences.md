@@ -2624,3 +2624,14 @@ existence search already refused without effects. This is a dive public-IR
 admission limitation, not a false-word or naturally lowered TLA+ parity claim,
 and does not introduce a TLC divergence/default ID. Repair source is present;
 fresh receiving qualification is pending under [#234](https://github.com/Chelis-Lang/dive/issues/234).
+
+#### Pure eager instance operands and independent admission (#234)
+
+The initial blanket Strict refusal also refused legitimate literal TRUE and
+nested constant forwarding in existing pinned instance tests. The bounded
+repair inspects actual closed structure and scoped values before eager entry,
+keeps malicious Print refusal, and trusts no inertness flag. This is a dive
+admission limitation/repair, not a new reference-tool divergence. Native/user
+calls, providers and exhausted/opaque eager contexts remain unsupported. The
+complete original 1,762-pass/two-failure gate is retained; fresh qualification
+is pending.

@@ -20,9 +20,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
-- Independent trace context inspection refuses Strict substitution expressions
-  before entering their scopes (#234), retaining lazy and ordinary evaluator
-  semantics and explicit opaque-context refusals.
+- Independent trace context inspection admits bounded closed Strict literals
+  and actual constant forwarding before entering their scopes (#234), retaining
+  pre-effect refusals for forged calls, lazy bindings and ordinary evaluator
+  semantics. Both original temporal regression tests are preserved.
 
 
 - Strict independent trace replay can prove bounded finite tuple ranges from

@@ -164,7 +164,7 @@ impl Word<'_> {
             ));
         }
         if let Expr::Subst { body, bindings } = &node.expr {
-            if !crate::context_admission::substitution_is_lazy(bindings) {
+            if !crate::context_admission::substitution_is_admitted(self.model, scope, bindings) {
                 return Err(TemporalError::Unsupported(
                     crate::context_admission::STRICT_SUBSTITUTION.into(),
                 ));
@@ -759,7 +759,9 @@ impl Word<'_> {
                     continue;
                 }
                 Expr::Subst { body, bindings } => {
-                    if !crate::context_admission::substitution_is_lazy(bindings) {
+                    if !crate::context_admission::substitution_is_admitted(
+                        self.model, &sc, bindings,
+                    ) {
                         return Err(TemporalError::Unsupported(
                             crate::context_admission::STRICT_SUBSTITUTION.into(),
                         ));
@@ -951,7 +953,8 @@ impl Word<'_> {
                 return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
             }
             Expr::Subst { body, bindings } => {
-                if !crate::context_admission::substitution_is_lazy(bindings) {
+                if !crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
+                {
                     return Err(TemporalError::Unsupported(
                         crate::context_admission::STRICT_SUBSTITUTION.into(),
                     ));
@@ -1222,7 +1225,9 @@ impl Word<'_> {
                     }
                 },
                 Expr::Subst { body, bindings } => {
-                    if !crate::context_admission::substitution_is_lazy(bindings) {
+                    if !crate::context_admission::substitution_is_admitted(
+                        self.model, &scope, bindings,
+                    ) {
                         return Err(TemporalError::Unsupported(
                             crate::context_admission::STRICT_SUBSTITUTION.into(),
                         ));

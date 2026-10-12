@@ -1,0 +1,22 @@
+{
+  "producer": "555f4e993d8cea89fefdd9206181024e8e18c185",
+  "scope": "Actual receiving regression. All73 Python checks, formatting and Clippy passed. All1764 tests ran:1762 passed,2 temporal substitution tests failed,0 skipped. Original failing source and test expectations retained; no complete gate/runtime credit.",
+  "files": {
+    "source-index.json.gz": {
+      "sha256": "1343ffd469e846fec6097efca4d9935f8cdb366c6d8cd614035b233340e9ddce",
+      "raw_sha256": "6afea2100c3792faa08c10357879c40a6354c07abba8e094a0db4326f7dda4ed"
+    },
+    "gate-receipt.json.gz": {
+      "sha256": "dc3c08d2a79301805d20aab3d306ca2ded9439a605d94bdcbb94666cba4225ef",
+      "raw_sha256": "566f256f90c8b7daf55ed0db7b6993d22124e6c924c57c1f61ecb24a17f677c5"
+    },
+    "offline-commands.json.gz": {
+      "sha256": "5e65a72e906daba0a2e6a80d4c3e18b8a531eac1b48dfd0695f412805c6a67e1",
+      "raw_sha256": "13fd76c5f6a3e5ac9a7c1c706fcbd95ee8cad60fecfbea4991e5e26e8d98f328"
+    },
+    "stage-2.log.gz": {
+      "sha256": "a263f01377ab2828cda1b4f40c1fe221cd067efc8eec8e78dfc154dc0fb8244a",
+      "raw_sha256": "06d0f04d850f3f7583eed27abce6c9a4f182e16dc512ae729c85f41c4179b823"
+    }
+  }
+}

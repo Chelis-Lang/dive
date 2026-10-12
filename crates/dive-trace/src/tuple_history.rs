@@ -225,7 +225,7 @@ impl Proof<'_> {
                     })
             }
             Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_lazy(bindings)
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
                     && self
                         .model
                         .evaluator
@@ -332,7 +332,7 @@ impl Proof<'_> {
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.shape(*body, &entered, shape, facts, depth + 1)),
             Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_lazy(bindings)
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
                     && ev
                         .scope_subst(scope, expr)
                         .is_ok_and(|entered| self.shape(*body, &entered, shape, facts, depth + 1))
@@ -414,7 +414,7 @@ impl Proof<'_> {
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.finite(*body, &entered, depth + 1)),
             Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_lazy(bindings)
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
                     && ev
                         .scope_subst(scope, expr)
                         .is_ok_and(|entered| self.finite(*body, &entered, depth + 1))
@@ -487,7 +487,7 @@ impl Proof<'_> {
                 .scope_let(scope, expr)
                 .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1)),
             Expr::Subst { body, bindings } => {
-                crate::context_admission::substitution_is_lazy(bindings)
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
                     && ev
                         .scope_subst(scope, expr)
                         .is_ok_and(|entered| self.projection(*body, &entered, var, depth + 1))
