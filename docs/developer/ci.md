@@ -20,11 +20,18 @@ strict) and saves the rust-cache entries that PR runs restore.
 ## The `ci` nextest profile
 
 `.config/nextest.toml` gives the `ci` profile a `default-filter` that leaves out
-the slow tests: the checkpoint, spill, view-normalization and storage evidence
-binaries, the periodic-snapshot worker matrix, and individual multi-worker or
-whole-model sweeps. The selection was taken from per-test durations of a main
-CI run on 4-vCPU runners. It keeps about 1300 of 1768 tests and about 535 of
-8385 test-seconds, and at least one test binary of every crate.
+the slow tests: the checkpoint, spill, view-normalization, storage, PlusCal
+checksum and disk-role evidence binaries, the periodic-snapshot worker matrix,
+individual multi-worker or whole-model sweeps, and the evidence source guards
+that run `scripts/check-*.py` (those pin hashes of repository files, including
+this workflow). The selection was taken from per-test durations of main and PR
+CI runs. It keeps about 1230 of 1768 tests and about 400 of 8385
+test-seconds, about three minutes on the 2-vCPU hosted runner, with tests of
+every crate.
+
+The job sets `CARGO_PROFILE_DEV_DEBUG=0` and `CARGO_PROFILE_TEST_DEBUG=0` and
+deletes unused preinstalled SDKs in the background: the whole test inventory
+does not otherwise fit on the runner disk (the linker dies with SIGBUS).
 
 Run the excluded tests alone with
 `cargo nextest run --workspace --profile ci --ignore-default-filter`, or the
