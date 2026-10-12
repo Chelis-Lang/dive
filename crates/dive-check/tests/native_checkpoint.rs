@@ -18,13 +18,49 @@ fn model(src: &str, cfg: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
 }
 fn directory() -> std::path::PathBuf {
     static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-    let path = std::env::temp_dir().join(format!(
-        "dive-native-checkpoint-test-{}-{}",
-        std::process::id(),
-        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    claim_directory(&std::env::temp_dir(), &NEXT)
+}
+
+fn claim_directory(
+    parent: &std::path::Path,
+    next: &std::sync::atomic::AtomicU64,
+) -> std::path::PathBuf {
+    loop {
+        let path = parent.join(format!(
+            "dive-native-checkpoint-test-{}-{}",
+            std::process::id(),
+            next.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        // Nextest isolates tests in separate processes. A recycled PID can
+        // encounter an old directory after an interrupted test run. Claim a
+        // fresh path atomically; never delete or reuse another run's files.
+        match std::fs::create_dir(&path) {
+            Ok(()) => return path,
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            result => result.expect("private checkpoint directory"),
+        }
+    }
+}
+
+#[test]
+fn private_checkpoint_directory_preserves_a_previous_runs_files() {
+    let parent = directory();
+    let next = std::sync::atomic::AtomicU64::new(0);
+    let occupied = parent.join(format!(
+        "dive-native-checkpoint-test-{}-0",
+        std::process::id()
     ));
-    std::fs::create_dir(&path).expect("dir");
-    path
+    std::fs::create_dir(&occupied).expect("existing run directory");
+    let sentinel = occupied.join("retained-checkpoint");
+    std::fs::write(&sentinel, b"previous run").expect("previous run file");
+    let fresh = claim_directory(&parent, &next);
+    assert_ne!(fresh, occupied);
+    assert!(fresh.is_dir());
+    assert_eq!(
+        std::fs::read(&sentinel).expect("retained file"),
+        b"previous run"
+    );
+    std::fs::remove_dir_all(parent).expect("owned test cleanup");
 }
 
 #[test]

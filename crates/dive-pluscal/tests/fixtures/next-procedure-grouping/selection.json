@@ -1,0 +1,135 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "original_manifest_sha256": "16307b4561cf353e42f3f55694bec1c4ab09e366861f6825ec6d84a6230bc2a7",
+  "rows": [
+    {
+      "id": "MultiProcedureClosure_C_chain_three",
+      "input_sha256": "3dd6fa5219a0dbf457c7188601e70e0023db39f534aa3e19ee0057de15b86083",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "b16109225c24543f4f8e88342c47ddb80fc7a2384bbda173e570fd5de9c05c20"
+    },
+    {
+      "id": "MultiProcedureClosure_C_diamond_four",
+      "input_sha256": "15974523423c18d031b51968d4f42001a511b62cd70b21742ada8710a02cefa1",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "6c44d6a72a8998ee9164488ba3395ab1bb863751afc776e50983cce92638cb65"
+    },
+    {
+      "id": "MultiProcedureClosure_C_diamond_reverse_declarations",
+      "input_sha256": "cb096441124e0bdb93c094dee0208ad783b70c712626d015936bd5aaf0f1e1da",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "b50da1748cc4878a7e7e9db98b9bf8b88374ecd5589718214a6675e802f97006"
+    },
+    {
+      "id": "MultiProcedureClosure_C_direct_reverse_order",
+      "input_sha256": "fc2a3713a489ffa9cd92e1d5bef95c2e73ec5cf74daf4cb364c905c8aaf8b129",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "ab9c491c93c97db660330f81f181d05ceecdc559555cbd293fad545d41be9da8"
+    },
+    {
+      "id": "MultiProcedureClosure_C_self_cycle",
+      "input_sha256": "f07da04221ad9acd3acedeed32fef38ffd4d339d6f2f3e12e5f4290663744189",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "ddfeb19345dfda160875c3dc97a6e090c0a49d8c8d3c4d71ae1519d40517ae7d"
+    },
+    {
+      "id": "MultiProcedureClosure_C_mutual_cycle",
+      "input_sha256": "e8942c1a1a5343f1a9196002e22a80e2ef23543dab961a07673873d79eb6cdc4",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "42a20a5e55913461c5f7587e7245b15a1db1da010e1e256deebf962c4b8786d0"
+    },
+    {
+      "id": "MultiProcedureClosure_C_unused_procedures",
+      "input_sha256": "92102d3e3855a835eede5cc6b127a54889ecaa50e65cd8720810241acabef8da",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "4e5690518d60c2d6d69741b31ccc22b42cfc80dce4fb35aeb8b159dc1ff5c6f7"
+    },
+    {
+      "id": "MultiProcedureClosure_C_unknown_target",
+      "input_sha256": "1ee15543c25cf17fc4baae4a876cdaaba5315c64cf3802a38d7020ccfdcc1e9e",
+      "reference_translated": false,
+      "reference_errors": true,
+      "primary_sany_accepted": null
+    },
+    {
+      "id": "MultiProcedureClosure_P_chain_three",
+      "input_sha256": "bb246b0663533256610247e32cb62a4b72e45b736f9117beed69ebf4439a1b05",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "2e3284dc6a586f62e2168c17c8e4c1da1f7a2901846f155d81020b4ef5f32d6b"
+    },
+    {
+      "id": "MultiProcedureClosure_P_diamond_four",
+      "input_sha256": "df3076f6e8d218a69d2587a700e97c59b854a6033a651ec4b30b4b8299c568de",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "8c28447ee4baabe27dfacb2759021ee2eb7e0eab9436bb2714263c3c8032aca3"
+    },
+    {
+      "id": "MultiProcedureClosure_P_diamond_reverse_declarations",
+      "input_sha256": "046f44f651ec11f70b3ea084e112c65b1b8b331c141ee037ac66a69bfdbec91d",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "968416185cb22a37c88f77e2483a48bf2bd979ff1a858ccb5d8e97e1d1178006"
+    },
+    {
+      "id": "MultiProcedureClosure_P_direct_reverse_order",
+      "input_sha256": "95bc07be13941dbf6c438d2255d6cd0d901ad9bb332d4e28d3140a1405a8be83",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "8f3d843d59c73c97d57c0938a700183b8a6c0d4860a7b04d9b4f8134a8c70517"
+    },
+    {
+      "id": "MultiProcedureClosure_P_self_cycle",
+      "input_sha256": "8dd8e0143e2f51676ffa769715b4ef8c3ff25d74241572a3f2244735e10b24c0",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "ff592cb65e32250ba1042a25d5d85a82a3a27a95e331da4869e8e5b0481c970c"
+    },
+    {
+      "id": "MultiProcedureClosure_P_mutual_cycle",
+      "input_sha256": "c8205b5641ee91fd2a70fbe611f506435d34ddb401d4a61884995198a8b2487b",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "878cb2d8ab296b2b1a9fc4f8324ba1f0bbba11f498168439f58fc21f9bcc2889"
+    },
+    {
+      "id": "MultiProcedureClosure_P_unused_procedures",
+      "input_sha256": "305169514f4a196f4030e4a9a8ca29c84d29409f0d34dfeb43e1a2e8ff6ed326",
+      "reference_translated": true,
+      "reference_errors": false,
+      "primary_sany_accepted": true,
+      "primary_module_sha256": "151bc8088c44e75c22823819b3c5fae745e0f9930fb1635c743657ec7e8ffff6"
+    },
+    {
+      "id": "MultiProcedureClosure_P_unknown_target",
+      "input_sha256": "28e864d0d58f25749244b9ba47400e8c8eae3af9711a47f04d182ff42d1d79e5",
+      "reference_translated": false,
+      "reference_errors": true,
+      "primary_sany_accepted": null
+    }
+  ],
+  "copied_primary_bytes_not_generated_or_edited": true,
+  "family_certified": false
+}
