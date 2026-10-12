@@ -12,7 +12,8 @@ use std::process::{Command, ExitCode};
 const USAGE: &str = "usage: cargo xtask <command>
 
 commands:
-    install-hooks   copy tracked git hooks into the shared hooks directory
+    install-hooks   copy tracked git hooks (commit-msg authorship check,
+                    pre-commit repository budget) into the shared hooks directory
     check-layering  verify internal crate dependencies follow the charter DAG, and
                     that dive-trace builds without dive-eval/enumerate
     protect-main    apply branch protection to main on GitHub (PR mode)
@@ -60,8 +61,8 @@ fn run_capture(cmd: &mut Command) -> Result<String> {
     String::from_utf8(output.stdout).map_err(|e| format!("{cmd:?} produced non-UTF-8 output: {e}"))
 }
 
-/// Copies `.githooks/*` into the *common* git directory's hooks folder, so a
-/// single install covers every worktree. Deliberately avoids
+/// Copies `.githooks/*` (`commit-msg`, `pre-commit`) into the *common* git
+/// directory's hooks folder, so a single install covers every worktree. Deliberately avoids
 /// `core.hooksPath`, which would silently disable hooks on branches that
 /// predate the tracked hook files.
 fn install_hooks() -> Result<()> {
