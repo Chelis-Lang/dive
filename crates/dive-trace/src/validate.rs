@@ -865,33 +865,12 @@ impl Host for TraceHost {
 /// `None` ([`Replay`]): random draws are refused by name.
 #[must_use]
 pub fn validate(model: &Model, trace: &Trace, _replay: Option<&Replay>) -> Report {
-    let admitted = model
-        .evaluator
-        .validate_model_context(&model.ir, &model.names)
-        .map_err(dive_eval::EvalError::from)
-        .and_then(|()| {
-            for pred in model
-                .init
-                .iter()
-                .map(|n| &n.pred)
-                .chain(model.next.iter())
-                .chain(model.invariants.iter().map(|n| &n.pred))
-                .chain(model.implied_inits.iter().map(|n| &n.pred))
-                .chain(model.implied_actions.iter().map(|n| &n.pred))
-                .chain(model.constraints.iter().map(|n| &n.pred))
-                .chain(model.action_constraints.iter().map(|n| &n.pred))
-                .chain(model.temporals.iter().map(|n| &n.pred))
-                .chain(model.implied_temporals.iter().map(|n| &n.pred))
-                .chain(model.configured_properties.iter().map(|n| &n.pred))
-                .chain(model.view.iter().map(|n| &n.pred))
-            {
-                model.evaluator.validate_predicate(&pred.scope, pred.expr)?;
-            }
-            for &def in &model.assumptions {
-                model.evaluator.scope(def)?;
-            }
-            Ok(())
-        });
+    let admitted = model.validate_context().and_then(|()| {
+        for &def in &model.assumptions {
+            model.evaluator.scope(def)?;
+        }
+        Ok(())
+    });
     if let Err(error) = admitted {
         return Report {
             validation: Validation::Unsupported(error.to_string()),

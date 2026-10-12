@@ -19,6 +19,8 @@
   depend on off-trace evaluations; validation leaves caller registers intact.
   Public typed trace, lasso and enabledness states now reject foreign name
   tokens and opaque deferred values before evaluation.
+  Malformed public predicate roots and source locations report unsupported
+  before document decoding or replay instead of panicking in diagnostics.
 
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;

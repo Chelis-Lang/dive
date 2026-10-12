@@ -98,6 +98,18 @@ pub fn validate_doc(
     model_values: &[String],
     replay: Option<&Replay>,
 ) -> (Report, Option<Trace>) {
+    // Decoding uses public variable metadata too, so validate structural
+    // ownership before reading either document format, not only at replay.
+    if let Err(error) = model.validate_context() {
+        return (
+            Report {
+                validation: Validation::Unsupported(error.to_string()),
+                notes: Vec::new(),
+                length: doc.states.len(),
+            },
+            None,
+        );
+    }
     match doc.source {
         Source::Tlc => {
             let r = tlc::validate_tlc(model, doc, model_values, replay);

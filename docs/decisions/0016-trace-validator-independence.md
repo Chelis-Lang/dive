@@ -293,8 +293,11 @@ independent finite-cover search (`exists_successor`). A liveness lasso is
 checked with the word semantics of `temporal.rs`. The successor enumerator is
 still not compiled in (§2).
 
-The lossy TLC reader checks the existing public model context before looking up
-expressions. Its interpretation score evaluates only pure initial conjuncts,
+Document readers and native typed replay check the existing public model context
+before decoding, evaluating or looking up diagnostic source locations. Invalid
+public predicate roots and location IDs therefore refuse with a structural
+context error even when a supplied initial state satisfies the predicate.
+The lossy TLC reader's interpretation score evaluates only pure initial conjuncts,
 with the replay host already installed. Scoring must never write registers,
 print, or consume random draws before checking `Init` in its actual evaluation
 order: otherwise `TLCGet(0)=1 /\\ TLCSet(0,1)` can be made true by the heuristic's
