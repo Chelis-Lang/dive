@@ -1,0 +1,1 @@
+{"name":"A","syntax":"P","fair":true,"declarations":[["x","Equal",["0"]]],"definitions":null,"macros":[],"procedures":[],"body":["Processes",[["P","Strong","Member",["{","1",",","2","}"],[["a","Equal",["3"]]],[["L",["Skip"]]]],["Q","Unfair","Equal",["3"],[],[["M",["Skip"]]]]]]}

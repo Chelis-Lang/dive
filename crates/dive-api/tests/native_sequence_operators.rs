@@ -12,7 +12,7 @@ fn append_scope_controls_replay_fresh_memory_and_json() {
     use dive_api::tlc_temporal::Outcome;
     use dive_trace::{Ending, Validation};
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/native-sequence-operators");
+        .join("tests/fixtures/native-sequence-operators");
     let rows: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("selection.json")).expect("selection"))
             .expect("JSON");
@@ -198,7 +198,7 @@ fn append_two_state_operands_have_independent_periodic_truth() {
 #[test]
 fn string_capable_tail_and_subseq_remain_prebind_refused() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/native-sequence-operators/models");
+        .join("tests/fixtures/native-sequence-operators/models");
     for name in [
         "SequenceTailConstantHolds",
         "SequenceTailStateHolds",

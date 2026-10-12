@@ -1,0 +1,124 @@
+{
+ "rows": [
+  {
+   "id": "C_opposed-plus-minus",
+   "primary_translated": true,
+   "primary_crc": "a827627d",
+   "stages": {
+    "translated": {
+     "crc": "a827627d"
+    }
+   }
+  },
+  {
+   "id": "C_opposed-minus-plus",
+   "primary_translated": true,
+   "primary_crc": "572f6f4e",
+   "stages": {
+    "translated": {
+     "crc": "572f6f4e"
+    }
+   }
+  },
+  {
+   "id": "C_default-name",
+   "primary_translated": true,
+   "primary_crc": "4a066f6c",
+   "stages": {
+    "translated": {
+     "crc": "4a066f6c"
+    }
+   }
+  },
+  {
+   "id": "C_fair_opposed-plus-minus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_opposed-minus-plus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_default-name",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_opposed-plus-minus",
+   "primary_translated": true,
+   "primary_crc": "a827627d",
+   "stages": {
+    "translated": {
+     "crc": "a827627d"
+    }
+   }
+  },
+  {
+   "id": "P_opposed-minus-plus",
+   "primary_translated": true,
+   "primary_crc": "572f6f4e",
+   "stages": {
+    "translated": {
+     "crc": "572f6f4e"
+    }
+   }
+  },
+  {
+   "id": "P_default-name",
+   "primary_translated": true,
+   "primary_crc": "4a066f6c",
+   "stages": {
+    "translated": {
+     "crc": "4a066f6c"
+    }
+   }
+  },
+  {
+   "id": "P_fair_opposed-plus-minus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_opposed-minus-plus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_default-name",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  }
+ ]
+}

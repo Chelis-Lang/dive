@@ -1,0 +1,156 @@
+{
+ "rows": [
+  {
+   "id": "WhileLines_C_paren",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b7ed16c9",
+    "ae79eb8a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b7ed16c9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_C_split",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f282302c",
+    "b36c176d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f282302c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_C_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7fc1493",
+    "ee917c06"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7fc1493"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_C_nested",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7a1c359e",
+    "bbed4c0b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7a1c359e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_P_paren",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "b7ed16c9",
+    "ae79eb8a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "b7ed16c9"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_P_split",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f282302c",
+    "b9795e70"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f282302c"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_P_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7fc1493",
+    "b86dbda0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7fc1493"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "WhileLines_P_nested",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7a1c359e",
+    "bbed4c0b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7a1c359e"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

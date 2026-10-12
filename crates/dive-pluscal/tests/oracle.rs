@@ -1,4 +1,6 @@
 //! Offline pinned grammar and AST controls; no Java process in the gate.
+//! `tests/fixtures/parser-oracle/` holds the inputs and the pinned TLC source-grammar
+//! AST projections; its `compare.py` projects dive's AST and compares.
 // Test fixtures and subprocess protocol errors should fail the control visibly.
 #![allow(clippy::expect_used)]
 use dive_pluscal::{Options, parse};
@@ -10,19 +12,13 @@ use std::process::{Command, Stdio};
 
 #[test]
 fn pinned_source_grammar_and_ast_controls() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("acceptance");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/parser-oracle");
     let mut cases = BTreeMap::new();
-    for (manifest, inputs) in [
-        ("fixtures/curated/manifest.json", "cases"),
-        ("fixtures/edges/manifest.json", "edge-cases"),
-        (
-            "fixtures/imported/oracle/manifest.json",
-            "fixtures/imported/inputs",
-        ),
-    ] {
-        let manifest: Value =
-            serde_json::from_slice(&std::fs::read(root.join(manifest)).expect("manifest"))
-                .expect("JSON");
+    for inputs in ["curated", "edges", "imported"] {
+        let manifest: Value = serde_json::from_slice(
+            &std::fs::read(root.join(inputs).join("manifest.json")).expect("manifest"),
+        )
+        .expect("JSON");
         for row in manifest["rows"].as_array().expect("selection") {
             let name = row["input"].as_str().expect("input");
             let id = row["id"].as_str().expect("id");
@@ -43,7 +39,7 @@ fn pinned_source_grammar_and_ast_controls() {
     }
     let mut child = Command::new("python3")
         .arg("-I")
-        .arg(root.join("test_ast.py"))
+        .arg(root.join("compare.py"))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

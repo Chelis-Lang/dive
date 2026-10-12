@@ -6,7 +6,7 @@ use dive_liveness::phase_graph::Limits;
 use dive_trace::{Ending, Validation};
 use std::{path::PathBuf, sync::Arc};
 fn base() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes/tlc-state-if")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-state-if")
 }
 fn inputs(name: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let dir = base().join("models").join(name);
@@ -42,7 +42,7 @@ fn pure_if_final_words_counts_and_all_independent_mutations() {
         supported += 1;
         let name = row["name"].as_str().expect("name");
         let (ir, cfg) = inputs(name);
-        let stderr = std::fs::read_to_string(base().join("raw").join(name).join("stderr"))
+        let stderr = std::fs::read_to_string(base().join("tlc").join(format!("{name}.txt")))
             .expect("raw unmodified finalCheck");
         for workers in [1, 3, 4, 8] {
             let options = CheckOptions {

@@ -1,0 +1,664 @@
+{
+ "rows": [
+  {
+   "id": "MacroProcess_C_auto",
+   "input": "MacroProcess_C_auto.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_auto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_auto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_fair",
+   "input": "MacroProcess_C_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_foreign",
+   "input": "MacroProcess_C_foreign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_foreign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_foreign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_free_self",
+   "input": "MacroProcess_C_free_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_free_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_free_self.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroProcess_C_id",
+   "input": "MacroProcess_C_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_id.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroProcess_C_minus",
+   "input": "MacroProcess_C_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_mixed",
+   "input": "MacroProcess_C_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroProcess_C_nof",
+   "input": "MacroProcess_C_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_plus",
+   "input": "MacroProcess_C_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_set",
+   "input": "MacroProcess_C_set.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_set.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_set.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_sf",
+   "input": "MacroProcess_C_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_strong",
+   "input": "MacroProcess_C_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_unused_foreign",
+   "input": "MacroProcess_C_unused_foreign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_unused_foreign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_unused_foreign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_wf",
+   "input": "MacroProcess_C_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_wfnext",
+   "input": "MacroProcess_C_wfnext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_wfnext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_wfnext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_C_with",
+   "input": "MacroProcess_C_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_C_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_C_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_auto",
+   "input": "MacroProcess_P_auto.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_auto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_auto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_fair",
+   "input": "MacroProcess_P_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_foreign",
+   "input": "MacroProcess_P_foreign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_foreign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_foreign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_free_self",
+   "input": "MacroProcess_P_free_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_free_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_free_self.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroProcess_P_id",
+   "input": "MacroProcess_P_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_id.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroProcess_P_minus",
+   "input": "MacroProcess_P_minus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_minus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_minus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_mixed",
+   "input": "MacroProcess_P_mixed.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_mixed.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_mixed.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MacroProcess_P_nof",
+   "input": "MacroProcess_P_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_plus",
+   "input": "MacroProcess_P_plus.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_plus.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_plus.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_set",
+   "input": "MacroProcess_P_set.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_set.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_set.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_sf",
+   "input": "MacroProcess_P_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_strong",
+   "input": "MacroProcess_P_strong.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_strong.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_strong.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_unused_foreign",
+   "input": "MacroProcess_P_unused_foreign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_unused_foreign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_unused_foreign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_wf",
+   "input": "MacroProcess_P_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_wfnext",
+   "input": "MacroProcess_P_wfnext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_wfnext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_wfnext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MacroProcess_P_with",
+   "input": "MacroProcess_P_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MacroProcess_P_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MacroProcess_P_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+--algorithm Voting {
+  variables votes = [a \in Acceptor |-> {}],
+            maxBal = [a \in Acceptor |-> -1];
+  define {
+   VotedFor(a, b, v) == <<b, v>> \in votes[a]
+   DidNotVoteIn(a, b) == \A v \in Value : ~ VotedFor(a, b, v) 
+
+   SafeAt(b, v) ==
+     LET SA[bb \in Ballot] ==
+           \/ bb = 0
+           \/ \E Q \in Quorum :
+                /\ \A a \in Q : maxBal[a] \geq bb
+                /\ \E c \in -1..(bb-1) :
+                     /\ (c # -1) => /\ SA[c]
+                                    /\ \A a \in Q :
+                                         \A w \in Value :
+                                            VotedFor(a, c, w) => (w = v)
+                     /\ \A d \in (c+1)..(bb-1), a \in Q : DidNotVoteIn(a, d)
+     IN  SA[b]
+    }
+  macro IncreaseMaxBal(b) {
+    when b > maxBal[self] ;
+    maxBal[self] := b
+    }
+    
+  macro VoteFor(b, v) {
+    when /\ maxBal[self] \leq b
+         /\ DidNotVoteIn(self, b)
+         /\ \A p \in Acceptor \ {self} : 
+               \A w \in Value : VotedFor(p, b, w) => (w = v)
+         /\ SafeAt(b, v) ;
+    votes[self]  := votes[self] \cup {<<b, v>>};
+    maxBal[self] := b 
+    }
+    
+  process (acceptor \in Acceptor) {
+    acc : while (TRUE) {
+           with (b \in Ballot) {
+             either IncreaseMaxBal(b)
+             or     with (v \in Value) { VoteFor(b, v) }
+       }
+     }
+    }
+}

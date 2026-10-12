@@ -28,7 +28,7 @@ fn structure(node: &dive_syntax::SyntaxNode) -> serde_json::Value {
 }
 #[test]
 fn retained_primary_token_streams() -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("translation-acceptance");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/translation");
     let manifest: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;
     let rows = manifest["rows"]

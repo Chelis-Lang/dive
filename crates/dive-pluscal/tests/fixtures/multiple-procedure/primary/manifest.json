@@ -1,0 +1,3200 @@
+{
+ "rows": [
+  {
+   "id": "MultipleProcedure_C_constant_before_member",
+   "input": "MultipleProcedure_C_constant_before_member.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_constant_before_member.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_constant_before_member.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_constant_locals",
+   "input": "MultipleProcedure_C_constant_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_constant_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_constant_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_constant_self",
+   "input": "MultipleProcedure_C_constant_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_constant_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_constant_self.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_constants_reverse",
+   "input": "MultipleProcedure_C_constants_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_constants_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_constants_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_cross_local_read",
+   "input": "MultipleProcedure_C_cross_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_cross_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_cross_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_cross_process_goto",
+   "input": "MultipleProcedure_C_cross_process_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_cross_process_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_cross_tail",
+   "input": "MultipleProcedure_C_cross_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_cross_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_cross_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_default_local",
+   "input": "MultipleProcedure_C_default_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_default_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_default_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_default_parameter",
+   "input": "MultipleProcedure_C_default_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_default_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_default_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_default_process_locals",
+   "input": "MultipleProcedure_C_default_process_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_default_process_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_default_process_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_duplicate_member_elements",
+   "input": "MultipleProcedure_C_duplicate_member_elements.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_duplicate_member_elements.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_duplicate_member_elements.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_duplicate_process_local",
+   "input": "MultipleProcedure_C_duplicate_process_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_duplicate_process_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_duplicate_process_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_duplicate_process_name",
+   "input": "MultipleProcedure_C_duplicate_process_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_duplicate_process_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_earlier_process_locals",
+   "input": "MultipleProcedure_C_earlier_process_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_earlier_process_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_earlier_process_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_empty_member",
+   "input": "MultipleProcedure_C_empty_member.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_empty_member.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_empty_member.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_empty_process_body",
+   "input": "MultipleProcedure_C_empty_process_body.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_C_empty_process_body.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_escaped_string_id",
+   "input": "MultipleProcedure_C_escaped_string_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_escaped_string_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_escaped_string_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_generated_procset_parameter",
+   "input": "MultipleProcedure_C_generated_procset_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_generated_procset_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_generated_procset_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_global_fair",
+   "input": "MultipleProcedure_C_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_global_parameter_alias",
+   "input": "MultipleProcedure_C_global_parameter_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_global_parameter_alias.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_infinite_call_loop",
+   "input": "MultipleProcedure_C_infinite_call_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_infinite_call_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_infinite_call_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_label_alias",
+   "input": "MultipleProcedure_C_label_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_label_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_label_alias.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_local_earlier",
+   "input": "MultipleProcedure_C_local_earlier.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_local_earlier.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_local_earlier.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_local_member",
+   "input": "MultipleProcedure_C_local_member.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_C_local_member.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_local_self",
+   "input": "MultipleProcedure_C_local_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_local_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_local_self.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_member_before_constant",
+   "input": "MultipleProcedure_C_member_before_constant.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_member_before_constant.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_member_before_constant.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_member_locals",
+   "input": "MultipleProcedure_C_member_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_member_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_member_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_membership_locals",
+   "input": "MultipleProcedure_C_membership_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_membership_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_membership_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_missing_return",
+   "input": "MultipleProcedure_C_missing_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_missing_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_missing_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_mixed_locals",
+   "input": "MultipleProcedure_C_mixed_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_mixed_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_mixed_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_mutual",
+   "input": "MultipleProcedure_C_mutual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_mutual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_mutual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_mutual_tail",
+   "input": "MultipleProcedure_C_mutual_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_mutual_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_mutual_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_nested_calls",
+   "input": "MultipleProcedure_C_nested_calls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_nested_calls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_nested_calls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_no_parameter_tail",
+   "input": "MultipleProcedure_C_no_parameter_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_no_parameter_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_no_parameter_tail.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_no_parameters",
+   "input": "MultipleProcedure_C_no_parameters.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_no_parameters.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_no_parameters.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_option_nof",
+   "input": "MultipleProcedure_C_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_option_sf",
+   "input": "MultipleProcedure_C_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_option_termination",
+   "input": "MultipleProcedure_C_option_termination.tla",
+   "options": [
+    "-termination"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "oracle-error"
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_option_termination.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_option_wf",
+   "input": "MultipleProcedure_C_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_option_wfNext",
+   "input": "MultipleProcedure_C_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_overlap_constants",
+   "input": "MultipleProcedure_C_overlap_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_overlap_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_overlap_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_overlap_interval",
+   "input": "MultipleProcedure_C_overlap_interval.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_overlap_interval.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_overlap_interval.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_overlap_members",
+   "input": "MultipleProcedure_C_overlap_members.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_overlap_members.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_overlap_members.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_parameter_earlier",
+   "input": "MultipleProcedure_C_parameter_earlier.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_parameter_earlier.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_parameter_earlier.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_parameter_member",
+   "input": "MultipleProcedure_C_parameter_member.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_C_parameter_member.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_pc_owner",
+   "input": "MultipleProcedure_C_pc_owner.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_pc_owner.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_pc_owner.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_pc_whole",
+   "input": "MultipleProcedure_C_pc_whole.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_pc_whole.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_pc_whole.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_local_read",
+   "input": "MultipleProcedure_C_procedure_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_procedure_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_local_write",
+   "input": "MultipleProcedure_C_procedure_local_write.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_local_write.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_procedure_local_write.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_modifier",
+   "input": "MultipleProcedure_C_procedure_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_process_alias",
+   "input": "MultipleProcedure_C_procedure_process_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_process_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_procedure_process_alias.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_process_goto",
+   "input": "MultipleProcedure_C_procedure_process_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_process_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_process_name",
+   "input": "MultipleProcedure_C_procedure_process_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_process_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_procedure_self",
+   "input": "MultipleProcedure_C_procedure_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_procedure_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_procedure_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_process_modifier",
+   "input": "MultipleProcedure_C_process_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_C_process_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_process_parameter_alias",
+   "input": "MultipleProcedure_C_process_parameter_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_process_parameter_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_process_parameter_alias.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_process_self",
+   "input": "MultipleProcedure_C_process_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_process_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_process_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_recursive_locals",
+   "input": "MultipleProcedure_C_recursive_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_recursive_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_recursive_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_repeat_calls",
+   "input": "MultipleProcedure_C_repeat_calls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_repeat_calls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_repeat_calls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_reverse_interval",
+   "input": "MultipleProcedure_C_reverse_interval.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_reverse_interval.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_reverse_interval.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_self_recursive",
+   "input": "MultipleProcedure_C_self_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_self_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_self_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_self_tail",
+   "input": "MultipleProcedure_C_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_stack_owner",
+   "input": "MultipleProcedure_C_stack_owner.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_stack_owner.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_stack_owner.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_stack_whole",
+   "input": "MultipleProcedure_C_stack_whole.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_stack_whole.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_stack_whole.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_strong_process",
+   "input": "MultipleProcedure_C_strong_process.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_strong_process.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_strong_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_tail_locals",
+   "input": "MultipleProcedure_C_tail_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_tail_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_tail_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_tail_parallel_arguments",
+   "input": "MultipleProcedure_C_tail_parallel_arguments.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_tail_parallel_arguments.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_tail_parallel_arguments.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_three_constants",
+   "input": "MultipleProcedure_C_three_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_three_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_three_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_three_interleaved",
+   "input": "MultipleProcedure_C_three_interleaved.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_three_interleaved.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_three_interleaved.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_constants",
+   "input": "MultipleProcedure_C_two_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_empty",
+   "input": "MultipleProcedure_C_two_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_intervals",
+   "input": "MultipleProcedure_C_two_intervals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_intervals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_intervals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_member_strings",
+   "input": "MultipleProcedure_C_two_member_strings.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_member_strings.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_member_strings.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_members",
+   "input": "MultipleProcedure_C_two_members.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_members.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_members.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_procedures",
+   "input": "MultipleProcedure_C_two_procedures.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_procedures.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_procedures.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_two_string_constants",
+   "input": "MultipleProcedure_C_two_string_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_two_string_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_two_string_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_unbounded_recursion",
+   "input": "MultipleProcedure_C_unbounded_recursion.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_unbounded_recursion.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_unbounded_recursion.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_undefined_argument",
+   "input": "MultipleProcedure_C_undefined_argument.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_undefined_argument.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_undefined_argument.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_unknown_call",
+   "input": "MultipleProcedure_C_unknown_call.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_unknown_call.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_unproved_domain",
+   "input": "MultipleProcedure_C_unproved_domain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_unproved_domain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_unproved_domain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_unused_procedure",
+   "input": "MultipleProcedure_C_unused_procedure.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_unused_procedure.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_unused_procedure.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_weak_process",
+   "input": "MultipleProcedure_C_weak_process.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_weak_process.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_C_weak_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_C_wrong_arity",
+   "input": "MultipleProcedure_C_wrong_arity.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_C_wrong_arity.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_constant_before_member",
+   "input": "MultipleProcedure_P_constant_before_member.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_constant_before_member.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_constant_before_member.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_constant_locals",
+   "input": "MultipleProcedure_P_constant_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_constant_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_constant_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_constant_self",
+   "input": "MultipleProcedure_P_constant_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_constant_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_constant_self.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_constants_reverse",
+   "input": "MultipleProcedure_P_constants_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_constants_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_constants_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_cross_local_read",
+   "input": "MultipleProcedure_P_cross_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_cross_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_cross_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_cross_process_goto",
+   "input": "MultipleProcedure_P_cross_process_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_cross_process_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_cross_tail",
+   "input": "MultipleProcedure_P_cross_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_cross_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_cross_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_default_local",
+   "input": "MultipleProcedure_P_default_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_default_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_default_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_default_parameter",
+   "input": "MultipleProcedure_P_default_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_default_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_default_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_default_process_locals",
+   "input": "MultipleProcedure_P_default_process_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_default_process_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_default_process_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_duplicate_member_elements",
+   "input": "MultipleProcedure_P_duplicate_member_elements.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_duplicate_member_elements.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_duplicate_member_elements.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_duplicate_process_local",
+   "input": "MultipleProcedure_P_duplicate_process_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_duplicate_process_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_duplicate_process_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_duplicate_process_name",
+   "input": "MultipleProcedure_P_duplicate_process_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_duplicate_process_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_earlier_process_locals",
+   "input": "MultipleProcedure_P_earlier_process_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_earlier_process_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_earlier_process_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_empty_member",
+   "input": "MultipleProcedure_P_empty_member.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_empty_member.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_empty_member.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_empty_process_body",
+   "input": "MultipleProcedure_P_empty_process_body.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_empty_process_body.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_empty_process_body.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_escaped_string_id",
+   "input": "MultipleProcedure_P_escaped_string_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_escaped_string_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_escaped_string_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_generated_procset_parameter",
+   "input": "MultipleProcedure_P_generated_procset_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_generated_procset_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_generated_procset_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_global_fair",
+   "input": "MultipleProcedure_P_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_global_parameter_alias",
+   "input": "MultipleProcedure_P_global_parameter_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_global_parameter_alias.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_infinite_call_loop",
+   "input": "MultipleProcedure_P_infinite_call_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_infinite_call_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_infinite_call_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_label_alias",
+   "input": "MultipleProcedure_P_label_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_label_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_label_alias.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_local_earlier",
+   "input": "MultipleProcedure_P_local_earlier.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_local_earlier.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_local_earlier.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_local_member",
+   "input": "MultipleProcedure_P_local_member.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_P_local_member.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_local_self",
+   "input": "MultipleProcedure_P_local_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_local_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_local_self.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_member_before_constant",
+   "input": "MultipleProcedure_P_member_before_constant.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_member_before_constant.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_member_before_constant.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_member_locals",
+   "input": "MultipleProcedure_P_member_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_member_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_member_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_membership_locals",
+   "input": "MultipleProcedure_P_membership_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_membership_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_membership_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_missing_return",
+   "input": "MultipleProcedure_P_missing_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_missing_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_missing_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_mixed_locals",
+   "input": "MultipleProcedure_P_mixed_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_mixed_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_mixed_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_mutual",
+   "input": "MultipleProcedure_P_mutual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_mutual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_mutual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_mutual_tail",
+   "input": "MultipleProcedure_P_mutual_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_mutual_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_mutual_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_nested_calls",
+   "input": "MultipleProcedure_P_nested_calls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_nested_calls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_nested_calls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_no_parameter_tail",
+   "input": "MultipleProcedure_P_no_parameter_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_no_parameter_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_no_parameter_tail.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_no_parameters",
+   "input": "MultipleProcedure_P_no_parameters.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_no_parameters.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_no_parameters.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_option_nof",
+   "input": "MultipleProcedure_P_option_nof.tla",
+   "options": [
+    "-nof"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_option_nof.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_option_nof.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_option_sf",
+   "input": "MultipleProcedure_P_option_sf.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_option_sf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_option_sf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_option_termination",
+   "input": "MultipleProcedure_P_option_termination.tla",
+   "options": [
+    "-termination"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "oracle-error"
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_option_termination.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_option_wf",
+   "input": "MultipleProcedure_P_option_wf.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_option_wf.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_option_wf.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_option_wfNext",
+   "input": "MultipleProcedure_P_option_wfNext.tla",
+   "options": [
+    "-wfNext"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_option_wfNext.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_option_wfNext.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_overlap_constants",
+   "input": "MultipleProcedure_P_overlap_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_overlap_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_overlap_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_overlap_interval",
+   "input": "MultipleProcedure_P_overlap_interval.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_overlap_interval.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_overlap_interval.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_overlap_members",
+   "input": "MultipleProcedure_P_overlap_members.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_overlap_members.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_overlap_members.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_parameter_earlier",
+   "input": "MultipleProcedure_P_parameter_earlier.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_parameter_earlier.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_parameter_earlier.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_parameter_member",
+   "input": "MultipleProcedure_P_parameter_member.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_P_parameter_member.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_pc_owner",
+   "input": "MultipleProcedure_P_pc_owner.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_pc_owner.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_pc_owner.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_pc_whole",
+   "input": "MultipleProcedure_P_pc_whole.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_pc_whole.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_pc_whole.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_local_read",
+   "input": "MultipleProcedure_P_procedure_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_procedure_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_local_write",
+   "input": "MultipleProcedure_P_procedure_local_write.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_local_write.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_procedure_local_write.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_modifier",
+   "input": "MultipleProcedure_P_procedure_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_process_alias",
+   "input": "MultipleProcedure_P_procedure_process_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_process_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_procedure_process_alias.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_process_goto",
+   "input": "MultipleProcedure_P_procedure_process_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_process_goto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_process_name",
+   "input": "MultipleProcedure_P_procedure_process_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_process_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_procedure_self",
+   "input": "MultipleProcedure_P_procedure_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_procedure_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_procedure_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_process_modifier",
+   "input": "MultipleProcedure_P_process_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "MultipleProcedure_P_process_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_process_parameter_alias",
+   "input": "MultipleProcedure_P_process_parameter_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_process_parameter_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_process_parameter_alias.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_process_self",
+   "input": "MultipleProcedure_P_process_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_process_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_process_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_recursive_locals",
+   "input": "MultipleProcedure_P_recursive_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_recursive_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_recursive_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_repeat_calls",
+   "input": "MultipleProcedure_P_repeat_calls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_repeat_calls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_repeat_calls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_reverse_interval",
+   "input": "MultipleProcedure_P_reverse_interval.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_reverse_interval.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_reverse_interval.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_self_recursive",
+   "input": "MultipleProcedure_P_self_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_self_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_self_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_self_tail",
+   "input": "MultipleProcedure_P_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_stack_owner",
+   "input": "MultipleProcedure_P_stack_owner.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_stack_owner.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_stack_owner.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_stack_whole",
+   "input": "MultipleProcedure_P_stack_whole.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_stack_whole.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_stack_whole.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_strong_process",
+   "input": "MultipleProcedure_P_strong_process.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_strong_process.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_strong_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_tail_locals",
+   "input": "MultipleProcedure_P_tail_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_tail_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_tail_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_tail_parallel_arguments",
+   "input": "MultipleProcedure_P_tail_parallel_arguments.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_tail_parallel_arguments.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_tail_parallel_arguments.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_three_constants",
+   "input": "MultipleProcedure_P_three_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_three_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_three_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_three_interleaved",
+   "input": "MultipleProcedure_P_three_interleaved.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_three_interleaved.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_three_interleaved.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_constants",
+   "input": "MultipleProcedure_P_two_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_empty",
+   "input": "MultipleProcedure_P_two_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_intervals",
+   "input": "MultipleProcedure_P_two_intervals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_intervals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_intervals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_member_strings",
+   "input": "MultipleProcedure_P_two_member_strings.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_member_strings.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_member_strings.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_members",
+   "input": "MultipleProcedure_P_two_members.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_members.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_members.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_procedures",
+   "input": "MultipleProcedure_P_two_procedures.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_procedures.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_procedures.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_two_string_constants",
+   "input": "MultipleProcedure_P_two_string_constants.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_two_string_constants.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_two_string_constants.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_unbounded_recursion",
+   "input": "MultipleProcedure_P_unbounded_recursion.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_unbounded_recursion.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_unbounded_recursion.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_undefined_argument",
+   "input": "MultipleProcedure_P_undefined_argument.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_undefined_argument.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_undefined_argument.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_unknown_call",
+   "input": "MultipleProcedure_P_unknown_call.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_unknown_call.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_unproved_domain",
+   "input": "MultipleProcedure_P_unproved_domain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_unproved_domain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_unproved_domain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_unused_procedure",
+   "input": "MultipleProcedure_P_unused_procedure.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_unused_procedure.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_unused_procedure.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_weak_process",
+   "input": "MultipleProcedure_P_weak_process.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_weak_process.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultipleProcedure_P_weak_process.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultipleProcedure_P_wrong_arity",
+   "input": "MultipleProcedure_P_wrong_arity.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultipleProcedure_P_wrong_arity.normalized.json"
+    }
+   }
+  }
+ ]
+}

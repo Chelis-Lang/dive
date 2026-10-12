@@ -233,8 +233,8 @@ fn multiple_process_storage_and_refusals_remain_nonproof() {
 #[test]
 fn invalid_primary_macro_generation_is_not_public_admission()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-pluscal/macro-acceptance");
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/tests/fixtures/macro");
     let mut controls = 0;
     let mut selected = Vec::new();
     for directory in ["", "extra", "process", "scope"] {
@@ -298,7 +298,7 @@ fn free_macro_actual_name_is_validated_at_enclosing_module_boundary() {
 fn invalid_primary_procedure_outputs_are_never_public_artifacts()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/procedure-acceptance");
+        .join("../dive-pluscal/tests/fixtures/procedure");
     let manifest: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;
     let mut controls = 0;
@@ -337,7 +337,7 @@ fn invalid_primary_procedure_outputs_are_never_public_artifacts()
 fn invalid_primary_graph_outputs_are_never_public_artifacts()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/procedure-graph-acceptance");
+        .join("../dive-pluscal/tests/fixtures/procedure-graph");
     let manifest: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;
     let mut controls = 0;

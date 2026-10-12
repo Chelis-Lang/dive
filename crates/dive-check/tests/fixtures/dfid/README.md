@@ -40,5 +40,5 @@ one worker. Live checker state, effects, temporal, VIEW, symmetry, ALIAS,
 postconditions, continuation, checkpointing and constrained initial/action-property
 witness contracts are refused by name. Raw printing and DFID collision figures
 are not certified. Complete family acceptance remains issue 118 / F-025 audit-required.
-See the [independent review](../../../../../docs/reviews/2026-10-10-native-dfid.md)
+See the independent review
 for the separate graph, witness and captured-context controls.

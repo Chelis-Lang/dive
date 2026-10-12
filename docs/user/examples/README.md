@@ -25,25 +25,25 @@ retain actual checkpoint pause/recovery output and the initial named purity
 refusal from `Counter.tla`; the original source was not weakened to hide it.
 
 `MacroExample.tla` and `MacroExampleC.tla` are the checked C/P examples in
-[the bounded macro guide](../../pluscal-macros.md). The macro delivery retains
+[the bounded macro guide](../../pluscal-translation.md). The macro delivery retains
 their original runtime observations; current integration controls remain separate.
 The checkpoint admission repair has
-[fresh guide observations](../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/guide/receipt.json)
-and [compiled Rust observations](../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/rust-guide/receipt.json).
+fresh guide observations
+and compiled Rust observations.
 The original observations above remain immutable and identify their original
 runtime. The repaired source rechecks all eight commands plus the pure
 checkpoint pause/recovery and original named refusal.
 
 
 `ProcedureExample.tla` and `ProcedureExampleC.tla` are the runnable C/P modules
-from the [procedure guide](../../pluscal-procedures.md). Four CLI translations
+from the [procedure guide](../../pluscal-translation.md). Four CLI translations
 and two compiled Rust calls passed in the separate current procedure receipt.
 Translation acceptance remains an artifact claim, not a model proof.
 
 `RecursiveExample.tla` and `RecursiveExampleC.tla` are the C/P inputs in
-[the recursive-procedure guide](../../pluscal-recursive-procedures.md). Its
+[the recursive-procedure guide](../../pluscal-translation.md). Its
 original capture-first campaign checks four CLI translations and two compiled
-Rust calls. The [current integration receipt](../../../conformance/probes/native-parity-integration/current-controls/recursive-final-integration/verification.json)
+Rust calls. The current integration receipt
 also reruns all six guide calls on the integrated source. Translation acceptance
 remains an artifact claim, and strict stack witness replay is pending.
 

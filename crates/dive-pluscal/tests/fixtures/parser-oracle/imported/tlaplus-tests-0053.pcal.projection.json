@@ -1,0 +1,1 @@
+{"name":"CallGotoUnlabeledTest","syntax":"P","fair":false,"declarations":[["x","Equal",["0"]]],"definitions":null,"macros":[],"procedures":[["Foo",[],[],[["",["Assign",[["x",[],["x","+","1"]]]]],["",["Return"]]]]],"body":["Sequential",[["A",["Call","Foo",[]]],["",["Goto","C"]],["",["Assign",[["x",[],["13"]]]]],["C",["Assign",[["x",[],["x","-","1"]]]]],["",["Goto","A"]]]]}

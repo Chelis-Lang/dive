@@ -40,5 +40,5 @@ TLC mode; ordinary `--compat=tlc` temporal scheduling remains refused. The
 separate `dive-final-tlc` harness requires a clean final-schedule golden and
 fresh independent witness replay. It preserves configured property identities
 and checks that scalar/array names, state rows and ending markers agree with
-the actual replay document. See [the final TLC API/CLI contract](../tlc-final-api.md); the first unchanged
+the actual replay document. See the final TLC API/CLI contract; the first unchanged
 full small selection has 140 named refusals and no general corpus credit.

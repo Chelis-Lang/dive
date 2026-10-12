@@ -10,14 +10,17 @@ use std::sync::Arc;
     reason = "complete corruption matrix with exact partial-prefix evidence"
 )]
 fn corrupt_name_tables_refuse_without_continuation_or_a_witness() {
-    let source = include_str!(
-        "../../../conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.tla"
-    );
+    let source =
+        include_str!("fixtures/checkpoint-runtime-names/RuntimeStrings/RuntimeStrings.tla");
     let analysis =
         dive_sema::analyze_source("RuntimeStrings.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
-    let cfg=dive_config::parse(include_str!("../../../conformance/probes/native-checkpoint-runtime-names/specs/RuntimeStrings/RuntimeStrings.cfg")).into_config().expect("cfg");
+    let cfg = dive_config::parse(include_str!(
+        "fixtures/checkpoint-runtime-names/RuntimeStrings/RuntimeStrings.cfg"
+    ))
+    .into_config()
+    .expect("cfg");
     let dir =
         std::env::temp_dir().join(format!("dive-recover-names-corrupt-{}", std::process::id()));
     std::fs::create_dir(&dir).expect("private directory");

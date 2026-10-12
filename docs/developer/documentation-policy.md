@@ -12,7 +12,7 @@ reader understand internal work-package names to use the feature.
 
 Developer documentation records design, constraints, provenance, independently
 verified behavior, source/binary identity, known defects and remaining acceptance
-obligations. Maintain the relevant ADR, issue, parity ledger and change log. Every
+obligations. Maintain the relevant ADR, issue, scoreboard and change log. Every
 new TLC limitation also updates both the registry and its stable D-entry in the
 user-facing differences log. Keep failed experiments and historical producer
 files intact; label them historical instead of letting their old scope read as

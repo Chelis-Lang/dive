@@ -309,9 +309,8 @@ fn shared_paths_cannot_bypass_source_depth_admission() {
 
 #[test]
 fn strict_subscript_only_substitution_is_not_admitted_by_warning() {
-    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(
-        "../../conformance/probes/disk-safety-roles/strict-subscript/StrictRoleSubscript.tla",
-    );
+    let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/strict-subscript/StrictRoleSubscript.tla");
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));

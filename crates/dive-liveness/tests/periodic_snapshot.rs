@@ -7,7 +7,7 @@ use dive_model::{BindOptions, ErrorKind};
 
 fn case(index: usize) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/periodic-snapshot/models")
+        .join("tests/fixtures/probes/periodic-snapshot/models")
         .join(format!("case-{index:03}"));
     let analysis =
         dive_sema::analyze_file(&root.join("Snapshot.tla"), &dive_sema::Options::default())
@@ -1084,7 +1084,7 @@ fn concrete_word(
 #[test]
 fn retain_every_primary_native_disposition_without_promoting_refusals() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/periodic-snapshot");
+        .join("tests/fixtures/probes/periodic-snapshot");
     for (group, count) in [("", 26), ("precedence", 12)] {
         let directory = base.join(group);
         for index in 0..count {

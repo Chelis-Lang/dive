@@ -1,0 +1,2804 @@
+{
+ "rows": [
+  {
+   "id": "MultiExtra_C_empty_crossgoto",
+   "input": "MultiExtra_C_empty_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_dependent_init",
+   "input": "MultiExtra_C_empty_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_duplicate_name",
+   "input": "MultiExtra_C_empty_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_either",
+   "input": "MultiExtra_C_empty_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_escaped_id",
+   "input": "MultiExtra_C_empty_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_fair",
+   "input": "MultiExtra_C_empty_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_global_fair",
+   "input": "MultiExtra_C_empty_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_if",
+   "input": "MultiExtra_C_empty_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_labels",
+   "input": "MultiExtra_C_empty_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_loop",
+   "input": "MultiExtra_C_empty_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_member_init",
+   "input": "MultiExtra_C_empty_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_modifiers",
+   "input": "MultiExtra_C_empty_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_overlap",
+   "input": "MultiExtra_C_empty_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_parallel",
+   "input": "MultiExtra_C_empty_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_plain",
+   "input": "MultiExtra_C_empty_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_record_field",
+   "input": "MultiExtra_C_empty_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_select",
+   "input": "MultiExtra_C_empty_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_empty_with",
+   "input": "MultiExtra_C_empty_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_empty_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_empty_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_crossgoto",
+   "input": "MultiExtra_C_ids_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_dependent_init",
+   "input": "MultiExtra_C_ids_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_duplicate_name",
+   "input": "MultiExtra_C_ids_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_either",
+   "input": "MultiExtra_C_ids_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_escaped_id",
+   "input": "MultiExtra_C_ids_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_fair",
+   "input": "MultiExtra_C_ids_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_global_fair",
+   "input": "MultiExtra_C_ids_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_if",
+   "input": "MultiExtra_C_ids_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_labels",
+   "input": "MultiExtra_C_ids_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_loop",
+   "input": "MultiExtra_C_ids_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_member_init",
+   "input": "MultiExtra_C_ids_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_modifiers",
+   "input": "MultiExtra_C_ids_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_overlap",
+   "input": "MultiExtra_C_ids_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_parallel",
+   "input": "MultiExtra_C_ids_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_plain",
+   "input": "MultiExtra_C_ids_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_record_field",
+   "input": "MultiExtra_C_ids_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_select",
+   "input": "MultiExtra_C_ids_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_ids_with",
+   "input": "MultiExtra_C_ids_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_ids_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_ids_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_crossgoto",
+   "input": "MultiExtra_C_mixed_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_dependent_init",
+   "input": "MultiExtra_C_mixed_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_duplicate_name",
+   "input": "MultiExtra_C_mixed_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_either",
+   "input": "MultiExtra_C_mixed_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_escaped_id",
+   "input": "MultiExtra_C_mixed_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_fair",
+   "input": "MultiExtra_C_mixed_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_global_fair",
+   "input": "MultiExtra_C_mixed_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_if",
+   "input": "MultiExtra_C_mixed_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_labels",
+   "input": "MultiExtra_C_mixed_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_loop",
+   "input": "MultiExtra_C_mixed_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_member_init",
+   "input": "MultiExtra_C_mixed_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_modifiers",
+   "input": "MultiExtra_C_mixed_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_overlap",
+   "input": "MultiExtra_C_mixed_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_parallel",
+   "input": "MultiExtra_C_mixed_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_plain",
+   "input": "MultiExtra_C_mixed_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_record_field",
+   "input": "MultiExtra_C_mixed_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_select",
+   "input": "MultiExtra_C_mixed_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_mixed_with",
+   "input": "MultiExtra_C_mixed_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_mixed_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_mixed_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_crossgoto",
+   "input": "MultiExtra_C_sets_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_dependent_init",
+   "input": "MultiExtra_C_sets_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_duplicate_name",
+   "input": "MultiExtra_C_sets_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_either",
+   "input": "MultiExtra_C_sets_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_escaped_id",
+   "input": "MultiExtra_C_sets_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_fair",
+   "input": "MultiExtra_C_sets_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_global_fair",
+   "input": "MultiExtra_C_sets_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_if",
+   "input": "MultiExtra_C_sets_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_labels",
+   "input": "MultiExtra_C_sets_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_loop",
+   "input": "MultiExtra_C_sets_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_member_init",
+   "input": "MultiExtra_C_sets_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_modifiers",
+   "input": "MultiExtra_C_sets_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_overlap",
+   "input": "MultiExtra_C_sets_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_parallel",
+   "input": "MultiExtra_C_sets_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_plain",
+   "input": "MultiExtra_C_sets_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_record_field",
+   "input": "MultiExtra_C_sets_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_select",
+   "input": "MultiExtra_C_sets_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_C_sets_with",
+   "input": "MultiExtra_C_sets_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_C_sets_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_C_sets_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_crossgoto",
+   "input": "MultiExtra_P_empty_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_dependent_init",
+   "input": "MultiExtra_P_empty_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_duplicate_name",
+   "input": "MultiExtra_P_empty_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_either",
+   "input": "MultiExtra_P_empty_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_escaped_id",
+   "input": "MultiExtra_P_empty_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_fair",
+   "input": "MultiExtra_P_empty_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_global_fair",
+   "input": "MultiExtra_P_empty_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_if",
+   "input": "MultiExtra_P_empty_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_labels",
+   "input": "MultiExtra_P_empty_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_loop",
+   "input": "MultiExtra_P_empty_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_member_init",
+   "input": "MultiExtra_P_empty_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_modifiers",
+   "input": "MultiExtra_P_empty_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_overlap",
+   "input": "MultiExtra_P_empty_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_parallel",
+   "input": "MultiExtra_P_empty_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_plain",
+   "input": "MultiExtra_P_empty_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_record_field",
+   "input": "MultiExtra_P_empty_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_select",
+   "input": "MultiExtra_P_empty_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_empty_with",
+   "input": "MultiExtra_P_empty_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_empty_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_empty_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_crossgoto",
+   "input": "MultiExtra_P_ids_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_dependent_init",
+   "input": "MultiExtra_P_ids_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_duplicate_name",
+   "input": "MultiExtra_P_ids_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_either",
+   "input": "MultiExtra_P_ids_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_escaped_id",
+   "input": "MultiExtra_P_ids_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_fair",
+   "input": "MultiExtra_P_ids_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_global_fair",
+   "input": "MultiExtra_P_ids_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_if",
+   "input": "MultiExtra_P_ids_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_labels",
+   "input": "MultiExtra_P_ids_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_loop",
+   "input": "MultiExtra_P_ids_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_member_init",
+   "input": "MultiExtra_P_ids_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_modifiers",
+   "input": "MultiExtra_P_ids_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_overlap",
+   "input": "MultiExtra_P_ids_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_parallel",
+   "input": "MultiExtra_P_ids_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_plain",
+   "input": "MultiExtra_P_ids_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_record_field",
+   "input": "MultiExtra_P_ids_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_select",
+   "input": "MultiExtra_P_ids_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_ids_with",
+   "input": "MultiExtra_P_ids_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_ids_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_ids_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_crossgoto",
+   "input": "MultiExtra_P_mixed_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_dependent_init",
+   "input": "MultiExtra_P_mixed_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_duplicate_name",
+   "input": "MultiExtra_P_mixed_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_either",
+   "input": "MultiExtra_P_mixed_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_escaped_id",
+   "input": "MultiExtra_P_mixed_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_fair",
+   "input": "MultiExtra_P_mixed_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_global_fair",
+   "input": "MultiExtra_P_mixed_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_if",
+   "input": "MultiExtra_P_mixed_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_labels",
+   "input": "MultiExtra_P_mixed_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_loop",
+   "input": "MultiExtra_P_mixed_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_member_init",
+   "input": "MultiExtra_P_mixed_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_modifiers",
+   "input": "MultiExtra_P_mixed_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_overlap",
+   "input": "MultiExtra_P_mixed_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_parallel",
+   "input": "MultiExtra_P_mixed_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_plain",
+   "input": "MultiExtra_P_mixed_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_record_field",
+   "input": "MultiExtra_P_mixed_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_select",
+   "input": "MultiExtra_P_mixed_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_mixed_with",
+   "input": "MultiExtra_P_mixed_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_mixed_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_mixed_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_crossgoto",
+   "input": "MultiExtra_P_sets_crossgoto.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_crossgoto.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_dependent_init",
+   "input": "MultiExtra_P_sets_dependent_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_dependent_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_dependent_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_duplicate_name",
+   "input": "MultiExtra_P_sets_duplicate_name.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_duplicate_name.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_either",
+   "input": "MultiExtra_P_sets_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_escaped_id",
+   "input": "MultiExtra_P_sets_escaped_id.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_escaped_id.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_escaped_id.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_fair",
+   "input": "MultiExtra_P_sets_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_global_fair",
+   "input": "MultiExtra_P_sets_global_fair.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_global_fair.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_global_fair.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_if",
+   "input": "MultiExtra_P_sets_if.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_if.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_if.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_labels",
+   "input": "MultiExtra_P_sets_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_loop",
+   "input": "MultiExtra_P_sets_loop.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_loop.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_loop.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_member_init",
+   "input": "MultiExtra_P_sets_member_init.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_member_init.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_member_init.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_modifiers",
+   "input": "MultiExtra_P_sets_modifiers.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_modifiers.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_modifiers.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_overlap",
+   "input": "MultiExtra_P_sets_overlap.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_overlap.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_overlap.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_parallel",
+   "input": "MultiExtra_P_sets_parallel.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_parallel.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_parallel.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_plain",
+   "input": "MultiExtra_P_sets_plain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_plain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_plain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_record_field",
+   "input": "MultiExtra_P_sets_record_field.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_record_field.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_record_field.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_select",
+   "input": "MultiExtra_P_sets_select.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_select.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_select.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "MultiExtra_P_sets_with",
+   "input": "MultiExtra_P_sets_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "MultiExtra_P_sets_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "MultiExtra_P_sets_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  }
+ ]
+}

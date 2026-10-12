@@ -1,0 +1,2246 @@
+{
+ "rows": [
+  {
+   "id": "Recursive_C_auto_recursive",
+   "input": "Recursive_C_auto_recursive.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_auto_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_auto_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_default_local",
+   "input": "Recursive_C_default_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_default_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_default_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_duplicate_scope",
+   "input": "Recursive_C_duplicate_scope.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_duplicate_scope.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_duplicate_scope.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_empty_main",
+   "input": "Recursive_C_empty_main.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_C_empty_main.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_fair_self",
+   "input": "Recursive_C_fair_self.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_fair_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_fair_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_false_cycle",
+   "input": "Recursive_C_false_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_false_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_false_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_main_call_return",
+   "input": "Recursive_C_main_call_return.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_main_call_return.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_missing_return",
+   "input": "Recursive_C_missing_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_missing_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_missing_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mixed_tail_ordinary",
+   "input": "Recursive_C_mixed_tail_ordinary.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mixed_tail_ordinary.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mixed_tail_ordinary.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_base",
+   "input": "Recursive_C_mutual_base.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_base.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_base.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_locals",
+   "input": "Recursive_C_mutual_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_reverse",
+   "input": "Recursive_C_mutual_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_tail",
+   "input": "Recursive_C_mutual_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_tail_local",
+   "input": "Recursive_C_mutual_tail_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_tail_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_tail_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_tail_unbounded",
+   "input": "Recursive_C_mutual_tail_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_tail_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_tail_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_mutual_unbounded",
+   "input": "Recursive_C_mutual_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_mutual_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_mutual_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_read_stack_depth",
+   "input": "Recursive_C_read_stack_depth.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_read_stack_depth.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_read_stack_depth.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_read_stack_tail",
+   "input": "Recursive_C_read_stack_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_read_stack_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_read_stack_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_repeat_main",
+   "input": "Recursive_C_repeat_main.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_repeat_main.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_repeat_main.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_reserved_parameter",
+   "input": "Recursive_C_reserved_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_reserved_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_reserved_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_C_reserved_wrapper",
+   "input": "Recursive_C_reserved_wrapper.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_reserved_wrapper.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_reserved_wrapper.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_C_self_base",
+   "input": "Recursive_C_self_base.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_base.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_base.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_base_negative",
+   "input": "Recursive_C_self_base_negative.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_base_negative.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_base_negative.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_base_zero",
+   "input": "Recursive_C_self_base_zero.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_base_zero.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_base_zero.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_call_goto",
+   "input": "Recursive_C_self_call_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_call_goto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_call_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_either",
+   "input": "Recursive_C_self_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_goto_done",
+   "input": "Recursive_C_self_goto_done.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_goto_done.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_goto_done.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_local",
+   "input": "Recursive_C_self_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_local_mutate",
+   "input": "Recursive_C_self_local_mutate.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_local_mutate.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_local_mutate.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_modifier",
+   "input": "Recursive_C_self_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_C_self_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_self_no_params_unbounded",
+   "input": "Recursive_C_self_no_params_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_no_params_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_no_params_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_parallel_args",
+   "input": "Recursive_C_self_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_parameter_order",
+   "input": "Recursive_C_self_parameter_order.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_parameter_order.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_parameter_order.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail",
+   "input": "Recursive_C_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_assign_global",
+   "input": "Recursive_C_self_tail_assign_global.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_assign_global.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_assign_global.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_changed_local",
+   "input": "Recursive_C_self_tail_changed_local.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_C_self_tail_changed_local.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_changed_param",
+   "input": "Recursive_C_self_tail_changed_param.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_C_self_tail_changed_param.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_counter_unbounded",
+   "input": "Recursive_C_self_tail_counter_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_counter_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_counter_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_local",
+   "input": "Recursive_C_self_tail_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_no_params",
+   "input": "Recursive_C_self_tail_no_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_no_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_no_params.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_parallel_args",
+   "input": "Recursive_C_self_tail_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_two_locals",
+   "input": "Recursive_C_self_tail_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_tail_two_params",
+   "input": "Recursive_C_self_tail_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_tail_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_tail_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_twice",
+   "input": "Recursive_C_self_twice.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_twice.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_twice.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_two_locals",
+   "input": "Recursive_C_self_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_two_params",
+   "input": "Recursive_C_self_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_unbounded",
+   "input": "Recursive_C_self_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_while",
+   "input": "Recursive_C_self_while.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_while.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_self_with",
+   "input": "Recursive_C_self_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_self_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_self_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_strong_self",
+   "input": "Recursive_C_strong_self.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_strong_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_strong_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_triple_cycle",
+   "input": "Recursive_C_triple_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_triple_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_triple_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_triple_tail_cycle",
+   "input": "Recursive_C_triple_tail_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_triple_tail_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_triple_tail_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_undefined_base",
+   "input": "Recursive_C_undefined_base.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_undefined_base.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_undefined_base.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_C_unknown_tail",
+   "input": "Recursive_C_unknown_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_unknown_tail.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_unused_invalid",
+   "input": "Recursive_C_unused_invalid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_unused_invalid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_unused_invalid.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_C_unused_self",
+   "input": "Recursive_C_unused_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_unused_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_C_unused_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_C_wrong_arity_self",
+   "input": "Recursive_C_wrong_arity_self.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_wrong_arity_self.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_C_wrong_arity_tail",
+   "input": "Recursive_C_wrong_arity_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_C_wrong_arity_tail.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_auto_recursive",
+   "input": "Recursive_P_auto_recursive.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_auto_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_auto_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_default_local",
+   "input": "Recursive_P_default_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_default_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_default_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_duplicate_scope",
+   "input": "Recursive_P_duplicate_scope.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_duplicate_scope.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_duplicate_scope.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_empty_main",
+   "input": "Recursive_P_empty_main.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_empty_main.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_empty_main.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_fair_self",
+   "input": "Recursive_P_fair_self.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_fair_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_fair_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_false_cycle",
+   "input": "Recursive_P_false_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_false_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_false_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_main_call_return",
+   "input": "Recursive_P_main_call_return.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_main_call_return.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_missing_return",
+   "input": "Recursive_P_missing_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_missing_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_missing_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mixed_tail_ordinary",
+   "input": "Recursive_P_mixed_tail_ordinary.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mixed_tail_ordinary.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mixed_tail_ordinary.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_base",
+   "input": "Recursive_P_mutual_base.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_base.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_base.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_locals",
+   "input": "Recursive_P_mutual_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_reverse",
+   "input": "Recursive_P_mutual_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_tail",
+   "input": "Recursive_P_mutual_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_tail_local",
+   "input": "Recursive_P_mutual_tail_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_tail_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_tail_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_tail_unbounded",
+   "input": "Recursive_P_mutual_tail_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_tail_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_tail_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_mutual_unbounded",
+   "input": "Recursive_P_mutual_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_mutual_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_mutual_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_read_stack_depth",
+   "input": "Recursive_P_read_stack_depth.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_read_stack_depth.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_read_stack_depth.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_read_stack_tail",
+   "input": "Recursive_P_read_stack_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_read_stack_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_read_stack_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_repeat_main",
+   "input": "Recursive_P_repeat_main.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_repeat_main.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_repeat_main.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_reserved_parameter",
+   "input": "Recursive_P_reserved_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_reserved_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_reserved_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_P_reserved_wrapper",
+   "input": "Recursive_P_reserved_wrapper.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_reserved_wrapper.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_reserved_wrapper.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_P_self_base",
+   "input": "Recursive_P_self_base.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_base.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_base.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_base_negative",
+   "input": "Recursive_P_self_base_negative.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_base_negative.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_base_negative.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_base_zero",
+   "input": "Recursive_P_self_base_zero.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_base_zero.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_base_zero.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_call_goto",
+   "input": "Recursive_P_self_call_goto.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_call_goto.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_call_goto.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_either",
+   "input": "Recursive_P_self_either.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_either.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_either.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_goto_done",
+   "input": "Recursive_P_self_goto_done.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_goto_done.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_goto_done.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_local",
+   "input": "Recursive_P_self_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_local_mutate",
+   "input": "Recursive_P_self_local_mutate.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_local_mutate.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_local_mutate.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_modifier",
+   "input": "Recursive_P_self_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_P_self_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_self_no_params_unbounded",
+   "input": "Recursive_P_self_no_params_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_no_params_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_no_params_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_parallel_args",
+   "input": "Recursive_P_self_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_parameter_order",
+   "input": "Recursive_P_self_parameter_order.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_parameter_order.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_parameter_order.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail",
+   "input": "Recursive_P_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_assign_global",
+   "input": "Recursive_P_self_tail_assign_global.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_assign_global.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_assign_global.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_changed_local",
+   "input": "Recursive_P_self_tail_changed_local.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_P_self_tail_changed_local.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_changed_param",
+   "input": "Recursive_P_self_tail_changed_param.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "Recursive_P_self_tail_changed_param.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_counter_unbounded",
+   "input": "Recursive_P_self_tail_counter_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_counter_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_counter_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_local",
+   "input": "Recursive_P_self_tail_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_no_params",
+   "input": "Recursive_P_self_tail_no_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_no_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_no_params.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_parallel_args",
+   "input": "Recursive_P_self_tail_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_two_locals",
+   "input": "Recursive_P_self_tail_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_tail_two_params",
+   "input": "Recursive_P_self_tail_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_tail_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_tail_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_twice",
+   "input": "Recursive_P_self_twice.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_twice.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_twice.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_two_locals",
+   "input": "Recursive_P_self_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_two_params",
+   "input": "Recursive_P_self_two_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_two_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_two_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_unbounded",
+   "input": "Recursive_P_self_unbounded.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_unbounded.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_unbounded.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_while",
+   "input": "Recursive_P_self_while.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_while.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_while.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_self_with",
+   "input": "Recursive_P_self_with.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_self_with.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_self_with.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_strong_self",
+   "input": "Recursive_P_strong_self.tla",
+   "options": [
+    "-sf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_strong_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_strong_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_triple_cycle",
+   "input": "Recursive_P_triple_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_triple_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_triple_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_triple_tail_cycle",
+   "input": "Recursive_P_triple_tail_cycle.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_triple_tail_cycle.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_triple_tail_cycle.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_undefined_base",
+   "input": "Recursive_P_undefined_base.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_undefined_base.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_undefined_base.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_P_unknown_tail",
+   "input": "Recursive_P_unknown_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_unknown_tail.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_unused_invalid",
+   "input": "Recursive_P_unused_invalid.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_unused_invalid.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_unused_invalid.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "Recursive_P_unused_self",
+   "input": "Recursive_P_unused_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_unused_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "Recursive_P_unused_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "Recursive_P_wrong_arity_self",
+   "input": "Recursive_P_wrong_arity_self.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_wrong_arity_self.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "Recursive_P_wrong_arity_tail",
+   "input": "Recursive_P_wrong_arity_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "Recursive_P_wrong_arity_tail.normalized.json"
+    }
+   }
+  }
+ ]
+}

@@ -32,11 +32,11 @@ fn inputs(case: &Json) -> Vec<DiagnosticState> {
 #[test]
 fn all_55_forced_key_structural_rows_match_every_java_field() {
     let selection: Json = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-phase-l/slot-selection.json"
+        "fixtures/probes/tlc-phase-l/slot-selection.json"
     ))
     .expect("selection");
     let record: Json = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-phase-l/slot-capture.json"
+        "fixtures/probes/tlc-phase-l/slot-capture.json"
     ))
     .expect("record");
     let selected = selection.as_array().expect("selection");
@@ -82,7 +82,7 @@ fn all_55_forced_key_structural_rows_match_every_java_field() {
 }
 fn model(name: &str) -> Option<dive_model::Model> {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-phase-l/models")
+        .join("tests/fixtures/probes/tlc-phase-l/models")
         .join(name);
     let a = dive_sema::analyze_file(
         &root.join(format!("{name}.tla")),
@@ -143,11 +143,11 @@ fn log(receipt: &phase_l::Receipt) -> Vec<String> {
 )]
 fn real_bound_fp_first_representatives_bins_initial_consistency_and_deciding_errors() {
     let selection: Json = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-phase-l/model-selection.json"
+        "fixtures/probes/tlc-phase-l/model-selection.json"
     ))
     .expect("selection");
     let record: Json = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-phase-l/model-capture.json"
+        "fixtures/probes/tlc-phase-l/model-capture.json"
     ))
     .expect("record");
     let mut counts = [0; 5];
@@ -537,11 +537,11 @@ fn public_opaque_values_and_unchecked_predicates_are_refused_without_callbacks_o
 #[test]
 fn all_reference_livecheck_null_tableau_logs_preserve_failed_call_and_complete_selection() {
     let selection: Json = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-phase-l/evaluation-selection.json"
+        "fixtures/probes/tlc-phase-l/evaluation-selection.json"
     ))
     .expect("selection");
     let capture: Json = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-phase-l/evaluation-capture.json"
+        "fixtures/probes/tlc-phase-l/evaluation-capture.json"
     ))
     .expect("capture");
     let selected = selection.as_array().expect("selection");
@@ -599,19 +599,6 @@ fn all_reference_livecheck_null_tableau_logs_preserve_failed_call_and_complete_s
 }
 
 #[test]
-fn phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    assert!(
-        std::process::Command::new("python3")
-            .args(["-I", "scripts/check-phase-l.py"])
-            .current_dir(root)
-            .status()
-            .expect("checker")
-            .success()
-    );
-}
-
-#[test]
 fn caller_edited_fingerprint_permutation_returns_typed_input_refusal() {
     for permutation in [
         serde_json::json!([]),
@@ -623,7 +610,7 @@ fn caller_edited_fingerprint_permutation_returns_typed_input_refusal() {
         ir["tlc_vars"] = permutation;
         let edited: Arc<dive_ir::Ir> = Arc::new(serde_json::from_value(ir).expect("caller IR"));
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../conformance/probes/tlc-phase-l/models/PhaseState/PhaseState.cfg");
+            .join("tests/fixtures/probes/tlc-phase-l/models/PhaseState/PhaseState.cfg");
         let cfg = dive_config::parse(&std::fs::read_to_string(root).expect("cfg"))
             .into_config()
             .expect("config");

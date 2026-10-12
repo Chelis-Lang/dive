@@ -1,0 +1,348 @@
+{
+ "rows": [
+  {
+   "id": "ClosingLine_C_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_C_spaces",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_C_tab",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_C_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_C_line_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_C_tight_line_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_C_inline_definition",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "ClosingLine_C_block_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "ClosingLine_C_nbsp",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "ClosingLine_C_formfeed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "ClosingLine_P_empty",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_P_spaces",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_P_tab",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_P_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_P_line_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_P_tight_line_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "ClosingLine_P_inline_definition",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "ClosingLine_P_block_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "ClosingLine_P_nbsp",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   }
+  },
+  {
+   "id": "ClosingLine_P_formfeed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  }
+ ]
+}

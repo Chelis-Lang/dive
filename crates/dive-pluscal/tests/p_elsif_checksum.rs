@@ -7,7 +7,7 @@ use std::path::Path;
 #[test]
 fn all_declared_elsif_rows_match_original_header_bytes_and_crc()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("p-elsif-checksum-acceptance");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/p-elsif-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -79,7 +79,7 @@ fn all_declared_elsif_rows_match_original_header_bytes_and_crc()
 #[test]
 fn virtual_branch_expansion_preserves_resource_refusal_boundaries()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("p-elsif-checksum-acceptance");
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/p-elsif-checksum");
     for shape in ["all_call", "nested_call", "either_return", "while_return"] {
         let source =
             std::fs::read_to_string(base.join(format!("cases/ElsifProcedure_P_{shape}.tla")))?;

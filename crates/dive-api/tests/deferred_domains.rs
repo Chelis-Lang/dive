@@ -17,8 +17,7 @@ use std::{path::Path, sync::Arc};
     reason = "the complete conformance and independent witness matrix is kept together"
 )]
 fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/finite-deferred-audit");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/finite-deferred-audit");
     for kind in ["Filter", "Map", "Capture"] {
         for holds in [false, true] {
             let name = format!("Fd{kind}{}", if holds { "Holds" } else { "Fails" });
@@ -28,16 +27,10 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
             let config =
                 std::fs::read_to_string(root.join("specs").join(&name).join(format!("{name}.cfg")))
                     .expect("config");
-            let stdout = std::fs::read_to_string(
-                root.join("tlc-2026.10.06.014338")
-                    .join(format!("{name}.stdout")),
-            )
-            .expect("oracle");
-            let exit = std::fs::read_to_string(
-                root.join("tlc-2026.10.06.014338")
-                    .join(format!("{name}.exit")),
-            )
-            .expect("exit");
+            let stdout = std::fs::read_to_string(root.join("tlc").join(format!("{name}.txt")))
+                .expect("oracle");
+            let exit = std::fs::read_to_string(root.join("tlc").join(format!("{name}.exit")))
+                .expect("exit");
             assert_eq!(exit.trim(), if holds { "0" } else { "13" });
             let expected = if holds { (3, 2, 2) } else { (2, 1, 1) };
             assert!(
@@ -123,8 +116,8 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
 
 #[test]
 fn recursive_local_function_domains_remain_explicitly_refused() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/finite-deferred-audit/specs");
+    let root =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/finite-deferred-audit/specs");
     for suffix in ["Holds", "Fails"] {
         let name = format!("FdRecursivePerm{suffix}");
         let source =

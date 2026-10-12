@@ -1,0 +1,80 @@
+{
+ "rows": [
+  {
+   "id": "P_define",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "dc306b0a",
+    "7331a303"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "dc306b0a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "P_fair_define",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "2e6ccc91"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "DefineBlockRewrite",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "2b2547fe",
+    "1752912d"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "2b2547fe"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "DefineBlockApiRewrite",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "c3b157cb",
+    "e3faf4f0"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "c3b157cb"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

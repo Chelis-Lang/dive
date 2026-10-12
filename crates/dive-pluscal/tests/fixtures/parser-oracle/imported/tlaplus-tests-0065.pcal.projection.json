@@ -1,0 +1,1 @@
+{"name":"Steps","syntax":"P","fair":false,"declarations":[["x","Equal",["1"]],["y","Equal",["FALSE"]]],"definitions":null,"macros":[],"procedures":[],"body":["Sequential",[["",["While",["TRUE"],[["",["Assign",[["x",[],["x","+","1"]]]]],["",["Assign",[["y",[],["~","y"]]]]],["",["Assert",["x","<","5"]]]]]]]]}

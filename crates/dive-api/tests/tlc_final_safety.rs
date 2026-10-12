@@ -7,7 +7,7 @@ use dive_trace::Validation;
 use std::sync::Arc;
 fn inputs(name: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-final-safety/models")
+        .join("tests/fixtures/tlc-final-safety/models")
         .join(name);
     let source = std::fs::read_to_string(dir.join(format!("{name}.tla"))).expect("source");
     let a = dive_sema::analyze_source(
@@ -23,7 +23,7 @@ fn assert_primary(name: &str, result: &dive_check::CheckResult) {
     let primary: serde_json::Value = serde_json::from_str(
         &std::fs::read_to_string(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../conformance/probes/tlc-final-safety/primary.json"),
+                .join("tests/fixtures/tlc-final-safety/primary.json"),
         )
         .expect("primary capture manifest"),
     )
@@ -233,7 +233,7 @@ fn deadlock_cannot_earn_finite_violation_credit_without_independent_cover() {
 
 #[test]
 fn route_authority_comes_from_fresh_bound_source_not_empty_report_names() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
     let safety = root.join("tlc-final-safety/models/SafetyHold/SafetyHold");
     assert!(
         tlc_temporal::safety_route_file(

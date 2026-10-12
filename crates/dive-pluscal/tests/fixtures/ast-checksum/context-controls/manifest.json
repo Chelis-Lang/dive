@@ -1,0 +1,196 @@
+{
+ "rows": [
+  {
+   "id": "C_context_variable-label",
+   "primary_translated": true,
+   "primary_crc": "776edd39",
+   "stages": {
+    "translated": {
+     "crc": "776edd39"
+    }
+   }
+  },
+  {
+   "id": "C_context_default-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_context_algorithm-name",
+   "primary_translated": true,
+   "primary_crc": "ef6d3321",
+   "stages": {
+    "translated": {
+     "crc": "ef6d3321"
+    }
+   }
+  },
+  {
+   "id": "C_context_pc-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_context_done-label",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_context_missing-root",
+   "primary_translated": true,
+   "primary_crc": "e0cfef38",
+   "stages": {
+    "translated": {
+     "crc": "e0cfef38"
+    }
+   }
+  },
+  {
+   "id": "C_fair_context_variable-label",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_context_default-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_fair_context_algorithm-name",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_context_pc-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_fair_context_done-label",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "C_fair_context_missing-root",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_context_variable-label",
+   "primary_translated": true,
+   "primary_crc": "776edd39",
+   "stages": {
+    "translated": {
+     "crc": "776edd39"
+    }
+   }
+  },
+  {
+   "id": "P_context_default-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_context_algorithm-name",
+   "primary_translated": true,
+   "primary_crc": "ef6d3321",
+   "stages": {
+    "translated": {
+     "crc": "ef6d3321"
+    }
+   }
+  },
+  {
+   "id": "P_context_pc-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_context_done-label",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_context_missing-root",
+   "primary_translated": true,
+   "primary_crc": "e0cfef38",
+   "stages": {
+    "translated": {
+     "crc": "e0cfef38"
+    }
+   }
+  },
+  {
+   "id": "P_fair_context_variable-label",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_context_default-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_fair_context_algorithm-name",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_context_pc-name",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_fair_context_done-label",
+   "primary_translated": false,
+   "primary_crc": null,
+   "stages": {}
+  },
+  {
+   "id": "P_fair_context_missing-root",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  }
+ ]
+}

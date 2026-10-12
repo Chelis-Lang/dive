@@ -8,7 +8,7 @@ use std::path::Path;
 #[test]
 fn exact_macro_ast_bytes_and_uncredited_reference_failures()
 -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("macro-checksum-acceptance");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/macro-checksum");
     let mut outcomes = [0_usize; 4];
     for folder in [
         "",

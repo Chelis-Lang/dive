@@ -1,0 +1,70 @@
+{
+ "rows": [
+  {
+   "id": "crossed-bracket",
+   "input": "crossed-bracket.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "crossed-bracket.pcal.projection.json"
+  },
+  {
+   "id": "crossed-paren",
+   "input": "crossed-paren.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "crossed-paren.pcal.projection.json"
+  },
+  {
+   "id": "crossed-tuple",
+   "input": "crossed-tuple.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "crossed-tuple.pcal.projection.json"
+  },
+  {
+   "id": "field-keyword",
+   "input": "field-keyword.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "field-keyword.pcal.projection.json"
+  },
+  {
+   "id": "suffix-bracket",
+   "input": "suffix-bracket.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "suffix-bracket.pcal.projection.json"
+  },
+  {
+   "id": "suffix-tuple",
+   "input": "suffix-tuple.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "suffix-tuple.pcal.projection.json"
+  }
+ ]
+}

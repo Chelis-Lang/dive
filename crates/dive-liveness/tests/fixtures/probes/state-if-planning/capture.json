@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reason": "Extend complete conditional selection with short-circuit guards, negation, implication, equivalence and temporal guard; original 18 rows retained",
+  "scope": "actual planning only; no state-space or verdict credit",
+  "rows": [
+    {
+      "id": "StateGuardShortFalse",
+      "expression": "IF (FALSE /\\ x = 1) THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "StateGuardShortTrue",
+      "expression": "IF (TRUE \\/ x = 1) THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "StateGuardNegated",
+      "expression": "IF ~(x = 1 /\\ 1 \\div 0 = 0) THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateGuardImplies",
+      "expression": "IF (x = 1 => 1 \\div 0 = 0) THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateGuardEquiv",
+      "expression": "IF (x = 1 <=> 1 \\div 0 = 0) THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "TemporalGuard",
+      "expression": "IF [](x = 1) THEN <>(x = 2) ELSE <>(x = 0)",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "0",
+        "g0.tableau": "true"
+      }
+    },
+    {
+      "id": "StateThenError",
+      "expression": "IF x = 1 THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateElseError",
+      "expression": "IF x = 1 THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateThenFalse",
+      "expression": "IF x = 1 THEN FALSE ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "StateValid",
+      "expression": "IF x = 1 THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ConstantSkipThen",
+      "expression": "IF FALSE THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ConstantSkipElse",
+      "expression": "IF TRUE THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ConstantChosenThen",
+      "expression": "IF TRUE THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "ConstantChosenElse",
+      "expression": "IF FALSE THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateBothErrors",
+      "expression": "IF x = 1 THEN 1 \\div 0 = 0 ELSE 1 % 0 = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "ConstantBadGuard",
+      "expression": "IF 1 THEN x = 1 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "tlc-error",
+        "error_code": "2215",
+        "message": "TLC expected a boolean value, but did not find one. 1"
+      }
+    },
+    {
+      "id": "StateNonBoolThen",
+      "expression": "IF x = 1 THEN 42 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "tlc-error",
+        "error_code": "2215",
+        "message": "TLC expected a boolean value, but did not find one. 42"
+      }
+    },
+    {
+      "id": "StateNonBoolElse",
+      "expression": "IF x = 1 THEN x = 2 ELSE 42",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "tlc-error",
+        "error_code": "2215",
+        "message": "TLC expected a boolean value, but did not find one. 42"
+      }
+    },
+    {
+      "id": "NestedState",
+      "expression": "IF x = 1 THEN (IF x = 0 THEN 1 \\div 0 = 0 ELSE x = 2) ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "LetState",
+      "expression": "LET B == 1 \\div 0 = 0 IN IF x = 1 THEN B ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "CallState",
+      "expression": "F(x = 1)",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ActionThenError",
+      "expression": "IF x' = 1 THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "binding",
+        "completion": "tlc-error",
+        "error_code": "3002",
+        "message": "Parsing or semantic analysis failed."
+      }
+    },
+    {
+      "id": "ActionValid",
+      "expression": "IF x' = 1 THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "binding",
+        "completion": "tlc-error",
+        "error_code": "3002",
+        "message": "Parsing or semantic analysis failed."
+      }
+    },
+    {
+      "id": "StateGuardError",
+      "expression": "IF x = 1 /\\ 1 \\div 0 = 0 THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    }
+  ],
+  "source_sha256": {
+    "PlanningProbe.java": "c409d2627a3919d4bd7b22c4c56846115deb93ba4e7aa09686664f3dd91184b3",
+    "capture.py": "e39417c5048eef1561190c31a0576e4cd7711b1e7614c6afb57a4358ad4310df",
+    "models/ActionThenError/ActionThenError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ActionThenError/ActionThenError.tla": "340cb1821385dffc6ed006ae5117700d500fa7e5faee635b444cff9ac13f2170",
+    "models/ActionValid/ActionValid.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ActionValid/ActionValid.tla": "959e8f164cbfb3f673f615bd09cf0b4885a9494c2de04dfe78bbf46cec03be64",
+    "models/CallState/CallState.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/CallState/CallState.tla": "2462e4435bedd510d94f5dcf519e8a5c05f02a9392f9a30ff0ca13664e78400b",
+    "models/ConstantBadGuard/ConstantBadGuard.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantBadGuard/ConstantBadGuard.tla": "8f667695f40554997434a5807cca6e96c89473a8a049be4021527dfcdb64b4de",
+    "models/ConstantChosenElse/ConstantChosenElse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantChosenElse/ConstantChosenElse.tla": "72ef697b90c76f288c88231708126a59cab5c3fec94da53d117bf3dc8d277673",
+    "models/ConstantChosenThen/ConstantChosenThen.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantChosenThen/ConstantChosenThen.tla": "6e9df47b9e7ed03a8c60bb278b2af51f5e01d6b9e4d2417d404569dd3ff93b93",
+    "models/ConstantSkipElse/ConstantSkipElse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantSkipElse/ConstantSkipElse.tla": "1edcbff4c806d39e159127b7d86cd7195ac8f5464bb1819c8438b0a028e06250",
+    "models/ConstantSkipThen/ConstantSkipThen.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantSkipThen/ConstantSkipThen.tla": "4daffdadff8b9c8711d46aa18f8791402ba2d582d6ce53fff4f819cb0fc69691",
+    "models/LetState/LetState.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/LetState/LetState.tla": "e2acf4dc22ea638a6802e7c07813b4637e46dd72be5b453dd1519a1568711547",
+    "models/NestedState/NestedState.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/NestedState/NestedState.tla": "3a32edd17971ff1fba46205205486650bbd72d127335164613cae23e44c0c72b",
+    "models/StateBothErrors/StateBothErrors.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateBothErrors/StateBothErrors.tla": "109c049e346763457a8cd9822baf26fae200a29d99d1a4100611e7242660cc10",
+    "models/StateElseError/StateElseError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateElseError/StateElseError.tla": "5a2c3bfe58267a035db39a5492129d22323585a505470b96a6995477fb05bb5a",
+    "models/StateGuardEquiv/StateGuardEquiv.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardEquiv/StateGuardEquiv.tla": "19cfcb00c0410cefba79e4cf81765ad3f11ad2cf32488b43bf40bc08a6b2f2c6",
+    "models/StateGuardError/StateGuardError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardError/StateGuardError.tla": "b1a4f1153d7e8626df6c5d5a67fbbdaef238f6344518b6eb6fd4685294d9fcb8",
+    "models/StateGuardImplies/StateGuardImplies.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardImplies/StateGuardImplies.tla": "7df7f34f87144540a67b2b8751d3b70e0900ffb1afc8dd74ad8f8ab3158e51b9",
+    "models/StateGuardNegated/StateGuardNegated.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardNegated/StateGuardNegated.tla": "8ea7613ca87ad6087e5232cd6d79c4a19dc8ac10a509655b47cc86192520cfc1",
+    "models/StateGuardShortFalse/StateGuardShortFalse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardShortFalse/StateGuardShortFalse.tla": "7fe123e9a3c87e56de4de7cd77e1a88440e01ac44e056e86ee637fbdf828a2bf",
+    "models/StateGuardShortTrue/StateGuardShortTrue.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardShortTrue/StateGuardShortTrue.tla": "35c3e985cbbc950aa839dc0061fe136fedbed1cf5555327ae435c9e159a5d9fa",
+    "models/StateNonBoolElse/StateNonBoolElse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateNonBoolElse/StateNonBoolElse.tla": "be697c14e6fb88f398e835547dc65f6b6bc8030b7840a468cdcc55ca8e4191ff",
+    "models/StateNonBoolThen/StateNonBoolThen.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateNonBoolThen/StateNonBoolThen.tla": "c014ff457d909b2fbc7351904aeca0697760e168b20e9ce408e1ff5405094ff4",
+    "models/StateThenError/StateThenError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateThenError/StateThenError.tla": "acdf0518e2c6eeea67eb65788444a252d45dd5394e4acfca3a2d2f169d9fecc9",
+    "models/StateThenFalse/StateThenFalse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateThenFalse/StateThenFalse.tla": "d1cb844a34f87450f105de7b78679bf6b5de50ab60d530429d4e766e64d8d2ec",
+    "models/StateValid/StateValid.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateValid/StateValid.tla": "ce2265c913d057d2b8ddd1633529a44ec64380ff8d310012fe9a4d7dff45a8d2",
+    "models/TemporalGuard/TemporalGuard.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/TemporalGuard/TemporalGuard.tla": "110af45eb817ee1ef4063384bdd7d8555cab81088a794881ebf6c54d9d1b3a8f"
+  },
+  "raw_sha256": {
+    "compiler.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw/ActionThenError/stdout": "331545e74891dabc1065f27c4eb94528cffce474090a0ff9ec52da363b338edb",
+    "raw/ActionValid/stdout": "331545e74891dabc1065f27c4eb94528cffce474090a0ff9ec52da363b338edb",
+    "raw/CallState/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/ConstantBadGuard/stdout": "beb5ee68d33fd1ac23e4ecfd8acc66f668c4528df3d17ddd3b040374715c1da7",
+    "raw/ConstantChosenElse/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/ConstantChosenThen/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/ConstantSkipElse/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/ConstantSkipThen/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/LetState/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/NestedState/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateBothErrors/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateElseError/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateGuardEquiv/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/StateGuardError/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateGuardImplies/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateGuardNegated/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateGuardShortFalse/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/StateGuardShortTrue/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/StateNonBoolElse/stdout": "e473f89d32bf7c7b871fdcc751198f53789cf1cb70c57badaf32927692d4021e",
+    "raw/StateNonBoolThen/stdout": "e473f89d32bf7c7b871fdcc751198f53789cf1cb70c57badaf32927692d4021e",
+    "raw/StateThenError/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateThenFalse/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/StateValid/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/TemporalGuard/stdout": "054b3b5ac0c320d2ac50d55245f05ca313da993385ff99242e58e2dc3ac52b3c",
+    "raw/ActionThenError/stderr": "92ac85b4c9dcdfba8c339e7ef70a956cbf1b363f421c783d5eedd99e262fcf1b",
+    "raw/ActionValid/stderr": "d874bbbf2e3f9d2f14b1a341c82173751890331c408a45c2b10acc9904f8db59",
+    "raw/CallState/stderr": "618dc71cd5e050408b8b1a891aa6f7072b1f6b3b32199b52bf5e56bc052a913c",
+    "raw/ConstantBadGuard/stderr": "1246f0d21f42dcf7d8e0073571f47647c1f08730152ad9418154f2b76e3349b8",
+    "raw/ConstantChosenElse/stderr": "80f875332bcf1b617ea60b90f1580badc80859b074fa9e23e057eb837a9da54a",
+    "raw/ConstantChosenThen/stderr": "b2600a8647f542cf8e11acec76d2871d3d1704355f4682b8461c87206ea50c03",
+    "raw/ConstantSkipElse/stderr": "82bc30b4cd6fd30b6a0ad8d44676498fe8d530a77e55def628cfe531819ee490",
+    "raw/ConstantSkipThen/stderr": "f28595bbda3c9e4631a28d4dc3d2a9a63248433ff7519be1a3b0cb2f0ee3e500",
+    "raw/LetState/stderr": "af987581c982ef251ef9addc605aa81a580f33bdac34fa467afc007bc6b28834",
+    "raw/NestedState/stderr": "bcbc412ac87a4979da02c4e03dd1eb5ce137d919c0f1273dbd6581407933809e",
+    "raw/StateBothErrors/stderr": "1c68c43468bf2aae71958af9e4de05f2ccc9ab534a762589de59040749d9e6bd",
+    "raw/StateElseError/stderr": "ded9685ccb3ded0881c8e743e9a852f03bee098073f0877976c22465ce575f03",
+    "raw/StateGuardEquiv/stderr": "456932916beccd8a7db77ba68059e36db6d2d74b4d25f1c489699c8fd4bb63b0",
+    "raw/StateGuardError/stderr": "60654c607d7c69fe0238d8d18e634c2fefece8aa5b9987d3d9736af6b7cd1bf3",
+    "raw/StateGuardImplies/stderr": "85d10745395aa5ed2c0f0239bb28be97a68bf0544ce462c815639c54029879ec",
+    "raw/StateGuardNegated/stderr": "102de636d38ab3062d9baf14d5b75f54808bf12de8ad139f48d5a7cb5f0e1795",
+    "raw/StateGuardShortFalse/stderr": "238bd7fc08307b9f9de8b21d5018c781f22bddfffbc6991e776909e20a180321",
+    "raw/StateGuardShortTrue/stderr": "ba459cbff2936764ecc4eaebd7e0c4b9b2d90f4e58e8cb6f85cf64e7e4fcb4c5",
+    "raw/StateNonBoolElse/stderr": "38505d839bd8551a495d73951bc67f803b8434a15cdc117339f4790e2c6bf4af",
+    "raw/StateNonBoolThen/stderr": "e13b8d520d3ef665eeefff99a048d1b8c42a5145df7351f8a8c695beb1c83af2",
+    "raw/StateThenError/stderr": "d914040d97ef5a013754a7119d4624dc793d96ecc285aa3feea2f417298e3745",
+    "raw/StateThenFalse/stderr": "744aa62300655d8f5af32482ac1e45c1943764d87de445fc899d31e7b9485199",
+    "raw/StateValid/stderr": "ff72a81d2f4d3002e7eac1e9a8328c525f22e184d631a893a7fb8875b0b547aa",
+    "raw/TemporalGuard/stderr": "df996bf8be70a4e0aa96d4be7fb8f3a30d9948d128a633f2c87000a043b9e789"
+  }
+}

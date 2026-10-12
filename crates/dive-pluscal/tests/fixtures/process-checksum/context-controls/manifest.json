@@ -1,0 +1,164 @@
+{
+ "rows": [
+  {
+   "id": "C_two-plus",
+   "primary_translated": true,
+   "primary_crc": "bdd54cba",
+   "stages": {
+    "translated": {
+     "crc": "bdd54cba"
+    }
+   }
+  },
+  {
+   "id": "C_two-minus",
+   "primary_translated": true,
+   "primary_crc": "49aadd83",
+   "stages": {
+    "translated": {
+     "crc": "49aadd83"
+    }
+   }
+  },
+  {
+   "id": "C_utf8-tabs",
+   "primary_translated": true,
+   "primary_crc": "ef7524ae",
+   "stages": {
+    "translated": {
+     "crc": "ef7524ae"
+    }
+   }
+  },
+  {
+   "id": "C_crlf-comment",
+   "primary_translated": true,
+   "primary_crc": "ef7524ae",
+   "stages": {
+    "translated": {
+     "crc": "ef7524ae"
+    }
+   }
+  },
+  {
+   "id": "C_fair_two-plus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_two-minus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_utf8-tabs",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_fair_crlf-comment",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_two-plus",
+   "primary_translated": true,
+   "primary_crc": "bdd54cba",
+   "stages": {
+    "translated": {
+     "crc": "bdd54cba"
+    }
+   }
+  },
+  {
+   "id": "P_two-minus",
+   "primary_translated": true,
+   "primary_crc": "49aadd83",
+   "stages": {
+    "translated": {
+     "crc": "49aadd83"
+    }
+   }
+  },
+  {
+   "id": "P_utf8-tabs",
+   "primary_translated": true,
+   "primary_crc": "ef7524ae",
+   "stages": {
+    "translated": {
+     "crc": "ef7524ae"
+    }
+   }
+  },
+  {
+   "id": "P_crlf-comment",
+   "primary_translated": true,
+   "primary_crc": "ef7524ae",
+   "stages": {
+    "translated": {
+     "crc": "ef7524ae"
+    }
+   }
+  },
+  {
+   "id": "P_fair_two-plus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_two-minus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_utf8-tabs",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_fair_crlf-comment",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  }
+ ]
+}

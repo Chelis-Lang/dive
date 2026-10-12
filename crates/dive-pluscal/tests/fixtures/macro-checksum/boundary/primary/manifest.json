@@ -1,0 +1,296 @@
+{
+ "rows": [
+  {
+   "id": "MacroBoundary_C_normal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_open_extra",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_close_extra",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_doc",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_close_run",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_comment_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_text_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_C_unclosed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   }
+  },
+  {
+   "id": "MacroBoundary_P_normal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_open_extra",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_close_extra",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_doc",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_close_run",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_comment_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_text_tail",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "40fe0264",
+    "f56fbb5c"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "MacroBoundary_P_unclosed",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {
+    "translated": {
+     "crc": "40fe0264"
+    }
+   }
+  }
+ ]
+}

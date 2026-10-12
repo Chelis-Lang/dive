@@ -4,7 +4,7 @@ use std::path::Path;
 #[test]
 fn retained_reference_header_alias() -> Result<(), Box<dyn std::error::Error>> {
     let base =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("source-option-acceptance/source-spacing");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/source-option/source-spacing");
     let report: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("report.json"))?)?;
     let mut checked = 0;

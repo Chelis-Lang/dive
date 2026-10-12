@@ -1,0 +1,2144 @@
+{
+ "rows": [
+  {
+   "id": "ProcessProcedure_C_alias_parameter_local",
+   "input": "ProcessProcedure_C_alias_parameter_local.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_alias_parameter_local.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_alias_process_parameter",
+   "input": "ProcessProcedure_C_alias_process_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_alias_process_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_alias_process_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_auto_labels",
+   "input": "ProcessProcedure_C_auto_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_auto_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_auto_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_constant_basic",
+   "input": "ProcessProcedure_C_constant_basic.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_constant_basic.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_constant_basic.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_constant_proc_self",
+   "input": "ProcessProcedure_C_constant_proc_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_constant_proc_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_constant_proc_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_constant_self_arg",
+   "input": "ProcessProcedure_C_constant_self_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_constant_self_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_constant_self_arg.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_constant_string",
+   "input": "ProcessProcedure_C_constant_string.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_constant_string.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_constant_string.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_default_local",
+   "input": "ProcessProcedure_C_default_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_default_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_default_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_global_parameter_alias",
+   "input": "ProcessProcedure_C_global_parameter_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_global_parameter_alias.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_indexed_stack_depth",
+   "input": "ProcessProcedure_C_indexed_stack_depth.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_indexed_stack_depth.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_indexed_stack_depth.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_local",
+   "input": "ProcessProcedure_C_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_main_return",
+   "input": "ProcessProcedure_C_main_return.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_C_main_return.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_empty",
+   "input": "ProcessProcedure_C_member_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_initializer",
+   "input": "ProcessProcedure_C_member_initializer.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_C_member_initializer.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_interval",
+   "input": "ProcessProcedure_C_member_interval.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_interval.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_interval.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_one",
+   "input": "ProcessProcedure_C_member_one.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_one.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_one.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_proc_self",
+   "input": "ProcessProcedure_C_member_proc_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_proc_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_proc_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_process_local",
+   "input": "ProcessProcedure_C_member_process_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_process_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_process_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_process_local_assign",
+   "input": "ProcessProcedure_C_member_process_local_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_process_local_assign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_process_local_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_process_local_read",
+   "input": "ProcessProcedure_C_member_process_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_process_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_process_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_recursive",
+   "input": "ProcessProcedure_C_member_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_reverse",
+   "input": "ProcessProcedure_C_member_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_self_tail",
+   "input": "ProcessProcedure_C_member_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_strings",
+   "input": "ProcessProcedure_C_member_strings.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_strings.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_strings.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_member_two",
+   "input": "ProcessProcedure_C_member_two.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_member_two.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_member_two.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_missing_return",
+   "input": "ProcessProcedure_C_missing_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_missing_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_missing_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_mutual",
+   "input": "ProcessProcedure_C_mutual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_mutual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_mutual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_no_params",
+   "input": "ProcessProcedure_C_no_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_no_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_no_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_no_params_tail",
+   "input": "ProcessProcedure_C_no_params_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_no_params_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_no_params_tail.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_parameter_default",
+   "input": "ProcessProcedure_C_parameter_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_parameter_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_parameter_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_parameter_missing",
+   "input": "ProcessProcedure_C_parameter_missing.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_parameter_missing.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_parameter_missing.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_pc_global_alias",
+   "input": "ProcessProcedure_C_pc_global_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_pc_global_alias.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_procedure_label_modifier",
+   "input": "ProcessProcedure_C_procedure_label_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_C_procedure_label_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_process_label_modifier",
+   "input": "ProcessProcedure_C_process_label_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_C_process_label_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_process_local",
+   "input": "ProcessProcedure_C_process_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_process_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_process_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_process_local_assign",
+   "input": "ProcessProcedure_C_process_local_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_process_local_assign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_process_local_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_process_local_read",
+   "input": "ProcessProcedure_C_process_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_process_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_process_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_process_name_alias",
+   "input": "ProcessProcedure_C_process_name_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_process_name_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_process_name_alias.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_repeat_calls",
+   "input": "ProcessProcedure_C_repeat_calls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_repeat_calls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_repeat_calls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_self_arg",
+   "input": "ProcessProcedure_C_self_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_self_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_self_arg.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_self_local",
+   "input": "ProcessProcedure_C_self_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_self_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_self_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_self_recursive",
+   "input": "ProcessProcedure_C_self_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_self_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_self_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_self_recursive_local",
+   "input": "ProcessProcedure_C_self_recursive_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_self_recursive_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_self_recursive_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_self_tail",
+   "input": "ProcessProcedure_C_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_self_tail_local",
+   "input": "ProcessProcedure_C_self_tail_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_self_tail_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_self_tail_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_stack_depth",
+   "input": "ProcessProcedure_C_stack_depth.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_stack_depth.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_stack_depth.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_tail_parallel_args",
+   "input": "ProcessProcedure_C_tail_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_tail_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_tail_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_two_locals",
+   "input": "ProcessProcedure_C_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_two_parameters",
+   "input": "ProcessProcedure_C_two_parameters.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_two_parameters.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_two_parameters.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_unbounded_domain",
+   "input": "ProcessProcedure_C_unbounded_domain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_unbounded_domain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_unbounded_domain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_unbounded_recursive",
+   "input": "ProcessProcedure_C_unbounded_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_unbounded_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_unbounded_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_undefined_arg",
+   "input": "ProcessProcedure_C_undefined_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_undefined_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_undefined_arg.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_undefined_local",
+   "input": "ProcessProcedure_C_undefined_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_undefined_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_undefined_local.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_unknown_call",
+   "input": "ProcessProcedure_C_unknown_call.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_unknown_call.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_weak_option",
+   "input": "ProcessProcedure_C_weak_option.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_weak_option.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_C_weak_option.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_C_wrong_arity",
+   "input": "ProcessProcedure_C_wrong_arity.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_C_wrong_arity.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_alias_parameter_local",
+   "input": "ProcessProcedure_P_alias_parameter_local.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_alias_parameter_local.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_alias_process_parameter",
+   "input": "ProcessProcedure_P_alias_process_parameter.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_alias_process_parameter.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_alias_process_parameter.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_auto_labels",
+   "input": "ProcessProcedure_P_auto_labels.tla",
+   "options": [
+    "-label"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_auto_labels.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_auto_labels.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_constant_basic",
+   "input": "ProcessProcedure_P_constant_basic.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_constant_basic.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_constant_basic.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_constant_proc_self",
+   "input": "ProcessProcedure_P_constant_proc_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_constant_proc_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_constant_proc_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_constant_self_arg",
+   "input": "ProcessProcedure_P_constant_self_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_constant_self_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_constant_self_arg.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_constant_string",
+   "input": "ProcessProcedure_P_constant_string.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_constant_string.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_constant_string.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_default_local",
+   "input": "ProcessProcedure_P_default_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_default_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_default_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_global_parameter_alias",
+   "input": "ProcessProcedure_P_global_parameter_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_global_parameter_alias.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_indexed_stack_depth",
+   "input": "ProcessProcedure_P_indexed_stack_depth.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_indexed_stack_depth.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_indexed_stack_depth.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_local",
+   "input": "ProcessProcedure_P_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_main_return",
+   "input": "ProcessProcedure_P_main_return.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_P_main_return.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_empty",
+   "input": "ProcessProcedure_P_member_empty.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_empty.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_empty.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_initializer",
+   "input": "ProcessProcedure_P_member_initializer.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_P_member_initializer.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_interval",
+   "input": "ProcessProcedure_P_member_interval.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_interval.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_interval.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_one",
+   "input": "ProcessProcedure_P_member_one.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_one.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_one.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_proc_self",
+   "input": "ProcessProcedure_P_member_proc_self.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_proc_self.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_proc_self.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_process_local",
+   "input": "ProcessProcedure_P_member_process_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_process_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_process_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_process_local_assign",
+   "input": "ProcessProcedure_P_member_process_local_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_process_local_assign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_process_local_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_process_local_read",
+   "input": "ProcessProcedure_P_member_process_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_process_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_process_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_recursive",
+   "input": "ProcessProcedure_P_member_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_reverse",
+   "input": "ProcessProcedure_P_member_reverse.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_reverse.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_reverse.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_self_tail",
+   "input": "ProcessProcedure_P_member_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_strings",
+   "input": "ProcessProcedure_P_member_strings.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_strings.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_strings.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_member_two",
+   "input": "ProcessProcedure_P_member_two.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_member_two.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_member_two.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_missing_return",
+   "input": "ProcessProcedure_P_missing_return.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_missing_return.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_missing_return.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_mutual",
+   "input": "ProcessProcedure_P_mutual.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_mutual.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_mutual.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_no_params",
+   "input": "ProcessProcedure_P_no_params.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_no_params.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_no_params.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_no_params_tail",
+   "input": "ProcessProcedure_P_no_params_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_no_params_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_no_params_tail.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_parameter_default",
+   "input": "ProcessProcedure_P_parameter_default.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_parameter_default.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_parameter_default.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_parameter_missing",
+   "input": "ProcessProcedure_P_parameter_missing.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_parameter_missing.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_parameter_missing.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_pc_global_alias",
+   "input": "ProcessProcedure_P_pc_global_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_pc_global_alias.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_procedure_label_modifier",
+   "input": "ProcessProcedure_P_procedure_label_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_P_procedure_label_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_process_label_modifier",
+   "input": "ProcessProcedure_P_process_label_modifier.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "rejected",
+    "document": {
+     "path": "ProcessProcedure_P_process_label_modifier.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_process_local",
+   "input": "ProcessProcedure_P_process_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_process_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_process_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_process_local_assign",
+   "input": "ProcessProcedure_P_process_local_assign.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_process_local_assign.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_process_local_assign.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_process_local_read",
+   "input": "ProcessProcedure_P_process_local_read.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_process_local_read.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_process_local_read.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_process_name_alias",
+   "input": "ProcessProcedure_P_process_name_alias.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_process_name_alias.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_process_name_alias.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_repeat_calls",
+   "input": "ProcessProcedure_P_repeat_calls.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_repeat_calls.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_repeat_calls.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_self_arg",
+   "input": "ProcessProcedure_P_self_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_self_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_self_arg.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_self_local",
+   "input": "ProcessProcedure_P_self_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_self_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_self_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_self_recursive",
+   "input": "ProcessProcedure_P_self_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_self_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_self_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_self_recursive_local",
+   "input": "ProcessProcedure_P_self_recursive_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_self_recursive_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_self_recursive_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_self_tail",
+   "input": "ProcessProcedure_P_self_tail.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_self_tail.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_self_tail.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_self_tail_local",
+   "input": "ProcessProcedure_P_self_tail_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_self_tail_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_self_tail_local.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_stack_depth",
+   "input": "ProcessProcedure_P_stack_depth.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_stack_depth.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_stack_depth.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_tail_parallel_args",
+   "input": "ProcessProcedure_P_tail_parallel_args.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_tail_parallel_args.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_tail_parallel_args.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_two_locals",
+   "input": "ProcessProcedure_P_two_locals.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_two_locals.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_two_locals.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_two_parameters",
+   "input": "ProcessProcedure_P_two_parameters.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_two_parameters.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_two_parameters.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_unbounded_domain",
+   "input": "ProcessProcedure_P_unbounded_domain.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_unbounded_domain.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_unbounded_domain.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_unbounded_recursive",
+   "input": "ProcessProcedure_P_unbounded_recursive.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_unbounded_recursive.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_unbounded_recursive.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_undefined_arg",
+   "input": "ProcessProcedure_P_undefined_arg.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_undefined_arg.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_undefined_arg.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_undefined_local",
+   "input": "ProcessProcedure_P_undefined_local.tla",
+   "options": [],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_undefined_local.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_undefined_local.translated.tla"
+   },
+   "sany": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_unknown_call",
+   "input": "ProcessProcedure_P_unknown_call.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_unknown_call.normalized.json"
+    }
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_weak_option",
+   "input": "ProcessProcedure_P_weak_option.tla",
+   "options": [
+    "-wf"
+   ],
+   "primary": {
+    "status": "translated"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_weak_option.normalized.json"
+    }
+   },
+   "translated": {
+    "path": "ProcessProcedure_P_weak_option.translated.tla"
+   },
+   "sany": {
+    "status": "accepted"
+   }
+  },
+  {
+   "id": "ProcessProcedure_P_wrong_arity",
+   "input": "ProcessProcedure_P_wrong_arity.tla",
+   "options": [],
+   "primary": {
+    "status": "rejected"
+   },
+   "normalized_reference_adapter": {
+    "status": "accepted",
+    "document": {
+     "path": "ProcessProcedure_P_wrong_arity.normalized.json"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+{"name":"Test","syntax":"P","fair":false,"declarations":[],"definitions":null,"macros":[],"procedures":[["P",[["a","Equal",["7"]]],[["x","Equal",["a"]],["y","Equal",["x","+","1"]]],[["P1",["Assert",["a","=","1"]]],["",["Assert",["x","=","a"]]],["",["Assert",["y","=","a","+","1"]]],["",["Return"]]]]],"body":["Sequential",[["A",["Call","P",[["1"]]]]]]}

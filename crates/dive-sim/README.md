@@ -106,6 +106,6 @@ while retaining actual worker use and backend statistics. `statistics.scope`
 describes backend work: a completed requested sample can retain complete
 statistics even though its evidence cannot be serialized or certified.
 
-The [independent review](../../docs/reviews/2026-10-10-finite-simulation.md)
+The independent review
 records the additional 1,344 budget controls and the discovered validator
 contract boundary. F-024 and F-035 remain partial and audit-required.

@@ -1,0 +1,752 @@
+{
+ "rows": [
+  {
+   "id": "Context_C_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_unicode_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_source_options",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "50c24aa1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_fair_marker",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "50c24aa1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_label_flag",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_fair_option",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "50c24aa1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_multi_helper",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "94db5f88",
+    "df4bc5f6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "94db5f88"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_mutual_recursion",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3541e2e2",
+    "b135803e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3541e2e2"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_C_op_formal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6ebdcd66",
+    "4345c9a5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6ebdcd66"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_C_recursive_decl",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d458aa30",
+    "13d0363e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d458aa30"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_module_instance",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d85251f4",
+    "66eff5cd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d85251f4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_C_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3447b4",
+    "c5b7c01a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3447b4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_function_definition",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f102eed1",
+    "d8ad5074"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f102eed1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_malformed_delim",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "795da128",
+    "2642346b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "795da128"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_C_unclosed_define",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Context_C_macro",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_no_pc",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "98e1edb4",
+    "11b118c4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "98e1edb4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_initializer",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "706de5ef",
+    "43e3ba99"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "706de5ef"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_C_default_init",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e20755ea",
+    "34f8fe36"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e20755ea"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_crlf",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_tabs",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_unicode_comment",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_source_options",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "50c24aa1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_fair_marker",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "7c28162a",
+    "50c24aa1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_label_flag",
+   "flags": [
+    "-label"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_fair_option",
+   "flags": [
+    "-wf"
+   ],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "50c24aa1"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_multi_helper",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "94db5f88",
+    "df4bc5f6"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "94db5f88"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_mutual_recursion",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3541e2e2",
+    "b135803e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3541e2e2"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_P_op_formal",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "6ebdcd66",
+    "4345c9a5"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "6ebdcd66"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_P_recursive_decl",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d458aa30",
+    "13d0363e"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d458aa30"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_module_instance",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "d85251f4",
+    "66eff5cd"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "d85251f4"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_P_local",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "3447b4",
+    "c5b7c01a"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "3447b4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_function_definition",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "f102eed1",
+    "d8ad5074"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "f102eed1"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_malformed_delim",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "795da128",
+    "2642346b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "795da128"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Context_P_unclosed_define",
+   "flags": [],
+   "primary": {},
+   "reference_errors": true,
+   "translated": false,
+   "header": null,
+   "stages": {}
+  },
+  {
+   "id": "Context_P_macro",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "92f0e610",
+    "d42d767b"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "92f0e610"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_no_pc",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "98e1edb4",
+    "11b118c4"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "98e1edb4"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_initializer",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "706de5ef",
+    "43e3ba99"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "706de5ef"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "Context_P_default_init",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "e20755ea",
+    "34f8fe36"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "e20755ea"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  }
+ ]
+}

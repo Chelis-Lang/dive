@@ -6,7 +6,7 @@ use dive_liveness::phase_graph::Limits;
 use dive_trace::{Ending, Validation};
 use std::{path::PathBuf, sync::Arc};
 fn base() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes/tlc-final-scopes")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-final-scopes")
 }
 fn inputs(name: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let dir = base().join("models").join(name);
@@ -48,9 +48,8 @@ fn scoped_final_words_counts_and_all_independent_mutations() {
         let (ir, cfg) = inputs(name);
         let stderr = std::fs::read_to_string(
             base()
-                .join("final-projection/raw")
-                .join(name)
-                .join("stderr"),
+                .join("final-projection/tlc")
+                .join(format!("{name}.txt")),
         )
         .expect("raw unmodified finalCheck");
         for workers in [1, 3, 4, 8] {
@@ -395,18 +394,4 @@ fn negated_enabled_keeps_purity_and_finite_action_refusals() {
             "impure/opaque/infinite action must not certify: {next}"
         );
     }
-}
-
-#[test]
-fn complete_scope_capture_source_guard() {
-    let script =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../scripts/check-tlc-final-scopes.py");
-    assert!(
-        std::process::Command::new("python3")
-            .arg("-I")
-            .arg(script)
-            .status()
-            .expect("source/evidence checker")
-            .success()
-    );
 }

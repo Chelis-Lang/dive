@@ -6,7 +6,7 @@ use dive_liveness::phase_graph::Limits;
 use dive_trace::{Ending, Validation};
 use std::{path::PathBuf, sync::Arc};
 fn base() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../conformance/probes/material-capture")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/material-capture")
 }
 fn input(name: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let b = base().join("models").join(name);
@@ -55,17 +55,8 @@ fn all_material_pairs_match_clean_pin_with_fresh_memory_and_json_replay() {
     {
         let name = row["name"].as_str().expect("name");
         let (ir, cfg) = input(name);
-        let raw = std::fs::read_to_string(
-            base()
-                .join(if name.starts_with("MatGeneralFunction") {
-                    "clean-general"
-                } else {
-                    "clean-tlc"
-                })
-                .join(name)
-                .join("stdout"),
-        )
-        .expect("raw TLC");
+        let raw = std::fs::read_to_string(base().join("tlc").join(format!("{name}.txt")))
+            .expect("raw TLC");
         let summary = raw
             .split("@!@!@STARTMSG 2199:0 @!@!@\n")
             .nth(1)

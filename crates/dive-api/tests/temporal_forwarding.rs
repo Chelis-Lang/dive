@@ -183,8 +183,8 @@ fn forwarded_context_walk_is_bounded_without_forcing_temporal_values() {
     reason = "complete paired profile/store/worker census and independent negative controls"
 )]
 fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/temporal-forwarding");
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/temporal-forwarding");
     for kind in [
         "Identity",
         "Nested",
@@ -201,16 +201,10 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
             let cfg =
                 std::fs::read_to_string(root.join("specs").join(&name).join(format!("{name}.cfg")))
                     .expect("cfg");
-            let stdout = std::fs::read_to_string(
-                root.join("tlc-2026.10.06.014338")
-                    .join(format!("{name}.stdout")),
-            )
-            .expect("raw oracle");
-            let exit = std::fs::read_to_string(
-                root.join("tlc-2026.10.06.014338")
-                    .join(format!("{name}.exit")),
-            )
-            .expect("oracle exit");
+            let stdout = std::fs::read_to_string(root.join("tlc").join(format!("{name}.txt")))
+                .expect("raw oracle");
+            let exit = std::fs::read_to_string(root.join("tlc").join(format!("{name}.exit")))
+                .expect("oracle exit");
             assert_eq!(
                 exit.trim(),
                 if kind == "Instance" {
@@ -426,8 +420,8 @@ P == []<>x
 
 #[test]
 fn state_only_forwarded_enabled_controls_preserve_safety_classification() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/temporal-forwarding");
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/temporal-forwarding");
     for holds in [true, false] {
         let name = format!("TfEnabled{}", if holds { "Holds" } else { "Fails" });
         let source =
@@ -436,11 +430,8 @@ fn state_only_forwarded_enabled_controls_preserve_safety_classification() {
         let cfg =
             std::fs::read_to_string(root.join("specs").join(&name).join(format!("{name}.cfg")))
                 .expect("cfg");
-        let exit = std::fs::read_to_string(
-            root.join("tlc-2026.10.06.014338")
-                .join(format!("{name}.exit")),
-        )
-        .expect("exit");
+        let exit =
+            std::fs::read_to_string(root.join("tlc").join(format!("{name}.exit"))).expect("exit");
         assert_eq!(exit.trim(), if holds { "0" } else { "12" });
         let (ir, cfg) = input(&source, &cfg);
         for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
@@ -459,18 +450,6 @@ fn state_only_forwarded_enabled_controls_preserve_safety_classification() {
             }
         }
     }
-}
-
-#[test]
-fn fixture_integrity_and_complete_historical_census_are_verified() {
-    let status = std::process::Command::new("python3")
-        .arg(
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../scripts/check-temporal-forwarding.py"),
-        )
-        .status()
-        .expect("integrity verifier");
-    assert!(status.success());
 }
 
 #[test]

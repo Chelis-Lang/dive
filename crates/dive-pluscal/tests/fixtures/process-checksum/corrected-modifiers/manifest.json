@@ -1,0 +1,124 @@
+{
+ "rows": [
+  {
+   "id": "C_corrected-modifiers_plus",
+   "primary_translated": true,
+   "primary_crc": "a4c8d318",
+   "stages": {
+    "translated": {
+     "crc": "a4c8d318"
+    }
+   }
+  },
+  {
+   "id": "C_corrected-modifiers_minus",
+   "primary_translated": true,
+   "primary_crc": "ed9392f1",
+   "stages": {
+    "translated": {
+     "crc": "ed9392f1"
+    }
+   }
+  },
+  {
+   "id": "C_corrected-modifiers_mixed-modifiers",
+   "primary_translated": true,
+   "primary_crc": "e3e54d0",
+   "stages": {
+    "translated": {
+     "crc": "e3e54d0"
+    }
+   }
+  },
+  {
+   "id": "C_corrected-modifiers_fair_plus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_corrected-modifiers_fair_minus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "C_corrected-modifiers_fair_mixed-modifiers",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_corrected-modifiers_plus",
+   "primary_translated": true,
+   "primary_crc": "a4c8d318",
+   "stages": {
+    "translated": {
+     "crc": "a4c8d318"
+    }
+   }
+  },
+  {
+   "id": "P_corrected-modifiers_minus",
+   "primary_translated": true,
+   "primary_crc": "ed9392f1",
+   "stages": {
+    "translated": {
+     "crc": "ed9392f1"
+    }
+   }
+  },
+  {
+   "id": "P_corrected-modifiers_mixed-modifiers",
+   "primary_translated": true,
+   "primary_crc": "e3e54d0",
+   "stages": {
+    "translated": {
+     "crc": "e3e54d0"
+    }
+   }
+  },
+  {
+   "id": "P_corrected-modifiers_fair_plus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_corrected-modifiers_fair_minus",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  },
+  {
+   "id": "P_corrected-modifiers_fair_mixed-modifiers",
+   "primary_translated": true,
+   "primary_crc": "7c28162a",
+   "stages": {
+    "translated": {
+     "crc": "7c28162a"
+    }
+   }
+  }
+ ]
+}

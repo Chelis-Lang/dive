@@ -1,0 +1,976 @@
+[
+  {
+    "name": "empty",
+    "fairness": [],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-00",
+    "fairness": [],
+    "properties": [
+      "T"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-00",
+    "fairness": [
+      "T"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-01",
+    "fairness": [],
+    "properties": [
+      "F"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-01",
+    "fairness": [
+      "F"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-02",
+    "fairness": [],
+    "properties": [
+      "s0"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-02",
+    "fairness": [
+      "s0"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-03",
+    "fairness": [],
+    "properties": [
+      "N(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-03",
+    "fairness": [
+      "N(s0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-04",
+    "fairness": [],
+    "properties": [
+      "G(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-04",
+    "fairness": [
+      "G(s0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-05",
+    "fairness": [],
+    "properties": [
+      "E(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-05",
+    "fairness": [
+      "E(s0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-06",
+    "fairness": [],
+    "properties": [
+      "G(E(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-06",
+    "fairness": [
+      "G(E(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-07",
+    "fairness": [],
+    "properties": [
+      "E(G(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-07",
+    "fairness": [
+      "E(G(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-08",
+    "fairness": [],
+    "properties": [
+      "G(G(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-08",
+    "fairness": [
+      "G(G(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-09",
+    "fairness": [],
+    "properties": [
+      "E(E(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-09",
+    "fairness": [
+      "E(E(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-10",
+    "fairness": [],
+    "properties": [
+      "G(T)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-10",
+    "fairness": [
+      "G(T)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-11",
+    "fairness": [],
+    "properties": [
+      "E(F)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-11",
+    "fairness": [
+      "E(F)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-12",
+    "fairness": [],
+    "properties": [
+      "C(T,s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-12",
+    "fairness": [
+      "C(T,s0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-13",
+    "fairness": [],
+    "properties": [
+      "D(F,s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-13",
+    "fairness": [
+      "D(F,s0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-14",
+    "fairness": [],
+    "properties": [
+      "C(F,G(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-14",
+    "fairness": [
+      "C(F,G(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-15",
+    "fairness": [],
+    "properties": [
+      "D(T,E(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-15",
+    "fairness": [
+      "D(T,E(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-16",
+    "fairness": [],
+    "properties": [
+      "N(C(G(s0),E(s1)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-16",
+    "fairness": [
+      "N(C(G(s0),E(s1)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-17",
+    "fairness": [],
+    "properties": [
+      "N(D(G(s0),E(s1)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-17",
+    "fairness": [
+      "N(D(G(s0),E(s1)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-18",
+    "fairness": [],
+    "properties": [
+      "N(N(G(s0)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-18",
+    "fairness": [
+      "N(N(G(s0)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-19",
+    "fairness": [],
+    "properties": [
+      "G(C(s0,s1))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-19",
+    "fairness": [
+      "G(C(s0,s1))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-20",
+    "fairness": [],
+    "properties": [
+      "E(D(s0,s1))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-20",
+    "fairness": [
+      "E(D(s0,s1))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-21",
+    "fairness": [],
+    "properties": [
+      "D(G(E(s0)),s1,G(E(s2)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-21",
+    "fairness": [
+      "D(G(E(s0)),s1,G(E(s2)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-22",
+    "fairness": [],
+    "properties": [
+      "D(G(E(s0)),G(E(s1)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-22",
+    "fairness": [
+      "D(G(E(s0)),G(E(s1)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-23",
+    "fairness": [],
+    "properties": [
+      "C(D(s0,s1),D(s2,s3))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-23",
+    "fairness": [
+      "C(D(s0,s1),D(s2,s3))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-24",
+    "fairness": [],
+    "properties": [
+      "C(D(E(G(a0)),G(E(a1))),D(E(G(a2)),G(E(a3))))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-24",
+    "fairness": [
+      "C(D(E(G(a0)),G(E(a1))),D(E(G(a2)),G(E(a3))))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-25",
+    "fairness": [],
+    "properties": [
+      "D(C(E(G(a0)),G(s0)),C(G(E(a1)),G(s1)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-25",
+    "fairness": [
+      "D(C(E(G(a0)),G(s0)),C(G(E(a1)),G(s1)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-26",
+    "fairness": [],
+    "properties": [
+      "C(D(E(G(a0)),G(E(a1))),G(s0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-26",
+    "fairness": [
+      "C(D(E(G(a0)),G(E(a1))),G(s0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-27",
+    "fairness": [],
+    "properties": [
+      "G(a0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-27",
+    "fairness": [
+      "G(a0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-28",
+    "fairness": [],
+    "properties": [
+      "E(a0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-28",
+    "fairness": [
+      "E(a0)"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-29",
+    "fairness": [],
+    "properties": [
+      "G(E(a0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-29",
+    "fairness": [
+      "G(E(a0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-30",
+    "fairness": [],
+    "properties": [
+      "E(G(a0))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-30",
+    "fairness": [
+      "E(G(a0))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-31",
+    "fairness": [],
+    "properties": [
+      "G(E(C(s0,a0)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-31",
+    "fairness": [
+      "G(E(C(s0,a0)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-32",
+    "fairness": [],
+    "properties": [
+      "E(G(C(s0,a0)))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-32",
+    "fairness": [
+      "E(G(C(s0,a0)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-33",
+    "fairness": [],
+    "properties": [
+      "G(E(G(E(s0))))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-33",
+    "fairness": [
+      "G(E(G(E(s0))))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-34",
+    "fairness": [],
+    "properties": [
+      "C()"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-34",
+    "fairness": [
+      "C()"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "property-35",
+    "fairness": [],
+    "properties": [
+      "D()"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "fairness-35",
+    "fairness": [
+      "D()"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "multiple-properties",
+    "fairness": [],
+    "properties": [
+      "G(E(s0))",
+      "G(E(s1))",
+      "E(G(s2))"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "multiple-fairness-properties",
+    "fairness": [
+      "D(E(G(a0)),G(E(a1)))",
+      "D(E(G(a2)),G(E(a3)))"
+    ],
+    "properties": [
+      "G(E(s0))",
+      "G(s1)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "same-tableau-group",
+    "fairness": [
+      "D(E(G(a0)),G(E(a1)))"
+    ],
+    "properties": [
+      "E(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "different-tableau-groups",
+    "fairness": [
+      "G(E(a0))"
+    ],
+    "properties": [
+      "E(s0)",
+      "E(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "same-atoms-different-occurrences",
+    "fairness": [
+      "D(E(G(a0)),E(G(a0)))"
+    ],
+    "properties": [
+      "E(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "nested-recurrence-move",
+    "fairness": [
+      "C(D(G(E(s0)),s1),D(s2,G(E(s3))))"
+    ],
+    "properties": [
+      "F"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "state-ea-in-action-bin",
+    "fairness": [
+      "C(E(G(s0)),G(E(s1)),G(E(a0)),E(G(a1)))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "name": "deep-conjunction-flatten",
+    "fairness": [
+      "C(C(C(s0,s1),s2),s3)"
+    ],
+    "properties": [
+      "E(s4)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "deep-disjunction-flatten",
+    "fairness": [
+      "D(D(D(E(G(a0)),G(E(a1))),s0),s1)"
+    ],
+    "properties": [
+      "F"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "empty-conjunction-fairness-with-check",
+    "fairness": [
+      "C()"
+    ],
+    "properties": [
+      "G(s0)"
+    ],
+    "kind": "planning"
+  },
+  {
+    "name": "dnf-integer-overflow",
+    "fairness": [
+      "C(D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1),D(s0,s1))"
+    ],
+    "properties": [],
+    "kind": "planning"
+  },
+  {
+    "kind": "direct",
+    "name": "true",
+    "formula": "T"
+  },
+  {
+    "kind": "direct",
+    "name": "false",
+    "formula": "F"
+  },
+  {
+    "kind": "direct",
+    "name": "not-true",
+    "formula": "N(T)"
+  },
+  {
+    "kind": "direct",
+    "name": "not-false",
+    "formula": "N(F)"
+  },
+  {
+    "kind": "direct",
+    "name": "state",
+    "formula": "s0"
+  },
+  {
+    "kind": "direct",
+    "name": "neg-state",
+    "formula": "N(s0)"
+  },
+  {
+    "kind": "direct",
+    "name": "eventual",
+    "formula": "E(s0)"
+  },
+  {
+    "kind": "direct",
+    "name": "always",
+    "formula": "G(s0)"
+  },
+  {
+    "kind": "direct",
+    "name": "stable",
+    "formula": "E(G(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "recurrence",
+    "formula": "G(E(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "nested-always",
+    "formula": "G(E(G(s0)))"
+  },
+  {
+    "kind": "direct",
+    "name": "nested-eventual",
+    "formula": "E(G(E(s0)))"
+  },
+  {
+    "kind": "direct",
+    "name": "state-duplicate",
+    "formula": "C(s0,s0)"
+  },
+  {
+    "kind": "direct",
+    "name": "state-clash",
+    "formula": "C(s0,N(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "disjunction-clash",
+    "formula": "D(s0,N(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "always-clash",
+    "formula": "G(C(s0,N(s0)))"
+  },
+  {
+    "kind": "direct",
+    "name": "always-duplicate",
+    "formula": "C(G(s0),G(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "eventual-duplicate",
+    "formula": "D(E(s0),E(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "nested-duplicate",
+    "formula": "C(E(G(s0)),E(G(s0)))"
+  },
+  {
+    "kind": "direct",
+    "name": "paired-promises",
+    "formula": "C(E(s0),E(s1))"
+  },
+  {
+    "kind": "direct",
+    "name": "balanced-conj-three",
+    "formula": "C(s0,s1,s2)"
+  },
+  {
+    "kind": "direct",
+    "name": "balanced-conj-five",
+    "formula": "C(s0,s1,s2,s3,s4)"
+  },
+  {
+    "kind": "direct",
+    "name": "balanced-disj-eight",
+    "formula": "D(s0,s1,s2,s3,s4,s5,s6,s7)"
+  },
+  {
+    "kind": "direct",
+    "name": "nested-same-junction",
+    "formula": "G(C(s0,C(s1,s2),s3))"
+  },
+  {
+    "kind": "direct",
+    "name": "always-true",
+    "formula": "G(T)"
+  },
+  {
+    "kind": "direct",
+    "name": "always-false",
+    "formula": "G(F)"
+  },
+  {
+    "kind": "direct",
+    "name": "eventual-true",
+    "formula": "E(T)"
+  },
+  {
+    "kind": "direct",
+    "name": "eventual-false",
+    "formula": "E(F)"
+  },
+  {
+    "kind": "direct",
+    "name": "inverse-beta",
+    "formula": "G(D(s0,E(s1)))"
+  },
+  {
+    "kind": "direct",
+    "name": "inverse-alpha",
+    "formula": "D(G(s0),C(s0,G(s1)))"
+  },
+  {
+    "kind": "direct",
+    "name": "alternating",
+    "formula": "G(D(C(s0,E(s1)),C(N(s0),E(N(s1)))))"
+  },
+  {
+    "kind": "direct",
+    "name": "nonpositive-negation",
+    "formula": "N(G(s0))"
+  },
+  {
+    "kind": "direct",
+    "name": "empty-conjunction",
+    "formula": "C()"
+  },
+  {
+    "kind": "direct",
+    "name": "empty-disjunction",
+    "formula": "D()"
+  },
+  {
+    "kind": "direct",
+    "name": "action",
+    "formula": "a0"
+  },
+  {
+    "kind": "model",
+    "name": "TpRecurrence",
+    "source": "../tlc-planning/models/TpRecurrence/TpRecurrence.tla",
+    "config": "../tlc-planning/models/TpRecurrence/TpRecurrence.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpStable",
+    "source": "../tlc-planning/models/TpStable/TpStable.tla",
+    "config": "../tlc-planning/models/TpStable/TpStable.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpNested",
+    "source": "../tlc-planning/models/TpNested/TpNested.tla",
+    "config": "../tlc-planning/models/TpNested/TpNested.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpWeak",
+    "source": "../tlc-planning/models/TpWeak/TpWeak.tla",
+    "config": "../tlc-planning/models/TpWeak/TpWeak.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpStrong",
+    "source": "../tlc-planning/models/TpStrong/TpStrong.tla",
+    "config": "../tlc-planning/models/TpStrong/TpStrong.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpMultiple",
+    "source": "../tlc-planning/models/TpMultiple/TpMultiple.tla",
+    "config": "../tlc-planning/models/TpMultiple/TpMultiple.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpLocal",
+    "source": "../tlc-planning/models/TpLocal/TpLocal.tla",
+    "config": "../tlc-planning/models/TpLocal/TpLocal.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpForward",
+    "source": "../tlc-planning/models/TpForward/TpForward.tla",
+    "config": "../tlc-planning/models/TpForward/TpForward.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpActionBad",
+    "source": "../tlc-planning/models/TpActionBad/TpActionBad.tla",
+    "config": "../tlc-planning/models/TpActionBad/TpActionBad.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpEnabled",
+    "source": "../tlc-planning/models/TpEnabled/TpEnabled.tla",
+    "config": "../tlc-planning/models/TpEnabled/TpEnabled.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpConstants",
+    "source": "../tlc-planning/models/TpConstants/TpConstants.tla",
+    "config": "../tlc-planning/models/TpConstants/TpConstants.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TpInstance",
+    "source": "../tlc-planning/models/TpInstance/TpInstance.tla",
+    "config": "../tlc-planning/models/TpInstance/TpInstance.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TtLocalNested",
+    "source": "models/TtLocalNested/TtLocalNested.tla",
+    "config": "models/TtLocalNested/TtLocalNested.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TtForwardNested",
+    "source": "models/TtForwardNested/TtForwardNested.tla",
+    "config": "models/TtForwardNested/TtForwardNested.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TtEnabledNested",
+    "source": "models/TtEnabledNested/TtEnabledNested.tla",
+    "config": "models/TtEnabledNested/TtEnabledNested.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TtFairNested",
+    "source": "models/TtFairNested/TtFairNested.tla",
+    "config": "models/TtFairNested/TtFairNested.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TtInstanceNested",
+    "source": "models/TtInstanceNested/TtInstanceNested.tla",
+    "config": "models/TtInstanceNested/TtInstanceNested.cfg"
+  },
+  {
+    "kind": "model",
+    "name": "TtVariableInstanceNested",
+    "source": "models/TtVariableInstanceNested/TtVariableInstanceNested.tla",
+    "config": "models/TtVariableInstanceNested/TtVariableInstanceNested.cfg"
+  }
+]

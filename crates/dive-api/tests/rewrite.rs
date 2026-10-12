@@ -61,7 +61,7 @@ fn explicit_partial_replacement_is_admitted_without_proof() {
     assert_eq!(
         macro_doc["replacement"]["algorithm_checksum"]["serialized_ast"],
         include_str!(
-            "../../dive-pluscal/macro-checksum-acceptance/api-regression/primary/InvokedMacroApiRewrite.translated.ast"
+            "../../dive-pluscal/tests/fixtures/macro-checksum/api-regression/primary/InvokedMacroApiRewrite.translated.ast"
         )
     );
     let supported = SOURCE.replace("begin L:", "define F == 1 end define; begin L:");
@@ -155,8 +155,7 @@ fn full_integrity_rejects_algorithm_and_body_changes_without_a_grant() {
 
 #[test]
 fn original_source_options_refuse_before_masking_previous_translation() {
-    let source =
-        include_str!("../../../conformance/probes/pluscal-source-option-masking/before.tla");
+    let source = include_str!("fixtures/pluscal-source-option-masking/MaskedOptions.tla");
     let declaration = dive_pluscal::source_option_declaration_span(source)
         .unwrap_or_else(|| unreachable!("retained reference-recognized declaration"));
     assert_eq!(

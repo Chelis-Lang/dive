@@ -4,7 +4,7 @@ use dive_liveness::periodic_snapshot;
 use std::sync::Arc;
 fn case(i: usize) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/optional-periodic-hook/primary")
+        .join("tests/fixtures/probes/optional-periodic-hook/primary")
         .join(format!("case-{i:03}"));
     let a = dive_sema::analyze_file(&root.join("Snapshot.tla"), &dive_sema::Options::default())
         .expect("source");
@@ -91,7 +91,7 @@ fn errors_and_unproved_effects_keep_original_prebinding_dispositions() {
     // Qualified configuration names remain rejected by configuration parsing,
     // not invented as runtime role errors.
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/optional-periodic-hook/primary/case-014/Snapshot.cfg");
+        .join("tests/fixtures/probes/optional-periodic-hook/primary/case-014/Snapshot.cfg");
     assert!(
         dive_config::parse(&std::fs::read_to_string(root).expect("qualified cfg"))
             .into_config()
@@ -170,7 +170,7 @@ fn genuine_absence_preserves_prestartup_alias_cycle_shape_and_reservation_guards
 #[test]
 fn retain_all_twenty_six_original_sources_at_the_actual_native_binding_stage() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/optional-periodic-hook/primary");
+        .join("tests/fixtures/probes/optional-periodic-hook/primary");
     let selection: serde_json::Value = serde_json::from_str(
         &std::fs::read_to_string(root.join("selection.json")).expect("selection"),
     )

@@ -5,7 +5,7 @@ use std::path::Path;
 fn acyclic_full_and_body_policies_are_explicit_idempotent_and_bounded()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-pluscal/acyclic-procedure-checksum-acceptance");
+        .join("../dive-pluscal/tests/fixtures/acyclic-procedure-checksum");
     for syntax in ["C", "P"] {
         for shape in [
             "forward",

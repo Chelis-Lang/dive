@@ -109,8 +109,8 @@ fn number(raw: &str, before: &str, after: &str) -> u64 {
 fn clean_paired_primary_models_have_final_outcomes_with_fresh_validation() {
     use dive_api::tlc_temporal::Outcome;
     use dive_trace::{Ending, Validation};
-    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/temporal-operators");
+    let base =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/temporal-operators");
     let main: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("selection.json")).expect("selection"))
             .expect("json");
@@ -133,16 +133,8 @@ fn clean_paired_primary_models_have_final_outcomes_with_fresh_validation() {
         let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\n")
             .into_config()
             .expect("cfg");
-        let raw = std::fs::read_to_string(
-            base.join(if name.contains("Instance") || name.contains("Exported") {
-                "clean-instance"
-            } else {
-                "clean-primary"
-            })
-            .join(name)
-            .join("stdout"),
-        )
-        .expect("raw pin");
+        let raw =
+            std::fs::read_to_string(base.join("tlc").join(format!("{name}.txt"))).expect("raw pin");
         let stats = raw
             .split("@!@!@STARTMSG 2199:0 @!@!@\n")
             .nth(1)

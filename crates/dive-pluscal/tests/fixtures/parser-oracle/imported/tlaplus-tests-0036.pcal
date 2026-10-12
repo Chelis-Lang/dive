@@ -1,0 +1,147 @@
+--fair algorithm Map {
+    variables  
+        tpregion \* = tpRegion ,             
+                 \in SpecToRegions(tpMap),  
+        ltok,      \* <<ltok, rtok>> is set to 
+        rtok,      \*   RegionToTokPair(tpMap, tpregion)
+        rtokDepth, \* The paren depth of rtok relative to ltok
+        minDepth,  \* The depth of the minimum paren depth TLAToken 
+        allExpr,   \* Set to true iff all tokens from ltok to rtok are
+                   \*   expression tokens.             
+        bParen,    \* <<bParen, eParen>> is set to 
+        eParen,    \*   TokPairToParens(tpMap, ltok, rtok)
+        result,    \* Set to the sequence of Regions that is the translation.
+        curBegin,  \* Used to construct the result
+        lastRparen,\*  "    
+        i,         \* For loop variable
+        curDepth ; \* Temporary variable for holding the paren depth
+
+    (***********************************************************************)
+    (* If var is the parenthesis depth of the token at position pos, then  *)
+    (* the following macro sets var to the parenthesis depth of the token  *)
+    (* at position pos + 1 if movingForward = TRUE, else the depth at pos  *)
+    (* - 1 if movingForward = FALSE.                                       *)
+    (***********************************************************************)
+    macro ModifyDepth(var, pos, movingForward) {
+      with (amt = CASE tpMap[pos].type = "begin" ->  1  []
+                        tpMap[pos].type = "end"   -> -1 []
+                        OTHER                    -> 0     ) {
+           var := var + IF movingForward THEN amt ELSE -amt
+        }
+      }
+      
+    { with (tp = RegionToTokPair(tpMap, tpregion)) {
+         ltok := tp[1];
+         rtok := tp[2]
+       } ;
+
+      (*********************************************************************)
+      (* If d is the depth of ltok, then set rtokDepth and minDepth such   *)
+      (* that d + rtokDepth is the depth of rtok, d + minDepth is the      *)
+      (* minimum depth of tokens, and allExpr is true iff all tokens in    *)
+      (* positions ltok to rtok are expression tokens.                     *)
+      (*********************************************************************)
+      rtokDepth := 0;
+      minDepth := 0 ;
+      allExpr := tpMap[ltok].inExpr ;
+      i := ltok+1;
+      while (i =< rtok) {
+         ModifyDepth(rtokDepth, i, TRUE);
+         if (rtokDepth < minDepth) {minDepth := rtokDepth} ;
+         if (tpMap[i].type = "token") {
+           allExpr := allExpr /\ tpMap[i].inExpr
+          } ;
+         i := i+1
+       };
+       
+      assert /\ ParenDepth(tpMap, rtok) = ParenDepth(tpMap, ltok) + rtokDepth
+             /\ minDepth + ParenDepth(tpMap, ltok) =
+                  Min({ParenDepth(tpMap, k) : k \in ltok..rtok}) 
+             /\ allExpr = \A k \in ltok..rtok : 
+                             (tpMap[k].type = "token") => tpMap[k].inExpr ;
+                             
+      (*********************************************************************)
+      (* Increment minDepth if ltok # rtok and allExpr is true.            *)
+      (*                                                                   *)
+      (* This appears to be an error, because the implementation works     *)
+      (* properly without the ltok # rtok conjunct in the `if' test.  I    *)
+      (* probably didn't test the spec adequately.  However, it's also     *)
+      (* possible that the spec is correct and for some subtle reason, the *)
+      (* obvious implementation of the `if' test doesn't actually          *)
+      (* implement the spec.  As long as the implementation seems to be    *)
+      (* working, I don't want to spend the time figuring out what's going *)
+      (* on.                                                               *)
+      (*********************************************************************)
+      if (ltok # rtok /\ allExpr) {minDepth := minDepth + 1} ;
+      
+      (*********************************************************************)
+      (* Set bParen to first left paren to left of ltok that descends to   *)
+      (* relative paren depth minDepth.                                    *)
+      (*********************************************************************)
+      curDepth := 0;
+      i := ltok - 1;
+      while (~ /\ tpMap[i].type = "begin"
+               /\ curDepth = minDepth ) {
+        ModifyDepth(curDepth, i, FALSE) ;
+        i := i-1
+       } ;
+      bParen := i ;
+      
+      (*********************************************************************)
+      (* Set eParen to first right paren to the right of rtok that rises   *)
+      (* from relative paren depth minDepth.                               *)
+      (*********************************************************************)
+      curDepth := rtokDepth;
+      i := rtok + 1;
+      while (~ /\ tpMap[i].type = "end"
+               /\ curDepth = minDepth ) {
+        ModifyDepth(curDepth, i, TRUE) ;
+        i := i+1
+       } ;
+      eParen := i ;
+      
+      assert <<bParen, eParen>> = TokPairToParens(tpMap, ltok, rtok);
+      
+      (*********************************************************************)
+      (* Construct the final result.                                       *)
+      (*********************************************************************)
+      result := << >> ; 
+      curBegin := tpMap[bParen].loc ;
+      curDepth := 0 ;
+      lastRparen := -1 ;
+      i := bParen + 1 ;
+      while (i < eParen) {
+        if (tpMap[i].type = "end") {
+          lastRparen := i
+          } ;
+        if ( /\ tpMap[i].type = "break"
+             /\ tpMap[i].depth - curDepth >= 0 ) {
+             assert lastRparen # -1 ;
+      
+             (**************************************************************)
+             (* The following statement will be eliminated in the initial  *)
+             (* implementation.                                            *)
+             (**************************************************************)
+             result := Append(result, 
+                              [begin |-> curBegin, end |-> tpMap[lastRparen].loc]);
+
+             lastRparen := -1 ;
+             while (tpMap[i].type # "begin") {
+               ModifyDepth(curDepth, i, TRUE) ;
+               i := i+1;
+              } ;
+             curBegin := tpMap[i].loc ;         
+           } ;
+        ModifyDepth(curDepth, i, TRUE) ;
+        i := i+1;
+       } ;
+      result := Append(result, 
+                       [begin |-> curBegin, end |-> tpMap[eParen].loc]);
+      
+      \* debugging output
+      print <<tpregion.begin.column, tpregion.end.column>> ;
+      print [j \in 1..Len(result) |-> <<result[j].begin.column,
+                                        result[j].end.column>>];
+      print << "lrtok", ltok, rtok>>
+    }
+}

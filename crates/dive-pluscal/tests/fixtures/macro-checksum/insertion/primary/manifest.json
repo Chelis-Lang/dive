@@ -1,0 +1,80 @@
+{
+ "rows": [
+  {
+   "id": "Trailing_C",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "UnknownTrailing_C",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  },
+  {
+   "id": "Trailing_P",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": true
+   }
+  },
+  {
+   "id": "UnknownTrailing_P",
+   "flags": [],
+   "primary": {},
+   "reference_errors": false,
+   "translated": true,
+   "header": [
+    "4f4af27b",
+    "7f927289"
+   ],
+   "stages": {
+    "translated": {
+     "crc": "4f4af27b"
+    }
+   },
+   "sany": {
+    "accepted": false
+   }
+  }
+ ]
+}

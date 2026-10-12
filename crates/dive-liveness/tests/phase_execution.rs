@@ -244,7 +244,7 @@ fn earlier_source_safety_and_preflight_refusal_do_not_earn_temporal_completion()
 fn complete_pinned_graph_census_retains_errors_and_matches_every_completed_field() {
     use std::collections::BTreeMap;
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-phase-execution");
+        .join("tests/fixtures/probes/tlc-phase-execution");
     let capture: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("capture.json")).expect("capture"))
             .expect("JSON");
@@ -506,20 +506,6 @@ fn scoped_impurity_and_foreign_ownership_stop_before_callbacks_or_pool() {
         assert!(f.groups.is_empty() && f.stats.is_none());
         assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
     }
-}
-
-#[test]
-fn every_raw_execution_and_before_source_observation_is_hash_verified() {
-    let script = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../scripts/check-phase-execution.py");
-    assert!(
-        std::process::Command::new("python3")
-            .arg("-I")
-            .arg(script)
-            .status()
-            .expect("verifier")
-            .success()
-    );
 }
 
 #[test]

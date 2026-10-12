@@ -55,7 +55,7 @@ fn field<'a>(row: &'a serde_json::Value, key: &str) -> &'a str {
 )]
 fn actual_growth_snapshots_and_stops_match_all_clean_primary_rows() {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/periodic-backend");
+        .join("tests/fixtures/probes/periodic-backend");
     let capture: serde_json::Value =
         serde_json::from_slice(&std::fs::read(base.join("capture-growth.json")).expect("capture"))
             .expect("JSON");
@@ -345,7 +345,7 @@ fn concrete_word(
 fn source_stopping_candidates_require_fresh_word_memory_json_and_mutant_validation() {
     use dive_trace::{Ending, Trace, Validation};
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/periodic-backend/models");
+        .join("tests/fixtures/probes/periodic-backend/models");
     let mut count = 0;
     for name in [
         "PartialRoots",

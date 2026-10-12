@@ -1,0 +1,1 @@
+--algorithm A { { L: { skip; print 1; }; skip; } }

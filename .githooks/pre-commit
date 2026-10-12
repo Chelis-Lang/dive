@@ -1,0 +1,15 @@
+#!/bin/sh
+{
+# Tracked pre-commit hook. Install with `cargo xtask install-hooks`, which
+# copies it into the common hooks directory shared by every worktree.
+# It enforces the repository budget (ADR 0086) on the staged tree.
+# Branches that predate the guard have no checker and are not blocked.
+set -eu
+repo_root=$(git rev-parse --show-toplevel)
+checker="$repo_root/scripts/check-repo-budget.py"
+if [ ! -f "$checker" ]; then
+    exit 0
+fi
+cd "$repo_root"
+exec python3 -I "$checker" --quiet
+}

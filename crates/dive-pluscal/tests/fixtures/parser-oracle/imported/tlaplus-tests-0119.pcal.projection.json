@@ -1,0 +1,1 @@
+{"name":"NoParams","syntax":"P","fair":false,"declarations":[["sum","Equal",["0"]]],"definitions":null,"macros":[],"procedures":[["Sum",[],[],[["s1",["Assign",[["sum",[],["sum","+","1"]]]]],["",["Return"]]]]],"body":["Sequential",[["m1",["Call","Sum",[]]],["m2",["Call","Sum",[]]],["m3",["When",["Print","(","sum",",","TRUE",")"]]]]]}

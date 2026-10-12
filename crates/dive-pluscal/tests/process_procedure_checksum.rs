@@ -8,7 +8,8 @@ use std::{fmt::Write, path::Path};
 #[test]
 fn process_original_header_bytes_and_crc_match_every_admitted_row()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("process-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/process-procedure-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -53,7 +54,8 @@ fn process_original_header_bytes_and_crc_match_every_admitted_row()
 #[test]
 fn unproved_process_owners_fairness_and_scoped_names_have_no_crc()
 -> Result<(), Box<dyn std::error::Error>> {
-    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("process-procedure-checksum-acceptance");
+    let base =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/process-procedure-checksum");
     for syntax in ["C", "P"] {
         for shape in [
             "duplicate_global",

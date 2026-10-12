@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 
 fn request(name: &str, compat_tlc: bool) -> CheckRequest {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/storage-tuple-function/specs")
+        .join("tests/fixtures/storage-tuple-function/specs")
         .join(name)
         .join("TupleStorage.tla");
     CheckRequest {
@@ -237,7 +237,7 @@ controls!(witness_dive, "Witness", false);
 #[test]
 fn actual_older_ambiguous_archive_refuses_without_search() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/storage-tuple-function/before/tlc-fp-w1.cp");
+        .join("tests/fixtures/storage-tuple-function/legacy-v01.cp");
     assert_eq!(
         &std::fs::read(&path).expect("captured old archive")[..8],
         b"DIVECP01"

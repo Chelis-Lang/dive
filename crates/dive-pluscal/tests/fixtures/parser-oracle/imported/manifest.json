@@ -1,0 +1,1704 @@
+{
+ "rows": [
+  {
+   "id": "examples-0000",
+   "input": "examples-0000.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0000.pcal.projection.json"
+  },
+  {
+   "id": "examples-0001",
+   "input": "examples-0001.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0001.pcal.projection.json"
+  },
+  {
+   "id": "examples-0002",
+   "input": "examples-0002.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0002.pcal.projection.json"
+  },
+  {
+   "id": "examples-0003",
+   "input": "examples-0003.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0003.pcal.projection.json"
+  },
+  {
+   "id": "examples-0004",
+   "input": "examples-0004.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0004.pcal.projection.json"
+  },
+  {
+   "id": "examples-0005",
+   "input": "examples-0005.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0005.pcal.projection.json"
+  },
+  {
+   "id": "examples-0006",
+   "input": "examples-0006.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0006.pcal.projection.json"
+  },
+  {
+   "id": "examples-0007",
+   "input": "examples-0007.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0007.pcal.projection.json"
+  },
+  {
+   "id": "examples-0008",
+   "input": "examples-0008.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0008.pcal.projection.json"
+  },
+  {
+   "id": "examples-0009",
+   "input": "examples-0009.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0009.pcal.projection.json"
+  },
+  {
+   "id": "examples-0010",
+   "input": "examples-0010.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0010.pcal.projection.json"
+  },
+  {
+   "id": "examples-0011",
+   "input": "examples-0011.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0011.pcal.projection.json"
+  },
+  {
+   "id": "examples-0012",
+   "input": "examples-0012.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0012.pcal.projection.json"
+  },
+  {
+   "id": "examples-0013",
+   "input": "examples-0013.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0013.pcal.projection.json"
+  },
+  {
+   "id": "examples-0014",
+   "input": "examples-0014.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0014.pcal.projection.json"
+  },
+  {
+   "id": "examples-0015",
+   "input": "examples-0015.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0015.pcal.projection.json"
+  },
+  {
+   "id": "examples-0016",
+   "input": "examples-0016.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0016.pcal.projection.json"
+  },
+  {
+   "id": "examples-0017",
+   "input": "examples-0017.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0017.pcal.projection.json"
+  },
+  {
+   "id": "examples-0018",
+   "input": "examples-0018.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0018.pcal.projection.json"
+  },
+  {
+   "id": "examples-0019",
+   "input": "examples-0019.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0019.pcal.projection.json"
+  },
+  {
+   "id": "examples-0020",
+   "input": "examples-0020.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0020.pcal.projection.json"
+  },
+  {
+   "id": "examples-0021",
+   "input": "examples-0021.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0021.pcal.projection.json"
+  },
+  {
+   "id": "examples-0022",
+   "input": "examples-0022.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0022.pcal.projection.json"
+  },
+  {
+   "id": "examples-0023",
+   "input": "examples-0023.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0023.pcal.projection.json"
+  },
+  {
+   "id": "examples-0024",
+   "input": "examples-0024.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0024.pcal.projection.json"
+  },
+  {
+   "id": "examples-0025",
+   "input": "examples-0025.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0025.pcal.projection.json"
+  },
+  {
+   "id": "examples-0026",
+   "input": "examples-0026.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0026.pcal.projection.json"
+  },
+  {
+   "id": "examples-0027",
+   "input": "examples-0027.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0027.pcal.projection.json"
+  },
+  {
+   "id": "examples-0028",
+   "input": "examples-0028.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0028.pcal.projection.json"
+  },
+  {
+   "id": "examples-0029",
+   "input": "examples-0029.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0029.pcal.projection.json"
+  },
+  {
+   "id": "examples-0030",
+   "input": "examples-0030.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0030.pcal.projection.json"
+  },
+  {
+   "id": "examples-0031",
+   "input": "examples-0031.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0031.pcal.projection.json"
+  },
+  {
+   "id": "examples-0032",
+   "input": "examples-0032.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0032.pcal.projection.json"
+  },
+  {
+   "id": "examples-0033",
+   "input": "examples-0033.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0033.pcal.projection.json"
+  },
+  {
+   "id": "examples-0034",
+   "input": "examples-0034.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "examples-0034.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0035",
+   "input": "tlaplus-tests-0035.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0035.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0036",
+   "input": "tlaplus-tests-0036.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0036.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0037",
+   "input": "tlaplus-tests-0037.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0037.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0038",
+   "input": "tlaplus-tests-0038.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0038.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0039",
+   "input": "tlaplus-tests-0039.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0039.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0040",
+   "input": "tlaplus-tests-0040.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0040.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0041",
+   "input": "tlaplus-tests-0041.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0041.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0046",
+   "input": "tlaplus-tests-0046.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0046.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0047",
+   "input": "tlaplus-tests-0047.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0047.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0048",
+   "input": "tlaplus-tests-0048.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0048.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0049",
+   "input": "tlaplus-tests-0049.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0049.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0050",
+   "input": "tlaplus-tests-0050.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0050.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0051",
+   "input": "tlaplus-tests-0051.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0051.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0052",
+   "input": "tlaplus-tests-0052.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0052.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0053",
+   "input": "tlaplus-tests-0053.pcal",
+   "primary": {
+    "status": "rejected"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0053.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0054",
+   "input": "tlaplus-tests-0054.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0054.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0055",
+   "input": "tlaplus-tests-0055.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0055.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0056",
+   "input": "tlaplus-tests-0056.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0056.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0057",
+   "input": "tlaplus-tests-0057.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0057.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0058",
+   "input": "tlaplus-tests-0058.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0058.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0059",
+   "input": "tlaplus-tests-0059.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0059.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0060",
+   "input": "tlaplus-tests-0060.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0060.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0061",
+   "input": "tlaplus-tests-0061.pcal",
+   "primary": {
+    "status": "timeout"
+   },
+   "source-grammar-secondary": {
+    "status": "timeout"
+   }
+  },
+  {
+   "id": "tlaplus-tests-0062",
+   "input": "tlaplus-tests-0062.pcal",
+   "primary": {
+    "status": "rejected"
+   },
+   "source-grammar-secondary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "tlaplus-tests-0063",
+   "input": "tlaplus-tests-0063.pcal",
+   "primary": {
+    "status": "rejected"
+   },
+   "source-grammar-secondary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "tlaplus-tests-0064",
+   "input": "tlaplus-tests-0064.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0064.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0065",
+   "input": "tlaplus-tests-0065.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0065.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0066",
+   "input": "tlaplus-tests-0066.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0066.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0067",
+   "input": "tlaplus-tests-0067.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0067.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0068",
+   "input": "tlaplus-tests-0068.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0068.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0069",
+   "input": "tlaplus-tests-0069.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0069.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0070",
+   "input": "tlaplus-tests-0070.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0070.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0071",
+   "input": "tlaplus-tests-0071.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0071.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0072",
+   "input": "tlaplus-tests-0072.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0072.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0073",
+   "input": "tlaplus-tests-0073.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0073.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0074",
+   "input": "tlaplus-tests-0074.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0074.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0075",
+   "input": "tlaplus-tests-0075.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0075.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0076",
+   "input": "tlaplus-tests-0076.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0076.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0077",
+   "input": "tlaplus-tests-0077.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0077.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0078",
+   "input": "tlaplus-tests-0078.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0078.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0079",
+   "input": "tlaplus-tests-0079.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0079.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0080",
+   "input": "tlaplus-tests-0080.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0080.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0081",
+   "input": "tlaplus-tests-0081.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0081.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0082",
+   "input": "tlaplus-tests-0082.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0082.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0083",
+   "input": "tlaplus-tests-0083.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0083.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0084",
+   "input": "tlaplus-tests-0084.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0084.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0085",
+   "input": "tlaplus-tests-0085.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0085.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0086",
+   "input": "tlaplus-tests-0086.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0086.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0087",
+   "input": "tlaplus-tests-0087.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0087.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0088",
+   "input": "tlaplus-tests-0088.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0088.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0089",
+   "input": "tlaplus-tests-0089.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0089.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0090",
+   "input": "tlaplus-tests-0090.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0090.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0091",
+   "input": "tlaplus-tests-0091.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0091.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0092",
+   "input": "tlaplus-tests-0092.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0092.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0093",
+   "input": "tlaplus-tests-0093.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0093.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0094",
+   "input": "tlaplus-tests-0094.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0094.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0095",
+   "input": "tlaplus-tests-0095.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0095.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0096",
+   "input": "tlaplus-tests-0096.pcal",
+   "primary": {
+    "status": "rejected"
+   },
+   "source-grammar-secondary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "tlaplus-tests-0097",
+   "input": "tlaplus-tests-0097.pcal",
+   "primary": {
+    "status": "rejected"
+   },
+   "source-grammar-secondary": {
+    "status": "rejected"
+   }
+  },
+  {
+   "id": "tlaplus-tests-0098",
+   "input": "tlaplus-tests-0098.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0098.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0099",
+   "input": "tlaplus-tests-0099.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0099.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0100",
+   "input": "tlaplus-tests-0100.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0100.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0101",
+   "input": "tlaplus-tests-0101.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0101.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0102",
+   "input": "tlaplus-tests-0102.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0102.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0103",
+   "input": "tlaplus-tests-0103.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0103.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0104",
+   "input": "tlaplus-tests-0104.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0104.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0105",
+   "input": "tlaplus-tests-0105.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0105.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0106",
+   "input": "tlaplus-tests-0106.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0106.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0107",
+   "input": "tlaplus-tests-0107.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0107.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0108",
+   "input": "tlaplus-tests-0108.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0108.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0109",
+   "input": "tlaplus-tests-0109.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0109.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0110",
+   "input": "tlaplus-tests-0110.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0110.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0111",
+   "input": "tlaplus-tests-0111.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0111.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0112",
+   "input": "tlaplus-tests-0112.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0112.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0113",
+   "input": "tlaplus-tests-0113.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0113.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0114",
+   "input": "tlaplus-tests-0114.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0114.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0115",
+   "input": "tlaplus-tests-0115.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0115.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0116",
+   "input": "tlaplus-tests-0116.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0116.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0117",
+   "input": "tlaplus-tests-0117.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0117.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0118",
+   "input": "tlaplus-tests-0118.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0118.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0119",
+   "input": "tlaplus-tests-0119.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0119.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0120",
+   "input": "tlaplus-tests-0120.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0120.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0121",
+   "input": "tlaplus-tests-0121.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0121.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0122",
+   "input": "tlaplus-tests-0122.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0122.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0123",
+   "input": "tlaplus-tests-0123.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0123.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0124",
+   "input": "tlaplus-tests-0124.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0124.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0125",
+   "input": "tlaplus-tests-0125.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0125.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0126",
+   "input": "tlaplus-tests-0126.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0126.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0127",
+   "input": "tlaplus-tests-0127.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0127.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0128",
+   "input": "tlaplus-tests-0128.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0128.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0129",
+   "input": "tlaplus-tests-0129.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0129.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0130",
+   "input": "tlaplus-tests-0130.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0130.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0131",
+   "input": "tlaplus-tests-0131.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0131.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0132",
+   "input": "tlaplus-tests-0132.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0132.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0133",
+   "input": "tlaplus-tests-0133.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0133.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0134",
+   "input": "tlaplus-tests-0134.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0134.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0135",
+   "input": "tlaplus-tests-0135.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0135.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0136",
+   "input": "tlaplus-tests-0136.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0136.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0137",
+   "input": "tlaplus-tests-0137.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0137.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0138",
+   "input": "tlaplus-tests-0138.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0138.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0139",
+   "input": "tlaplus-tests-0139.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0139.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0140",
+   "input": "tlaplus-tests-0140.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0140.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0141",
+   "input": "tlaplus-tests-0141.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0141.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0142",
+   "input": "tlaplus-tests-0142.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0142.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0143",
+   "input": "tlaplus-tests-0143.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0143.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0144",
+   "input": "tlaplus-tests-0144.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0144.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0145",
+   "input": "tlaplus-tests-0145.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0145.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0146",
+   "input": "tlaplus-tests-0146.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0146.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0147",
+   "input": "tlaplus-tests-0147.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0147.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0148",
+   "input": "tlaplus-tests-0148.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0148.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0149",
+   "input": "tlaplus-tests-0149.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0149.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0150",
+   "input": "tlaplus-tests-0150.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0150.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0151",
+   "input": "tlaplus-tests-0151.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0151.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0152",
+   "input": "tlaplus-tests-0152.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0152.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0153",
+   "input": "tlaplus-tests-0153.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0153.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0154",
+   "input": "tlaplus-tests-0154.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0154.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0155",
+   "input": "tlaplus-tests-0155.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0155.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0156",
+   "input": "tlaplus-tests-0156.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0156.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0157",
+   "input": "tlaplus-tests-0157.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0157.pcal.projection.json"
+  },
+  {
+   "id": "tlaplus-tests-0158",
+   "input": "tlaplus-tests-0158.pcal",
+   "primary": {
+    "status": "accepted"
+   },
+   "source-grammar-secondary": {
+    "status": "accepted"
+   },
+   "projection": "tlaplus-tests-0158.pcal.projection.json"
+  }
+ ]
+}

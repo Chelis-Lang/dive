@@ -158,7 +158,7 @@ fn complete_fields(
     expected_refused: usize,
 ) {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes")
+        .join("tests/fixtures/probes")
         .join(family);
     let capture: Value =
         serde_json::from_str(&std::fs::read_to_string(base.join(capture_file)).expect("capture"))

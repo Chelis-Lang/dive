@@ -9,7 +9,7 @@ use std::{fmt::Write, path::Path};
 fn every_recursive_row_matches_original_header_bytes_and_crc()
 -> Result<(), Box<dyn std::error::Error>> {
     let base =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("recursive-procedure-checksum-acceptance");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/recursive-procedure-checksum");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;
@@ -52,7 +52,7 @@ fn every_recursive_row_matches_original_header_bytes_and_crc()
 fn recursive_graph_keeps_shared_expansion_and_exact_output_limits()
 -> Result<(), Box<dyn std::error::Error>> {
     let base =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("recursive-procedure-checksum-acceptance");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/recursive-procedure-checksum");
     for shape in [
         "self_base",
         "mutual_forward",
@@ -119,7 +119,7 @@ fn parsed_cyclic_owners_do_not_escape_one_shared_budget() -> Result<(), Box<dyn 
 fn tail_call_locals_parameters_frames_and_reversed_owners_match_pinned_bytes()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("recursive-procedure-checksum-acceptance/tail-ownership");
+        .join("tests/fixtures/recursive-procedure-checksum/tail-ownership");
     let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
         base.join("primary/manifest.json"),
     )?)?;

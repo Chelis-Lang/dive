@@ -1,0 +1,8 @@
+--fair algorithm BinarySearch {
+   variables seq \in SortedSeqs, val \in Values, 
+             low = 1, high = Len(seq), result = 0 ;   
+   { a: while (low =< high /\ result = 0) {
+          with (mid = (low + high) \div 2, mval = seq[mid]) {
+            if (mval = val) { result := mid}
+            else if (val < mval) { high := mid - 1}
+            else {low := mid + 1}                    } } } }

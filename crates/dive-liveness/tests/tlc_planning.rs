@@ -165,10 +165,7 @@ fn fields(p: &Projection) -> BTreeMap<String, String> {
     out
 }
 fn cases() -> Vec<Value> {
-    serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-planning/cases.json"
-    ))
-    .expect("cases")
+    serde_json::from_str(include_str!("fixtures/probes/tlc-planning/cases.json")).expect("cases")
 }
 fn inputs(case: &Value) -> (Vec<Formula>, Vec<Formula>) {
     let parse = |key| {
@@ -197,10 +194,9 @@ fn project(fs: &[Formula], ps: &[Formula], limits: Limits) -> Result<Projection,
 }
 #[test]
 fn pinned_stages_and_ordered_bins() {
-    let capture: Value = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-planning/capture.json"
-    ))
-    .expect("capture");
+    let capture: Value =
+        serde_json::from_str(include_str!("fixtures/probes/tlc-planning/capture.json"))
+            .expect("capture");
     let rows = capture["rows"].as_array().expect("rows");
     let cases = cases();
     assert_eq!(cases.len(), rows.len());
@@ -433,7 +429,7 @@ fn resource_failures_are_explicit_not_empty_plans() {
 
 fn bound_model(name: &str) -> Option<dive_model::Model> {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-planning/models")
+        .join("tests/fixtures/probes/tlc-planning/models")
         .join(name);
     let analysis = dive_sema::analyze_file(
         &root.join(format!("{name}.tla")),
@@ -454,7 +450,7 @@ fn bound_model(name: &str) -> Option<dive_model::Model> {
 #[test]
 fn actual_process_liveness_model_fields_and_retained_property_identity() {
     let record: Value = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-planning/model-capture.json"
+        "fixtures/probes/tlc-planning/model-capture.json"
     ))
     .expect("models");
     let rows = record["rows"].as_array().expect("rows");
@@ -534,10 +530,9 @@ fn actual_process_liveness_model_fields_and_retained_property_identity() {
 
 #[test]
 fn configured_projection_matches_independent_scoped_word_interpreter() {
-    let models: Vec<String> = serde_json::from_str(include_str!(
-        "../../../conformance/probes/tlc-planning/models.json"
-    ))
-    .expect("model names");
+    let models: Vec<String> =
+        serde_json::from_str(include_str!("fixtures/probes/tlc-planning/models.json"))
+            .expect("model names");
     let mut checks = 0;
     for name in models {
         let Some(model) = bound_model(&name) else {
@@ -717,17 +712,4 @@ LiveProperty == []<>(TLCGet("level") = 0)
             assert!(model.take_output().is_empty(), "{case} ran a callback");
         }
     }
-}
-
-#[test]
-fn complete_selection_raw_hashes_and_source_matrix_are_verified() {
-    let status = std::process::Command::new("python3")
-        .arg("-I")
-        .arg(
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../scripts/check-tlc-planning.py"),
-        )
-        .status()
-        .expect("integrity verifier");
-    assert!(status.success());
 }

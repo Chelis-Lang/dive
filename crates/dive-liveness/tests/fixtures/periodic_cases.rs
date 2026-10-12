@@ -1,5 +1,5 @@
 // Generated from the closed pinned-Java observations; elapsed clock arguments alone are abstracted.
-// Source and failed attempts: conformance/probes/ordinary-periodic-work/.
+// Source and failed attempts: an earlier probe (regenerable from the pinned oracle).
 const CASES: &[Case] = &[
     Case { liveness: false, ratio: 0.0, growth: false, force: false, checkpoint: false, periodic: "none", suspended: false, check_code: 0, expected: &["start", "ratio-update:0", "result:0", "force-retained:false"] },
     Case { liveness: false, ratio: 0.0, growth: false, force: false, checkpoint: false, periodic: "none", suspended: true, check_code: 0, expected: &["start", "ratio-update:0", "result:0", "force-retained:false"] },

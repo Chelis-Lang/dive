@@ -306,9 +306,8 @@ fn ignored_invalid_value_cannot_produce_a_public_verdict_or_archive() {
         std::process::id()
     ));
     std::fs::create_dir(&directory).expect("private directory");
-    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(
-        "../../conformance/probes/view-concrete-normalization/before/reverse-mixed/Compound.tla",
-    );
+    let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/view-normalization/reverse-mixed/Compound.tla");
     for store in [Store::Fingerprint, Store::Exact] {
         for workers in [1, 4, 8] {
             for chaos in [None, Some(19)] {

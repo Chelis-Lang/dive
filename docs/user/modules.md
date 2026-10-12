@@ -41,8 +41,8 @@ Future host access must require explicit category grants even in the TLC profile
 will not invent an unimplemented operator. Unsupported operations or missing
 host context must not be interpreted as passing the model invariants.
 
-For coverage details, the [parity ledger](../tlc-parity.md) separates module
-sources, native override registrations and semantic feature families. The
+For coverage details, see the [scoreboard](../scoreboard.md) and the
+reference inventory in `conformance/parity-surfaces.json`. The
 [maintained TLC differences log](../tlc-differences.md) describes approved changes
 and known limitations. These inventories and curated examples do not certify
 all standard-module or CommunityModules behavior.

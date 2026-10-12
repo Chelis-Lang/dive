@@ -3,7 +3,7 @@ use dive_api::trace::{SpecModel, TraceDoc, TraceEncoding, TraceOptions, Validati
 use dive_api::{CheckRequest, check_file};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/trace-representation-v2/specs/Mixed/Transport.tla");
+        .join("examples/data/trace-representation/Transport.tla");
     for compat_tlc in [true, false] {
         let request = CheckRequest {
             file: file.clone(),
