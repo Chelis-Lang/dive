@@ -6,9 +6,7 @@ fail-fast = false
 # --full` (default profile) still runs. Selected from per-test durations of
 # main CI run 38214486988 (1768 tests, 8385 test-seconds) and PR #243's runs:
 # the selection keeps about 1230 tests and 400 test-seconds (about three
-# minutes on the 2-vCPU hosted runner), and tests of every crate. The last
-# eleven exclusions are evidence source guards: they run scripts/check-*.py,
-# which pin hashes of repository files, some of them .github/workflows/ci.yml.
+# minutes on the 2-vCPU hosted runner), and tests of every crate.
 # To run the excluded tests on their own:
 #   cargo nextest run --workspace --profile ci --ignore-default-filter
 [profile.ci]
@@ -66,16 +64,5 @@ not (
     ))
     | (binary_id(dive-check::invariance) & test(=wide_levels_stop_identically_at_every_worker_count))
     | (binary_id(dive-store::state_fingerprint) & test(=fingerprint_and_exact_membership_agree_on_a_large_sample))
-    | (binary_id(dive-api::temporal_forwarding) & test(=fixture_integrity_and_complete_historical_census_are_verified))
-    | (binary_id(dive-api::tlc_final_scopes) & test(=complete_scope_capture_source_guard))
-    | (binary_id(dive-api::tlc_property_origins) & test(=complete_primary_native_origins_and_source_history_are_verified))
-    | (binary_id(dive-api::tlc_temporal_if) & test(=complete_current_source_raw_and_user_example_guard))
-    | (binary_id(dive-liveness::phase_execution) & test(=every_raw_execution_and_before_source_observation_is_hash_verified))
-    | (binary_id(dive-liveness::phase_graph) & test(=raw_graph_selection_hashes_and_all_before_observations_are_preserved))
-    | (binary_id(dive-liveness::phase_l) & test(=phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified))
-    | (binary_id(dive-liveness::tlc_final) & test(=complete_selection_and_source_histories_are_verified))
-    | (binary_id(dive-liveness::tlc_planning) & test(=complete_selection_raw_hashes_and_source_matrix_are_verified))
-    | (binary_id(dive-liveness::tlc_tableau) & test(=complete_raw_source_selection_hashes_are_verified))
-    | (binary_id(dive-liveness::tlc_temporal_if) & test(=complete_raw_capture_history_and_source_guard))
 )
 """

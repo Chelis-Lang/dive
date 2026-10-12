@@ -63,8 +63,10 @@ This is enforced by `.githooks/commit-msg` (installed with
 ## Workflow mode
 
 **PR mode** (since 2026-10-08). `main` is protected (`cargo xtask protect-main`).
-Every change lands through a squash-merged PR that passes the required checks;
-admins are not exempt. Keep `main` green: gate locally before pushing, never merge
+Every change lands through a squash-merged PR that passes the required checks
+(`No AI authorship markers`, `Workspace gate` and `Conformance gate`); admins are
+not exempt. CI's conformance gate runs `conformance/gates/smoke.txt` at 1 and 4
+workers; the full cm1 gate runs locally with `cargo xtask gate --full`. Keep `main` green: gate locally before pushing, never merge
 on red, and fix a red `main` first (label the issue `failing-on-main`).
 
 - Small, single-scope PRs from `main`. No long-lived integration or compose
