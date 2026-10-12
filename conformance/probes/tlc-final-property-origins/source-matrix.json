@@ -6,8 +6,8 @@
   "schema_version": 1,
   "scope": "Additive bounded final temporal identity fields, source-bound primary/native/example controls; unchanged witness/default/limits/ordinary contract; all family statuses partial",
   "source_sha256": {
-    ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
-    "AGENTS.md": "7a520dea2aef94a68bd3452c25d7fa86723c87b17210900f8e9451aacbfcb1ee",
+    ".github/workflows/ci.yml": "70c93d46b33a5423b310bd3d9d8df2c70499345fcb01321a18e6554a4d0a0eb1",
+    "AGENTS.md": "f6f8ad70b0bc6eef39bd351afc71ff08af6c34bf39485ea10e7c17e933685ca8",
     "CHANGELOG.md": "f011741b05d87accc05af073a982925dfe10274caa637d81f9d9b15648a3fb52",
     "conformance/parity-features.json": "413f8a723f5ed3fe638bd4473b333b97f5c8fb12cb67ff763a52b6f5115c7593",
     "conformance/probes/tlc-final-property-origins/DESIGN.md": "aa5a122a7c7f071967dab07a00b9080313ce74dae1b51be2729a2321d0e41792",

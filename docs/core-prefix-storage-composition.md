@@ -261,3 +261,41 @@ control pass unchanged; targeted Clippy passes. The
 [receiving evidence](../conformance/probes/core-terminal-procedure-integration/returned-prefix-rendezvous-receiving/index.json)
 preserves both sources, commands, logs and the actual old-order rejection.
 A fresh complete gate and combined runtime remain required.
+
+
+### Closed combined receiving source (`6b4113aa`)
+
+This receiving source passes the complete local gate: all 73 literal Python
+invocations and eight Rust stages, with 1,768 tests passed and none skipped.
+Its fresh runtime campaign closes 92 ordered commands. Historical copied
+prefixes retain their actual producing paths; the failed reference-selection
+setup remains a failed attempt, separately preserved.
+
+The bounded periodic services pass 468 native comparison rows, 64 original
+valid public words and 256 invalid mutants. Disk-role checks pass their selected
+2,320 rows, with independent original and mutant replay; indexed-stack checks
+pass both profile-specific exits and the complete selected worker/store routes.
+These are bounded diagnostic and safety contracts, not ordinary periodic
+liveness certification.
+
+The finite-process procedure checksum selection uses the complete 242-source
+captured reference, not the smaller 72-source subset. All 484 public routes are
+accounted for: 404 admitted CST/SANY/Validator results, 20 rejections, 48 named
+refusals and 12 uncredited command/primary errors. The unchanged 154 source IDs
+produce 308 complete/violation models and 3,696 profile/worker/store settings.
+All match their clean reference. Independent replay accepts 308 original words
+and rejects all 1,232 mutants. The 56 no-fairness cases retain their own controls.
+Translation/checksum acceptance never implies that a model was proved.
+
+All 21 CM1 and 16 ValidationTestSuite smoke models fully agree at 1, 4 and 8
+workers. Runnable Rust and CLI guides were executed alongside their original
+controls. The [portable packet](../conformance/probes/core-terminal-procedure-integration/combined-receiving-6b/readback.json)
+binds source bytes, commands, outputs, failed forks and original selections to
+this producer. Its reader runs in the workspace integrity checks.
+
+Two CI inventory attempts on this head failed with a linker SIGBUS; all sixteen
+test partitions and conformance passed. Local success does not override that
+required failure. A separate documentation/workflow revision qualifies its own
+full gate and CI result; the [resource notes](ci-build-resources.md) describe the
+mitigation and its limits. No producer is relabelled and no semantic family is
+certified by this bounded composition.

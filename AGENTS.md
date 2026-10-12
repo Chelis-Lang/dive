@@ -295,6 +295,13 @@ cargo build -p dive-trace --locked              # standalone: no feature unifica
 cargo deny --locked check
 ```
 
+The workspace CI job isolates completed Clippy outputs from test-inventory
+builds and records runner resource measurements. Keep every original gate
+command and test. If a workflow uses inline Python, a local command inventory
+must execute its exact hashed stdin body against an owned temporary fixture;
+a heredoc header alone is not an executed check. See
+[`docs/ci-build-resources.md`](docs/ci-build-resources.md).
+
 **Testing tiers** (charter §Engineering practice):
 - *Fast:* the gate above. It runs on every push and PR.
 - *Standard:* `.github/workflows/conformance.yml` runs nightly and on manual

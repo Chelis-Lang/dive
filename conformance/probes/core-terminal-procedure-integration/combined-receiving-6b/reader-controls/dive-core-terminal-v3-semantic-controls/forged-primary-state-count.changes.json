@@ -1,0 +1,29 @@
+{
+  "name": "forged-primary-state-count",
+  "genuine_mutation": true,
+  "semantic_rejection_verified": true,
+  "exit": 1,
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py",
+    "--base",
+    "/tmp/dive-core-terminal-v3-semantic-controls/dive-v3-derived-iai13evk",
+    "--index-sha",
+    "d272ec1254ee3ab9a83aa004cb0ff7b4645206a16ca03873d7e648e08312592e"
+  ],
+  "derived_index_sha256": "d272ec1254ee3ab9a83aa004cb0ff7b4645206a16ca03873d7e648e08312592e",
+  "expected_semantic_assertion": "assert row['primary_counts'] == expected",
+  "changes": [
+    {
+      "target": "/tmp/dive-core-terminal-composed-runtime-process-resume-6b/process-procedure-models/report.json",
+      "before_sha256": "32d77fa9e7fece8c6663e24c17326631f08a3370d68eddf9a91a7de699ac2e2e",
+      "after_sha256": "da627cc1be228103f1658cd093d2cb7c5540fa0092a10daeca473d125af337cf",
+      "aliases_rehashed": [
+        "/tmp/dive-core-terminal-composed-runtime-process-resume-6b/process-procedure-models/report.json"
+      ]
+    }
+  ],
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "3cc5188bbd98ad8b25f6e970092740aff46348522fac0e01d8e85624428f522c"
+}

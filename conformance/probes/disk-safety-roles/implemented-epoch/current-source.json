@@ -2,7 +2,7 @@
   "runtime_commit": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
   "current_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
-    ".github/workflows/ci.yml": "34ea1ea5a0a33c10ba17d08c18599c49c6f1adae127fa98b3a90e165ac3b7bee",
+    ".github/workflows/ci.yml": "70c93d46b33a5423b310bd3d9d8df2c70499345fcb01321a18e6554a4d0a0eb1",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
     "conformance/golden/tlc-2026.10.06.014338/examples/specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg.json": "5e0347c784761eade99c8710cab61ded9e922bb740a631750aeb2147da285643",
@@ -1298,7 +1298,7 @@
     "scripts/check-fallible-seen-store.py": "280d9c0c3f7311409e623c98b228d61d787f0824f81a9b2ccb290459c2ed08fc",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd",
-    "scripts/check-native-parity-integration.py": "ac92a35d91c2478c7f364ac61e30e3c74ec491572098dafeda75c07c1860fa82",
+    "scripts/check-native-parity-integration.py": "2574115c4b64fccf9b595e1ff8cdc46a0a00890273162caa31a99c2ef0296cec",
     "scripts/check-native-sequence-operators.py": "e475f509756f5242781bfaa0c05b2ac28fe4d814b0225b30fc290f02ea196a67",
     "scripts/check-native-temporal-operators.py": "a42e85b378b0c8150cbd83d8ab1036c3ccea26607c9bfc6c2023b8050acac88a",
     "scripts/check-parity-ledger.py": "55f643f413268ef304f2a0a812676ad4fdef8f8906e29f36a5a82ecae768a98f",

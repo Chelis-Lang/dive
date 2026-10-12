@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py", line 377, in <module>
+    print(json.dumps(verify(args.base, args.index_sha), sort_keys=True))
+  File "/tmp/dive-core-terminal-6b-portable-packet-v3/verify.py", line 186, in verify
+    assert row['primary_counts'] == expected
+AssertionError
