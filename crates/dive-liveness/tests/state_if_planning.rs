@@ -1,9 +1,8 @@
-//! Actual pinned conditional source conversion, including early errors.
+//! Pinned conditional source conversion, including early evaluation errors.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_liveness::formula::Limits;
 use dive_liveness::plan::PlanningError;
-use dive_liveness::tlc_plan::{ModelPlanningError, lower_model};
 use serde_json::Value;
 use std::{path::Path, sync::Arc};
 
@@ -40,27 +39,29 @@ fn complete_pinned_conditional_selection_preserves_error_phase_and_fallback() {
         .expect("parsed configuration");
         let model =
             dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bound model");
-        let result = lower_model(&model, Limits::default());
+        // TLC converts fairness conjuncts, then properties, stopping at the
+        // first conversion error.
+        let result = model
+            .temporals
+            .iter()
+            .chain(&model.implied_temporals)
+            .map(|named| dive_liveness::plan::lower_tlc(&model, &named.pred, Limits::default()))
+            .collect::<Result<Vec<_>, _>>();
         if row["fields"]["completion"] == "planned" {
-            let bound = result.expect(name);
-            assert_eq!(
-                bound.projection.orders.len().to_string(),
-                row["fields"]["groups"].as_str().expect("group count"),
-                "{name}"
-            );
-            let group = &bound.projection.orders[0];
-            assert_eq!(
-                group.check_state.len().to_string(),
-                row["fields"]["g0.state"]
-            );
-            assert_eq!(
-                group.check_action.len().to_string(),
-                row["fields"]["g0.action"]
-            );
+            let plans = result.expect(name);
+            let (fairness, properties) = plans.split_at(model.temporals.len());
+            let formulas = |plans: &[dive_liveness::plan::Plan]| {
+                plans.iter().map(|p| p.formula.clone()).collect::<Vec<_>>()
+            };
+            let (fairness, properties) = (formulas(fairness), formulas(properties));
+            dive_liveness::tlc_plan::classify(
+                &fairness.iter().collect::<Vec<_>>(),
+                &properties.iter().collect::<Vec<_>>(),
+                Limits::default(),
+            )
+            .expect(name);
         } else {
-            let Err(ModelPlanningError::Bound(PlanningError::Evaluation { error, source })) =
-                result
-            else {
+            let Err(PlanningError::Evaluation { error, source }) = result else {
                 panic!("{name}: expected actual early evaluation failure, got {result:?}");
             };
             assert_eq!(

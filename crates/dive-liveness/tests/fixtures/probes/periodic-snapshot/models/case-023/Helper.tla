@@ -1,3 +1,0 @@
----- MODULE Helper ----
-Probe == TRUE
-====

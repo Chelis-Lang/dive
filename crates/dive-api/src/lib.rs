@@ -36,11 +36,7 @@ pub use translate::{
     translate_source,
 };
 
-/// Producer-owned periodic candidates, independently replayed without a model-proof claim.
-pub mod periodic_candidate;
 pub mod temporal;
-/// Explicit pinned final-only SCC/lasso analysis with independent replay.
-pub mod tlc_temporal;
 pub mod trace;
 
 pub use config::{ConfigReport, parse_config_file, parse_config_source};

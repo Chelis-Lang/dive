@@ -1427,7 +1427,18 @@ pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, Plannin
     lower_with_shape(model, pred, limits, false)
 }
 
-pub(crate) fn lower_tlc(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
+/// Lowers like [`lower`], but converts as TLC's `astToLive` does: a numeric
+/// constant operand or an evaluation error in a constant guard is TLC's
+/// evaluation error rather than a refusal, constant-evaluable `IF` guards
+/// select their branch, `~ENABLED A` is one state atom, a state or action call
+/// whose body fails to convert is kept whole, and `WF` keeps TLC's
+/// `[]<>(~ENABLED <A>_v \/ <A>_v)` shape. Use it with
+/// [`crate::tlc_plan::classify`] under `--compat=tlc`. Final/short checking
+/// uses [`lower`] and [`lower_violation`].
+///
+/// # Errors
+/// As [`lower`], with TLC's evaluation errors in place of the refusals above.
+pub fn lower_tlc(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
     lower_with_shape(model, pred, limits, true)
 }
 
