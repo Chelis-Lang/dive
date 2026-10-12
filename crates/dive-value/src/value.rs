@@ -412,6 +412,15 @@ impl Set {
         Ok(e)
     }
 
+    /// The elements in normalized order, without changing TLC's view of the set
+    /// or of any set nested in it: [`Set::elements`] without its side effects.
+    ///
+    /// # Errors
+    /// As [`Set::elements`].
+    pub fn peek_elements(&self, ctx: Ctx) -> Result<Arc<[Value]>> {
+        self.quiet_elements(ctx)
+    }
+
     /// The elements in normalized order, without changing TLC's view of the set or
     /// of any set nested in it (issue #32): the operations TLC would perform to
     /// normalize run with [`quiet::Quiet`] active, so they mark nothing.

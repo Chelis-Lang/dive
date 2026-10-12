@@ -326,3 +326,149 @@ fn both_orders_build_the_same_sets() {
         assert!(first == Value::string(&NAMES, want), "{order:?}");
     }
 }
+
+/// Records over a few field-name sets, with scalar or record fields: the
+/// shapes the per-field record comparability rule must get right.
+fn record_value(order: ValueOrder) -> impl Strategy<Value = Value> {
+    let ctx = ctx_for(order);
+    let field = prop_oneof![
+        leaf(),
+        (leaf(), leaf()).prop_map(move |(x, y)| {
+            Value::record(vec![(NAMES.intern("fx"), x), (NAMES.intern("fy"), y)], ctx)
+                .unwrap_or(Value::FALSE)
+        }),
+        Just(Value::tuple(Vec::new())),
+    ];
+    (
+        prop::sample::subsequence(vec!["fx", "fy", "c"], 1..=3),
+        prop::collection::vec(field, 3),
+    )
+        .prop_map(move |(names, fields)| {
+            Value::record(
+                names
+                    .iter()
+                    .zip(fields)
+                    .map(|(n, v)| (NAMES.intern(n), v))
+                    .collect(),
+                ctx,
+            )
+            .unwrap_or(Value::FALSE)
+        })
+}
+
+fn record_or_value(order: ValueOrder) -> impl Strategy<Value = Value> {
+    prop_oneof![3 => record_value(order), 1 => value(order)]
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(400))]
+
+    /// Elements the shape test calls comparable compare in TLC without error,
+    /// in both directions, and as the total order does.
+    #[test]
+    fn comparable_elements_compare_without_error(
+        elems in prop::collection::vec(record_or_value(ValueOrder::Tlc), 0..6),
+    ) {
+        let ctx = ctx_for(ValueOrder::Tlc);
+        if Value::elements_comparable(&elems) {
+            for a in &elems {
+                for b in &elems {
+                    let c = tlc::compare(a, b, ctx);
+                    prop_assert!(c.is_ok(), "{a:?} vs {b:?}: {c:?}");
+                    prop_assert_eq!(c.ok(), Some(a.cmp_with(b, ValueOrder::Tlc)));
+                }
+            }
+        }
+    }
+
+    /// The selection-based comparisons of a set given by its distinct
+    /// elements agree with building the set and comparing it in full.
+    #[test]
+    fn distinct_set_comparison_matches_the_built_set_tlc(
+        elems in prop::collection::vec(record_value(ValueOrder::Tlc), 0..7),
+        others in prop::collection::vec(record_value(ValueOrder::Tlc), 0..7),
+        reuse in any::<bool>(),
+    ) {
+        distinct_set_case(ValueOrder::Tlc, &elems, &others, reuse)?;
+    }
+
+    #[test]
+    fn distinct_set_comparison_matches_the_built_set_canonical(
+        elems in prop::collection::vec(record_value(ValueOrder::Canonical), 0..7),
+        others in prop::collection::vec(record_value(ValueOrder::Canonical), 0..7),
+        reuse in any::<bool>(),
+    ) {
+        distinct_set_case(ValueOrder::Canonical, &elems, &others, reuse)?;
+    }
+}
+
+fn distinct_set_case(
+    order: ValueOrder,
+    elems: &[Value],
+    others: &[Value],
+    reuse: bool,
+) -> Result<(), TestCaseError> {
+    let ctx = ctx_for(order);
+    let mut distinct: Vec<Value> = Vec::new();
+    for e in elems {
+        if !distinct.contains(e) {
+            distinct.push(e.clone());
+        }
+    }
+    if !Value::elements_comparable(&distinct) {
+        return Ok(());
+    }
+    let other = if reuse {
+        let mut v = distinct.clone();
+        v.reverse();
+        Value::set_raw(v, ctx)
+    } else {
+        Value::set_raw(others.to_vec(), ctx)
+    };
+    let refs: Vec<&Value> = distinct.iter().collect();
+    let built = Value::set_raw(distinct.clone(), ctx);
+    if order == ValueOrder::Tlc {
+        let fast = tlc::compare_distinct_set(&refs, &other, ctx);
+        let full = tlc::compare(&built, &other, ctx);
+        match (fast, full) {
+            (Ok(Some(f)), Ok(g)) => prop_assert_eq!(f, g),
+            (Err(f), Err(g)) => prop_assert_eq!(f.message(), g.message()),
+            (f, g) => prop_assert!(false, "fast {f:?}, full {g:?}"),
+        }
+    } else if let Some(f) = Value::cmp_distinct_set(&refs, &other, order) {
+        prop_assert_eq!(f, built.cmp_with(&other, order));
+    }
+    Ok(())
+}
+
+#[test]
+fn records_with_mixed_field_types_are_comparable_field_by_field() {
+    let ctx = ctx_for(ValueOrder::Tlc);
+    let rcd = |fields: &[(&str, Value)]| {
+        Value::record(
+            fields
+                .iter()
+                .map(|(n, v)| (NAMES.intern(n), v.clone()))
+                .collect(),
+            ctx,
+        )
+        .expect("record")
+    };
+    let a = rcd(&[("fx", Value::string(&NAMES, "a")), ("fy", Value::Int(1))]);
+    let b = rcd(&[
+        ("fx", Value::string(&NAMES, "b")),
+        ("fy", Value::Int(2)),
+        ("c", Value::model(&NAMES, "m1")),
+    ]);
+    assert!(Value::elements_comparable(&[a.clone(), b.clone()]));
+    // The same field holding a string in one record and an integer in the
+    // other can fail in TLC.
+    let c = rcd(&[("fx", Value::Int(3)), ("fy", Value::Int(1))]);
+    assert!(!Value::elements_comparable(&[a.clone(), c]));
+    // A record and a non-empty tuple fail in one direction.
+    assert!(!Value::elements_comparable(&[
+        a.clone(),
+        Value::tuple(vec![Value::Int(1)])
+    ]));
+    assert!(Value::elements_comparable(&[a, Value::tuple(Vec::new())]));
+}

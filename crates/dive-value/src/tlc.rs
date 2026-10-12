@@ -247,6 +247,55 @@ pub fn compare(a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
     }
 }
 
+/// TLC's `compare(&Value::set_raw(elems), other)`, computed without building
+/// or sorting that set: its elements are selected in normalized order only up
+/// to the first difference. `other` is normalized exactly as `compare` would
+/// normalize it. `None` when `other` is not an enumerable non-user set, so that
+/// the caller must build the set and call [`compare`].
+///
+/// The caller must guarantee that `elems` are pairwise distinct and mutually
+/// comparable ([`Value::elements_comparable`]): then normalizing the raw set
+/// cannot fail and only sorts it by the total order, which is what the
+/// selection follows.
+///
+/// # Errors
+/// As [`compare`].
+///
+/// ```
+/// use std::cmp::Ordering;
+/// use dive_value::{Ctx, Value, tlc};
+/// let ctx = Ctx::tlc();
+/// let (one, two, three) = (Value::Int(1), Value::Int(2), Value::Int(3));
+/// let other = Value::set_raw(vec![one.clone(), three.clone()], ctx);
+/// assert_eq!(
+///     tlc::compare_distinct_set(&[&two, &one], &other, ctx).unwrap(),
+///     Some(Ordering::Less),
+/// );
+/// ```
+pub fn compare_distinct_set(elems: &[&Value], other: &Value, ctx: Ctx) -> Result<Option<Ordering>> {
+    let Value::Set(t) = other else {
+        return Ok(None);
+    };
+    if user_of(t).is_some() {
+        return Ok(None);
+    }
+    let _guard = Guard::enter()?;
+    let theirs = elems_in(t, ctx, true)?;
+    if elems.len() != theirs.len() {
+        return Ok(Some(elems.len().cmp(&theirs.len())));
+    }
+    let mut next = 0usize;
+    let decided = crate::order::for_each_sorted(elems, ctx.order, |x| {
+        let y = theirs
+            .get(next)
+            .ok_or_else(|| ValueError::new(ErrorKind::Codec, "distinct set size mismatch"))?;
+        next += 1;
+        let c = compare(x, y, ctx)?;
+        Ok((c != Ordering::Equal).then_some(c))
+    })?;
+    Ok(Some(decided.unwrap_or(Ordering::Equal)))
+}
+
 fn compare_mv(x: &Atom, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
     match (x.mv_type(), b) {
         (None, Value::Model(y)) => Ok(x.cmp_with(y, ctx.order)),
