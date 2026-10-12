@@ -998,9 +998,11 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 
 ---
 
-Seeded trace validation certifies straight-line assignments behind unprimed guards. Quantified or multi-successor random actions remain unsupported even if their draws happen to match: a finite random-stream search cannot prove placement. The `RndWide` and `RndCoincidence` fixtures exercise these refusals (ADR 0016 amendment 2).
-
-On the pinned oracle at seed 7, `RndCoincidence` reports a safety violation and two states. `RndWide` reports the violation and the initial state, then fails to finish counterexample reconstruction within the capture's 300-second timeout. Its clean capture is recorded as a timeout, not a usable trace or golden. dive produces the two-state violation, but its independent validator explicitly refuses the unproved random position. Evidence: `crates/dive-api/tests/fixtures/random-traces/`.
+Independent replay refuses every random draw encountered while checking a
+supplied trace (ADR 0016 amendment 3). A matching seed does not establish which
+search branches consumed draws before those states. Seed and fingerprint
+settings still describe run-dependent model binding; they do not authorize
+random replay or a successful validation result.
 
 ## Maintaining this page
 
