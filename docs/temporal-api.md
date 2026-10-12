@@ -56,6 +56,10 @@ This API uses final checking and deterministic short-lasso selection. Passing
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
 It does not replace the strict TLC conformance path. Ordinary `dive check`
 retains its temporal refusal unless final/short checking is explicitly selected.
+TLC's exact lasso is not reproduced in any mode (ADR 0082); `--lasso tlc` is a
+usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify`
+reproduces TLC's liveness formula refusals (errors 2213 and 2214) for a later
+stage to wire in.
 
 
 Original configured PROPERTY formulas are retained for attribution. A universal

@@ -31,32 +31,19 @@ and indexing conventions.
 
 ## Final checking in the TLC profile
 
-The explicit command `dive check --compat=tlc --lncheck final --lasso tlc`
-uses bounded final-only checking and schema 2, with fresh independent replay of
-every reported counterexample. It does not enable TLC's periodic schedule. Only
-the separately named `dive-final-tlc` harness mode evaluates this contract.
+`dive check --compat=tlc --lncheck final --lasso short` checks temporal
+properties with TLC's value semantics and reports a deterministic short lasso
+that passes independent replay. The profile is labeled `tlc+overrides`, because
+TLC's own lasso choice is not reproduced: it depends on hash-table and SCC
+visitation order, which are not parity obligations (ADR 0082, ADR 0086).
+`--lasso tlc` is a usage error. Periodic scheduling is not implemented yet.
 
-- Models with no temporal obligations run the ordinary safety engine inside the
-  final mode's capture limits. The report names the `bounded-safety-only` route.
-  A finite counterexample must pass independent replay, and a resource stop is
-  never a safety success.
-- Pure state-level and temporal-level `IF` conditions, caller-context forwarding
-  of property arguments, and pure user operator formals (with their LET and
-  INSTANCE scopes) are supported. So are direct `Len`, `Head`, `Cardinality` and
-  fixed-arity `Append` actuals.
-- Results name the configured property before any split, and keep derived role
-  labels separate from the user's names.
-- Stored scalar and composite action and constant captures, and concrete set and
-  function successor values, are supported within recursive admission limits.
-- Configured native random replacements such as `CONSTANT C <- RandomElement`
-  are refused before graph capture. Configuration-origin-ambiguous, recursive,
-  opaque and other native operator targets are refused by name.
+## Rust APIs
 
-## Rust diagnostic APIs
-
-`dive-liveness` also exposes diagnostic Rust APIs: ordered temporal execution,
-partial SCC checks and periodic-work, backend and terminal diagnostics. They
-retain concrete graph and candidate evidence, but their completion is never a
-temporal verdict and they do not enable ordinary periodic checking. Under ADR
-0086 these TLC-internal projections are not parity obligations, and they may be
-simplified or removed.
+`dive_api::temporal` is the Rust entry point (see
+[the temporal API contract](../temporal-api.md)). `dive-liveness` exposes the
+kernel it uses: planning (`plan`), the tableau (`formula`), the product and
+lasso search (`product`, `search`), the coordinator (`analyze`), TLC's liveness
+formula classifier for `--compat=tlc` (`tlc_plan::classify`, TLC errors 2213
+and 2214) and the growth trigger for future periodic checks
+(`periodic_backend::Growth`).

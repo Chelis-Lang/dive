@@ -71,8 +71,15 @@ A resource stop never reports `Holds`.
 ## Consequences
 
 - Diagnostic projections of TLC's planner, tableau, phase-L, periodic
-  controller and terminal service are no longer product commitments. They can be
-  removed or simplified when the product-code cleanup reaches them.
+  controller and terminal service are no longer product commitments. They were
+  removed on 2026-10-12, together with the explicit `--lasso tlc` mode and its
+  `dive-final-tlc` harness mode. What remains of them is TLC's liveness formula
+  classifier (`dive_liveness::tlc_plan::classify`, errors 2213 and 2214, for
+  `--compat=tlc`) and the size-based growth trigger
+  (`dive_liveness::periodic_backend::Growth`) for deterministic periodic checks.
+  `plan.rs` keeps two lowering entry points: `lower` for final/short checking
+  and `lower_tlc`, which follows TLC's conversion rules for `IF`, `~ENABLED`,
+  numeric operands and evaluation errors, for use with the classifier.
 - `--compat=tlc` still selects TLC's observable behaviour where it is
   deterministic (ADR 0010). It does not promise TLC's internal visitation order.
 - A remaining liveness gap is an explicit refusal tracked in
