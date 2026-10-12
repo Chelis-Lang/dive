@@ -249,7 +249,7 @@ fn low_level_temporal_facades_refuse_before_startup_prints_or_assumptions() {
 }
 
 #[test]
-fn specification_role_refuses_before_binding_even_when_only_safety() {
+fn effectful_specification_role_refuses_before_binding() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nUnused == PrintT(\"must not bind\")\nASSUME PrintT(\"must not assume\")\nInit == x=0\nNext == x'=x\nSpec == Init /\\ [][Next]_x\n====\n";
     let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted());
@@ -264,7 +264,7 @@ fn specification_role_refuses_before_binding_even_when_only_safety() {
         options.seen_disk = Some(SeenOptions::default());
         let result = dive_check::check(&ir, &config, &options);
         assert!(
-            matches!(result.verdict, dive_check::Verdict::Unsupported { ref feature } if feature.contains("SPECIFICATION"))
+            matches!(result.verdict, dive_check::Verdict::Unsupported { ref feature } if feature.contains("runtime effects/checker reads") && feature.contains("PrintT"))
         );
         assert_eq!(result.output, [] as [String; 0]);
         assert!(result.stats.is_none());

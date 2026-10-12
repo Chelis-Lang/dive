@@ -194,3 +194,51 @@ subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-p
 # Disjoint sequential-procedure checksum observations retain their frozen producer.
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-procedure-checksum-acceptance" / verifier)], check=True)
+
+# The complete acyclic checksum capture preserves source/error stages separately.
+subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance/verify.py")], check=True)
+
+# Acyclic procedure observations keep frozen source/runtime and repaired command epochs.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance" / verifier)], check=True)
+
+# Recursive checksum derivation keeps selected source, closed runtime and failure epochs portable.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/recursive-procedure-checksum-acceptance" / verifier)], check=True)
+
+# Bounded finite-process procedure header reference epochs remain separate.
+subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/process-procedure-checksum-acceptance/verify.py")], check=True)
+for verifier in ["verify-delivery.py", "test-delivery.py"]:
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/process-procedure-checksum-acceptance" / verifier)], check=True)
+
+# Closed combined receiving evidence is distinct from current source maps.
+import runpy
+import tempfile
+import shutil
+packet = ROOT / "conformance/probes/core-terminal-procedure-integration/combined-receiving-6b"
+expected = "5fa56504c5fc2c944bde519ada6f5bc27056089ec2e389aaf9610f0ed7d6a035"
+index_bytes = gzip.decompress((packet / "index.json.gz").read_bytes())
+assert sha(index_bytes) == expected
+reader = runpy.run_path(str(packet / "verify.py"))
+with tempfile.TemporaryDirectory(prefix="dive-closed-core-receiving-") as directory:
+    supplied = Path(directory)
+    (supplied / "index.json").write_bytes(index_bytes)
+    shutil.copyfile(packet / "payload.tar.gz", supplied / "payload.tar.gz")
+    result = reader["verify"](supplied, expected)
+assert result["runtime_commands"] == 92 and result["workspace_tests"] == 1768
+assert result["family_certified"] is False
+assert json.loads((packet / "readback.json").read_bytes())["verified"] == result
+print("Verified closed6b combined92runtime/81gate/1768tests; original failed epochs preserved; no family certification")
+
+controls = packet / "reader-controls"
+control_index = json.loads((controls / "index.json").read_bytes())
+assert control_index["semantic_rejections"] == 12 and control_index["family_certified"] is False
+for name, digest in control_index["files"].items():
+    assert sha((controls / name).read_bytes()) == digest, name
+original_controls = json.loads((controls / "dive-core-terminal-v3-semantic-controls/controls.json").read_bytes())
+repaired_controls = json.loads((controls / "dive-core-terminal-v3-semantic-controls-repair1/controls.json").read_bytes())
+assert original_controls["closed"] is False and repaired_controls["closed"] is True
+negatives = [row for epoch in [original_controls, repaired_controls] for row in epoch["rows"]
+             if row.get("semantic_rejection_verified") is True]
+assert len(negatives) == len({row["name"] for row in negatives}) == 12
+assert all(row["exit"] == 1 and row["genuine_mutation"] is True for row in negatives)

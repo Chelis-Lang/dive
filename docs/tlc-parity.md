@@ -98,7 +98,7 @@ and a corresponding certification schema before the label can change.
 | F-026 | Granted environment, file and process effects | missing | 6 | [tlc-differences.md](tlc-differences.md) |
 | F-027 | Runtime introspection and configuration services | partial | 6 | [tlc_module.rs](../crates/dive-check/tests/tlc_module.rs) |
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
-| F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs); [strict tuple-only replay](tuple-only-trace-replay.md) and [bounded tuple-variable admission](inductive-tuple-trace-replay.md); general variable-stack namespace histories remain unproved |
+| F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs); [strict tuple-only replay](tuple-only-trace-replay.md) and [bounded tuple-variable admission](inductive-tuple-trace-replay.md) and [finite indexed tuple ranges](indexed-stack-trace-replay.md); general variable-stack namespace histories remain unproved |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); default seen/candidate/graph/SCC retention remains resident; opt-in disk safety membership is partial |
 | F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
@@ -687,3 +687,42 @@ The [composed core receiving delivery](core-prefix-storage-composition.md) now h
 required models agreeing at 1/4/8 workers. Component and failed producer
 identities remain separate; ordinary scheduling and full-family certification
 are still open.
+
+
+## Bounded recursive procedure header serialization
+
+Issue #223 / ADR0077 adds typed source-finite self/mutual call graphs and pinned
+shared nested CallReturn mutations. Exact original-header CRC, public enclosing
+CST/SANY/Validator, finite execution and independent replay remain separate.
+All 162 inputs preserve the prior130, reference errors and two primary-invalid
+artifacts without positive artifact credit. Source recursion is not runtime
+unrolling/termination proof. F-034/F-035 remain partial and audit-required;
+strict saved-frame replay #124 is unchanged. See
+[the maintained guide](pluscal-recursive-procedure-checksums.md).
+
+Issue224 adds bounded stopped-worker transaction evidence without ordinary clock,
+queue/count/graph or model-proof credit. F-023 remains missing/audit-required;
+see [the user contract](stopped-periodic-service.md).
+
+pending; F-031 stays partial/audit-required. Current producer/runtime verification
+is pending in [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+
+
+Source-owned disk safety role admission (#221, ADR0075) adds a bounded shared
+binder pre-startup path for proven pure safety PROPERTY/SPECIFICATION forms.
+Temporal assumptions/obligations, effects, opaque/recursive contexts and
+quantified-domain/strict-substitution evaluation remain refused; the complete
+selection retains resident-success/refused differences without parity credit.
+This extends opt-in inline evidence only: disk parallel/capture/recovery and
+aggregate-memory bounds remain pending. F-031 stays partial/audit-required.
+Current source qualification is in progress.
+
+The bounded process-owned procedure checksum continuation (#225/ADR0079)
+keeps F-034/F-035 partial: one unfair finite process/one disjoint labelled
+procedure, source header ownership distinct from indexed runtime state, complete
+242 capture selection and explicit scoped/fair/mixed/ref-invalid boundaries.
+Raw derivation, public artifacts, finite models and strict replay have separate
+obligations; see `docs/pluscal-process-procedure-checksums.md`.
+
+The frozen 7fae producer and closed d4c delivery have their own full-gate/runtime/source receipts. This receiving composition requires fresh qualification.

@@ -1,5 +1,12 @@
 # Full checksums for disjoint sequential procedures
 
+
+Scope update: the later [recursive sequential header contract](pluscal-recursive-procedure-checksums.md)
+adds proved bounded self/mutual procedure graphs and tail ownership. Recursive
+refusals and counts below describe this guide's original frozen producer; they
+are retained history, not the current recursive support boundary. Broader
+process/scoped Full contexts and strict #124 saved-frame replay remain pending.
+
 The bounded Full editor can derive the pinned algorithm CRC for multiple explicitly labelled sequential procedures called from main, with disjoint names and parameter/local slots. Calls save the target procedure's slots; returns restore the current procedure's slots. This extends [procedure checksums](pluscal-procedure-checksums.md) and [nested/elsif headers](pluscal-p-elsif-checksums.md). Editing returns replacement text in memory; it does not write a file or prove the generated model.
 
 Save this P-syntax example as `MultipleProcedureChecksum_P.tla`:
@@ -47,7 +54,7 @@ Accepted output has `result: replacement`, `replacement.module_source`, verified
 
 The source/header lists calls on the last declared procedure in main encounter order, even when that procedure was never called. This matches the pinned parser's shared vector; it is not a reachability claim. Reversing declaration or call order may change that header CRC. Ordinary calls, call-goto, target locals and owner-specific returns use the existing proved If/elsif/With/Either/While contexts.
 
-Procedure-to-procedure calls, recursion, process-owned procedures, scoped name rewriting, macros/definitions in this checksum scope, automatic labels and unproved label modifiers remain named unsupported results with no admitted replacement. Raw translation can support more than Full checksum derivation. All source/token/node/depth/action/expansion/output bounds remain unchanged and aggregate across owners. A resource refusal carries no successful checksum or artifact claim.
+This original main-only study refused procedure-to-procedure calls; the later [acyclic continuation](pluscal-acyclic-procedure-checksums.md) lifts only its proved body-call shapes. Recursion, process-owned procedures, scoped name rewriting, macros/definitions in this checksum scope, automatic labels and unproved label modifiers remain named unsupported results with no admitted replacement. Raw translation can support more than Full checksum derivation. All source/token/node/depth/action/expansion/output bounds remain unchanged and aggregate across owners. A resource refusal carries no successful checksum or artifact claim.
 
 Fair-header-only CRC equality remains the pinned weak detection policy, not source identity or an integrity certificate. A generated model may be checked independently with `INIT Init` and `NEXT Next`; finite count/width/store evidence is distinct from witness validity. Strict saved-frame replay remains #124 and may return named Unsupported. Separately labelled canonical replay never earns TLC-profile validation credit.
 

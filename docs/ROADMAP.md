@@ -143,3 +143,24 @@ F-023/#201: producer-owned timer requests now have a real claim barrier/joined m
 F-023/#208: request-owned diagnostic service composes the real appended prefix and configuration-owned hook, including empty requests. Ordinary CLI/schedule/error/count/checkpoint certification remains open; no family-completion credit.
 
 F-023/#213 now has privately reconstructed producer-owned candidate admission with fresh independent memory/JSON replay. No caller graph/trace/Valid flags certify a word. Next: prove actual ordinary timer/queue/stop/count/end/checkpoint composition before enabling ordinary verdicts; partial/no-candidate outcomes never imply Holds.
+
+F-023/#220 retains genuinely absent configured hooks through the shared binder,
+owned request service and independent candidate admission. Existing mandatory
+APIs remain required; no supplied TRUE replaces absence. This removes a source
+injection prerequisite without proving ordinary clock/queue/stop/count/checkpoint
+composition or Holds. See the [current executable contract](optional-periodic-hook.md).
+
+
+### Exhausted-queue terminal service (#222)
+
+Bounded additive [Rust terminal diagnostics](terminal-periodic-service.md) preserve
+pinned `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork/modelCheck`,
+`Worker.run` and `StateQueue.finishAll/suspendAll` ordering. A genuinely finished
+queue refuses suspension and skips the hook before final selection. The complete
+60 corrected full CLI and 60 controlled actual outer/queue observations remain
+separate from native authority. Original misleading safe labels and observer
+compile failures are retained; independent replay confirms their legal stutter.
+No new TLC bug/default divergence is inferred. Existing ordinary CLI/clock/queue,
+checkpoint/error/count equivalence remains unproved; F-023 stays missing and
+audit-required. Controller Complete and independently Valid concrete words are
+not temporal Holds or model completion. See [ADR0076](decisions/0076-exhausted-queue-terminal-service.md).

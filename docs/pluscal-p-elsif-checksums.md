@@ -1,5 +1,12 @@
 # Procedure checksums with P elsif
 
+
+Scope update: the later [recursive sequential header contract](pluscal-recursive-procedure-checksums.md)
+adds proved bounded self/mutual procedure graphs and tail ownership. Recursive
+refusals and counts below describe this guide's original frozen producer; they
+are retained history, not the current recursive support boundary. Broader
+process/scoped Full contexts and strict #124 saved-frame replay remain pending.
+
 Full in-memory editing can derive TLC's algorithm header CRC for a bounded P
 `elsif` chain containing calls and returns in one disjoint, explicitly labelled
 sequential procedure. The paired C syntax uses nested `if` statements. This

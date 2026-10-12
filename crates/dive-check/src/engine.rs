@@ -990,6 +990,8 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) capture: Option<Collector<S::Key>>,
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
     pub(crate) observer: Option<&'obs mut dyn crate::capture::SourceObserver>,
+    pub(crate) stopped_faults: [bool; 5],
+    pub(crate) stopped_transaction: Option<crate::capture::StoppedTransaction>,
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
@@ -1976,6 +1978,7 @@ impl<S: Keyed> Search<'_, '_, S> {
 /// What the engine hands back.
 pub(crate) struct Outcome {
     pub seen: Option<crate::SeenUsage>,
+    pub stopped_transaction: Option<crate::capture::StoppedTransaction>,
     pub graph: Option<BehaviorGraph>,
     pub frontier: crate::FrontierUsage,
     pub predecessor: crate::result::PredecessorUsage,
@@ -1995,7 +1998,7 @@ pub(crate) struct Outcome {
 /// TLC's `checkPostCondition` after a complete search (`ModelChecker.java:283-288`,
 /// `Tool.checkPostConditionWithContext`): each postcondition in order, in the
 /// empty context; the first that is not `TRUE` decides.
-fn postconditions(m: &Model) -> Option<Verdict> {
+pub(crate) fn postconditions(m: &Model) -> Option<Verdict> {
     let list = match &m.postconditions {
         Ok(list) => list,
         Err(e) => {
@@ -2173,6 +2176,7 @@ fn search_in<S: Keyed>(
             workers.used = 0;
             return Outcome {
                 seen: None,
+                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -2193,6 +2197,7 @@ fn search_in<S: Keyed>(
         Err(message) => {
             return Outcome {
                 seen: None,
+                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -2210,6 +2215,7 @@ fn search_in<S: Keyed>(
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
             seen: None,
+            stopped_transaction: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
@@ -2231,6 +2237,7 @@ fn search_in<S: Keyed>(
     let Some(view_seeder) = StateFingerprinter::tlc(opts.fp_index, &[0]) else {
         return Outcome {
             seen: None,
+            stopped_transaction: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
@@ -2261,6 +2268,7 @@ fn search_in<S: Keyed>(
         Err(error) => {
             workers.used = 0;
             return Outcome {
+                stopped_transaction: None,
                 seen: Some(crate::seen::SeenUsage::creation_failure(
                     opts.seen_disk.as_ref(),
                     &error,
@@ -2299,6 +2307,8 @@ fn search_in<S: Keyed>(
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
         checkpoint,
         observer,
+        stopped_faults: [false; 5],
+        stopped_transaction: None,
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
@@ -2364,6 +2374,14 @@ fn search_in<S: Keyed>(
             }
         }
     };
+    for (index, present) in s.stopped_faults.iter().enumerate() {
+        if *present {
+            let fault = ["lane-close", "lane-join", "dispatch", "callback", "unwind"][index];
+            notes.push(format!(
+                "Stopped diagnostic {fault} failure; original ordered source winner retained."
+            ));
+        }
+    }
     let mut frontier = crate::frontier::evidence(&accounting);
     let mut stop = if frontier.failures.is_empty() {
         stop
@@ -2422,6 +2440,7 @@ fn search_in<S: Keyed>(
                 &mut s.log,
                 Outcome {
                     seen: None,
+                    stopped_transaction: None,
                     predecessor: crate::result::PredecessorUsage::default(),
                     graph: s.capture.take().map(Collector::finish),
                     frontier,
@@ -2516,6 +2535,7 @@ fn search_in<S: Keyed>(
         &mut s.log,
         Outcome {
             seen: None,
+            stopped_transaction: s.stopped_transaction.take(),
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier,
@@ -2581,6 +2601,7 @@ mod predecessor_tests {
             &mut log,
             Outcome {
                 seen: None,
+                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -2626,6 +2647,7 @@ mod predecessor_tests {
             &mut log,
             Outcome {
                 seen: None,
+                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),

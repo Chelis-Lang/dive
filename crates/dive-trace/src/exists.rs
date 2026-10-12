@@ -89,6 +89,7 @@ struct TupleProof<'a> {
     model: &'a Model,
     fuel: usize,
     variables: &'a BTreeSet<VarId>,
+    ranges: &'a BTreeSet<VarId>,
 }
 impl TupleProof<'_> {
     fn value(value: &Value) -> bool {
@@ -145,6 +146,63 @@ impl TupleProof<'_> {
         }
         def.std
     }
+    // Only sealed whole-model facts admit indexed reads. The selector is not
+    // guessed or evaluated here: the ordinary scoped walk audits it, and the
+    // actual relation/ending evaluation must still succeed independently.
+    fn range(&mut self, expr: ExprId, scope: &Scope) -> bool {
+        if self.fuel == 0 {
+            return false;
+        }
+        self.fuel -= 1;
+        let ev = &self.model.evaluator;
+        let Some(node) = self.model.ir.nodes().get(expr.index()) else {
+            return false;
+        };
+        match &node.expr {
+            Expr::Var { var, primed: false } => self.ranges.contains(var),
+            Expr::Local(slot) => match ev.scope_slot(scope, *slot) {
+                SlotView::Lazy(body, entered) => self.range(body, &entered),
+                _ => false,
+            },
+            Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(scope, *decl) {
+                SlotView::Lazy(body, entered) => self.range(body, &entered),
+                _ => false,
+            },
+            Expr::Let { body, .. } => ev
+                .scope_let(scope, expr)
+                .is_ok_and(|entered| self.range(*body, &entered)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|entered| self.range(*body, &entered))
+            }
+            Expr::Def(id) => self.range_definition(*id, &[], scope),
+            Expr::Apply {
+                callee: OpRef::Def(id),
+                args,
+            } => self.range_definition(*id, args, scope),
+            _ => false,
+        }
+    }
+
+    fn range_definition(&mut self, id: DefId, args: &[Arg], scope: &Scope) -> bool {
+        let ev = &self.model.evaluator;
+        let id = ev.redirected(id);
+        let Some(def) = self.model.ir.defs().get(id.index()) else {
+            return false;
+        };
+        if def.recursive
+            || def.std.is_some()
+            || ev.is_value_override(id)
+            || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
+        {
+            return false;
+        }
+        ev.scope_apply(scope, id, args)
+            .is_ok_and(|entered| self.range(def.body, &entered))
+    }
+
     fn tuple(&mut self, expr: ExprId, scope: &Scope) -> bool {
         if self.fuel == 0 {
             return false;
@@ -157,6 +215,7 @@ impl TupleProof<'_> {
         match &node.expr {
             Expr::Tuple(_) => true,
             Expr::Var { var, primed: false } => self.variables.contains(var),
+            Expr::FcnApply { fcn, .. } => self.range(*fcn, scope),
             Expr::If { then, other, .. } => self.tuple(*then, scope) && self.tuple(*other, scope),
             Expr::Local(slot) => self.slot(ev.scope_slot(scope, *slot)),
             Expr::SubstRef { decl, .. } => self.slot(ev.scope_subst_slot(scope, *decl)),
@@ -175,6 +234,7 @@ impl TupleProof<'_> {
                     model: self.model,
                     fuel: self.fuel,
                     variables: &empty,
+                    ranges: &empty,
                 };
                 let result = future.tuple(*body, scope);
                 self.fuel = future.fuel;
@@ -183,9 +243,12 @@ impl TupleProof<'_> {
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|sc| self.tuple(*body, &sc)),
-            Expr::Subst { body, .. } => ev
-                .scope_subst(scope, expr)
-                .is_ok_and(|sc| self.tuple(*body, &sc)),
+            Expr::Subst { body, bindings } => {
+                crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
+                    && ev
+                        .scope_subst(scope, expr)
+                        .is_ok_and(|sc| self.tuple(*body, &sc))
+            }
             Expr::Apply { callee, args } => {
                 let op = match callee {
                     OpRef::Const(id) => self.configured_native(*id),
@@ -202,7 +265,7 @@ impl TupleProof<'_> {
                                 return false;
                             }
                             if def.std.is_none() {
-                                if self.variables.is_empty() {
+                                if self.variables.is_empty() && self.ranges.is_empty() {
                                     return false;
                                 }
                                 return ev
@@ -229,37 +292,41 @@ pub(crate) fn native_tuple_only(model: &Model, op: StdOp, args: &[Arg], scope: &
         model,
         fuel: 256,
         variables: &BTreeSet::new(),
+        ranges: &BTreeSet::new(),
     }
     .native(op, args, scope)
 }
 
-/// Private shape rule used only after a whole-model inductive history proof.
-/// Public existence decisions deliberately keep the empty variable set.
-pub(crate) fn tuple_with_variables(
+/// Sealed whole-word tuple/function-range hypotheses; never supplied by JSON.
+pub(crate) fn tuple_with_histories(
     model: &Model,
     expr: ExprId,
     scope: &Scope,
     variables: &BTreeSet<VarId>,
+    ranges: &BTreeSet<VarId>,
 ) -> bool {
     TupleProof {
         model,
         fuel: 256,
         variables,
+        ranges,
     }
     .tuple(expr, scope)
 }
 
-pub(crate) fn native_with_variables(
+pub(crate) fn native_with_histories(
     model: &Model,
     op: StdOp,
     args: &[Arg],
     scope: &Scope,
     variables: &BTreeSet<VarId>,
+    ranges: &BTreeSet<VarId>,
 ) -> bool {
     TupleProof {
         model,
         fuel: 256,
         variables,
+        ranges,
     }
     .native(op, args, scope)
 }
@@ -1001,6 +1068,7 @@ mod tuple_shape_tests {
             model: &model,
             fuel: 256,
             variables: &BTreeSet::new(),
+            ranges: &BTreeSet::new(),
         };
         assert!(!proof.tuple(bad, &scope));
         assert!(!proof.definition(DefId(u32::MAX), &scope));
@@ -1011,6 +1079,7 @@ mod tuple_shape_tests {
             model: &model,
             fuel: 0,
             variables: &BTreeSet::new(),
+            ranges: &BTreeSet::new(),
         };
         assert!(!exhausted.tuple(model.ir.def(pair).body, &scope));
     }

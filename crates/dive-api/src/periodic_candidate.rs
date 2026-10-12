@@ -23,6 +23,32 @@ pub enum Origin {
     /// Mandatory final selection after genuine successful safety EOF.
     Eof(dive_check::Stats),
 }
+/// Source-owned terminal classification. These outcomes describe the bounded
+/// diagnostic transaction; none establishes ordinary TLC scheduling or Holds.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Terminal {
+    /// Actual request candidate reconstructed and independently replayed twice.
+    RequestWitness,
+    /// Final candidate after admitted graph completion, independently replayed twice.
+    EofWitness,
+    /// Actual complete safety/product graph and every final PEM selected without
+    /// a candidate. Ordinary clock/queue equivalence remains unproved.
+    FinalSelectionsComplete,
+    /// Actual deferred postcondition failure after all final selections passed.
+    PostconditionFailure {
+        /// Original deciding TLC message code when the existing class provides it.
+        code: Option<u32>,
+    },
+    /// Actual prejoin source-stop transaction retained after real joins.
+    OrderedSourceStop {
+        /// Original logical source identity.
+        source: u64,
+        /// Original eligible deciding error class.
+        kind: dive_check::capture::WorkerStop,
+    },
+    /// Earlier admission, request, resource or execution stop; no final proof.
+    Incomplete,
+}
 /// Privately admitted actual witness; callers cannot supply its validation flags.
 #[derive(Clone, Debug)]
 pub struct Witness {
@@ -66,14 +92,21 @@ impl Witness {
     }
 }
 /// Producer-owned diagnostic execution and optional independently admitted word.
-pub struct Report {
-    run: periodic_snapshot::Run,
+pub struct Report<R = periodic_snapshot::Run> {
+    run: R,
     witness: Option<Witness>,
+    terminal: Terminal,
 }
-impl Report {
+impl<R> Report<R> {
+    /// Classification derived only from this owned producer and fresh replay.
+    /// No caller graph, copied success or absence of a witness can create it.
+    #[must_use]
+    pub fn terminal(&self) -> &Terminal {
+        &self.terminal
+    }
     /// Actual run, preserving ordered failures, partial passes, options and counters.
     #[must_use]
-    pub fn run(&self) -> &periodic_snapshot::Run {
+    pub fn run(&self) -> &R {
         &self.run
     }
     /// A selected witness admitted twice; absence never means temporal holds.
@@ -130,13 +163,13 @@ impl std::fmt::Display for Error {
 }
 impl std::error::Error for Error {}
 /// Noncertifying failure retaining its actual run when execution took place.
-pub struct Failure {
+pub struct Failure<R = periodic_snapshot::Run> {
     /// Typed deciding admission/replay failure.
     pub error: Error,
     /// Actual source-owned run; absent before execution or if a thread loses it.
-    pub run: Option<Box<periodic_snapshot::Run>>,
+    pub run: Option<Box<R>>,
 }
-impl std::fmt::Debug for Failure {
+impl<R> std::fmt::Debug for Failure<R> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Failure")
             .field("error", &self.error)
@@ -144,12 +177,12 @@ impl std::fmt::Debug for Failure {
             .finish()
     }
 }
-impl std::fmt::Display for Failure {
+impl<R> std::fmt::Display for Failure<R> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.error.fmt(f)
     }
 }
-impl std::error::Error for Failure {}
+impl<R> std::error::Error for Failure<R> {}
 
 /// Execute an internally owned configuration snapshot and independently admit
 /// only its actual selected concrete word. An ordinary checking route is never
@@ -177,7 +210,7 @@ pub fn check(
         .join()
         .map_err(|_| before(Error::Thread("candidate admission thread failed".into())))?
 }
-fn before(error: Error) -> Failure {
+fn before<R>(error: Error) -> Failure<R> {
     Failure { error, run: None }
 }
 fn check_inner(
@@ -188,26 +221,272 @@ fn check_inner(
     policy: periodic_lifecycle::Options,
     requests: dive_check::progress::Options,
 ) -> Result<Report, Box<Failure>> {
-    let snapshot =
-        periodic_snapshot::bind(ir.clone(), cfg).map_err(|e| before(Error::Binding(e)))?;
+    check_owned::<periodic_snapshot::Snapshot>(ir, cfg, options, limits, policy, requests, false)
+}
+/// Optional configuration-owned execution and witness admission. Absence derives
+/// from the original configuration; it never inserts TRUE or a supplied callback.
+/// The same private reconstruction and two fresh independent replay paths are used.
+/// No witness absence, partial pass or safety EOF certifies temporal Holds, ordinary
+/// scheduling equivalence, stopping counts or model completion.
+///
+/// # Errors
+/// The same original binding, source/context, fixed resource and replay failures
+/// as [`check`]. Existing mandatory selection remains unchanged.
+pub fn check_optional(
+    ir: Arc<Ir>,
+    cfg: ModelConfig,
+    options: CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+) -> Result<Report<periodic_snapshot::OptionalRun>, Box<Failure<periodic_snapshot::OptionalRun>>> {
+    std::thread::Builder::new()
+        .stack_size(dive_eval::RECOMMENDED_STACK)
+        .spawn(move || {
+            check_owned::<periodic_snapshot::OptionalSnapshot>(
+                &ir, &cfg, &options, limits, policy, requests, false,
+            )
+        })
+        .map_err(|e| before(Error::Thread(e.to_string())))?
+        .join()
+        .map_err(|_| before(Error::Thread("candidate admission thread failed".into())))?
+}
+/// Source-owned terminal service before timer/pool joins, followed by the same
+/// fresh reconstruction and independent memory/JSON replay as [`check_optional`].
+/// A genuinely finished queue skips its configured hook; earlier actual requests
+/// still preserve hook/candidate/error precedence. Absence never means Holds.
+/// Ordinary checker/CLI scheduling, checkpoint and stopping-count parity refuse.
+///
+/// # Errors
+/// Existing callback-free admission, actual execution/resource failures and
+/// independent replay failures. No caller EOF/graph/suspension flag is accepted.
+pub fn check_optional_terminal(
+    ir: Arc<Ir>,
+    cfg: ModelConfig,
+    options: CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+) -> Result<Report<periodic_snapshot::OptionalRun>, Box<Failure<periodic_snapshot::OptionalRun>>> {
+    std::thread::Builder::new()
+        .stack_size(dive_eval::RECOMMENDED_STACK)
+        .spawn(move || {
+            check_owned::<periodic_snapshot::OptionalSnapshot>(
+                &ir, &cfg, &options, limits, policy, requests, true,
+            )
+        })
+        .map_err(|e| before(Error::Thread(e.to_string())))?
+        .join()
+        .map_err(|_| before(Error::Thread("terminal candidate thread failed".into())))?
+}
+/// Source-owned optional hook with an additive eligible worker-error transaction.
+/// The original worker winner remains a failure; diagnostic faults are retained
+/// separately. Successful EOF and deciding temporal candidates use the shared
+/// reconstruction and fresh independent memory/JSON replay paths.
+///
+/// # Errors
+/// Original binding/admission/source failure or independent candidate refusal.
+/// This diagnostic endpoint never certifies ordinary scheduling or Holds.
+pub fn check_optional_stopped(
+    ir: Arc<Ir>,
+    cfg: ModelConfig,
+    options: CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+) -> Result<Report<periodic_snapshot::OptionalRun>, Box<Failure<periodic_snapshot::OptionalRun>>> {
+    std::thread::Builder::new()
+        .stack_size(dive_eval::RECOMMENDED_STACK)
+        .spawn(move || {
+            check_owned_mode::<periodic_snapshot::OptionalSnapshot>(
+                &ir,
+                &cfg,
+                &options,
+                limits,
+                policy,
+                requests,
+                ExecutionRoute::Stopped,
+            )
+        })
+        .map_err(|e| before(Error::Thread(e.to_string())))?
+        .join()
+        .map_err(|_| before(Error::Thread("stopped candidate thread failed".into())))?
+}
+#[derive(Clone, Copy)]
+enum ExecutionRoute {
+    Requests,
+    Terminal,
+    Stopped,
+}
+trait Owned {
+    type Run;
+    fn bind(ir: Arc<Ir>, cfg: &ModelConfig) -> Result<Self, Box<dive_model::Failure>>
+    where
+        Self: Sized;
+    fn model(&self) -> &dive_model::Model;
+    fn execute(
+        &self,
+        options: &CheckOptions,
+        limits: phase_graph::Limits,
+        policy: periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+        route: ExecutionRoute,
+    ) -> Result<Self::Run, dive_eval::EvalError>;
+    fn lifecycle(run: &Self::Run) -> &periodic_lifecycle::Run;
+}
+macro_rules! owned {
+    ($snapshot:ty, $run:ty, $bind:path, $terminal:expr, $stopped:expr) => {
+        impl Owned for $snapshot {
+            type Run = $run;
+            fn bind(ir: Arc<Ir>, cfg: &ModelConfig) -> Result<Self, Box<dive_model::Failure>> {
+                $bind(ir, cfg)
+            }
+            fn model(&self) -> &dive_model::Model {
+                self.model()
+            }
+            fn execute(
+                &self,
+                options: &CheckOptions,
+                limits: phase_graph::Limits,
+                policy: periodic_lifecycle::Options,
+                requests: dive_check::progress::Options,
+                route: ExecutionRoute,
+            ) -> Result<Self::Run, dive_eval::EvalError> {
+                match route {
+                    ExecutionRoute::Terminal => {
+                        ($terminal)(self, options, limits, policy, requests)
+                    }
+                    ExecutionRoute::Stopped => ($stopped)(self, options, limits, policy, requests),
+                    ExecutionRoute::Requests => {
+                        self.execute_candidate_source(options, limits, policy, requests)
+                    }
+                }
+            }
+            fn lifecycle(run: &Self::Run) -> &periodic_lifecycle::Run {
+                run.lifecycle()
+            }
+        }
+    };
+}
+owned!(
+    periodic_snapshot::Snapshot,
+    periodic_snapshot::Run,
+    periodic_snapshot::bind,
+    |_: &periodic_snapshot::Snapshot, _, _, _, _| Err(dive_eval::EvalError::unsupported(
+        "mandatory terminal endpoint not admitted"
+    )),
+    |_: &periodic_snapshot::Snapshot, _, _, _, _| Err(dive_eval::EvalError::unsupported(
+        "mandatory stopped endpoint not admitted"
+    ))
+);
+owned!(
+    periodic_snapshot::OptionalSnapshot,
+    periodic_snapshot::OptionalRun,
+    periodic_snapshot::bind_optional,
+    periodic_snapshot::OptionalSnapshot::execute_terminal_candidate_source,
+    periodic_snapshot::OptionalSnapshot::execute_stopped_candidate_source
+);
+#[allow(
+    clippy::too_many_arguments,
+    reason = "one shared original rebind/reconstruction/replay pipeline across additive modes"
+)]
+fn check_owned<S: Owned>(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    options: &CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+    terminal: bool,
+) -> Result<Report<S::Run>, Box<Failure<S::Run>>> {
+    check_owned_mode::<S>(
+        ir,
+        cfg,
+        options,
+        limits,
+        policy,
+        requests,
+        if terminal {
+            ExecutionRoute::Terminal
+        } else {
+            ExecutionRoute::Requests
+        },
+    )
+}
+#[allow(
+    clippy::too_many_arguments,
+    reason = "shared actual candidate reconstruction and independent replay"
+)]
+fn check_owned_mode<S: Owned>(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    options: &CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+    route: ExecutionRoute,
+) -> Result<Report<S::Run>, Box<Failure<S::Run>>> {
+    let snapshot = S::bind(ir.clone(), cfg).map_err(|e| before(Error::Binding(e)))?;
     let run = snapshot
-        .execute_candidate_source(options, limits, policy, requests)
+        .execute(options, limits, policy, requests, route)
         .map_err(|e| before(Error::Input(e)))?;
-    let result = admit(ir, cfg, snapshot.model(), &run, limits);
+    let result = admit(cfg, snapshot.model(), S::lifecycle(&run), limits, || {
+        S::bind(ir.clone(), cfg).map(|fresh| fresh.model().clone())
+    });
     match result {
-        Ok(witness) => Ok(Report { run, witness }),
+        Ok(witness) => {
+            let lifecycle = S::lifecycle(&run);
+            let terminal = classify(lifecycle, witness.as_ref());
+            Ok(Report {
+                run,
+                witness,
+                terminal,
+            })
+        }
         Err(error) => Err(Box::new(Failure {
             error,
             run: Some(Box::new(run)),
         })),
     }
 }
+
+fn classify(run: &periodic_lifecycle::Run, witness: Option<&Witness>) -> Terminal {
+    if let Some(witness) = witness {
+        return match witness.origin() {
+            Origin::Request(_) => Terminal::RequestWitness,
+            Origin::Eof(_) => Terminal::EofWitness,
+        };
+    }
+    if let Some(stopped) = run.stopped_service()
+        && stopped.joined_stats().is_some()
+    {
+        return Terminal::OrderedSourceStop {
+            source: stopped.source(),
+            kind: stopped.kind(),
+        };
+    }
+    if let Some(result) = run.postcondition_failure() {
+        return Terminal::PostconditionFailure {
+            code: result.verdict.tlc().map(|class| class.code),
+        };
+    }
+    if run.backend().complete().is_some()
+        && run
+            .finalization()
+            .is_some_and(periodic_lifecycle::Finalization::all_checked)
+        && run.postconditions_passed()
+    {
+        return Terminal::FinalSelectionsComplete;
+    }
+    Terminal::Incomplete
+}
+
 fn admit(
-    ir: &Arc<Ir>,
     cfg: &ModelConfig,
     model: &dive_model::Model,
-    run: &periodic_snapshot::Run,
+    run: &periodic_lifecycle::Run,
     limits: phase_graph::Limits,
+    rebind: impl Fn() -> Result<dive_model::Model, Box<dive_model::Failure>>,
 ) -> Result<Option<Witness>, Error> {
     let Some(selected) = word::selected(run)? else {
         return Ok(None);
@@ -216,18 +495,18 @@ fn admit(
     let doc = trace.to_doc(model).map_err(Error::Document)?;
     // Original atom IDs belong to the execution interner. Decode lossless data
     // into a newly bound interner before independent in-memory replay.
-    let fresh_a = periodic_snapshot::bind(ir.clone(), cfg).map_err(Error::Binding)?;
+    let fresh_a = rebind().map_err(Error::Binding)?;
     let memory_trace =
-        dive_trace::Trace::decode(fresh_a.model(), &doc).map_err(|e| Error::Document(e.detail))?;
-    let memory = dive_trace::validate(fresh_a.model(), &memory_trace, None);
+        dive_trace::Trace::decode(&fresh_a, &doc).map_err(|e| Error::Document(e.detail))?;
+    let memory = dive_trace::validate(&fresh_a, &memory_trace, None);
     if memory.validation != Validation::Valid {
         return Err(Error::Validation(memory));
     }
     let bytes =
         serde_json::to_string(&doc.to_json()).map_err(|e| Error::Document(e.to_string()))?;
     let reparsed = TraceDoc::parse(&bytes).map_err(Error::Document)?;
-    let fresh_b = periodic_snapshot::bind(ir.clone(), cfg).map_err(Error::Binding)?;
-    let json = dive_trace::validate_doc(fresh_b.model(), &reparsed, &cfg.model_values, None).0;
+    let fresh_b = rebind().map_err(Error::Binding)?;
+    let json = dive_trace::validate_doc(&fresh_b, &reparsed, &cfg.model_values, None).0;
     if json.validation != Validation::Valid {
         return Err(Error::Validation(json));
     }
@@ -272,28 +551,28 @@ mod tests {
                 },
             )
             .expect("actual EOF");
-        let mut selected = word::selected(&run)
+        let mut selected = word::selected(run.lifecycle())
             .expect("selection")
             .expect("actual candidate");
-        assert!(word::reconstruct(snapshot.model(), &run, &selected, limits).is_ok());
+        assert!(word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limits).is_ok());
         let anchor = selected.candidate.anchor;
         selected.written[anchor] = false;
         assert!(matches!(
-            word::reconstruct(snapshot.model(), &run, &selected, limits),
+            word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limits),
             Err(Error::Reconstruction(_))
         ));
         selected.written[anchor] = true;
         let actual = selected.identities[anchor].fingerprint;
         selected.identities[anchor].fingerprint ^= 1;
         assert!(matches!(
-            word::reconstruct(snapshot.model(), &run, &selected, limits),
+            word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limits),
             Err(Error::Reconstruction(_))
         ));
         selected.identities[anchor].fingerprint = actual;
         let mut limited = limits;
         limited.graph.steps = run.lifecycle().backend().graph_inspections();
         assert!(matches!(
-            word::reconstruct(snapshot.model(), &run, &selected, limited),
+            word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limited),
             Err(Error::Limit(_))
         ));
     }
@@ -346,6 +625,209 @@ mod tests {
             assert!(report.run().lifecycle().safety_eof().is_none());
             assert_eq!(witness.memory_validation().validation, Validation::Valid);
             assert_eq!(witness.json_validation().validation, Validation::Valid);
+        }
+    }
+    #[test]
+    fn genuine_optional_absence_preserves_actual_request_prefix_origin() {
+        let source = "---- MODULE Candidate ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x'=IF x=0 THEN 1 ELSE 1\nLive == <>(x=2)\nHook == FALSE\n====\n";
+        for width in [1, 3, 4, 8] {
+            let analysis =
+                dive_sema::analyze_source("Candidate.tla", source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let cfg =
+                dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n")
+                    .into_config()
+                    .expect("cfg");
+            let options = CheckOptions {
+                workers: width,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let (report, observed) =
+                dive_check::progress::testing::with_returned_prefix_request(|| {
+                    // Only this unit control bypasses the outer stack thread so the
+                    // existing explicit test scheduler is installed on the actual
+                    // execution caller. No caller supplies a Request or candidate.
+                    check_owned::<periodic_snapshot::OptionalSnapshot>(
+                        &ir,
+                        &cfg,
+                        &options,
+                        phase_graph::Limits::default(),
+                        periodic_lifecycle::Options {
+                            ratio_limit: f64::INFINITY,
+                            ..periodic_lifecycle::Options::default()
+                        },
+                        dive_check::progress::Options {
+                            interval: std::time::Duration::from_millis(1),
+                            force: false,
+                        },
+                        false,
+                    )
+                });
+            assert!(observed, "actual returned prefix rendezvous");
+            let report = report.expect("request candidate");
+            assert_eq!(report.run().configured_name(), None);
+            assert_eq!(report.run().definition(), None);
+            assert_eq!(report.run().expression(), None);
+            let witness = report.witness().expect("validated candidate");
+            let Origin::Request(service) = witness.origin() else {
+                panic!("request origin");
+            };
+            assert!(!service.committed().is_empty());
+            assert!(!service.resume_requested());
+            assert!(report.run().lifecycle().service_evaluations().is_empty());
+            assert!(report.run().lifecycle().safety_eof().is_none());
+            assert_eq!(witness.memory_validation().validation, Validation::Valid);
+            assert_eq!(witness.json_validation().validation, Validation::Valid);
+        }
+    }
+    #[test]
+    fn actual_request_candidate_stops_before_new_terminal_transaction() {
+        for width in [1, 3, 4, 8] {
+            let source = "---- MODULE TerminalRequest ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x'=1\nLive == <>(x=2)\nHook == FALSE\n====\n";
+            let analysis = dive_sema::analyze_source(
+                "TerminalRequest.tla",
+                source,
+                &dive_sema::Options::default(),
+            );
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let cfg = dive_config::parse(
+                "INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n_PERIODIC Hook\n",
+            )
+            .into_config()
+            .expect("cfg");
+            let options = CheckOptions {
+                workers: width,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let (report, observed) =
+                dive_check::progress::testing::with_returned_prefix_request(|| {
+                    check_owned::<periodic_snapshot::OptionalSnapshot>(
+                        &ir,
+                        &cfg,
+                        &options,
+                        phase_graph::Limits::default(),
+                        periodic_lifecycle::Options {
+                            ratio_limit: f64::INFINITY,
+                            ..periodic_lifecycle::Options::default()
+                        },
+                        dive_check::progress::Options {
+                            interval: std::time::Duration::from_millis(1),
+                            force: false,
+                        },
+                        true,
+                    )
+                });
+            assert!(
+                observed,
+                "test-only dispatch observes genuine pending request"
+            );
+            let report = report.expect("actual candidate");
+            let run = report.run().lifecycle();
+            assert!(run.terminal_service().is_none());
+            assert!(run.safety_eof().is_none());
+            assert!(run.final_checks().is_empty());
+            assert!(run.service_evaluations().is_empty());
+            let witness = report.witness().expect("independently admitted word");
+            let Origin::Request(service) = witness.origin() else {
+                panic!("request origin required");
+            };
+            assert!(!service.committed().is_empty());
+            assert!(!service.resume_requested());
+            assert_eq!(witness.memory_validation().validation, Validation::Valid);
+            assert_eq!(witness.json_validation().validation, Validation::Valid);
+        }
+    }
+    #[test]
+    fn stopped_route_keeps_actual_earlier_request_candidate_before_false_hook() {
+        let source = "---- MODULE Candidate ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x'=IF x=0 THEN 1 ELSE 1\nLive == <>(x=2)\nHook == FALSE\n====\n";
+        for width in [1, 3, 4, 8] {
+            let a =
+                dive_sema::analyze_source("Candidate.tla", source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+            let cfg = dive_config::parse(
+                "INIT Init\nNEXT Next\nPROPERTY Live\n_PERIODIC Hook\nCHECK_DEADLOCK FALSE\n",
+            )
+            .into_config()
+            .expect("cfg");
+            let options = CheckOptions {
+                workers: width,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let (report, observed) =
+                dive_check::progress::testing::with_returned_prefix_request(|| {
+                    check_owned_mode::<periodic_snapshot::OptionalSnapshot>(
+                        &ir,
+                        &cfg,
+                        &options,
+                        phase_graph::Limits::default(),
+                        periodic_lifecycle::Options {
+                            ratio_limit: f64::INFINITY,
+                            ..periodic_lifecycle::Options::default()
+                        },
+                        dive_check::progress::Options {
+                            interval: std::time::Duration::from_millis(1),
+                            force: false,
+                        },
+                        ExecutionRoute::Stopped,
+                    )
+                });
+            assert!(observed, "actual returned-prefix request");
+            let report = report.expect("actual candidate");
+            let run = report.run().lifecycle();
+            assert!(run.stopped_service().is_none());
+            assert!(run.terminal_service().is_none());
+            assert!(run.safety_eof().is_none());
+            assert!(run.final_checks().is_empty());
+            assert!(run.service_evaluations().is_empty());
+            let witness = report.witness().expect("independently replayed candidate");
+            let Origin::Request(service) = witness.origin() else {
+                panic!("actual request");
+            };
+            assert!(!service.committed().is_empty());
+            assert!(!service.resume_requested());
+            assert_eq!(witness.memory_validation().validation, Validation::Valid);
+            assert_eq!(witness.json_validation().validation, Validation::Valid);
+            for mode in 0..4 {
+                let fresh =
+                    periodic_snapshot::bind_optional(ir.clone(), &cfg).expect("fresh memory");
+                let mut doc = witness.document().clone();
+                match mode {
+                    0 => {
+                        doc.states[0].insert("x".into(), serde_json::json!(99));
+                    }
+                    1 => doc.properties = vec!["Unknown".into()],
+                    2 => {
+                        let mut wrong = doc.states[0].clone();
+                        wrong.insert("x".into(), serde_json::json!(99));
+                        doc.states.push(wrong);
+                        doc.labels.push(None);
+                        doc.length = Some(doc.states.len());
+                        doc.ending = Some(dive_trace::Ending::Lasso { back_to: 0 });
+                    }
+                    _ => {
+                        doc.ending = Some(dive_trace::Ending::Lasso {
+                            back_to: doc.states.len(),
+                        });
+                    }
+                }
+                let trace = dive_trace::Trace::decode(fresh.model(), &doc).expect("transport");
+                assert!(matches!(
+                    dive_trace::validate(fresh.model(), &trace, None).validation,
+                    Validation::Invalid(_)
+                ));
+                let bytes = serde_json::to_string(&doc.to_json()).expect("JSON");
+                let parsed = TraceDoc::parse(&bytes).expect("parse");
+                let fresh = periodic_snapshot::bind_optional(ir.clone(), &cfg).expect("fresh JSON");
+                assert!(matches!(
+                    dive_trace::validate_doc(fresh.model(), &parsed, &cfg.model_values, None)
+                        .0
+                        .validation,
+                    Validation::Invalid(_)
+                ));
+            }
         }
     }
 }

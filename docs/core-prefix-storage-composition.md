@@ -83,3 +83,219 @@ all 72 local gate commands, including all 1,648 tests with zero skips. Its
 [separate receipt](../conformance/probes/ci-storage-matrices/epochs/3dcabae15a7dbfcbd093cc1eb654beeaf693addf/index.json)
 records the complete, disjoint inventory and independent corruption controls.
 The existing native runtime and test-splitting epochs keep their own producers.
+
+## Next receiving composition
+
+The receiving branch adds four bounded capabilities. They are implemented in
+source and passed their separate component campaigns. Fresh combined
+qualification is still pending; the preceding frozen epochs remain the evidence
+for the earlier composition.
+
+- [Recursive procedure checksums](pluscal-recursive-procedure-checksums.md)
+  extend source-preserving PlusCal Full editing to the documented sequential
+  procedure forms. Unsupported source shapes retain named refusals; this does
+  not authorize general saved-stack replay.
+- [Optional configured hooks](optional-periodic-hook.md) admit the bounded
+  periodic diagnostic path without requiring a synthetic configured hook.
+- [Terminal periodic service](terminal-periodic-service.md) and
+  [stopped-worker service](stopped-periodic-service.md) distinguish an actual
+  owned EOF from an owned first source error. The latter preserves its original
+  error and completed prefix, and reports any diagnostic failure separately.
+  These are Rust diagnostics, not ordinary temporal checking verdicts.
+- [Pure disk safety roles](user/disk-seen-safety.md) permit the proved bounded
+  state/action PROPERTY forms and safety-only SPEC decomposition in disk mode.
+  Temporal, effectful and unproved role shapes still refuse before execution.
+
+Each guide provides the usable API or CLI route, its restrictions and executable
+examples. Independent replay remains separate from the checker’s enumerator.
+Neither a component pass nor a current source hash promotes a whole TLC feature
+family to certified parity. The receiving branch must rebuild and rerun its
+combined cases before these additions receive a shipping qualification.
+
+### Additional receiving source: finite process editing and terminal outcomes
+
+The source composition now also includes the bounded one-process/one-procedure
+Full checksum editing delivery (#225), with its original 0064 native producer
+and separate 022817 portable-reader qualification. All original source cases,
+invalid references and strict saved-stack refusals retain their separate results.
+The [user guide](pluscal-process-procedure-checksums.md) describes C/P and Rust
+editing without claiming a model proof.
+
+The owned terminal diagnostic (#228) retains the original396 producer, its
+1100-test gate,206 runtime rows and independently replayed words. Direct posts
+run only after actual final selection; original source stops remain distinct.
+The [terminal guide](terminal-outcome.md) describes final-selection completion,
+post errors and deciding witnesses, all without ordinary scheduling or Holds
+credit. Measured clock/ratio observations remain raw, including the receiving
+comparison failure; they are not schedule-equivalence evidence.
+
+These component deliveries are source-composed here. Fresh combined gate,
+runtime and public-guide qualification remain pending on this receiving branch.
+Their original native producers and failure histories have not been retagged.
+
+Historical input receipts now verify their archived source through the original
+Git commit, tree paths and blob IDs. Current-file integrity is checked separately.
+The retained receiving failure shows why a historical source snapshot cannot be
+required to equal later implementation files. This strengthens provenance without
+changing any model assertion, runtime result or original producer.
+
+### Additional receiving source: indexed tuple-stack replay
+
+The receiving source now includes [finite indexed stack replay](indexed-stack-trace-replay.md)
+(#227). The independent validator proves a bounded function range of tuple
+stacks from Init and every Next branch before using that shape during replay.
+It does not assume a shape from the supplied states or from one successful
+branch. Arbitrary-state predicates and unproved selectors retain their refusals.
+
+The original `dd4edf337` qualification remains separate: 1,698 tests with zero
+skips, the declared 80-case census, 384 worker/store/transport cases and 80
+semantic mutants. The receiving merge changes only the two existing trace
+implementation files, adds their tests and executable guide, and retains the
+16-partition CI policy. These component receipts do not qualify the combined
+receiving executable; its gate and fresh runtime campaigns are still pending.
+
+The first combined gate stopped when the indexed replay reader detected an
+incoming current-source map that still described the trace component tree.
+The original map, envelope and actual failed command are retained in the
+[receiving record](../conformance/probes/core-terminal-procedure-integration/indexed-current-map-receiving/index.json).
+Only the current map and its envelope hash were refreshed; the historical
+epochs, semantic assertions and qualified native producer remain unchanged.
+The corrected reader passes independently. Full combined qualification still
+requires the complete gate and fresh runtime campaigns on the receiving source.
+
+### Combined test fixture correction
+
+The first combined workspace inventory compilation found a missing
+`stopped_transaction` field in the seen-store cleanup test’s synthetic engine
+outcome. The fixture now initializes that field to `None`; its corruption and
+cleanup assertions are unchanged. The [failed gate record](../conformance/probes/core-terminal-procedure-integration/seen-outcome-test-initializer-receiving/index.json)
+retains the original source, command, and compiler failure. This is an integration
+correction, with fresh combined gate and runtime qualification still pending.
+
+
+### Independent admission repair before shipping (#234)
+
+The frozen combined receiving source `7e0b266c` passed all81 commands and
+1,760 tests with zero skipped. Its original selected source and command logs
+remain under the strict-admission receiving evidence; this is gate evidence,
+not a runtime result for a later source. A separate public serialized-IR probe
+then demonstrated Print effects before independent admission completed.
+The narrow trace guard now refuses Strict substitution entry; ordinary evaluator
+semantics and lazy substitution remain intact.
+
+The first receiving four-test run passed three and exposed a positive fixture
+that was not structurally inert. Its replacement is an actually closed literal
+tuple with the same child ownership and all original refusal/effect assertions.
+A copied old timestamp caused the first retry to reuse the prior executable;
+that source, executable hash and failed log remain uncredited. Removing the
+closed test executable and recompiling the unchanged corrected fixture passes
+all four tests. The repaired receiving source still requires its own complete
+gate and original runtime selections before shipping; no producer is retagged,
+no ordinary scheduler is admitted and no family certification is earned.
+See the [user contract](user/strict-context-admission.md).
+
+
+The repaired source `28e89624` passed all 73 literal Python commands and
+formatting, then Clippy rejected nine test-style expressions. The
+[retained failure](../conformance/probes/core-terminal-procedure-integration/strict-admission-clippy-receiving/index.json)
+keeps its actual source index and compiler log. The correction names the
+default types and compares output to an empty vector, preserving every
+assertion and expected result. A new full gate and runtime campaign are required
+for the corrected source; the failed producer has no passing-gate credit.
+
+
+### Safe substitution forwarding regression
+
+The next complete receiving test run on `555f4e99` passed all 73 literal
+Python checks, formatting and Clippy. It ran every one of the 1,764 tests:
+1,762 passed, two failed, and none were skipped. The failures were the existing
+`instance_substitutions_match_pinned_final_truth_and_validate_independently`
+and `substituted_words_keep_nested_state_and_priming_lazy` temporal tests.
+Their original assertions and failing logs are preserved in the
+[receiving regression record](../conformance/probes/core-terminal-procedure-integration/strict-admission-temporal-regression-receiving/index.json).
+
+The blanket Strict guard rejected safe literal/constant forwarding in nested
+INSTANCE contexts. The repair must establish safety from the actual operand
+and captured scope before entry, while still rejecting caller-annotated calls
+that can Print. Neither an effects annotation nor a refusal in place of an
+already-supported valid temporal word meets that contract. The two existing
+tests remain unchanged. This failed producer has no complete-gate or fresh
+combined-runtime credit; the revised source needs both before shipping.
+
+
+The narrow receiving repair passes both original failing tests unchanged,
+all four Strict endpoint controls and three new private proof controls. Its
+first targeted Clippy run rejected one rustdoc backtick omission; that
+[focused epoch](../conformance/probes/core-terminal-procedure-integration/safe-forwarding-focused-receiving/index.json)
+is preserved. After the documentation-only style correction, targeted
+trace/API Clippy passes and the complete temporal/Strict API targets pass
+49 tests with none skipped
+([retry evidence](../conformance/probes/core-terminal-procedure-integration/safe-forwarding-style-retry-receiving/index.json)).
+All eleven entry sites use the same owned, bounded, callback-free operand
+proof in the original outer scope. The repaired producer still requires its
+own complete gate and fresh original combined runtime selections; these
+focused checks do not qualify the wider composition.
+
+
+### Returned-prefix rendezvous reliability (#235)
+
+The independent no-action component gate ran 1,104 tests on `d9d80aa`:
+1,103 passed, one existing optional-prefix test failed, none were skipped.
+Its seven new no-action/postcondition tests passed. The shared test-only
+returned-prefix lane notified its timer before acquiring the mutex that
+protects the timer's predicate. That ordering permits a lost notification
+between checking the predicate and entering the condition-variable wait.
+
+The receiving gate on `bfd12b14` was deliberately stopped after 41 successful
+Python checks to repair this shared defect; it receives no full-gate credit.
+The repair acquires that same mutex before changing the predicate and
+notifying. It preserves the five-second limit, every existing assertion and
+the default production path, which excludes the test-rendezvous feature.
+
+A deterministic actual-lane unit control observes mutex ownership at
+notification. Restoring the old ordering fails that exact assertion; the
+repaired ordering passes. This is a critical-section invariant control, not
+a reproduced two-thread deadlock or natural-clock certificate. Both original
+real timer/request-origin API controls and the scoped no-invented-request
+control pass unchanged; targeted Clippy passes. The
+[receiving evidence](../conformance/probes/core-terminal-procedure-integration/returned-prefix-rendezvous-receiving/index.json)
+preserves both sources, commands, logs and the actual old-order rejection.
+A fresh complete gate and combined runtime remain required.
+
+
+### Closed combined receiving source (`6b4113aa`)
+
+This receiving source passes the complete local gate: all 73 literal Python
+invocations and eight Rust stages, with 1,768 tests passed and none skipped.
+Its fresh runtime campaign closes 92 ordered commands. Historical copied
+prefixes retain their actual producing paths; the failed reference-selection
+setup remains a failed attempt, separately preserved.
+
+The bounded periodic services pass 468 native comparison rows, 64 original
+valid public words and 256 invalid mutants. Disk-role checks pass their selected
+2,320 rows, with independent original and mutant replay; indexed-stack checks
+pass both profile-specific exits and the complete selected worker/store routes.
+These are bounded diagnostic and safety contracts, not ordinary periodic
+liveness certification.
+
+The finite-process procedure checksum selection uses the complete 242-source
+captured reference, not the smaller 72-source subset. All 484 public routes are
+accounted for: 404 admitted CST/SANY/Validator results, 20 rejections, 48 named
+refusals and 12 uncredited command/primary errors. The unchanged 154 source IDs
+produce 308 complete/violation models and 3,696 profile/worker/store settings.
+All match their clean reference. Independent replay accepts 308 original words
+and rejects all 1,232 mutants. The 56 no-fairness cases retain their own controls.
+Translation/checksum acceptance never implies that a model was proved.
+
+All 21 CM1 and 16 ValidationTestSuite smoke models fully agree at 1, 4 and 8
+workers. Runnable Rust and CLI guides were executed alongside their original
+controls. The [portable packet](../conformance/probes/core-terminal-procedure-integration/combined-receiving-6b/readback.json)
+binds source bytes, commands, outputs, failed forks and original selections to
+this producer. Its reader runs in the workspace integrity checks.
+
+Two CI inventory attempts on this head failed with a linker SIGBUS; all sixteen
+test partitions and conformance passed. Local success does not override that
+required failure. A separate documentation/workflow revision qualifies its own
+full gate and CI result; the [resource notes](ci-build-resources.md) describe the
+mitigation and its limits. No producer is relabelled and no semantic family is
+certified by this bounded composition.

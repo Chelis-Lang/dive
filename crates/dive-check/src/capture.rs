@@ -4,7 +4,9 @@
 //! capture path uses the shared ordered safety engines. It retains every accepted
 //! generated edge, including duplicates, and adds explicit implicit stutters.
 
+mod post;
 mod pure;
+pub use post::DeferredPostconditions;
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -191,11 +193,213 @@ impl DispatchPause<'_> {
         self.generation
     }
 }
+/// Borrowed producer authority after actual frontier exhaustion and all expansion
+/// returns, before timer/pool joins. A paused dispatch mutex or zero queue counter
+/// alone cannot produce this token. It does not certify Java queue equivalence.
+pub struct ExhaustedQueue<'a> {
+    stats: Stats,
+    workers: usize,
+    generation: u64,
+    pending: Option<crate::progress::Request>,
+    authority: std::marker::PhantomData<&'a mut ()>,
+}
+impl ExhaustedQueue<'_> {
+    pub(crate) fn new(
+        stats: Stats,
+        pause: &DispatchPause<'_>,
+        pending: Option<crate::progress::Request>,
+    ) -> Self {
+        Self {
+            stats,
+            workers: pause.workers(),
+            generation: pause.generation(),
+            pending,
+            authority: std::marker::PhantomData,
+        }
+    }
+    /// Counters after real frontier exhaustion and every successful physical append.
+    #[must_use]
+    pub fn stats(&self) -> Stats {
+        self.stats
+    }
+    /// Actual live, joined-job pool width and last dispatch generation, before close.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.workers, self.generation)
+    }
+    /// Actual pending request removed while closing the producer lane, if any.
+    /// It has not been serviced and is not a terminal request identity.
+    #[must_use]
+    pub fn pending_request(&self) -> Option<crate::progress::Request> {
+        self.pending
+    }
+}
+
+/// Explicit source-worker failure families admitted to the stopped diagnostic.
+/// Classification alone is not queue, graph, scheduling or witness authority.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum WorkerStop {
+    /// An invariant failed in a successor, rather than during initialization.
+    Invariant,
+    /// An implied action failed on an actual generated step.
+    ActionProperty,
+    /// An expanded source had no successors.
+    Deadlock,
+    /// A successor left variables unassigned.
+    Incomplete,
+    /// Evaluation failed in successor generation or its safety predicates.
+    Evaluation,
+}
+impl WorkerStop {
+    /// Classify the original result without evaluating or reconstructing a model.
+    /// Init, resource, library, observer and unsupported failures remain excluded.
+    #[must_use]
+    pub fn classify(verdict: &Verdict) -> Option<Self> {
+        match verdict {
+            Verdict::InvariantViolated { initial: false, .. } => Some(Self::Invariant),
+            Verdict::ActionPropertyViolated { .. } => Some(Self::ActionProperty),
+            Verdict::Deadlock => Some(Self::Deadlock),
+            Verdict::NotCompletelySpecified { initial: false, .. } => Some(Self::Incomplete),
+            Verdict::EvaluationError {
+                site:
+                    crate::ErrorSite::Next
+                    | crate::ErrorSite::Invariant
+                    | crate::ErrorSite::ImpliedAction,
+                ..
+            } => Some(Self::Evaluation),
+            _ => None,
+        }
+    }
+}
+
+/// A diagnostic failure after an original source-worker winner. It must never
+/// replace that winner or turn a stopped search into successful EOF.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum StoppedDiagnosticFault {
+    /// Actual request-lane close failed.
+    LaneClose,
+    /// Actual request-thread join failed after the search had returned.
+    LaneJoin,
+    /// Actual dispatch authority could not be acquired.
+    Dispatch,
+    /// The diagnostic callback rejected the transaction.
+    Callback,
+    /// The diagnostic callback unwound; the original winner is retained.
+    Unwind,
+}
+
+/// Private borrowed authority from an actual eligible ordered source stop under
+/// a joined live pool's dispatch mutex. Unlike [`ExhaustedQueue`], this token
+/// does not assert exhaustion, zero queued states, graph completion or success.
+pub struct StoppedQueue<'a> {
+    verdict: &'a Verdict,
+    kind: WorkerStop,
+    stats: Stats,
+    workers: usize,
+    generation: u64,
+    pending: Option<crate::progress::Request>,
+    source: u64,
+    authority: std::marker::PhantomData<&'a mut ()>,
+}
+impl<'a> StoppedQueue<'a> {
+    pub(crate) fn new(
+        verdict: &'a Verdict,
+        kind: WorkerStop,
+        stats: Stats,
+        pause: &DispatchPause<'_>,
+        pending: Option<crate::progress::Request>,
+        source: u64,
+    ) -> Self {
+        Self {
+            verdict,
+            kind,
+            stats,
+            workers: pause.workers(),
+            generation: pause.generation(),
+            pending,
+            source,
+            authority: std::marker::PhantomData,
+        }
+    }
+    /// Original immutable deciding error, before any diagnostic callback.
+    #[must_use]
+    pub fn verdict(&self) -> &Verdict {
+        self.verdict
+    }
+    /// Explicit eligible family; classification cannot create this token.
+    #[must_use]
+    pub fn kind(&self) -> WorkerStop {
+        self.kind
+    }
+    /// Actual source/discovery identity from the original stop's predecessor
+    /// path, not a graph fingerprint or submitted-wave ordinal.
+    #[must_use]
+    pub fn source(&self) -> u64 {
+        self.source
+    }
+    /// Original logical stopping counters, not a finished queue's zero counters.
+    #[must_use]
+    pub fn stats(&self) -> Stats {
+        self.stats
+    }
+    /// Actual pool width/generation under the live dispatch pause, before joins.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.workers, self.generation)
+    }
+    /// Genuine unserviced request removed by closing the lane, if any.
+    #[must_use]
+    pub fn pending_request(&self) -> Option<crate::progress::Request> {
+        self.pending
+    }
+}
+
+/// Internal fact minted only immediately before invoking the stopped callback.
+pub(crate) struct StoppedTransaction {
+    pub(crate) verdict: Verdict,
+    pub(crate) source: u64,
+    pub(crate) stats: Stats,
+    pub(crate) workers: usize,
+    pub(crate) generation: u64,
+}
+/// Actual eligible error result after timer/pool closure. A copied result or
+/// zero counters cannot construct this borrowed postjoin authority.
+pub struct ExplorationStop<'a> {
+    result: &'a CheckResult,
+    transaction: &'a StoppedTransaction,
+}
+impl ExplorationStop<'_> {
+    /// Original result, including deciding error, counters, trace and workers.
+    #[must_use]
+    pub fn result(&self) -> &CheckResult {
+        self.result
+    }
+    /// Original source identity from the actually entered prejoin transaction.
+    #[must_use]
+    pub fn source(&self) -> u64 {
+        self.transaction.source
+    }
+    /// Original prejoin stopping counters; final error replay can differ.
+    #[must_use]
+    pub fn before_join_stats(&self) -> Stats {
+        self.transaction.stats
+    }
+    /// Actual paused pool width and dispatch generation of that transaction.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.transaction.workers, self.transaction.generation)
+    }
+}
+
 /// Successful safety EOF after the pool has joined and closed. This is not a
 /// temporal check or proof; a source's zero queue counter cannot create it.
 pub struct ExplorationEnd {
     stats: Stats,
     workers: Workers,
+    completion: GraphCompletion,
+    evaluator: dive_eval::Evaluator,
+    result: CheckResult,
+    deferred_admission: Option<Arc<()>>,
 }
 impl ExplorationEnd {
     /// Actual completed exploration counters.
@@ -207,6 +411,107 @@ impl ExplorationEnd {
     #[must_use]
     pub fn workers(&self) -> &Workers {
         &self.workers
+    }
+    /// Producer-checked retained graph shape, minted after graph/statistics
+    /// finalization. This is safety capture evidence, not a temporal proof.
+    #[must_use]
+    pub fn completion(&self) -> &GraphCompletion {
+        &self.completion
+    }
+    /// Original successful safety result after real joins and graph admission.
+    /// This remains safety evidence, not a temporal or postcondition verdict.
+    #[must_use]
+    pub fn safety_result(&self) -> &CheckResult {
+        &self.result
+    }
+}
+
+/// Actual retained safety graph completion. Public graph fields, copied
+/// statistics and a zero queue cannot construct this producer-owned receipt.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GraphCompletion {
+    states: usize,
+    edges: usize,
+    concrete_successors: usize,
+    roots: usize,
+    limits: Limits,
+}
+impl GraphCompletion {
+    fn finalize(graph: &BehaviorGraph, counters: Stats, limits: Limits) -> Result<Self, Verdict> {
+        let states = graph.states.len();
+        if states > limits.states || counters.generated > limits.generated {
+            return Err(limit("completion entries"));
+        }
+        if counters.distinct != u64::try_from(states).map_err(|_| bug("state count range"))?
+            || counters.left_on_queue != 0
+            || graph.edges.len() != states
+            || graph.concrete.len() != states
+            || (!graph.states.is_empty() && graph.roots.is_empty())
+        {
+            return Err(bug("incomplete graph/statistics at successful EOF"));
+        }
+        let mut previous = None;
+        for &root in &graph.roots {
+            if root >= states || previous.is_some_and(|p| p >= root) {
+                return Err(bug("invalid completed initial roots"));
+            }
+            previous = Some(root);
+        }
+        let mut edges = 0usize;
+        let mut concrete_successors = 0usize;
+        // The already-admitted retention limits bound this structural scan.
+        // No values are hashed, normalized, compared or evaluated here.
+        for (source, (row, concrete)) in graph.edges.iter().zip(&graph.concrete).enumerate() {
+            edges = edges
+                .checked_add(row.len())
+                .filter(|&n| n <= limits.edges)
+                .ok_or_else(|| limit("completion edges"))?;
+            concrete_successors = concrete_successors
+                .checked_add(concrete.len())
+                .ok_or_else(|| limit("completion concrete successors"))?;
+            if row.len()
+                != concrete
+                    .len()
+                    .checked_add(1)
+                    .ok_or_else(|| limit("completion row"))?
+                || row
+                    .last()
+                    .is_none_or(|e| e.to != source || e.ordinal.is_some() || e.label.is_some())
+            {
+                return Err(bug("missing completed source/stutter row"));
+            }
+            for (edge, original) in row.iter().zip(concrete) {
+                if edge.to >= states
+                    || edge.ordinal != Some(original.ordinal)
+                    || edge.label.as_deref() != Some(original.label.as_str())
+                {
+                    return Err(bug("inconsistent completed concrete transition"));
+                }
+            }
+        }
+        Ok(Self {
+            states,
+            edges,
+            concrete_successors,
+            roots: graph.roots.len(),
+            limits,
+        })
+    }
+    /// Retained representatives, generated edges plus implicit stutters,
+    /// original concrete successors, and distinct initial roots, respectively.
+    #[must_use]
+    pub fn entries(&self) -> (usize, usize, usize, usize) {
+        (
+            self.states,
+            self.edges,
+            self.concrete_successors,
+            self.roots,
+        )
+    }
+    /// Actual supplied capture entry limits; these are not aggregate byte bounds.
+    #[must_use]
+    pub fn limits(&self) -> Limits {
+        self.limits
     }
 }
 
@@ -302,6 +607,38 @@ pub trait SourceObserver: Send {
     ) -> Result<(), String> {
         self.source(source)
     }
+    /// Opt in to the additive exhausted-frontier transaction before timer/pool join.
+    /// Defaults leave the existing observer route unchanged.
+    fn requires_terminal_service(&self) -> bool {
+        false
+    }
+    /// Successful actual frontier exhaustion, with request publication closed and
+    /// real dispatch authority held, before timer/pool join. This is neither an
+    /// ordinary TLC schedule nor a caller-supplied EOF/suspension result.
+    ///
+    /// # Errors
+    /// A terminal consumer stop; final completion is not called after this failure.
+    fn terminal_queue_finished(&mut self, _end: &ExhaustedQueue<'_>) -> Result<(), String> {
+        Ok(())
+    }
+    /// Opt in to the separate eligible source-error transaction. Default routes
+    /// never call these diagnostics and retain their original behavior.
+    fn requires_stopped_service(&self) -> bool {
+        false
+    }
+    /// Actual ordered source winner before timer/pool joins, with request
+    /// publication closed and dispatch held. Failure never replaces the winner.
+    ///
+    /// # Errors
+    /// A consumer diagnostic failure, retained separately from the search result.
+    fn stopped_queue_finished(&mut self, _end: &StoppedQueue<'_>) -> Result<(), String> {
+        Ok(())
+    }
+    /// A diagnostic-only fault; never an alternate deciding search error.
+    fn stopped_diagnostic_failed(&mut self, _fault: StoppedDiagnosticFault) {}
+    /// Actual postjoin result of an eligible source stop. Never called for Init,
+    /// library/resource/unsupported errors or as successful final completion.
+    fn exploration_stopped(&mut self, _end: &ExplorationStop<'_>) {}
     /// Successful actual safety EOF after the pool closes. Never called after
     /// assumption, Init, source, safety, worker or resource failure.
     ///
@@ -430,6 +767,7 @@ pub struct BehaviorGraph {
 #[derive(Clone, Debug)]
 pub struct Complete {
     safety_result: Box<CheckResult>,
+    completion: GraphCompletion,
     /// Run settings, including the reported seed, profile and store mode.
     pub options: CheckOptions,
     /// The complete graph, including seen-state edges and implicit stutters.
@@ -448,6 +786,12 @@ pub struct Complete {
 }
 
 impl Complete {
+    /// Immutable producer completion fact, independent of later edits to the
+    /// publicly inspectable graph or counters. Edited fields cannot recertify it.
+    #[must_use]
+    pub fn completion(&self) -> &GraphCompletion {
+        &self.completion
+    }
     /// Actual ordinary safety-engine outcome, retained without reconstructing
     /// counts, diagnostics, stopping facts or worker metadata from the graph.
     /// This receipt does not certify any temporal obligation.
@@ -725,7 +1069,7 @@ pub fn explore_with_evidence(
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false, None);
+    let run = || explore_inner(model, opts, limits, false, None, None);
     let mut result = run_on_thread(run)?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
@@ -791,7 +1135,7 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None))?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None, None))?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -810,6 +1154,15 @@ pub fn explore_observed_with_evidence(
     limits: Limits,
     observer: &mut dyn SourceObserver,
 ) -> Result<Exploration, String> {
+    observed_admitted(model, opts, limits, observer, None)
+}
+fn observed_admitted(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn SourceObserver,
+    deferred_admission: Option<Arc<()>>,
+) -> Result<Exploration, String> {
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
@@ -822,9 +1175,43 @@ pub fn explore_observed_with_evidence(
         }, model, opts));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, Some(observer)))?;
+    let mut result = run_on_thread(|| {
+        explore_inner(
+            model,
+            opts,
+            limits,
+            true,
+            Some(observer),
+            deferred_admission,
+        )
+    })?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
+}
+
+/// Observe an admitted owned model with its postconditions deferred. The private
+/// token supplies the model; no caller defer/EOF/graph flag is accepted. A final
+/// consumer must first complete temporal selection and then call
+/// [`DeferredPostconditions::evaluate`]. This diagnostic capture alone grants
+/// no ordinary success, postcondition pass or temporal proof.
+///
+/// # Errors
+/// The same original execution/context failures as observed capture.
+pub fn explore_observed_deferred_with_evidence(
+    token: &DeferredPostconditions,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn SourceObserver,
+) -> Result<Exploration, String> {
+    let mut model = token.model.clone();
+    model.postconditions = Ok(Vec::new());
+    observed_admitted(
+        &model,
+        opts,
+        limits,
+        observer,
+        Some(token.admission.clone()),
+    )
 }
 
 fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
@@ -889,6 +1276,7 @@ fn explore_inner(
     limits: Limits,
     parallel: bool,
     mut observer: Option<&mut dyn SourceObserver>,
+    deferred_admission: Option<Arc<()>>,
 ) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
@@ -970,6 +1358,7 @@ fn explore_inner(
     } else {
         engine::search_graph(model, opts, &host, limits)
     };
+    let stopped_transaction = outcome.stopped_transaction;
     result.verdict = outcome.verdict;
     result.stats = outcome.stats;
     result.tlc_prints_stats = outcome.tlc_prints_stats;
@@ -980,12 +1369,43 @@ fn explore_inner(
     result.notes = outcome.notes;
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
+        if let (Some(consumer), Some(transaction)) = (observer, stopped_transaction)
+            && transaction.verdict == result.verdict
+            && transaction.workers == result.workers.used
+        {
+            let end = ExplorationStop {
+                result: &result,
+                transaction: &transaction,
+            };
+            if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                consumer.exploration_stopped(&end);
+            }))
+            .is_err()
+            {
+                result.notes.push("Stopped diagnostic postjoin callback unwound; original deciding result retained.".into());
+            }
+        }
         return Exploration::Stopped(Box::new(result));
     }
-    if let (Some(consumer), Some(stats)) = (observer, result.stats) {
+    let (Some(graph), Some(stats)) = (outcome.graph, result.stats) else {
+        result.verdict = bug("completed exploration did not return graph/statistics");
+        return Exploration::Stopped(Box::new(result));
+    };
+    let completion = match GraphCompletion::finalize(&graph, stats, limits) {
+        Ok(completion) => completion,
+        Err(verdict) => {
+            result.verdict = verdict;
+            return Exploration::Stopped(Box::new(result));
+        }
+    };
+    if let Some(consumer) = observer {
         let end = ExplorationEnd {
             stats,
             workers: result.workers.clone(),
+            completion: completion.clone(),
+            evaluator: model.evaluator.clone(),
+            result: result.clone(),
+            deferred_admission,
         };
         if let Err(message) = consumer.exploration_complete(&end) {
             result.verdict = Verdict::Unsupported {
@@ -994,23 +1414,17 @@ fn explore_inner(
             return Exploration::Stopped(Box::new(result));
         }
     }
-    match (outcome.graph, result.stats) {
-        (Some(graph), Some(stats)) => Exploration::Complete(Box::new(Complete {
-            safety_result: Box::new(result.clone()),
-            options: opts.clone(),
-            graph,
-            stats,
-            collision: result.collision,
-            workers: result.workers,
-            output: result.output,
-            warnings: result.warnings,
-        })),
-        _ => stopped(
-            bug("completed exploration did not return graph/statistics"),
-            model,
-            opts,
-        ),
-    }
+    Exploration::Complete(Box::new(Complete {
+        completion,
+        safety_result: Box::new(result.clone()),
+        options: opts.clone(),
+        graph,
+        stats,
+        collision: result.collision,
+        workers: result.workers,
+        output: result.output,
+        warnings: result.warnings,
+    }))
 }
 
 fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration {
@@ -1022,6 +1436,63 @@ fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration 
 #[cfg(test)]
 #[allow(clippy::panic, reason = "controlled internal thread failure")]
 mod evidence_controls {
+    use super::{BehaviorGraph, Edge, GraphCompletion, Limits};
+    use crate::Stats;
+    #[test]
+    fn completed_graph_requires_actual_rows_roots_stutters_and_statistics() {
+        let graph = BehaviorGraph {
+            states: vec![Vec::new().into()],
+            edges: vec![vec![Edge {
+                to: 0,
+                ordinal: None,
+                label: None,
+            }]],
+            concrete: vec![vec![]],
+            roots: vec![0],
+        };
+        let stats = Stats {
+            generated: 1,
+            distinct: 1,
+            initial_generated: 1,
+            depth: 1,
+            left_on_queue: 0,
+        };
+        let limits = Limits::default();
+        assert!(GraphCompletion::finalize(&graph, stats, limits).is_ok());
+        for edit in 0..7 {
+            let mut bad = graph.clone();
+            match edit {
+                0 => bad.edges.clear(),
+                1 => bad.edges[0].clear(),
+                2 => bad.edges[0][0].to = 1,
+                3 => bad.concrete.clear(),
+                4 => bad.roots.clear(),
+                5 => bad.roots.push(0),
+                _ => bad.roots[0] = 1,
+            }
+            assert!(GraphCompletion::finalize(&bad, stats, limits).is_err());
+        }
+        for stats in [
+            Stats {
+                distinct: 2,
+                ..stats
+            },
+            Stats {
+                left_on_queue: 1,
+                ..stats
+            },
+        ] {
+            assert!(GraphCompletion::finalize(&graph, stats, limits).is_err());
+        }
+        assert!(GraphCompletion::finalize(&graph, stats, Limits { edges: 0, ..limits }).is_err());
+        let empty = BehaviorGraph {
+            states: vec![],
+            edges: vec![],
+            concrete: vec![],
+            roots: vec![],
+        };
+        assert!(GraphCompletion::finalize(&empty, Stats::default(), limits).is_ok());
+    }
     #[test]
     fn panic_does_not_fabricate_a_zero_worker_stop() {
         let result = super::run_on_thread(|| panic!("controlled capture panic"));
