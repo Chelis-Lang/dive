@@ -69,7 +69,6 @@ fn spilled_counterexamples_validate_and_corruptions_are_rejected() {
                     let controls = model.controls(&doc);
                     assert_eq!(controls.positive.validation, Validation::Valid);
                     assert!(controls.failures().is_empty(), "{:?}", controls.failures());
-                    assert_ne!(controls.mutants, [] as [(String, Validation); 0]);
                 }
             }
         }

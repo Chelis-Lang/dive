@@ -266,6 +266,90 @@ fn dive_trace_deadlock() -> &'static str {
 }
 
 #[test]
+fn mutation_controls_preserve_names_and_still_refute_changed_values() {
+    let source = "---- MODULE MutationNames ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x+1\nInv == x<2\n====\n";
+    for compat_tlc in [false, true] {
+        let model = SpecModel::from_source(
+            "MutationNames.tla",
+            source,
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &TraceOptions {
+                compat_tlc,
+                ..TraceOptions::default()
+            },
+        )
+        .expect("model");
+        let doc = TraceDoc::behavior(vec![
+            serde_json::json!({"x":0}),
+            serde_json::json!({"x":1}),
+            serde_json::json!({"x":2}),
+        ])
+        .expect("doc")
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+        let before = model.model().names.len();
+        let controls = model.controls(&doc);
+        assert!(controls.failures().is_empty(), "{:?}", controls.failures());
+        assert!(controls.mutants.iter().any(
+            |(name, verdict)| name == "change-1-x" && matches!(verdict, Validation::Invalid(_))
+        ));
+        assert_eq!(model.model().names.len(), before);
+        assert!(!model.model().has_runtime_names());
+        assert_eq!(model.validate(&doc).validation, Validation::Valid);
+    }
+}
+
+#[test]
+fn accepted_or_refused_mutants_are_control_failures() {
+    for verdict in [
+        Validation::Valid,
+        Validation::Unsupported("unproved".to_owned()),
+    ] {
+        let controls = Controls {
+            positive: dive_api::trace::Report {
+                validation: Validation::Valid,
+                notes: Vec::new(),
+                length: 2,
+            },
+            dive_format: Some(Validation::Valid),
+            mutants: vec![("forged-step".to_owned(), verdict)],
+        };
+        assert_eq!(controls.failures().len(), 1);
+        assert!(controls.failures()[0].contains("forged-step"));
+    }
+}
+
+#[test]
+fn alternate_label_mutation_does_not_run_untaken_effects() {
+    let source = "---- MODULE MutationEffects ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0\nA == x'=x+1 /\\ (IF x=0 THEN TRUE ELSE PrintT(\"poison\"))\nB == x'=x+1\nNext == IF x=0 THEN A ELSE B\nInv == x<2\n====\n";
+    for compat_tlc in [false, true] {
+        let model = SpecModel::from_source(
+            "MutationEffects.tla",
+            source,
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &TraceOptions {
+                compat_tlc,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )
+        .expect("model");
+        let doc = TraceDoc::parse(
+            r#"{"format":"dive-trace","version":1,"variables":["x"],
+            "states":[{"action":null,"values":{"x":0}},
+            {"action":{"name":"A"},"values":{"x":1}},
+            {"action":{"name":"B"},"values":{"x":2}}],
+            "ending":{"kind":"invariant","name":"Inv"}}"#,
+        )
+        .expect("doc");
+        assert_eq!(model.validate(&doc).validation, Validation::Valid);
+        let controls = model.controls(&doc);
+        assert!(controls.failures().is_empty(), "{:?}", controls.failures());
+        assert_eq!(model.model().evaluator.take_output(), Vec::<String>::new());
+        assert_eq!(model.validate(&doc).validation, Validation::Valid);
+    }
+}
+
+#[test]
 fn a_label_must_name_an_action_that_holds() {
     let spec = "---- MODULE L ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\n\
                 Up == x' = x + 1\nDown == x > 0 /\\ x' = x - 1\nNext == Up \\/ Down\n\

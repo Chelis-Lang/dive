@@ -88,6 +88,19 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         None
     }
 
+    /// Checks whether this run permits access to the evaluator's register
+    /// file. Called before integer/named `TLCGet` reads, aggregate register
+    /// reads (`"all"`, `"all:named"`), and integer/named `TLCSet` writes.
+    /// Other introspection keys do not call this method. The default permits
+    /// access, preserving ordinary evaluator and checker behavior.
+    ///
+    /// # Errors
+    /// A host may refuse search-dependent register access (code 0) or provide
+    /// a TLC evaluation error. Refusal occurs before reading or writing.
+    fn check_register_access(&self) -> Result<(), HostError> {
+        Ok(())
+    }
+
     /// `TLCGet("level")` outside `ASSUME` and `Init`: the level of TLC's
     /// `s0`, the state being expanded in the next-state relation and action
     /// checks, the successor in invariants and constraints (initial states
@@ -208,6 +221,13 @@ fn host_error(e: HostError) -> EvalError {
 }
 
 impl Core {
+    fn check_register_access(&self) -> Result<()> {
+        match self.host.get() {
+            Some(host) => host.check_register_access().map_err(host_error),
+            None => Ok(()),
+        }
+    }
+
     /// `RandomElement` and the `Randomization` operators, through the host.
     pub(crate) fn call_random(&self, op: StdOp, args: &[Value]) -> Result<Value> {
         let Some(host) = self.host.get() else {
@@ -242,6 +262,7 @@ impl Core {
             Value::Int(_) | Value::BigInt(_) => {
                 let idx = self.register_index(&vidx)?;
                 if idx >= 0 {
+                    self.check_register_access()?;
                     let regs = self
                         .host
                         .registers
@@ -370,6 +391,7 @@ impl Core {
                 Ok(Value::int(Int::Small(level)))
             }
             "all" => {
+                self.check_register_access()?;
                 let regs = self
                     .host
                     .registers
@@ -385,6 +407,7 @@ impl Core {
                 Ok(Value::fcn(pairs, self.ctx)?)
             }
             "all:named" => {
+                self.check_register_access()?;
                 let regs = self
                     .host
                     .registers
@@ -401,6 +424,7 @@ impl Core {
                 "TLCGet(\"{key}\") (reads TLC's internal description of the run)"
             ))),
             k if k.starts_with("s:") => {
+                self.check_register_access()?;
                 let regs = self
                     .host
                     .registers
@@ -424,6 +448,7 @@ impl Core {
             Value::Int(_) | Value::BigInt(_) => {
                 let idx = self.register_index(vidx)?;
                 if idx >= 0 {
+                    self.check_register_access()?;
                     self.host
                         .registers
                         .lock()
@@ -454,6 +479,7 @@ impl Core {
                     return Ok(Value::TRUE);
                 }
                 k if k.starts_with("s:") => {
+                    self.check_register_access()?;
                     let mut regs = self
                         .host
                         .registers

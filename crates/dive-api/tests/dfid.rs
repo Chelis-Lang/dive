@@ -91,17 +91,18 @@ fn finite_deadlock_is_independently_certified() {
 }
 
 #[test]
-fn ordered_runtime_names_do_not_bypass_independent_witness_refusal() {
+fn ordered_start_up_names_validate_independently() {
+    // `ToString(8)` and `ToString(7)` yield the spec's own numerals, which
+    // SANY interns at start-up: replay creates no name, so the encounter
+    // order CHOOSE depends on is TLC's, and the witness validates
+    // (ADR 0016, amendment 3).
     let json = dfid_file(&request("DfidSeedNames", 6, 0))
-        .expect("structured refusal")
+        .expect("structured report")
         .to_json();
-    assert_eq!(json["result"], "unsupported", "{json}");
+    assert_eq!(json["result"], "violation", "{json}");
     assert_eq!(json["observed_result"], "violation");
-    assert_eq!(
-        json["counterexample"]["validation"]["result"],
-        "unsupported"
-    );
-    assert_eq!(json["violation_validated"], false);
+    assert_eq!(json["counterexample"]["validation"]["result"], "valid");
+    assert_eq!(json["violation_validated"], true);
     assert_eq!(json["model_proved"], false);
     assert_eq!(json["exhaustive"], false);
     assert_eq!(json["options"]["workers_used"], 1);

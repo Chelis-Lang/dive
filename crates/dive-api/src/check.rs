@@ -74,9 +74,6 @@ pub struct CheckRequest {
     /// Explicit bounded transient disk seen-state route. None keeps the memory
     /// reference; disk uses reported inline fallback and is not a total-RAM budget.
     pub seen_disk: Option<dive_check::SeenOptions>,
-    /// Opt-in trace-value transport. Legacy version 1 remains default. Version 2
-    /// preserves admitted stored representation, not a semantic certificate.
-    pub trace_encoding: dive_trace::TraceEncoding,
     /// Opt-in encoded frontier budget per current/next queue, in bytes. This
     /// does not bound seen sets, candidates, traces, graphs or process memory.
     pub frontier_memory_bytes: Option<usize>,
@@ -143,7 +140,6 @@ enum Phase {
 /// The outcome of `dive check`.
 #[derive(Debug)]
 pub struct CheckReport {
-    trace_encoding: dive_trace::TraceEncoding,
     checkpoint_request: Option<dive_check::checkpoint::Request>,
     checkpoint_receipt: Option<dive_check::checkpoint::Receipt>,
     file: String,
@@ -171,14 +167,6 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
                         .into(),
             });
         }
-    }
-    if req.trace_encoding == dive_trace::TraceEncoding::RepresentationV2
-        && req.temporal != TemporalMode::Ordinary
-    {
-        return Err(crate::ApiError::Unsupported {
-            feature: "representation-v2 trace writing for temporal reports is not implemented"
-                .into(),
-        });
     }
     if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
         return Err(crate::ApiError::Rejected {
@@ -323,7 +311,6 @@ fn check_file_in(
         .clone()
         .unwrap_or_else(|| req.file.with_extension("cfg"));
     let mut report = CheckReport {
-        trace_encoding: req.trace_encoding,
         checkpoint_request: checkpoint.cloned(),
         checkpoint_receipt: None,
         file: req.file.display().to_string(),
@@ -738,9 +725,6 @@ impl CheckReport {
             "options": self.options_json(),
             "elapsed_ms": 0,
         });
-        if self.trace_encoding == dive_trace::TraceEncoding::RepresentationV2 {
-            doc["options"]["trace_format"] = json!("representation-v2");
-        }
         match &self.phase {
             Phase::SpecRejected(a) => {
                 doc["diagnostics"] = a.to_json()["diagnostics"].clone();
@@ -925,23 +909,13 @@ impl CheckReport {
                             })
                         })
                         .collect();
-                    let transported = trace_doc(r, cx, ctx, self.trace_encoding);
+                    let transported = trace_doc(r, cx, ctx);
                     doc["counterexample"] = json!({
                         "length": states.len(),
                         "ending": "finite",
                         "states": states,
-                        "trace": transported.as_ref().cloned().unwrap_or(Value::Null),
+                        "trace": transported.unwrap_or(Value::Null),
                     });
-                    if self.trace_encoding == dive_trace::TraceEncoding::RepresentationV2 {
-                        doc["counterexample"]["trace_encoding"] = match transported {
-                            Ok(_) => {
-                                json!({"requested":"representation-v2","status":"encoded","semantic_validation":false})
-                            }
-                            Err(reason) => {
-                                json!({"requested":"representation-v2","status":"unsupported","reason":reason,"semantic_validation":false})
-                            }
-                        };
-                    }
                 }
                 if let Some(c) = &r.collision {
                     doc["collision"] = json!({
@@ -1052,7 +1026,7 @@ impl CheckReport {
     }
 }
 
-/// The counterexample in the selected `dive-trace` transport, the
+/// The counterexample in `dive-trace`'s format, the
 /// document the independent validator reads (ADR 0016): `dive
 /// validate-trace` and the conformance harness take it from
 /// `counterexample.trace`. `null` when a value has no JSON form or the
@@ -1061,7 +1035,6 @@ fn trace_doc(
     r: &dive_check::CheckResult,
     cx: &dive_check::Counterexample,
     ctx: dive_value::Ctx,
-    encoding: dive_trace::TraceEncoding,
 ) -> Result<Value, String> {
     use dive_check::Verdict as V;
     use dive_trace::Ending;
@@ -1084,12 +1057,6 @@ fn trace_doc(
         }
         _ => return Err("verdict has no supported trace ending".into()),
     };
-    if encoding == dive_trace::TraceEncoding::RepresentationV2
-        && (cx.states.len() > dive_trace::value_repr::MAX_MEMBERS
-            || r.var_names.len() > dive_trace::value_repr::MAX_MEMBERS)
-    {
-        return Err("stored trace member limit".into());
-    }
     let mut states = Vec::with_capacity(cx.states.len());
     let mut labels = Vec::with_capacity(cx.states.len());
     for (i, s) in cx.states.iter().enumerate() {
@@ -1098,12 +1065,7 @@ fn trace_doc(
             let Some(v) = s.values.get(k) else {
                 return Err("counterexample has an unassigned variable".into());
             };
-            let j = if encoding == dive_trace::TraceEncoding::RepresentationV2 {
-                dive_trace::value_repr::to_json(v, ctx)?
-            } else {
-                dive_trace::value_json::to_json(v, ctx)?
-            };
-            m.insert(name.clone(), j);
+            m.insert(name.clone(), dive_trace::value_json::to_json(v, ctx)?);
         }
         states.push(m);
         labels.push(if i == 0 {
@@ -1121,14 +1083,9 @@ fn trace_doc(
         labels,
         ending: Some(ending),
         length: Some(cx.states.len()),
-        source: if encoding == dive_trace::TraceEncoding::RepresentationV2 {
-            dive_trace::Source::DiveRepresentation
-        } else {
-            dive_trace::Source::Dive
-        },
+        source: dive_trace::Source::Dive,
         properties: Vec::new(),
     };
-    doc.admit_transport()?;
     Ok(doc.to_json())
 }
 
@@ -1369,7 +1326,6 @@ mod evidence_controls {
             },
         };
         CheckReport {
-            trace_encoding: dive_trace::TraceEncoding::LegacyV1,
             checkpoint_request: None,
             checkpoint_receipt: None,
             file: "M.tla".into(),

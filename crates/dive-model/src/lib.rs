@@ -294,5 +294,6 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;
+    model.seal_startup_names();
     Ok(model)
 }

@@ -7,12 +7,23 @@ use dive_model::Model;
 use dive_value::Value;
 use serde_json::{Map, Value as J};
 
-use crate::format::{Ending, Label, Source, TraceDoc, TraceEncoding};
+use crate::format::{Ending, Label, Source, TraceDoc};
 use crate::value_json;
 
 /// A state: the value of each of the model's variables, by
-/// [`dive_ir::VarId`]. Every entry is `Some`.
+/// [`dive_ir::VarId`]. Every entry is `Some`. Names must have the text and token
+/// of the model's interner; public typed inputs are checked before evaluation.
 pub type State = Arc<[Option<Value>]>;
+
+/// Checks public typed state values before any predicate can compare names.
+pub(crate) fn validate_state_names(model: &Model, state: &State) -> Result<(), String> {
+    for value in state.iter().flatten() {
+        value
+            .validate_names(&model.names)
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
 
 /// A counterexample (or behavior) read against a model.
 #[derive(Clone, Debug)]
@@ -64,43 +75,19 @@ impl Trace {
                 detail: "TLC's lossy JSON values must be read with dive_trace::tlc".to_owned(),
             });
         }
-        if doc.source == Source::DiveRepresentation {
-            doc.admit_transport().map_err(|detail| ShapeError {
-                state: None,
-                detail,
-            })?;
-        }
         let ending = doc.ending.clone().ok_or_else(|| ShapeError {
             state: None,
             detail: "the trace does not say how it ends (no `ending`)".to_owned(),
         })?;
-        if doc.source == Source::DiveRepresentation {
-            model.validate_context().map_err(|e| ShapeError {
-                state: None,
-                detail: e.to_string(),
-            })?;
-        }
         let ctx = model.evaluator.options().ctx;
         let vars = variables(model);
-        if doc.source == Source::DiveRepresentation && doc.variables != vars {
-            return Err(ShapeError {
-                state: None,
-                detail: "stored trace variable order/list differs from model".into(),
-            });
-        }
         let mut states = Vec::with_capacity(doc.states.len());
         for (k, s) in doc.states.iter().enumerate() {
-            let state = decode_state(&vars, s, |_, j| {
-                if doc.source == Source::DiveRepresentation {
-                    crate::value_repr::from_json(j, &model.names, ctx)
-                } else {
-                    value_json::from_json(j, &model.names, ctx)
-                }
-            })
-            .map_err(|detail| ShapeError {
-                state: Some(k),
-                detail,
-            })?;
+            let state = decode_state(&vars, s, |_, j| value_json::from_json(j, &model.names, ctx))
+                .map_err(|detail| ShapeError {
+                    state: Some(k),
+                    detail,
+                })?;
             states.push(state);
         }
         Ok(Self {
@@ -112,72 +99,31 @@ impl Trace {
         })
     }
 
-    /// The trace in the default legacy version-1 normalized JSON format.
-    /// Stored distinctions are not all preserved; select
-    /// [`Self::to_doc_with_encoding`] for bounded representation version 2.
+    /// The trace in dive's format.
     ///
     /// # Errors
     /// If a value has no JSON form (an infinite set).
     pub fn to_doc(&self, model: &Model) -> Result<TraceDoc, String> {
-        self.to_doc_with_encoding(model, TraceEncoding::LegacyV1)
-    }
-
-    /// Writes a selected dive transport version. TLC lossy transport cannot be selected.
-    ///
-    /// # Errors
-    /// Unsupported representation or transport, including version-2 bounded admission.
-    pub fn to_doc_with_encoding(
-        &self,
-        model: &Model,
-        encoding: TraceEncoding,
-    ) -> Result<TraceDoc, String> {
-        if encoding == TraceEncoding::RepresentationV2 {
-            model.validate_context().map_err(|e| e.to_string())?;
-            if self.states.len() > crate::value_repr::MAX_MEMBERS
-                || self.labels.len() != self.states.len()
-            {
-                return Err("stored trace member or label-length limit".into());
-            }
-        }
         let ctx = model.evaluator.options().ctx;
         let vars = variables(model);
         let mut states = Vec::with_capacity(self.states.len());
         for s in &self.states {
-            if encoding == TraceEncoding::RepresentationV2 && s.len() != vars.len() {
-                return Err("stored state variable count disagrees with model".into());
-            }
             let mut m = Map::new();
             for (name, v) in vars.iter().zip(s.iter()) {
                 let v = v.as_ref().ok_or("a state has an unassigned variable")?;
-                m.insert(
-                    name.clone(),
-                    if encoding == TraceEncoding::RepresentationV2 {
-                        crate::value_repr::to_json_with_names(v, &model.names, ctx)?
-                    } else {
-                        value_json::to_json(v, ctx)?
-                    },
-                );
+                m.insert(name.clone(), value_json::to_json(v, ctx)?);
             }
             states.push(m);
         }
-        if encoding == TraceEncoding::RepresentationV2 {
-            crate::value_repr::states_admission(&states)?;
-        }
-        let doc = TraceDoc {
+        Ok(TraceDoc {
             variables: vars,
             states,
             labels: self.labels.clone(),
             ending: Some(self.ending.clone()),
             length: self.length,
-            source: if encoding == TraceEncoding::RepresentationV2 {
-                Source::DiveRepresentation
-            } else {
-                Source::Dive
-            },
+            source: Source::Dive,
             properties: self.properties.clone(),
-        };
-        doc.admit_transport()?;
-        Ok(doc)
+        })
     }
 }
 

@@ -1,4 +1,4 @@
-//! Counterexample transports: legacy version 1, opt-in stored version 2, and TLC JSON.
+//! Counterexample transports: dive's format (version 1) and TLC's JSON.
 //!
 //! # dive's format
 //!
@@ -17,9 +17,7 @@
 //! ```
 //!
 //! - `variables` lists the specification's variables. Every state assigns
-//!   exactly these. Version 1 uses normalized value JSON with known stored
-//!   representation gaps ([`crate::value_json`]); opt-in version 2 uses
-//!   checked bounded stored representation ([`crate::value_repr`]).
+//!   exactly these, in dive's value JSON ([`crate::value_json`]).
 //! - `states[k].action` labels the step into state `k`: `null` for the
 //!   initial state, and optional elsewhere. `name` is the action's name as
 //!   TLC prints it, without parameters; `location` is informative.
@@ -57,8 +55,7 @@ use serde_json::{Map, Value as J, json};
 /// The format name in [`TraceDoc::to_json`].
 pub const FORMAT: &str = "dive-trace";
 
-/// The default legacy writer version. Readers accept versions 1 and 2;
-/// representation-preserving version 2 is an explicit encoding option.
+/// The format version written and read.
 pub const VERSION: u64 = 1;
 
 /// What a trace claims about its end.
@@ -206,23 +203,11 @@ pub struct Label {
     pub location: Option<String>,
 }
 
-/// Trace-value transport selected explicitly by writers. Legacy output remains default.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub enum TraceEncoding {
-    /// Version 1 normalized JSON; known representation gaps remain.
-    #[default]
-    LegacyV1,
-    /// Version 2 bounded checked stored-value transport.
-    RepresentationV2,
-}
-
 /// Which format a document was read from.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Source {
-    /// Legacy dive trace format version 1.
+    /// dive's format.
     Dive,
-    /// Opt-in version 2: checked stored-value representation (ADR 0055).
-    DiveRepresentation,
     /// TLC's `-dumpTrace json`: values are in TLC's lossy form.
     Tlc,
 }
@@ -277,19 +262,6 @@ impl TraceDoc {
             source: Source::Dive,
             properties: Vec::new(),
         })
-    }
-
-    /// Checks opt-in version-2 word transport bounds and structural lengths.
-    /// This never proves Init, Next, any property, or a completed search.
-    /// Legacy version 1 retains its existing admission behavior.
-    ///
-    /// # Errors
-    /// Stored transport byte/node/nesting/member or structural limits.
-    pub fn admit_transport(&self) -> Result<(), String> {
-        if self.source == Source::DiveRepresentation {
-            crate::value_repr::word_admission(self)?;
-        }
-        Ok(())
     }
 
     /// This document with its ending replaced.
@@ -369,27 +341,10 @@ impl TraceDoc {
 
     fn from_dive(j: &J) -> Result<Self, String> {
         let version = j.get("version").and_then(J::as_u64);
-        if !matches!(version, Some(1 | 2)) {
+        if version != Some(VERSION) {
             return Err(format!(
-                "unsupported {FORMAT} version {version:?}; this build reads versions 1 and 2"
+                "unsupported {FORMAT} version {version:?}; this build reads version {VERSION}"
             ));
-        }
-        if version == Some(2) {
-            crate::value_repr::document_admission(j)?;
-            let allowed = [
-                "format",
-                "version",
-                "variables",
-                "states",
-                "ending",
-                "length",
-                "properties",
-            ];
-            if j.as_object()
-                .is_none_or(|o| o.keys().any(|key| !allowed.contains(&key.as_str())))
-            {
-                return Err("stored trace has unknown document fields".into());
-            }
         }
         let variables = strings(j.get("variables")).ok_or("`variables` must be a list of names")?;
         let states_j = j
@@ -434,11 +389,7 @@ impl TraceDoc {
             labels,
             ending,
             length,
-            source: if version == Some(2) {
-                Source::DiveRepresentation
-            } else {
-                Source::Dive
-            },
+            source: Source::Dive,
             properties: match j.get("properties") {
                 None => Vec::new(),
                 Some(names) => {
@@ -552,10 +503,7 @@ impl TraceDoc {
     }
 
     /// Writes the document in dive's format. A document read from TLC's
-    /// format keeps TLC's lossy values. This preserves the document JSON,
-    /// without certifying concrete stored representation or semantic validity.
-    /// [`crate::Trace::to_doc`] uses legacy normalized values;
-    /// [`crate::Trace::to_doc_with_encoding`] can select bounded version 2.
+    /// format keeps TLC's lossy values.
     #[must_use]
     pub fn to_json(&self) -> J {
         let states: Vec<J> = self
@@ -571,7 +519,7 @@ impl TraceDoc {
             .collect();
         let mut j = json!({
             "format": FORMAT,
-            "version": if self.source == Source::DiveRepresentation { 2 } else { VERSION },
+            "version": VERSION,
             "variables": self.variables,
             "states": states,
             "ending": self.ending.as_ref().map(Ending::to_json),

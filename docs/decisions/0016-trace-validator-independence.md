@@ -278,3 +278,90 @@ Requested workers are separate from actual inline width 1. First-successor
 partial trace printing, startup draws, symmetry, Randomization families,
 graph/temporal randomness and seeded recovery remain outside this proof slice.
 No archive, complete family or shortest-trace certificate follows from admission.
+
+## Amendment 3: sound replay only (2026-10-12, #241, #242)
+
+The rescue plan (#241, stage V) reduces the validator to a replay checker.
+Where this amendment differs from the sections and amendments above, it holds.
+
+**What the validator does.** It decodes the trace against the bound model and
+checks each claim by evaluation: the first state satisfies `Init`, each step
+satisfies the next-state relation as an action predicate on the two given
+states, constraints, invariants and action properties hold where the search
+would have checked them, and the ending holds. A deadlock is decided by the
+independent finite-cover search (`exists_successor`). A liveness lasso is
+checked with the word semantics of `temporal.rs`. The successor enumerator is
+still not compiled in (§2).
+
+Document readers and native typed replay check the existing public model context
+before decoding, evaluating or looking up diagnostic source locations. Invalid
+public predicate roots and location IDs therefore refuse with a structural
+context error even when a supplied initial state satisfies the predicate.
+The lossy TLC reader's interpretation score evaluates only pure initial conjuncts,
+with the replay host already installed. Scoring must never write registers,
+print, or consume random draws before checking `Init` in its actual evaluation
+order: otherwise `TLCGet(0)=1 /\\ TLCSet(0,1)` can be made true by the heuristic's
+own earlier write. The regression controls in `crates/dive-trace/tests/tlc_effects.rs`
+reject that false acceptance and keep untaken effects from running.
+
+**Runtime names** (replaces the namespace-provenance amendment of
+2026-10-10). The evaluator records how many names were interned when binding
+finished (`Evaluator::startup_names`). Interning TLC's checker start-up names
+and configuration strings (`intern_checker_names`, `intern_bfs_config`)
+extends that count only when no run-time name came before them. The
+validator validates as usual. If, under TLC's value or exploration order, any
+name was interned after the start-up names (while decoding the trace, while
+evaluating an `ASSUME`, a check, an `ENABLED` decision or a lasso formula, or
+by a checker sharing the model), the result is `unsupported: runtime string
+encounter order`, whatever the verdict would have been. Names interned at
+binding have the same order as in TLC, so a verdict that only compared those
+names is TLC's. The static admission proofs (`runtime_order`,
+`tuple_history`, the tuple-shape proof in `exists`, `context_admission`) are
+deleted. `INSTANCE ... WITH` bindings are entered only when they have no side
+effects.
+
+**Random draws** (replaces amendment 2's replay). Any check that draws a
+random value makes the result `unsupported` (`RANDOM_UNSUPPORTED`). The
+stream-position certificate (`random_position`) and the replay are deleted.
+`dive_trace::Replay` and the ignored replay parameters are removed. The public
+validation functions accept only the model, supplied word and model-value names
+needed for TLC JSON interpretation.
+
+**Registers.** Integer/named `TLCGet`, aggregate `TLCGet("all")` and
+`TLCGet("all:named")`, and integer/named `TLCSet` are refused at evaluation
+time (`REGISTERS_UNSUPPORTED`). A shared evaluator can contain values written
+by checker evaluations outside the trace, even without runtime names. The
+defaulted `Host::check_register_access` permits ordinary evaluator/checker
+access; the replay host refuses before any read or write and remembers the
+attempt, so optional label checks cannot swallow it and produce a verdict.
+Untaken register calls remain supported, caller registers remain unchanged,
+and non-register introspection retains its existing behavior.
+
+**Typed state input.** Public trace, lasso and enabledness inputs check every
+stored atom against the model's name table before evaluating predicates.
+`Value::validate_names` checks text and token iteratively without interning,
+normalizing, enumerating or calling a deferred source. Foreign tokens are
+unsupported (`DIVE-V0041`), as are opaque deferred state values whose names
+cannot be inspected (`DIVE-V0042`). This prevents a foreign interner's ordering
+from making `CHOOSE` manufacture an invariant violation despite the model's
+start-up name count remaining unchanged. Existing evaluator context checks
+still validate atoms in constant bindings and captured scopes; the source IR,
+binding process and its start-up name feed remain the trusted model boundary.
+
+**Negative controls.** The harness's `trace-controls` and `SpecModel::controls`
+retain shortest-path, changed-value, claim and label mutants, checked both
+directly and through the version 1 document. Only random redraw mutants and
+their stream-position proofs are removed. Changed values use a model atom
+with the reserved Boolean keyword `TRUE`, already interned at startup; this
+keeps the runtime-name refusal intact and does not change the model's names.
+Alternative label controls skip impure definitions and use guarded validation,
+so testing an action on a different step cannot print or access registers in
+the caller's runtime.
+
+**Removed.** The opt-in stored-representation trace
+format version 2 (`value_repr`, `--trace-format representation-v2`): dive
+writes and reads version 1 only.
+
+**Effect.** `MCCheckpointCoordinationFailure`, whose `SubSeq` and `\o` only
+build sequences of model values on the trace, validates under `--compat=tlc`
+instead of being refused.

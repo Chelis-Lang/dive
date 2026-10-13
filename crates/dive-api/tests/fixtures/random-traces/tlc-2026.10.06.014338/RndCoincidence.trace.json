@@ -1,1 +1,0 @@
-{"counterexample":{"action":[[[1,{"n":0,"x":false}],{"name":"Next","location":{"beginLine":5,"beginColumn":25,"endLine":5,"endColumn":60,"module":"RndCoincidence"}},[2,{"n":1,"x":true}]]],"state":[[1,{"n":0,"x":false}],[2,{"n":1,"x":true}]]},"vars":["x","n"]}

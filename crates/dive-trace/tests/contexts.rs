@@ -1,4 +1,4 @@
-//! Independent certificates reject foreign public contexts before replay setup.
+//! Structural integrity rejects malformed or foreign public contexts before replay.
 #![allow(clippy::expect_used, reason = "fixture construction and assertions")]
 use dive_model::{BindOptions, Model, Pred};
 use dive_trace::{Ending, State, Trace, Validation};
@@ -72,7 +72,16 @@ fn foreign_scopes_and_replaced_model_arenas_never_certify() {
                 Err(dive_trace::exists::ExistsError::Unsupported(_))
             ));
             assert!(matches!(
-                dive_trace::validate(&m, &trace, None).validation,
+                dive_trace::validate(&m, &trace).validation,
+                Validation::Unsupported(_)
+            ));
+            let doc = dive_trace::TraceDoc::from_json(&serde_json::json!({
+                "vars": ["x"], "counterexample": {"action": [], "state": [[1, {"x": 0}]]}
+            }))
+            .expect("TLC document")
+            .with_ending(Ending::Behavior);
+            assert!(matches!(
+                dive_trace::validate_doc(&m, &doc, &[]).0.validation,
                 Validation::Unsupported(_)
             ));
             assert_eq!(
@@ -114,8 +123,67 @@ fn admitted_clones_and_complete_words_remain_valid() {
             properties: vec![],
         };
         assert_eq!(
-            dive_trace::validate(&m, &trace, None).validation,
+            dive_trace::validate(&m, &trace).validation,
             Validation::Valid
         );
+    }
+}
+
+#[test]
+fn malformed_public_predicate_roots_and_locations_are_refused_before_replay() {
+    for opts in [BindOptions::tlc(), BindOptions::dive()] {
+        for role in ["init", "next", "invariant", "action-property"] {
+            for location in [false, true] {
+                for initial in [0, 1] {
+                    let mut m = model(&opts);
+                    if role == "action-property" {
+                        m.implied_actions.push(m.invariants[0].clone());
+                    }
+                    let pred = match role {
+                        "init" => &mut m.init[0].pred,
+                        "next" => m.next.as_mut().expect("Next"),
+                        "invariant" => &mut m.invariants[0].pred,
+                        _ => &mut m.implied_actions[0].pred,
+                    };
+                    if location {
+                        pred.location = dive_ir::ExprId(u32::MAX);
+                    } else {
+                        pred.expr = dive_ir::ExprId(u32::MAX);
+                    }
+                    let names_before = m.names.len();
+                    let trace = Trace {
+                        states: vec![Arc::from([Some(initial.into())])],
+                        labels: vec![None],
+                        ending: Ending::Behavior,
+                        length: None,
+                        properties: Vec::new(),
+                    };
+                    // A true Init must not hide malformed metadata; a false
+                    // Init must not panic when rendering its source location.
+                    assert!(matches!(
+                        dive_trace::validate(&m, &trace).validation,
+                        Validation::Unsupported(reason) if reason.contains("DIVE-EVAL-C001")
+                    ));
+                    for lossy in [false, true] {
+                        let doc = if lossy {
+                            dive_trace::TraceDoc::from_json(&serde_json::json!({
+                                "vars": ["x"], "counterexample": {"action": [], "state": [[1, {"x": initial}]]}
+                            }))
+                            .expect("TLC document")
+                            .with_ending(Ending::Behavior)
+                        } else {
+                            dive_trace::TraceDoc::behavior(vec![serde_json::json!({"x": initial})])
+                                .expect("native document")
+                        };
+                        assert!(matches!(
+                            dive_trace::validate_doc(&m, &doc, &[]).0.validation,
+                            Validation::Unsupported(reason) if reason.contains("DIVE-EVAL-C001")
+                        ));
+                    }
+                    assert_eq!(m.names.len(), names_before);
+                    assert_eq!(m.take_output(), Vec::<String>::new());
+                }
+            }
+        }
     }
 }

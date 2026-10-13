@@ -92,6 +92,9 @@ pub(crate) struct Core {
     pub(crate) printed: std::sync::atomic::AtomicBool,
     /// The run hosting the evaluator, and TLC's register file.
     pub(crate) host: crate::host::HostSlot,
+    /// How many names were interned at start-up
+    /// ([`crate::Evaluator::seal_startup_names`]).
+    pub(crate) startup_names: std::sync::atomic::AtomicUsize,
 }
 
 impl std::fmt::Debug for Core {
@@ -169,6 +172,7 @@ impl Core {
             startup,
             sink,
             printed: std::sync::atomic::AtomicBool::new(false),
+            startup_names: std::sync::atomic::AtomicUsize::new(0),
             host: crate::host::HostSlot::default(),
         }
     }

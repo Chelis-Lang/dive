@@ -31,7 +31,7 @@ fn word() -> TraceDoc {
 }
 
 fn result(model: &Model, doc: &TraceDoc) -> Validation {
-    validate_doc(model, doc, &[], None).0.validation
+    validate_doc(model, doc, &[]).0.validation
 }
 
 #[test]

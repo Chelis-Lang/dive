@@ -69,7 +69,7 @@ Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 | **Kind** | Same answer, better path (reporting); different answer only when you fix a seed |
 | **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` alone replays a run exactly, at any worker count |
 | **TLC behaviour** | TLC's seeding and TLC's draws, bit for bit, under `--compat=tlc` (given TLC's `-seed S` and `-fp N`) |
-| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. On admitted untransformed routes under `--compat=tlc`, draws match TLC; this is not a claim of exact trace printing at every random stopping boundary (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator replays the draws too: given the run's seed and polynomial (`dive validate-trace --seed S [--fp N]`; the conformance harness passes the goldens' `-seed 0 -fp 0`), it checks a counterexample's drawn values against the run's streams, and refuses by name a draw it cannot place (ADR 0016, amendment 2). |
+| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. On admitted untransformed routes under `--compat=tlc`, draws match TLC; this is not a claim of exact trace printing at every random stopping boundary (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator refuses every random draw made by a check: the run's seed and polynomial do not establish its stream position independently of successor generation (ADR 0016, amendment 3). Its TLC JSON interpretation heuristic scores only pure initial conjuncts, so it never consumes draws or writes registers before replay. |
 
 **What TLC does.** `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
 
@@ -974,14 +974,15 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
-  - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
+  - deadlock endings whose successor absence cannot be decided by the independent finite-cover check. A concrete successor refutes the ending, complete finite-cover exhaustion validates it, and missing covers remain unsupported;
   - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture; ordinary schedules and wider recovery remain refused;
   - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
   - traces whose states leave variables unassigned (partial implementation traces), which need a search;
-  - whatever the evaluator refuses, and reads of the live counters, which depend on the search rather than on the trace. `TLCGet("level")` is the level of the state being checked, and `TLCGet("config")` is provided when the run's `-seed` and `-fp` are known (the conformance harness passes the goldens'). Registers follow the trace's own steps;
-  - draws of the random operators without the run's `-seed` and `-fp`. With them, draws in `Init` and the next-state relation are replayed from the run's streams. Still refused: a draw in an invariant, constraint, property or label, any draw under a `VIEW` or `SYMMETRY`, an `ASSUME` that draws and fails on a fresh start-up stream, and a step that holds only with its draws taken further into the stream than a predicate reaches them (the successor generator drew for other successors first, ADR 0016 amendment 2).
+  - public Rust typed states with names whose text and token do not match the model's interner (`DIVE-V0041`), or opaque deferred values whose names cannot be inspected without running caller code (`DIVE-V0042`). Build names with the model's interner or decode a trace document against that model;
+  - whatever the evaluator refuses, and reads of the live counters, which depend on the search rather than on the trace. `TLCGet("level")` is the level of the state being checked, and `TLCGet("config")` is provided when the run's `-seed` and `-fp` are known (the conformance harness passes the goldens'). Integer/named register reads and writes, including `TLCGet("all")` and `TLCGet("all:named")`, are refused during evaluation because their values can depend on checker evaluations outside the trace. Untaken calls remain supported and validation leaves caller registers unchanged;
+  - every random draw made while checking the trace, even with the run's `-seed` and `-fp`: only the successor generator determines its stream position, which independent replay does not assume (ADR 0016, amendment 3).
 
   A step label that names an operator with parameters is noted and not checked.
 - **TLC's exact liveness counterexample.** TLC picks its lasso through hash-table and SCC visitation order, which depends on the fingerprint polynomial. dive reports a deterministic short lasso that the independent validator accepts, with the same verdict, counts and violated property. `--lasso tlc` is refused as a usage error (D-013).
@@ -997,9 +998,11 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 
 ---
 
-Seeded trace validation certifies straight-line assignments behind unprimed guards. Quantified or multi-successor random actions remain unsupported even if their draws happen to match: a finite random-stream search cannot prove placement. The `RndWide` and `RndCoincidence` fixtures exercise these refusals (ADR 0016 amendment 2).
-
-On the pinned oracle at seed 7, `RndCoincidence` reports a safety violation and two states. `RndWide` reports the violation and the initial state, then fails to finish counterexample reconstruction within the capture's 300-second timeout. Its clean capture is recorded as a timeout, not a usable trace or golden. dive produces the two-state violation, but its independent validator explicitly refuses the unproved random position. Evidence: `crates/dive-api/tests/fixtures/random-traces/`.
+Independent replay refuses every random draw encountered while checking a
+supplied trace (ADR 0016 amendment 3). A matching seed does not establish which
+search branches consumed draws before those states. Seed and fingerprint
+settings still describe run-dependent model binding; they do not authorize
+random replay or a successful validation result.
 
 ## Maintaining this page
 
@@ -1417,26 +1420,27 @@ validator accepted it because loading `"7"` before constructing `"6"` changed
 what `CHOOSE` selected. The raw false positive is retained with the safe oracle
 capture, source hashes and reproduction flags.
 
-TLC-order trace validation now reports **unsupported: runtime string encounter
-order** for reachable runtime-name constructors, before predicate evaluation
-or lossy trace interpretation. A seed and fingerprint do not supply missing
-namespace history. This applies to direct decoded traces, JSON traces and the
-Rust API. Canonical default validation accepts the actual `"6"` behavior and
-rejects the forged `"7"` step. Ordinary literal strings remain supported.
+TLC-order trace validation follows one rule. Names interned when dive binds
+the model (SANY's encounter order, constants and configuration, and the
+checker's own start-up names) have the same order as in TLC. The validator
+validates as usual. If decoding the trace or evaluating any check interned a
+name after binding, it reports **unsupported: runtime string encounter order**,
+whether the trace would otherwise be valid or invalid. A seed and fingerprint
+do not supply missing namespace history. The rule applies to dive's documents,
+TLC's JSON documents, the Rust API, `ENABLED` decisions and lasso formulas.
 
-This is dive's own limitation, not a new language default. Establishing namespace
-provenance independently is required before lifting the refusal. The admission
-analysis conservatively includes operators with both tuple and string forms.
-Whole-word replay can now discharge that guard for independently proved
-tuple-only `Tail`, concatenation and `SubSeq` operands, without evaluating
-their arguments or using witness values as type evidence. Strings, mixed
-branches and nested name constructors retain the refusal. A separately bounded
-source-wide tuple-history proof can admit
-some variable sequence histories; general saved-frame provenance remains
-unproved. Fixed nested tuple aliases through `UNCHANGED vars` have a bounded
-projection proof (#215); conditional tuple permutations cannot establish
-per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. A finite tuple-range proof additionally permits indexed reads only when Init and every Next branch prove a tuple range. Strings, opaque maps, nested updates, primed self-reference and effects keep the refusal; public arbitrary-state APIs do not inherit these facts. See the literal operand slice.
+On `ReplayNames`, both the forged `"7"` word and the actual `"6"` behavior are
+refused under `--compat=tlc`: each creates a string the specification never
+mentions. Canonical default validation accepts the actual behavior and
+rejects the forged step. Literal strings remain supported, and so do models
+whose name-capable operators (`Tail`, `\o`, `SubSeq`, `ToString`) only build
+values from start-up names on the trace's own steps: for example
+`MCCheckpointCoordinationFailure`, whose `SubSeq` and `\o` apply only to
+sequences of model values.
 
+This is dive's own limitation, not a new language default. A validator that
+shares the checker's model sees the checker's runtime names and refuses; the
+harness validates on a freshly bound model.
 
 Finite safety simulation also refuses TLC runtime-name models before sampling
 until its simulator startup and independent namespace provenance are proved.
@@ -2260,26 +2264,13 @@ admission or proof credit. Neither profile silently repairs the reference output
 
 `_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. User contract and executable example; [ADR 0057](decisions/0086-rescue-reset.md). No ordinary-schedule or family certification is granted.
 
-### Opt-in stored trace transport (#190)
+### Stored trace transport (#190): withdrawn
 
-Trace version 1 remains the default and retains the measured 36 original/108
-altered shape failures above. Version 2 (`--trace-format representation-v2`)
-uses checked stored representation for admitted forward mixed record/tuple sets
-and nonliteral tuple/record functions. It recomputes construction witnesses under
-the bound profile; normalized/order/literal claims never substitute for semantic
-Init/Next/ending validation. The transport does not alter comparison semantics,
-reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
-and unproved witness shapes remain explicit transport refusals. The
-guide and schema specify limits and migration.
-Historical shape failures remain excluded from certificate credit. The separate
-current v2 selection proves 72 independently valid words and 216 semantic mutant
-rejections; 24 matching legacy mixed-value shape failures stay explicit. The
-Model-based writer checks existing name tokens before emission, and fresh owned
-constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
-interval encoding controls retain the concrete violation but emit no transport
-or certificate. See the source-bound receipt;
-this does not certify arbitrary stored representations.
-
+The opt-in version-2 trace format (`--trace-format representation-v2`) was
+removed on 2026-10-12. It carried TLC's internal stored representation of
+values, which is not part of a trace's meaning. dive writes and reads trace
+format version 1 only, and the flag is gone. The 36 original and 108 altered
+shape failures of version 1 described above remain.
 
 D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
 labelled sequential procedure can now use Full editing. The pinned original
@@ -2608,14 +2599,14 @@ budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
 no-action and checkpoint composition are unfinished. No Holds, model-proof or
 family credit is claimed; F-023 remains missing/audit-required.
 
-### Public Rust IR: Strict context admission (#234)
+### Public Rust IR: Strict context admission (#234): withdrawn
 
-Independent trace context inspection conservatively refuses an expression
-substitution passed as `Pass::Strict` before entering its scope. This includes
-an actually inert Strict binding: caller-supplied expression effects metadata
-is not an independent proof that eager entry cannot execute effects. Lazy and
-Direct substitution expressions remain thunks; ordinary evaluator Strict
-execution is unchanged. See [the endpoint contract](user/strict-context-admission.md).
+The structural pre-entry proof for `Pass::Strict` substitutions was removed on
+2026-10-12 (ADR 0016, amendment 3). The validator now refuses only bindings
+whose effects annotation is impure or whose context belongs to another model.
+A caller that forges an inert annotation on an effectful call can make
+validation run that effect (a `Print`, for example). This never changes a
+verdict.
 
 The retained public serialized-IR control references `Noise(v) == PrintT(v)`
 from a Strict binding but annotates that copied call `Effects::NONE`. Its valid

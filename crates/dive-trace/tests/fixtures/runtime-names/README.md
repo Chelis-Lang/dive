@@ -11,8 +11,8 @@ witness interned `"7"` before the predicate created `"6"`, so the witness
 changed CHOOSE's encounter order. `validate-trace.json` preserves that false
 positive; `check.json` preserves the safe native search before the repair.
 
-TLC-order validation now refuses runtime-name models explicitly, including
-lossy TLC interpretation and the direct decoded-trace API. A witness prefix
-cannot establish strings created by off-trace states. Seeds and fingerprints
-do not provide that history. Canonical default validation still accepts the
-actual `"6"` behavior and rejects the forged `"7"` transition.
+TLC-order validation now refuses a verdict whenever decoding or checking the
+trace created a name after the model was bound (ADR 0016, amendment 3). Here
+the witness's `"7"` and the predicate's `ToString(x)` both create names, so
+the word is refused. Canonical default validation still accepts the actual
+`"6"` behavior and rejects the forged `"7"` transition.

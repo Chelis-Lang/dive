@@ -122,7 +122,6 @@ fn concrete_spilled_symmetry_witnesses_remain_independently_valid() {
                     let controls = model.controls(&trace);
                     assert_eq!(controls.positive.validation, Validation::Valid);
                     assert!(controls.failures().is_empty(), "{:?}", controls.failures());
-                    assert_ne!(controls.mutants, [] as [(String, Validation); 0]);
                 }
             }
         }

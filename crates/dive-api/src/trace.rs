@@ -40,8 +40,7 @@ use std::sync::Arc;
 
 pub use dive_trace::mutate::Mutant;
 pub use dive_trace::{
-    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, TraceEncoding,
-    Validation,
+    Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
 };
 use serde_json::{Value, json};
 
@@ -60,14 +59,11 @@ pub struct TraceOptions {
     /// TLC's `-deadlock` flag: the model does not check for deadlock.
     pub no_deadlock: bool,
     /// The checking run's `-seed` and `-fp` index, when known (the TLC
-    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them,
-    /// constant definitions and `ASSUME`s draw from the run's start-up
-    /// stream, and the validator replays the run's random draws in the
-    /// initial predicate and the steps (TLC's seeding under `compat_tlc`,
-    /// dive's otherwise; D-002). Without them, all of these are refused by
-    /// name.
-    /// Random checks are decisive only where generator and predicate draw
-    /// positions can be proved equal; other orders are explicitly refused.
+    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
+    /// constant definitions draw from the run's start-up stream (TLC's
+    /// seeding under `compat_tlc`, dive's otherwise; D-002). Without them,
+    /// both are refused by name. The validator refuses every random draw in
+    /// the checks themselves (`dive_trace::RANDOM_UNSUPPORTED`).
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
@@ -80,7 +76,6 @@ pub struct TraceOptions {
 pub struct SpecModel {
     model: dive_model::Model,
     model_values: Vec<String>,
-    replay: Option<dive_trace::Replay>,
 }
 
 impl SpecModel {
@@ -147,18 +142,21 @@ impl SpecModel {
         } else {
             dive_stdlib::random::RandomMode::Dive
         };
-        let replay = match opts.run {
-            Some((seed, fp_index)) => Some(
-                dive_trace::Replay::new(dive_stdlib::random::Streams::new(seed, mode), fp_index)
-                    .ok_or_else(|| ApiError::Rejected {
+        let streams = match opts.run {
+            Some((seed, fp_index)) => {
+                if fp_index >= dive_value::fp64::POLYS.len() {
+                    return Err(ApiError::Rejected {
                         message: format!(
-                            "fingerprint polynomial index {fp_index} is out of range (0..131)"
+                            "fingerprint polynomial index {fp_index} is out of range (0..{})",
+                            dive_value::fp64::POLYS.len()
                         ),
-                    })?,
-            ),
+                    });
+                }
+                Some(dive_stdlib::random::Streams::new(seed, mode))
+            }
             None => None,
         };
-        let host = replay.map(|r| Arc::new(dive_stdlib::host::RunHost::new(r.streams(), None)));
+        let host = streams.map(|s| Arc::new(dive_stdlib::host::RunHost::new(s, None)));
         let bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
             host: host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }),
@@ -190,7 +188,6 @@ impl SpecModel {
             Ok(model) => Ok(Self {
                 model,
                 model_values,
-                replay,
             }),
             Err(f) => match &f.error.kind {
                 dive_model::ErrorKind::Unsupported { feature } => Err(ApiError::Unsupported {
@@ -226,40 +223,22 @@ impl SpecModel {
     /// [`dive_trace::validate_doc`]).
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<Trace>) {
-        on_big_stack(|| {
-            dive_trace::validate_doc(&self.model, doc, &self.model_values, self.replay.as_ref())
-        })
-        .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
+        on_big_stack(|| dive_trace::validate_doc(&self.model, doc, &self.model_values))
+            .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
     }
 
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {
-        on_big_stack(|| dive_trace::validate(&self.model, trace, self.replay.as_ref()))
+        on_big_stack(|| dive_trace::validate(&self.model, trace))
             .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
     }
 
-    /// The by-construction invalid mutants of a valid trace
-    /// ([`dive_trace::mutate`]): negative controls.
+    /// The by-construction invalid mutants of a valid shortest trace
+    /// ([`dive_trace::mutate`]): negative controls, without random redraws.
     #[must_use]
     pub fn mutants(&self, trace: &Trace) -> Vec<Mutant> {
-        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace, self.replay.as_ref()))
-            .unwrap_or_default()
-    }
-
-    /// Writes opt-in stored representation without changing the trace claim.
-    /// Successful transport is not semantic validation.
-    ///
-    /// # Errors
-    /// Unsupported stored shape or bounded transport admission.
-    pub fn to_doc_with_encoding(
-        &self,
-        trace: &Trace,
-        encoding: dive_trace::TraceEncoding,
-    ) -> Result<TraceDoc, ApiError> {
-        trace
-            .to_doc_with_encoding(&self.model, encoding)
-            .map_err(|message| ApiError::Rejected { message })
+        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace)).unwrap_or_default()
     }
 
     /// The trace in dive's format.

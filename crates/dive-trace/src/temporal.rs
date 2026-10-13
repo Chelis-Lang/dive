@@ -60,7 +60,9 @@ impl std::error::Error for TemporalError {}
 /// lacks a complete finite cover, side effects,
 /// unbounded/dynamic temporal quantification, opaque scoped atoms, checker introspection or
 /// resource bounds. Direct `ENABLED` uses independent finite covers; opaque
-/// embedded enabledness or missing covers remain explicit refusals.
+/// embedded enabledness or missing covers remain explicit refusals. A
+/// string or model value created after binding under encounter order
+/// refuses ([`crate::RUNTIME_NAMES_UNSUPPORTED`]), whatever the truth.
 pub fn evaluate_lasso(
     model: &Model,
     formula: &Pred,
@@ -75,6 +77,11 @@ pub fn evaluate_lasso(
         .evaluator
         .validate_predicate(&formula.scope, formula.expr)
         .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+    if model.has_runtime_names() {
+        return Err(TemporalError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+        ));
+    }
     if states.is_empty() || back_to >= states.len() {
         return Err(TemporalError::Invalid("invalid lasso back edge".into()));
     }
@@ -86,13 +93,22 @@ pub fn evaluate_lasso(
             "a lasso state does not assign every variable".into(),
         ));
     }
+    for state in states {
+        crate::trace::validate_state_names(model, state).map_err(TemporalError::Unsupported)?;
+    }
     let mut cx = Word {
         model,
         states,
         back_to,
         cells: 0,
     };
-    cx.eval(formula.expr, &formula.scope, 0)
+    let truth = cx.eval(formula.expr, &formula.scope, 0);
+    if model.has_runtime_names() {
+        return Err(TemporalError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+        ));
+    }
+    truth
 }
 
 /// Preflight for finite predicates used to certify a periodic behavior.
@@ -125,6 +141,40 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         cells: 0,
     }
     .check_atom_context(pred.expr, &pred.scope)
+}
+
+/// Entering `INSTANCE ... WITH` evaluates its strict bindings eagerly:
+/// refuse a binding from another model's context or with side effects
+/// before entering. Names it creates are refused after evaluation
+/// ([`crate::RUNTIME_NAMES_UNSUPPORTED`]).
+fn substitution_is_pure(
+    model: &Model,
+    scope: &Scope,
+    bindings: &[dive_ir::SubstBinding],
+) -> Result<(), TemporalError> {
+    let ev = &model.evaluator;
+    let pure = ev.validate_scope(scope).is_ok()
+        && bindings.iter().all(|binding| {
+            model.ir.decls().get(binding.decl.index()).is_some()
+                && match binding.value {
+                    Arg::Expr { expr, .. } => {
+                        ev.validate_predicate(scope, expr).is_ok()
+                            && model
+                                .ir
+                                .nodes()
+                                .get(expr.index())
+                                .is_some_and(|n| !n.effects.intersects(Effects::IMPURE))
+                    }
+                    Arg::Op { .. } => true,
+                }
+        });
+    if pure {
+        Ok(())
+    } else {
+        Err(TemporalError::Unsupported(
+            "INSTANCE substitution with side effects or a foreign context".into(),
+        ))
+    }
 }
 
 struct Word<'a> {
@@ -164,11 +214,7 @@ impl Word<'_> {
             ));
         }
         if let Expr::Subst { body, bindings } = &node.expr {
-            if !crate::context_admission::substitution_is_admitted(self.model, scope, bindings) {
-                return Err(TemporalError::Unsupported(
-                    crate::context_admission::STRICT_SUBSTITUTION.into(),
-                ));
-            }
+            substitution_is_pure(self.model, scope, bindings)?;
             let sc = ev
                 .scope_subst(scope, expr)
                 .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
@@ -759,13 +805,7 @@ impl Word<'_> {
                     continue;
                 }
                 Expr::Subst { body, bindings } => {
-                    if !crate::context_admission::substitution_is_admitted(
-                        self.model, &sc, bindings,
-                    ) {
-                        return Err(TemporalError::Unsupported(
-                            crate::context_admission::STRICT_SUBSTITUTION.into(),
-                        ));
-                    }
+                    substitution_is_pure(self.model, &sc, bindings)?;
                     todo.push((
                         *body,
                         ev.scope_subst(&sc, e)
@@ -839,14 +879,13 @@ impl Word<'_> {
                         }
                         if def.std.is_some_and(|op| {
                             op.impure()
-                                || op.creates_runtime_names()
                                 || matches!(
                                     op.support(),
                                     dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
                                 )
                         }) {
                             return Err(TemporalError::Unsupported(
-                                "native callback/runtime-name operator capture".into(),
+                                "native callback operator capture".into(),
                             ));
                         }
                         if def.std == Some(StdOp::TlcTLCGet) {
@@ -857,14 +896,13 @@ impl Word<'_> {
                     }
                     OpRef::Std(op)
                         if op.impure()
-                            || op.creates_runtime_names()
                             || matches!(
                                 op.support(),
                                 dive_ir::StdSupport::Io | dive_ir::StdSupport::Introspection
                             ) =>
                     {
                         return Err(TemporalError::Unsupported(
-                            "native callback/runtime-name operator capture".into(),
+                            "native callback operator capture".into(),
                         ));
                     }
                     OpRef::Std(StdOp::TlcTLCGet) | OpRef::Const(_) | OpRef::Subst(_) => {
@@ -953,12 +991,7 @@ impl Word<'_> {
                 return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
             }
             Expr::Subst { body, bindings } => {
-                if !crate::context_admission::substitution_is_admitted(self.model, scope, bindings)
-                {
-                    return Err(TemporalError::Unsupported(
-                        crate::context_admission::STRICT_SUBSTITUTION.into(),
-                    ));
-                }
+                substitution_is_pure(self.model, scope, bindings)?;
                 let sc = ev
                     .scope_subst(scope, expr)
                     .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
@@ -1128,27 +1161,10 @@ impl Word<'_> {
             .map_err(|e| TemporalError::Unsupported(format!("predicate quantifier bindings: {e}")))
     }
 
-    fn check_native(
-        &self,
-        op: Option<StdOp>,
-        args: &[Arg],
-        scope: &Scope,
-    ) -> Result<(), TemporalError> {
+    fn check_native(op: Option<StdOp>) -> Result<(), TemporalError> {
         if op == Some(StdOp::TlcTLCGet) {
             return Err(TemporalError::Unsupported(
                 "TLCGet: checker introspection is not a function of a lasso".into(),
-            ));
-        }
-        let opts = self.model.evaluator.options();
-        if (opts.ctx.order == dive_value::ValueOrder::Tlc
-            || opts.exploration == dive_eval::ExplorationOrder::Tlc)
-            && op.is_some_and(|op| {
-                op.creates_runtime_names()
-                    && !crate::exists::native_tuple_only(self.model, op, args, scope)
-            })
-        {
-            return Err(TemporalError::Unsupported(
-                crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
             ));
         }
         Ok(())
@@ -1225,13 +1241,7 @@ impl Word<'_> {
                     }
                 },
                 Expr::Subst { body, bindings } => {
-                    if !crate::context_admission::substitution_is_admitted(
-                        self.model, &scope, bindings,
-                    ) {
-                        return Err(TemporalError::Unsupported(
-                            crate::context_admission::STRICT_SUBSTITUTION.into(),
-                        ));
-                    }
+                    substitution_is_pure(self.model, &scope, bindings)?;
                     let sc = ev
                         .scope_subst(&scope, e)
                         .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
@@ -1261,7 +1271,7 @@ impl Word<'_> {
                             ));
                         }
                         if !ev.is_value_override(d) {
-                            self.check_native(def.std, &[], &scope)?;
+                            Self::check_native(def.std)?;
                         }
                         let sc = ev
                             .scope_enter(&scope, d)
@@ -1317,7 +1327,7 @@ impl Word<'_> {
                     }
                     _ => None,
                 };
-                self.check_native(standard, args, &scope)?;
+                Self::check_native(standard)?;
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     return Err(TemporalError::Unsupported(
                         "higher-order periodic predicate argument".into(),

@@ -280,7 +280,7 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                                 )
                                 .expect("lossless");
                                 assert_eq!(
-                                    dive_trace::validate_doc(&model, &doc, &cfg.model_values, None)
+                                    dive_trace::validate_doc(&model, &doc, &cfg.model_values)
                                         .0
                                         .validation,
                                     Validation::Valid
@@ -289,27 +289,17 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                                 bad_init.states[0]
                                     .insert("x".into(), serde_json::Value::Bool(true));
                                 assert!(matches!(
-                                    dive_trace::validate_doc(
-                                        &model,
-                                        &bad_init,
-                                        &cfg.model_values,
-                                        None
-                                    )
-                                    .0
-                                    .validation,
+                                    dive_trace::validate_doc(&model, &bad_init, &cfg.model_values)
+                                        .0
+                                        .validation,
                                     Validation::Invalid(_)
                                 ));
                                 let mut bad_claim = doc.clone();
                                 bad_claim.properties = vec!["AbsentClaim".into()];
                                 assert_ne!(
-                                    dive_trace::validate_doc(
-                                        &model,
-                                        &bad_claim,
-                                        &cfg.model_values,
-                                        None
-                                    )
-                                    .0
-                                    .validation,
+                                    dive_trace::validate_doc(&model, &bad_claim, &cfg.model_values)
+                                        .0
+                                        .validation,
                                     Validation::Valid
                                 );
                                 let mut bad_loop = doc.clone();
@@ -317,14 +307,9 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                                     back_to: bad_loop.states.len(),
                                 });
                                 assert!(matches!(
-                                    dive_trace::validate_doc(
-                                        &model,
-                                        &bad_loop,
-                                        &cfg.model_values,
-                                        None
-                                    )
-                                    .0
-                                    .validation,
+                                    dive_trace::validate_doc(&model, &bad_loop, &cfg.model_values)
+                                        .0
+                                        .validation,
                                     Validation::Invalid(_)
                                 ));
 

@@ -110,7 +110,6 @@ fn verify_frontier_recovery_cases(names: &[&str]) {
                             let controls = model.controls(&trace);
                             assert_eq!(controls.positive.validation, Validation::Valid);
                             assert!(controls.failures().is_empty(), "{:?}", controls.failures());
-                            assert_ne!(controls.mutants.len(), 0);
                         }
                     }
                 }

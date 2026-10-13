@@ -113,7 +113,7 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                         let doc = dive_trace::TraceDoc::parse(&v.document().to_json().to_string())
                             .expect("lossless serialization");
                         assert_eq!(
-                            dive_trace::validate_doc(&model, &doc, &cfg.model_values, None)
+                            dive_trace::validate_doc(&model, &doc, &cfg.model_values)
                                 .0
                                 .validation,
                             Validation::Valid,
@@ -1823,7 +1823,7 @@ fn state_domain_models_match_pinned_final_truth_counts_and_independent_validatio
                             dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
                                 .expect("fresh model");
                         assert_eq!(
-                            dive_trace::validate_doc(&fresh, v.document(), &cfg.model_values, None)
+                            dive_trace::validate_doc(&fresh, v.document(), &cfg.model_values)
                                 .0
                                 .validation,
                             Validation::Valid,
@@ -2378,7 +2378,7 @@ fn fairness_validation_controls(
     let mut doc =
         dive_trace::TraceDoc::parse(&source.to_json().to_string()).expect("lossless witness");
     assert_eq!(
-        dive_trace::validate_doc(&model, &doc, &cfg.model_values, None)
+        dive_trace::validate_doc(&model, &doc, &cfg.model_values)
             .0
             .validation,
         Validation::Valid
@@ -2386,7 +2386,7 @@ fn fairness_validation_controls(
     doc.ending = Some(dive_trace::Ending::Lasso {
         back_to: doc.states.len() - 1,
     });
-    let validation = dive_trace::validate_doc(&model, &doc, &cfg.model_values, None)
+    let validation = dive_trace::validate_doc(&model, &doc, &cfg.model_values)
         .0
         .validation;
     assert!(

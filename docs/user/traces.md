@@ -12,11 +12,9 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states
-are not completed by guessing. Version 1 normalizes value JSON and has known
-representation gaps. Opt-in version 2 retains admitted stored representations
-with checked construction witnesses; successful transport is still not semantic
-validation. TLC dumpTrace JSON is also an accepted input format within the
-validator's documented boundary.
+are not completed by guessing. Trace format version 1 normalizes value JSON and has known representation
+gaps. Successful decoding is separate from semantic validation. TLC dumpTrace
+JSON is also an accepted input format within the validator's documented boundary.
 
 Rust applications can validate their own observed state sequence:
 
@@ -37,54 +35,46 @@ dependencies. `Behavior` checks the supplied finite execution; it does not claim
 an invariant counterexample or exhaustive model proof. Counterexample endings
 and periodic lassos carry separate claims and closing-edge obligations.
 
-Validation distinguishes valid, invalid and explicitly refused. Named random
-replay restrictions, unavailable finite deadlock/ENABLED covers, effects and
-unknown closing evidence do not become `valid`. Supply the original seed/fp and
-profile when required. The in-memory lasso back edge is zero-based; checker
+The lower-level `dive_trace` API exposes `validate(&model, &trace)` and
+`validate_doc(&model, &document, &model_values)`. Neither takes a random replay
+token; a random draw during validation remains explicitly unsupported.
+
+`SpecModel::controls` checks a known shortest counterexample, its document
+round trip, and mutations of its states, claim and action labels. Every
+generated mutant must be invalid; a valid or unsupported mutant is a control
+failure. The harness runs these checks with `dive-conformance trace-controls`.
+Random redraw mutations are unavailable while random validation is unsupported.
+
+Validation distinguishes valid, invalid and explicitly refused. Random draws,
+search-dependent register access, unavailable finite deadlock/ENABLED covers,
+effects and unknown closing evidence do not become `valid`. Supply the original
+seed/fp for run-dependent model binding and use the checking profile. The in-memory lasso back edge is zero-based; checker
 summary `back_to` display is one-based. Prefer the supplied trace document over reconstructing a lasso from displayed
 states, and inspect its decoder and independent-validation disposition.
 
 See the [API rustdoc](../../crates/dive-api/src/trace.rs),
 [temporal contract](../temporal-api.md) and [validator independence ADR](../decisions/0016-trace-validator-independence.md).
 
-A known mixed-set limitation remains: a checker can emit canonical JSON set
-order containing a sequence before a record, which the current decoder
-rejects with `result: invalid` at the shape check. This happens in both profiles;
-it is decoder admission failure, not semantic replay of the word. The current
-VIEW normalization selection retains 36 such original shape failures and 108
-mutant shape failures, separately from 96 independently valid words and 288
-semantic mutant rejections. Twelve originals are separately supplied
-default-reverse candidates, not emitted checker certificates. No shape failure
-receives validation credit. The separate homogeneous checkpoint matrix proves
-216 valid original/recovered words and 216 altered-word rejections.
-[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) and the
-source-bound campaign
-retain the exact outputs and incomplete coverage.
+A known mixed-set limitation remains: a checker can emit a JSON set containing
+a sequence before a record that the decoder rejects at the shape check, in
+either profile. Such a result receives no validation credit.
+[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) tracks this boundary.
 
-Opt-in `--trace-format representation-v2` addresses the admitted forward mixed
-record/tuple set and nonliteral function transport boundary. Version1 stays the
-default with its existing observed failures; it is not silently retagged as
-lossless. See the schema, runnable CLI/Rust guide and limits.
-Reverse construction, arbitrary deferred/symbolic values and Random/VIEW shape
-extensions remain unsupported. No prior shape failure earns new replay credit.
+Under `--compat=tlc`, strings and model values compare in the order TLC first
+encountered them. The validator knows that order for every name interned when
+the model is bound. If reading the trace or checking it creates any other
+name (a string the specification never mentions, or one an operator such as
+`ToString` or `Tail` builds on these states), the result is
+`unsupported: runtime string encounter order`, never `valid` or `invalid`.
+A check that draws a random value (`RandomElement`, `Randomization`) is
+likewise refused by name.
 
-The current v2 selection separately records 72 independently valid originals
-and 216 semantic altered-word rejections, including both profiles, both stores
-and 1/4/8 workers. An encoder may still refuse the stored shape: inspect
-`counterexample.trace_encoding`, whose `semantic_validation` remains false even
-when encoding succeeds. Unknown/mismatched receiving-model name tokens and
-constructor-changing nested Raw representations refuse before Model-based
-emission. Read the current scope and evidence
-without treating transport admission as a certificate.
+Before entering an `INSTANCE ... WITH` substitution, whose strict bindings are
+evaluated eagerly, the validator refuses a binding from another model's
+context or one whose effects annotation is not pure. It trusts the IR's
+effects annotations; it does not re-prove them.
 
-For TLC-profile sequence calls, literal tuple admission
-and bounded tuple-variable histories
-prove operand shape without using the report itself as evidence. The latter
-requires Init and every Next branch to establish/preserve the invariant.
-A bounded finite function-range proof additionally admits tuple stacks indexed by process owners when Init and every Next branch establish/preserve the range. Arbitrary-state APIs and general saved procedure stacks remain refused.
 
-Public serialized IR with Strict substitution expressions requires independent
-pre-entry proof from the actual operand and captured scope. Closed literals
-and safe forwarding are admitted; calls and unproved operands remain refused. See
-[strict context admission](strict-context-admission.md) for the Rust endpoint
-contract and unchanged lazy/ordinary-evaluator behavior.
+### Initial-predicate level
+
+Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and preserves ordinary state/action contexts thereafter. Random and register refusals remain unchanged.
