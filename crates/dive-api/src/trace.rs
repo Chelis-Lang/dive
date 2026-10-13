@@ -3,8 +3,9 @@
 //! A [`SpecModel`] is a specification bound to its TLC configuration. It
 //! validates traces in dive's format ([`dive_trace::format`]) or TLC's
 //! `-dumpTrace json`, with the independent validator of `dive-trace`, which
-//! evaluates `Init` and the next-state relation as predicates over the given
-//! states and never runs the model checker's successor generator.
+//! evaluates the next-state relation as a predicate over supplied states and
+//! never runs the model checker's successor generator. Register-dependent Init
+//! uses an independent ordered single-candidate operation from empty slots.
 //!
 //! This is also how a Rust project checks its *own implementation's*
 //! traces: record each state of a run as a JSON object from variable names
@@ -62,8 +63,9 @@ pub struct TraceOptions {
     /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
     /// constant definitions draw from the run's start-up stream (TLC's
     /// seeding under `compat_tlc`, dive's otherwise; D-002). Without them,
-    /// both are refused by name. The validator refuses every random draw in
-    /// the checks themselves (`dive_trace::RANDOM_UNSUPPORTED`).
+    /// both are refused by name. Private validation refuses every executed
+    /// random operation, including reconstructed constant binding
+    /// (`dive_trace::RANDOM_UNSUPPORTED`).
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
@@ -71,11 +73,13 @@ pub struct TraceOptions {
     pub module_paths: Vec<PathBuf>,
 }
 
-/// A specification bound to its configuration, ready to validate traces.
+/// A specification bound to its configuration, with immutable original inputs
+/// for private startup reconstruction on every validation.
 #[derive(Debug, Clone)]
 pub struct SpecModel {
     model: dive_model::Model,
     model_values: Vec<String>,
+    session: dive_trace::Session,
 }
 
 impl SpecModel {
@@ -137,6 +141,14 @@ impl SpecModel {
             feature: e.to_string(),
         })?;
         let ir = Arc::new(ir);
+        dive_eval::validate_ir(&ir).map_err(|error| ApiError::Unsupported {
+            feature: error.to_string(),
+        })?;
+        if let Some(feature) = dive_model::transformed_randomness(&ir, &cfg) {
+            return Err(ApiError::Unsupported {
+                feature: feature.to_owned(),
+            });
+        }
         let mode = if opts.compat_tlc {
             dive_stdlib::random::RandomMode::Tlc
         } else {
@@ -167,6 +179,8 @@ impl SpecModel {
             }
         };
         let model_values = cfg.model_values.clone();
+        let recipe =
+            dive_model::Recipe::new(ir.clone(), cfg.clone(), bind_opts.eval, opts.no_deadlock);
         let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
         if let (Ok(model), Some(h), Some((seed, fp_index))) = (&bound, &host, opts.run) {
             model.evaluator.intern_checker_names();
@@ -188,6 +202,11 @@ impl SpecModel {
             Ok(model) => Ok(Self {
                 model,
                 model_values,
+                session: dive_trace::Session::new(
+                    recipe,
+                    host.as_ref()
+                        .and_then(|host| dive_eval::Host::config(&**host)),
+                ),
             }),
             Err(f) => match &f.error.kind {
                 dive_model::ErrorKind::Unsupported { feature } => Err(ApiError::Unsupported {
@@ -223,15 +242,37 @@ impl SpecModel {
     /// [`dive_trace::validate_doc`]).
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<Trace>) {
-        on_big_stack(|| dive_trace::validate_doc(&self.model, doc, &self.model_values))
-            .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
+        on_big_stack(|| {
+            let (report, plain) = self.session.read(doc);
+            let trace = plain.and_then(|doc| Trace::decode(&self.model, &doc).ok());
+            (report, trace)
+        })
+        .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
     }
 
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {
-        on_big_stack(|| dive_trace::validate(&self.model, trace))
-            .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
+        on_big_stack(|| {
+            // Preserve the typed-input ownership guard before transport by text.
+            for state in &trace.states {
+                for value in state.iter().flatten() {
+                    if let Err(error) = value.validate_names(&self.model.names) {
+                        return thread_failed(
+                            &ApiError::Unsupported {
+                                feature: error.to_string(),
+                            },
+                            trace.states.len(),
+                        );
+                    }
+                }
+            }
+            match trace.to_doc(&self.model) {
+                Ok(doc) => self.session.read(&doc).0,
+                Err(message) => thread_failed(&ApiError::Rejected { message }, trace.states.len()),
+            }
+        })
+        .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
     }
 
     /// The by-construction invalid mutants of a valid shortest trace

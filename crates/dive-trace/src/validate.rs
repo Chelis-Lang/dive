@@ -3,8 +3,9 @@
 //! Every check evaluates a predicate of the model over *given* states with
 //! the core evaluator (`Model::eval`): `Init` as a state predicate on the
 //! first state, the next-state relation as an action predicate on each pair
-//! of states. Nothing here constructs a state; the successor enumerator is
-//! not even compiled into this crate (ADR 0016 §2).
+//! of states. Private register-dependent Init delegates to an independent
+//! single-candidate operation from empty slots. The successor enumerator is
+//! not compiled into this crate (ADR 0016 §2).
 //!
 //! **Random draws** (`RandomElement`, the `Randomization` operators) depend
 //! on the checking run's stream position, which only the successor
@@ -202,6 +203,8 @@ pub(crate) struct Run<'a> {
     pub(crate) notes: BTreeSet<String>,
     /// Concrete periodic predicates must obey the finite-binding entry bounds.
     periodic: bool,
+    private_init: bool,
+    pub(crate) init_incomplete: bool,
 }
 
 impl<'a> Run<'a> {
@@ -214,6 +217,11 @@ impl<'a> Run<'a> {
             any: AtomicBool::new(false),
             registers: AtomicBool::new(false),
             composition: AtomicBool::new(false),
+            register_used: AtomicBool::new(false),
+            startup: AtomicBool::new(false),
+            effect: Mutex::new(None),
+            private: false,
+            run_config: Mutex::new(None),
         });
         model.evaluator.set_host(host.clone());
         Self {
@@ -223,6 +231,22 @@ impl<'a> Run<'a> {
             passed: 0,
             notes: BTreeSet::new(),
             periodic: false,
+            private_init: false,
+            init_incomplete: false,
+        }
+    }
+
+    pub(crate) fn private(model: &'a Model, host: Arc<TraceHost>, initial: bool) -> Self {
+        let inner = model.evaluator.replace_host(Some(host.clone()));
+        Self {
+            model,
+            host,
+            inner,
+            passed: 0,
+            notes: BTreeSet::new(),
+            periodic: false,
+            private_init: initial,
+            init_incomplete: false,
         }
     }
 
@@ -239,6 +263,15 @@ impl<'a> Run<'a> {
     /// Why the run's verdict cannot stand, whatever it is: a check drew a
     /// random value, accessed registers, or a name was created after binding.
     pub(crate) fn refusal(&self) -> Option<String> {
+        if let Some(effect) = self
+            .host
+            .effect
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
+        {
+            return Some(effect);
+        }
         if self.host.any.load(Ordering::Relaxed) {
             let op = self
                 .host
@@ -298,9 +331,18 @@ impl<'a> Run<'a> {
         }
         let named_lasso = !trace.properties.is_empty();
         if named_lasso {
+            self.host.startup.store(false, Ordering::Relaxed);
             self.prepare_periodic(&trace.ending, &trace.properties)?;
+            self.host
+                .startup
+                .store(self.private_init, Ordering::Relaxed);
         }
         self.assumptions()?;
+        if self.private_init {
+            self.host
+                .startup
+                .store(self.private_init, Ordering::Relaxed);
+        }
         let last = n - 1;
         let goal = self.goal(&trace.ending, last)?;
         let full_last = !matches!(goal, Goal::Invariant(_));
@@ -313,15 +355,34 @@ impl<'a> Run<'a> {
                 None => {
                     // Init uses startup level 0; generated-state predicates
                     // keep the separate Clear context in `here` (level 1).
-                    let initial = St::initial(trace.states[0].clone());
-                    for init in &m.init {
-                        self.require(&init.pred, &initial, 0, Check::Init, || {
-                            format!(
-                                "the initial predicate {} is false in the first state",
-                                m.location(&init.pred)
-                            )
-                        })?;
+                    if self.private_init {
+                        let member = match crate::initial::check(m, &trace.states[0]) {
+                            Ok(member) => member,
+                            Err(feature) => {
+                                self.init_incomplete = true;
+                                return Err(Stop::Unsupported(feature));
+                            }
+                        };
+                        if !member {
+                            return Err(invalid(
+                                0,
+                                Check::Init,
+                                "the first state differs from the independent single-candidate Init operation",
+                            ));
+                        }
+                        self.passed += 1;
+                    } else {
+                        let initial = St::initial(trace.states[0].clone());
+                        for init in &m.init {
+                            self.require(&init.pred, &initial, 0, Check::Init, || {
+                                format!(
+                                    "the initial predicate {} is false in the first state",
+                                    m.location(&init.pred)
+                                )
+                            })?;
+                        }
                     }
+                    self.host.startup.store(false, Ordering::Relaxed);
                 }
                 Some(step) => {
                     if !(named_lasso && trace.states[k - 1] == trace.states[k]) {
@@ -828,7 +889,7 @@ impl Drop for Run<'_> {
 /// access and random draws are remembered so the whole verdict is refused,
 /// including when an optional label check swallowed the evaluation error.
 #[derive(Debug)]
-struct TraceHost {
+pub(crate) struct TraceHost {
     level: AtomicI64,
     inner: Option<Arc<dyn Host>>,
     /// The first operator that drew.
@@ -836,13 +897,95 @@ struct TraceHost {
     /// Whether any check drew.
     any: AtomicBool,
     /// Whether any check attempted a register read or write.
-    registers: AtomicBool,
+    pub(crate) registers: AtomicBool,
     /// Whether evaluation tried to borrow composition's intermediate search.
     composition: AtomicBool,
+    pub(crate) register_used: AtomicBool,
+    pub(crate) startup: AtomicBool,
+    effect: Mutex<Option<String>>,
+    private: bool,
+    pub(crate) run_config: Mutex<Option<dive_eval::RunConfig>>,
+}
+
+impl TraceHost {
+    pub(crate) fn startup() -> Arc<Self> {
+        Arc::new(Self {
+            level: AtomicI64::new(0),
+            inner: None,
+            drew: Mutex::new(None),
+            any: AtomicBool::new(false),
+            registers: AtomicBool::new(false),
+            composition: AtomicBool::new(false),
+            register_used: AtomicBool::new(false),
+            startup: AtomicBool::new(true),
+            effect: Mutex::new(None),
+            private: true,
+            run_config: Mutex::new(None),
+        })
+    }
+
+    fn private_host(&self) -> bool {
+        self.private
+    }
+
+    fn refuse_effect(&self, feature: String) -> Result<(), HostError> {
+        let mut effect = self.effect.lock().unwrap_or_else(PoisonError::into_inner);
+        if effect.is_none() {
+            *effect = Some(feature.clone());
+        }
+        Err(HostError {
+            code: 0,
+            message: feature,
+        })
+    }
 }
 
 impl Host for TraceHost {
+    fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
+        if self.private_host()
+            && matches!(
+                op,
+                StdOp::TlcRandomElement
+                    | StdOp::RandomizationRandomSubset
+                    | StdOp::RandomizationRandomSetOfSubsets
+                    | StdOp::RandomizationRandomSubsetSet
+            )
+        {
+            if !self.any.swap(true, Ordering::Relaxed) {
+                *self.drew.lock().unwrap_or_else(PoisonError::into_inner) = Some(op);
+            }
+            return Err(HostError {
+                code: 0,
+                message: format!("{}: {RANDOM_UNSUPPORTED}", op.qualified_name()),
+            });
+        }
+        if self.private_host() && op.impure() && !matches!(op, StdOp::TlcTLCGet | StdOp::TlcTLCSet)
+        {
+            return self.refuse_effect(format!(
+                "{}: private trace startup does not support this host effect",
+                op.qualified_name()
+            ));
+        }
+        Ok(())
+    }
+
+    fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), HostError> {
+        if self.private_host()
+            && !(key.starts_with("s:")
+                || !write && matches!(key, "config" | "level" | "all" | "all:named"))
+        {
+            return self.refuse_effect(format!(
+                "TLC{}({key:?}): private trace startup does not support this host effect",
+                if write { "Set" } else { "Get" }
+            ));
+        }
+        Ok(())
+    }
     fn check_register_access(&self) -> Result<(), HostError> {
+        self.register_used.store(true, Ordering::Relaxed);
+        if self.startup.load(Ordering::Relaxed) {
+            return Ok(());
+        }
         self.registers.store(true, Ordering::Relaxed);
         Err(HostError {
             code: 0,
@@ -874,7 +1017,11 @@ impl Host for TraceHost {
     }
 
     fn config(&self) -> Option<dive_eval::RunConfig> {
-        self.inner.as_ref().and_then(|h| h.config())
+        self.run_config
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
+            .or_else(|| self.inner.as_ref().and_then(|h| h.config()))
     }
 }
 

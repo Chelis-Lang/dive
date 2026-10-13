@@ -8,6 +8,14 @@
 - Action-composition controls retain compact generated oracle results and compare
   deciding verdict classes and depth alongside generated/distinct counts.
 
+- Trace API and CLI validation reconstruct a private startup runtime from
+  immutable source/config inputs. Startup registers and deterministic
+  single-candidate Init membership are supported without caller cache/register
+  reuse. Registers after Init, random draws and other host effects remain
+  explicit refusals; raw bound-model validation remains conservative.
+  Randomness under VIEW or SYMMETRY retains the shared source/config refusal
+  before either ordinary API binding or private startup evaluation.
+
 - Trace mutation controls now select their shortest-BFS or general
   counterexample contract explicitly (#259). The corpus harness reserves
   dropping and swapping states for single-worker exhaustive finite witnesses,
@@ -18,8 +26,8 @@
   documented shortest-BFS compatibility methods.
 
 - Independent Init validation now uses startup level 0, while generated-state
-  invariants and implied initial properties retain level 1. Named register
-  and random refusals remain unchanged.
+  invariants and implied initial properties retain level 1. Register access after Init
+  and random draws remain refused.
 
 - Final temporal checking preserves the binding stage's TLC error class and
   exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks

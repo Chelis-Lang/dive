@@ -52,6 +52,10 @@ impl Core {
             };
             return self.apply_op(&def, env, st, args, e);
         }
+        if let Some(host) = self.host.get() {
+            host.check_native_access(op)
+                .map_err(crate::host::host_error)?;
+        }
         match op.kind() {
             StdKind::Value => {
                 let mut vals = Vec::with_capacity(args.len());
