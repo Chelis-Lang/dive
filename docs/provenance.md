@@ -986,3 +986,39 @@ refuses enabled composition without `enumerate`; it never imports the checker
 successor generator to validate a trace. Pure TLC-profile capture now uses the
 inline fallback and counts intermediates as generated; only emitted successors
 become transition edges. Ordinary liveness integration remains pending.
+
+### PlusCal native check-report protocol
+
+`xtask/src/pluscal_corpus/check_protocol.rs` is a bounded data inventory, not a
+model-checking algorithm or a primary oracle. Its code/name pairs and failure
+exits were checked against MIT `tlc2/output/EC.java`, including
+`ExitStatus.errorConstantToExitStatus`, at pinned commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`. The success envelope uses
+`TLC_SUCCESS`/2193 and exit 0 (`NO_ERROR`), rather than passing that progress
+message through the failure-code switch.
+
+Allowed native verdicts and default process exits come from dive's public
+`crates/dive-api/src/check.rs` and `crates/dive-check/src/result.rs`; binding
+and evaluation class inventories come from `crates/dive-model/src/error.rs`,
+`crates/dive-eval/src/error.rs` and `crates/dive-check/src/class.rs`. Binding
+evaluation errors are reported as `model-error`. Non-evaluation results report
+their deciding code. Evaluation replay may preserve an evaluator error code or
+a GENERAL/initial-state/invariant/action evaluation wrapper; unrelated terminal
+or binding-only classes are rejected. Direct site wrappers report themselves.
+Frontend rejection 3002 alone may omit the separate `reported` field. Assumption evaluation class 2105 uses default
+exit 12 or TLC exit 10. These are native protocol associations, not independently
+measured TLC model semantics. Unknown codes, names, exits or verdict associations
+earn no agreement; the tool still compares dive on two translations.
+
+The actual-main helper continuation preserves the complete bounded inventory and
+pin loader. Native observations in both profiles cover success, invariant,
+startup model/frontend rejection, assumption and evaluation errors, plus the
+merged action-composition-off 2103/1000 replay envelope. The compact JSON under
+`xtask/src/pluscal_corpus/fixtures/` retains only fields consumed by the scorer;
+forged reported codes are explicit negative protocol controls. Neither injected
+reports nor these native observations are independent TLC model measurements.
+Option parsing and relative executable resolution are native tool behavior.
+Discovery remains sorted lexical selection; unreadable selected inputs fail the
+run. The pinned JRE archive identifies the unpacked tree, without attesting every
+unpacked file. Full corpus measurement, gates and actual-main acceptance require
+fresh execution after integration; prior producer/reviewer results are historical.
