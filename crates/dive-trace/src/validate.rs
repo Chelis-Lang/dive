@@ -858,6 +858,10 @@ impl Host for TraceHost {
         })
     }
 
+    fn reuse_expression_cache(&self) -> bool {
+        false
+    }
+
     fn random(&self, op: StdOp, _args: &[Value], _ctx: Ctx) -> Option<Result<Value, HostError>> {
         if !self.any.swap(true, Ordering::Relaxed) {
             *self.drew.lock().unwrap_or_else(PoisonError::into_inner) = Some(op);

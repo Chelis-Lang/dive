@@ -402,3 +402,11 @@ and remembers the attempt, including an optional label that swallows the error.
 Ordinary evaluator/checker drivers retain their existing composition semantics.
 The independent finite-cover and periodic predicate walkers explicitly refuse
 composition; no independent composition decision path is implemented yet.
+
+Replay bypasses lazy argument and lazy function result caches, reading the source
+expression under its current host instead. It also leaves those caller-owned
+caches unchanged. A caller can otherwise warm a same-owned `scope_apply`
+argument with the checker generator and let the cached Boolean bypass the
+composition refusal. Ordinary drivers retain their existing cache behavior;
+source/config bindings remain the model boundary. No cache contents, purity
+scanner, shape certificate or caller-produced proof authorizes replay.

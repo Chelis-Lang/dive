@@ -1,4 +1,6 @@
 # Changelog
+- Replay bypasses caller-owned lazy argument and function result caches, so a
+  warmed checker result cannot evade independent composition refusal.
 - Independent trace validation refuses reached action composition before
   intermediate-state enumeration even in a feature-unified workspace. Public
   finite-cover and lasso APIs retain the same independent refusal boundary.

@@ -111,6 +111,14 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         Ok(())
     }
 
+    /// Whether lazy expression results may be read from or written to caches.
+    /// Ordinary drivers retain TLC's cache behavior. Independent replay returns
+    /// false so a result previously computed by another consumer cannot replace
+    /// evaluation of the original expression under the replay host.
+    fn reuse_expression_cache(&self) -> bool {
+        true
+    }
+
     /// `TLCGet("level")` outside `ASSUME` and `Init`: the level of TLC's
     /// `s0`, the state being expanded in the next-state relation and action
     /// checks, the successor in invariants and constraints (initial states
@@ -243,6 +251,12 @@ impl Core {
             Some(host) => host.check_action_composition().map_err(host_error),
             None => Ok(()),
         }
+    }
+
+    pub(crate) fn reuse_expression_cache(&self) -> bool {
+        self.host
+            .get()
+            .is_none_or(|host| host.reuse_expression_cache())
     }
 
     /// `RandomElement` and the `Randomization` operators, through the host.

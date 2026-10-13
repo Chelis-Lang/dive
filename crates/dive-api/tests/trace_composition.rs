@@ -149,3 +149,99 @@ fn public_finite_cover_and_lasso_predicates_refuse_shared_composition() {
         assert!(!m.evaluator.has_print_event());
     }
 }
+
+#[test]
+fn warmed_same_owned_scopes_do_not_supply_replay_truth() {
+    for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
+        for warm in [false, true] {
+            for x in [2, 9] {
+                for (wrapper, argument) in [
+                    ("p", "(x'=1) \\cdot (x'=2)"),
+                    ("p[0]", "[n \\in {0} |-> ((x'=1) \\cdot (x'=2))]"),
+                    (
+                        "p = [n \\in {0} |-> TRUE]",
+                        "[n \\in {0} |-> ((x'=1) \\cdot (x'=2))]",
+                    ),
+                ] {
+                    let extra = format!("W(p) == {wrapper}\nCaller == W({argument})");
+                    let mut m = model("x'=2", &extra, mode);
+                    let caller = m.ir.root_def("Caller").expect("caller");
+                    let wrapped = m.ir.root_def("W").expect("wrapper");
+                    let dive_ir::Expr::Apply { args, .. } = &m.ir.node(m.ir.def(caller).body).expr
+                    else {
+                        unreachable!("fixture is a call");
+                    };
+                    let scope = m
+                        .evaluator
+                        .scope_apply(
+                            &m.evaluator.scope(caller).expect("caller scope"),
+                            wrapped,
+                            args,
+                        )
+                        .expect("retained scope");
+                    let p = Pred::new(m.ir.def(wrapped).body, scope);
+                    let st = St::action(Arc::from([Some(0.into())]), Arc::from([Some(x.into())]));
+                    if warm {
+                        assert_eq!(
+                            m.evaluator
+                                .eval_scoped(&p.scope, p.expr, &st)
+                                .expect("warm actual expression"),
+                            dive_value::Value::Bool(x == 2)
+                        );
+                    }
+                    m.next = Some(p.clone());
+                    m.validate_context().expect("same-owned valid model");
+                    assert_eq!(
+                        dive_trace::validate_doc(&m, &doc(x), &[]).0.validation,
+                        Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+                    );
+                    if warm {
+                        assert_eq!(
+                            m.evaluator
+                                .eval_scoped(&p.scope, p.expr, &st)
+                                .expect("ordinary scope remains usable"),
+                            dive_value::Value::Bool(x == 2)
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn pure_warmed_arguments_remain_decidable() {
+    for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
+        for x in [2, 9] {
+            let mut m = model(
+                "x'=2",
+                "W(p) == p\nCaller == W(IF TRUE THEN x'=2 ELSE ((x'=1) \\cdot (x'=2)))",
+                mode,
+            );
+            let caller = m.ir.root_def("Caller").expect("caller");
+            let wrapped = m.ir.root_def("W").expect("wrapper");
+            let dive_ir::Expr::Apply { args, .. } = &m.ir.node(m.ir.def(caller).body).expr else {
+                unreachable!("fixture is a call");
+            };
+            let scope = m
+                .evaluator
+                .scope_apply(&m.evaluator.scope(caller).expect("scope"), wrapped, args)
+                .expect("retained scope");
+            let p = Pred::new(m.ir.def(wrapped).body, scope);
+            let st = St::action(Arc::from([Some(0.into())]), Arc::from([Some(x.into())]));
+            assert_eq!(
+                m.evaluator
+                    .eval_scoped(&p.scope, p.expr, &st)
+                    .expect("warm pure argument"),
+                dive_value::Value::Bool(x == 2)
+            );
+            m.next = Some(p);
+            let result = dive_trace::validate_doc(&m, &doc(x), &[]).0.validation;
+            if x == 2 {
+                assert_eq!(result, Validation::Valid);
+            } else {
+                assert!(matches!(result, Validation::Invalid(_)));
+            }
+        }
+    }
+}

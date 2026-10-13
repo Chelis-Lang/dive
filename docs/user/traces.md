@@ -108,3 +108,7 @@ when the workspace enables the checker enumerator. Untaken composition branches
 do not run. The public finite-cover and lasso APIs conservatively refuse
 composition in their predicate contexts. Checker composition support does not
 establish trace-validation agreement.
+
+Replay evaluates lazy arguments and functions under its own restrictions, without
+using or replacing results cached by the caller. Ordinary checking and evaluation
+retain their existing caching.

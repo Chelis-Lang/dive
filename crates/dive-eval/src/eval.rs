@@ -116,7 +116,9 @@ impl Core {
     }
 
     pub(crate) fn materialize(self: &Arc<Self>, f: &Arc<LazyFcn>) -> Result<Value> {
-        if let Some(v) = f.materialized.get() {
+        if self.reuse_expression_cache()
+            && let Some(v) = f.materialized.get()
+        {
             return Ok(v.clone());
         }
         for b in &f.bounds {
@@ -174,7 +176,9 @@ impl Core {
             let new = self.embed(ex.value.clone())?;
             v = self.take_except(&v, &ex.path[ex.idx..], new)?;
         }
-        let _ = f.materialized.set(v.clone());
+        if self.reuse_expression_cache() {
+            let _ = f.materialized.set(v.clone());
+        }
         Ok(v)
     }
 
@@ -608,11 +612,14 @@ impl Core {
                     };
                     return self.eval(&mut t.env.clone(), &st1, t.expr);
                 }
-                if let Some(v) = t.cached(st) {
+                let cache = self.reuse_expression_cache();
+                if cache && let Some(v) = t.cached(st) {
                     return Ok(v);
                 }
                 let v = self.eval(&mut t.env.clone(), st, t.expr)?;
-                t.store(st, &v);
+                if cache {
+                    t.store(st, &v);
+                }
                 Ok(v)
             }
             Sv::Op(op) => {
@@ -1560,7 +1567,9 @@ impl Core {
         arg: &Value,
         control: u8,
     ) -> Result<Ev> {
-        if let Some(v) = f.materialized.get() {
+        if self.reuse_expression_cache()
+            && let Some(v) = f.materialized.get()
+        {
             let Value::Fcn(fv) = v else {
                 return Err(EvalError::bug(
                     "materialized lazy function is not a function",
@@ -1864,7 +1873,9 @@ impl Core {
         f: &Arc<LazyFcn>,
         arg: &Value,
     ) -> Result<Option<Ev>> {
-        if let Some(v) = f.materialized.get() {
+        if self.reuse_expression_cache()
+            && let Some(v) = f.materialized.get()
+        {
             return self.select(&Ev::V(v.clone()), arg);
         }
         if f.arity() != 1 || f.bounds[0].tuple {
@@ -2006,7 +2017,9 @@ impl Core {
         }
         match base {
             Ev::F(f) => {
-                if let Some(v) = f.materialized.get() {
+                if self.reuse_expression_cache()
+                    && let Some(v) = f.materialized.get()
+                {
                     return self.take_except_ev(Ev::V(v.clone()), path, new);
                 }
                 Ok(Ev::F(f.with_except(Except {
@@ -2528,7 +2541,8 @@ impl Core {
 
     /// `FcnLambdaValue.getDomain`.
     fn lazy_domain(&self, f: &Arc<LazyFcn>) -> Value {
-        if let Some(Value::Fcn(m)) = f.materialized.get()
+        if self.reuse_expression_cache()
+            && let Some(Value::Fcn(m)) = f.materialized.get()
             && let Ok(d) = self.domain(m)
         {
             return d;
