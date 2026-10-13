@@ -60,7 +60,7 @@ pub struct Edge {
 }
 
 /// An accepted generated successor, before stored representative replacement.
-/// This excludes the engine-added stutter; phase-L collection adds that itself.
+/// This excludes the engine-added stutter.
 #[derive(Clone, Debug)]
 pub struct ConcreteSuccessor {
     /// Original concrete IR-ordered values, including already seen states.
@@ -69,355 +69,6 @@ pub struct ConcreteSuccessor {
     pub ordinal: u64,
     /// Original action label.
     pub label: String,
-}
-
-/// Ordered source publication authority held at an observer callback.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum PublicationKind {
-    /// Original ordered wave path. A later safety cut may leave other source
-    /// outputs absent; pool quiescence does not imply whole-wave completion.
-    OrderedWave,
-    /// Actual completed contiguous prefix committed under a request pause.
-    RequestPrefix,
-}
-
-/// Producer-owned pool-thread quiescence for a submitted source range. Every
-/// admitted job has returned and the pool is joined; some source IDs may remain
-/// unclaimed or have no returned output. This is not whole-wave completion,
-/// TLC's `StateQueue.suspendAll`, a clock sample or a model proof.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct SourceBarrier {
-    workers: usize,
-    first: u64,
-    end: u64,
-    prefix: Option<(u64, u64, usize)>,
-}
-impl SourceBarrier {
-    pub(crate) fn joined(workers: usize, first: u64, end: u64) -> Self {
-        Self {
-            workers,
-            first,
-            end,
-            prefix: None,
-        }
-    }
-    pub(crate) fn joined_prefix(
-        workers: usize,
-        first: u64,
-        end: u64,
-        start: u64,
-        upto: u64,
-        predicates: usize,
-    ) -> Self {
-        Self {
-            workers,
-            first,
-            end,
-            prefix: Some((start, upto, predicates)),
-        }
-    }
-    /// Typed distinction between the original ordered wave and an actual
-    /// completed-prefix request transaction. Neither grants ordinary proof.
-    #[must_use]
-    pub fn publication(&self) -> PublicationKind {
-        if self.prefix.is_some() {
-            PublicationKind::RequestPrefix
-        } else {
-            PublicationKind::OrderedWave
-        }
-    }
-    /// Selected completed-prefix transaction, if publication is happening under
-    /// a request pause. The full submitted wave remains separately identified.
-    #[must_use]
-    pub fn published_prefix(&self) -> Option<std::ops::Range<u64>> {
-        self.prefix.map(|(start, end, _)| start..end)
-    }
-    /// Actual inline predicate width for a request-prefix transaction: zero
-    /// when no new-state invariant work was needed, otherwise one coordinator.
-    #[must_use]
-    pub fn prefix_predicate_workers(&self) -> Option<usize> {
-        self.prefix.map(|(_, _, width)| width)
-    }
-    /// Source observer publication occurs before the successful transaction's
-    /// trace/frontier append. An observer stop does not certify that append.
-    #[must_use]
-    pub fn frontier_append_pending(&self) -> bool {
-        true
-    }
-    /// Actual pool width, separate from logical committed-source counts.
-    #[must_use]
-    pub fn workers(&self) -> usize {
-        self.workers
-    }
-    /// First identity in the submitted claimable range. It need not have a
-    /// returned output unless separately covered by actual publication.
-    #[must_use]
-    pub fn first_source(&self) -> u64 {
-        self.first
-    }
-    /// Exclusive last submitted discovery identity; later sources may be speculative.
-    #[must_use]
-    pub fn end_source(&self) -> u64 {
-        self.end
-    }
-}
-
-/// Borrowed authority held while the actual pool dispatch mutex is paused.
-/// This is distinct from a copied joined-wave receipt and from Java queue
-/// suspension. It cannot be constructed, cloned or retained by an observer.
-pub struct DispatchPause<'a> {
-    workers: usize,
-    generation: u64,
-    authority: std::marker::PhantomData<&'a mut ()>,
-}
-impl DispatchPause<'_> {
-    pub(crate) fn new(workers: usize, generation: u64) -> Self {
-        Self {
-            workers,
-            generation,
-            authority: std::marker::PhantomData,
-        }
-    }
-    /// Actual running pool width, including the coordinator.
-    #[must_use]
-    pub fn workers(&self) -> usize {
-        self.workers
-    }
-    /// Last actually dispatched job generation; no job is running in this pause.
-    #[must_use]
-    pub fn generation(&self) -> u64 {
-        self.generation
-    }
-}
-/// Borrowed producer authority after actual frontier exhaustion and all expansion
-/// returns, before timer/pool joins. A paused dispatch mutex or zero queue counter
-/// alone cannot produce this token. It does not certify Java queue equivalence.
-pub struct ExhaustedQueue<'a> {
-    stats: Stats,
-    workers: usize,
-    generation: u64,
-    pending: Option<crate::progress::Request>,
-    authority: std::marker::PhantomData<&'a mut ()>,
-}
-impl ExhaustedQueue<'_> {
-    pub(crate) fn new(
-        stats: Stats,
-        pause: &DispatchPause<'_>,
-        pending: Option<crate::progress::Request>,
-    ) -> Self {
-        Self {
-            stats,
-            workers: pause.workers(),
-            generation: pause.generation(),
-            pending,
-            authority: std::marker::PhantomData,
-        }
-    }
-    /// Counters after real frontier exhaustion and every successful physical append.
-    #[must_use]
-    pub fn stats(&self) -> Stats {
-        self.stats
-    }
-    /// Actual live, joined-job pool width and last dispatch generation, before close.
-    #[must_use]
-    pub fn pool(&self) -> (usize, u64) {
-        (self.workers, self.generation)
-    }
-    /// Actual pending request removed while closing the producer lane, if any.
-    /// It has not been serviced and is not a terminal request identity.
-    #[must_use]
-    pub fn pending_request(&self) -> Option<crate::progress::Request> {
-        self.pending
-    }
-}
-
-/// Explicit source-worker failure families admitted to the stopped diagnostic.
-/// Classification alone is not queue, graph, scheduling or witness authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum WorkerStop {
-    /// An invariant failed in a successor, rather than during initialization.
-    Invariant,
-    /// An implied action failed on an actual generated step.
-    ActionProperty,
-    /// An expanded source had no successors.
-    Deadlock,
-    /// A successor left variables unassigned.
-    Incomplete,
-    /// Evaluation failed in successor generation or its safety predicates.
-    Evaluation,
-}
-impl WorkerStop {
-    /// Classify the original result without evaluating or reconstructing a model.
-    /// Init, resource, library, observer and unsupported failures remain excluded.
-    #[must_use]
-    pub fn classify(verdict: &Verdict) -> Option<Self> {
-        match verdict {
-            Verdict::InvariantViolated { initial: false, .. } => Some(Self::Invariant),
-            Verdict::ActionPropertyViolated { .. } => Some(Self::ActionProperty),
-            Verdict::Deadlock => Some(Self::Deadlock),
-            Verdict::NotCompletelySpecified { initial: false, .. } => Some(Self::Incomplete),
-            Verdict::EvaluationError {
-                site:
-                    crate::ErrorSite::Next
-                    | crate::ErrorSite::Invariant
-                    | crate::ErrorSite::ImpliedAction,
-                ..
-            } => Some(Self::Evaluation),
-            _ => None,
-        }
-    }
-}
-
-/// A diagnostic failure after an original source-worker winner. It must never
-/// replace that winner or turn a stopped search into successful EOF.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum StoppedDiagnosticFault {
-    /// Actual request-lane close failed.
-    LaneClose,
-    /// Actual request-thread join failed after the search had returned.
-    LaneJoin,
-    /// Actual dispatch authority could not be acquired.
-    Dispatch,
-    /// The diagnostic callback rejected the transaction.
-    Callback,
-    /// The diagnostic callback unwound; the original winner is retained.
-    Unwind,
-}
-
-/// Private borrowed authority from an actual eligible ordered source stop under
-/// a joined live pool's dispatch mutex. Unlike [`ExhaustedQueue`], this token
-/// does not assert exhaustion, zero queued states, graph completion or success.
-pub struct StoppedQueue<'a> {
-    verdict: &'a Verdict,
-    kind: WorkerStop,
-    stats: Stats,
-    workers: usize,
-    generation: u64,
-    pending: Option<crate::progress::Request>,
-    source: u64,
-    authority: std::marker::PhantomData<&'a mut ()>,
-}
-impl<'a> StoppedQueue<'a> {
-    pub(crate) fn new(
-        verdict: &'a Verdict,
-        kind: WorkerStop,
-        stats: Stats,
-        pause: &DispatchPause<'_>,
-        pending: Option<crate::progress::Request>,
-        source: u64,
-    ) -> Self {
-        Self {
-            verdict,
-            kind,
-            stats,
-            workers: pause.workers(),
-            generation: pause.generation(),
-            pending,
-            source,
-            authority: std::marker::PhantomData,
-        }
-    }
-    /// Original immutable deciding error, before any diagnostic callback.
-    #[must_use]
-    pub fn verdict(&self) -> &Verdict {
-        self.verdict
-    }
-    /// Explicit eligible family; classification cannot create this token.
-    #[must_use]
-    pub fn kind(&self) -> WorkerStop {
-        self.kind
-    }
-    /// Actual source/discovery identity from the original stop's predecessor
-    /// path, not a graph fingerprint or submitted-wave ordinal.
-    #[must_use]
-    pub fn source(&self) -> u64 {
-        self.source
-    }
-    /// Original logical stopping counters, not a finished queue's zero counters.
-    #[must_use]
-    pub fn stats(&self) -> Stats {
-        self.stats
-    }
-    /// Actual pool width/generation under the live dispatch pause, before joins.
-    #[must_use]
-    pub fn pool(&self) -> (usize, u64) {
-        (self.workers, self.generation)
-    }
-    /// Genuine unserviced request removed by closing the lane, if any.
-    #[must_use]
-    pub fn pending_request(&self) -> Option<crate::progress::Request> {
-        self.pending
-    }
-}
-
-/// Internal fact minted only immediately before invoking the stopped callback.
-pub(crate) struct StoppedTransaction {
-    pub(crate) verdict: Verdict,
-    pub(crate) source: u64,
-    pub(crate) stats: Stats,
-    pub(crate) workers: usize,
-    pub(crate) generation: u64,
-}
-/// Actual eligible error result after timer/pool closure. A copied result or
-/// zero counters cannot construct this borrowed postjoin authority.
-pub struct ExplorationStop<'a> {
-    result: &'a CheckResult,
-    transaction: &'a StoppedTransaction,
-}
-impl ExplorationStop<'_> {
-    /// Original result, including deciding error, counters, trace and workers.
-    #[must_use]
-    pub fn result(&self) -> &CheckResult {
-        self.result
-    }
-    /// Original source identity from the actually entered prejoin transaction.
-    #[must_use]
-    pub fn source(&self) -> u64 {
-        self.transaction.source
-    }
-    /// Original prejoin stopping counters; final error replay can differ.
-    #[must_use]
-    pub fn before_join_stats(&self) -> Stats {
-        self.transaction.stats
-    }
-    /// Actual paused pool width and dispatch generation of that transaction.
-    #[must_use]
-    pub fn pool(&self) -> (usize, u64) {
-        (self.transaction.workers, self.transaction.generation)
-    }
-}
-
-/// Successful safety EOF after the pool has joined and closed. This is not a
-/// temporal check or proof; a source's zero queue counter cannot create it.
-pub struct ExplorationEnd {
-    stats: Stats,
-    workers: Workers,
-    completion: GraphCompletion,
-    result: CheckResult,
-}
-impl ExplorationEnd {
-    /// Actual completed exploration counters.
-    #[must_use]
-    pub fn stats(&self) -> Stats {
-        self.stats
-    }
-    /// Actual closed-pool execution evidence.
-    #[must_use]
-    pub fn workers(&self) -> &Workers {
-        &self.workers
-    }
-    /// Producer-checked retained graph shape, minted after graph/statistics
-    /// finalization. This is safety capture evidence, not a temporal proof.
-    #[must_use]
-    pub fn completion(&self) -> &GraphCompletion {
-        &self.completion
-    }
-    /// Original successful safety result after real joins and graph admission.
-    /// This remains safety evidence, not a temporal or postcondition verdict.
-    #[must_use]
-    pub fn safety_result(&self) -> &CheckResult {
-        &self.result
-    }
 }
 
 /// Actual retained safety graph completion. Public graph fields, copied
@@ -509,232 +160,76 @@ impl GraphCompletion {
     }
 }
 
-/// One logically committed source after all of its ordinary safety checks.
-/// Speculative pool work can include later sources; only `stats` describes the
-/// logical commit prefix. This is execution evidence, not a temporal proof.
-pub struct CommittedSource<'a> {
-    /// Engine discovery identity of the actual expanded source.
-    pub id: u64,
-    /// One-based BFS depth of the expanded source.
-    pub level: u64,
-    /// Original concrete source values.
-    pub state: &'a StateVals,
-    /// Original accepted successor values, including duplicates/seen states.
-    pub successors: &'a [ConcreteSuccessor],
-    /// Logical counters after this source, before any later source is committed.
-    pub stats: Stats,
-    /// Generated successors actually evaluated speculatively in this pool level.
-    /// This is not a TLC stopping counter and may exceed the logical prefix.
-    pub pool_generated: u64,
-    /// Actual submitted generation/check jobs joined before this callback.
-    /// It does not assert every source in the wave was logically committed.
-    pub barrier: SourceBarrier,
-}
-
-/// An explicitly supplied consumer at the ordered initialization/source seam.
-/// Callbacks are invoked serially after conservative model-scope admission.
-/// They do not authorize a temporal verdict: errors stop capture as a named
-/// unsupported result, and successful callbacks certify only execution order.
-/// Consumers must meter their own work and retain any deciding typed error.
-pub trait SourceObserver: Send {
-    /// Opt in to producer-clock requests between actual expansion claims.
-    /// A joined request transaction can publish its returned contiguous source
-    /// prefix before the quiescence callback; later outputs stay speculative.
-    fn progress_requests(&self) -> Option<crate::progress::Options> {
-        None
-    }
-    /// An actual expansion cut cancels producer requests before metadata service.
-    /// This notification cannot fail or replace the existing ordered safety error.
-    /// Claims stay open to drain earlier unclaimed sources; this is not lane closure.
-    fn expansion_requests_cancelled(&mut self, _pending: Option<crate::progress::Request>) {}
-    /// Actual joined expansion pause after the returned contiguous prefix passes
-    /// ordered safety/graph publication and successful frontier append. An empty
-    /// prefix leaves the existing graph unchanged. Success resumes unclaimed
-    /// expansion work, not a Java queue or a model-completion claim.
+/// Receives committed initialization and completed BFS levels on the coordinator.
+///
+/// All methods are inert by default. Initial events follow successful Init;
+/// edge events follow a fully committed level, in source and generator order.
+/// A failed or partial level emits no edge or level event. Callback errors stop
+/// exploration without a completed graph. These hooks establish no temporal verdict.
+///
+/// ```
+/// use std::sync::Arc;
+/// use dive_check::{capture::{self, BehaviorGraph, Observer}, CheckOptions, Stats};
+/// #[derive(Default)]
+/// struct Levels(usize);
+/// impl Observer for Levels {
+///     fn level_done(&mut self, _: u64, _: &BehaviorGraph, _: Stats) -> Result<(), String> {
+///         self.0 += 1;
+///         Ok(())
+///     }
+/// }
+/// let analysis = dive_sema::analyze_source("M.tla",
+///     "---- MODULE M ----\nVARIABLE x\nInit == x=TRUE\nNext == x'=x\n====\n",
+///     &Default::default());
+/// let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+/// let cfg = dive_config::parse("INIT Init\nNEXT Next\n").into_config().expect("config");
+/// let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+/// let mut levels = Levels::default();
+/// let result = capture::explore_observed_with_evidence(
+///     &model, &CheckOptions::tlc(0, 7), Default::default(), &mut levels)?;
+/// assert!(matches!(result, capture::Exploration::Complete(_)));
+/// assert_eq!(levels.0, 1);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+pub trait Observer: Send {
+    /// A distinct accepted initial state after every Init check succeeded.
+    /// Counters describe the complete initialization, including excluded candidates.
     ///
     /// # Errors
-    /// A named diagnostic stop; no completed graph or temporal proof is exposed.
-    fn expansion_quiescent(
-        &mut self,
-        _receipt: ExpansionQuiescence,
-        _pause: &DispatchPause<'_>,
-    ) -> Result<(), String> {
+    /// Return a diagnostic to stop exploration at the initialization boundary.
+    fn init(&mut self, _id: usize, _state: &StateVals, _stats: Stats) -> Result<(), String> {
         Ok(())
     }
-    /// A newly enqueued initial state, before its initial invariants/implied checks.
-    /// The counters describe the observed prefix; TLC's later error replay is
-    /// separate and is not inferred by this interface.
+
+    /// An accepted transition or implicit stutter from a completed level.
+    /// `successor` is the original concrete state, including seen-state occurrences.
+    /// Counters include all generated candidates at the completed level.
     ///
     /// # Errors
-    /// Return the deciding consumer diagnostic; no completed graph is exposed.
-    fn initial(
+    /// Return a diagnostic to stop exploration at this completed-level boundary.
+    fn edge(
         &mut self,
-        _id: u64,
-        _state: &StateVals,
-        _ordinal: u64,
+        _from: usize,
+        _edge: &Edge,
+        _successor: &StateVals,
         _stats: Stats,
     ) -> Result<(), String> {
         Ok(())
     }
-    /// Successful initialization after all initial invariants/implied checks,
-    /// before the worker pool exists. Never called after an Init failure.
-    ///
-    /// # Errors
-    /// Return the deciding consumer diagnostic; expansion has not begun.
-    fn initial_complete(&mut self, _stats: Stats) -> Result<(), String> {
-        Ok(())
-    }
-    /// Opt in to holding actual pool dispatch authority during source callbacks.
-    /// The default preserves the existing observer behavior.
-    fn requires_dispatch_pause(&self) -> bool {
-        false
-    }
-    /// A source callback under the real pool dispatch pause. The callback must
-    /// not reenter the pool; no worker or new job can execute until it returns.
-    ///
-    /// # Errors
-    /// Retain a deciding consumer diagnostic before later source commits.
-    fn paused_source(
-        &mut self,
-        source: CommittedSource<'_>,
-        _pause: &DispatchPause<'_>,
-    ) -> Result<(), String> {
-        self.source(source)
-    }
-    /// Opt in to the additive exhausted-frontier transaction before timer/pool join.
-    /// Defaults leave the existing observer route unchanged.
-    fn requires_terminal_service(&self) -> bool {
-        false
-    }
-    /// Successful actual frontier exhaustion, with request publication closed and
-    /// real dispatch authority held, before timer/pool join. This is neither an
-    /// ordinary TLC schedule nor a caller-supplied EOF/suspension result.
-    ///
-    /// # Errors
-    /// A terminal consumer stop; final completion is not called after this failure.
-    fn terminal_queue_finished(&mut self, _end: &ExhaustedQueue<'_>) -> Result<(), String> {
-        Ok(())
-    }
-    /// Opt in to the separate eligible source-error transaction. Default routes
-    /// never call these diagnostics and retain their original behavior.
-    fn requires_stopped_service(&self) -> bool {
-        false
-    }
-    /// Actual ordered source winner before timer/pool joins, with request
-    /// publication closed and dispatch held. Failure never replaces the winner.
-    ///
-    /// # Errors
-    /// A consumer diagnostic failure, retained separately from the search result.
-    fn stopped_queue_finished(&mut self, _end: &StoppedQueue<'_>) -> Result<(), String> {
-        Ok(())
-    }
-    /// A diagnostic-only fault; never an alternate deciding search error.
-    fn stopped_diagnostic_failed(&mut self, _fault: StoppedDiagnosticFault) {}
-    /// Actual postjoin result of an eligible source stop. Never called for Init,
-    /// library/resource/unsupported errors or as successful final completion.
-    fn exploration_stopped(&mut self, _end: &ExplorationStop<'_>) {}
-    /// Successful actual safety EOF after the pool closes. Never called after
-    /// assumption, Init, source, safety, worker or resource failure.
-    ///
-    /// # Errors
-    /// A final consumer check failed; no completed graph is exposed.
-    fn exploration_complete(&mut self, _end: &ExplorationEnd) -> Result<(), String> {
-        Ok(())
-    }
-    /// A complete source before later sources' safety stopping events are chosen.
-    ///
-    /// # Errors
-    /// Return the deciding consumer diagnostic; no completed graph is exposed.
-    fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String>;
-}
 
-/// Real expansion-claim barrier and joined pool evidence after prefix publication.
-/// Completed IDs can be noncontiguous. Only `committed` records have passed
-/// ordered safety/publication and successful frontier append; later completed
-/// outputs remain speculative. This receipt still grants no ordinary proof.
-#[derive(Clone, Debug)]
-pub struct ExpansionQuiescence {
-    pub(crate) request: crate::progress::Request,
-    pub(crate) submitted: std::ops::Range<u64>,
-    pub(crate) completed: Vec<u64>,
-    pub(crate) claimed: Vec<u64>,
-    pub(crate) failed: Vec<u64>,
-    pub(crate) expanded_generated: u64,
-    pub(crate) logical: Stats,
-    pub(crate) committed: std::ops::Range<u64>,
-    pub(crate) logical_after: Stats,
-    pub(crate) predicate_workers: usize,
-}
-impl ExpansionQuiescence {
-    /// Producer-owned timer/initial-force request serviced under actual authority.
-    #[must_use]
-    pub fn request(&self) -> crate::progress::Request {
-        self.request
-    }
-    /// Source wave identities, including work not yet claimed.
-    #[must_use]
-    pub fn submitted(&self) -> std::ops::Range<u64> {
-        self.submitted.clone()
-    }
-    /// Returned source expansions, including earlier committed prefixes.
-    /// Completion alone does not imply ordered publication.
-    #[must_use]
-    pub fn completed(&self) -> &[u64] {
-        &self.completed
-    }
-    /// Actual source claims, including a skipped later source after a safety cut.
-    /// Claims and successful completed output are separate observations.
-    #[must_use]
-    pub fn claimed(&self) -> &[u64] {
-        &self.claimed
-    }
-    /// Completed expansion outputs that contain an actual deciding safety error.
-    /// Other completed outputs may still await invariant checks/publication.
-    #[must_use]
-    pub fn failed(&self) -> &[u64] {
-        &self.failed
-    }
-    /// Generated successors in retained expansion outputs, including speculative
-    /// later sources. This is not the logical stopping counter.
-    #[must_use]
-    pub fn expanded_generated(&self) -> u64 {
-        self.expanded_generated
-    }
-    /// Actual logical statistics preceding publication of this wave.
-    #[must_use]
-    pub fn logical_stats(&self) -> Stats {
-        self.logical
-    }
-    /// Newly published contiguous source IDs, or an empty range when the next
-    /// source has not returned. Their actual observer writes precede this receipt.
-    #[must_use]
-    pub fn committed(&self) -> std::ops::Range<u64> {
-        self.committed.clone()
-    }
-    /// Logical statistics after successful ordered prefix publication.
-    #[must_use]
-    pub fn committed_stats(&self) -> Stats {
-        self.logical_after
-    }
-    /// Sources whose successful transaction physically appended its winning
-    /// states to the next frontier. These are source IDs, not new-state IDs.
-    /// A stopping observer emits no successful append receipt.
-    #[must_use]
-    pub fn frontier_appended(&self) -> std::ops::Range<u64> {
-        self.committed.clone()
-    }
-    /// Coordinator invariant-predicate width for this publication (zero if
-    /// no newly discovered states required such work, one otherwise).
-    /// Expansion pool width remains separately reported by the pause.
-    #[must_use]
-    pub fn predicate_workers(&self) -> usize {
-        self.predicate_workers
-    }
-    /// This receipt grants no ordinary verdict credit. Actual ordered observer
-    /// writes are identified separately by `committed`.
-    #[must_use]
-    pub fn model_proof(&self) -> bool {
-        false
+    /// A fully committed level and its borrowed graph, after frontier append.
+    /// Unexpanded frontier states have empty outgoing rows. A prefix without a
+    /// violation does not prove a temporal property; exhaustion is still required.
+    ///
+    /// # Errors
+    /// Return a diagnostic to stop exploration at this completed-level boundary.
+    fn level_done(
+        &mut self,
+        _level: u64,
+        _graph: &BehaviorGraph,
+        _stats: Stats,
+    ) -> Result<(), String> {
+        Ok(())
     }
 }
 
@@ -843,6 +338,10 @@ impl<K: Ord> Collector<K> {
 
     pub(crate) fn concrete_pool(&self) -> bool {
         self.concrete_pool
+    }
+
+    pub(crate) fn graph(&self) -> &BehaviorGraph {
+        &self.graph
     }
 
     pub(crate) fn limits(&self) -> Limits {
@@ -1134,11 +633,9 @@ pub fn explore_concrete_parallel_with_evidence(
     Ok(result)
 }
 
-/// Capture through the actual pool while consuming initialization and source
-/// commits in reference order. This grants no temporal verdict or replay proof.
-/// The observer's diagnostic stops the engine before later safety events, and
-/// the stopped result exposes no completed graph. Model admission precedes any
-/// callback; zero/overbound widths run no callback or worker.
+/// Capture and observe successful initialization and completed levels at one worker.
+/// Both the inline and ordered pool executors deliver the same events. Failure
+/// stops exploration without exposing a completed graph; no temporal verdict is implied.
 ///
 /// # Errors
 /// An exploration thread or worker fails, losing actual execution evidence.
@@ -1146,36 +643,32 @@ pub fn explore_observed_with_evidence(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
-    observer: &mut dyn SourceObserver,
+    observer: &mut dyn Observer,
 ) -> Result<Exploration, String> {
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    if opts.workers == 0 || opts.workers > 64 {
-        return explore_concrete_parallel_with_evidence(model, opts, limits);
-    }
-    if opts.sequential || engine::plan_workers(model, opts).sequential {
-        return Ok(stopped(Verdict::Unsupported {
-            feature: "ordered source observation requires the concrete safety pool; inline source callbacks are not certified".into(),
-        }, model, opts));
+    if opts.workers != 1 {
+        return Ok(stopped(
+            Verdict::Unsupported {
+                feature: "level observation currently requires one worker".into(),
+            },
+            model,
+            opts,
+        ));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, Some(observer)))?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)))?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
 
 fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
-    #[cfg(feature = "test-rendezvous")]
-    let rendezvous = crate::progress::testing::current();
     std::thread::scope(|scope| {
         match std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(scope, move || {
-                #[cfg(feature = "test-rendezvous")]
-                let _rendezvous = crate::progress::testing::install(rendezvous);
-                run()
-            }) {
+            .spawn_scoped(scope, run)
+        {
             Ok(thread) => thread
                 .join()
                 .map_err(|_| "exploration thread panicked".to_owned()),
@@ -1226,7 +719,7 @@ fn explore_inner(
     opts: &CheckOptions,
     limits: Limits,
     parallel: bool,
-    mut observer: Option<&mut dyn SourceObserver>,
+    observer: Option<&mut dyn Observer>,
 ) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
@@ -1260,7 +753,10 @@ fn explore_inner(
         return refuse("graph capture with random operators".into());
     }
     if !model.sequential_names_only
-        && let Some(s) = model.sequential.first()
+        && let Some(s) = model
+            .sequential
+            .iter()
+            .find(|reason| reason.as_str() != dive_model::TLC_CDOT)
     {
         return refuse(format!("graph capture with stateful checking: {s}"));
     }
@@ -1298,14 +794,16 @@ fn explore_inner(
             return Exploration::Stopped(Box::new(result));
         }
     }
-    let outcome = if let Some(consumer) = observer.as_mut() {
-        engine::search_graph_observed(model, opts, &host, limits, Some(&mut **consumer))
-    } else if parallel {
-        engine::search_graph_parallel(model, opts, &host, limits)
-    } else {
-        engine::search_graph(model, opts, &host, limits)
-    };
-    let stopped_transaction = outcome.stopped_transaction;
+    let outcome = engine::search(
+        model,
+        opts,
+        &host,
+        engine::SearchHooks {
+            capture: Some((limits, parallel)),
+            observer,
+            ..Default::default()
+        },
+    );
     result.verdict = outcome.verdict;
     result.stats = outcome.stats;
     result.tlc_prints_stats = outcome.tlc_prints_stats;
@@ -1316,22 +814,6 @@ fn explore_inner(
     result.notes = outcome.notes;
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
-        if let (Some(consumer), Some(transaction)) = (observer, stopped_transaction)
-            && transaction.verdict == result.verdict
-            && transaction.workers == result.workers.used
-        {
-            let end = ExplorationStop {
-                result: &result,
-                transaction: &transaction,
-            };
-            if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                consumer.exploration_stopped(&end);
-            }))
-            .is_err()
-            {
-                result.notes.push("Stopped diagnostic postjoin callback unwound; original deciding result retained.".into());
-            }
-        }
         return Exploration::Stopped(Box::new(result));
     }
     let (Some(graph), Some(stats)) = (outcome.graph, result.stats) else {
@@ -1345,20 +827,6 @@ fn explore_inner(
             return Exploration::Stopped(Box::new(result));
         }
     };
-    if let Some(consumer) = observer {
-        let end = ExplorationEnd {
-            stats,
-            workers: result.workers.clone(),
-            completion: completion.clone(),
-            result: result.clone(),
-        };
-        if let Err(message) = consumer.exploration_complete(&end) {
-            result.verdict = Verdict::Unsupported {
-                feature: format!("ordered completion observer: {message}"),
-            };
-            return Exploration::Stopped(Box::new(result));
-        }
-    }
     Exploration::Complete(Box::new(Complete {
         completion,
         safety_result: Box::new(result.clone()),

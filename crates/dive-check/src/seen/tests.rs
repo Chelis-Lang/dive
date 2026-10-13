@@ -203,7 +203,6 @@ fn replay_identity_mismatch_retains_typed_position_without_fake_library_poison()
         output: Vec::new(),
         notes: Vec::new(),
         workers: crate::Workers::one(),
-        stopped_transaction: None,
     };
     let usage = run.close(&mut outcome);
     let failure = usage.first_failure.expect("first protocol cause retained");
@@ -836,7 +835,12 @@ fn public_pure_action_property_replay_matches_memory_and_private_disk() {
             let config = crate::engine::run_config(&options, model.settings.check_deadlock);
             host.set_config(Some(config.clone()));
             model.evaluator.intern_bfs_config(&config);
-            let disk = crate::engine::search(&model, &options, &host);
+            let disk = crate::engine::search(
+                &model,
+                &options,
+                &host,
+                crate::engine::SearchHooks::default(),
+            );
             assert_eq!(disk.verdict, public.verdict);
             assert_eq!(disk.stats, public.stats);
             assert_eq!(disk.output, public.output);

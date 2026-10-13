@@ -74,7 +74,6 @@ mod host;
 mod options;
 mod parallel;
 mod pool;
-pub mod progress;
 mod render;
 mod result;
 mod seen;
@@ -463,9 +462,17 @@ pub(crate) fn run_check_with_checkpoint(
         }
     }
     let outcome = if let Some(session) = checkpoint.take() {
-        engine::search_checkpoint(&m, opts, &host, session)
+        engine::search(
+            &m,
+            opts,
+            &host,
+            engine::SearchHooks {
+                checkpoint: Some(session),
+                ..Default::default()
+            },
+        )
     } else {
-        engine::search(&m, opts, &host)
+        engine::search(&m, opts, &host, engine::SearchHooks::default())
     };
     r.seen = outcome.seen;
     r.frontier = outcome.frontier;

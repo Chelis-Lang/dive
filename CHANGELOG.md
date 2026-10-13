@@ -75,6 +75,16 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Graph capture uses an inert-by-default `capture::Observer` with initialization,
+  edge and completed-level events at one worker. Callback failures preserve
+  actual boundary counters and return incomplete exploration. Producer-clock
+  requests, dispatch-pause receipts and stopped/terminal services are removed.
+  Safety, capture and checkpoint calls share one search entry; DFID reuses
+  concrete-value extraction and role evaluation while retaining its own search
+  algorithm. State keys refuse missing assignments instead of using an empty
+  vector, and invariant-error replay retains the resolved winner keys without
+  evaluating VIEW again (#241).
+
 - Report the pinned GENERAL startup error class for division by zero in a pure
   symmetry declaration and incompatible values while normalizing its set.
   These errors precede ASSUME and exploration, exit 255 under `--compat=tlc`
