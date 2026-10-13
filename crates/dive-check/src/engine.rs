@@ -462,13 +462,48 @@ pub(crate) fn values(s: &[Option<Value>]) -> Option<Vec<Value>> {
     s.iter().cloned().collect()
 }
 
+/// Extracts all concrete values, refusing an impossible incomplete key input.
+pub(crate) fn complete_values(s: &[Option<Value>]) -> Result<Vec<Value>, Verdict> {
+    values(s).ok_or_else(|| Verdict::InternalError {
+        message: "state identity requires completely assigned concrete values".into(),
+    })
+}
+
+#[cfg(test)]
+mod concrete_value_tests {
+    use super::{Value, Verdict, complete_values};
+
+    #[test]
+    fn missing_assignments_cannot_collapse_to_the_valid_zero_variable_identity() {
+        assert_eq!(complete_values(&[]), Ok(Vec::new()));
+        assert_eq!(
+            complete_values(&[Some(Value::Int(7))]),
+            Ok(vec![Value::Int(7)])
+        );
+        for state in [vec![None], vec![Some(Value::Int(7)), None]] {
+            assert!(matches!(
+                complete_values(&state),
+                Err(Verdict::InternalError { .. })
+            ));
+        }
+    }
+}
+
+/// Evaluates a role once, leaving mode-specific nonboolean/error diagnostics to callers.
+pub(crate) fn role_boolean(m: &Model, c: &Named, st: &St) -> Result<Option<bool>, EvalError> {
+    m.eval(&c.pred, st).map(|value| match value {
+        Value::Bool(value) => Some(value),
+        _ => None,
+    })
+}
+
 /// Evaluates a check as a boolean. A value that is not a boolean is TLC's
 /// `TLC_EXPECTED_VALUE` at the check's location (`Tool.isValid`; fixtures
 /// `ErInvNonBool`, `ErConstrNonBool`, `ErActConstrNonBool`).
 pub(crate) fn holds(m: &Model, c: &Named, st: &St, site: ErrorSite) -> Result<bool, Verdict> {
-    match m.eval(&c.pred, st) {
-        Ok(Value::Bool(v)) => Ok(v),
-        Ok(_) => {
+    match role_boolean(m, c, st) {
+        Ok(Some(v)) => Ok(v),
+        Ok(None) => {
             let e = EvalError::coded(
                 Ec::ExpectedValue,
                 format!(
@@ -619,7 +654,8 @@ pub(crate) fn state_key_of<S: Keyed>(
     t: &StateVals,
     st1: &St,
 ) -> Result<S::Key, Verdict> {
-    let vals = values(t).unwrap_or_default();
+    let concrete = complete_values(t)?;
+    let vals = &concrete;
     let canonical = match &m.symmetry_reduction {
         Some(reduction) => {
             let order = if ctx.order == dive_value::ValueOrder::Tlc {
@@ -632,13 +668,13 @@ pub(crate) fn state_key_of<S: Keyed>(
             };
             Some(
                 reduction
-                    .canonical_values(&vals, &order, ctx)
+                    .canonical_values(vals, &order, ctx)
                     .map_err(|error| crate::model_error(&error))?,
             )
         }
         None => None,
     };
-    let vals = canonical.as_deref().unwrap_or(&vals);
+    let vals = canonical.as_deref().unwrap_or(vals);
     let canonical_state;
     let st1 = if canonical.is_some() {
         canonical_state = St::state(vals.iter().cloned().map(Some).collect::<Vec<_>>().into());
@@ -649,7 +685,6 @@ pub(crate) fn state_key_of<S: Keyed>(
     match &m.view {
         None => {
             let key = S::key(keyer, vals, false, ctx).map_err(|e| store_verdict(&e))?;
-            let concrete = values(t).unwrap_or_default();
             if canonical
                 .as_ref()
                 .is_some_and(|image| image.as_slice() != concrete.as_slice())
@@ -662,7 +697,6 @@ pub(crate) fn state_key_of<S: Keyed>(
         Some(v) => {
             // TLCStateMut.fingerPrint deep-normalizes every concrete variable
             // before VIEW, even without symmetry and even when VIEW ignores it.
-            let concrete = values(t).unwrap_or_default();
             dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
                 .map_err(|error| crate::model_error(&error))?;
             match m.eval(&v.pred, st1) {
@@ -709,6 +743,27 @@ pub(crate) fn check_implied_actions(m: &Model, step: &St) -> Option<Verdict> {
     None
 }
 
+fn observer_failure(mut message: String) -> Verdict {
+    message.insert_str(0, "behavior observer: ");
+    Verdict::Unsupported { feature: message }
+}
+
+fn observer_bug(message: &str) -> Verdict {
+    Verdict::InternalError {
+        message: message.into(),
+    }
+}
+
+fn observer_call(callback: impl FnOnce() -> Result<(), Verdict>) -> Result<(), Verdict> {
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(callback)) {
+        Ok(Ok(())) => Ok(()),
+        Ok(Err(verdict)) => Err(verdict),
+        Err(_) => Err(Verdict::InternalError {
+            message: "behavior observer callback panicked".into(),
+        }),
+    }
+}
+
 /// The state of a search: the seen-state set, the trace log and the
 /// counters.
 pub(crate) struct Search<'a, 'obs, S: Keyed> {
@@ -717,7 +772,6 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     /// TLC's state fingerprint, which seeds each expanded state's random
     /// stream.
     seeder: StateFingerprinter,
-    /// FP64 of a VIEW value alone, independently of store mode.
     /// Whether the specification uses a random operator at all.
     random: bool,
     pub(crate) ctx: Ctx,
@@ -730,9 +784,7 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) initial_generated: u64,
     pub(crate) capture: Option<Collector<S::Key>>,
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
-    pub(crate) observer: Option<&'obs mut dyn crate::capture::SourceObserver>,
-    pub(crate) stopped_faults: [bool; 5],
-    pub(crate) stopped_transaction: Option<crate::capture::StoppedTransaction>,
+    pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
@@ -754,6 +806,76 @@ impl<S: Keyed> Search<'_, '_, S> {
         } else {
             Ok(self.set.insert(key))
         }
+    }
+
+    fn observe_initial(&mut self, stats: Stats) -> Result<(), Verdict> {
+        let (Some(observer), Some(capture)) = (&mut self.observer, &self.capture) else {
+            return Ok(());
+        };
+        observer_call(|| {
+            let graph = capture.graph();
+            for &id in &graph.roots {
+                let vals = graph
+                    .states
+                    .get(id)
+                    .ok_or_else(|| observer_bug("missing initial graph state"))?;
+                observer.init(id, vals, stats).map_err(observer_failure)?;
+            }
+            Ok(())
+        })
+    }
+
+    /// Publish real completed-level events after all storage and safety work succeeded.
+    pub(crate) fn observe_level(
+        &mut self,
+        level: u64,
+        first_id: StateId,
+        sources: usize,
+        stats: Stats,
+    ) -> Result<(), Verdict> {
+        let (Some(observer), Some(capture)) = (&mut self.observer, &self.capture) else {
+            return Ok(());
+        };
+        let first = usize::try_from(first_id).map_err(|_| Verdict::InternalError {
+            message: "observed source id exceeds address space".into(),
+        })?;
+        observer_call(|| {
+            let graph = capture.graph();
+            let end = first
+                .checked_add(sources)
+                .ok_or_else(|| observer_bug("observed source range overflow"))?;
+            let rows = graph
+                .edges
+                .get(first..end)
+                .ok_or_else(|| observer_bug("missing observed graph rows"))?;
+            let originals = graph
+                .concrete
+                .get(first..end)
+                .ok_or_else(|| observer_bug("missing concrete graph rows"))?;
+            for (offset, (row, original)) in rows.iter().zip(originals).enumerate() {
+                let from = first + offset;
+                let mut concrete = original.iter();
+                for edge in row {
+                    let successor = if edge.ordinal.is_some() {
+                        &concrete
+                            .next()
+                            .ok_or_else(|| observer_bug("missing concrete graph successor"))?
+                            .state
+                    } else {
+                        graph
+                            .states
+                            .get(from)
+                            .ok_or_else(|| observer_bug("missing stutter graph state"))?
+                    };
+                    observer
+                        .edge(from, edge, successor, stats)
+                        .map_err(observer_failure)?;
+                }
+            }
+            observer
+                .level_done(level, graph, stats)
+                .map_err(observer_failure)
+        })
     }
 
     /// Native transaction state is only present on admitted pure safety runs.
@@ -966,27 +1088,6 @@ impl<S: Keyed> Search<'_, '_, S> {
                 return Some((v, false, false));
             }
         }
-        if initial
-            && self.observer.is_some()
-            && let Some(id) = new_id
-        {
-            if let Err(verdict) = next.push(t.clone(), id) {
-                return Some((verdict, false, false));
-            }
-            let mut stats = self.stats(self.seen_len());
-            stats.initial_generated = self.generated;
-            if let Some(observer) = &mut self.observer
-                && let Err(message) = observer.initial(id, &t, succ.ordinal, stats)
-            {
-                return Some((
-                    Verdict::Unsupported {
-                        feature: format!("ordered source observer: {message}"),
-                    },
-                    false,
-                    false,
-                ));
-            }
-        }
         if fresh {
             if let Some(v) = check_invariants(m, &st1, initial) {
                 // TLC's replay checks a state outside the model again, and
@@ -1021,8 +1122,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                 return Some((v, true, false));
             }
         }
-        if (!initial || self.observer.is_none())
-            && let Some(id) = new_id
+        if let Some(id) = new_id
             && let Err(verdict) = next.push(t, id)
         {
             return Some((verdict, false, false));
@@ -1155,6 +1255,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             let empty = next.empty_like();
             let current = std::mem::replace(&mut next, empty);
             let count = current.len();
+            let mut first_id = 0;
             for i in 0..count {
                 let (vals, id) = match current.read(i, &m.names) {
                     Ok(state) => state,
@@ -1170,6 +1271,9 @@ impl<S: Keyed> Search<'_, '_, S> {
                         );
                     }
                 };
+                if i == 0 {
+                    first_id = id;
+                }
                 let s0 = &vals;
                 if self.host.exit_requested() {
                     // `TLCSet("exit", TRUE)`: TLC's `stop()` ends the search
@@ -1229,6 +1333,20 @@ impl<S: Keyed> Search<'_, '_, S> {
                         then: None,
                     });
                 }
+                // Composition intermediates consume the capture generation
+                // bound too. Check before stutter/level publication, preserving
+                // any safety or evaluation event already decided by the source.
+                if stop.is_none()
+                    && let Some(capture) = &self.capture
+                    && let Err(verdict) = capture.allow_generated(self.generated)
+                {
+                    stop = Some(Stop {
+                        verdict,
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    });
+                }
                 if stop.is_none() && check_deadlock && self.generated == before {
                     // No successor at all, counting those outside the model
                     // (probes `ConstraintNoDeadlock`, `DeadlockMidLevel`).
@@ -1268,6 +1386,18 @@ impl<S: Keyed> Search<'_, '_, S> {
                     );
                 }
             }
+            let stats = self.stats(next.len() as u64);
+            if let Err(verdict) = self.observe_level(level, first_id, count, stats) {
+                return (
+                    Some(Stop {
+                        verdict,
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    }),
+                    stats,
+                );
+            }
             level += 1;
         }
         (None, self.stats(0))
@@ -1279,7 +1409,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         if !self.random {
             return Ok(());
         }
-        let vals = values(s0).unwrap_or_default();
+        let vals = complete_values(s0)?;
         let fp = self
             .seeder
             .fingerprint(&vals, self.ctx)
@@ -1675,7 +1805,6 @@ impl<S: Keyed> Search<'_, '_, S> {
 /// What the engine hands back.
 pub(crate) struct Outcome {
     pub seen: Option<crate::SeenUsage>,
-    pub stopped_transaction: Option<crate::capture::StoppedTransaction>,
     pub graph: Option<BehaviorGraph>,
     pub frontier: crate::FrontierUsage,
     pub predecessor: crate::result::PredecessorUsage,
@@ -1783,72 +1912,24 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
     }
 }
 
+/// Optional consumers of the shared search. The default has no hooks.
+#[derive(Default)]
+pub(crate) struct SearchHooks<'a, 'obs> {
+    pub(crate) capture: Option<(crate::capture::Limits, bool)>,
+    pub(crate) checkpoint: Option<&'a mut crate::checkpoint::Session>,
+    pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
+}
+
 /// Runs the search over `m` (assumptions already checked).
-pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
-    match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false, None, None),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, None, None),
-    }
-}
-
-/// Restores or pauses actual safety search at an ordered completed-level boundary.
-pub(crate) fn search_checkpoint(
+pub(crate) fn search(
     m: &Model,
     opts: &CheckOptions,
     host: &RunHost,
-    session: &mut crate::checkpoint::Session,
+    hooks: SearchHooks<'_, '_>,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => {
-            search_in::<FpSet>(m, opts, host, None, false, Some(session), None)
-        }
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, Some(session), None),
-    }
-}
-
-/// Captures every accepted edge through the ordered safety engines.
-pub(crate) fn search_graph(
-    m: &Model,
-    opts: &CheckOptions,
-    host: &RunHost,
-    limits: crate::capture::Limits,
-) -> Outcome {
-    match opts.store {
-        StoreMode::Fingerprint => {
-            search_in::<FpSet>(m, opts, host, Some(limits), false, None, None)
-        }
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), false, None, None),
-    }
-}
-
-/// Capture accepted concrete edges through the selected actual safety pool.
-pub(crate) fn search_graph_parallel(
-    m: &Model,
-    opts: &CheckOptions,
-    host: &RunHost,
-    limits: crate::capture::Limits,
-) -> Outcome {
-    match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), true, None, None),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), true, None, None),
-    }
-}
-
-/// Ordered source-consumer capture, using the same safety engine and pool.
-pub(crate) fn search_graph_observed(
-    m: &Model,
-    opts: &CheckOptions,
-    host: &RunHost,
-    limits: crate::capture::Limits,
-    observer: Option<&mut dyn crate::capture::SourceObserver>,
-) -> Outcome {
-    match opts.store {
-        StoreMode::Fingerprint => {
-            search_in::<FpSet>(m, opts, host, Some(limits), true, None, observer)
-        }
-        StoreMode::Exact => {
-            search_in::<ExactSet>(m, opts, host, Some(limits), true, None, observer)
-        }
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, hooks),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, hooks),
     }
 }
 
@@ -1860,11 +1941,15 @@ fn search_in<S: Keyed>(
     m: &Model,
     opts: &CheckOptions,
     host: &RunHost,
-    capture: Option<crate::capture::Limits>,
-    concrete_pool: bool,
-    checkpoint: Option<&mut crate::checkpoint::Session>,
-    observer: Option<&mut dyn crate::capture::SourceObserver>,
+    hooks: SearchHooks<'_, '_>,
 ) -> Outcome {
+    let SearchHooks {
+        capture,
+        checkpoint,
+        observer,
+    } = hooks;
+    let (capture, concrete_pool) =
+        capture.map_or((None, false), |(limits, pool)| (Some(limits), pool));
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
     let random = match bound_configured_random(m) {
@@ -1873,7 +1958,6 @@ fn search_in<S: Keyed>(
             workers.used = 0;
             return Outcome {
                 seen: None,
-                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -1894,7 +1978,6 @@ fn search_in<S: Keyed>(
         Err(message) => {
             return Outcome {
                 seen: None,
-                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -1912,7 +1995,6 @@ fn search_in<S: Keyed>(
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
             seen: None,
-            stopped_transaction: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
@@ -1946,7 +2028,6 @@ fn search_in<S: Keyed>(
         Err(error) => {
             workers.used = 0;
             return Outcome {
-                stopped_transaction: None,
                 seen: Some(crate::seen::SeenUsage::creation_failure(
                     opts.seen_disk.as_ref(),
                     &error,
@@ -1984,8 +2065,6 @@ fn search_in<S: Keyed>(
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
         checkpoint,
         observer,
-        stopped_faults: [false; 5],
-        stopped_transaction: None,
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
@@ -2029,20 +2108,14 @@ fn search_in<S: Keyed>(
                 // the constraints excluded all of them (#231).
                 s.depth = s.depth.max(u64::from(s.initial_generated > 0));
                 let stats = s.stats(next.len() as u64);
-                let callback = s
-                    .observer
-                    .as_mut()
-                    .map_or(Ok(()), |observer| observer.initial_complete(stats));
-                if let Err(message) = callback {
+                if let Err(verdict) = s.observe_initial(stats) {
                     workers.used = 1;
                     workers.sequential = true;
                     workers.reason =
-                        Some("ordered initialization consumer stopped after inline Init before worker pool".into());
+                        Some("initialization observer stopped before the worker pool".into());
                     (
                         Some(Stop {
-                            verdict: Verdict::Unsupported {
-                                feature: format!("ordered initial completion observer: {message}"),
-                            },
+                            verdict,
                             in_init: true,
                             path: None,
                             then: None,
@@ -2066,14 +2139,6 @@ fn search_in<S: Keyed>(
             }
         }
     };
-    for (index, present) in s.stopped_faults.iter().enumerate() {
-        if *present {
-            let fault = ["lane-close", "lane-join", "dispatch", "callback", "unwind"][index];
-            notes.push(format!(
-                "Stopped diagnostic {fault} failure; original ordered source winner retained."
-            ));
-        }
-    }
     let mut frontier = crate::frontier::evidence(&accounting);
     let mut stop = if frontier.failures.is_empty() {
         stop
@@ -2136,7 +2201,6 @@ fn search_in<S: Keyed>(
                 &mut s.log,
                 Outcome {
                     seen: None,
-                    stopped_transaction: None,
                     predecessor: crate::result::PredecessorUsage::default(),
                     graph: s.capture.take().map(Collector::finish),
                     frontier,
@@ -2231,7 +2295,6 @@ fn search_in<S: Keyed>(
         &mut s.log,
         Outcome {
             seen: None,
-            stopped_transaction: s.stopped_transaction.take(),
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier,
@@ -2297,7 +2360,6 @@ mod predecessor_tests {
             &mut log,
             Outcome {
                 seen: None,
-                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -2343,7 +2405,6 @@ mod predecessor_tests {
             &mut log,
             Outcome {
                 seen: None,
-                stopped_transaction: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -2430,7 +2491,7 @@ mod configured_stream_tests {
         ));
         let assume_output = model.take_output();
         // Compare this internal route independently with the direct source call.
-        let mut outcome = search(&model, &opts, &host);
+        let mut outcome = search(&model, &opts, &host, SearchHooks::default());
         let mut startup = model
             .output
             .iter()

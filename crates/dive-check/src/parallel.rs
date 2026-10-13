@@ -227,7 +227,6 @@ struct Expand<'env, S: Keyed> {
     native_counter_remaining: Option<u64>,
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
-    progress: Option<Arc<crate::progress::Lane>>,
     chaos: Option<u64>,
 }
 
@@ -242,21 +241,7 @@ struct Stopped {
 impl<S: Keyed> Expand<'_, S> {
     /// Capture waves have one block per concrete source. Missing output stops
     /// this prefix; a claim alone never counts as a returned expansion.
-    fn completed_prefix(&self, cursor: usize, end: usize) -> usize {
-        contiguous_returned(
-            self.blocks.iter().zip(&self.outs).map(|(block, out)| {
-                (
-                    block.clone(),
-                    out.lock().unwrap_or_else(PoisonError::into_inner).is_some(),
-                )
-            }),
-            cursor,
-            end,
-        )
-    }
-
-    /// Moves only the selected completed source records and candidate positions.
-    /// Later buffers remain intact and are never resolved prematurely.
+    /// Moves the joined whole wave outputs and their candidate buffers.
     fn take_sources(&self, units: Range<usize>, n_units: usize) -> CommitInput<S::Key> {
         let mut input = CommitInput {
             gens: vec![0; n_units],
@@ -281,37 +266,8 @@ impl<S: Keyed> Expand<'_, S> {
             input.accepted.extend(out.accepted);
             input.first = earlier(input.first, out.event);
         }
-        let mut buffers = self.buffers.lock().unwrap_or_else(PoisonError::into_inner);
-        if self
-            .blocks
-            .last()
-            .is_some_and(|block| block.end == units.end)
-        {
-            // All retained candidates belong to this wave's uncommitted suffix.
-            // Preserve the original whole-wave move without repartition buffers.
-            input.buffers = std::mem::take(&mut *buffers);
-            return input;
-        }
-        for buffer in buffers.iter_mut() {
-            let selected = buffer.extract_if(|pos| {
-                usize::try_from(pos.0)
-                    .ok()
-                    .and_then(|source| {
-                        if self.narrow {
-                            source
-                                .checked_mul(self.actions())?
-                                .checked_add(pos.1 as usize)
-                        } else {
-                            Some(source)
-                        }
-                    })
-                    .is_some_and(|unit| units.contains(&unit))
-            });
-            if !selected.is_empty() {
-                input.buffers.push(selected);
-            }
-        }
-        buffers.retain(|buffer| !buffer.is_empty());
+        input.buffers =
+            std::mem::take(&mut *self.buffers.lock().unwrap_or_else(PoisonError::into_inner));
         input
     }
 
@@ -343,14 +299,7 @@ impl<S: Keyed> Expand<'_, S> {
             .map(|c| Rng(c ^ (w as u64).wrapping_mul(0x2545_f491_4f6c_dd1d) ^ self.level));
         loop {
             Rng::maybe_yield(&mut rng);
-            let k = if let Some(progress) = &self.progress {
-                let Some(claim) = progress.claim(&self.claim, self.order.len()) else {
-                    break;
-                };
-                claim
-            } else {
-                self.claim.fetch_add(1, Ordering::Relaxed)
-            };
+            let k = self.claim.fetch_add(1, Ordering::Relaxed);
             let Some(&b) = self.order.get(k) else { break };
             let range = self.blocks[b].clone();
             if range.start as u64 > self.cut.load(Ordering::Relaxed) {
@@ -358,10 +307,6 @@ impl<S: Keyed> Expand<'_, S> {
             }
             let out = self.block(&set, range, &mut buf, &mut rng);
             *self.outs[b].lock().unwrap_or_else(PoisonError::into_inner) = Some(out);
-            #[cfg(feature = "test-rendezvous")]
-            if let Some(progress) = &self.progress {
-                progress.returned_source_rendezvous();
-            }
         }
         drop(set);
         self.buffers
@@ -707,7 +652,8 @@ fn deadlock(i: usize, unit: usize) -> Event {
 }
 
 /// A new state of the level, in position order.
-struct Winner {
+struct Winner<K> {
+    key: K,
     pos: Pos,
     vals: StateVals,
     action: u32,
@@ -715,7 +661,15 @@ struct Winner {
     checkpoint_key: Option<Vec<u8>>,
 }
 
-fn ordinal_of(winner: &Winner, gens: &[u64], narrow: bool, actions: usize) -> Option<u32> {
+/// Replay membership uses resolved identities without evaluating VIEW again.
+fn replay_unseen_keys<S: Keyed>(winners: &[Winner<S::Key>]) -> BTreeSet<S::Key> {
+    winners
+        .iter()
+        .map(|winner| S::duplicate_key(&winner.key))
+        .collect()
+}
+
+fn ordinal_of<K>(winner: &Winner<K>, gens: &[u64], narrow: bool, actions: usize) -> Option<u32> {
     let (i, action, ordinal) = winner.pos;
     let prior = if narrow {
         let i = usize::try_from(i).ok()?;
@@ -775,10 +729,10 @@ struct ChunkOut {
 }
 
 /// One level's phase-3 job: the invariants of the new states.
-struct Check<'env> {
+struct Check<'env, K> {
     m: &'env Model,
     level: u64,
-    winners: Arc<Vec<Winner>>,
+    winners: Arc<Vec<Winner<K>>>,
     /// Winners at or after this key are not checked (phase 1 stopped
     /// before them).
     limit: Option<Key>,
@@ -792,7 +746,7 @@ struct Check<'env> {
     chaos: Option<u64>,
 }
 
-impl Check<'_> {
+impl<K> Check<'_, K> {
     fn unit_of(&self, pos: Pos) -> usize {
         let i = usize::try_from(pos.0).unwrap_or(usize::MAX);
         if self.narrow {
@@ -883,85 +837,6 @@ fn internal(message: String, stats: Stats) -> (Option<Stop>, Stats) {
     )
 }
 
-fn stopped_fault<S: Keyed>(
-    search: &mut Search<'_, '_, S>,
-    fault: crate::capture::StoppedDiagnosticFault,
-) {
-    search.stopped_faults[fault as usize] = true;
-    if let Some(observer) = search.observer.as_mut()
-        && std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            observer.stopped_diagnostic_failed(fault);
-        }))
-        .is_err()
-    {
-        search.stopped_faults[crate::capture::StoppedDiagnosticFault::Unwind as usize] = true;
-    }
-}
-
-fn stopped_origin(stop: &Stop) -> Option<(crate::capture::WorkerStop, u64)> {
-    if stop.in_init {
-        return None;
-    }
-    let (source, _) = stop.path.as_ref()?;
-    Some((
-        crate::capture::WorkerStop::classify(&stop.verdict)?,
-        *source,
-    ))
-}
-
-fn stopped_service<S: Keyed>(
-    search: &mut Search<'_, '_, S>,
-    stop: &Stop,
-    kind: crate::capture::WorkerStop,
-    stats: Stats,
-    pool: &Pool<'_>,
-    progress: Option<&Arc<crate::progress::Lane>>,
-) {
-    use crate::capture::StoppedDiagnosticFault as Fault;
-    let Ok(pending) = progress.map_or(Ok(None), |lane| lane.finish()) else {
-        stopped_fault(search, Fault::LaneClose);
-        return;
-    };
-    let callback = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        pool.with_pause(|pause| {
-            let Some((source, _)) = stop.path.as_ref() else {
-                return Ok(());
-            };
-            let end = crate::capture::StoppedQueue::new(
-                &stop.verdict,
-                kind,
-                stats,
-                pause,
-                pending,
-                *source,
-            );
-            search.stopped_transaction = Some(crate::capture::StoppedTransaction {
-                verdict: stop.verdict.clone(),
-                source: *source,
-                stats,
-                workers: pause.workers(),
-                generation: pause.generation(),
-            });
-            search
-                .observer
-                .as_mut()
-                .map_or(Ok(()), |observer| observer.stopped_queue_finished(&end))
-        })
-    }));
-    let fault = match callback {
-        Ok(Ok(Ok(()))) => None,
-        Ok(Ok(Err(_))) => Some(Fault::Callback),
-        Ok(Err(_)) => Some(Fault::Dispatch),
-        Err(_) => Some(Fault::Unwind),
-    };
-    if let Some(fault) = fault {
-        stopped_fault(search, fault);
-    }
-}
-
-/// Runs every level from the frontier `next` (the initial states) with up
-/// to `workers` threads. Returns the stop, the statistics and the number of
-/// threads used.
 pub(crate) fn levels<S: Keyed>(
     search: &mut Search<'_, '_, S>,
     next: crate::frontier::Queue,
@@ -979,89 +854,10 @@ pub(crate) fn levels_from<S: Keyed>(
     workers: usize,
     level: u64,
 ) -> (Option<Stop>, Stats, usize) {
-    let initial_stats = search.stats(next.len() as u64);
     let set = RwLock::new(std::mem::replace(&mut search.set, S::fresh(0)));
     let (stop, stats, used) = with_pool(workers, dive_eval::RECOMMENDED_STACK, |pool| {
-        let request_options = search.observer.as_ref().and_then(|o| o.progress_requests());
-        let mut returned_stats = None;
-        let mut stopped_enabled = false;
-        match crate::progress::with_lane_retained(request_options, |progress| {
-            let (stop, stats) =
-                run_levels(search, &set, next, opts, pool, level, progress.as_ref());
-            returned_stats = Some(stats);
-            if let Some((winner, kind)) = stop
-                .as_ref()
-                .and_then(|winner| stopped_origin(winner).map(|(kind, _)| (winner, kind)))
-            {
-                let enabled = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    search
-                        .observer
-                        .as_ref()
-                        .is_some_and(|observer| observer.requires_stopped_service())
-                }));
-                match enabled {
-                    Ok(true) => {
-                        stopped_enabled = true;
-                        stopped_service(search, winner, kind, stats, pool, progress.as_ref());
-                    }
-                    Ok(false) => {}
-                    Err(_) => {
-                        stopped_enabled = true;
-                        stopped_fault(search, crate::capture::StoppedDiagnosticFault::Unwind);
-                    }
-                }
-            }
-            // Only the real exhausted-frontier return may enter this additive
-            // transaction. A failed source/Init/cut never creates EOF authority.
-            if stop.is_none()
-                && search
-                    .observer
-                    .as_ref()
-                    .is_some_and(|o| o.requires_terminal_service())
-            {
-                let result = progress
-                    .as_ref()
-                    .map_or(Ok(None), |lane| lane.finish())
-                    .and_then(|pending| {
-                        pool.with_pause(|pause| {
-                            let end = crate::capture::ExhaustedQueue::new(stats, pause, pending);
-                            search
-                                .observer
-                                .as_mut()
-                                .map_or(Ok(()), |o| o.terminal_queue_finished(&end))
-                        })
-                    })
-                    .and_then(std::convert::identity);
-                if let Err(feature) = result {
-                    return (
-                        Some(Stop {
-                            verdict: Verdict::Unsupported { feature },
-                            in_init: false,
-                            path: None,
-                            then: None,
-                        }),
-                        stats,
-                    );
-                }
-            }
-            (stop, stats)
-        }) {
-            Ok(((stop, stats), None)) => (stop, stats, pool.threads()),
-            Ok(((stop, stats), Some(_))) if stopped_enabled => {
-                stopped_fault(search, crate::capture::StoppedDiagnosticFault::LaneJoin);
-                (stop, stats, pool.threads())
-            }
-            Ok((_, Some(feature))) | Err(feature) => (
-                Some(Stop {
-                    verdict: Verdict::Unsupported { feature },
-                    in_init: false,
-                    path: None,
-                    then: None,
-                }),
-                returned_stats.unwrap_or(initial_stats),
-                pool.threads(),
-            ),
-        }
+        let (stop, stats) = run_levels(search, &set, next, opts, pool, level);
+        (stop, stats, pool.threads())
     });
     search.set = set.into_inner().unwrap_or_else(PoisonError::into_inner);
     // Statistics computed with the set outside the search report its size.
@@ -1084,7 +880,7 @@ pub(crate) fn levels_from<S: Keyed>(
 fn capture_wave<S: Keyed>(
     search: &mut Search<'_, '_, S>,
     first_id: u64,
-    winners: &[Winner],
+    winners: &[Winner<S::Key>],
     mut accepted: Vec<Accepted<S::Key>>,
     gens: &[u64],
     done: &[bool],
@@ -1159,7 +955,6 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     opts: &CheckOptions,
     pool: &Pool<'env>,
     mut level: u64,
-    progress: Option<&Arc<crate::progress::Lane>>,
 ) -> (Option<Stop>, Stats) {
     let m: &'env Model = search.m;
     let keyer: &'env S::Keyer = search.keyer;
@@ -1250,7 +1045,6 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         } else {
             n_units.max(1)
         };
-        let mut observed_pool_generated = 0u64;
         for wave_start in (0..n_units).step_by(wave_size) {
             let wave_end = (wave_start + wave_size).min(n_units);
             let size = if search.capture.is_some() {
@@ -1300,176 +1094,17 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 claim: AtomicUsize::new(0),
                 cut: AtomicU64::new(u64::MAX),
                 buffers: Mutex::new(Vec::new()),
-                progress: progress.cloned(),
                 chaos: opts.chaos,
             });
             let job: Job<'env> = {
                 let e = expand.clone();
                 Arc::new(move |w| e.work(w))
             };
-            let mut cursor = wave_start;
-            loop {
-                if let Err(message) = run(pool, &job, inline) {
-                    return internal(
-                        message,
-                        stats_now(search, (len - cursor + next_frontier.len()) as u64),
-                    );
-                }
-                if let Some(progress) = &progress {
-                    let request = if expand.cut.load(Ordering::Relaxed) == u64::MAX {
-                        match progress.take() {
-                            Ok(request) => request,
-                            Err(message) => {
-                                return internal(
-                                    message,
-                                    stats_now(search, (len - cursor + next_frontier.len()) as u64),
-                                );
-                            }
-                        }
-                    } else {
-                        let (fresh, pending) = progress.cancel_requests();
-                        if fresh && let Some(observer) = &mut search.observer {
-                            observer.expansion_requests_cancelled(pending);
-                        }
-                        None
-                    };
-                    if let Some(request) = request {
-                        let mut completed: Vec<_> = expand
-                            .outs
-                            .iter()
-                            .enumerate()
-                            .filter_map(|(b, out)| {
-                                out.lock()
-                                    .unwrap_or_else(PoisonError::into_inner)
-                                    .as_ref()
-                                    .map(|_| first_id + expand.blocks[b].start as u64)
-                            })
-                            .collect();
-                        completed.extend((wave_start..cursor).map(|unit| first_id + unit as u64));
-                        completed.sort_unstable();
-                        let claimed = expand
-                            .order
-                            .iter()
-                            .take(expand.claim.load(Ordering::Relaxed))
-                            .map(|b| first_id + expand.blocks[*b].start as u64)
-                            .collect();
-                        let mut failed = Vec::new();
-                        let mut expanded_generated = 0u64;
-                        for (b, output) in expand.outs.iter().enumerate() {
-                            let guard = output.lock().unwrap_or_else(PoisonError::into_inner);
-                            if let Some(output) = guard.as_ref() {
-                                if output.event.is_some() {
-                                    failed.push(first_id + expand.blocks[b].start as u64);
-                                }
-                                for generated in &output.gens {
-                                    let Some(total) = expanded_generated.checked_add(*generated)
-                                    else {
-                                        return internal(
-                                            "request scratch generation counter overflow".into(),
-                                            stats_now(
-                                                search,
-                                                (len - cursor + next_frontier.len()) as u64,
-                                            ),
-                                        );
-                                    };
-                                    expanded_generated = total;
-                                }
-                            }
-                        }
-                        let logical_before =
-                            stats_now(search, (len - cursor + next_frontier.len()) as u64);
-                        let prefix_end = if search.capture.is_some() && !narrow {
-                            expand.completed_prefix(cursor, wave_end)
-                        } else {
-                            cursor
-                        };
-                        let prefix_start = cursor;
-                        let mut stopped = None;
-                        let result = pool
-                            .with_pause(|pause| {
-                                if prefix_end > cursor {
-                                    let input = expand.take_sources(cursor..prefix_end, n_units);
-                                    let committed_generated = input.gens.iter().sum::<u64>();
-                                    let result = commit_sources(
-                                        search,
-                                        set,
-                                        pool,
-                                        Some(pause),
-                                        threads,
-                                        opts,
-                                        level,
-                                        first_id,
-                                        &frontier,
-                                        &mut next_frontier,
-                                        narrow,
-                                        concrete_pool,
-                                        wave_start..wave_end,
-                                        cursor..prefix_end,
-                                        &input.gens,
-                                        &input.done,
-                                        input.lines,
-                                        input.first,
-                                        input.accepted,
-                                        input.buffers,
-                                        &mut rng,
-                                        observed_pool_generated + expanded_generated,
-                                    );
-                                    if result.0.is_some() {
-                                        stopped = Some(result);
-                                        return Ok(());
-                                    }
-                                    observed_pool_generated += committed_generated;
-                                    cursor = prefix_end;
-                                }
-                                let receipt = crate::capture::ExpansionQuiescence {
-                                    request,
-                                    submitted: first_id + wave_start as u64
-                                        ..first_id + wave_end as u64,
-                                    completed,
-                                    claimed,
-                                    failed,
-                                    expanded_generated,
-                                    logical: logical_before,
-                                    committed: first_id + prefix_start as u64
-                                        ..first_id + cursor as u64,
-                                    logical_after: stats_now(
-                                        search,
-                                        (len - cursor + next_frontier.len()) as u64,
-                                    ),
-                                    predicate_workers: usize::from(
-                                        cursor > prefix_start
-                                            && !m.invariants.is_empty()
-                                            && set
-                                                .read()
-                                                .unwrap_or_else(PoisonError::into_inner)
-                                                .len()
-                                                > logical_before.distinct,
-                                    ),
-                                };
-                                search.observer.as_mut().map_or(Ok(()), |observer| {
-                                    observer.expansion_quiescent(receipt, pause)
-                                })
-                            })
-                            .and_then(std::convert::identity);
-                        if let Some(result) = stopped {
-                            return result;
-                        }
-                        if let Err(feature) = result {
-                            return (
-                                Some(Stop {
-                                    verdict: Verdict::Unsupported { feature },
-                                    in_init: false,
-                                    path: None,
-                                    then: None,
-                                }),
-                                stats_now(search, (len - cursor + next_frontier.len()) as u64),
-                            );
-                        }
-                    }
-                }
-                if expand.claim.load(Ordering::Relaxed) >= expand.order.len() {
-                    break;
-                }
+            if let Err(message) = run(pool, &job, inline) {
+                return internal(
+                    message,
+                    stats_now(search, (len - wave_start + next_frontier.len()) as u64),
+                );
             }
             drop(job);
             let CommitInput {
@@ -1479,7 +1114,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 mut first,
                 accepted,
                 buffers,
-            } = expand.take_sources(cursor..wave_end, n_units);
+            } = expand.take_sources(wave_start..wave_end, n_units);
             if narrow && check_deadlock {
                 // A state's deadlock needs all its actions' counts.
                 for i in 0..len {
@@ -1493,12 +1128,10 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 }
             }
             drop(expand);
-            observed_pool_generated += gens.iter().sum::<u64>();
             let result = commit_sources(
                 search,
                 set,
                 pool,
-                None,
                 threads,
                 opts,
                 level,
@@ -1508,7 +1141,6 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 narrow,
                 concrete_pool,
                 wave_start..wave_end,
-                cursor..wave_end,
                 &gens,
                 &done,
                 lines,
@@ -1516,11 +1148,22 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 accepted,
                 buffers,
                 &mut rng,
-                observed_pool_generated,
             );
             if result.0.is_some() {
                 return result;
             }
+        }
+        let stats = stats_now(search, next_frontier.len() as u64);
+        if let Err(verdict) = search.observe_level(level, first_id, len, stats) {
+            return (
+                Some(Stop {
+                    verdict,
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                stats,
+            );
         }
         frontier = Arc::new(next_frontier);
         first_id = new_first;
@@ -1529,19 +1172,16 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     (None, stats_now(search, 0))
 }
 
-/// Shared publication path for a whole wave or an actually completed contiguous
-/// prefix. A borrowed pause keeps expansion dispatch closed; predicate work is
-/// inline and resolve uses one thread rather than re-entering that pool.
+/// Publishes one joined whole wave in reference order.
 #[allow(
     clippy::too_many_arguments,
     clippy::too_many_lines,
-    reason = "one ordered publication transaction shared by waves and prefixes"
+    reason = "ordered whole-wave publication preserves deciding events and counters"
 )]
 fn commit_sources<'a: 'env, 'env, S: Keyed>(
     search: &mut Search<'a, '_, S>,
     set: &'env RwLock<S>,
     pool: &Pool<'env>,
-    pause: Option<&crate::capture::DispatchPause<'_>>,
     threads: usize,
     opts: &CheckOptions,
     level: u64,
@@ -1550,7 +1190,6 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
     next_frontier: &mut crate::frontier::Queue,
     narrow: bool,
     concrete_pool: bool,
-    submitted: Range<usize>,
     units: Range<usize>,
     gens: &[u64],
     done: &[bool],
@@ -1559,10 +1198,8 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
     accepted: Vec<Accepted<S::Key>>,
     buffers: Vec<Candidates<S::Key, Pos, Payload>>,
     rng: &mut Option<Rng>,
-    speculative_generated: u64,
 ) -> (Option<Stop>, Stats) {
     let m: &'env Model = search.m;
-    let keyer: &'env S::Keyer = search.keyer;
     let n_actions = m.actions.len();
     let len = frontier.len();
     let stats_now = |search: &Search<'_, '_, S>, left: u64| Stats {
@@ -1575,14 +1212,10 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
     let candidates: usize = buffers.iter().map(Candidates::len).sum();
     let distinct_before = set.read().unwrap_or_else(PoisonError::into_inner).len();
     let resolve = ResolveOptions {
-        threads: if pause.is_some() {
-            1
-        } else {
-            match &mut *rng {
-                Some(r) => 1 + r.below(threads),
-                None if candidates < PARALLEL_RESOLVE => 1,
-                None => threads,
-            }
+        threads: match &mut *rng {
+            Some(r) => 1 + r.below(threads),
+            None if candidates < PARALLEL_RESOLVE => 1,
+            None => threads,
         },
         chaos: rng.as_mut().map(Rng::next),
     };
@@ -1594,7 +1227,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         Ok(r) => r,
         Err(e) => return internal(e.to_string(), stats_now(search, 0)),
     };
-    let winners: Arc<Vec<Winner>> = Arc::new(
+    let winners: Arc<Vec<Winner<S::Key>>> = Arc::new(
         resolved
             .into_position_order()
             .into_iter()
@@ -1603,6 +1236,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
                 vals: c.payload.vals,
                 action: c.payload.action,
                 checkpoint_key: search.has_checkpoint().then(|| S::checkpoint_key(&c.key)),
+                key: c.key,
             })
             .collect(),
     );
@@ -1694,14 +1328,6 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             generated += count;
         }
     }
-    let mut observed = if search.observer.is_some() {
-        accepted
-            .iter()
-            .map(|a| (a.pos, a.vals.clone(), a.action))
-            .collect::<Vec<_>>()
-    } else {
-        Vec::new()
-    };
     if search.capture.is_some() {
         first = capture_wave(
             search,
@@ -1749,11 +1375,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             let c = check.clone();
             Arc::new(move |w| c.work(w))
         };
-        if let Err(message) = if pause.is_some() {
-            Pool::run_inline(&job)
-        } else {
-            run(pool, &job, inline)
-        } {
+        if let Err(message) = run(pool, &job, inline) {
             return internal(message, stats_now(search, 0));
         }
         drop(job);
@@ -1761,120 +1383,6 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             if let Some(out) = out.lock().unwrap_or_else(PoisonError::into_inner).take() {
                 lines.extend(out.lines);
                 first = earlier(first, out.event);
-            }
-        }
-    }
-    // Consume complete sources only after their safety checks, before
-    // a later source's deciding event. Counts include previous committed
-    // waves but exclude speculative work beyond this source.
-    if search.observer.is_some() {
-        observed.sort_by_key(|a| a.0);
-        let pool_generated = speculative_generated;
-        let source_limit = first.as_ref().map_or(units.end, |e| {
-            usize::try_from(e.key.0.0)
-                .unwrap_or(units.end)
-                .min(units.end)
-        });
-        let mut from = 0;
-        let mut to = 0;
-        let mut upto = 0;
-        let mut generated = search.generated;
-        for (source, emitted) in gens.iter().enumerate().take(source_limit).skip(units.start) {
-            while to < observed.len() && observed[to].0.0 <= source as u64 {
-                to += 1;
-            }
-            while upto < winners.len() && winners[upto].pos.0 <= source as u64 {
-                upto += 1;
-            }
-            generated += emitted;
-            let successors: Vec<_> = observed[from..to]
-                .iter()
-                .map(|a| crate::capture::ConcreteSuccessor {
-                    state: a.1.clone(),
-                    ordinal: u64::from(a.0.2),
-                    label: m.actions[a.2 as usize].label().to_owned(),
-                })
-                .collect();
-            from = to;
-            let counters = Stats {
-                generated,
-                distinct: distinct_before + upto as u64,
-                left_on_queue: ((len - source - 1) + next_frontier.len() + upto) as u64,
-                depth: if upto > 0 {
-                    search.depth.max(level + 1)
-                } else {
-                    search.depth
-                },
-                initial_generated: search.initial_generated,
-            };
-            let (state, _) = match frontier.read(source, &m.names) {
-                Ok(state) => state,
-                Err(verdict) => {
-                    return (
-                        Some(Stop {
-                            verdict,
-                            in_init: false,
-                            path: None,
-                            then: None,
-                        }),
-                        counters,
-                    );
-                }
-            };
-            let observation = crate::capture::CommittedSource {
-                id: first_id + source as u64,
-                level,
-                state: &state,
-                successors: &successors,
-                stats: counters,
-                pool_generated,
-                barrier: if pause.is_some() {
-                    crate::capture::SourceBarrier::joined_prefix(
-                        threads,
-                        first_id + submitted.start as u64,
-                        first_id + submitted.end as u64,
-                        first_id + units.start as u64,
-                        first_id + units.end as u64,
-                        usize::from(!m.invariants.is_empty() && !winners.is_empty()),
-                    )
-                } else {
-                    crate::capture::SourceBarrier::joined(
-                        threads,
-                        first_id + submitted.start as u64,
-                        first_id + submitted.end as u64,
-                    )
-                },
-            };
-            let observation_result = if let Some(observer) = &mut search.observer {
-                if observer.requires_dispatch_pause() {
-                    if let Some(pause) = pause {
-                        observer.paused_source(observation, pause)
-                    } else {
-                        pool.with_pause(|pause| observer.paused_source(observation, pause))
-                            .and_then(std::convert::identity)
-                    }
-                } else {
-                    observer.source(observation)
-                }
-            } else {
-                Ok(())
-            };
-            if let Err(message) = observation_result {
-                first = earlier(
-                    first,
-                    Some(Event {
-                        key: ((source as u64, u32::MAX, u32::MAX), PH_DEADLOCK + 1),
-                        unit: source,
-                        c: *emitted,
-                        verdict: Verdict::Unsupported {
-                            feature: format!("ordered source observer: {message}"),
-                        },
-                        then: None,
-                        resume: false,
-                        stutter: false,
-                    }),
-                );
-                break;
             }
         }
     }
@@ -1930,13 +1438,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         if e.resume {
             // TLC's replay goes on past the state: as of E*, the states
             // this level found after it are not in the set yet.
-            let unseen: BTreeSet<S::Key> = winners[upto..]
-                .iter()
-                .filter_map(|w| {
-                    let st = St::state(w.vals.clone());
-                    state_key_of::<S>(m, keyer, search.ctx, &w.vals, &st).ok()
-                })
-                .collect();
+            let unseen = replay_unseen_keys::<S>(&winners[upto..]);
             let first_unit = if narrow { i * n_actions } else { i };
             let ordinal = gens[first_unit..e.unit].iter().sum::<u64>() + e.c - 1;
             let set = set.read().unwrap_or_else(PoisonError::into_inner);
@@ -1986,6 +1488,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
     let winners = Arc::try_unwrap(winners).unwrap_or_else(|w| {
         w.iter()
             .map(|x| Winner {
+                key: S::duplicate_key(&x.key),
                 pos: x.pos,
                 vals: x.vals.clone(),
                 action: x.action,
@@ -2010,50 +1513,26 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
     (None, stats_now(search, next_frontier.len() as u64))
 }
 
-/// Contiguity depends on returned outputs, never on claim position or later work.
-fn contiguous_returned(
-    outputs: impl IntoIterator<Item = (Range<usize>, bool)>,
-    cursor: usize,
-    end: usize,
-) -> usize {
-    let mut upto = cursor;
-    for (block, returned) in outputs {
-        if block.start < cursor {
-            continue;
-        }
-        if block.start != upto || block.end > end || !returned {
-            break;
-        }
-        upto = block.end;
-    }
-    upto
-}
 #[cfg(test)]
-mod prefix_tests {
-    use super::contiguous_returned;
-    #[test]
-    fn unclaimed_gap_never_publishes_later_returned_sources() {
-        for mask in 0u16..256 {
-            for cursor in 0..=8 {
-                let expected = (cursor..8).find(|i| mask & (1 << i) == 0).unwrap_or(8);
-                let outputs = (0..8).map(|i| (i..i + 1, mask & (1 << i) != 0));
-                assert_eq!(contiguous_returned(outputs, cursor, 8), expected);
-            }
-        }
-    }
-}
+mod replay_key_tests {
+    use super::{Winner, replay_unseen_keys};
+    use dive_store::ExactSet;
 
-#[cfg(test)]
-mod stopped_origin_tests {
-    use super::*;
     #[test]
-    fn eligible_classification_without_actual_source_path_is_not_authority() {
-        let stop = Stop {
-            verdict: Verdict::Deadlock,
-            in_init: false,
-            path: None,
-            then: None,
+    fn replay_retains_resolved_keys_even_when_concrete_values_cannot_be_rekeyed() {
+        // Internal control, not a claim of a reachable valid-spec disagreement.
+        // The helper has no model/evaluator and must use the stored identity.
+        let winner = Winner {
+            key: vec![1, 2, 3].into_boxed_slice(),
+            pos: (0, 0, 0),
+            vals: vec![None].into(),
+            action: 0,
+            checkpoint_key: None,
         };
-        assert!(stopped_origin(&stop).is_none());
+        let unseen = replay_unseen_keys::<ExactSet>(&[winner]);
+        assert_eq!(
+            unseen.into_iter().collect::<Vec<_>>(),
+            [vec![1, 2, 3].into_boxed_slice()]
+        );
     }
 }

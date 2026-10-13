@@ -12,7 +12,6 @@ use dive_model::{Model, Named};
 use dive_stdlib::random::{JavaRandom, RandomSource, fresh_seed};
 use dive_store::StoreMode;
 use dive_store::state::{StateFingerprinter, state_key};
-use dive_value::Value;
 
 use crate::CheckOptions;
 
@@ -308,11 +307,8 @@ impl Search<'_> {
     }
 
     fn key(&self, state: &StateVals) -> Result<Key, Outcome> {
-        let values: Vec<_> = state
-            .iter()
-            .cloned()
-            .collect::<Option<Vec<_>>>()
-            .ok_or_else(|| Outcome::Internal("DFID key for incomplete state".to_owned()))?;
+        let values = crate::engine::complete_values(state)
+            .map_err(|_| Outcome::Internal("DFID key for incomplete state".to_owned()))?;
         let ctx = self.model.evaluator.options().ctx;
         match self.opts.check.store {
             StoreMode::Exact => {
@@ -334,11 +330,8 @@ impl Search<'_> {
 
     fn insert(&mut self, key: &Key, state: &StateVals) -> Result<u32, Outcome> {
         let mut encoded = Vec::new();
-        let values: Vec<_> = state
-            .iter()
-            .cloned()
-            .collect::<Option<Vec<_>>>()
-            .ok_or_else(|| Outcome::Internal("DFID insertion of incomplete state".to_owned()))?;
+        let values = crate::engine::complete_values(state)
+            .map_err(|_| Outcome::Internal("DFID insertion of incomplete state".to_owned()))?;
         state_key(&values, self.model.evaluator.options().ctx, &mut encoded)
             .map_err(|e| Outcome::Unsupported(format!("DFID collision guard encoding: {e}")))?;
         if let Some(entry) = self.seen.get(key) {
@@ -634,10 +627,10 @@ fn complete(state: &StateVals, initial: bool) -> Result<(), Outcome> {
 
 fn allowed(model: &Model, roles: &[Named], st: &St) -> Result<bool, Outcome> {
     for role in roles {
-        match model.eval(&role.pred, st) {
-            Ok(Value::Bool(true)) => {}
-            Ok(Value::Bool(false)) => return Ok(false),
-            Ok(_) => {
+        match crate::engine::role_boolean(model, role, st) {
+            Ok(Some(true)) => {}
+            Ok(Some(false)) => return Ok(false),
+            Ok(None) => {
                 return Err(Outcome::Unsupported(
                     "DFID nonboolean role diagnostic".to_owned(),
                 ));
@@ -657,16 +650,16 @@ fn properties(
     _error_code: u32,
 ) -> Option<Outcome> {
     for role in roles {
-        match model.eval(&role.pred, st) {
-            Ok(Value::Bool(true)) => {}
-            Ok(Value::Bool(false)) => {
+        match crate::engine::role_boolean(model, role, st) {
+            Ok(Some(true)) => {}
+            Ok(Some(false)) => {
                 return Some(Outcome::Violation {
                     kind,
                     name: Some(role.name.clone()),
                     code,
                 });
             }
-            Ok(_) => {
+            Ok(None) => {
                 return Some(Outcome::Unsupported(
                     "DFID nonboolean property diagnostic".to_owned(),
                 ));

@@ -983,5 +983,6 @@ refuses enclosing conjunctions whose continuation or preassigned variables TLC
 would distort. Tests retain the complete existing six-probe selection and its
 consumed pinned oracle fixtures. The independent evaluator build explicitly
 refuses enabled composition without `enumerate`; it never imports the checker
-successor generator to validate a trace. Ordinary liveness integration remains
-pending, including TLC-profile intermediate accounting in captured search.
+successor generator to validate a trace. Pure TLC-profile capture now uses the
+inline fallback and counts intermediates as generated; only emitted successors
+become transition edges. Ordinary liveness integration remains pending.

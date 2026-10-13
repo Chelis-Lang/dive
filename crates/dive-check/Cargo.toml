@@ -8,10 +8,6 @@ publish.workspace = true
 license.workspace = true
 repository.workspace = true
 
-[features]
-# Explicit diagnostic test scheduling; never enabled by a CLI or default build.
-test-rendezvous = []
-
 [dependencies]
 dive-ir.workspace = true
 dive-value.workspace = true
