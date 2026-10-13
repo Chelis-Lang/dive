@@ -63,9 +63,11 @@ pub struct TraceOptions {
     /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
     /// constant definitions draw from the run's start-up stream (TLC's
     /// seeding under `compat_tlc`, dive's otherwise; D-002). Without them,
-    /// both are refused by name. Private validation refuses every executed
-    /// random operation, including reconstructed constant binding
-    /// (`dive_trace::RANDOM_UNSUPPORTED`).
+    /// both are refused by name. Private validation uses exact support membership
+    /// for a single direct `Init == x = RandomElement(S)` equality, independently
+    /// of a sampled result. Explicit config reads can still determine the domain.
+    /// Other executed random operations, including reconstructed
+    /// constant binding, remain refused (`dive_trace::RANDOM_UNSUPPORTED`).
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,

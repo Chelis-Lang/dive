@@ -356,10 +356,28 @@ impl<'a> Run<'a> {
                     // Init uses startup level 0; generated-state predicates
                     // keep the separate Clear context in `here` (level 1).
                     if self.private_init {
-                        let member = match crate::initial::check(m, &trace.states[0]) {
+                        // The direct random relation evaluates its real domain
+                        // conservatively, with registers refused. Startup register
+                        // effects and random relations cannot share this route.
+                        self.host.startup.store(false, Ordering::Relaxed);
+                        let random = if self.host.register_used.load(Ordering::Relaxed) {
+                            Ok(None)
+                        } else {
+                            crate::initial::random_check(m, &trace.states[0])
+                        };
+                        let relation = !matches!(&random, Ok(None));
+                        let operation = match random {
+                            Ok(Some(member)) => Ok(member),
+                            Ok(None) => {
+                                self.host.startup.store(true, Ordering::Relaxed);
+                                crate::initial::check(m, &trace.states[0])
+                            }
+                            Err(error) => Err(error),
+                        };
+                        let member = match operation {
                             Ok(member) => member,
                             Err(feature) => {
-                                self.init_incomplete = true;
+                                self.init_incomplete = !relation;
                                 return Err(Stop::Unsupported(feature));
                             }
                         };
@@ -367,7 +385,7 @@ impl<'a> Run<'a> {
                             return Err(invalid(
                                 0,
                                 Check::Init,
-                                "the first state differs from the independent single-candidate Init operation",
+                                "the first state is outside the independent Init relation",
                             ));
                         }
                         self.passed += 1;

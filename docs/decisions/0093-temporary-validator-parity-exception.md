@@ -44,8 +44,8 @@ not agreement, and the final corpus goal remains at least 95% agreement.
 Retain named refusals for uncheckable register access and random draws. Init
 uses its correct startup control level without changing those guards. Do not
 restore replay certificates, infer stream positions from a witnessed branch,
-accept an arbitrary in-range random value, or inherit caller registers as
-authority for startup effects.
+treat an in-range value as proof of seeded producer reproduction, or inherit
+caller registers as authority for startup effects.
 
 ## Follow-up and removal
 
@@ -57,9 +57,14 @@ reconstruct binding/startup effects in order, isolate caller state, and account
 for or refuse later/off-trace effects and other Init candidates. A startup
 snapshot alone does not establish those obligations.
 
-Random support needs a separately reviewed evaluator membership/runtime
-contract. Preserve actual seeded positive controls and in-range seed-mismatch,
-out-of-range, discarded/conditional/multiple-draw negative or refusal controls.
+Random support uses ADR 0016 amendment 5's narrow direct initial relation
+contract. Preserve actual pinned positive controls, genuine out-of-domain and
+false-ending negatives, and discarded/conditional/multiple-draw refusals.
+The corrected #257 contract replaces the old in-range seed-mismatch negative:
+P9 x=777 belongs to 1..1000000 and falsifies Inv, while the historical rejection
+at Init compared it with the seed 0 producer sample 730968. That retained
+measurement is evidence of the old reproduction contract, not an invalid
+relation witness. Membership does not prove seeded-run reproduction.
 The validator must remain independent of the successor enumerator.
 
 Track both obligations under issue #241. Remove this exception when the named

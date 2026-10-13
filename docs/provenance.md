@@ -1040,3 +1040,19 @@ Runtime host/key checks preserve named refusals across swallowed startup errors.
 The retained primary startup-register, startup-unread and off-trace-writer
 controls motivate the stage boundary; they do not prove general register
 replay or random membership. See ADR 0016 amendment 4 and `docs/user/traces.md`.
+
+
+### Direct initial RandomElement relation
+
+`dive-eval/src/random_relation.rs` is an independently written support-membership
+operation, not a port of RNG/stream-position execution. The pinned TLC module
+defines `RandomElement(s) == CHOOSE x IN s : TRUE`; its Java override at tlaplus
+`94d0c5070852b37b801bb8998c436383ab7ee37b` selects from nonempty finite
+intervals/sets, and reports EC2176 for non-set/infinite domains and EC2154 for
+empty domains. The relation uses actual domain evaluation and `dive-value`
+membership/comparison, retaining those error identities for its narrow stored
+scalar-set/interval support. It does not consume or emulate the native RNG.
+The actual retained P9 seed 0 witness 730968 is a positive control; the old
+x=777 rejection is historical producer-sample mismatch evidence. Corrected
+#257 and ADR 0016 amendment 5 separate existential witness validity from seeded
+producer reproduction. Multiple/cached/correlated calls remain unsupported.
