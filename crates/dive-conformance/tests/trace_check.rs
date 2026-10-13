@@ -118,3 +118,85 @@ fn finite_deadlocks_validate_independently_and_false_claims_are_rejected() {
         independently_valid.detail
     );
 }
+
+#[test]
+fn golden_controls_route_the_actual_mode_and_worker_contract() {
+    use dive_api::trace::Validation;
+    use dive_conformance::corpus::{ManifestExpectation, ModelEntry, ModelMode, Tier};
+    use dive_conformance::tlc::{messages, result};
+    use dive_conformance::trace_check::{
+        ControlOutcome, ControlRow, ControlsSummary, golden_controls,
+    };
+
+    let root = repo().join("crates/dive-api/tests/fixtures/mode-controls");
+    let mut model = ModelEntry {
+        id: "ModeMutation.cfg".to_owned(),
+        module: "ModeMutation.tla".to_owned(),
+        mode: ModelMode::Simulate { traces: 100 },
+        features: Vec::new(),
+        tier: Tier::Deep,
+        out_of_scope: None,
+        counts_comparable: false,
+        expected: ManifestExpectation {
+            result: "safety-violation".to_owned(),
+            runtime_seconds: None,
+            distinct_states: None,
+            total_states: None,
+            state_depth: None,
+            workers: None,
+        },
+        worker_introspecting: false,
+    };
+    let mut golden = result::classify(
+        &messages::parse(
+            "@!@!@STARTMSG 2110:1 @!@!@\nInvariant Safe is violated.\n@!@!@ENDMSG 2110 @!@!@\n",
+        ),
+        &result::RunFacts {
+            exit_code: Some(12),
+            ..Default::default()
+        },
+    );
+    for (file, length) in [("simulation.json", 5), ("bfs.json", 3)] {
+        golden.trace = Some(result::Trace {
+            length,
+            ending: result::TraceEnding::Finite,
+            json: Some(
+                serde_json::from_str(&std::fs::read_to_string(root.join(file)).expect("read"))
+                    .expect("json"),
+            ),
+            steps: None,
+            omitted: None,
+            json_unavailable: None,
+        });
+        for (mode, workers, expected_mutants, findings) in [
+            (ModelMode::Simulate { traces: 100 }, 1, 3, 0),
+            (ModelMode::Exhaustive, 4, 3, 0),
+            (ModelMode::Exhaustive, 1, 6, usize::from(length == 5)),
+        ] {
+            model.mode = mode;
+            let outcome = golden_controls(&root, &model, &[], &golden, workers);
+            let ControlOutcome::Ran(controls) = &outcome else {
+                panic!("{outcome:?}")
+            };
+            assert_eq!(controls.positive.validation, Validation::Valid);
+            assert_eq!(controls.dive_format, Some(Validation::Valid));
+            assert_eq!(controls.mutants.len(), expected_mutants);
+            assert_eq!(controls.failures().len(), findings);
+            if findings == 0 {
+                assert!(
+                    controls
+                        .mutants
+                        .iter()
+                        .all(|(_, v)| matches!(v, Validation::Invalid(_)))
+                );
+            }
+            let summary = ControlsSummary {
+                rows: vec![ControlRow {
+                    id: model.id.clone(),
+                    outcome,
+                }],
+            };
+            assert_eq!(summary.findings().len(), findings);
+        }
+    }
+}

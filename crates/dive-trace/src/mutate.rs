@@ -1,11 +1,13 @@
 //! Negative controls: mutants of a valid counterexample that are invalid by
 //! construction (ADR 0016 §3).
 //!
-//! Each mutant is invalid *given* that the original is a valid trace found
-//! by breadth-first search, as TLC's single-worker counterexamples and
-//! dive's are (ADR 0015): such a trace is a shortest path, so state `k` is
-//! at distance exactly `k` from the initial states, and no two of its
-//! states are equal.
+//! The caller selects [`ControlMode`] explicitly. Dropping and swapping
+//! states require a valid shortest breadth-first counterexample (ADR 0015):
+//! state `k` is at distance exactly `k` from the initial states, and no two
+//! states are equal. Simulation, multi-worker and liveness words have no
+//! such guarantee; [`ControlMode::Counterexample`] omits these controls.
+//! The remaining controls use the valid counterexample's first-violation,
+//! constrained-variable and label obligations, without a distance premise.
 //!
 //! | Mutant | Why it is invalid |
 //! |---|---|
@@ -36,6 +38,21 @@ use crate::trace::Trace;
 /// name is already interned at startup.
 pub const MUTANT_MODEL_VALUE: &str = "TRUE";
 
+/// Which invalid-by-construction controls the caller's counterexample supports.
+///
+/// This choice declares the producer's contract; validation does not infer
+/// shortestness from a supplied word or search for a shorter path.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ControlMode {
+    /// A known shortest breadth-first counterexample. Includes dropping and
+    /// swapping states, whose invalidity relies on shortest distances.
+    ShortestBfs,
+    /// A known valid counterexample without a shortest-path guarantee.
+    /// Includes changed values, truncated claims, changed claims and false
+    /// action labels, subject to their existing construction preconditions.
+    Counterexample,
+}
+
 /// A mutant: what was done, and the trace.
 #[derive(Clone, Debug)]
 pub struct Mutant {
@@ -45,13 +62,23 @@ pub struct Mutant {
     pub trace: Trace,
 }
 
-/// The by-construction mutants of `trace` (see the module documentation).
+/// The by-construction mutants of a known valid shortest BFS `trace`.
+///
+/// Compatibility wrapper for [`mutants_with_mode`] with
+/// [`ControlMode::ShortestBfs`]. Use the explicit mode for other producers.
+#[must_use]
+pub fn mutants(model: &Model, trace: &Trace) -> Vec<Mutant> {
+    mutants_with_mode(model, trace, ControlMode::ShortestBfs)
+}
+
+/// The by-construction mutants supported by a known valid counterexample's
+/// producer contract (see the module documentation).
 #[must_use]
 #[allow(
     clippy::too_many_lines,
     reason = "the table in the module documentation, one block per row"
 )]
-pub fn mutants(model: &Model, trace: &Trace) -> Vec<Mutant> {
+pub fn mutants_with_mode(model: &Model, trace: &Trace, mode: ControlMode) -> Vec<Mutant> {
     let n = trace.states.len();
     let mut out = Vec::new();
     let base = Trace {
@@ -59,7 +86,7 @@ pub fn mutants(model: &Model, trace: &Trace) -> Vec<Mutant> {
         ..trace.clone()
     };
     let mut push = |name: String, t: Trace| out.push(Mutant { name, trace: t });
-    if n >= 3 {
+    if mode == ControlMode::ShortestBfs && n >= 3 {
         let k = n / 2;
         let mut t = base.clone();
         t.states.remove(k);
@@ -67,14 +94,14 @@ pub fn mutants(model: &Model, trace: &Trace) -> Vec<Mutant> {
         t.labels[k] = None;
         push(format!("drop-state-{k}"), t);
     }
-    if n >= 2 {
+    if mode == ControlMode::ShortestBfs && n >= 2 {
         let mut t = base.clone();
         t.states.remove(0);
         t.labels.remove(0);
         t.labels[0] = None;
         push("drop-first".to_owned(), t);
     }
-    if n >= 2 {
+    if mode == ControlMode::ShortestBfs && n >= 2 {
         let k = if n >= 3 { (n - 1) / 2 } else { 0 };
         if trace.states[k] != trace.states[k + 1] {
             let mut t = base.clone();

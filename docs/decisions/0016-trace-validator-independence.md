@@ -358,6 +358,32 @@ Alternative label controls skip impure definitions and use guarded validation,
 so testing an action on a different step cannot print or access registers in
 the caller's runtime.
 
+**Mode selection (2026-10-13, #259).** `ControlMode::ShortestBfs` preserves every
+existing shortest-path mutation. `ControlMode::Counterexample` omits only
+middle-state dropping, initial-state dropping and adjacent swapping; their
+invalidity depends on shortest distances. The public compatibility methods
+retain the shortest-BFS precondition. The harness selects the explicit mode
+from the actual model mode, golden worker count and counterexample ending:
+only single-worker exhaustive finite witnesses receive shortest-path controls.
+Simulation, multi-worker and liveness words retain the non-distance controls.
+Every generated mutant still must be invalid through both direct and document
+validation, and an empty negative suite receives no negative coverage credit.
+No path search, replay proof or enumerator dependency is added.
+
+The consuming fixture `crates/dive-api/tests/fixtures/mode-controls` comes from
+the pinned primary TLC `2026.10.06.014338` (jar SHA-256
+`7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d`), with
+seed 0, fp 0, one worker, `-lncheck final` and `-dumpTrace json`; simulation
+also uses `-simulate num=100 -depth 20`. Both runs exit 12 for `Safe`.
+Simulation produces `0, 1, 4, 2, 3`, whereas BFS produces `0, 2, 3`.
+Removing the simulation's middle state produces the independently valid word
+`0, 1, 2, 3` in both profiles. This is an invalid negative-control premise,
+not a validator failure. Tests consume the original dump documents, preserve
+all six BFS controls and reject all three selected simulation controls through
+both validation paths. The harness routing test also covers a simulation word
+that happens to be shortest, so selection cannot depend on trace length.
+
+
 **Removed.** The opt-in stored-representation trace
 format version 2 (`value_repr`, `--trace-format representation-v2`): dive
 writes and reads version 1 only.

@@ -38,7 +38,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-pub use dive_trace::mutate::Mutant;
+pub use dive_trace::mutate::{ControlMode, Mutant};
 pub use dive_trace::{
     Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
 };
@@ -238,7 +238,16 @@ impl SpecModel {
     /// ([`dive_trace::mutate`]): negative controls, without random redraws.
     #[must_use]
     pub fn mutants(&self, trace: &Trace) -> Vec<Mutant> {
-        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace)).unwrap_or_default()
+        self.mutants_with_mode(trace, ControlMode::ShortestBfs)
+    }
+
+    /// The invalid-by-construction mutants supported by the known valid
+    /// counterexample's explicit producer contract. This does not infer
+    /// shortestness or explore alternative paths.
+    #[must_use]
+    pub fn mutants_with_mode(&self, trace: &Trace, mode: ControlMode) -> Vec<Mutant> {
+        on_big_stack(|| dive_trace::mutate::mutants_with_mode(&self.model, trace, mode))
+            .unwrap_or_default()
     }
 
     /// The trace in dive's format.
@@ -371,6 +380,9 @@ impl Controls {
                 self.positive.validation.kind()
             ));
         }
+        if self.mutants.is_empty() {
+            out.push("no negative controls generated".to_owned());
+        }
         for (name, v) in &self.mutants {
             if !matches!(v, Validation::Invalid(_)) {
                 out.push(format!("mutant {name} is not rejected: {}", v.kind()));
@@ -381,12 +393,39 @@ impl Controls {
 }
 
 impl SpecModel {
-    /// Runs the controls on `doc`, a counterexample known to be valid: the
-    /// document must validate, and each mutant of the trace it reads as
-    /// must be rejected. Mutants are also round-tripped through dive's
-    /// format, so the format is exercised as well.
+    /// Runs the controls on a known valid shortest BFS counterexample.
+    ///
+    /// Compatibility wrapper for [`Self::controls_with_mode`] with
+    /// [`ControlMode::ShortestBfs`]. Other producers must select their mode
+    /// explicitly.
     #[must_use]
     pub fn controls(&self, doc: &TraceDoc) -> Controls {
+        self.controls_with_mode(doc, ControlMode::ShortestBfs)
+    }
+
+    /// Runs positive, document round-trip and negative controls using the
+    /// known valid counterexample's explicit producer contract. Every
+    /// generated mutant must be invalid both directly and through dive's
+    /// format; an empty negative suite receives no coverage credit.
+    ///
+    /// ```
+    /// use dive_api::trace::{ControlMode, Ending, SpecModel, TraceDoc, TraceOptions};
+    /// use serde_json::json;
+    ///
+    /// let model = SpecModel::from_source("Loop.tla",
+    ///     "---- MODULE Loop ----\nVARIABLE x\nInit == x=0\nNext == x'=0 \\/ x'=1\nInv == x=0\n====\n",
+    ///     "INIT Init\nNEXT Next\nINVARIANT Inv\n", &TraceOptions::default())?;
+    /// let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":0}), json!({"x":1})])?
+    ///     .with_ending(Ending::Invariant("Inv".to_owned()));
+    /// let controls = model.controls_with_mode(&doc, ControlMode::Counterexample);
+    /// assert!(controls.failures().is_empty());
+    /// let (_, trace) = model.read(&doc);
+    /// let mutants = model.mutants_with_mode(&trace.ok_or("trace missing")?, ControlMode::Counterexample);
+    /// assert_eq!(mutants.len(), 3);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    #[must_use]
+    pub fn controls_with_mode(&self, doc: &TraceDoc, mode: ControlMode) -> Controls {
         let (positive, trace) = self.read(doc);
         let mut mutants = Vec::new();
         let mut dive_format = None;
@@ -400,7 +439,7 @@ impl SpecModel {
                 Ok(d) => self.validate(&d).validation,
                 Err(e) => Validation::Unsupported(e.to_string()),
             });
-            for m in self.mutants(&trace) {
+            for m in self.mutants_with_mode(&trace, mode) {
                 let direct = self.validate_trace(&m.trace).validation;
                 let via_format = match self.to_doc(&m.trace) {
                     Ok(d) => self.validate(&d).validation,

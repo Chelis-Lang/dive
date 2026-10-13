@@ -19,9 +19,11 @@
 
 use std::path::{Path, PathBuf};
 
-use dive_api::trace::{Controls, Ending, SpecModel, TraceDoc, TraceOptions, Validation};
+use dive_api::trace::{
+    ControlMode, Controls, Ending, SpecModel, TraceDoc, TraceOptions, Validation,
+};
 
-use crate::corpus::ModelEntry;
+use crate::corpus::{ModelEntry, ModelMode};
 use crate::tlc::result::{OracleResult, TraceEnding};
 
 /// The validator's answer for one counterexample.
@@ -241,21 +243,45 @@ pub enum ControlOutcome {
 }
 
 /// Runs the validator's controls on a golden counterexample under
-/// `--compat=tlc`.
+/// `--compat=tlc`. Only single-worker exhaustive finite counterexamples
+/// carry the shortest-BFS contract; all other modes and liveness endings
+/// use controls without a shortest-path premise.
 #[must_use]
 pub fn golden_controls(
     corpus_root: &Path,
     model: &ModelEntry,
     module_path: &[PathBuf],
     golden: &OracleResult,
+    workers: u32,
 ) -> ControlOutcome {
     let doc = match tlc_document(golden) {
         Ok(d) => d,
         Err(why) => return ControlOutcome::Skipped(why),
     };
+    let mode = control_mode(model.mode, workers, doc.ending.as_ref());
     match load_model(corpus_root, model, module_path, true) {
-        Ok(spec) => ControlOutcome::Ran(spec.controls(&doc)),
+        Ok(spec) => ControlOutcome::Ran(spec.controls_with_mode(&doc, mode)),
         Err(e) => ControlOutcome::Error(e),
+    }
+}
+
+fn control_mode(mode: ModelMode, workers: u32, ending: Option<&Ending>) -> ControlMode {
+    if mode == ModelMode::Exhaustive
+        && workers == 1
+        && matches!(
+            ending,
+            Some(
+                Ending::Invariant(_)
+                    | Ending::Property(_)
+                    | Ending::Deadlock
+                    | Ending::Assertion
+                    | Ending::Error { .. }
+            )
+        )
+    {
+        ControlMode::ShortestBfs
+    } else {
+        ControlMode::Counterexample
     }
 }
 
@@ -422,9 +448,63 @@ pub fn run_controls(
             }
             summary.rows.push(ControlRow {
                 id: format!("{}:{}", corpus.id, m.id),
-                outcome: golden_controls(&corpus.root, m, &module_path, &g.result),
+                outcome: golden_controls(&corpus.root, m, &module_path, &g.result, g.workers),
             });
         }
     }
     Ok(summary)
+}
+
+#[cfg(test)]
+mod control_mode_tests {
+    use super::control_mode;
+    use crate::corpus::ModelMode;
+    use dive_api::trace::{ControlMode, Ending};
+
+    #[test]
+    fn shortest_controls_require_single_worker_bfs_and_a_finite_claim() {
+        let finite = [
+            Ending::Invariant("P".to_owned()),
+            Ending::Property("P".to_owned()),
+            Ending::Deadlock,
+            Ending::Assertion,
+            Ending::Error { ec: None },
+        ];
+        for ending in &finite {
+            assert_eq!(
+                control_mode(ModelMode::Exhaustive, 1, Some(ending)),
+                ControlMode::ShortestBfs
+            );
+            for workers in [0, 2, 4] {
+                assert_eq!(
+                    control_mode(ModelMode::Exhaustive, workers, Some(ending)),
+                    ControlMode::Counterexample
+                );
+            }
+            for mode in [
+                ModelMode::Simulate { traces: 100 },
+                ModelMode::Generate,
+                ModelMode::Symbolic,
+            ] {
+                assert_eq!(
+                    control_mode(mode, 1, Some(ending)),
+                    ControlMode::Counterexample
+                );
+            }
+        }
+        for ending in [
+            Ending::Behavior,
+            Ending::Lasso { back_to: 0 },
+            Ending::Stuttering,
+        ] {
+            assert_eq!(
+                control_mode(ModelMode::Exhaustive, 1, Some(&ending)),
+                ControlMode::Counterexample
+            );
+        }
+        assert_eq!(
+            control_mode(ModelMode::Exhaustive, 1, None),
+            ControlMode::Counterexample
+        );
+    }
 }
