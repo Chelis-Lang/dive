@@ -354,31 +354,21 @@ pub(crate) fn run_check_with_checkpoint(
             return bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, opts, ir);
         }
     }
-    // Only the callback-free closed pure VIEW slice has transformed stream
-    // authority. Other shapes retain the source-wide pre-binding refusal,
-    // including unused random calls and native aliases (#178).
-    if cfg.view.is_some()
-        && engine::uses_configured_random(ir, cfg)
-        && (checkpoint.is_some() || !engine::admitted_random_view(ir, cfg))
-    {
+    // Refuse transformed random streams before binding can execute effects.
+    // Ordinary VIEW and non-VIEW per-state RNG retain their existing routes.
+    if cfg.view.is_some() && engine::uses_configured_random(ir, cfg) {
         return bare(
             Verdict::Unsupported {
-                feature: "randomness under VIEW needs transformed-fingerprint seeding and independent replay".into(),
+                feature: "randomness under VIEW is not supported".into(),
             },
             opts,
             ir,
         );
     }
     if cfg.symmetry.is_some() && engine::uses_configured_random(ir, cfg) {
-        return bare(Verdict::Unsupported { feature: "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay".into() }, opts, ir);
-    }
-    // RandomElement's actual configured target now drives inline scheduling
-    // and predecessor-stream selection. Other configured native RNG families
-    // remain refused before startup until their own stream/replay campaign.
-    if engine::unproved_configured_random(ir, cfg) {
         return bare(
             Verdict::Unsupported {
-                feature: "configured native random replacements need bound-context stream classification and independent replay".into(),
+                feature: "randomness under SYMMETRY is not supported".into(),
             },
             opts,
             ir,
@@ -409,7 +399,9 @@ pub(crate) fn run_check_with_checkpoint(
     messages(&m.output, &mut r);
     if m.symmetry.is_some() && m.implied_temporals.is_empty() {
         if engine::uses_random(ir) {
-            r.verdict = Verdict::Unsupported { feature: "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay".into() };
+            r.verdict = Verdict::Unsupported {
+                feature: "randomness under SYMMETRY is not supported".into(),
+            };
             return r;
         }
         let mode = if opts.profile == Profile::Tlc {

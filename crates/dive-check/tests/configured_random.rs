@@ -1,4 +1,4 @@
-//! Configured `RandomElement` streams agree; other native RNG routes stay refused.
+//! Configured native random operators use the same concrete per-state streams.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_check::{CheckOptions, Verdict};
@@ -6,7 +6,6 @@ use dive_ir::Ir;
 use dive_store::StoreMode;
 use std::sync::Arc;
 
-const REFUSAL: &str = "configured native random replacements need bound-context stream classification and independent replay";
 fn lower(source: &str) -> Arc<Ir> {
     let analysis = dive_sema::analyze_source(
         "ConfiguredRandom.tla",
@@ -25,6 +24,12 @@ fn config(extra: &str) -> dive_config::ModelConfig {
         .into_config().expect("configuration")
 }
 fn assert_stream(ir: &Arc<Ir>, cfg: &dive_config::ModelConfig) {
+    assert_stream_with_call(ir, cfg, "RandomElement(");
+}
+fn assert_stream_with_call(ir: &Arc<Ir>, cfg: &dive_config::ModelConfig, call: &str) {
+    assert_native_route(ir, cfg, call, None);
+}
+fn direct_native(ir: &Arc<Ir>, call: &str) -> Arc<Ir> {
     let text = &ir
         .files()
         .iter()
@@ -37,12 +42,87 @@ fn assert_stream(ir: &Arc<Ir>, cfg: &dive_config::ModelConfig) {
             if line.starts_with("CONSTANT") || line.starts_with("C(S) ==") {
                 line.to_owned()
             } else {
-                line.replace("C(", "RandomElement(")
+                line.replace("C(", call)
             }
         })
         .collect::<Vec<_>>()
         .join("\n");
-    let direct = lower(&direct);
+    let mut direct = lower(&direct);
+    // Preserve a public typed native override on the direct spelling too.
+    // Lowering its documentary user body alone would lose that authority.
+    let name = call.trim_end_matches('(');
+    if let Some(native) = ir.root_def(name).and_then(|id| ir.def(id).std) {
+        let id = direct.root_def(name).expect("direct native definition");
+        let mut json = serde_json::to_value(direct.as_ref()).expect("direct IR");
+        json["defs"][id.index()]["std"] = serde_json::to_value(native).expect("native operator");
+        direct = Arc::new(serde_json::from_value(json).expect("direct typed native IR"));
+        dive_eval::validate_ir(&direct).expect("valid direct native authority");
+    }
+    direct
+}
+fn assert_direct_result(expected: &dive_check::CheckResult, text: &str, unsupported: Option<&str>) {
+    if let Some(feature) = unsupported {
+        assert_eq!(
+            expected.verdict,
+            Verdict::Unsupported {
+                feature: feature.into()
+            },
+            "{expected:?}"
+        );
+        // This is a runtime evaluator limitation, not a
+        // configured-family admission refusal before binding.
+        let stats = expected.stats.as_ref().expect("runtime search prefix");
+        assert_eq!(
+            (stats.generated, stats.distinct, stats.depth),
+            (1, 1, 1),
+            "{expected:?}"
+        );
+        let prefix = expected
+            .counterexample
+            .as_ref()
+            .expect("runtime error prefix");
+        assert_eq!(prefix.states.len(), 1, "{expected:?}");
+    } else if let Verdict::Unsupported { feature } = &expected.verdict {
+        assert_eq!(
+            feature,
+            "TLC initial-predecessor random counterexample replay is not proved"
+        );
+        assert!(expected.counterexample.is_none());
+    }
+    if unsupported.is_none() && text.contains("Inv == n < 3") {
+        assert!(
+            matches!(&expected.verdict, Verdict::InvariantViolated { property, .. } if property == "Inv"),
+            "{expected:?}"
+        );
+        let stats = expected
+            .stats
+            .as_ref()
+            .expect("finite native family search");
+        assert_eq!((stats.generated, stats.distinct, stats.depth), (4, 4, 4));
+        assert_eq!(
+            expected
+                .counterexample
+                .as_ref()
+                .expect("native family witness")
+                .states
+                .len(),
+            4
+        );
+    }
+}
+fn assert_native_route(
+    ir: &Arc<Ir>,
+    cfg: &dive_config::ModelConfig,
+    call: &str,
+    unsupported: Option<&str>,
+) {
+    let text = &ir
+        .files()
+        .iter()
+        .find(|f| !f.standard)
+        .expect("source")
+        .source;
+    let direct = direct_native(ir, call);
     for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
         for store in [StoreMode::Fingerprint, StoreMode::Exact] {
             for width in [1, 4, 8] {
@@ -56,13 +136,7 @@ fn assert_stream(ir: &Arc<Ir>, cfg: &dive_config::ModelConfig) {
                     opts.chaos = chaos;
                     let actual = dive_check::check(ir, cfg, &opts);
                     let expected = dive_check::check(&direct, cfg, &opts);
-                    if let Verdict::Unsupported { feature } = &expected.verdict {
-                        assert_eq!(
-                            feature,
-                            "TLC initial-predecessor random counterexample replay is not proved"
-                        );
-                        assert!(expected.counterexample.is_none());
-                    }
+                    assert_direct_result(&expected, text, unsupported);
                     assert_eq!(actual.verdict, expected.verdict);
                     assert_eq!(actual.stats, expected.stats);
                     assert_eq!(actual.tlc_prints_stats, expected.tlc_prints_stats);
@@ -103,35 +177,6 @@ fn assert_stream(ir: &Arc<Ir>, cfg: &dive_config::ModelConfig) {
                             assert_eq!((stats.generated, stats.distinct, stats.depth), (2, 2, 2));
                         }
                     }
-                }
-            }
-        }
-    }
-}
-fn assert_refuses(ir: &Arc<Ir>, cfg: &dive_config::ModelConfig) {
-    for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
-        for store in [StoreMode::Fingerprint, StoreMode::Exact] {
-            for width in [1, 4, 8] {
-                for chaos in [None, Some(19)] {
-                    let mut opts = CheckOptions::tlc(0, 7);
-                    opts.profile = profile;
-                    opts.eval = dive_eval::Options::for_profile(profile);
-                    opts.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
-                    opts.store = store;
-                    opts.workers = width;
-                    opts.chaos = chaos;
-                    let result = dive_check::check(ir, cfg, &opts);
-                    assert!(
-                        matches!(&result.verdict,Verdict::Unsupported {feature} if feature == REFUSAL),
-                        "{result:?}"
-                    );
-                    assert_eq!((result.workers.requested, result.workers.used), (width, 0));
-                    assert!(
-                        result.stats.is_none()
-                            && result.counterexample.is_none()
-                            && result.collision.is_none()
-                    );
-                    assert!(result.output.is_empty() && result.warnings.is_empty());
                 }
             }
         }
@@ -221,7 +266,7 @@ fn pure_configured_replacement_is_not_random_authority() {
 }
 
 #[test]
-fn other_native_random_families_refuse_and_invalid_transitive_cfg_keeps_startup_error() {
+fn configured_native_random_families_match_direct_streams() {
     for (params, call, target) in [
         ("_,_", "C(2,1..4)", "RandomSubset"),
         ("_,_,_", "C(2,1,1..4)", "RandomSetOfSubsets"),
@@ -239,11 +284,15 @@ fn other_native_random_families_refuse_and_invalid_transitive_cfg_keeps_startup_
             panic!("substitution")
         };
         rhs.text = target.into();
-        assert_refuses(&lower(&text), &cfg);
+        assert_stream_with_call(&lower(&text), &cfg, &format!("{target}("));
     }
+}
+
+#[test]
+fn configured_unimplemented_native_helper_matches_direct_runtime_refusal() {
     // RandomSubsetSet is a native implementation helper, not an exported
-    // Randomization source definition. Public typed native authority still
-    // must be guarded when that helper is installed on an admitted target.
+    // Randomization source definition. Compare the typed native helper
+    // directly with the configured replacement route.
     let text = source("n < 3", "Replacement(a,b,c) == b")
         .replace("CONSTANT C(_)", "CONSTANT C(_,_,_)")
         .replace("C(1..100)", "C(2,1,1..4)");
@@ -263,8 +312,16 @@ fn other_native_random_families_refuse_and_invalid_transitive_cfg_keeps_startup_
         panic!("substitution")
     };
     target.text = "Replacement".into();
-    assert_refuses(&ir, &cfg);
+    assert_native_route(
+        &ir,
+        &cfg,
+        "Replacement(",
+        Some("Randomization!RandomSubsetSet (not implemented in dive's evaluator yet)"),
+    );
+}
 
+#[test]
+fn invalid_transitive_cfg_keeps_startup_error() {
     let text = source("n < 3", "CONSTANT D(_)");
     let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\nCONSTANT C <- D\nCONSTANT D <- RandomElement\n").into_config().expect("transitive cfg");
     let result = dive_check::check(&lower(&text), &cfg, &CheckOptions::tlc(0, 7));
@@ -468,14 +525,8 @@ fn transformed_keys_with_configured_draws_refuse_before_effects() {
         "ASSUME PrintT(\"must not print\")\nStartup == PrintT(\"must not print\")\nS == {}",
     ));
     for (key, reason) in [
-        (
-            "VIEW V",
-            "randomness under VIEW needs transformed-fingerprint seeding and independent replay",
-        ),
-        (
-            "SYMMETRY S",
-            "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay",
-        ),
+        ("VIEW V", "randomness under VIEW is not supported"),
+        ("SYMMETRY S", "randomness under SYMMETRY is not supported"),
     ] {
         let cfg = config(key);
         for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {

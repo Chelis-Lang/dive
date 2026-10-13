@@ -77,7 +77,6 @@ pub mod intern;
 pub mod level;
 mod model;
 mod periodic;
-pub mod random_view;
 mod reach;
 mod spec;
 pub mod symmetry;

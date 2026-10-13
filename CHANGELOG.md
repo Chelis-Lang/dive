@@ -90,8 +90,9 @@ All notable changes to this project are documented here. The project will follow
 - Evaluator, model and checker admission scaffolding is removed (#241). Disk
   seen-state checking now binds PROPERTY and SPECIFICATION roles like the
   resident route and gives its results, instead of refusing effectful,
-  quantified, strict-substitution or fairness-only roles. Randomness under VIEW
-  no longer refuses compound or mixed state values; the draws match pinned TLC.
+  quantified, strict-substitution or fairness-only roles. Randomness combined with
+  VIEW or SYMMETRY uniformly refuses before binding or search. Ordinary VIEW and
+  non-VIEW native random streams remain available, including configured targets.
   Constant values are no longer size-limited at evaluator construction. DFID
   and parallel graph capture refuse effectful models through one conservative
   effects check instead of per-scope purity proofs, including actual operators

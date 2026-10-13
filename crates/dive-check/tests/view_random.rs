@@ -1,4 +1,4 @@
-//! VIEW/RNG refuses before binding effects until transformed seeding is proved.
+//! VIEW/SYMMETRY plus RNG refuses before any binding effects or search.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_check::{CheckOptions, Verdict};
@@ -6,8 +6,7 @@ use dive_ir::Ir;
 use dive_store::StoreMode;
 use std::sync::Arc;
 
-const REFUSAL: &str =
-    "randomness under VIEW needs transformed-fingerprint seeding and independent replay";
+const REFUSAL: &str = "randomness under VIEW is not supported";
 
 fn lower(source: &str) -> Arc<Ir> {
     let analysis =
@@ -76,35 +75,43 @@ fn variants() -> Vec<Arc<Ir>> {
 fn transformed_randomness_refuses_before_any_binding_or_search() {
     let variants = variants();
     for (index, ir) in variants.iter().enumerate() {
-        let cfg = config(if index == 4 {
-            "CONSTANT C <- Replacement\nVIEW V\n"
-        } else {
-            "VIEW V\n"
-        });
-        for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
-                for width in [1, 4, 8] {
-                    for chaos in [None, Some(19)] {
-                        let mut opts = CheckOptions::tlc(0, 7);
-                        opts.profile = profile;
-                        opts.eval = dive_eval::Options::for_profile(profile);
-                        opts.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
-                        opts.store = store;
-                        opts.workers = width;
-                        opts.chaos = chaos;
-                        let result = dive_check::check(ir, &cfg, &opts);
-                        assert!(
-                            matches!(&result.verdict, Verdict::Unsupported {feature} if feature == REFUSAL),
-                            "variant {index}: {result:?}"
-                        );
-                        assert_eq!(result.workers.used, 0);
-                        assert_eq!(result.workers.requested, width);
-                        assert!(
-                            result.stats.is_none()
-                                && result.counterexample.is_none()
-                                && result.collision.is_none()
-                        );
-                        assert!(result.output.is_empty() && result.warnings.is_empty());
+        for (transformation, refusal) in [
+            ("VIEW V\n", REFUSAL),
+            ("SYMMETRY V\n", "randomness under SYMMETRY is not supported"),
+        ] {
+            let cfg = config(&format!(
+                "{}{transformation}",
+                if index == 4 {
+                    "CONSTANT C <- Replacement\n"
+                } else {
+                    ""
+                }
+            ));
+            for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
+                for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                    for width in [1, 4, 8] {
+                        for chaos in [None, Some(19)] {
+                            let mut opts = CheckOptions::tlc(0, 7);
+                            opts.profile = profile;
+                            opts.eval = dive_eval::Options::for_profile(profile);
+                            opts.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
+                            opts.store = store;
+                            opts.workers = width;
+                            opts.chaos = chaos;
+                            let result = dive_check::check(ir, &cfg, &opts);
+                            assert!(
+                                matches!(&result.verdict, Verdict::Unsupported {feature} if feature == refusal),
+                                "variant {index}: {result:?}"
+                            );
+                            assert_eq!(result.workers.used, 0);
+                            assert_eq!(result.workers.requested, width);
+                            assert!(
+                                result.stats.is_none()
+                                    && result.counterexample.is_none()
+                                    && result.collision.is_none()
+                            );
+                            assert!(result.output.is_empty() && result.warnings.is_empty());
+                        }
                     }
                 }
             }

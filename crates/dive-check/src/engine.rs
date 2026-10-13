@@ -296,264 +296,6 @@ pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::Mode
     configured_target_matches(ir, cfg, random_op)
 }
 
-// The first lifted configured stream route is RandomElement. Other native
-// families retain pre-effect refusal until their configured-call campaign.
-pub(crate) fn unproved_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    configured_target_matches(ir, cfg, |op| {
-        random_op(op) && op != dive_ir::StdOp::TlcRandomElement
-    })
-}
-
-// The first transformed stream slice admits closed pure VIEW bodies only.
-// This callback-free source walk precedes binding. Opaque parameters, lazy
-// substitutions, configured definition replacements and runtime names retain
-// the original refusal; source effect metadata alone is not an authority.
-pub(crate) fn admitted_random_view(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    use dive_ir::{Expr, OpRef};
-    if cfg.specification.is_some() || !random_view_effects_proved(ir, cfg) {
-        return false;
-    }
-    let Some(mut work) = random_view_roots(ir, cfg) else {
-        return false;
-    };
-    let mut seen = BTreeSet::new();
-    let mut fuel = 512_usize;
-    while let Some(id) = work.pop() {
-        if !seen.insert(id) {
-            continue;
-        }
-        let Some(def) = ir.defs().get(id.index()) else {
-            return false;
-        };
-        if def
-            .std
-            .is_some_and(|op| op.impure() || op.creates_runtime_names())
-            || !def.params.is_empty()
-            || def.recursive
-            || cfg.constants.iter().any(|entry| {
-                let (dive_config::ConstantEntry::Assignment { name, .. }
-                | dive_config::ConstantEntry::Substitution { name, .. }) = entry;
-                name.text == def.name
-                    || ir.modules().iter().any(|module| {
-                        module.context.iter().any(|(alias, symbol)| {
-                            alias == &name.text && *symbol == dive_ir::Symbol::Def(id)
-                        })
-                    })
-            })
-        {
-            return false;
-        }
-        if def.std.is_some() {
-            continue;
-        }
-        let mut exprs = vec![def.body];
-        while let Some(expr) = exprs.pop() {
-            let Some(remaining) = fuel.checked_sub(1) else {
-                return false;
-            };
-            fuel = remaining;
-            let Some(node) = ir.nodes().get(expr.index()) else {
-                return false;
-            };
-            if node.level > dive_ir::Level::State
-                || node.effects.intersects(
-                    dive_ir::Effects::IMPURE
-                        | dive_ir::Effects::USES_ENABLED
-                        | dive_ir::Effects::OPEN
-                        | dive_ir::Effects::TEMPORAL,
-                )
-                || matches!(
-                    node.expr,
-                    Expr::Local(_) | Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Const(_)
-                )
-            {
-                return false;
-            }
-            if let Expr::Def(id) = node.expr {
-                if work.len() >= fuel {
-                    return false;
-                }
-                work.push(id);
-            }
-            for op in node.expr.op_refs() {
-                match op {
-                    OpRef::Def(id) => {
-                        if work.len() >= fuel {
-                            return false;
-                        }
-                        work.push(*id);
-                    }
-                    OpRef::Std(op) if op.impure() || op.creates_runtime_names() => return false,
-                    OpRef::Std(_) | OpRef::Builtin(_) => {}
-                    _ => return false,
-                }
-            }
-            let children = node.expr.children();
-            if exprs
-                .len()
-                .checked_add(children.len())
-                .is_none_or(|n| n > fuel)
-            {
-                return false;
-            }
-            exprs.extend(children);
-        }
-    }
-    random_view_family_proved(ir, cfg)
-}
-
-fn random_view_family_proved(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    use dive_ir::OpRef;
-    // Configured native Randomization and source calls from that family remain
-    // outside this RandomElement-only transformed/replay increment.
-    !unproved_configured_random(ir, cfg)
-        && !ir.nodes().iter().any(|n| {
-            n.expr.op_refs().into_iter().any(|op| match op {
-                OpRef::Std(op) => random_op(*op) && *op != dive_ir::StdOp::TlcRandomElement,
-                OpRef::Def(id) => ir
-                    .defs()
-                    .get(id.index())
-                    .and_then(|d| d.std)
-                    .is_some_and(|op| random_op(op) && op != dive_ir::StdOp::TlcRandomElement),
-                _ => false,
-            })
-        })
-}
-
-fn random_view_roots(
-    ir: &dive_ir::Ir,
-    cfg: &dive_config::ModelConfig,
-) -> Option<Vec<dive_ir::DefId>> {
-    let def = cfg.view.as_ref().and_then(|name| ir.root_def(&name.text))?;
-    let init = cfg.init.as_ref().and_then(|name| ir.root_def(&name.text))?;
-    let mut work = vec![def, init];
-    for module in ir.modules() {
-        if work
-            .len()
-            .checked_add(module.assumptions.len())
-            .is_none_or(|n| n > 512)
-        {
-            return None;
-        }
-        work.extend(module.assumptions.iter().copied());
-    }
-    for (index, def) in ir.defs().iter().enumerate() {
-        if def.std.is_none()
-            && def.params.is_empty()
-            && def.level == dive_ir::Level::Constant
-            && matches!(def.scope, dive_ir::DefScope::TopLevel)
-        {
-            if work.len() >= 512 {
-                return None;
-            }
-            let Ok(index) = u32::try_from(index) else {
-                return None;
-            };
-            work.push(dive_ir::DefId(index));
-        }
-    }
-    Some(work)
-}
-
-// Native bodies are documentary and must not be scanned as executable.
-// Inspect user bodies (including unused ones), actual nonnative callees and
-// selected cfg targets without callbacks. Only RandomElement is an admitted
-// effect; opaque operator arguments remain unproved.
-fn random_view_effects_proved(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    use dive_ir::{Expr, OpRef};
-    let forbidden = |op: dive_ir::StdOp| {
-        (op.impure() && op != dive_ir::StdOp::TlcRandomElement) || op.creates_runtime_names()
-    };
-    if configured_target_matches(ir, cfg, forbidden) {
-        return false;
-    }
-    let mut work = Vec::new();
-    for def in ir.defs() {
-        if def.std.is_none()
-            && ir
-                .modules()
-                .get(def.module.index())
-                .is_some_and(|m| !m.standard)
-        {
-            if work.len() >= 4096 {
-                return false;
-            }
-            work.push(def.body);
-        }
-    }
-    for entry in &cfg.constants {
-        if let dive_config::ConstantEntry::Substitution { target, .. } = entry {
-            for module in ir.modules() {
-                for (name, symbol) in &module.context {
-                    if name == &target.text
-                        && let dive_ir::Symbol::Def(id) = symbol
-                    {
-                        let Some(def) = ir.defs().get(id.index()) else {
-                            return false;
-                        };
-                        if def.std.is_none() {
-                            if work.len() >= 4096 {
-                                return false;
-                            }
-                            work.push(def.body);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    let mut seen = BTreeSet::new();
-    let mut fuel = 4096_usize;
-    while let Some(expr) = work.pop() {
-        let Some(remaining) = fuel.checked_sub(1) else {
-            return false;
-        };
-        fuel = remaining;
-        if !seen.insert(expr) {
-            continue;
-        }
-        let Some(node) = ir.nodes().get(expr.index()) else {
-            return false;
-        };
-        let mut ops = node.expr.op_refs().into_iter().cloned().collect::<Vec<_>>();
-        if let Expr::Def(id) = node.expr {
-            ops.push(OpRef::Def(id));
-        }
-        for op in ops {
-            match op {
-                OpRef::Def(id) => {
-                    let Some(def) = ir.defs().get(id.index()) else {
-                        return false;
-                    };
-                    if let Some(op) = def.std {
-                        if forbidden(op) {
-                            return false;
-                        }
-                    } else {
-                        if work.len() >= fuel {
-                            return false;
-                        }
-                        work.push(def.body);
-                    }
-                }
-                OpRef::Std(op) if forbidden(op) => return false,
-                OpRef::Param(_) | OpRef::Subst(_) | OpRef::Unbound(_) => return false,
-                _ => {}
-            }
-        }
-        let children = node.expr.children();
-        if work
-            .len()
-            .checked_add(children.len())
-            .is_none_or(|n| n > fuel)
-        {
-            return false;
-        }
-        work.extend(children);
-    }
-    true
-}
-
 fn configured_target_matches(
     ir: &dive_ir::Ir,
     cfg: &dive_config::ModelConfig,
@@ -976,7 +718,6 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     /// stream.
     seeder: StateFingerprinter,
     /// FP64 of a VIEW value alone, independently of store mode.
-    view_seeder: StateFingerprinter,
     /// Whether the specification uses a random operator at all.
     random: bool,
     pub(crate) ctx: Ctx,
@@ -1170,12 +911,6 @@ impl<S: Keyed> Search<'_, '_, S> {
         let mut fresh = true;
         let mut new_id = None;
         if in_model {
-            if self.random
-                && m.view.is_some()
-                && let Err(v) = self.random_view_value(&t)
-            {
-                return Some((v, false, false));
-            }
             // A state TLC cannot fingerprint (or whose `VIEW` fails) is not
             // printed: the trace ends at its predecessor (fixtures `ErView*`,
             // `ErFpInfinite`).
@@ -1530,40 +1265,17 @@ impl<S: Keyed> Search<'_, '_, S> {
         (None, self.stats(0))
     }
 
-    // The pre-key check and stream seeding inspect the same pure VIEW value.
-    fn random_view_value(&self, state: &StateVals) -> Result<Option<Value>, Verdict> {
-        let Some(view) = &self.m.view else {
-            return Ok(None);
-        };
-        let vals = values(state).ok_or_else(|| Verdict::Unsupported {
-            feature: "random VIEW requires completely assigned concrete states".into(),
-        })?;
-        dive_model::symmetry::Reduction::normalize_concrete(&vals, self.ctx)
-            .map_err(|error| crate::model_error(&error))?;
-        let st = St::state(state.clone());
-        let value = self
-            .m
-            .eval(&view.pred, &st)
-            .map_err(|e| error_verdict(&e, ErrorSite::View))?;
-        Ok(Some(value))
-    }
-
     /// Switches the host to the random stream of expanding `s0`: TLC reseeds
     /// with `fingerprint(s0) ^ seed` (`RandomEnumerableValues`).
     fn seed_state(&self, s0: &StateVals) -> Result<(), Verdict> {
         if !self.random {
             return Ok(());
         }
-        let fp = if let Some(value) = self.random_view_value(s0)? {
-            self.view_seeder
-                .fingerprint(&[value], self.ctx)
-                .map_err(|e| store_verdict(&e))?
-        } else {
-            let vals = values(s0).unwrap_or_default();
-            self.seeder
-                .fingerprint(&vals, self.ctx)
-                .map_err(|e| store_verdict(&e))?
-        };
+        let vals = values(s0).unwrap_or_default();
+        let fp = self
+            .seeder
+            .fingerprint(&vals, self.ctx)
+            .map_err(|e| store_verdict(&e))?;
         self.host.expand(fp);
         Ok(())
     }
@@ -2211,25 +1923,6 @@ fn search_in<S: Keyed>(
             workers,
         };
     };
-    let Some(view_seeder) = StateFingerprinter::tlc(opts.fp_index, &[0]) else {
-        return Outcome {
-            seen: None,
-            stopped_transaction: None,
-            predecessor: crate::result::PredecessorUsage::default(),
-            graph: None,
-            frontier: crate::FrontierUsage::default(),
-            verdict: Verdict::InternalError {
-                message: "VIEW fingerprint polynomial admission failed".into(),
-            },
-            stats: None,
-            tlc_prints_stats: false,
-            counterexample: None,
-            collision: None,
-            output: Vec::new(),
-            notes,
-            workers,
-        };
-    };
     if opts.seen_disk.is_some() {
         workers.used = 1;
         workers.sequential = true;
@@ -2268,7 +1961,6 @@ fn search_in<S: Keyed>(
         m,
         host,
         seeder,
-        view_seeder,
         random,
         ctx: opts.eval.ctx,
         keyer: &keyer,

@@ -112,27 +112,15 @@ The operators choose with TLC's algorithms (which element, which subset); only t
 
 Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order (ADR 0014), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
 
-**VIEW-backed randomness (#178, partial).** The admitted ordinary RandomElement
-route seeds expansion from the configured VIEW fingerprint and retains concrete
-predecessors for independent replay. At seed 7/polynomial 0, `V == n` gives the
-clean TLC values `0,78,49,21`; the old raw-predecessor route gave `0,80,94,100`
-despite the same four states and invariant violation. The old wrong outputs and
-blanket refusal remain historical evidence.
-The capture-first continuation
-keeps the original 84 primary/prototype rows separately from wider-seed controls.
-`--compat=tlc` uses Java RNG with VIEW FP64 XOR seed; the default retains the
-approved replayable D-002 stream algorithm. Both modes disclose actual inline
-execution and retain the strict first-successor trace-printing refusal.
-
-Only closed pure VIEW/startup/Init contexts are admitted. Source-wide native
-family/effect/alias checks can refuse unused definitions before output or search.
-Stored concrete and projection values have a 16,384-visit/depth64 bound; compound
-or mixed sets, symbolic/deferred sets and nonliteral tuple/record representations
-remain refused by name. No normalization/provider/predicate callback grants this
-shape admission. The mixed-word decoder/comparison gap in #190 remains separate:
-no new certificate credit is assigned to those shapes. SYMMETRY/random,
-Randomization-family replacements, graph/temporal randomness and RNG checkpoint
-recovery remain unproved routes, with their existing explicit refusals.
+**Randomness with VIEW or SYMMETRY (#178).** These combinations are explicitly
+unsupported before binding, output or search, including unused source calls and
+configured native aliases. The rescue removes transformed-stream admission
+proofs rather than certifying a selected stored-value shape. Ordinary pure VIEW
+and untransformed per-state RNG remain available. Earlier pinned transformed
+stream measurements remain historical facts; they are not current support.
+Graph, temporal and checkpoint/recovery randomness remain separate limitations. The internal native
+`RandomSubsetSet` helper still reports its named evaluator limitation; configured
+replacement selection does not make that helper implemented.
 
 **Configured random calls (#180).** The minimal model below selects a native
 operator through its configuration rather than a source call:
@@ -152,8 +140,11 @@ native violation where TLC completed four states. The immediate admission repair
 and those exact false-answer controls remain historical evidence.
 The ordinary `RandomElement` stream now follows the actual bound callee, with
 startup and per-predecessor streams and truthful inline worker reporting.
-Configured Randomization families and transformed/graph/recovery paths remain
-refused pending their own proofs.
+Non-VIEW configured native Randomization targets use that same bound-callee
+classification and per-state stream as direct calls. The focused tests compare
+these routes; this is not a claim that the full configured-family primary
+campaign is complete. Transformed, graph and recovery random paths remain
+explicitly unsupported.
 
 Clean TLC also exposes a replay limitation on that `x # 80` model: exit 12,
 generated/distinct/depth 2/2/2, but only the initial `x=0` state is printed. Its
