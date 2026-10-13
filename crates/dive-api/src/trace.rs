@@ -38,6 +38,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+pub use dive_trace::mutate::Mutant;
 pub use dive_trace::{
     Check, DEADLOCK_UNSUPPORTED, Ending, Failure, Report, State, Trace, TraceDoc, Validation,
 };
@@ -233,6 +234,13 @@ impl SpecModel {
             .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
     }
 
+    /// The by-construction invalid mutants of a valid shortest trace
+    /// ([`dive_trace::mutate`]): negative controls, without random redraws.
+    #[must_use]
+    pub fn mutants(&self, trace: &Trace) -> Vec<Mutant> {
+        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace)).unwrap_or_default()
+    }
+
     /// The trace in dive's format.
     ///
     /// # Errors
@@ -319,8 +327,8 @@ pub fn render_report(report: &Report) -> String {
 }
 
 /// The result of running the validator's controls on one counterexample
-/// known to be valid (TLC's, or dive's): the positive control, and the same
-/// trace written in dive's format and read back (ADR 0016 §3).
+/// known to be valid (TLC's, or dive's): the positive control, and every
+/// by-construction mutant (ADR 0016 §3).
 #[derive(Debug, Clone)]
 pub struct Controls {
     /// The original trace's report.
@@ -328,6 +336,8 @@ pub struct Controls {
     /// The trace as read, written in dive's format and validated again: it
     /// must agree with the positive control.
     pub dive_format: Option<Validation>,
+    /// Each mutant's name and verdict. Every one must be invalid.
+    pub mutants: Vec<(String, Validation)>,
 }
 
 impl Controls {
@@ -361,17 +371,24 @@ impl Controls {
                 self.positive.validation.kind()
             ));
         }
+        for (name, v) in &self.mutants {
+            if !matches!(v, Validation::Invalid(_)) {
+                out.push(format!("mutant {name} is not rejected: {}", v.kind()));
+            }
+        }
         out
     }
 }
 
 impl SpecModel {
     /// Runs the controls on `doc`, a counterexample known to be valid: the
-    /// document must validate, and so must the trace it reads as, written
-    /// in dive's format, so the format is exercised as well.
+    /// document must validate, and each mutant of the trace it reads as
+    /// must be rejected. Mutants are also round-tripped through dive's
+    /// format, so the format is exercised as well.
     #[must_use]
     pub fn controls(&self, doc: &TraceDoc) -> Controls {
         let (positive, trace) = self.read(doc);
+        let mut mutants = Vec::new();
         let mut dive_format = None;
         if let Some(trace) = trace.filter(|_| {
             matches!(
@@ -383,10 +400,24 @@ impl SpecModel {
                 Ok(d) => self.validate(&d).validation,
                 Err(e) => Validation::Unsupported(e.to_string()),
             });
+            for m in self.mutants(&trace) {
+                let direct = self.validate_trace(&m.trace).validation;
+                let via_format = match self.to_doc(&m.trace) {
+                    Ok(d) => self.validate(&d).validation,
+                    Err(e) => Validation::Unsupported(e.to_string()),
+                };
+                let v = if matches!(direct, Validation::Invalid(_)) {
+                    via_format
+                } else {
+                    direct
+                };
+                mutants.push((m.name, v));
+            }
         }
         Controls {
             positive,
             dive_format,
+            mutants,
         }
     }
 }

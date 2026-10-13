@@ -46,9 +46,9 @@ COMMANDS:
                            re-render the summary sections of existing reports into
                            --summary (default docs/conformance.md), one per implementation
     trace-controls         run every golden counterexample through dive's independent trace
-                           validator under --compat=tlc, from TLC's document and from dive's
-                           format (positive controls; ADR 0016). Takes the selection
-                           options and --golden-oracle
+                           validator under --compat=tlc (positive controls) and check that
+                           each by-construction mutant is rejected (negative controls;
+                           ADR 0016). Takes the selection options and --golden-oracle
 
 SELECTION (corpus list, golden generate, run, trace-controls, study final):
     --corpus <id>          corpus (default: examples); `run` takes several, into one report
@@ -384,7 +384,7 @@ fn report_summarise(root: &Path, o: &Opts) -> Result<bool> {
     Ok(false)
 }
 
-/// `trace-controls`: the validator's positive controls over
+/// `trace-controls`: the validator's positive and negative controls over
 /// the golden counterexamples (ADR 0016 §3).
 fn cmd_trace_controls(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
     let golden_oracle = match &o.golden_oracle {

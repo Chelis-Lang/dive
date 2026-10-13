@@ -32,6 +32,7 @@
 //!   TLC register reads and writes are refused ([`REGISTERS_UNSUPPORTED`])
 //!   because their contents can depend on evaluations outside the trace.
 //! - [`tlc`]: reading TLC's lossy JSON by interpretation.
+//! - [`mutate`]: by-construction invalid mutants, the negative controls.
 //!
 //! Evaluation recurses on the caller's stack: run validation on a thread
 //! with [`dive_eval::RECOMMENDED_STACK`], as `dive-api` does.
@@ -70,6 +71,7 @@
 
 pub mod exists;
 pub mod format;
+pub mod mutate;
 pub mod temporal;
 pub mod tlc;
 mod trace;

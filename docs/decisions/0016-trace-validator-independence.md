@@ -348,9 +348,17 @@ start-up name count remaining unchanged. Existing evaluator context checks
 still validate atoms in constant bindings and captured scopes; the source IR,
 binding process and its start-up name feed remain the trusted model boundary.
 
-**Removed.** The negative-control mutants (`dive_trace::mutate`): the
-harness's `trace-controls` and `SpecModel::controls` run the positive control
-and the dive-format round trip only. The opt-in stored-representation trace
+**Negative controls.** The harness's `trace-controls` and `SpecModel::controls`
+retain shortest-path, changed-value, claim and label mutants, checked both
+directly and through the version 1 document. Only random redraw mutants and
+their stream-position proofs are removed. Changed values use a model atom
+with the reserved Boolean keyword `TRUE`, already interned at startup; this
+keeps the runtime-name refusal intact and does not change the model's names.
+Alternative label controls skip impure definitions and use guarded validation,
+so testing an action on a different step cannot print or access registers in
+the caller's runtime.
+
+**Removed.** The opt-in stored-representation trace
 format version 2 (`value_repr`, `--trace-format representation-v2`): dive
 writes and reads version 1 only.
 

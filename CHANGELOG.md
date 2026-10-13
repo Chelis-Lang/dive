@@ -15,8 +15,8 @@
   whose sequence operators only build tuples (for example
   `MCCheckpointCoordinationFailure`) now validate. Random draws in a check are
   refused by name instead of replayed. The `--trace-format representation-v2`
-  flag and trace format version 2 are removed, and `trace-controls` and
-  `SpecModel::controls` no longer build mutants. TLC JSON interpretation scoring
+  flag and trace format version 2 are removed. `trace-controls` and
+  `SpecModel::controls` retain corpus mutation QA without random redraws. TLC JSON interpretation scoring
   now evaluates only pure predicates, preventing register writes from making
   invalid initial states validate, and leaves untaken effects unevaluated.
   Register reads and writes during replay are refused by name because they

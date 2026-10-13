@@ -5,8 +5,9 @@
 //! - the TLC probes in `dive-check`'s fixtures that carry a `-dumpTrace
 //!   json` document.
 //!
-//! Every one must validate under `--compat=tlc`, from TLC's document and
-//! from dive's format. The conformance harness runs
+//! Every one must validate under `--compat=tlc` (deadlocks: every check but
+//! the claim, which the validator refuses by name), and every
+//! by-construction mutant must be rejected. The conformance harness runs
 //! the same controls over the whole corpus (`dive-conformance
 //! trace-controls`).
 
@@ -150,10 +151,16 @@ fn probe_ending(stdout: &str) -> Option<Ending> {
 
 fn check(all: &[(String, Result<Controls, String>)], expected: usize) {
     let mut failures = Vec::new();
+    let mut mutants = 0;
     for (id, c) in all {
         match c {
             Ok(c) => {
+                mutants += c.mutants.len();
                 failures.extend(c.failures().into_iter().map(|f| format!("{id}: {f}")));
+                assert!(
+                    !c.mutants.is_empty() || c.positive.length == 1,
+                    "{id}: no mutants"
+                );
             }
             Err(e) => failures.push(format!("{id}: {e}")),
         }
@@ -165,17 +172,18 @@ fn check(all: &[(String, Result<Controls, String>)], expected: usize) {
         "{:?}",
         all.iter().map(|x| &x.0).collect::<Vec<_>>()
     );
+    assert!(mutants > expected, "{mutants} mutants");
 }
 
 #[test]
-fn tlc_golden_counterexamples_validate() {
+fn tlc_golden_counterexamples_validate_and_their_mutants_do_not() {
     // DieHard, MCDieHarder, MissionariesAndCannibals, FourQueens, spanning,
     // Hanoi and ACP_NB_WRONG_TLC.
     check(&golden_controls(), 7);
 }
 
 #[test]
-fn tlc_probe_counterexamples_validate() {
+fn tlc_probe_counterexamples_validate_and_their_mutants_do_not() {
     let all = probe_controls();
     for (id, c) in &all {
         let Ok(c) = c else { continue };
@@ -255,6 +263,90 @@ fn deadlock_needs_the_model_to_check_it() {
 fn dive_trace_deadlock() -> &'static str {
     // The reason `dive-trace` gives; spelled out so a change is deliberate.
     "deadlock: the independent finite-cover check could not decide absence of successors; every other check passed (ADR 0016, amendment 1)"
+}
+
+#[test]
+fn mutation_controls_preserve_names_and_still_refute_changed_values() {
+    let source = "---- MODULE MutationNames ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x+1\nInv == x<2\n====\n";
+    for compat_tlc in [false, true] {
+        let model = SpecModel::from_source(
+            "MutationNames.tla",
+            source,
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &TraceOptions {
+                compat_tlc,
+                ..TraceOptions::default()
+            },
+        )
+        .expect("model");
+        let doc = TraceDoc::behavior(vec![
+            serde_json::json!({"x":0}),
+            serde_json::json!({"x":1}),
+            serde_json::json!({"x":2}),
+        ])
+        .expect("doc")
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+        let before = model.model().names.len();
+        let controls = model.controls(&doc);
+        assert!(controls.failures().is_empty(), "{:?}", controls.failures());
+        assert!(controls.mutants.iter().any(
+            |(name, verdict)| name == "change-1-x" && matches!(verdict, Validation::Invalid(_))
+        ));
+        assert_eq!(model.model().names.len(), before);
+        assert!(!model.model().has_runtime_names());
+        assert_eq!(model.validate(&doc).validation, Validation::Valid);
+    }
+}
+
+#[test]
+fn accepted_or_refused_mutants_are_control_failures() {
+    for verdict in [
+        Validation::Valid,
+        Validation::Unsupported("unproved".to_owned()),
+    ] {
+        let controls = Controls {
+            positive: dive_api::trace::Report {
+                validation: Validation::Valid,
+                notes: Vec::new(),
+                length: 2,
+            },
+            dive_format: Some(Validation::Valid),
+            mutants: vec![("forged-step".to_owned(), verdict)],
+        };
+        assert_eq!(controls.failures().len(), 1);
+        assert!(controls.failures()[0].contains("forged-step"));
+    }
+}
+
+#[test]
+fn alternate_label_mutation_does_not_run_untaken_effects() {
+    let source = "---- MODULE MutationEffects ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0\nA == x'=x+1 /\\ (IF x=0 THEN TRUE ELSE PrintT(\"poison\"))\nB == x'=x+1\nNext == IF x=0 THEN A ELSE B\nInv == x<2\n====\n";
+    for compat_tlc in [false, true] {
+        let model = SpecModel::from_source(
+            "MutationEffects.tla",
+            source,
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            &TraceOptions {
+                compat_tlc,
+                run: Some((0, 0)),
+                ..TraceOptions::default()
+            },
+        )
+        .expect("model");
+        let doc = TraceDoc::parse(
+            r#"{"format":"dive-trace","version":1,"variables":["x"],
+            "states":[{"action":null,"values":{"x":0}},
+            {"action":{"name":"A"},"values":{"x":1}},
+            {"action":{"name":"B"},"values":{"x":2}}],
+            "ending":{"kind":"invariant","name":"Inv"}}"#,
+        )
+        .expect("doc");
+        assert_eq!(model.validate(&doc).validation, Validation::Valid);
+        let controls = model.controls(&doc);
+        assert!(controls.failures().is_empty(), "{:?}", controls.failures());
+        assert_eq!(model.model().evaluator.take_output(), Vec::<String>::new());
+        assert_eq!(model.validate(&doc).validation, Validation::Valid);
+    }
 }
 
 #[test]

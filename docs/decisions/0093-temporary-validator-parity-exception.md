@@ -49,6 +49,9 @@ authority for startup effects.
 
 ## Follow-up and removal
 
+Startup-register recovery is tracked in [issue #256](https://github.com/Chelis-Lang/dive/issues/256),
+and independent random membership in [issue #257](https://github.com/Chelis-Lang/dive/issues/257).
+
 Startup-register support needs a separately reviewed private runtime contract:
 reconstruct binding/startup effects in order, isolate caller state, and account
 for or refuse later/off-trace effects and other Init candidates. A startup
