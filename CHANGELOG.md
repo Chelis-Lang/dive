@@ -1,5 +1,14 @@
 # Changelog
 
+- Trace mutation controls now select their shortest-BFS or general
+  counterexample contract explicitly (#259). The corpus harness reserves
+  dropping and swapping states for single-worker exhaustive finite witnesses,
+  while simulation, multi-worker and liveness controls retain the applicable
+  value, claim and label mutations. Every generated mutant must still be
+  rejected directly and through its document; an empty suite has no negative
+  coverage credit. Existing `SpecModel::controls` and `mutants` remain
+  documented shortest-BFS compatibility methods.
+
 - Independent Init validation now uses startup level 0, while generated-state
   invariants and implied initial properties retain level 1. Named register
   and random refusals remain unchanged.
