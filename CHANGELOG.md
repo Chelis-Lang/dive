@@ -75,6 +75,16 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- PlusCal corpus measurement verifies pinned inputs and compares complete native
+  check reports for both translations without crediting refusals or malformed
+  error classes. `--help` succeeds, and relative `--dive` paths are resolved
+  before entering scratch directories. These are translation checks, not
+  independent TLC model parity.
+
+- PlusCal measurement rejects omitted statistics and generated counts below
+  distinct counts without turning legal explicit-null startup reports or empty
+  Init counters into refusals.
+
 - Graph capture uses an inert-by-default `capture::Observer` with initialization,
   edge and completed-level events at one worker. Callback failures preserve
   actual boundary counters and return incomplete exploration. Producer-clock

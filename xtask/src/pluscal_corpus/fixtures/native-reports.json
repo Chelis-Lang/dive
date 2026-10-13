@@ -1,0 +1,328 @@
+[
+  {
+    "id": "success-dive",
+    "exit": 0,
+    "report": {
+      "command": "check",
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "distinct": 1,
+        "generated": 2,
+        "depth": 1
+      },
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      }
+    },
+    "forged_reported": 3002
+  },
+  {
+    "id": "success-tlc",
+    "exit": 0,
+    "report": {
+      "command": "check",
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "distinct": 1,
+        "generated": 2,
+        "depth": 1
+      },
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      }
+    },
+    "forged_reported": 3002
+  },
+  {
+    "id": "invariant-dive",
+    "exit": 10,
+    "report": {
+      "command": "check",
+      "verdict": "invariant-violation",
+      "property": "Inv",
+      "statistics": {
+        "distinct": 3,
+        "generated": 3,
+        "depth": 3
+      },
+      "tlc": {
+        "code": 2110,
+        "exit_status": 12,
+        "name": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+        "reported": 2110,
+        "verified": true
+      }
+    },
+    "forged_reported": 2193
+  },
+  {
+    "id": "invariant-tlc",
+    "exit": 12,
+    "report": {
+      "command": "check",
+      "verdict": "invariant-violation",
+      "property": "Inv",
+      "statistics": {
+        "distinct": 3,
+        "generated": 3,
+        "depth": 3
+      },
+      "tlc": {
+        "code": 2110,
+        "exit_status": 12,
+        "name": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+        "reported": 2110,
+        "verified": true
+      }
+    },
+    "forged_reported": 2193
+  },
+  {
+    "id": "model-dive",
+    "exit": 1,
+    "report": {
+      "command": "check",
+      "verdict": "model-error",
+      "property": null,
+      "statistics": null,
+      "tlc": {
+        "code": 2222,
+        "exit_status": 151,
+        "name": "TLC_CONFIG_VALUE_NOT_ASSIGNED_TO_CONSTANT_PARAM",
+        "reported": 2222,
+        "verified": true
+      }
+    },
+    "forged_reported": 2110
+  },
+  {
+    "id": "model-tlc",
+    "exit": 151,
+    "report": {
+      "command": "check",
+      "verdict": "model-error",
+      "property": null,
+      "statistics": null,
+      "tlc": {
+        "code": 2222,
+        "exit_status": 151,
+        "name": "TLC_CONFIG_VALUE_NOT_ASSIGNED_TO_CONSTANT_PARAM",
+        "reported": 2222,
+        "verified": true
+      }
+    },
+    "forged_reported": 2110
+  },
+  {
+    "id": "frontend-dive",
+    "exit": 1,
+    "report": {
+      "command": "check",
+      "verdict": "rejected",
+      "property": null,
+      "statistics": null,
+      "tlc": {
+        "code": 3002,
+        "exit_status": 150,
+        "name": "TLC_PARSING_FAILED",
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "frontend-tlc",
+    "exit": 150,
+    "report": {
+      "command": "check",
+      "verdict": "rejected",
+      "property": null,
+      "statistics": null,
+      "tlc": {
+        "code": 3002,
+        "exit_status": 150,
+        "name": "TLC_PARSING_FAILED",
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "assumption-dive",
+    "exit": 12,
+    "report": {
+      "command": "check",
+      "verdict": "assumption-failure",
+      "property": null,
+      "statistics": null,
+      "tlc": {
+        "code": 2104,
+        "exit_status": 10,
+        "name": "TLC_ASSUMPTION_FALSE",
+        "reported": 2104,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "assumption-tlc",
+    "exit": 10,
+    "report": {
+      "command": "check",
+      "verdict": "assumption-failure",
+      "property": null,
+      "statistics": null,
+      "tlc": {
+        "code": 2104,
+        "exit_status": 10,
+        "name": "TLC_ASSUMPTION_FALSE",
+        "reported": 2104,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "replay-dive",
+    "exit": 13,
+    "report": {
+      "command": "check",
+      "verdict": "evaluation-error",
+      "property": null,
+      "statistics": {
+        "distinct": 1,
+        "generated": 1,
+        "depth": 1
+      },
+      "tlc": {
+        "code": 2179,
+        "exit_status": 255,
+        "name": "TLC_MODULE_DIVISION_BY_ZERO",
+        "reported": 2179,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "replay-tlc",
+    "exit": 255,
+    "report": {
+      "command": "check",
+      "verdict": "evaluation-error",
+      "property": null,
+      "statistics": {
+        "distinct": 1,
+        "generated": 1,
+        "depth": 1
+      },
+      "tlc": {
+        "code": 2179,
+        "exit_status": 255,
+        "name": "TLC_MODULE_DIVISION_BY_ZERO",
+        "reported": 2179,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "cdot-off-dive",
+    "exit": 13,
+    "report": {
+      "command": "check",
+      "verdict": "evaluation-error",
+      "property": null,
+      "statistics": {
+        "distinct": 1,
+        "generated": 1,
+        "depth": 1
+      },
+      "tlc": {
+        "code": 2103,
+        "exit_status": 75,
+        "name": "TLC_NESTED_EXPRESSION",
+        "reported": 1000,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "cdot-off-tlc",
+    "exit": 75,
+    "report": {
+      "command": "check",
+      "verdict": "evaluation-error",
+      "property": null,
+      "statistics": {
+        "distinct": 1,
+        "generated": 1,
+        "depth": 1
+      },
+      "tlc": {
+        "code": 2103,
+        "exit_status": 75,
+        "name": "TLC_NESTED_EXPRESSION",
+        "reported": 1000,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "empty-init-dive",
+    "exit": 0,
+    "report": {
+      "command": "check",
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "distinct": 0,
+        "generated": 0,
+        "depth": 0
+      },
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  },
+  {
+    "id": "empty-init-tlc",
+    "exit": 0,
+    "report": {
+      "command": "check",
+      "verdict": "success",
+      "property": null,
+      "statistics": {
+        "distinct": 0,
+        "generated": 0,
+        "depth": 0
+      },
+      "tlc": {
+        "code": 2193,
+        "exit_status": 0,
+        "name": "TLC_SUCCESS",
+        "reported": 2193,
+        "verified": true
+      }
+    },
+    "forged_reported": null
+  }
+]

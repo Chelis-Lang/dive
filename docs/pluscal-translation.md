@@ -113,3 +113,72 @@ never returned as accepted.
 Translator fixtures (inputs and expected pinned-translator output) live under
 `crates/dive-pluscal/tests/fixtures/`. Bulky oracle captures are regenerated from
 the pinned translator, not committed.
+
+## Corpus measurement
+
+`cargo xtask pluscal-corpus --out DIR --dive BIN` translates every selected PlusCal
+input in the pinned Examples and tlaplus test corpora with native translation and
+`pcal.trans`. It verifies the default jar and host JRE archive hashes, module
+libraries and corpus revisions before running. Missing, modified or unreadable
+pinned inputs fail the run; other cached runtime/library revisions are ignored.
+Reports and scratch artifacts stay under `--out`.
+
+```sh
+cargo xtask pluscal-corpus --help
+```
+
+Help succeeds without loading pins or starting a translator. `--dive BIN` may be
+relative to the invocation directory; it is resolved before entering a module's
+scratch directory. `--cache DIR` defaults to `DIVE_CACHE_DIR` or `~/.cache/dive`;
+`--out DIR` defaults to `<target-dir>/pluscal-corpus`, and the default binary is
+`<target-dir>/release/dive`. `--filter TEXT` selects relative corpus paths by
+substring. Translation and check timeouts default to 60 and 120 seconds;
+`--timeout` and `--check-timeout` accept unsigned whole seconds, including zero.
+Runs are sequential. These timeouts do not claim a whole-process-tree watchdog
+or a total memory/output budget. A run clears its `--out/work` directory, so use
+a directory owned by that measurement. `--label`, profile and jobs options are
+not implemented by this helper; inherited `DIVE_COMPAT` affects native children.
+
+`--check` runs **dive on both translations** when a same-named configuration
+exists. Matching native checks support translation equivalence; they are not
+independent TLC model parity. Matching refusals/resource failures and absent
+reports earn no model agreement. The release milestone separately compares
+`pcal.trans` plus TLC with native translation/check and independently validates
+counterexamples. See [ADR 0089](decisions/0089-pluscal-measurement-inputs.md).
+
+The measurement tool credits only recognized, well-formed check outcomes with
+complete numeric counts when exploration is required, a claimed TLC class, and
+a process exit consistent with the verdict. Class admission checks an exact
+code/name pair, its legal TLC exit and its allowed native verdict; a recognized
+invariant class cannot stand in for a model, frontend or evaluation error.
+The reported class must match the deciding class for non-evaluation results.
+Evaluation replay may preserve a first evaluator error or a documented site
+wrapper; unrelated terminal/model classes cannot stand in for that report.
+Only the actual frontend rejection schema may omit the reported code.
+The bounded table is `xtask/src/pluscal_corpus/check_protocol.rs`, with its
+source inventory documented in `docs/provenance.md`. Unknown or incomplete JSON,
+unclaimed classes, refusals and resource failures never count as agreement.
+Valid failures before exploration may have null statistics. These are still
+comparisons of native checks of two translations, not independent TLC parity.
+
+Credited reports must explicitly include `statistics`, even when its value is
+null for a startup failure. Missing statistics are malformed, rather than an
+alias for that explicit null. Non-null statistics require unsigned generated,
+distinct and depth values, with generated at least distinct. Empty Init may
+legally leave both state counters zero; depth remains the observed numeric value,
+without a counter-dependent floor or bound imposed by the measurement tool.
+
+Focused tests retain the seven report/scorer and three pin controls, plus actual
+native report envelopes observed in both profiles. They reject success reported
+as frontend rejection, invariant failure reported as success, and model failure
+reported as invariant failure. The merged action-composition-off control retains
+deciding 2103 / reported 1000 and its legal native/TLC exits. These are protocol
+admission checks, not independent model verdicts. Option/discovery tests exercise
+relative executables, child timeouts, deterministic filtering and failure on
+unreadable inputs without silently reducing selection.
+The exact counter and statistics-omission regressions exercise matching-invalid
+and either-sided-invalid comparisons while retaining the legal startup nulls,
+frontend reported-code omission and action-composition replay envelope. Genuine
+empty-Init controls retain the native zero/zero/depth0 observations; a separate
+synthetic zero/zero/depth1 envelope checks the protocol boundary without claiming
+that native or a new oracle run observed it.
