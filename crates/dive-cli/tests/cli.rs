@@ -9,6 +9,38 @@ fn dive(args: &[&str]) -> std::process::Output {
     }
 }
 
+#[test]
+fn symmetry_startup_general_errors_have_real_process_exit_parity() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-model/tests/fixtures/symmetry-group/specs");
+    for name in ["SyDivZero", "SyMixedElements"] {
+        let file = root.join(name).join(format!("{name}.tla"));
+        for (profile, exit) in [("--compat=dive", 1), ("--compat=tlc", 255)] {
+            let output = dive(&[
+                "check",
+                &file.to_string_lossy(),
+                profile,
+                "--seed=0",
+                "--fp=0",
+                "--workers=1",
+                "--output=json",
+            ]);
+            assert_eq!(output.status.code(), Some(exit), "{name}: {output:?}");
+            let report: serde_json::Value =
+                serde_json::from_slice(&output.stdout).unwrap_or_default();
+            assert_eq!(report["verdict"], "model-error");
+            assert_eq!(report["tlc"]["code"], 1000);
+            assert_eq!(report["tlc"]["name"], "GENERAL");
+            assert_eq!(report["tlc"]["reported"], 1000);
+            assert_eq!(report["tlc"]["exit_status"], 255);
+            assert_eq!(report["tlc"]["verified"], true);
+            assert!(report["statistics"].is_null());
+            assert!(report["counterexample"].is_null());
+            assert_eq!(report["output"], serde_json::json!([]));
+        }
+    }
+}
+
 /// Writes `contents` to a fresh file named `name` and returns its path.
 fn temp_file(name: &str, contents: &str) -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!(

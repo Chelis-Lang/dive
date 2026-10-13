@@ -31,6 +31,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Report the pinned GENERAL startup error class for division by zero in a pure
+  symmetry declaration and incompatible values while normalizing its set.
+  These errors precede ASSUME and exploration, exit 255 under `--compat=tlc`
+  (default model-error exit 1), and preserve other startup refusals.
+
 - A model with no bound action now ends after Init without checking
   POSTCONDITION, as TLC does, and the depth is 1 when constraints exclude
   every generated initial state (#231). PlusCal wraps a long multi-procedure

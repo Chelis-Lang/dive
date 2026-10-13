@@ -11,6 +11,22 @@ It checks invariants, supported action properties, constraints and deadlocks.
 `-deadlock` disables deadlock checking, matching TLC's spelling and meaning.
 Use the sibling `.cfg` or select one with `--config FILE.cfg`.
 
+A pure `SYMMETRY` declaration is prepared before assumptions and initial states.
+Division by zero in that declaration and incompatible values encountered while
+normalizing its set report `model-error`, TLC `GENERAL` (1000), with no search
+statistics or counterexample. The TLC profile exits 255; the default profile
+uses its existing model-error exit 1. The default comparison policy may produce
+a different explanatory message for a mixed set, while retaining this class.
+For example, this fixture fails before exploring any state:
+
+```sh
+dive check crates/dive-model/tests/fixtures/symmetry-group/specs/SyDivZero/SyDivZero.tla --compat=tlc --seed 0 --fp 0 --workers 1 --output json
+```
+
+Other unimplemented startup exception shapes remain named refusals. Effectful,
+state-dependent and parameterized declarations still refuse; these diagnostics
+do not expand supported symmetry modes or resource bounds.
+
 Fingerprint storage is the normal mode. `--store exact` keeps canonical concrete
 keys for supported values; fingerprint collision qualifications do not become
 an exact-state proof. Inspect `statistics`, `collision`, `counterexample`,
