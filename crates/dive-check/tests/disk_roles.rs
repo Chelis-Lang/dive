@@ -1,4 +1,4 @@
-//! Source-owned role decomposition admits pure safety without pre-startup effects.
+//! Disk seen-state retention gives the resident store's results for every role shape.
 #![allow(clippy::expect_used, reason = "test assertions")]
 
 use dive_check::{CheckOptions, SeenOptions, Verdict, check};
@@ -15,16 +15,6 @@ fn verify(name: &str) {
         dive_config::parse(&std::fs::read_to_string(file.with_extension("cfg")).expect("cfg"))
             .into_config()
             .expect("configuration");
-    let refusal = matches!(
-        name,
-        "PrintedProperty"
-            | "PrintedSpecification"
-            | "AssumePrintSafety"
-            | "FairSpecification"
-            | "TemporalProperty"
-            | "QuantifiedProperty"
-            | "WrapperSpecification"
-    );
     for mut opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
         for store in [StoreMode::Fingerprint, StoreMode::Exact] {
             opts.store = store;
@@ -48,44 +38,57 @@ fn verify(name: &str) {
                             "{name} {:?} {store:?} memory={:?} disk={:?} stats={:?}",
                             opts.profile, memory.verdict, disk.verdict, disk.stats
                         );
-                        if refusal {
+                        assert_eq!(disk.verdict, memory.verdict, "{name}");
+                        assert_eq!(disk.stats, memory.stats, "{name}");
+                        assert_eq!(
+                            format!("{:?}", disk.counterexample),
+                            format!("{:?}", memory.counterexample),
+                            "{name}"
+                        );
+                        assert_eq!(disk.output, memory.output, "{name}");
+                        assert_eq!(disk.warnings, memory.warnings, "{name}");
+                        assert_eq!(disk.notes, memory.notes, "{name}");
+                        assert_eq!(disk.collision, memory.collision, "{name}");
+                        if disk.stats.is_some() {
+                            assert_eq!(disk.workers.used, 1);
                             assert!(
-                                matches!(disk.verdict, Verdict::Unsupported { .. }),
-                                "{name}: {:?}",
-                                disk.verdict
+                                disk.seen
+                                    .expect("storage")
+                                    .after_cleanup
+                                    .expect("cleanup")
+                                    .cleanup_completed
                             );
-                            assert_eq!(disk.output, Vec::<String>::new());
-                            assert!(disk.stats.is_none());
-                            assert!(disk.seen.is_none());
-                            assert_eq!(disk.workers.used, 0);
-                        } else {
-                            assert_eq!(disk.verdict, memory.verdict, "{name}");
-                            assert_eq!(disk.stats, memory.stats, "{name}");
-                            assert_eq!(
-                                format!("{:?}", disk.counterexample),
-                                format!("{:?}", memory.counterexample),
-                                "{name}"
-                            );
-                            assert_eq!(disk.output, memory.output, "{name}");
-                            assert_eq!(disk.warnings, memory.warnings, "{name}");
-                            assert_eq!(disk.notes, memory.notes, "{name}");
-                            assert_eq!(disk.collision, memory.collision, "{name}");
-                            if disk.stats.is_some() {
-                                assert_eq!(disk.workers.used, 1);
-                                assert!(
-                                    disk.seen
-                                        .expect("storage")
-                                        .after_cleanup
-                                        .expect("cleanup")
-                                        .cleanup_completed
-                                );
-                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+/// Checks `ir` with resident and disk seen-state storage and requires equal results.
+fn same_on_disk(
+    ir: &Arc<dive_ir::Ir>,
+    cfg: &dive_config::ModelConfig,
+    label: &str,
+) -> dive_check::CheckResult {
+    let mut last = None;
+    for mut opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+        let memory = check(ir, cfg, &opts);
+        opts.seen_disk = Some(SeenOptions::default());
+        let disk = check(ir, cfg, &opts);
+        assert_eq!(disk.verdict, memory.verdict, "{label}");
+        assert_eq!(disk.stats, memory.stats, "{label}");
+        assert_eq!(disk.output, memory.output, "{label}");
+        assert_eq!(disk.warnings, memory.warnings, "{label}");
+        assert_eq!(
+            format!("{:?}", disk.counterexample),
+            format!("{:?}", memory.counterexample),
+            "{label}"
+        );
+        last = Some(disk);
+    }
+    last.expect("two profiles")
 }
 
 macro_rules! case {
@@ -127,42 +130,19 @@ case!(quantified_property, "QuantifiedProperty");
 case!(temporal_property, "TemporalProperty");
 
 #[test]
-fn configured_native_effects_refuse_before_startup_or_files() {
+fn configured_native_effects_match_resident_storage() {
     for rhs in ["PrintT", "Alias"] {
-        let source = "---- MODULE RoleNative ----\nEXTENDS Naturals, TLC\nCONSTANT C(_)\nVARIABLE x\nR == INSTANCE TLC\nAlias(a) == R!PrintT(a)\nStartup == PrintT(\"must-not-start\")\nInit == x=0\nNext == x'=x+1 /\\ C(\"must-not-next\")\nSpec == Init /\\ [][Next]_x\n====\n";
+        let source = "---- MODULE RoleNative ----\nEXTENDS Naturals, TLC\nCONSTANT C(_)\nVARIABLE x\nR == INSTANCE TLC\nAlias(a) == R!PrintT(a)\nStartup == PrintT(\"must-not-start\")\nInit == x=0\nNext == x'=x+1 /\\ C(\"must-not-next\")\nSpec == Init /\\ [][Next]_x\nBound == x < 3\n====\n";
         let analysis =
             dive_sema::analyze_source("RoleNative.tla", source, &dive_sema::Options::default());
         assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
         let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
         let cfg = dive_config::parse(&format!(
-            "CONSTANT C <- {rhs}\nSPECIFICATION Spec\nCHECK_DEADLOCK FALSE\n"
+            "CONSTANT C <- {rhs}\nSPECIFICATION Spec\nCONSTRAINT Bound\nCHECK_DEADLOCK FALSE\n"
         ))
         .into_config()
         .expect("cfg");
-        for mut opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
-            let disk = SeenOptions {
-                directory: Some(
-                    Path::new(env!("CARGO_MANIFEST_DIR"))
-                        .join("tests/never-created-role-admission"),
-                ),
-                ..SeenOptions::default()
-            };
-            opts.seen_disk = Some(disk);
-            let result = check(&ir, &cfg, &opts);
-            assert!(
-                matches!(result.verdict, Verdict::Unsupported { .. }),
-                "{rhs}: {:?}",
-                result.verdict
-            );
-            assert_eq!(result.output, Vec::<String>::new());
-            assert!(result.stats.is_none());
-            assert!(result.seen.is_none());
-            assert!(
-                !Path::new(env!("CARGO_MANIFEST_DIR"))
-                    .join("tests/never-created-role-admission")
-                    .exists()
-            );
-        }
+        same_on_disk(&ir, &cfg, rhs);
     }
 }
 
@@ -278,7 +258,7 @@ fn safety_role_admission_retains_positioned_entry_bounds() {
 }
 
 #[test]
-fn shared_paths_cannot_bypass_source_depth_admission() {
+fn deep_shared_definition_paths_match_resident_storage() {
     use std::fmt::Write;
     let mut source =
         "---- MODULE RoleDepth ----\nEXTENDS Naturals\nVARIABLE x\nN0 == TRUE\n".to_owned();
@@ -293,22 +273,12 @@ fn shared_paths_cannot_bypass_source_depth_admission() {
     let cfg = dive_config::parse("SPECIFICATION Spec\nCHECK_DEADLOCK FALSE\n")
         .into_config()
         .expect("cfg");
-    for mut opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
-        opts.seen_disk = Some(SeenOptions::default());
-        let result = check(&ir, &cfg, &opts);
-        assert!(
-            matches!(&result.verdict, Verdict::Unsupported { feature } if feature.contains("depth bound")),
-            "{:?}",
-            result.verdict
-        );
-        assert_eq!(result.output, Vec::<String>::new());
-        assert!(result.stats.is_none());
-        assert!(result.seen.is_none());
-    }
+    let disk = same_on_disk(&ir, &cfg, "RoleDepth");
+    assert_eq!(disk.verdict, Verdict::Success);
 }
 
 #[test]
-fn strict_subscript_only_substitution_is_not_admitted_by_warning() {
+fn strict_subscript_only_substitution_matches_resident_storage() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/strict-subscript/StrictRoleSubscript.tla");
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
@@ -325,21 +295,11 @@ fn strict_subscript_only_substitution_is_not_admitted_by_warning() {
         dive_config::parse(&std::fs::read_to_string(file.with_extension("cfg")).expect("cfg"))
             .into_config()
             .expect("configuration");
-    for mut opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+    for opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
         let resident = check(&ir, &cfg, &opts);
         assert_eq!(resident.verdict, Verdict::Success);
         assert_eq!(resident.stats.expect("stats").distinct, 3);
         assert!(resident.warnings.iter().any(|(code, _)| *code == 2140));
-        opts.seen_disk = Some(SeenOptions::default());
-        let disk = check(&ir, &cfg, &opts);
-        assert!(
-            matches!(disk.verdict, Verdict::Unsupported { ref feature } if feature.contains("strict instance-substitution")),
-            "{:?}",
-            disk.verdict
-        );
-        assert!(disk.stats.is_none());
-        assert!(disk.seen.is_none());
-        assert_eq!(disk.workers.used, 0);
-        assert_eq!(disk.output, Vec::<String>::new());
     }
+    same_on_disk(&ir, &cfg, "StrictRoleSubscript");
 }

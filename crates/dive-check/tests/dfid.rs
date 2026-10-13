@@ -209,7 +209,7 @@ fn captured_fixture_integrity() {
     }
 }
 #[test]
-fn injected_captured_print_preflight() {
+fn captured_effects_and_malformed_expressions_refuse_before_dfid() {
     let src = r"---- MODULE Graph ----
 EXTENDS Naturals, TLC
 VARIABLE x
@@ -236,36 +236,31 @@ R(y) == y
                 level: dive_ir::Level::Constant,
             }],
         )
-        .expect("scope");
+        .expect("captured operator scope");
     m.invariants.push(dive_model::Named {
         name: "Q(PrintT)".into(),
         pred: dive_model::Pred::new(m.ir.def(d).body, scope),
     });
-    let report = dive_check::dfid::check(&m, &Options::new(dive_check::CheckOptions::tlc(0, 7), 6));
-    let output = m.evaluator.take_output();
+    let report = dive_check::dfid::check(&m, &Options::new(CheckOptions::tlc(0, 7), 6));
+    assert!(matches!(report.outcome, Outcome::Unsupported(_)));
     assert!(
-        matches!(report.outcome, Outcome::Unsupported(_)),
-        "impure capture admitted"
+        m.evaluator.take_output().is_empty(),
+        "preflight ran hidden PrintT"
     );
-    assert!(output.is_empty(), "preflight ran opaque PrintT");
-
-    // A caller can replace the actual enumerated action independently of the
-    // model's original Next role. Its captured scope needs the same proof.
-    let pred = m.invariants.remove(0).pred;
+    let predicate = m.invariants.remove(0).pred;
     m.actions = vec![
         m.evaluator
             .predicate_in(
-                &pred.scope,
-                pred.expr,
+                &predicate.scope,
+                predicate.expr,
                 dive_ir::actions::ActionName::Def(d),
                 1,
             )
-            .expect("valid action"),
+            .expect("valid owned action"),
     ];
     let report = dive_check::dfid::check(&m, &Options::new(CheckOptions::tlc(0, 7), 6));
     assert!(matches!(report.outcome, Outcome::Unsupported(_)));
     assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
-
     m.actions.clear();
     m.invariants.push(dive_model::Named {
         name: "invalid captured expression".into(),
@@ -291,4 +286,52 @@ R(y) == y
         .expect_err("malformed lazy capture rejected before DFID");
     assert!(error.message().contains("DIVE-EVAL-C001"));
     assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+}
+
+#[test]
+fn pure_operator_scopes_supplied_by_rust_callers_complete_dfid() {
+    let source = "---- MODULE PureCaptured ----\nVARIABLE x\nInit == x = 0\nNext == UNCHANGED x\nQ(P(_)) == P(x)\nZero(y) == y = 0\n====\n";
+    for check in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+        let analysis =
+            dive_sema::analyze_source("PureCaptured.tla", source, &dive_sema::Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let config = dive_config::parse("INIT Init\nNEXT Next\n")
+            .into_config()
+            .expect("config");
+        let mut m = dive_model::bind(
+            ir,
+            &config,
+            &dive_model::BindOptions {
+                eval: check.eval,
+                no_deadlock: check.no_deadlock,
+                host: None,
+            },
+        )
+        .expect("model");
+        let q = m.ir.root_def("Q").expect("Q");
+        let zero = m.ir.root_def("Zero").expect("Zero");
+        let scope = m
+            .evaluator
+            .scope_apply(
+                &m.evaluator.scope(q).expect("owned scope"),
+                q,
+                &[dive_ir::Arg::Op {
+                    op: dive_ir::OpRef::Def(zero),
+                    level: dive_ir::Level::Constant,
+                }],
+            )
+            .expect("pure captured operator scope");
+        assert!(!m.evaluator.scope_has_effects(&scope));
+        m.invariants.push(dive_model::Named {
+            name: "Q(Zero)".into(),
+            pred: dive_model::Pred::new(m.ir.def(q).body, scope),
+        });
+        let report = dive_check::dfid::check(&m, &Options::new(check, 6));
+        assert!(
+            matches!(report.outcome, Outcome::Complete),
+            "{:?}",
+            report.outcome
+        );
+        assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+    }
 }

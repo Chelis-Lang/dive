@@ -212,13 +212,17 @@ fn low_level_temporal_facades_refuse_before_startup_prints_or_assumptions() {
         dive_check::CheckOptions::tlc(0, 7),
         dive_check::CheckOptions::dive(7),
     ] {
+        // The ordinary checker binds as in the resident route (startup
+        // output included) and refuses the temporal property.
+        let resident = dive_check::check(&ir, &config, &options);
         options.seen_disk = Some(SeenOptions::default());
         let ordinary = dive_check::check(&ir, &config, &options);
         assert!(matches!(
             ordinary.verdict,
             dive_check::Verdict::Unsupported { .. }
         ));
-        assert_eq!(ordinary.output, [] as [String; 0]);
+        assert_eq!(ordinary.verdict, resident.verdict);
+        assert_eq!(ordinary.output, resident.output);
         assert!(ordinary.stats.is_none());
         assert!(ordinary.seen.is_none());
         let short = dive_api::temporal::check_final(
@@ -238,7 +242,7 @@ fn low_level_temporal_facades_refuse_before_startup_prints_or_assumptions() {
 }
 
 #[test]
-fn effectful_specification_role_refuses_before_binding() {
+fn effectful_specification_role_matches_resident_storage() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nUnused == PrintT(\"must not bind\")\nASSUME PrintT(\"must not assume\")\nInit == x=0\nNext == x'=x\nSpec == Init /\\ [][Next]_x\n====\n";
     let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted());
@@ -250,14 +254,13 @@ fn effectful_specification_role_refuses_before_binding() {
         dive_check::CheckOptions::tlc(0, 7),
         dive_check::CheckOptions::dive(7),
     ] {
+        let resident = dive_check::check(&ir, &config, &options);
         options.seen_disk = Some(SeenOptions::default());
         let result = dive_check::check(&ir, &config, &options);
-        assert!(
-            matches!(result.verdict, dive_check::Verdict::Unsupported { ref feature } if feature.contains("runtime effects/checker reads") && feature.contains("PrintT"))
-        );
-        assert_eq!(result.output, [] as [String; 0]);
-        assert!(result.stats.is_none());
-        assert!(result.seen.is_none());
+        assert_eq!(result.verdict, resident.verdict);
+        assert_eq!(result.stats, resident.stats);
+        assert_eq!(result.output, resident.output);
+        assert!(result.stats.is_some());
     }
 }
 

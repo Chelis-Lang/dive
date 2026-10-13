@@ -187,15 +187,79 @@ pub(crate) fn eval_code_name(code: u32) -> &'static str {
     }
 }
 
+/// Whether evaluating `model` may have effects beyond computing a value:
+/// `Print`, `TLCSet`, a live `TLCGet`, randomness, I/O or checker
+/// introspection. Conservative: any definition of a user module counts,
+/// whether or not it is reached, and so does a constant or definition the
+/// configuration binds to such a standard operator. Caller-supplied predicate
+/// and action scopes are checked for actual captured effects as well. Backends
+/// that cannot reproduce TLC's evaluation order for effects refuse such models.
+pub(crate) fn effectful(model: &dive_model::Model) -> bool {
+    use dive_ir::{Effects, StdSupport};
+    let ir = &model.ir;
+    let forbidden = Effects::IMPURE.union(Effects::LIVE_TLCGET);
+    let native = |def: dive_ir::DefId| {
+        let def = model.evaluator.redirected(def);
+        ir.defs()
+            .get(def.index())
+            .and_then(|d| d.std)
+            .is_some_and(|op| {
+                op.impure() || matches!(op.support(), StdSupport::Io | StdSupport::Introspection)
+            })
+    };
+    let user = ir.defs().iter().enumerate().any(|(i, def)| {
+        let id = dive_ir::DefId(u32::try_from(i).unwrap_or(u32::MAX));
+        (!ir.module(def.module).standard && ir.node(def.body).effects.intersects(forbidden))
+            || (model.evaluator.redirected(id) != id && native(id))
+    });
+    if user || (0..ir.consts().len()).any(|i| {
+        let id = dive_ir::ConstId(u32::try_from(i).unwrap_or(u32::MAX));
+        matches!(model.evaluator.constant_binding(id), Some(dive_eval::ConstBinding::Def(d)) if native(d))
+    }) {
+        return true;
+    }
+    let predicates = model
+        .init
+        .iter()
+        .map(|init| &init.pred)
+        .chain(model.next.iter())
+        .chain(model.invariants.iter().map(|named| &named.pred))
+        .chain(model.implied_inits.iter().map(|named| &named.pred))
+        .chain(model.implied_actions.iter().map(|named| &named.pred))
+        .chain(model.temporals.iter().map(|named| &named.pred))
+        .chain(model.implied_temporals.iter().map(|named| &named.pred))
+        .chain(model.configured_properties.iter().map(|named| &named.pred))
+        .chain(model.constraints.iter().map(|named| &named.pred))
+        .chain(model.action_constraints.iter().map(|named| &named.pred))
+        .chain(model.view.iter().map(|named| &named.pred))
+        .chain(
+            model
+                .alias
+                .as_ref()
+                .and_then(|alias| alias.as_ref().ok())
+                .map(|named| &named.pred),
+        )
+        .chain(
+            model
+                .postconditions
+                .as_ref()
+                .into_iter()
+                .flatten()
+                .map(|named| &named.pred),
+        );
+    predicates
+        .into_iter()
+        .any(|pred| model.evaluator.scope_has_effects(&pred.scope))
+        || model
+            .init_actions
+            .iter()
+            .chain(&model.actions)
+            .any(|action| model.evaluator.scope_has_effects(&action.scope()))
+}
+
 pub(crate) fn context_verdict(error: &dive_eval::ContextError) -> Verdict {
-    if error.kind() == dive_eval::ContextErrorKind::ResourceLimit {
-        Verdict::ResourceLimit {
-            message: error.to_string(),
-        }
-    } else {
-        Verdict::Unsupported {
-            feature: error.to_string(),
-        }
+    Verdict::Unsupported {
+        feature: error.to_string(),
     }
 }
 
@@ -289,45 +353,22 @@ pub(crate) fn run_check_with_checkpoint(
         if checkpoint.is_some() {
             return bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, opts, ir);
         }
-        if (!cfg.properties.is_empty() || cfg.specification.is_some())
-            && let Err(failure) = dive_model::admit_pure_safety_roles(
-                ir.clone(),
-                cfg,
-                &BindOptions {
-                    eval: opts.eval,
-                    no_deadlock: opts.no_deadlock,
-                    host: None,
-                },
-            )
-        {
-            return bare(model_error(&failure.error), opts, ir);
-        }
     }
-    // Only the callback-free closed pure VIEW slice has transformed stream
-    // authority. Other shapes retain the source-wide pre-binding refusal,
-    // including unused random calls and native aliases (#178).
-    if cfg.view.is_some()
-        && engine::uses_configured_random(ir, cfg)
-        && (checkpoint.is_some() || !engine::admitted_random_view(ir, cfg))
-    {
+    // Refuse transformed random streams before binding can execute effects.
+    // Ordinary VIEW and non-VIEW per-state RNG retain their existing routes.
+    if cfg.view.is_some() && engine::uses_configured_random(ir, cfg) {
         return bare(
             Verdict::Unsupported {
-                feature: "randomness under VIEW needs transformed-fingerprint seeding and independent replay".into(),
+                feature: "randomness under VIEW is not supported".into(),
             },
             opts,
             ir,
         );
     }
     if cfg.symmetry.is_some() && engine::uses_configured_random(ir, cfg) {
-        return bare(Verdict::Unsupported { feature: "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay".into() }, opts, ir);
-    }
-    // RandomElement's actual configured target now drives inline scheduling
-    // and predecessor-stream selection. Other configured native RNG families
-    // remain refused before startup until their own stream/replay campaign.
-    if engine::unproved_configured_random(ir, cfg) {
         return bare(
             Verdict::Unsupported {
-                feature: "configured native random replacements need bound-context stream classification and independent replay".into(),
+                feature: "randomness under SYMMETRY is not supported".into(),
             },
             opts,
             ir,
@@ -358,7 +399,9 @@ pub(crate) fn run_check_with_checkpoint(
     messages(&m.output, &mut r);
     if m.symmetry.is_some() && m.implied_temporals.is_empty() {
         if engine::uses_random(ir) {
-            r.verdict = Verdict::Unsupported { feature: "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay".into() };
+            r.verdict = Verdict::Unsupported {
+                feature: "randomness under SYMMETRY is not supported".into(),
+            };
             return r;
         }
         let mode = if opts.profile == Profile::Tlc {

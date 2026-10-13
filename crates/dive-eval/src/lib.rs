@@ -237,6 +237,56 @@ impl Evaluator {
         self.validate_scope(scope).is_err() || env::shares_side_effects(&self.core.ir, &scope.env)
     }
 
+    /// Whether retained lazy expressions or actual captured operators may print,
+    /// draw randomness, perform I/O or read live checker state. Foreign scopes
+    /// and unresolved callable targets conservatively return true. Pure captured
+    /// operators remain usable; the caller-supplied argument level is not authority
+    /// for a callable's effects.
+    ///
+    /// This inspects retained contexts without executing expressions, forcing
+    /// callbacks or scanning arbitrary stored values. It complements static IR
+    /// effects when public Rust callers supply a predicate's scope themselves.
+    #[must_use]
+    pub fn scope_has_effects(&self, scope: &Scope) -> bool {
+        use dive_ir::{Effects, StdSupport};
+        if self.validate_scope(scope).is_err() {
+            return true;
+        }
+        let native = |op: dive_ir::StdOp| {
+            op.impure() || matches!(op.support(), StdSupport::Io | StdSupport::Introspection)
+        };
+        let definition = |id: dive_ir::DefId| {
+            let Some(def) = self.core.ir.defs().get(self.core.redirect(id).index()) else {
+                return true;
+            };
+            def.std.map_or_else(
+                || {
+                    self.core
+                        .ir
+                        .nodes()
+                        .get(def.body.index())
+                        .is_none_or(|node| {
+                            node.effects
+                                .intersects(Effects::IMPURE | Effects::LIVE_TLCGET)
+                        })
+                },
+                native,
+            )
+        };
+        env::scope_has_effects(&self.core.ir, &scope.env, &|operator| match operator {
+            env::OpVal::Std(op) => native(*op),
+            env::OpVal::Def { def, .. } => definition(*def),
+            env::OpVal::Const(id) => {
+                match self.core.consts.get(id.index()).and_then(Option::as_ref) {
+                    Some(ConstBinding::Def(def)) => definition(*def),
+                    Some(ConstBinding::Value(_)) | None => true,
+                }
+            }
+            env::OpVal::Builtin(_) => false,
+            env::OpVal::Unbound(_) => true,
+        })
+    }
+
     /// An evaluator with its own `Print` sink, admitted before any sink call.
     ///
     /// # Errors

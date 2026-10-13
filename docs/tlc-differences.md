@@ -112,27 +112,15 @@ The operators choose with TLC's algorithms (which element, which subset); only t
 
 Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order (ADR 0014), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
 
-**VIEW-backed randomness (#178, partial).** The admitted ordinary RandomElement
-route seeds expansion from the configured VIEW fingerprint and retains concrete
-predecessors for independent replay. At seed 7/polynomial 0, `V == n` gives the
-clean TLC values `0,78,49,21`; the old raw-predecessor route gave `0,80,94,100`
-despite the same four states and invariant violation. The old wrong outputs and
-blanket refusal remain historical evidence.
-The capture-first continuation
-keeps the original 84 primary/prototype rows separately from wider-seed controls.
-`--compat=tlc` uses Java RNG with VIEW FP64 XOR seed; the default retains the
-approved replayable D-002 stream algorithm. Both modes disclose actual inline
-execution and retain the strict first-successor trace-printing refusal.
-
-Only closed pure VIEW/startup/Init contexts are admitted. Source-wide native
-family/effect/alias checks can refuse unused definitions before output or search.
-Stored concrete and projection values have a 16,384-visit/depth64 bound; compound
-or mixed sets, symbolic/deferred sets and nonliteral tuple/record representations
-remain refused by name. No normalization/provider/predicate callback grants this
-shape admission. The mixed-word decoder/comparison gap in #190 remains separate:
-no new certificate credit is assigned to those shapes. SYMMETRY/random,
-Randomization-family replacements, graph/temporal randomness and RNG checkpoint
-recovery remain unproved routes, with their existing explicit refusals.
+**Randomness with VIEW or SYMMETRY (#178).** These combinations are explicitly
+unsupported before binding, output or search, including unused source calls and
+configured native aliases. The rescue removes transformed-stream admission
+proofs rather than certifying a selected stored-value shape. Ordinary pure VIEW
+and untransformed per-state RNG remain available. Earlier pinned transformed
+stream measurements remain historical facts; they are not current support.
+Graph, temporal and checkpoint/recovery randomness remain separate limitations. The internal native
+`RandomSubsetSet` helper still reports its named evaluator limitation; configured
+replacement selection does not make that helper implemented.
 
 **Configured random calls (#180).** The minimal model below selects a native
 operator through its configuration rather than a source call:
@@ -152,8 +140,11 @@ native violation where TLC completed four states. The immediate admission repair
 and those exact false-answer controls remain historical evidence.
 The ordinary `RandomElement` stream now follows the actual bound callee, with
 startup and per-predecessor streams and truthful inline worker reporting.
-Configured Randomization families and transformed/graph/recovery paths remain
-refused pending their own proofs.
+Non-VIEW configured native Randomization targets use that same bound-callee
+classification and per-state stream as direct calls. The focused tests compare
+these routes; this is not a claim that the full configured-family primary
+campaign is complete. Transformed, graph and recovery random paths remain
+explicitly unsupported.
 
 Clean TLC also exposes a replay limitation on that `x # 80` model: exit 12,
 generated/distinct/depth 2/2/2, but only the initial `x=0` state is printed. Its
@@ -1601,7 +1592,7 @@ TLC-equivalent disambiguation and rewrite/checksum parity remain pending.
 **D-008 public Rust context update:** a caller-created invalid evaluator redirect
 previously panicked after interning a literal, while malformed lazy expression
 IDs could enter captured scopes. Constructor and scope admission now produce
-stable `DIVE-EVAL-C001`–`C007` refusals before evaluation or interning. Independent
+stable `DIVE-EVAL-C001`–`C005` refusals before evaluation or interning. Independent
 trace/predicate APIs also reject foreign model/evaluator metadata before replay
 setup. Valid configured models keep TLC's existing startup diagnostics. The
 checks apply equally to both profiles; no compatibility flag disables them.
@@ -2528,35 +2519,12 @@ contain only the earlier actually committed prefix. No ordinary queue/count/grap
 or clock parity follows. The guide distinguishes
 actual method returns, CLI exits, callback failures and joins.
 
-### Source-owned disk safety roles (#221)
+### Disk safety roles (#221)
 
-Disk checking now has a bounded pre-startup role path through the actual shared
-binder, admitting proven pure safety PROPERTY/SPECIFICATION forms. It does not
-use syntax-level temporal filtering: `Init /\ [][Next]_x` decomposes into safety
-roles, while actual temporal assumptions or obligations refuse. The declared
-29-model before-selection keeps clean pinned output, resident results and the old
-blanket disk refusal separately. A strict INSTANCE expression occurring only
-in the SPECIFICATION subscript remains refused before startup: the selected
-primary and resident control succeed with three states and warning 2140, while
-warning-only subscript inspection does not prove structural disk admission.
-The preliminary4f disk Success and failed admission regression are preserved.
-This is a scoped native restriction, not a wrong TLC verdict. LET/INSTANCE/configured aliases are selected,
-not granted support merely by name. The frozen `7fae387c` producer passed the
-full gate (1,326 tests, zero skips) and all 2,320 current-role CLI observations.
-Its 2,088 public API comparisons retain 432 independently Valid words and
-2,592 Invalid named mutants; seven refusal models stay selected without proof
-credit. Original resident reports and diagnostic error words are qualified
-separately in the study.
-
-The policy is deliberately partial. A fairness-only specification that succeeds
-in the resident route remains refused on disk; quantified PROPERTY domain
-execution and opaque wrappers also stay selected with no agreement credit.
-Unused effectful source can cause an earlier refusal, before startup output or a
-later role diagnostic. INIT/NEXT-only binder ordering, disk-key bounds, actual
-inline fallback, Print-dependent error-replay refusal and independent trace
-requirements remain unchanged. This is a native limitation, not a new reference
-bug or semantic default. [CLI/Rust contract](user/disk-seen-safety.md) and
-[ADR0075](decisions/0083-storage-and-checkpoint.md).
+Disk checking binds `PROPERTY` and `SPECIFICATION` roles through the same binder
+as the resident route and gives the resident route's results, including for
+effectful, quantified and fairness-only specifications. Temporal obligations are
+an explicit unsupported combination. [CLI/Rust contract](user/disk-seen-safety.md).
 
 D-008 process-owned procedure checksum continuation (ADR0079): the stored
 original header gives each process its own called-procedure vector. Calling a

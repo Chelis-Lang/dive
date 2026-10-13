@@ -678,7 +678,7 @@ fn concrete_parallel_source_rows_equal_inline_across_scheduling_and_fixed_bounds
 }
 
 #[test]
-fn actual_captured_scopes_are_proved_before_any_pool_evaluation() {
+fn captured_effects_and_malformed_scopes_refuse_before_any_pool_evaluation() {
     let src = r"---- MODULE Captured ----
 EXTENDS Naturals, TLC
 VARIABLE x
@@ -695,7 +695,15 @@ R(y) == y
         };
         let mut m = model(src, "INIT Init\nNEXT Next\n", &opts);
         let d = m.ir.root_def("Q").expect("Q");
-        let sc = m
+        let refusal = |m: &dive_model::Model| {
+            let r = capture::explore_concrete_parallel_with_evidence(m, &opts, Limits::default())
+                .expect("no panic");
+            assert!(
+                matches!(r,Exploration::Stopped(ref r) if matches!(r.verdict,Verdict::Unsupported { .. }) && r.stats.is_none() && r.workers.used==0)
+            );
+            assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+        };
+        let scope = m
             .evaluator
             .scope_apply(
                 &m.evaluator.scope(d).expect("valid owned scope"),
@@ -705,27 +713,21 @@ R(y) == y
                     level: dive_ir::Level::Constant,
                 }],
             )
-            .expect("scope");
+            .expect("captured operator scope");
         m.invariants.push(dive_model::Named {
             name: "hidden PrintT".into(),
-            pred: dive_model::Pred::new(m.ir.def(d).body, sc),
+            pred: dive_model::Pred::new(m.ir.def(d).body, scope),
         });
-        let refusal = |m: &dive_model::Model| {
-            let r = capture::explore_concrete_parallel_with_evidence(m, &opts, Limits::default())
-                .expect("no panic");
-            assert!(
-                matches!(r,Exploration::Stopped(ref r) if matches!(r.verdict,Verdict::Unsupported { .. }) && r.stats.is_none() && r.workers.used==0)
-            );
-            assert!(
-                m.evaluator.take_output().is_empty(),
-                "admission evaluated hidden PrintT"
-            );
-        };
         refusal(&m);
-        let p = m.invariants.remove(0).pred;
+        let predicate = m.invariants.remove(0).pred;
         m.actions = vec![
             m.evaluator
-                .predicate_in(&p.scope, p.expr, dive_ir::actions::ActionName::Def(d), 1)
+                .predicate_in(
+                    &predicate.scope,
+                    predicate.expr,
+                    dive_ir::actions::ActionName::Def(d),
+                    1,
+                )
                 .expect("valid owned action"),
         ];
         refusal(&m);
@@ -797,5 +799,40 @@ fn caller_replaced_ir_or_names_refuses_before_walk_setup_or_workers() {
             matches!(r,Exploration::Stopped(ref r) if matches!(&r.verdict,Verdict::Unsupported {feature} if feature.contains("DIVE-EVAL-C004") && feature.contains("another evaluator context")) && r.workers.used==0 && r.stats.is_none())
         );
         assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+    }
+}
+
+#[test]
+fn pure_operator_scopes_supplied_by_rust_callers_complete_parallel_capture() {
+    let source = "---- MODULE PureCaptured ----\nVARIABLE x\nInit == x = 0\nNext == UNCHANGED x\nQ(P(_)) == P(x)\nZero(y) == y = 0\n====\n";
+    for profile in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+        for width in [1, 4, 8] {
+            let opts = CheckOptions {
+                workers: width,
+                ..profile.clone()
+            };
+            let mut m = model(source, "INIT Init\nNEXT Next\n", &opts);
+            let q = m.ir.root_def("Q").expect("Q");
+            let zero = m.ir.root_def("Zero").expect("Zero");
+            let scope = m
+                .evaluator
+                .scope_apply(
+                    &m.evaluator.scope(q).expect("owned scope"),
+                    q,
+                    &[dive_ir::Arg::Op {
+                        op: dive_ir::OpRef::Def(zero),
+                        level: dive_ir::Level::Constant,
+                    }],
+                )
+                .expect("pure captured operator scope");
+            assert!(!m.evaluator.scope_has_effects(&scope));
+            m.invariants.push(dive_model::Named {
+                name: "Q(Zero)".into(),
+                pred: dive_model::Pred::new(m.ir.def(q).body, scope),
+            });
+            let result = complete(&m, &opts);
+            assert_eq!(result.stats.distinct, 1);
+            assert_eq!(result.output, Vec::<String>::new());
+        }
     }
 }

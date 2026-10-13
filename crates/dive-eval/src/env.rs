@@ -439,7 +439,7 @@ impl Thunk {
 /// thunk or a lazy function whose expression has side effects
 /// (`Effects::IMPURE`). See `Evaluator::scope_shares_side_effects`.
 pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
-    captures_with_effects(ir, env, dive_ir::Effects::IMPURE, false)
+    captures_with_effects(ir, env, dive_ir::Effects::IMPURE, false, None)
 }
 
 /// Captured operators are opaque here: callers can supply them through the
@@ -450,7 +450,23 @@ pub(crate) fn filter_has_unproved_captures(
     env: &Env,
     forbidden: dive_ir::Effects,
 ) -> bool {
-    captures_with_effects(ir, env, forbidden, true)
+    captures_with_effects(ir, env, forbidden, true, None)
+}
+
+/// Checks retained executable contexts, including actual captured callables,
+/// without evaluating them or walking arbitrary stored values.
+pub(crate) fn scope_has_effects(
+    ir: &dive_ir::Ir,
+    env: &Env,
+    callable_effects: &dyn Fn(&OpVal) -> bool,
+) -> bool {
+    captures_with_effects(
+        ir,
+        env,
+        dive_ir::Effects::IMPURE.union(dive_ir::Effects::LIVE_TLCGET),
+        false,
+        Some(callable_effects),
+    )
 }
 
 fn captures_with_effects(
@@ -458,6 +474,7 @@ fn captures_with_effects(
     env: &Env,
     forbidden: dive_ir::Effects,
     reject_operators: bool,
+    callable_effects: Option<&dyn Fn(&OpVal) -> bool>,
 ) -> bool {
     let mut seen = std::collections::HashSet::new();
     let mut frames: Vec<&Arc<Frame>> = vec![&env.frame];
@@ -489,7 +506,9 @@ fn captures_with_effects(
             match sv {
                 Sv::Thunk(t) => {
                     if seen.insert(Arc::as_ptr(t) as usize) {
-                        if (reject_operators || t.cachable) && impure(t.expr) {
+                        if (reject_operators || callable_effects.is_some() || t.cachable)
+                            && impure(t.expr)
+                        {
                             return true;
                         }
                         frames.push(&t.env.frame);
@@ -505,7 +524,11 @@ fn captures_with_effects(
                         dyns.push(&f.env.dynamic);
                     }
                 }
-                Sv::Op(_) if reject_operators => return true,
+                Sv::Op(op)
+                    if reject_operators || callable_effects.is_some_and(|effects| effects(op)) =>
+                {
+                    return true;
+                }
                 Sv::Op(OpVal::Def {
                     parent, dynamic, ..
                 }) => {
