@@ -474,3 +474,60 @@ executed controls retain the initial failed blanket-refusal expectation, the
 subsequent explicit conservative-word positives and effect/later-access
 negatives, caller isolation and repeated/lossy validation. Fresh review and the
 actual transplanted full/four-profile gates remain required before acceptance.
+
+
+## Amendment 5: direct initial RandomElement support (2026-10-13)
+
+The corrected #257 contract follows expert #241 T4 §1c: random validation may
+use an exact existential relation, never producer stream replay. Private
+validation now admits one complete single-variable equality
+`x = RandomElement(S)`. A separately implemented `dive-eval` operation
+evaluates S through normal scoped evaluation from empty slots, requires a
+nonempty interval or stored finite scalar set, and tests the displayed x with
+exact profile membership. This is an operation on the relation itself, not
+a preflight purity/admission proof or permission to execute an ordinary draw.
+It calls no Host.random, returns no witness value to a random node, and uses
+no seed/offset search, enumerator, certificates or checker cached model.
+
+The complete Init must be that equality (possibly exposed by zero-argument
+definitions/labels), not a conjunction with additional correlations or
+filters. Parameterized wrappers, aliases/configured native redirects,
+INSTANCE relations, multiple variables and other relation shapes have no new
+authority. Domain evaluation runs conservatively with registers refused and
+with the existing sticky generic/random refusals. Any prior startup register
+operation excludes this route. Empty/non-set/infinite domains retain native
+EC 2154/2176; other errors and resource limits remain unsupported with their
+actual evaluator class/code, rather than an ordinary Init false verdict.
+Stored sets are bounded to at most 65,536 entries before normalization and contain
+scalar values; compound/lazy representations remain unsupported. Intervals
+use exact bounds, without materializing their entries.
+
+For the actual P9 Init 1..1000000 and invariant x<0,730968 and 777 both belong
+to the relation and falsify the claimed invariant; 1000001 does not belong.
+The retained historical rejection of 777 occurred at Init against the seed 0
+sample 730968. It proves a sampled-run mismatch, not invalidity of that
+invariant witness. The corrected issue receipt records this change of claim.
+No historical measurements, checker RNG behavior, seed metadata or goldens
+are rewritten. A singleton {7} admits 7 and excludes 8; an in-domain state
+whose claimed invariant holds remains Invalid after membership succeeds.
+
+This single-occurrence contract is consistent with one CHOOSE interpretation
+and the native operation's support. It makes no consistency claim for repeated
+equal-domain calls, correlated/cached choices or native occurrence sequences.
+Executed startup/failed-definition/conditional/discarded/multiple/Next/VIEW
+draws retain sticky refusal. The raw Model path remains conservative; the
+pure fallback's untaken-branch word claim is unchanged from amendment 4.
+
+No dependency graph changes. Both profiles/plain and lossy transports,
+repeated typed revalidation, actual retained P9 documents, native domain
+errors, malformed/membership/claim/step controls and caller stream isolation
+are scoped validation. Full gate, all four corpus runs, fresh review and
+actual publication-head transplantation remain acceptance requirements.
+
+Candidates and stored entries are scalar. Strings/model values require tokens
+that resolve to their exact text in the private interner. Assigned public states,
+compound candidates, compound stored entries and Deferred domains (including
+cached Deferred sets) refuse before normalization/member callbacks. The public
+helper takes Const or empty Init with the exact slot count and no successor;
+it grants no authority to ordinary random evaluation. Function-valued non-set
+domains retain EC2176 with a static diagnostic, avoiding nested-value formatting.

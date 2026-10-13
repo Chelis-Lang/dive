@@ -11,6 +11,20 @@ use crate::State;
 
 const UNSUPPORTED: &str = "private register Init: the independent single-candidate operation cannot determine every assignment from empty slots";
 
+/// One complete single-variable equality, with no candidate-dependent filters.
+/// `None` delegates to the deterministic operation; it grants no random access.
+pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool>, String> {
+    if model.ir.vars().len() != 1 || model.init.len() != 1 {
+        return Ok(None);
+    }
+    let operation = Initial {
+        model,
+        slots: vec![None],
+    };
+    let init = &model.init[0].pred;
+    operation.random_predicate(&init.scope, init.expr, witness, 0)
+}
+
 pub(crate) fn check(model: &Model, witness: &State) -> Result<bool, String> {
     let mut operation = Initial {
         model,
@@ -45,6 +59,58 @@ struct Initial<'a> {
 }
 
 impl Initial<'_> {
+    fn random_predicate(
+        &self,
+        scope: &Scope,
+        expr: ExprId,
+        witness: &State,
+        depth: u32,
+    ) -> Result<Option<bool>, String> {
+        if depth > 128 {
+            return Ok(None);
+        }
+        let ev = &self.model.evaluator;
+        match self.model.ir.expr(expr) {
+            Expr::Apply {
+                callee: OpRef::Def(_),
+                args,
+            } if !args.is_empty() => Ok(None),
+            Expr::Def(_)
+            | Expr::Apply {
+                callee: OpRef::Def(_),
+                ..
+            } => {
+                let (inner, def) = ev.scope_call(scope, expr).map_err(|e| e.to_string())?;
+                if ev.is_value_override(def)
+                    || ev.precomputed(def).is_some()
+                    || self.model.ir.def(def).std.is_some()
+                {
+                    Ok(None)
+                } else {
+                    self.random_predicate(&inner, self.model.ir.def(def).body, witness, depth + 1)
+                }
+            }
+            Expr::Selected(body) | Expr::Label { body, .. } => {
+                self.random_predicate(scope, *body, witness, depth + 1)
+            }
+            Expr::Builtin {
+                op: BuiltinOp::Eq,
+                args,
+            } if args.len() == 2 => {
+                let Some(var) = self.variable(scope, args[0], 0)? else {
+                    return Ok(None);
+                };
+                let Some(Some(candidate)) = witness.get(var.index()) else {
+                    return Ok(None);
+                };
+                let st = St::initial(Arc::from(self.slots.clone()));
+                ev.random_element_member(scope, args[1], &st, candidate, 65_536)
+                    .map_err(|e| format!("direct RandomElement Init relation: {e}"))
+            }
+            _ => Ok(None),
+        }
+    }
+
     fn variable(&self, scope: &Scope, expr: ExprId, depth: u32) -> Result<Option<VarId>, String> {
         if depth > 128 {
             return Err(UNSUPPORTED.to_owned());

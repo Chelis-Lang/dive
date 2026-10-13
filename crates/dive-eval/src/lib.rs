@@ -54,6 +54,7 @@ mod lazy;
 #[cfg(feature = "enumerate")]
 pub mod next;
 mod options;
+mod random_relation;
 mod scope;
 mod std;
 mod tla_cmp;
