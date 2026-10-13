@@ -1022,3 +1022,21 @@ Discovery remains sorted lexical selection; unreadable selected inputs fail the
 run. The pinned JRE archive identifies the unpacked tree, without attesting every
 unpacked file. Full corpus measurement, gates and actual-main acceptance require
 fresh execution after integration; prior producer/reviewer results are historical.
+
+
+
+### Private trace startup and deterministic initial membership
+
+The private validator reuses `dive-model`'s actual binding operation, whose
+constant processing order is the port of `SpecProcessor.processSpec` and
+`processConstantDefns` at tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b`.
+It repeats failed/unused eligible constant definitions rather than cloning
+cached values. Config installation follows the existing API's post-bind,
+pre-ASSUME lifecycle (`TLCGetSet` / `AbstractChecker.createConfig`).
+`dive-trace/src/initial.rs` is an independently written ordered single-candidate
+relation operation: empty slots, computed equality assignments and filters,
+then witness comparison. It does not port or invoke TLC/dive state generation.
+Runtime host/key checks preserve named refusals across swallowed startup errors.
+The retained primary startup-register, startup-unread and off-trace-writer
+controls motivate the stage boundary; they do not prove general register
+replay or random membership. See ADR 0016 amendment 4 and `docs/user/traces.md`.

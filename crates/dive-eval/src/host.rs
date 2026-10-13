@@ -78,6 +78,24 @@ pub struct HostError {
 /// thread that evaluates. A host whose answers differ per worker (the level
 /// of the state being expanded, the random stream) keeps them per thread.
 pub trait Host: Send + Sync + std::fmt::Debug {
+    /// Checks a native operation at runtime, before its arguments or body run.
+    /// Ordinary evaluators permit it; an isolated driver may remember a refusal
+    /// even if startup binding later catches the evaluation error.
+    ///
+    /// # Errors
+    /// A named refusal or a host evaluation error.
+    fn check_native_access(&self, _op: StdOp) -> Result<(), HostError> {
+        Ok(())
+    }
+
+    /// Checks a string TLCGet/TLCSet key before accessing host state.
+    ///
+    /// # Errors
+    /// A named refusal or a host evaluation error.
+    fn check_tlc_access(&self, _key: &str, _write: bool) -> Result<(), HostError> {
+        Ok(())
+    }
+
     /// Applies a random operator (`RandomElement`, `RandomSubset`,
     /// `RandomSetOfSubsets`) to its evaluated arguments, drawing from the
     /// stream of the current evaluation: TLC's start-up stream during
@@ -228,7 +246,7 @@ impl HostSlot {
     }
 }
 
-fn host_error(e: HostError) -> EvalError {
+pub(crate) fn host_error(e: HostError) -> EvalError {
     if e.code == 0 {
         EvalError::unsupported(e.message)
     } else {
@@ -367,6 +385,9 @@ impl Core {
         reason = "one arm per key, as in TLCGetStringValue"
     )]
     fn tlc_get_string(&self, key: &str, st: &St) -> Result<Value> {
+        if let Some(host) = self.host.get() {
+            host.check_tlc_access(key, false).map_err(host_error)?;
+        }
         match key {
             "diameter" => Self::narrow(self.counter(key, Counter::Diameter)?),
             "generated" => Self::narrow(self.counter(key, Counter::Generated)?),
@@ -500,46 +521,52 @@ impl Core {
                     return Ok(Value::TRUE);
                 }
             }
-            Value::Str(s) => match s.as_str() {
-                "exit" => {
-                    if matches!(val, Value::Bool(true)) {
-                        let handled = self.host.get().is_some_and(|h| h.request_exit());
-                        if !handled {
+            Value::Str(s) => {
+                if let Some(host) = self.host.get() {
+                    host.check_tlc_access(s.as_str(), true)
+                        .map_err(host_error)?;
+                }
+                match s.as_str() {
+                    "exit" => {
+                        if matches!(val, Value::Bool(true)) {
+                            let handled = self.host.get().is_some_and(|h| h.request_exit());
+                            if !handled {
+                                return Err(EvalError::unsupported(
+                                    "TLCSet(\"exit\", TRUE) without a model checker that stops on it",
+                                ));
+                            }
+                        }
+                        return Ok(Value::TRUE);
+                    }
+                    "pause" => {
+                        if matches!(val, Value::Bool(true)) {
                             return Err(EvalError::unsupported(
-                                "TLCSet(\"exit\", TRUE) without a model checker that stops on it",
+                                "TLCSet(\"pause\", TRUE) (waits for input on TLC's console)",
                             ));
                         }
+                        return Ok(Value::TRUE);
                     }
-                    return Ok(Value::TRUE);
-                }
-                "pause" => {
-                    if matches!(val, Value::Bool(true)) {
-                        return Err(EvalError::unsupported(
-                            "TLCSet(\"pause\", TRUE) (waits for input on TLC's console)",
-                        ));
+                    k if k.starts_with("s:") => {
+                        self.check_register_access()?;
+                        let mut regs = self
+                            .host
+                            .registers
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner);
+                        match regs.named.iter_mut().find(|(n, _)| n == k) {
+                            Some(slot) => slot.1 = val.clone(),
+                            None => regs.named.push((k.to_owned(), val.clone())),
+                        }
+                        return Ok(Value::TRUE);
                     }
-                    return Ok(Value::TRUE);
-                }
-                k if k.starts_with("s:") => {
-                    self.check_register_access()?;
-                    let mut regs = self
-                        .host
-                        .registers
-                        .lock()
-                        .unwrap_or_else(PoisonError::into_inner);
-                    match regs.named.iter_mut().find(|(n, _)| n == k) {
-                        Some(slot) => slot.1 = val.clone(),
-                        None => regs.named.push((k.to_owned(), val.clone())),
+                    k if k.starts_with("-D") => {
+                        return Err(EvalError::unsupported(format!(
+                            "TLCSet(\"{k}\", ...) (sets a Java system property of TLC's JVM)"
+                        )));
                     }
-                    return Ok(Value::TRUE);
+                    _ => {}
                 }
-                k if k.starts_with("-D") => {
-                    return Err(EvalError::unsupported(format!(
-                        "TLCSet(\"{k}\", ...) (sets a Java system property of TLC's JVM)"
-                    )));
-                }
-                _ => {}
-            },
+            }
             _ => {}
         }
         Err(EvalError::eval_exception(

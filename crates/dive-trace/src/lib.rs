@@ -31,6 +31,9 @@
 //!   ([`RUNTIME_NAMES_UNSUPPORTED`]).
 //!   TLC register reads and writes are refused ([`REGISTERS_UNSUPPORTED`])
 //!   because their contents can depend on evaluations outside the trace.
+//!   [`Session`] reconstructs immutable source/config inputs privately and
+//!   supports startup registers through a single-candidate Init operation;
+//!   every later register access retains that refusal.
 //! - [`tlc`]: reading TLC's lossy JSON by interpretation.
 //! - [`mutate`]: by-construction invalid mutants, the negative controls.
 //!
@@ -71,7 +74,9 @@
 
 pub mod exists;
 pub mod format;
+mod initial;
 pub mod mutate;
+mod session;
 pub mod temporal;
 pub mod tlc;
 mod trace;
@@ -81,6 +86,7 @@ pub mod value_json;
 use dive_model::Model;
 
 pub use format::{Ending, Label, Source, TraceDoc};
+pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
     COMPOSITION_UNSUPPORTED, Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED,

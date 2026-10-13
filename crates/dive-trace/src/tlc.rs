@@ -433,6 +433,25 @@ fn variable_states(
     reason = "one search, read top to bottom: default, hill-climb, exhaustive, verdict"
 )]
 pub fn validate_tlc(model: &Model, doc: &TraceDoc, model_values: &[String]) -> TlcReading {
+    validate_tlc_in(model, doc, model_values, None)
+}
+
+pub(crate) fn validate_tlc_private(
+    model: &Model,
+    doc: &TraceDoc,
+    model_values: &[String],
+    session: &crate::Session,
+) -> TlcReading {
+    validate_tlc_in(model, doc, model_values, Some(session))
+}
+
+#[allow(clippy::too_many_lines, reason = "TLC JSON interpretation search")]
+fn validate_tlc_in(
+    model: &Model,
+    doc: &TraceDoc,
+    model_values: &[String],
+    session: Option<&crate::Session>,
+) -> TlcReading {
     let length = doc.states.len();
     let report = |validation, notes| Report {
         validation,
@@ -507,6 +526,7 @@ pub fn validate_tlc(model: &Model, doc: &TraceDoc, model_values: &[String]) -> T
         free: &free,
         conjuncts: init_conjuncts(model),
         tried: HashSet::new(),
+        session,
     };
     let default = vec![false; free.len()];
     let first = search.evaluate(&default);
@@ -637,6 +657,7 @@ impl Outcome {
 }
 
 struct Search<'a> {
+    session: Option<&'a crate::Session>,
     model: &'a Model,
     vars: &'a [String],
     states: &'a [Map<String, J>],
@@ -659,9 +680,27 @@ impl Search<'_> {
         for (d, c) in self.free.iter().zip(choice) {
             map.insert(d.clone(), *c != preferred(d.0));
         }
+        // Each lossy reading owns its name table too: an unsuccessful string
+        // interpretation cannot contaminate a later model-value interpretation.
+        let private_model = if let Some(session) = self.session {
+            match session.bind() {
+                Ok((model, _)) => Some(model),
+                Err(feature) => {
+                    return Outcome {
+                        validation: Validation::Unsupported(feature),
+                        score: (0, 0),
+                        trace: None,
+                        notes: Vec::new(),
+                    };
+                }
+            }
+        } else {
+            None
+        };
+        let model = private_model.as_ref().unwrap_or(self.model);
         let reader = Reader {
-            names: &self.model.names,
-            ctx: self.model.evaluator.options().ctx,
+            names: &model.names,
+            ctx: model.evaluator.options().ctx,
             model_values: self.model_values,
             choice: map,
         };
@@ -683,24 +722,28 @@ impl Search<'_> {
                 }
             }
         }
-        let mut run = Run::new(self.model);
-        let init_true = states.first().map_or(0, |s0| {
-            let st = St::state(s0.clone());
-            self.conjuncts
-                .iter()
-                .filter(|(scope, e)| {
-                    // Scoring is only a heuristic: it must not write a
-                    // register, consume a draw or print before replay checks
-                    // Init in its actual short-circuit order.
-                    !self.model.ir.node(*e).effects.intersects(Effects::IMPURE)
-                        && !self.model.evaluator.scope_shares_side_effects(scope)
-                        && matches!(
-                            self.model.evaluator.eval_scoped(scope, *e, &st),
-                            Ok(Value::Bool(true))
-                        )
-                })
-                .count() as u64
-        });
+        let mut run = Run::new(model);
+        let init_true = if self.session.is_some() {
+            0
+        } else {
+            states.first().map_or(0, |s0| {
+                let st = St::state(s0.clone());
+                self.conjuncts
+                    .iter()
+                    .filter(|(scope, e)| {
+                        // Scoring is only a heuristic: it must not write a
+                        // register, consume a draw or print before replay checks
+                        // Init in its actual short-circuit order.
+                        !model.ir.node(*e).effects.intersects(Effects::IMPURE)
+                            && !model.evaluator.scope_shares_side_effects(scope)
+                            && matches!(
+                                model.evaluator.eval_scoped(scope, *e, &st),
+                                Ok(Value::Bool(true))
+                            )
+                    })
+                    .count() as u64
+            })
+        };
         let trace = Trace {
             states,
             labels: self.labels.to_vec(),
@@ -708,6 +751,28 @@ impl Search<'_> {
             length: self.length,
             properties: self.properties.to_vec(),
         };
+        if let Some(session) = self.session {
+            let doc = match trace.to_doc(model) {
+                Ok(doc) => doc,
+                Err(feature) => {
+                    return Outcome {
+                        validation: Validation::Unsupported(feature),
+                        score: (0, 0),
+                        trace: None,
+                        notes: Vec::new(),
+                    };
+                }
+            };
+            drop(run);
+            let (report, plain) = session.interpretation(&doc);
+            let trace = plain.and_then(|doc| Trace::decode(model, &doc).ok());
+            return Outcome {
+                validation: report.validation,
+                score: (0, 0),
+                trace,
+                notes: report.notes,
+            };
+        }
         let validation = run.validate(&trace);
         Outcome {
             validation,

@@ -77,6 +77,7 @@ pub mod intern;
 pub mod level;
 mod model;
 mod periodic;
+mod randomness;
 mod reach;
 mod spec;
 pub mod symmetry;
@@ -92,7 +93,67 @@ use dive_ir::Ir;
 pub use bind::BindOptions;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
+pub use randomness::transformed_randomness;
 pub use reach::TLC_CDOT;
+
+/// Immutable inputs for reconstructing a model's startup runtime.
+///
+/// Rebinding creates a fresh interner, evaluator Core, registers and caches;
+/// no values or scopes from an already bound model are retained.
+#[derive(Clone, Debug)]
+pub struct Recipe {
+    ir: Arc<Ir>,
+    config: ModelConfig,
+    options: dive_eval::Options,
+    no_deadlock: bool,
+}
+
+impl Recipe {
+    /// Retains the original lowered source, configuration and value semantics.
+    #[must_use]
+    pub fn new(
+        ir: Arc<Ir>,
+        config: ModelConfig,
+        options: dive_eval::Options,
+        no_deadlock: bool,
+    ) -> Self {
+        Self {
+            ir,
+            config,
+            options,
+            no_deadlock,
+        }
+    }
+
+    /// Repeats the real binder's complete startup operation with a new runtime.
+    /// The host is installed before any constant definition is evaluated.
+    /// Checker action construction is omitted even when `enumerate` is unified
+    /// by a different consumer; the result carries source predicates only.
+    ///
+    /// # Errors
+    /// The ordinary binding errors. Randomness combined with VIEW or SYMMETRY
+    /// refuses after structural checks and before any startup evaluation, using
+    /// the shared [`transformed_randomness`] policy.
+    pub fn bind(&self, host: Arc<dyn dive_eval::Host>) -> Result<Model, Box<Failure>> {
+        bind_in(
+            self.ir.clone(),
+            &self.config,
+            &BindOptions {
+                eval: self.options,
+                no_deadlock: self.no_deadlock,
+                host: Some(host),
+            },
+            None,
+            true,
+        )
+    }
+
+    /// Configuration model values, as text rather than interner atoms.
+    #[must_use]
+    pub fn model_values(&self) -> &[String] {
+        &self.config.model_values
+    }
+}
 
 /// The modules TLC's `-dumpTrace json <file>` loads in addition to the
 /// specification's own (`TLC.java` adds the `_JsonTrace` post-condition, and
@@ -111,7 +172,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None)
+    bind_in(ir, cfg, opts, None, false)
 }
 
 /// Binds a trusted native recovered ordered name table before evaluating constants.
@@ -127,7 +188,7 @@ pub fn bind_with_names(
     opts: &BindOptions,
     restored: &[String],
 ) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored))
+    bind_in(ir, cfg, opts, Some(restored), false)
 }
 
 fn bind_in(
@@ -135,6 +196,7 @@ fn bind_in(
     cfg: &ModelConfig,
     opts: &BindOptions,
     restored: Option<&[String]>,
+    predicates_only: bool,
 ) -> Result<Model, Box<Failure>> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
@@ -142,6 +204,12 @@ fn bind_in(
             output: Vec::new(),
         })
     })?;
+    if predicates_only && let Some(feature) = transformed_randomness(&ir, cfg) {
+        return Err(Box::new(Failure {
+            error: BindError::unsupported(feature),
+            output: Vec::new(),
+        }));
+    }
     let walk = {
         let t = tables::Tables::new(ir.clone()).map_err(|error| {
             Box::new(Failure {
@@ -204,7 +272,7 @@ fn bind_in(
             output: Vec::new(),
         })
     })?;
-    let result = run(&mut b);
+    let result = run(&mut b, predicates_only);
     b.drain_prints();
     match result {
         Ok(model) => Ok(model),
@@ -215,7 +283,7 @@ fn bind_in(
     }
 }
 
-fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
+fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindError> {
     b.process_spec()?;
     // SpecProcessor snapshots defns immediately after processSpec, before
     // constant definitions replace their entries with values.
@@ -241,7 +309,13 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
     }
     let view = b.process_view()?;
     #[cfg(feature = "enumerate")]
-    let (init_actions, actions) = (b.init_actions()?, b.expand_actions()?);
+    let (init_actions, actions) = if predicates_only {
+        (Vec::new(), Vec::new())
+    } else {
+        (b.init_actions()?, b.expand_actions()?)
+    };
+    #[cfg(not(feature = "enumerate"))]
+    let _ = predicates_only;
     b.drain_prints();
     let ir = b.t.ir.clone();
     let root = ir.module(ir.root());
