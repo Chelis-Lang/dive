@@ -67,8 +67,9 @@ const TOOL_CODES: [u32; 5] = [
 /// Beginnings of `GENERAL` messages that TLC's evaluator raises itself,
 /// measured to replay as `TLC_NESTED_EXPRESSION` (fixtures `Er*Choose`,
 /// `Er*NonEnum`, `Er*NonBoolIf`, `ErNextNonBool`, `Er*Domain`,
-/// `ErWrapLambda*`, `ErWrapFilter`, `ErWrapRecursive`).
-const TOOL_MESSAGES: [&str; 7] = [
+/// `ErWrapLambda*`, `ErWrapFilter`, `ErWrapRecursive`, `CdOff`).
+const TOOL_MESSAGES: [&str; 8] = [
+    "The current version of TLC does not support action composition.",
     "Attempted to compute the value of an expression of form\nCHOOSE",
     "TLC encountered the non-enumerable quantifier bound",
     "A non-boolean expression (",

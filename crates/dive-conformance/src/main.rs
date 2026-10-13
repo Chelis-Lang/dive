@@ -159,6 +159,7 @@ struct Opts {
     seed: Option<i64>,
     lncheck: Option<String>,
     fp: Option<u32>,
+    features: Vec<String>,
     positional: Vec<String>,
 }
 
@@ -231,6 +232,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
                 o.lncheck = Some(v);
             }
             "--fp" => o.fp = Some(parse_num(&a, &args.value(&a)?)?),
+            "--feature" => o.features.push(args.value(&a)?),
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
             _ => o.positional.push(a),
         }
@@ -626,13 +628,15 @@ fn eprintln_safe(s: &str) {
 }
 
 /// `dev capture --oracle <id> --specs <dir> --out <dir> [--seed N]
-/// [--lncheck MODE] [--workers N] [--fp N] [NAME...]`:
+/// [--lncheck MODE] [--workers N] [--fp N] [--feature F]... [NAME...]`:
 /// runs the oracle exactly as the harness does on `<dir>/<NAME>/<NAME>.tla`
 /// (+`.cfg`) and records stdout, stderr, exit code and the JSON trace as test
 /// fixtures, plus SANY's output on the module. `--seed` replaces the harness's
 /// `-seed 0` (for randomization fixtures), `--lncheck` its `-lncheck final`
 /// `--workers N` (one count) its `-workers 1` and `--fp N` its `-fp 0` (for
-/// liveness probes). A
+/// liveness probes). `--feature F` gives the specs an Examples manifest
+/// feature, as golden generation would (`action composition` adds
+/// `-Dtlc2.tool.impl.Tool.cdot=true`). A
 /// multi-worker capture records no JSON trace: the trace pass runs only at
 /// one worker.
 /// The transcript is the clean run's (no `-dumpTrace`); a counterexample's
@@ -675,7 +679,7 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
             module: &module,
             config: &config_path,
             mode: CheckMode::Exhaustive,
-            features: &[],
+            features: &o.features,
             workers,
             timeout: Duration::from_secs(300),
             xmx: &lim.xmx,

@@ -439,6 +439,9 @@ impl<S: Keyed> Expand<'_, S> {
         let s0 = &state_values;
         let state = index as u64;
         let mut generated = 0u64;
+        // TLC's intermediate states of `\cdot`, counted as generated but
+        // never successors (`--action-composition=tlc`, D-022).
+        let mut intermediate = 0u64;
         let accepted_start = accepted.len();
         let mut event: Option<Event> = None;
         for a in actions {
@@ -530,6 +533,10 @@ impl<S: Keyed> Expand<'_, S> {
                         }
                     }
                 });
+            intermediate = intermediate.saturating_add(match &r {
+                Ok(o) => o.intermediate,
+                Err(e) => e.intermediate,
+            });
             match r {
                 Ok(o) if o.stopped => break,
                 Ok(_) => {}
@@ -552,6 +559,25 @@ impl<S: Keyed> Expand<'_, S> {
                     break;
                 }
             }
+        }
+        if intermediate > 0 {
+            // The pool's per-unit counts are successor ordinals as well as
+            // generated counts; TLC's uncounted-successor intermediates would
+            // split them. Refused by name, never miscounted.
+            let j = u32::try_from(generated).unwrap_or(u32::MAX);
+            let key = ((state, ua, j), PH_ENUM);
+            flush(cap, lines, key);
+            event = Some(Event {
+                key,
+                unit,
+                c: generated,
+                verdict: Verdict::Unsupported {
+                    feature: "TLC's counting of action-composition intermediate states (`--action-composition=tlc`) with more than one worker".to_owned(),
+                },
+                then: None,
+                resume: false,
+                stutter: false,
+            });
         }
         if event.is_none() {
             let j = u32::try_from(generated).unwrap_or(u32::MAX);

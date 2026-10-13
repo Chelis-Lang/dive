@@ -150,6 +150,11 @@ impl Search<'_> {
             ));
         }
         match &node.expr {
+            Expr::Cdot(..) => {
+                return Err(ExistsError::Unsupported(
+                    crate::COMPOSITION_UNSUPPORTED.to_owned(),
+                ));
+            }
             Expr::Builtin {
                 op: BuiltinOp::Prime | BuiltinOp::Unchanged,
                 args,

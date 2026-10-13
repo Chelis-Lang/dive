@@ -24,6 +24,17 @@ never silently authorizes host I/O; unsupported operators refuse. The planned
 category-grant CLI is not exposed in this checkout; host environment reads,
 file operations and process execution remain named refusals.
 
+Action composition (`A \cdot B`) uses `--action-composition=tla` by default,
+counting only composed successors. `--compat=tlc` turns it off; an explicit
+`--action-composition=tlc` or `-Dtlc2.tool.impl.Tool.cdot=true` enables TLC's
+experimental behavior, including intermediate generated counts and sequential
+BFS checking. DFID and simulation count only emitted successors in either
+enabled mode. An explicit composition option takes precedence over the profile,
+regardless of flag order, and `options.action_composition` reports the resolved
+setting. Default mode refuses the enclosing conjunctions TLC's algorithm
+distorts. Independent trace replay currently refuses enabled composition when
+it requires intermediate-state enumeration. See [D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning).
+
 Always record the reported seed and fingerprint settings for replay. A seeded
 mode still has to prove its draw order; the independent validator refuses random
 traces whose alignment it cannot establish. Current DFID TLC iterations have

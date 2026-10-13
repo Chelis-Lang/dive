@@ -34,7 +34,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
@@ -399,6 +399,22 @@ fn check_command(
                 }
             }
             "-deadlock" => req.no_deadlock = true,
+            "--action-composition" => match value().as_deref() {
+                Some("off") => req.action_composition = Some(dive_api::ActionComposition::Off),
+                Some("tlc") => req.action_composition = Some(dive_api::ActionComposition::Tlc),
+                Some("tla") => req.action_composition = Some(dive_api::ActionComposition::Tla),
+                _ => return usage_error(err, "--action-composition expects off, tlc or tla"),
+            },
+            // TLC's JVM switch, spelled as TLC users pass it.
+            "-Dtlc2.tool.impl.Tool.cdot" => match value().as_deref() {
+                Some("true") => req.action_composition = Some(dive_api::ActionComposition::Tlc),
+                _ => {
+                    return usage_error(
+                        err,
+                        "-Dtlc2.tool.impl.Tool.cdot expects true (or use --action-composition)",
+                    );
+                }
+            },
             "--sequential" => req.sequential = true,
             "--seen-disk-entries" => match value().and_then(|v| v.parse().ok()) {
                 Some(n) => {

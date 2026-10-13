@@ -15,7 +15,9 @@ repository.workspace = true
 # must therefore depend on `dive-eval` with `default-features = false`.
 # Without it, `ENABLED` (which searches for a successor) is refused.
 default = ["enumerate"]
-enumerate = []
+# The dev-only model harness needs action fields when this feature is on;
+# standalone core regressions must not enable it through a dev dependency.
+enumerate = ["dive-model/enumerate"]
 
 [dependencies]
 dive-ir.workspace = true
@@ -23,7 +25,7 @@ dive-value.workspace = true
 
 [dev-dependencies]
 dive-sema.workspace = true
-dive-model.workspace = true
+dive-model = { workspace = true, default-features = false }
 dive-config.workspace = true
 proptest.workspace = true
 serde_json.workspace = true
@@ -38,6 +40,10 @@ required-features = ["enumerate"]
 
 [[test]]
 name = "next_examples"
+required-features = ["enumerate"]
+
+[[test]]
+name = "cdot"
 required-features = ["enumerate"]
 
 [[example]]

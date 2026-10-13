@@ -215,6 +215,12 @@ fn sequential_op(op: StdOp, key: Option<&Expr>) -> Option<String> {
         .then(|| format!("{name} ({})", op.support().describe()))
 }
 
+/// TLC's action composition counts its intermediate states as generated; the
+/// parallel engine's per-source counts double as successor ordinals.
+/// Sequential BFS reason for TLC composition intermediate-state accounting.
+/// DFID and simulation ignore those intermediate states, as their TLC functors do.
+pub const TLC_CDOT: &str = "action composition under `--action-composition=tlc` (TLC counts its intermediate states as generated)";
+
 /// Why `model` must be checked in sequential mode (ADR 0015 §6, ADR 0014 §7),
 /// in a stable order; empty when the parallel engine may run it.
 ///
@@ -262,6 +268,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
             }
         }
     }
+    let tlc_cdot = b.opts.eval.action_composition == dive_eval::ActionComposition::Tlc;
     let impure = |e: ExprId| ir.node(e).effects.intersects(Effects::IMPURE);
     let mut seen = vec![false; ir.nodes().len()];
     while let Some(e) = exprs.pop() {
@@ -298,6 +305,9 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
                         out.extend(sequential_op(op, None));
                     }
                 }
+            }
+            Expr::Cdot(..) if tlc_cdot => {
+                out.insert(TLC_CDOT.to_owned());
             }
             Expr::SetFilter { pred, .. } if impure(*pred) => {
                 out.insert("side effects inside a set filter TLC evaluates lazily".to_owned());

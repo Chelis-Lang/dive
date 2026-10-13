@@ -106,6 +106,8 @@ use crate::error::{Ec, ErrorClass, EvalError, Result};
 pub use crate::scope::Scope;
 use crate::{ConstBinding, Evaluator};
 
+mod cdot;
+
 /// A state's variable values by [`dive_ir::VarId`], `None` where unassigned.
 pub type StateVals = Arc<[Option<Value>]>;
 
@@ -221,6 +223,12 @@ impl Successor<'_> {
 pub struct Outcome {
     /// States handed to the sink.
     pub emitted: u64,
+    /// Intermediate states of action compositions that count as generated
+    /// without being handed to the sink (TLC's
+    /// `nss.incrementStatesGenerated`; [`crate::ActionComposition::Tlc`]
+    /// only, 0 otherwise). A checker adds them to its generated count, and
+    /// they keep the expanded state from being a deadlock, as in TLC.
+    pub intermediate: u64,
     /// Whether the sink stopped the enumeration.
     pub stopped: bool,
 }
@@ -233,6 +241,9 @@ pub struct NextError {
     pub error: EvalError,
     /// States handed to the sink before it.
     pub emitted: u64,
+    /// Intermediate states counted as generated before it (see
+    /// [`Outcome::intermediate`]).
+    pub intermediate: u64,
     /// The action being enumerated (`None` for initial states).
     pub action: Option<usize>,
 }
@@ -434,12 +445,14 @@ impl Evaluator {
                 .map_err(|error| NextError {
                     error,
                     emitted: 0,
+                    intermediate: 0,
                     action: None,
                 })?;
         }
         let Some(first) = inits.first() else {
             return Ok(Outcome {
                 emitted: 0,
+                intermediate: 0,
                 stopped: false,
             });
         };
@@ -456,6 +469,7 @@ impl Evaluator {
             action: first,
             ordinal: 0,
             emitted: 0,
+            intermediate: 0,
             sink,
         };
         let r = g.step(first.expr, &acts, &first.env);
@@ -481,6 +495,7 @@ impl Evaluator {
             .map_err(|error| NextError {
                 error,
                 emitted: 0,
+                intermediate: 0,
                 action: Some(action.id),
             })?;
         let mut g = Gen {
@@ -491,6 +506,7 @@ impl Evaluator {
             action,
             ordinal,
             emitted: 0,
+            intermediate: 0,
             sink,
         };
         let r = g.step(action.expr, &None, &action.env);
@@ -509,25 +525,30 @@ impl Evaluator {
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
         let mut total = 0u64;
+        let mut intermediate = 0u64;
         for a in actions {
             match self.next_states(a, s0, total, sink) {
                 Ok(o) => {
                     total += o.emitted;
+                    intermediate += o.intermediate;
                     if o.stopped {
                         return Ok(Outcome {
                             emitted: total,
+                            intermediate,
                             stopped: true,
                         });
                     }
                 }
                 Err(mut e) => {
                     e.emitted += total;
+                    e.intermediate += intermediate;
                     return Err(e);
                 }
             }
         }
         Ok(Outcome {
             emitted: total,
+            intermediate,
             stopped: false,
         })
     }
@@ -599,6 +620,8 @@ struct Gen<'a, 's> {
     action: &'a Action,
     ordinal: u64,
     emitted: u64,
+    /// Intermediate states of `\cdot` counted as generated (`cdot.rs`).
+    intermediate: u64,
     sink: &'s mut dyn FnMut(&Successor<'_>) -> Flow,
 }
 
@@ -611,11 +634,13 @@ impl Gen<'_, '_> {
         match r {
             Ok(flow) => Ok(Outcome {
                 emitted: self.emitted,
+                intermediate: self.intermediate,
                 stopped: flow == Flow::Stop,
             }),
             Err(error) => Err(NextError {
                 error,
                 emitted: self.emitted,
+                intermediate: self.intermediate,
                 action,
             }),
         }
@@ -977,6 +1002,7 @@ impl Gen<'_, '_> {
                 args,
             } if args.len() == 2 => self.assign(*op, args[0], args[1], e, acts, env),
             Expr::Unchanged(a) if !self.init => self.unchanged(*a, acts, env),
+            Expr::Cdot(a, b) if !self.init => self.cdot(*a, *b, acts, env, e),
             Expr::StepBox { action, sub } if !self.init => {
                 // OPCODE_sa
                 if self.step(*action, acts, env)? == Flow::Stop {
@@ -2357,10 +2383,7 @@ impl Enab {
                     self.loc(e)
                 ))),
             },
-            Expr::Cdot(..) => Err(EvalError::general(format!(
-                "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",
-                self.loc(e)
-            ))),
+            Expr::Cdot(a, b) => self.cdot(*a, *b, acts, env, &s1, e),
             Expr::Builtin {
                 op: op @ (BuiltinOp::Eq | BuiltinOp::In | BuiltinOp::Subseteq),
                 args,
