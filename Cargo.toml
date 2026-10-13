@@ -28,8 +28,6 @@ dive-trace = { path = "crates/dive-trace" }
 dive-model = { path = "crates/dive-model" }
 dive-pluscal = { path = "crates/dive-pluscal" }
 dive-api = { path = "crates/dive-api" }
-dive-lsp = { path = "crates/dive-lsp" }
-dive-compile = { path = "crates/dive-compile" }
 dive-conformance = { path = "crates/dive-conformance" }
 
 # Third-party. Add here first, then reference with `workspace = true`.

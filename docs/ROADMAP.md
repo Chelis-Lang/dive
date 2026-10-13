@@ -110,6 +110,11 @@ access still requires explicit category grants even under `--compat=tlc`.
 
 ## After parity
 
+The empty `dive-lsp` and `dive-compile` placeholder crates are retired
+([ADR 0095](decisions/0095-retire-tooling-placeholders.md)). Language-server and
+native-compilation work remain deferred until after v1, when they return as
+fresh implementations.
+
 - **Integration:** LSP on the certified front end/checker.
 - **Compilation:** native specification compilation and the Verus export path.
 
