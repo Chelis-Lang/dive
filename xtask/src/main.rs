@@ -4,6 +4,7 @@
 mod features;
 mod gate;
 mod layering;
+mod pluscal_corpus;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -19,6 +20,8 @@ commands:
     protect-main    apply branch protection to main on GitHub (PR mode)
     gate            run the local gate: --fast mirrors CI's Workspace gate;
                     --full [--skip-corpus] adds the whole suite and conformance
+    pluscal-corpus  measure `dive translate` against the pinned pcal.trans over
+                    every PlusCal module of the pinned corpora (--help for options)
 ";
 
 type Result<T> = std::result::Result<T, String>;
@@ -30,6 +33,7 @@ fn main() -> ExitCode {
         Some("check-layering") => check_layering(),
         Some("protect-main") => protect_main(),
         Some("gate") => gate::gate(&args[1..]),
+        Some("pluscal-corpus") => pluscal_corpus::pluscal_corpus(&args[1..]),
         _ => Err(USAGE.to_owned()),
     };
     match result {
