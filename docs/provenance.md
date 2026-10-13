@@ -968,3 +968,20 @@ Init and keeps ordinary state/action contexts for later checks.
 pinned one-worker control; the test reads its concrete states, and API and
 trace tests reject altered initial, step and ending claims. This fixes an
 inherited context mismatch without changing register or random admission.
+
+## Action composition
+
+`dive-eval/src/next/cdot.rs` follows `tlc2.tool.impl.Tool` at tlaplus
+`94d0c50` (MIT): `OPCODE_cdot` in `getNextStates` (lines 1488–1531), `eval`
+(2772–2808) and `enabled` (3371–3393). TLC's composition switch and intermediate
+state accounting are retained in `ActionComposition::Tlc`. Intermediate counts
+from nested `StateVec`/anonymous functors are intentionally discarded, as in the
+pinned source; DFID and simulation use emitted successors only.
+
+D-022 records the default TLA+ counterpart, which counts composed successors and
+refuses enclosing conjunctions whose continuation or preassigned variables TLC
+would distort. Tests retain the complete existing six-probe selection and its
+consumed pinned oracle fixtures. The independent evaluator build explicitly
+refuses enabled composition without `enumerate`; it never imports the checker
+successor generator to validate a trace. Ordinary liveness integration remains
+pending, including TLC-profile intermediate accounting in captured search.

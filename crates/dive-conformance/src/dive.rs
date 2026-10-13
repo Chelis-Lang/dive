@@ -208,6 +208,15 @@ impl DiveImplementation {
             extra.push("--module-path".as_ref());
             extra.push(p.path.as_os_str());
         }
+        // TLC runs these with `-Dtlc2.tool.impl.Tool.cdot=true`
+        // (`oracle::run_tlc`); the default profile composes actions anyway
+        // (D-022).
+        if self.profile != Profile::Dive
+            && req.model.features.iter().any(|f| f == "action composition")
+        {
+            extra
+                .extend::<[&std::ffi::OsStr; 2]>(["--action-composition".as_ref(), "tlc".as_ref()]);
+        }
         if final_short {
             extra.extend::<[&std::ffi::OsStr; 4]>([
                 "--lncheck".as_ref(),
@@ -803,11 +812,6 @@ impl Implementation for DiveImplementation {
                 "{:?} mode: `dive check` does exhaustive search only",
                 req.model.mode
             )));
-        }
-        if req.model.features.iter().any(|f| f == "action composition") {
-            return Ok(ImplResult::Unsupported(
-                "action composition (TLC's `-Dtlc2.tool.impl.Tool.cdot=true`)".to_owned(),
-            ));
         }
         let (command, outcome) = self.run_model(req, false)?;
         Ok(match check_result(&outcome, self.profile == Profile::Tlc) {

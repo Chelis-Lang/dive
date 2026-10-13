@@ -1211,6 +1211,14 @@ impl<S: Keyed> Search<'_, '_, S> {
                         Flow::Stop
                     }
                 });
+                // TLC counts the intermediate states of `\cdot` as generated
+                // (`--action-composition=tlc`, D-022), so they also keep the
+                // state from being a deadlock.
+                let intermediate = match &r {
+                    Ok(o) => o.intermediate,
+                    Err(e) => e.intermediate,
+                };
+                self.generated = self.generated.saturating_add(intermediate);
                 if let Err(e) = r {
                     // The counterexample ends at the state being expanded
                     // (probe `EvalErrorMidLevel`).

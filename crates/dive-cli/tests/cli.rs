@@ -1078,3 +1078,67 @@ fn translate_rejects_multiple_fairness_flags_before_loading() {
         assert_eq!(output.stdout, [] as [u8; 0]);
     }
 }
+
+#[test]
+fn composition_modes_and_jvm_alias_override_profile_in_either_order()
+-> Result<(), Box<dyn std::error::Error>> {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-eval/tests/fixtures/cdot/specs/CdDeadlock/CdDeadlock.tla");
+    let controls: &[(&[&str], &str, i32, u64)] = &[
+        (&[], "tla", 11, 1),
+        (&["--compat=tlc"], "off", 75, 1),
+        (&["--compat=tlc", "--action-composition=tlc"], "tlc", 0, 2),
+        (&["--action-composition=tlc", "--compat=tlc"], "tlc", 0, 2),
+        (&["--compat=tlc", "--action-composition=tla"], "tla", 11, 1),
+        (&["--action-composition=tla", "--compat=tlc"], "tla", 11, 1),
+        (
+            &["--compat=tlc", "-Dtlc2.tool.impl.Tool.cdot=true"],
+            "tlc",
+            0,
+            2,
+        ),
+        (
+            &["-Dtlc2.tool.impl.Tool.cdot=true", "--compat=tlc"],
+            "tlc",
+            0,
+            2,
+        ),
+        (
+            &[
+                "--action-composition=tla",
+                "-Dtlc2.tool.impl.Tool.cdot=true",
+            ],
+            "tlc",
+            0,
+            2,
+        ),
+        (
+            &[
+                "-Dtlc2.tool.impl.Tool.cdot=true",
+                "--action-composition=off",
+            ],
+            "off",
+            13,
+            1,
+        ),
+    ];
+    for (flags, mode, exit, generated) in controls {
+        let path = path.to_string_lossy();
+        let mut args = vec!["check", &path, "--seed=0", "--fp=0", "--output=json"];
+        args.extend_from_slice(flags);
+        let output = dive(&args);
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(output.status.code(), Some(*exit), "{flags:?}: {report}");
+        assert_eq!(report["options"]["action_composition"], *mode);
+        assert_eq!(report["statistics"]["generated"], *generated);
+        assert_eq!(report["statistics"]["distinct"], 1);
+        assert_eq!(report["tlc"]["verified"], true, "{report}");
+        if *mode == "off" {
+            assert_eq!(report["verdict"], "evaluation-error");
+            assert_eq!(report["tlc"]["code"], 2103);
+            assert_eq!(report["tlc"]["reported"], 1000);
+            assert_eq!(report["tlc"]["exit_status"], 75);
+        }
+    }
+    Ok(())
+}

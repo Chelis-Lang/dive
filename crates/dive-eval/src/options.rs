@@ -55,6 +55,34 @@ pub enum Comparisons {
     Tla,
 }
 
+/// Whether and how `A \cdot B` (action composition) is evaluated (D-022).
+///
+/// TLC refuses action composition unless the JVM runs with
+/// `-Dtlc2.tool.impl.Tool.cdot=true`, which enables what TLC calls an
+/// incomplete implementation (`Tool.java`, `OPCODE_cdot`). dive implements the
+/// operator by default, with its TLA+ meaning: `s -(A \cdot B)-> u` iff some
+/// state `t` has `s -A-> t` and `t -B-> u`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+pub enum ActionComposition {
+    /// TLC without the switch: every use is TLC's error
+    /// (`--action-composition=off`; part of `--compat=tlc`).
+    Off,
+    /// TLC with `-Dtlc2.tool.impl.Tool.cdot=true`, reproduced exactly
+    /// (`--action-composition=tlc`): the intermediate states count as
+    /// generated (so a state whose only `A` steps have no `B` step is not a
+    /// deadlock), the rest of an enclosing conjunction is evaluated after `A`
+    /// as well as after `B`, and a variable the conjunction already assigned
+    /// is pre-set in the intermediate state to its current value.
+    Tlc,
+    /// The TLA+ meaning (`--action-composition=tla`, the default profile's
+    /// setting): only composed successors are generated, and a composition
+    /// whose result TLC's algorithm would distort (one with a continuation or
+    /// with variables already assigned) is refused by name, never
+    /// approximated.
+    #[default]
+    Tla,
+}
+
 /// The evaluator's options.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Options {
@@ -74,6 +102,8 @@ pub struct Options {
     /// how many successors are generated, so it is part of the semantics.
     /// `true` in both profiles, as in TLC.
     pub warnings: bool,
+    /// Action composition (`\cdot`, D-022).
+    pub action_composition: ActionComposition,
 }
 
 /// The stack size evaluation needs at [`DEFAULT_MAX_DEPTH`], with room to
@@ -95,6 +125,7 @@ impl Options {
             comparisons: Comparisons::Tlc,
             max_depth: DEFAULT_MAX_DEPTH,
             warnings: true,
+            action_composition: ActionComposition::Off,
         }
     }
 
@@ -103,6 +134,7 @@ impl Options {
     /// - Big integers and canonical `CHOOSE` order (owner-approved, ADR 0010).
     /// - Exploration in the canonical order (owner decision, D-010).
     /// - TLA+ comparison answers (owner decision, D-009).
+    /// - Action composition with its TLA+ meaning (D-022).
     #[must_use]
     pub const fn dive() -> Self {
         Self {
@@ -111,6 +143,7 @@ impl Options {
             comparisons: Comparisons::Tla,
             max_depth: DEFAULT_MAX_DEPTH,
             warnings: true,
+            action_composition: ActionComposition::Tla,
         }
     }
 
@@ -130,6 +163,7 @@ impl Options {
             && self.ctx.order == ValueOrder::Tlc
             && self.exploration == ExplorationOrder::Tlc
             && self.comparisons == Comparisons::Tlc
+            && self.action_composition != ActionComposition::Tla
     }
 
     /// The order sets are explored in.

@@ -959,7 +959,8 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - `x' \subseteq S` where `S` is not a set.
 - **`dive check` refusals.** The checker refuses, naming the feature, rather than give an answer it cannot vouch for:
   - temporal properties (liveness checking is not implemented yet) and `SYMMETRY`;
-  - simulation mode and action composition (`\cdot`);
+  - simulation mode;
+  - action composition (`\cdot`) with conjuncts after it or variables assigned before it, in the default mode (D-022);
   - anything the binding stage or the evaluator refuses (for example `IOUtils`, `Json` and the CommunityModules operators listed above);
   - evaluation errors whose exact TLC error class depends on value-source metadata not yet retained by dive. The 175-model error matrix identifies ten such cases explicitly; dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
 
@@ -2595,3 +2596,61 @@ admission limitation/repair, not a new reference-tool divergence. Native/user
 calls, providers and exhausted/opaque eager contexts remain unsupported. The
 complete original 1,762-pass/two-failure gate is retained; fresh qualification
 is pending.
+
+---
+
+## D-022: Action composition works by default, with its TLA+ meaning
+
+| | |
+|---|---|
+| **Kind** | Different answer (only for specs that use `\cdot`) |
+| **Default** | `--action-composition=tla`: `A \cdot B` is evaluated, in successor generation, in expressions and under `ENABLED`, as TLA+ defines it |
+| **TLC behaviour** | `--action-composition=off`, part of `--compat=tlc`: every use is TLC's error. `--action-composition=tlc` (also spelled `-Dtlc2.tool.impl.Tool.cdot=true`) reproduces TLC with that switch exactly |
+| **Status** | default in `dive-eval` (`ActionComposition::Tla`); the TLC modes are implemented and tested against the pinned TLC |
+
+**What TLC does.** TLC refuses `A \cdot B` ("The current version of TLC does not support action composition") unless its JVM runs with `-Dtlc2.tool.impl.Tool.cdot=true`, which enables what TLC calls an incomplete implementation. With the switch, TLC enumerates the states `t` that `A` leads to, then the states `B` leads to from each `t`. Two things go wrong:
+
+- **It counts the intermediate states as generated, and so hides deadlocks.** TLC decides that a state is deadlocked when expanding it generated nothing. The intermediate states count, so a state whose `A` steps all lead to states where `B` is disabled is not reported:
+
+  ```tla
+  VARIABLE x
+  Init == x = 0
+  Next == (x' = x + 1) \cdot (x < 1 /\ x' = x + 1)
+  ```
+
+  `A \cdot B` has no step from `x = 0`, so this spec deadlocks at once. The pinned TLC (with the switch, deadlock checking on) reports success: 2 states generated (the initial state and the intermediate `x = 1`), 1 distinct state.
+- **Conjuncts after the composition are also applied to the intermediate state,** and a variable assigned before it is pre-set in the intermediate state to its current value:
+
+  ```tla
+  VARIABLE x
+  Init == x = 0
+  Next == ((x' = x + 1) \cdot (x' = x + 1)) /\ x' = 2
+  ```
+
+  From `x = 0` the formula allows the step to `x = 2`. TLC also checks `x' = 2` against the intermediate state, where `x = 1`, generates nothing and reports a deadlock (1 state generated).
+
+Without the switch, `TLCGet("-Dtlc2.tool.impl.Tool.cdot")` returns its own key; with it, `"true"`. Examples `FiniteMonotonic/MCCRDT` and `MCReplicatedLog` assume the latter.
+
+**What dive does.** By default, dive evaluates `A \cdot B` with its TLA+ meaning: `s -> u` is a step iff some state `t` has `A` from `s` to `t` and `B` from `t` to `u`. Only the composed successors count as generated, so the first spec above is reported as deadlocked. Where the composition sits inside a conjunction (conjuncts after it, or variables already assigned before it) and TLC's algorithm would give a different answer, dive refuses by name rather than approximate. `TLCGet("-Dtlc2.tool.impl.Tool.cdot")` is `"true"` whenever composition is enabled.
+
+Under `--compat=tlc` composition is off, as in TLC. `--action-composition=tlc` reproduces TLC with the switch, including the counts and the hidden deadlock. dive runs it in sequential mode, because the intermediate states count as generated but are not successors. The conformance harness passes it for models with the Examples `action composition` feature, as it passes the switch to TLC. DFID and simulation count only emitted successors in both enabled modes, following their pinned TLC functors. For `CdDeadlock`, each reports deadlock (2114) with one generated state even in `tlc` composition mode; the pinned TLC exits 11. Composition being disabled retains the named refusal of an unverified DFID/simulation evaluation-error context. Ordinary temporal composition and its captured intermediate accounting remain unfinished.
+
+**Evidence.** `crates/dive-eval/tests/cdot.rs`, with specs and compact generated pinned-TLC results in `crates/dive-eval/tests/fixtures/cdot/`:
+
+| Probe | TLC with the switch (generated / distinct) | dive default |
+|---|---|---|
+| `CdNext` (top-level composition) | success, 65 / 18 | deadlock: a state with `y = 3` and `x < 4` has `A` steps but no `B` step |
+| `CdDeadlock` (the first spec above) | success, 2 / 1 | deadlock, 1 / 1 |
+| `CdConj` (the second spec above) | deadlock, 1 / 1 | refused by name |
+| `CdEval` (action property) | `Prop` violated, 5 / 5 | the same |
+| `CdEnabled` (`ENABLED` in an invariant) | `Inv` violated, 2 / 2 | the same |
+| `CdOff` (no switch) | error 1000 | the same under `--compat=tlc` |
+
+`--action-composition=tlc` matches every TLC row. `MCCRDT` and `MCReplicatedLog` now get past the composition in both profiles, but both also check liveness properties, which `dive check` still refuses. Their safety part, checked without `PROPERTIES` at one worker, matches the pinned TLC goldens' counts:
+
+| Model | TLC golden (generated / distinct / depth) | `--compat=tlc --action-composition=tlc` | dive default |
+|---|---|---|---|
+| `MCCRDT` | 1,350,001 / 25,000 / 16 | 1,350,001 / 25,000 / 16 | 900,001 / 25,000 / 16 |
+| `MCReplicatedLog` | 17,425 / 1,363 / 13 | 17,425 / 1,363 / 13 | 11,617 / 1,363 / 13 |
+
+The default profile's generated counts leave out TLC's 450,000 and 5,808 intermediate states.

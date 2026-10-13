@@ -692,6 +692,13 @@ fn classify(e: &EvalError, measured: Option<(u32, String)>) -> Outcome {
     }
 }
 
+fn sequential_for_composition(model: &Model) -> bool {
+    model
+        .sequential
+        .iter()
+        .all(|reason| reason == dive_model::TLC_CDOT)
+}
+
 fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if opts.check.seen_disk.is_some() {
         return Some(Outcome::Unsupported(
@@ -764,7 +771,9 @@ fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     // Runtime names need ordered execution, which this inline backend already
     // provides. Independent witness validation still refuses history it cannot
     // reconstruct; effects and live introspection remain prohibited here.
-    if !model.sequential.is_empty() && !model.sequential_names_only {
+    // TLC DFID counts only emitted successors: composition accounting does not
+    // introduce live state or effects and does not require a refusal.
+    if !model.sequential_names_only && !sequential_for_composition(model) {
         return refusal("DFID live checker state/effect reads");
     }
     let predicates = model

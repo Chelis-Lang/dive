@@ -352,6 +352,8 @@ pub use dive_sema;
 
 /// Bounded transient disk seen-state safety options.
 pub use dive_check::SeenOptions;
+/// Action composition modes (`--action-composition`, D-022).
+pub use dive_eval::ActionComposition;
 /// Limits for full disk keys, entries, probes and collision summaries.
 pub use dive_store::seen::Limits as SeenLimits;
 

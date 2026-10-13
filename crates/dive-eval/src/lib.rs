@@ -77,6 +77,32 @@ impl Core {
     }
 }
 
+/// Without the successor enumerator, `A \cdot B` (which enumerates the
+/// intermediate states) is refused, after TLC's error when the switch is off.
+#[cfg(not(feature = "enumerate"))]
+impl Core {
+    pub(crate) fn eval_cdot(
+        self: &Arc<Self>,
+        _env: &mut Env,
+        _st: &St,
+        _a: ExprId,
+        _b: ExprId,
+        e: ExprId,
+    ) -> Result<Ev> {
+        if self.opts.action_composition == ActionComposition::Off {
+            return Err(EvalError::general(format!(
+                "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",
+                self.loc(e)
+            )));
+        }
+        self.check_action_composition()?;
+        Err(EvalError::unsupported(format!(
+            "action composition without the successor enumerator (the `enumerate` feature) ({})",
+            self.loc(e)
+        )))
+    }
+}
+
 use ::std::collections::HashMap;
 use ::std::sync::Arc;
 
@@ -89,7 +115,8 @@ pub use crate::error::{Ec, ErrorClass, EvalError, Result};
 pub use crate::host::{Counter, Host, HostError, RunConfig, TLCGET_NAMES};
 pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
 pub use crate::options::{
-    Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile, RECOMMENDED_STACK,
+    ActionComposition, Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile,
+    RECOMMENDED_STACK,
 };
 pub use crate::scope::{Scope, SlotView};
 

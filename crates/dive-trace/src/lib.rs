@@ -83,8 +83,8 @@ use dive_model::Model;
 pub use format::{Ending, Label, Source, TraceDoc};
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
-    Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED, REGISTERS_UNSUPPORTED,
-    RUNTIME_NAMES_UNSUPPORTED, Report, Validation, validate,
+    COMPOSITION_UNSUPPORTED, Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED,
+    REGISTERS_UNSUPPORTED, RUNTIME_NAMES_UNSUPPORTED, Report, Validation, validate,
 };
 
 /// Reads a document in either format against `model` and validates it.

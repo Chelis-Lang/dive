@@ -35,6 +35,7 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
                         library_paths: Vec::new(),
                         module_paths: Vec::new(),
                         compat_tlc,
+                        action_composition: None,
                         store,
                         seed: Some(0),
                         fp: Some(0),
