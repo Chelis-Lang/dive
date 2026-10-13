@@ -58,7 +58,6 @@ fn witness_case(name: &str, root: &Path) {
                     controls.positive
                 );
                 assert!(controls.failures().is_empty(), "{:?}", controls.failures());
-                assert_ne!(controls.mutants, [] as [(String, Validation); 0]);
             }
         }
     }

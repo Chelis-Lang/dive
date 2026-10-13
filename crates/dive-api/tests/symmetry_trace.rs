@@ -1,7 +1,7 @@
 //! Actual symmetry-checker counterexamples through the independent validator.
 #![allow(clippy::expect_used, reason = "test assertions")]
 
-use dive_api::trace::{SpecModel, TraceDoc, TraceEncoding, TraceOptions, Validation};
+use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, TemporalMode, check_file};
 
 #[test]
@@ -25,7 +25,6 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
                     let report = check_file(&CheckRequest {
-                        trace_encoding: TraceEncoding::default(),
                         seen_disk: None,
                         frontier_memory_bytes: None,
                         frontier_directory: None,
@@ -60,7 +59,6 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
                         "{name}: {:?}",
                         controls.failures()
                     );
-                    assert_ne!(controls.mutants.len(), 0);
                 }
             }
         }

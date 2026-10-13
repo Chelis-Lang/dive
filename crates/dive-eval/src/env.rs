@@ -129,6 +129,25 @@ impl St {
         }
     }
 
+    /// An initial predicate on a supplied state (`Empty` successor, `Init`).
+    ///
+    /// Unlike ordinary state checks, this evaluates `TLCGet("level")` as 0.
+    /// Use [`Self::state`] for invariants and implied initial properties,
+    /// which are checked after the initial state has been generated.
+    ///
+    /// ```
+    /// use dive_eval::St;
+    /// use std::sync::Arc;
+    /// let initial = St::initial(Arc::from([Some(0.into())]));
+    /// ```
+    #[must_use]
+    pub fn initial(state: Arc<[Option<Value>]>) -> Self {
+        Self {
+            control: control::INIT,
+            ..Self::state(state)
+        }
+    }
+
     /// An action between `s0` and `s1` (`Clear`).
     #[must_use]
     pub fn action(s0: Arc<[Option<Value>]>, s1: Arc<[Option<Value>]>) -> Self {

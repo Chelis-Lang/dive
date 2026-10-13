@@ -115,7 +115,7 @@ fn a_deadlock_claim_with_a_real_successor_is_not_validated() {
         length: Some(1),
         properties: vec![],
     };
-    let report = dive_trace::validate(&model, &trace, None);
+    let report = dive_trace::validate(&model, &trace);
     assert!(
         matches!(report.validation, dive_trace::Validation::Unsupported(_)),
         "{report:?}"

@@ -54,9 +54,9 @@ on restore. TLC's counter reset is the default.
 `--checkpoint-counters retain` is an explicit override. Archives are trusted
 local inputs, not reachability certificates.
 
-**Trace transport.** Embedded traces default to version 1.
-`--trace-format representation-v2` carries stored-value representation tags.
-Decoding re-runs the ordinary constructors and refuses on any mismatch.
+**Trace transport.** Embedded traces use version 1. The opt-in stored-value
+trace representation was withdrawn by stage V (ADR 0016 amendment 3). This is
+separate from the structural storage codec used by spill and checkpoint files.
 
 **DFID.** `dive dfid --max-level N` (TLC: `-dfid N`) runs a native iterative-deepening engine in
 `dive-check`. It shares binding, evaluation, the state codec and fingerprints

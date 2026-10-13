@@ -1,4 +1,11 @@
-//! A witness must not establish the string encounter order that proves itself.
+//! Runtime names under TLC's encounter order (ADR 0016, amendment 3).
+//!
+//! Names interned when the model is bound (SANY's encounter order, which
+//! includes the identifiers of the standard modules, constants and the
+//! configuration) have TLC's tokens. The validator validates as usual and
+//! refuses the verdict only if decoding or checking created a name after
+//! binding. A witness can therefore never establish the order that proves
+//! itself.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_model::Model;
@@ -26,6 +33,10 @@ fn tuple_replay_model(source: &str, extra_config: &str) -> Model {
     .into_config()
     .expect("tuple config");
     dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("tuple binding")
+}
+
+fn refused() -> Validation {
+    Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
 }
 
 fn tuple_replay_doc(value: i64, lossy: bool) -> TraceDoc {
@@ -60,7 +71,7 @@ fn strict_whole_words_admit_proved_tuple_calls_and_reject_forged_steps() {
             assert!(model.runtime_name_order, "{expression}");
             let actual_word = tuple_replay_doc(actual, lossy);
             assert_eq!(
-                validate_doc(&model, &actual_word, &[], None).0.validation,
+                validate_doc(&model, &actual_word, &[]).0.validation,
                 Validation::Valid,
                 "{expression}; lossy={lossy}"
             );
@@ -68,7 +79,7 @@ fn strict_whole_words_admit_proved_tuple_calls_and_reject_forged_steps() {
             let fresh = tuple_replay_model(&source, "");
             let forged = tuple_replay_doc(if actual == 1 { 2 } else { 1 }, lossy);
             assert!(matches!(
-                validate_doc(&fresh, &forged, &[], None).0.validation,
+                validate_doc(&fresh, &forged, &[]).0.validation,
                 Validation::Invalid(_)
             ));
         }
@@ -76,15 +87,41 @@ fn strict_whole_words_admit_proved_tuple_calls_and_reject_forged_steps() {
 }
 
 #[test]
-fn strict_tuple_admission_keeps_string_branches_elements_and_assumptions_refused() {
-    for (definitions, expression) in [
-        ("", "Tail(\"ab\")"),
-        ("", "Tail(IF x=0 THEN <<0,1>> ELSE \"ab\")"),
-        ("", "Tail(<<0,ToString(x)>>)"),
-        ("ASSUME ToString(0)=\"0\"", "Tail(<<0,1>>)"),
+fn string_operands_refuse_only_when_replay_creates_a_name() {
+    // SANY interns every identifier and numeral it reads, so `"b"` (an
+    // identifier of the standard modules) and `"9137"` (a numeral of the
+    // spec) are start-up names: `Tail("ab")` and `ToString(9137)` create
+    // nothing. Branches not taken on the trace create nothing. `"q9"` and
+    // `"9137"` built from `9000+137` are created by the replay itself.
+    for (definitions, expression, expected) in [
+        ("", "Tail(\"ab\")", Validation::Valid),
+        ("", "Tail(\"zq9\")", refused()),
+        (
+            "",
+            "Tail(IF x=0 THEN <<0,1>> ELSE \"ab\")",
+            Validation::Valid,
+        ),
+        (
+            "",
+            "Tail(IF x=0 THEN <<0,1>> ELSE \"zq9\")",
+            Validation::Valid,
+        ),
+        ("", "Tail(<<0,ToString(x+9137)>>)", Validation::Valid),
+        ("", "Tail(<<0,ToString(x+9000+137)>>)", refused()),
+        (
+            "ASSUME ToString(0)=\"0\"",
+            "Tail(<<0,1>>)",
+            Validation::Valid,
+        ),
+        (
+            "ASSUME ToString(9000+137) # \"x\"",
+            "Tail(<<0,1>>)",
+            refused(),
+        ),
         (
             "Unknown == IF x=0 THEN <<0,1>> ELSE \"ab\"",
             "Tail(Unknown)",
+            Validation::Valid,
         ),
     ] {
         let source = tuple_replay_source(definitions, expression);
@@ -92,10 +129,10 @@ fn strict_tuple_admission_keeps_string_branches_elements_and_assumptions_refused
             let model = tuple_replay_model(&source, "");
             assert!(model.runtime_name_order);
             assert_eq!(
-                validate_doc(&model, &tuple_replay_doc(1, lossy), &[], None)
+                validate_doc(&model, &tuple_replay_doc(1, lossy), &[])
                     .0
                     .validation,
-                Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
+                expected,
                 "{definitions}; {expression}; lossy={lossy}"
             );
         }
@@ -103,12 +140,16 @@ fn strict_tuple_admission_keeps_string_branches_elements_and_assumptions_refused
 }
 
 #[test]
-fn configured_sequence_aliases_require_the_same_proof() {
-    for (expression, admitted) in [("Alias(<<0,1>>)", true), ("Alias(\"ab\")", false)] {
+fn configured_sequence_aliases_follow_the_same_rule() {
+    for (expression, admitted) in [
+        ("Alias(<<0,1>>)", true),
+        ("Alias(\"ab\")", true),
+        ("Alias(\"zq9\")", false),
+    ] {
         let source = tuple_replay_source("Alias(v) == v", expression);
         let model = tuple_replay_model(&source, "CONSTANT Alias <- Tail\n");
         assert!(model.runtime_name_order);
-        let actual = validate_doc(&model, &tuple_replay_doc(1, false), &[], None)
+        let actual = validate_doc(&model, &tuple_replay_doc(1, false), &[])
             .0
             .validation;
         assert_eq!(
@@ -123,26 +164,29 @@ fn configured_sequence_aliases_require_the_same_proof() {
 }
 
 #[test]
-fn tuple_guard_does_not_trust_pure_native_string_constructors() {
-    // Json is classified as pure and is not in the old runtime-name marker.
-    // The tuple call makes this model require the new complete admission walk.
+fn pure_native_string_constructors_are_not_trusted() {
+    // Json is classified as pure. The evaluator does not implement `ToJson`
+    // yet, so the ASSUME refuses before any name can be created.
     let source = tuple_replay_source("ASSUME ToJson(0)=\"0\"", "Tail(<<0,1>>)")
         .replace("Sequences, TLC", "Sequences, TLC, Json");
     for lossy in [false, true] {
         let model = tuple_replay_model(&source, "");
         assert!(model.runtime_name_order);
-        assert_eq!(
-            validate_doc(&model, &tuple_replay_doc(1, lossy), &[], None)
+        assert!(matches!(
+            validate_doc(&model, &tuple_replay_doc(1, lossy), &[])
                 .0
                 .validation,
-            Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
-        );
+            Validation::Unsupported(_)
+        ));
     }
 }
 
 #[test]
-fn inductive_tuple_history_admits_actual_steps_but_never_uses_witness_shape_as_proof() {
-    for (init, next, admits) in [
+fn tuple_histories_validate_by_replay_without_witness_shape_as_proof() {
+    // No case creates a name on this word: the string branches are not
+    // taken, and `"ab"` and `"b"` are start-up names. Each word gets the
+    // canonical verdict: valid with x=1, invalid with x=99 or a false Init.
+    for (init, next, init_holds) in [
         ("<<0,1>>", "x'=1 /\\ s'=Tail(s)", true),
         (
             "<<0,1>>",
@@ -157,15 +201,15 @@ fn inductive_tuple_history_admits_actual_steps_but_never_uses_witness_shape_as_p
         (
             "<<0,1>>",
             "x'=1 /\\ s'=IF x=0 THEN Tail(s) ELSE \"b\"",
-            false,
+            true,
         ),
         (
             "<<0,1>>",
             "x'=1 /\\ s'=IF x=0 THEN Tail(s) ELSE <<ToString(x)>>",
-            false,
+            true,
         ),
         ("\"ab\"", "x'=1 /\\ s'=Tail(s)", false),
-        ("<<0,1>>", "x'=1 /\\ Len(Tail(s))=1", false),
+        ("<<0,1>>", "x'=1 /\\ Len(Tail(s))=1", true),
     ] {
         let source = format!(
             "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\nInit == x=0 /\\ s = {init}\nNext == {next}\nInv == x=0\n====\n"
@@ -178,16 +222,13 @@ fn inductive_tuple_history_admits_actual_steps_but_never_uses_witness_shape_as_p
             ])
             .expect("tuple stack word")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-            let result = validate_doc(&model, &doc, &[], None).0.validation;
-            if admits && final_x == 1 {
+            let result = validate_doc(&model, &doc, &[]).0.validation;
+            if init_holds && final_x == 1 {
                 assert_eq!(result, Validation::Valid, "{next}");
-            } else if admits {
-                assert!(matches!(result, Validation::Invalid(_)), "{result:?}");
             } else {
-                assert_eq!(
-                    result,
-                    Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
-                    "{next}"
+                assert!(
+                    matches!(result, Validation::Invalid(_)),
+                    "{next}: {result:?}"
                 );
             }
         }
@@ -195,37 +236,35 @@ fn inductive_tuple_history_admits_actual_steps_but_never_uses_witness_shape_as_p
 }
 
 #[test]
-fn inductive_history_requires_every_initial_branch_and_retains_public_api_refusal() {
-    for (definitions, init, next, admitted) in [
+fn tuple_histories_with_string_alternatives_validate_the_actual_word() {
+    // The string alternatives are literals and are not taken on this word,
+    // so replay creates no name. The public existence API receives an
+    // arbitrary state and uses no facts about histories.
+    for (definitions, init, next) in [
         (
             "Drop(v) == Tail(v)",
             "x=0 /\\ s = <<0,1>>",
             "x'=1 /\\ s'=Drop(s)",
-            true,
         ),
         (
             "Drop(v) == LET Pair == v IN Tail(Pair)",
             "x=0 /\\ s = <<0,1>>",
             "x'=1 /\\ s'=Drop(s)",
-            true,
         ),
         (
             "",
             "(x=0 /\\ s = <<0,1>>) \\/ (x=2 /\\ s = \"ab\")",
             "x'=1 /\\ s'=Tail(s)",
-            false,
         ),
         (
             "",
             "x=0 /\\ s = <<0,1>>",
             "(x=0 /\\ x'=1 /\\ s'=Tail(s)) \\/ (x#0 /\\ x'=1)",
-            false,
         ),
         (
             "",
             "x=0 /\\ s = <<0,1>>",
             "x'=1 /\\ s'=(IF x=1 THEN s ELSE <<0>>)' /\\ Len(Tail(s))=1",
-            false,
         ),
     ] {
         let source = format!(
@@ -238,31 +277,29 @@ fn inductive_history_requires_every_initial_branch_and_retains_public_api_refusa
         ])
         .expect("stack history")
         .with_ending(Ending::Invariant("Inv".into()));
-        let result = validate_doc(&model, &doc, &[], None).0.validation;
-        if admitted {
-            assert_eq!(result, Validation::Valid);
-        } else {
-            assert!(matches!(result, Validation::Unsupported(_)), "{result:?}");
-        }
+        let result = validate_doc(&model, &doc, &[]).0.validation;
+        assert_eq!(result, Validation::Valid, "{init}; {next}");
         let trace = Trace::decode(&model, &doc).expect("decode stack");
-        // This API is allowed to receive any state, without a validated Init
-        // or predecessor chain. A model invariant cannot license that call.
-        assert!(matches!(
-            dive_trace::exists::exists_successor(
-                &model,
-                model.next.as_ref().expect("next"),
-                &trace.states[0],
-                None,
-                dive_trace::exists::Limits::default()
-            ),
-            Err(dive_trace::exists::ExistsError::Unsupported(_))
-        ));
+        let decision = dive_trace::exists::exists_successor(
+            &model,
+            model.next.as_ref().expect("next"),
+            &trace.states[0],
+            None,
+            dive_trace::exists::Limits::default(),
+        );
+        // The state has a successor: the decision may refuse (a call with a
+        // state-dependent argument has no cover rule), never be Disabled.
+        assert!(
+            !matches!(decision, Ok(dive_trace::exists::Decision::Disabled)),
+            "{next}: {decision:?}"
+        );
     }
 }
 
 #[test]
-fn tuple_hypotheses_are_jointly_inductive_and_failed_dependencies_are_removed() {
-    for (next_t, admitted) in [("s", true), ("IF x=0 THEN s ELSE \"ab\"", false)] {
+fn joint_tuple_histories_validate_the_actual_word() {
+    // The string branch is not taken and `"ab"` is a literal: both validate.
+    for next_t in ["s", "IF x=0 THEN s ELSE \"ab\""] {
         let source = format!(
             "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s,t\nInit == x=0 /\\ s = <<0,1>> /\\ t = <<2,3>>\nNext == x'=1 /\\ s'=Tail(t) /\\ t'={next_t}\nInv == x=0\n====\n"
         );
@@ -273,15 +310,8 @@ fn tuple_hypotheses_are_jointly_inductive_and_failed_dependencies_are_removed() 
         ])
         .expect("joint history")
         .with_ending(Ending::Invariant("Inv".into()));
-        let result = validate_doc(&model, &doc, &[], None).0.validation;
-        if admitted {
-            assert_eq!(result, Validation::Valid);
-        } else {
-            assert_eq!(
-                result,
-                Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
-            );
-        }
+        let result = validate_doc(&model, &doc, &[]).0.validation;
+        assert_eq!(result, Validation::Valid, "{next_t}");
     }
 }
 
@@ -308,13 +338,13 @@ fn forged_lossless_and_lossy_witnesses_cannot_prove_their_own_namespace() {
     assert!(m.runtime_name_order);
     let trace = Trace::decode(&m, &doc).expect("decode");
     let refused = Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned());
-    assert_eq!(validate(&m, &trace, None).validation, refused);
-    assert_eq!(validate_doc(&m, &doc, &[], None).0.validation, refused);
+    assert_eq!(validate(&m, &trace).validation, refused);
+    assert_eq!(validate_doc(&m, &doc, &[]).0.validation, refused);
     let lossy =
         TraceDoc::from_json(&json!({"vars":["x","s"],"counterexample":{"action":[],"state":[[1,{"x":6,"s":"unset"}],[2,{"x":6,"s":"7"}]]}}))
             .expect("TLC document")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-    assert_eq!(validate_doc(&m, &lossy, &[], None).0.validation, refused);
+    assert_eq!(validate_doc(&m, &lossy, &[]).0.validation, refused);
 }
 
 #[test]
@@ -324,12 +354,12 @@ fn canonical_validation_still_distinguishes_actual_and_forged_steps() {
     let actual = TraceDoc::behavior(vec![json!({"x":6,"s":"unset"}), json!({"x":6,"s":"6"})])
         .expect("actual");
     assert_eq!(
-        validate_doc(&m, &actual, &[], None).0.validation,
+        validate_doc(&m, &actual, &[]).0.validation,
         Validation::Valid
     );
     let forged = TraceDoc::parse(include_str!("fixtures/runtime-names/bad.json")).expect("forged");
     assert!(matches!(
-        validate_doc(&m, &forged, &[], None).0.validation,
+        validate_doc(&m, &forged, &[]).0.validation,
         Validation::Invalid(_)
     ));
 }
@@ -344,7 +374,7 @@ fn literal_names_remain_supported_in_tlc_order() {
     let actual = TraceDoc::behavior(vec![json!({"x":6,"s":"unset"}), json!({"x":6,"s":"6"})])
         .expect("actual");
     assert_eq!(
-        validate_doc(&m, &actual, &[], None).0.validation,
+        validate_doc(&m, &actual, &[]).0.validation,
         Validation::Valid
     );
 }
@@ -392,6 +422,10 @@ fn entry_state() -> dive_trace::State {
 
 #[test]
 fn predicate_apis_refuse_encounter_sensitive_names_with_or_without_config_roles() {
+    // `P` and `A` create "13" and "14" on state x=13: refused. `Q` and `B`
+    // create nothing and are decided, unless a name was already interned
+    // after binding (as by a checker sharing the model): then every answer
+    // is refused.
     for configured in [false, true] {
         let cfg = if configured {
             "INIT Init\nNEXT A\nPROPERTY P\n"
@@ -427,26 +461,43 @@ fn predicate_apis_refuse_encounter_sensitive_names_with_or_without_config_roles(
                 Err(dive_trace::exists::ExistsError::Unsupported(reason))
                     if reason == dive_trace::RUNTIME_NAMES_UNSUPPORTED
             ));
-            // Admission is predicate-scoped, not a blanket rejection of the model.
-            assert_eq!(
-                dive_trace::temporal::evaluate_lasso(
-                    &temporal,
-                    &predicate(&temporal, "Q"),
-                    &[entry_state()],
-                    0
-                ),
-                Ok(vec![true])
+            // The refusal is about names created, not about the model:
+            // fresh models decide `Q` and `B`.
+            let temporal = entry_model(ENTRY_SPEC, cfg, true);
+            let action = entry_model(ENTRY_SPEC, cfg, true);
+            if previous_encounter {
+                temporal.names.intern("14");
+                action.names.intern("14");
+            }
+            let q = dive_trace::temporal::evaluate_lasso(
+                &temporal,
+                &predicate(&temporal, "Q"),
+                &[entry_state()],
+                0,
             );
-            assert!(matches!(
-                dive_trace::exists::exists_successor(
-                    &action,
-                    &predicate(&action, "B"),
-                    &entry_state(),
-                    None,
-                    dive_trace::exists::Limits::default()
-                ),
-                Ok(dive_trace::exists::Decision::Enabled { .. })
-            ));
+            let b = dive_trace::exists::exists_successor(
+                &action,
+                &predicate(&action, "B"),
+                &entry_state(),
+                None,
+                dive_trace::exists::Limits::default(),
+            );
+            if previous_encounter {
+                assert!(matches!(
+                    q,
+                    Err(dive_trace::temporal::TemporalError::Unsupported(_))
+                ));
+                assert!(matches!(
+                    b,
+                    Err(dive_trace::exists::ExistsError::Unsupported(_))
+                ));
+            } else {
+                assert_eq!(q, Ok(vec![true]));
+                assert!(matches!(
+                    b,
+                    Ok(dive_trace::exists::Decision::Enabled { .. })
+                ));
+            }
         }
     }
 }
@@ -530,7 +581,12 @@ fn sequence_entry(expression: &str, extra: &str, config: &str) -> Model {
 
 #[test]
 fn scoped_tuple_only_sequence_calls_remain_independently_decidable() {
+    // Start-up strings, untaken string branches and opaque wrappers create
+    // no name either.
     for (expression, extra, cfg) in [
+        ("Tail(\"ab\")", "", ""),
+        ("Tail(IF x=13 THEN <<1,2>> ELSE \"ab\")", "", ""),
+        ("Tail(Identity(<<1,2>>))", "Identity(v)==v", ""),
         ("Tail(<<1,2>>)", "", ""),
         ("SubSeq(IF x=13 THEN <<1,2>> ELSE <<3,4>>,1,1)", "", ""),
         ("<<1>> \\o <<>>", "", ""),
@@ -574,13 +630,11 @@ fn scoped_tuple_only_sequence_calls_remain_independently_decidable() {
 }
 
 #[test]
-fn string_mixed_opaque_and_effectful_sequence_inputs_stay_refused() {
+fn created_names_and_effects_in_sequence_inputs_stay_refused() {
     for (expression, extra) in [
-        ("Tail(\"ab\")", ""),
-        ("Tail(IF x=13 THEN <<1,2>> ELSE \"ab\")", ""),
+        ("Tail(\"zq9\")", ""),
         ("Tail(<<ToString(x),ToString(x+1)>>)", ""),
         ("Tail(PrintT(<<1,2>>))", ""),
-        ("Tail(Identity(<<1,2>>))", "Identity(v)==v"),
     ] {
         let model = sequence_entry(expression, extra, "");
         assert!(
@@ -612,11 +666,13 @@ fn string_mixed_opaque_and_effectful_sequence_inputs_stay_refused() {
 }
 
 #[test]
-fn configured_operator_constants_follow_authoritative_native_tuple_bindings() {
-    for (init, target, admitted) in [
-        ("<<0,1>>", "Tail", true),
-        ("\"ab\"", "Tail", false),
-        ("<<0,1>>", "ToString", false),
+fn configured_operator_constants_follow_their_native_bindings() {
+    // A false Init is invalid. `ToString(s)` creates "<<0, 1>>": refused,
+    // unless `x'=1` already fails and the conjunction stops before it.
+    for (init, target, expected) in [
+        ("<<0,1>>", "Tail", None),
+        ("\"ab\"", "Tail", Some(false)),
+        ("<<0,1>>", "ToString", Some(true)),
     ] {
         let source = format!(
             "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nCONSTANT Drop(_)\nVARIABLES x,s\nInit == x=0 /\\ s = {init}\nNext == x'=1 /\\ s'=Drop(s)\nInv == x=0\n====\n"
@@ -629,29 +685,27 @@ fn configured_operator_constants_follow_authoritative_native_tuple_bindings() {
             ])
             .expect("configured native word")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-            let actual = validate_doc(&model, &word, &[], None).0.validation;
-            if admitted && final_x == 1 {
-                assert_eq!(actual, Validation::Valid);
-            } else if admitted {
-                assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}");
-            } else {
-                assert_eq!(
-                    actual,
-                    Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
-                );
+            let actual = validate_doc(&model, &word, &[]).0.validation;
+            match expected {
+                None if final_x == 1 => assert_eq!(actual, Validation::Valid),
+                None | Some(false) => {
+                    assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}");
+                }
+                Some(true) if final_x == 1 => assert_eq!(actual, refused()),
+                Some(true) => assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}"),
             }
         }
     }
 }
 
 #[test]
-fn inductive_shape_admission_does_not_make_forged_initial_or_successor_values_valid() {
-    // Necessary Init facts justify accepted histories. They do not promise
-    // that no native call can run while a malformed input is being rejected.
+fn forged_initial_or_successor_values_are_never_valid() {
+    // Decoding the string `"zab"` creates a name: refused. `"b"` is a start-up
+    // name, so the forged successor is refuted by evaluation.
     let source = "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\nInit == Len(Tail(s))=1 /\\ x=0 /\\ s = <<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
     for (initial, successor, admitted) in [
         (json!({"seq":[0,1]}), json!({"seq":[1]}), true),
-        (json!("ab"), json!({"seq":[1]}), false),
+        (json!("zab"), json!({"seq":[1]}), false),
         (json!({"seq":[0,1]}), json!("b"), false),
     ] {
         let model = tuple_replay_model(source, "");
@@ -661,9 +715,11 @@ fn inductive_shape_admission_does_not_make_forged_initial_or_successor_values_va
         ])
         .expect("adversarial concrete input")
         .with_ending(Ending::Invariant("Inv".to_owned()));
-        let actual = validate_doc(&model, &word, &[], None).0.validation;
+        let actual = validate_doc(&model, &word, &[]).0.validation;
         if admitted {
             assert_eq!(actual, Validation::Valid);
+        } else if initial == json!("zab") {
+            assert_eq!(actual, refused());
         } else {
             assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}");
         }
@@ -689,7 +745,7 @@ fn fixed_unchanged_tuple_projections_keep_actual_variable_identity() {
             ])
             .expect("actual tuple states")
             .with_ending(Ending::Invariant("Inv".to_owned()));
-            let actual = validate_doc(&model, &word, &[], None).0.validation;
+            let actual = validate_doc(&model, &word, &[]).0.validation;
             if final_x == 1 {
                 assert_eq!(actual, Validation::Valid, "{definitions}");
             } else {
@@ -700,10 +756,10 @@ fn fixed_unchanged_tuple_projections_keep_actual_variable_identity() {
 }
 
 #[test]
-fn unchanged_conditional_permutation_is_not_a_variable_invariant() {
+fn unchanged_conditional_permutation_validates_by_replay() {
     // Equality of this tuple can swap a tuple variable with a string. The
-    // actual supplied word satisfies Next, but cannot justify a tuple-only
-    // whole-history certificate. No inferred invariant may trust the word.
+    // actual supplied word satisfies Next, and replay creates no name
+    // (`"text"` is a literal): it validates in both orders.
     let source = "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s,t\nvars == IF x=1 THEN <<s,t>> ELSE <<t,s>>\nInit == x=0 /\\ s = <<0,1>> /\\ t=\"text\"\nNext == (x=0 /\\ x'=1 /\\ s'=Tail(s) /\\ t'=t) \\/ (x=1 /\\ x'=2 /\\ UNCHANGED vars)\nInv == x<2\n====\n";
     let word = TraceDoc::behavior(vec![
         json!({"x":0,"s":{"seq":[0,1]},"t":"text"}),
@@ -714,8 +770,8 @@ fn unchanged_conditional_permutation_is_not_a_variable_invariant() {
     .with_ending(Ending::Invariant("Inv".to_owned()));
     let model = tuple_replay_model(source, "");
     assert_eq!(
-        validate_doc(&model, &word, &[], None).0.validation,
-        Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+        validate_doc(&model, &word, &[]).0.validation,
+        Validation::Valid
     );
     let analysis =
         dive_sema::analyze_source("TupleReplay.tla", source, &dive_sema::Options::default());
@@ -729,13 +785,13 @@ fn unchanged_conditional_permutation_is_not_a_variable_invariant() {
     )
     .expect("canonical binding");
     assert_eq!(
-        validate_doc(&canonical, &word, &[], None).0.validation,
+        validate_doc(&canonical, &word, &[]).0.validation,
         Validation::Valid
     );
 }
 
 #[test]
-fn unchanged_projection_rejects_wrong_parameter_identity_and_excessive_depth() {
+fn unchanged_projections_of_any_shape_or_depth_validate_by_replay() {
     use std::fmt::Write as _;
     let mut deep = String::from("P0 == <<x,s>>\n");
     for index in 1..80 {
@@ -751,11 +807,208 @@ fn unchanged_projection_rejects_wrong_parameter_identity_and_excessive_depth() {
             json!({"x":0,"s":{"seq":[0,1]}}),
             json!({"x":1,"s":{"seq":[1]}}),
         ])
-        .expect("successful prefix is not evidence of all-branch preservation")
+        .expect("actual tuple states")
         .with_ending(Ending::Invariant("Inv".to_owned()));
         assert_eq!(
-            validate_doc(&model, &word, &[], None).0.validation,
-            Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+            validate_doc(&model, &word, &[]).0.validation,
+            Validation::Valid
         );
+    }
+}
+
+#[test]
+fn a_refutation_that_needs_a_created_name_is_refused_not_invalid() {
+    // The step's value `"8"` is not a start-up name, and refuting it
+    // evaluates `ToString(7)`, which creates another. TLC's order between
+    // them is unknown, so the validator refuses rather than judge.
+    let source = "---- MODULE ReplayNames ----\nEXTENDS Naturals, TLC\nVARIABLES x, s\nInit == x = 6 /\\ s = \"unset\"\nNext == x' = x /\\ s' = ToString(x + 1)\nInv == TRUE\n====\n";
+    let word = TraceDoc::behavior(vec![json!({"x":6,"s":"unset"}), json!({"x":6,"s":"8"})])
+        .expect("forged word");
+    let tlc = model(true, source);
+    assert_eq!(validate_doc(&tlc, &word, &[]).0.validation, refused());
+    let canonical = model(false, source);
+    assert!(matches!(
+        validate_doc(&canonical, &word, &[]).0.validation,
+        Validation::Invalid(_)
+    ));
+}
+
+#[test]
+fn sequences_of_model_values_validate_in_tlc_order() {
+    // The shape of MCCheckpointCoordinationFailure (#242): `SubSeq` and `\o`
+    // on a record field of a state variable and an EXCEPT `@`, over
+    // sequences of model values. Nothing is created, so the word validates.
+    let source = "---- MODULE Logs ----\nEXTENDS Naturals, Sequences\nCONSTANTS a, b\nVARIABLES latest, log\nInit == latest = [log |-> <<a, b>>] /\\ log = <<b>>\nNext == /\\ latest' = latest\n        /\\ log' = [log EXCEPT ![1] = @] \\o SubSeq(latest.log, 1, 1)\nInv == Len(log) < 3\n====\n";
+    let analysis = dive_sema::analyze_source("Logs.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+    let cfg = dive_config::parse("CONSTANTS a = a b = b\nINIT Init\nNEXT Next\nINVARIANT Inv\n")
+        .into_config()
+        .expect("cfg");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    assert!(model.runtime_name_order);
+    let state = |log: &[&str]| {
+        json!({
+            "latest": {"record": {"log": {"seq": [{"model": "a"}, {"model": "b"}]}}},
+            "log": {"seq": log.iter().map(|m| json!({"model": m})).collect::<Vec<_>>()},
+        })
+    };
+    let word = TraceDoc::behavior(vec![
+        state(&["b"]),
+        state(&["b", "a"]),
+        state(&["b", "a", "a"]),
+    ])
+    .expect("word")
+    .with_ending(Ending::Invariant("Inv".to_owned()));
+    assert_eq!(
+        validate_doc(&model, &word, &cfg.model_values).0.validation,
+        Validation::Valid
+    );
+    let forged = TraceDoc::behavior(vec![state(&["b"]), state(&["b", "b"])]).expect("forged word");
+    assert!(matches!(
+        validate_doc(&model, &forged, &cfg.model_values)
+            .0
+            .validation,
+        Validation::Invalid(_)
+    ));
+}
+
+#[test]
+fn existing_runtime_names_refuse_malformed_words_too() {
+    let m = entry_model(ENTRY_SPEC, "INIT Init\nNEXT Next\n", true);
+    m.names.intern("a-fresh-runtime-name");
+    assert_eq!(
+        dive_trace::temporal::evaluate_lasso(&m, &predicate(&m, "Q"), &[], 0),
+        Err(dive_trace::temporal::TemporalError::Unsupported(
+            dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned()
+        ))
+    );
+    let doc = TraceDoc::from_json(&json!({
+        "vars": ["x"], "counterexample": {"action": [], "state": [[1, {"x": 0}]]}
+    }))
+    .expect("TLC document without an ending");
+    assert_eq!(validate_doc(&m, &doc, &[]).0.validation, refused());
+}
+
+#[test]
+fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
+    use dive_trace::exists::{Decision, ExistsError, Limits, exists_successor};
+    use dive_trace::temporal::{TemporalError, evaluate_lasso};
+    use dive_value::{Interner, Value};
+
+    for tlc in [false, true] {
+        for nested in [false, true] {
+            let (initial_x, initial_y, select_x, select_y) = if nested {
+                ("<<\"a\">>", "<<\"b\">>", "x[1]", "y[1]")
+            } else {
+                ("\"a\"", "\"b\"", "x", "y")
+            };
+            let source = format!(
+                "---- MODULE EntryNames ----\nVARIABLES x,y\nInit == x = {initial_x} /\\ y = {initial_y}\nNext == UNCHANGED <<x,y>>\nInv == (CHOOSE v \\in {{{select_x},{select_y}}}: TRUE) = {select_x}\nP == []Inv\n====\n"
+            );
+            let m = entry_model(&source, "INIT Init\nNEXT Next\nINVARIANT Inv\n", tlc);
+            let foreign = Interner::new();
+            foreign.intern("b");
+            let state = |names: &Interner| -> dive_trace::State {
+                let wrap = |text| {
+                    let value = Value::string(names, text);
+                    if nested {
+                        Value::tuple(vec![value])
+                    } else {
+                        value
+                    }
+                };
+                Arc::from([Some(wrap("a")), Some(wrap("b"))])
+            };
+            for owned in [false, true] {
+                let here = state(if owned { &m.names } else { &foreign });
+                let trace = Trace {
+                    states: vec![here.clone()],
+                    labels: vec![None],
+                    ending: Ending::Invariant("Inv".to_owned()),
+                    length: None,
+                    properties: Vec::new(),
+                };
+                assert!(!m.has_runtime_names());
+                let report = validate(&m, &trace);
+                let temporal =
+                    evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&here), 0);
+                let enabled =
+                    exists_successor(&m, &predicate(&m, "Next"), &here, None, Limits::default());
+                if owned {
+                    let mut behavior = trace.clone();
+                    behavior.ending = Ending::Behavior;
+                    assert_eq!(validate(&m, &behavior).validation, Validation::Valid);
+                    // The actual start-up names make Inv true: this claimed
+                    // invariant violation is rejected, not a counterexample.
+                    assert!(
+                        matches!(report.validation, Validation::Invalid(_)),
+                        "{report:?}"
+                    );
+                    assert_eq!(temporal, Ok(vec![true]));
+                    assert!(
+                        matches!(enabled, Ok(Decision::Enabled { .. })),
+                        "{enabled:?}"
+                    );
+                } else {
+                    assert!(
+                        matches!(report.validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0041"))
+                    );
+                    assert!(
+                        matches!(temporal, Err(TemporalError::Unsupported(reason)) if reason.contains("DIVE-V0041"))
+                    );
+                    assert!(
+                        matches!(enabled, Err(ExistsError::Unsupported(reason)) if reason.contains("DIVE-V0041"))
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn opaque_typed_states_refuse_without_evaluation_or_callbacks() {
+    use dive_value::{Ctx, DeferredKind, DeferredSet, Value};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    #[derive(Debug, Default)]
+    struct Opaque(AtomicUsize);
+    impl DeferredSet for Opaque {
+        fn kind(&self) -> DeferredKind {
+            DeferredKind::Map
+        }
+        fn elements(&self, _: Ctx) -> dive_value::Result<Vec<Value>> {
+            self.0.fetch_add(1, Ordering::Relaxed);
+            Ok(Vec::new())
+        }
+        fn member(&self, _: &Value, _: Ctx) -> Option<dive_value::Result<bool>> {
+            None
+        }
+    }
+
+    for tlc in [false, true] {
+        let source = "---- MODULE EntryNames ----\nEXTENDS TLC\nVARIABLE x\nInit == PrintT(TRUE) /\\ x=x\nNext == UNCHANGED x\nP == []TRUE\n====\n";
+        let m = entry_model(source, "INIT Init\nNEXT Next\n", tlc);
+        let callback = Arc::new(Opaque::default());
+        let state: dive_trace::State =
+            Arc::from([Some(Value::deferred(callback.clone(), Ctx::tlc()))]);
+        let trace = Trace {
+            states: vec![state.clone()],
+            labels: vec![None],
+            ending: Ending::Behavior,
+            length: None,
+            properties: Vec::new(),
+        };
+        assert!(
+            matches!(validate(&m, &trace).validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0042"))
+        );
+        assert!(
+            matches!(dive_trace::temporal::evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&state), 0), Err(dive_trace::temporal::TemporalError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
+        );
+        assert!(
+            matches!(dive_trace::exists::exists_successor(&m, &predicate(&m, "Next"), &state, None, dive_trace::exists::Limits::default()), Err(dive_trace::exists::ExistsError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
+        );
+        assert_eq!(callback.0.load(Ordering::Relaxed), 0);
+        assert_eq!(m.take_output(), Vec::<String>::new());
     }
 }

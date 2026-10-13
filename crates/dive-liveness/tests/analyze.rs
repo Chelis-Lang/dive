@@ -128,9 +128,7 @@ fn pinned_pure_and_fair_models_have_valid_candidates_and_tlc_counts() {
                 .with_ending(Ending::Lasso { back_to: c.back_to })
                 .with_properties(c.properties.clone());
             assert_eq!(
-                dive_trace::validate_doc(&model, &doc, &[], None)
-                    .0
-                    .validation,
+                dive_trace::validate_doc(&model, &doc, &[]).0.validation,
                 Validation::Valid,
                 "{name}"
             );
@@ -140,9 +138,7 @@ fn pinned_pure_and_fair_models_have_valid_candidates_and_tlc_counts() {
                 .with_ending(Ending::Lasso { back_to: c.back_to })
                 .with_properties(doc.properties.clone());
             assert_ne!(
-                dive_trace::validate_doc(&model, &broken, &[], None)
-                    .0
-                    .validation,
+                dive_trace::validate_doc(&model, &broken, &[]).0.validation,
                 Validation::Valid,
                 "{name}: mutated Init"
             );
@@ -278,18 +274,16 @@ fn every_false_temporal_property_is_named_on_the_selected_lasso() {
         .with_ending(Ending::Lasso { back_to: c.back_to })
         .with_properties(c.properties);
     assert_eq!(
-        dive_trace::validate_doc(&model, &doc, &[], None)
-            .0
-            .validation,
+        dive_trace::validate_doc(&model, &doc, &[]).0.validation,
         Validation::Valid
     );
     let omitted = doc.clone().with_properties(vec!["P".into()]);
     assert!(
-        matches!(dive_trace::validate_doc(&model,&omitted,&[],None).0.validation,Validation::Invalid(f) if f.check==dive_trace::Check::Temporal)
+        matches!(dive_trace::validate_doc(&model,&omitted,&[]).0.validation,Validation::Invalid(f) if f.check==dive_trace::Check::Temporal)
     );
     let false_claim = doc.with_properties(vec!["P".into(), "Q".into(), "R".into()]);
     assert!(
-        matches!(dive_trace::validate_doc(&model,&false_claim,&[],None).0.validation,Validation::Invalid(f) if f.check==dive_trace::Check::Temporal)
+        matches!(dive_trace::validate_doc(&model,&false_claim,&[]).0.validation,Validation::Invalid(f) if f.check==dive_trace::Check::Temporal)
     );
 }
 

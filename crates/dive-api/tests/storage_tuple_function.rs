@@ -1,6 +1,6 @@
 //! Structural storage keeps function diagnostics and independently checked words.
 #![allow(clippy::expect_used, reason = "captured storage regression assertions")]
-use dive_api::trace::{SpecModel, TraceDoc, TraceEncoding, TraceOptions, Validation};
+use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -16,7 +16,6 @@ fn request(name: &str, compat_tlc: bool) -> CheckRequest {
         compat_tlc,
         seed: Some(7),
         fp: Some(0),
-        trace_encoding: TraceEncoding::RepresentationV2,
         ..CheckRequest::default()
     }
 }
@@ -73,10 +72,14 @@ fn storage(j: &Value, frontier: bool, predecessor: bool) {
     }
 }
 fn witness(model: &SpecModel, report: &Value) {
-    let doc = TraceDoc::from_json(report).expect("v2 word");
+    let doc = TraceDoc::from_json(report).expect("v1 word");
+    let word = doc.to_json();
+    assert_eq!(word["version"], 1);
+    // V1 represents a function over 1..n by the sequence it equals. Storage
+    // still preserves its concrete class; replay checks the supplied values.
     assert_eq!(
-        doc.to_json()["states"][0]["values"]["s"]["repr"],
-        "tuple-fcn"
+        word["states"][0]["values"]["s"],
+        serde_json::json!({"seq": [1, 2]})
     );
     assert_eq!(model.validate(&doc).validation, Validation::Valid);
     for at in [0, 1, 3] {

@@ -166,6 +166,26 @@ pub struct Model {
 }
 
 impl Model {
+    /// Records every name interned so far as a start-up name
+    /// ([`dive_eval::Evaluator::seal_startup_names`]). Call it only after
+    /// interning names TLC interns before it evaluates any `ASSUME` or state.
+    pub fn seal_startup_names(&self) {
+        self.evaluator.seal_startup_names();
+    }
+
+    /// Whether a name was interned after start-up
+    /// ([`dive_eval::Evaluator::startup_names`])
+    /// and string order follows encounter order (TLC's value or exploration
+    /// order), so that the name's position relative to the others depends
+    /// on evaluations outside a given trace.
+    #[must_use]
+    pub fn has_runtime_names(&self) -> bool {
+        let opts = self.evaluator.options();
+        (opts.ctx.order == dive_value::ValueOrder::Tlc
+            || opts.exploration == dive_eval::ExplorationOrder::Tlc)
+            && self.names.len() > self.evaluator.startup_names()
+    }
+
     /// Admits public bound-model metadata before backend startup or host effects.
     /// Checks evaluator ownership and every predicate/action scope without
     /// evaluating expressions or forcing captured values.

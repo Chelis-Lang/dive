@@ -35,14 +35,14 @@
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use dive_eval::{Scope, St};
-use dive_ir::{Expr, ExprId, JunctionKind, OpRef};
+use dive_ir::{Effects, Expr, ExprId, JunctionKind, OpRef};
 use dive_model::Model;
 use dive_value::{Ctx, Interner, Value};
 use serde_json::{Map, Value as J};
 
 use crate::format::{Ending, TraceDoc};
 use crate::trace::{Trace, decode_state, variables};
-use crate::validate::{Check, Failure, Replay, Report, Run, Validation};
+use crate::validate::{Check, Failure, Report, Run, Validation};
 
 /// The most interpretations tried exhaustively (`2^10`).
 const EXHAUSTIVE_LIMIT: u32 = 10;
@@ -432,21 +432,22 @@ fn variable_states(
     clippy::too_many_lines,
     reason = "one search, read top to bottom: default, hill-climb, exhaustive, verdict"
 )]
-pub fn validate_tlc(
-    model: &Model,
-    doc: &TraceDoc,
-    model_values: &[String],
-    replay: Option<&Replay>,
-) -> TlcReading {
+pub fn validate_tlc(model: &Model, doc: &TraceDoc, model_values: &[String]) -> TlcReading {
     let length = doc.states.len();
     let report = |validation, notes| Report {
         validation,
         notes,
         length,
     };
-    // Refuse before interpretation heuristics evaluate predicates. A lossy
-    // witness must not construct the namespace history that proves itself.
-    if !crate::runtime_order::admitted(model) {
+    // Validate public metadata before the interpretation heuristic indexes
+    // expressions or evaluates a predicate, just as native replay does.
+    if let Err(error) = model.validate_context() {
+        return TlcReading {
+            report: report(Validation::Unsupported(error.to_string()), Vec::new()),
+            trace: None,
+        };
+    }
+    if model.has_runtime_names() {
         return TlcReading {
             report: report(
                 Validation::Unsupported(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
@@ -472,7 +473,7 @@ pub fn validate_tlc(
     if !doc.properties.is_empty() {
         // The interpretation heuristic scores initial predicates. Preflight
         // before that evaluation too, so a refusal cannot execute effects.
-        let preflight = Run::new(model, replay).prepare_periodic(&ending, &doc.properties);
+        let preflight = Run::new(model).prepare_periodic(&ending, &doc.properties);
         if let Err(stop) = preflight {
             return TlcReading {
                 report: report(stop.into(), Vec::new()),
@@ -502,7 +503,6 @@ pub fn validate_tlc(
         properties: &doc.properties,
         length: doc.length,
         model_values,
-        replay,
         forced: &analysis.forced,
         free: &free,
         conjuncts: init_conjuncts(model),
@@ -601,8 +601,9 @@ pub fn validate_tlc(
     };
     notes.extend(best.notes);
     notes.dedup();
+    // An interpretation tried after the verdict's may have created a name.
     TlcReading {
-        report: report(validation, notes),
+        report: crate::validate::guard_runtime_names(model, report(validation, notes)),
         trace,
     }
 }
@@ -644,7 +645,6 @@ struct Search<'a> {
     properties: &'a [String],
     length: Option<usize>,
     model_values: &'a [String],
-    replay: Option<&'a Replay>,
     forced: &'a BTreeMap<Decision, bool>,
     free: &'a [Decision],
     conjuncts: Vec<(Scope, ExprId)>,
@@ -683,15 +683,21 @@ impl Search<'_> {
                 }
             }
         }
+        let mut run = Run::new(self.model);
         let init_true = states.first().map_or(0, |s0| {
             let st = St::state(s0.clone());
             self.conjuncts
                 .iter()
                 .filter(|(scope, e)| {
-                    matches!(
-                        self.model.evaluator.eval_scoped(scope, *e, &st),
-                        Ok(Value::Bool(true))
-                    )
+                    // Scoring is only a heuristic: it must not write a
+                    // register, consume a draw or print before replay checks
+                    // Init in its actual short-circuit order.
+                    !self.model.ir.node(*e).effects.intersects(Effects::IMPURE)
+                        && !self.model.evaluator.scope_shares_side_effects(scope)
+                        && matches!(
+                            self.model.evaluator.eval_scoped(scope, *e, &st),
+                            Ok(Value::Bool(true))
+                        )
                 })
                 .count() as u64
         });
@@ -702,7 +708,6 @@ impl Search<'_> {
             length: self.length,
             properties: self.properties.to_vec(),
         };
-        let mut run = Run::new(self.model, self.replay);
         let validation = run.validate(&trace);
         Outcome {
             validation,

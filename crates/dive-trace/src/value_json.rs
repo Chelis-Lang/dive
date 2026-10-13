@@ -1,10 +1,11 @@
-//! Legacy normalized JSON values (trace format version 1).
+//! dive's JSON values (trace format version 1).
 //!
 //! TLC's `-dumpTrace json` form ([`dive_value::json`]) cannot be read back
 //! exactly: a set and a sequence are both arrays, a string and a model value
-//! are both strings. The legacy form distinguishes these common categories, but
-//! does not preserve every stored representation. See [`crate::value_repr`] for
-//! bounded opt-in version-2 transport. Scalars remain plain JSON:
+//! are both strings. This form distinguishes them. It is a value
+//! transport, not a stored-representation transport: it does not record how
+//! TLC happened to store a value (a tuple or a function with domain `1..n`,
+//! for instance). Scalars remain plain JSON:
 //!
 //! | Value | JSON |
 //! |---|---|

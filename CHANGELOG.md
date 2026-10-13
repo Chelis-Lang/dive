@@ -1,8 +1,30 @@
 # Changelog
 
+- Independent Init validation now uses startup level 0, while generated-state
+  invariants and implied initial properties retain level 1. Named register
+  and random refusals remain unchanged.
+
 - Final temporal checking preserves the binding stage's TLC error class and
   exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks
   retain their named refusal.
+
+- The independent trace validator is a plain replay checker (ADR 0016,
+  amendment 3). Under `--compat=tlc` it validates as usual and reports
+  `unsupported: runtime string encounter order` only when decoding or
+  checking the trace created a name after the model was bound, so models
+  whose sequence operators only build tuples (for example
+  `MCCheckpointCoordinationFailure`) now validate. Random draws in a check are
+  refused by name instead of replayed. The `--trace-format representation-v2`
+  flag and trace format version 2 are removed. `trace-controls` and
+  `SpecModel::controls` retain corpus mutation QA without random redraws. TLC JSON interpretation scoring
+  now evaluates only pure predicates, preventing register writes from making
+  invalid initial states validate, and leaves untaken effects unevaluated.
+  Register reads and writes during replay are refused by name because they
+  depend on off-trace evaluations; validation leaves caller registers intact.
+  Public typed trace, lasso and enabledness states now reject foreign name
+  tokens and opaque deferred values before evaluation.
+  Malformed public predicate roots and source locations report unsupported
+  before document decoding or replay instead of panicking in diagnostics.
 
 - Rescue reset (ADR 0086): parity is defined by observable results. Vendored
   evidence trees, per-increment docs and evidence checker scripts are removed;
@@ -56,6 +78,9 @@ All notable changes to this project are documented here. The project will follow
   shared planner. Numeric temporal operands such as `<>1` now retain TLC's
   evaluation error instead of reporting an unsupported feature, including
   code 2215 and exit 255 under `--compat=tlc` (13 in the default profile).
+
+- Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
+  from the trace-validation API. Random draws remain explicitly unsupported.
 
 - CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
   the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4

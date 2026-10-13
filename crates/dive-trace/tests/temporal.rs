@@ -223,7 +223,7 @@ fn pinned_tlc_liveness_words_violate_the_reported_property() {
         let doc = TraceDoc::parse(&raw)
             .expect("document")
             .with_ending(Ending::Behavior);
-        let (_, trace) = dive_trace::validate_doc(&model, &doc, &[], None);
+        let (_, trace) = dive_trace::validate_doc(&model, &doc, &[]);
         let trace = trace.expect("decoded trace");
         // TLC's last action pair carries the back-edge target's 1-based index,
         // including the repeated final state for a stuttering ending.
