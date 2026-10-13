@@ -523,10 +523,7 @@ impl Core {
                 Ok(Ev::V(Value::Bool(if angle { !same } else { same })))
             }
             Expr::Enabled(a) => self.eval_enabled(env, st, *a, e),
-            Expr::Cdot(..) => Err(EvalError::general(format!(
-                "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",
-                self.loc(e)
-            ))),
+            Expr::Cdot(a, b) => self.eval_cdot(env, st, *a, *b, e),
             Expr::Always(_) => Err(self.temporal("[]A", e)),
             Expr::Eventually(_) => Err(self.temporal("<>A", e)),
             Expr::LeadsTo(..) => Err(self.temporal("a ~> b", e)),
@@ -2244,6 +2241,12 @@ impl Core {
             }
             BuiltinOp::Enabled => return self.eval_enabled(env, st, arg(0)?, e),
             BuiltinOp::Cdot => {
+                if self.opts.action_composition != crate::options::ActionComposition::Off {
+                    return Err(EvalError::unsupported(format!(
+                        "the built-in operator \\cdot passed as an operator argument ({})",
+                        self.loc(e)
+                    )));
+                }
                 return Err(EvalError::general(format!(
                     "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",
                     self.loc(e)

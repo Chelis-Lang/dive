@@ -1,0 +1,38 @@
+{
+  "CdConj": {
+    "code": 2114,
+    "generated": 1,
+    "distinct": 1,
+    "depth": 1
+  },
+  "CdDeadlock": {
+    "code": 2193,
+    "generated": 2,
+    "distinct": 1,
+    "depth": 1
+  },
+  "CdEnabled": {
+    "code": 2110,
+    "generated": 2,
+    "distinct": 2,
+    "depth": 2
+  },
+  "CdEval": {
+    "code": 2112,
+    "generated": 5,
+    "distinct": 5,
+    "depth": 4
+  },
+  "CdNext": {
+    "code": 2193,
+    "generated": 65,
+    "distinct": 18,
+    "depth": 4
+  },
+  "CdOff": {
+    "code": 1000,
+    "generated": 1,
+    "distinct": 1,
+    "depth": 1
+  }
+}

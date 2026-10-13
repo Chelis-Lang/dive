@@ -1,5 +1,8 @@
 # Changelog
 
+- Action-composition controls retain compact generated oracle results and compare
+  deciding verdict classes and depth alongside generated/distinct counts.
+
 - Trace mutation controls now select their shortest-BFS or general
   counterexample contract explicitly (#259). The corpus harness reserves
   dropping and swapping states for single-worker exhaustive finite witnesses,
@@ -16,6 +19,11 @@
 - Final temporal checking preserves the binding stage's TLC error class and
   exit status, including invalid `_PERIODIC` definitions. Valid periodic hooks
   retain their named refusal.
+- Action composition in DFID now accepts the composition-only sequential BFS
+  reason and counts emitted successors, matching pinned TLC; effect restrictions
+  remain. Disabled BFS composition has a verified TLC error class and exit.
+  Standalone evaluator tests exercise the independent non-enumerating refusal,
+  and CLI tests cover explicit mode and JVM-alias precedence.
 
 - The independent trace validator is a plain replay checker (ADR 0016,
   amendment 3). Under `--compat=tlc` it validates as usual and reports
@@ -106,6 +114,10 @@ All notable changes to this project are documented here. The project will follow
 - Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
   from the trace-validation API. Random draws remain explicitly unsupported.
 
+- Action composition (`A \cdot B`) is evaluated by default, with its TLA+ meaning (D-022).
+  `--action-composition=tlc` (or `-Dtlc2.tool.impl.Tool.cdot=true`) reproduces TLC's
+  experimental implementation exactly; `--compat=tlc` keeps it off, as TLC does.
+  `dev capture` takes `--feature`.
 - CI runs three lean jobs (authorship, a single-compile `Workspace gate` with
   the nextest `ci` profile, and an eight-model conformance smoke at 1 and 4
   workers) instead of twenty. `cargo xtask gate --fast` mirrors it locally;

@@ -435,6 +435,17 @@ impl Core {
                     None => Err(undefined(k)),
                 }
             }
+            // `System.getProperty(key, "-D" + key)`: the one property dive
+            // models is the action composition switch (D-022), set exactly
+            // when `\cdot` is enabled.
+            "-Dtlc2.tool.impl.Tool.cdot" => Ok(Value::string(
+                &self.names,
+                if self.opts.action_composition == crate::options::ActionComposition::Off {
+                    key
+                } else {
+                    "true"
+                },
+            )),
             k if k.starts_with("-D") => Err(EvalError::unsupported(format!(
                 "TLCGet(\"{k}\") (reads a Java system property of TLC's JVM)"
             ))),

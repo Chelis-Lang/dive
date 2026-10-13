@@ -97,6 +97,10 @@ pub struct CheckRequest {
     pub module_paths: Vec<PathBuf>,
     /// `--compat=tlc`.
     pub compat_tlc: bool,
+    /// `--action-composition off|tlc|tla` (D-022); `None` is the profile's
+    /// setting: `tla` by default, `off` under `--compat=tlc` (TLC without
+    /// `-Dtlc2.tool.impl.Tool.cdot=true`).
+    pub action_composition: Option<dive_eval::ActionComposition>,
     /// The store.
     pub store: Store,
     /// `--seed`; a fresh seed otherwise (always reported).
@@ -297,6 +301,9 @@ fn check_file_in(
         Store::Exact => StoreMode::Exact,
     };
     opts.no_deadlock = req.no_deadlock;
+    if let Some(mode) = req.action_composition {
+        opts.eval.action_composition = mode;
+    }
     opts.seen_disk.clone_from(&req.seen_disk);
     opts.frontier_memory_bytes = req.frontier_memory_bytes;
     opts.frontier_directory.clone_from(&req.frontier_directory);
@@ -519,6 +526,7 @@ impl CheckReport {
         match self.profile {
             Profile::Tlc
                 if self.temporal == TemporalMode::FinalShort
+                    || self.opts.eval.action_composition == dive_eval::ActionComposition::Tla
                     || self.checkpoint_request.as_ref().is_some_and(|r| {
                         r.counters == dive_check::checkpoint::Counters::Retain
                     }) =>
@@ -564,6 +572,11 @@ impl CheckReport {
             "explore_order": explore,
             "comparisons": comparisons,
             "warnings": e.warnings,
+            "action_composition": match e.action_composition {
+                dive_eval::ActionComposition::Off => "off",
+                dive_eval::ActionComposition::Tlc => "tlc",
+                dive_eval::ActionComposition::Tla => "tla",
+            },
             "store": o.store.name(),
             "fingerprint": fingerprint,
             "seed": o.seed,

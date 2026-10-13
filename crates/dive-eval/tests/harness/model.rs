@@ -390,6 +390,11 @@ pub fn bfs(b: &Bound, budget: u64) -> Checked {
                 }
                 Flow::Continue
             });
+        // TLC's intermediate states of `\cdot` count as generated.
+        generated += match &r {
+            Ok(o) => o.intermediate,
+            Err(e) => e.intermediate,
+        };
         if let Err(e) = r {
             // The trace ends at the state being expanded.
             stop = Some((verdict_of(&e.error), Some(level)));
