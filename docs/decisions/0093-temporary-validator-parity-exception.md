@@ -94,3 +94,14 @@ and failed measurements above remain historical. Supported startup and random
 relations keep the narrow boundaries in ADR 0016 and the trace guide; this
 fulfilment grants no general validator, liveness, full corpus, modes,
 performance or release completion credit.
+
+### Numeric-exit qualification (2026-10-13)
+
+The preserved default90/floor-pass observation above used a comparator that
+omitted physical numeric exits. [ADR 0096](0096-truthful-default-numeric-exit-conformance.md)
+records the bounded correction: 14 of those default Agree credits were false,
+and four old ExpectedDivergence rows omitted exit differences. The 76/18/60
+exit-only historical estimate is not a fresh certificate or approved new floor.
+The validator recovery remains real; complete corrected conformance and no-loss
+require fresh measurements and independent review. Original reports and floors
+remain preserved.

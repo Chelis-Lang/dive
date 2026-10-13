@@ -870,8 +870,9 @@ fn run_model(
     // Under `--compat=tlc`, `TLCGet("config").worker` is the physical
     // worker count, as in TLC (D-011), so a model that reads it may
     // legitimately behave as TLC does at that count: it is compared with
-    // TLC's own run at the same count, on verdict and error class (ADR 0004,
-    // amendment of 2026-10-09). The default profile reports the logical
+    // TLC's own run at the same count, on verdict, error class and exact
+    // numeric exit (ADR 0004; ADR 0096 corrects the omitted numeric field).
+    // The default profile reports the logical
     // count, 1, so the single-worker golden applies at every count there.
     let compat = !imp.is_oracle()
         && matches!(
@@ -960,18 +961,43 @@ fn run_model(
                 };
                 let mut trace_note = match &worker_golden {
                     Some(_) => Some(format!(
-                        "compared with TLC at {workers} workers on verdict and error class (the model reads TLCGet(\"config\"); ADR 0004)"
+                        "compared with TLC at {workers} workers on verdict, error class and numeric exit (the model reads TLCGet(\"config\"); ADR 0004)"
                     )),
                     None if compat && m.worker_introspecting && workers > 1 => Some(format!(
                         "no worker-specific golden at {workers} workers; compared with the single-worker golden"
                     )),
                     None => None,
                 };
-                if !imp.is_oracle() && result.trace.is_some() {
+                let validation_golden = worker_golden.as_ref().unwrap_or(&golden);
+                let requires_word = matches!(
+                    result.verdict,
+                    Verdict::SafetyViolation
+                        | Verdict::ActionPropertyViolation
+                        | Verdict::LivenessViolation
+                        | Verdict::Deadlock
+                ) || (result.verdict == validation_golden.result.verdict
+                    && validation_golden.result.trace.is_some());
+                if !imp.is_oracle() && (result.trace.is_some() || requires_word) {
                     // Charter rule 2: a counterexample must be independently
                     // replayed before it can count. The harness validates it
                     // itself (ADR 0016 §3).
-                    let check = imp.trace_validated(&req, &result, &golden.result);
+                    // A validation claim cannot supply an absent word. Keep
+                    // payload presence format-neutral: JSON and text steps
+                    // both go through the independent validation hook.
+                    let check = match &result.trace {
+                        None => crate::trace_check::TraceCheck::no(
+                            "the verdict requires a counterexample, but the result carries none",
+                        ),
+                        Some(t)
+                            if t.json.as_ref().is_none_or(serde_json::Value::is_null)
+                                && t.steps.as_ref().is_none_or(Vec::is_empty) =>
+                        {
+                            crate::trace_check::TraceCheck::no(
+                                "the counterexample carries no word payload",
+                            )
+                        }
+                        Some(_) => imp.trace_validated(&req, &result, &validation_golden.result),
+                    };
                     if !check.validated {
                         // Unconfirmed (refused by name) can at best be
                         // pending; shown wrong is a disagreement.

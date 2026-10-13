@@ -429,7 +429,7 @@ See `docs/native-checkpoint.md` and the source/raw control study at
 
 | | |
 |---|---|
-| **Kind** | Same answer, better path |
+| **Kind** | Structured answers preserved; default physical exits differ (D-023) |
 | **Default** | Human-readable output; `--output json` gives a versioned schema |
 | **TLC behaviour** | TLC-style output conventions under `--compat=tlc` |
 | **Status** | `dive parse`, `dive analyze` and `dive check` implemented; the rest planned |
@@ -2654,3 +2654,29 @@ Under `--compat=tlc` composition is off, as in TLC. `--action-composition=tlc` r
 | `MCReplicatedLog` | 17,425 / 1,363 / 13 | 17,425 / 1,363 / 13 | 11,617 / 1,363 / 13 |
 
 The default profile's generated counts leave out TLC's 450,000 and 5,808 intermediate states.
+
+## D-023: Default process exits are distinct conformance observables
+
+The stable `dive check` default statuses described in D-008 remain unchanged:
+property violations exit 10 and rejected inputs exit 1. TLC compatibility uses
+the pinned oracle's status instead. For example:
+
+```sh
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --workers 1 --seed 7 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --compat=tlc --workers 1 --seed 7 --fp 0 --output json
+```
+
+The same invariant violation exits 10 by default and 12 in compatibility mode.
+The corpus harness now compares actual numeric process exits exactly in both
+its ordinary and worker-specific paths. A registered default difference can
+be ExpectedDivergence, with the exact TLC/native numeric pair and every other
+obligation met; it is never Agree. Absent, signaled and unrelated statuses or
+failed independent counterexamples remain failures. Finite primary temporal
+EC2116/exit12 retains its established classification; no general mapping to 13
+is introduced.
+
+The first correction registers only the 14 measured historical safety/frontend
+paths and adds exact exit pairs to four existing semantic entries. It does not
+register future liveness or scheduling differences. Old default agreement counts
+omitted this required observable; [the scoreboard](scoreboard.md#numeric-exit-accounting-correction)
+retains and qualifies them while fresh complete measurements remain pending.

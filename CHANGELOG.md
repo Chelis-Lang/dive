@@ -1,5 +1,14 @@
 # Changelog
 
+- Conformance now compares physical numeric exits exactly in ordinary and
+  worker-specific paths. Known default differences require declared integer
+  TLC/native pairs and count as ExpectedDivergence, never Agree. Native CLI/API
+  statuses are unchanged. Required whole counterexamples cannot be omitted
+  or replaced by metadata-only traces, even in worker-specific comparison;
+  independent replay uses the same selected golden as comparison. Historical
+  default agreement totals omitted this
+  observable and are qualified in the scoreboard pending complete remeasurement.
+
 - Private trace validation supports one direct single-variable initial equality
   `x = RandomElement(S)` over a nonempty interval or stored finite scalar set.
   It checks exact domain membership and the complete claimed ending, independently

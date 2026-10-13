@@ -15,7 +15,8 @@
 //!
 //! The registry applies only under `dive`. There, a disagreement that
 //! matches an entry, with the entry's expected verdict and with every
-//! differing field among the entry's `fields`, is reported as
+//! differing field among the entry's `fields` or its exact `exit_code_pair`,
+//! is reported as
 //! `expected-divergence`. It is never counted as `agree`. Any other
 //! disagreement, and every difference under `tlc` or `tlc+overrides`, is
 //! `disagree`. TLC oracles and external adapters have no profile, and the
@@ -99,6 +100,30 @@ impl Profile {
     }
 }
 
+/// One declared physical process-exit difference; never a code normalization.
+///
+/// ```
+/// use dive_conformance::divergence::ExitCodePair;
+/// let native_safety = ExitCodePair { expected: 12, actual: 10 };
+/// assert_ne!(native_safety.expected, native_safety.actual);
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExitCodePair {
+    /// The pinned TLC process status (0 through 255).
+    pub expected: u8,
+    /// The documented native process status (0 through 255).
+    pub actual: u8,
+}
+
+impl ExitCodePair {
+    fn matches(self, diff: &FieldDiff) -> bool {
+        diff.field == "exit_code"
+            && diff.expected.as_u64() == Some(u64::from(self.expected))
+            && diff.actual.as_u64() == Some(u64::from(self.actual))
+    }
+}
+
 /// One owner-approved divergence from TLC.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -122,6 +147,12 @@ pub struct ExpectedDivergence {
     /// never hides a differing verdict or property. Never the trace
     /// validation fields: a counterexample must always validate.
     pub fields: Vec<String>,
+    /// Optional exact pinned-TLC/native exit pair. When present, the
+    /// disagreement must contain that exact numeric pair. Null, signals,
+    /// unrelated codes and non-integers cannot match. `fields` may not
+    /// authorize exits; all other differences still require their own field.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exit_code_pair: Option<ExitCodePair>,
     /// Why the divergence is approved.
     pub justification: String,
     /// The entry in `docs/divergences.md`, e.g. `docs/divergences.md#integer-overflow`.
@@ -153,7 +184,8 @@ impl Registry {
     /// - an entry with both or neither of `profile` and `option`;
     /// - an empty justification, or a link outside `docs/divergences.md`;
     /// - an expected verdict that is not an oracle fact;
-    /// - no `fields`, a field glob that matches no compared field, or one
+    /// - no fields or exit pair, equal exit pairs, a field glob covering
+    ///   `exit_code` (only exact pairs may excuse it), no compared field, or one
     ///   that matches a trace validation field (`trace.validated`,
     ///   `trace.invalid`), which no divergence may excuse.
     pub fn parse(text: &str) -> Result<Self> {
@@ -191,10 +223,16 @@ impl Registry {
             if !d.expected_verdict.is_oracle_fact() {
                 return bad("expected_verdict must be a real verdict");
             }
-            if d.fields.is_empty() {
-                return bad("lists no fields");
+            if d.fields.is_empty() && d.exit_code_pair.is_none() {
+                return bad("lists no fields or exit_code_pair");
+            }
+            if d.exit_code_pair.is_some_and(|p| p.expected == p.actual) {
+                return bad("exit_code_pair must declare different physical codes");
             }
             for f in &d.fields {
+                if glob_match(f, "exit_code") {
+                    return bad("exit_code requires an exact exit_code_pair, never a field glob");
+                }
                 if !COMPARED_FIELDS.iter().any(|k| glob_match(f, k)) {
                     return bad(&format!("field `{f}` matches no compared field"));
                 }
@@ -229,7 +267,9 @@ impl Registry {
     /// profile. An entry matches when its glob matches `path`, it applies to
     /// the `dive` profile or to an active option (`name` or `name=value`),
     /// the observed verdict is its expected verdict, and every field in
-    /// `diffs` matches one of its `fields`.
+    /// `diffs` matches one of its `fields` or its exact `exit_code_pair`.
+    /// A declared pair must occur in `diffs`; it never authorizes a different
+    /// or absent numeric exit or excuses another field.
     #[must_use]
     pub fn excuse(
         &self,
@@ -245,9 +285,15 @@ impl Registry {
         self.divergence.iter().find(|d| {
             glob_match(&d.pattern, path)
                 && d.expected_verdict == observed
-                && diffs
-                    .iter()
-                    .all(|x| d.fields.iter().any(|g| glob_match(g, &x.field)))
+                && d.exit_code_pair
+                    .is_none_or(|p| diffs.iter().any(|x| p.matches(x)))
+                && diffs.iter().all(|x| {
+                    if x.field == "exit_code" {
+                        d.exit_code_pair.is_some_and(|p| p.matches(x))
+                    } else {
+                        d.fields.iter().any(|g| glob_match(g, &x.field))
+                    }
+                })
                 && match (&d.profile, &d.option) {
                     (Some(_), None) => true,
                     (None, Some(o)) => options.iter().any(|a| a == o),
@@ -360,6 +406,167 @@ link = "docs/divergences.md#integer-overflow"
         assert!(opt.excuse(dive, &[], p, Verdict::Success, &d).is_none());
         let on = vec!["int=big".to_owned()];
         assert!(opt.excuse(dive, &on, p, Verdict::Success, &d).is_some());
+        Ok(())
+    }
+
+    const EXIT_ENTRY: &str = r#"
+[[divergence]]
+id = "native-safety-exit"
+pattern = "specifications/x/X.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "established native property status"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+"#;
+
+    #[test]
+    fn exit_pair_registry_rejects_wildcards_and_malformed_pairs() -> Result<()> {
+        Registry::parse(EXIT_ENTRY)?;
+        for fields in ["exit_code", "exit*", "*", "trace.*"] {
+            assert!(
+                Registry::parse(
+                    &EXIT_ENTRY.replace("fields = []", &format!("fields = [\"{fields}\"]"))
+                )
+                .is_err()
+            );
+        }
+        for pair in [
+            "{ expected = 12, actual = 12 }",
+            "{ expected = 12, actual = -1 }",
+            "{ expected = 12, actual = 256 }",
+            "{ expected = 12, actual = true }",
+            "{ expected = 12, actual = 10.0 }",
+            "{ expected = 12, actual = \"10\" }",
+            "{ expected = 12 }",
+            "{ expected = 12, actual = 10, other = 0 }",
+        ] {
+            assert!(
+                Registry::parse(&EXIT_ENTRY.replace("{ expected = 12, actual = 10 }", pair))
+                    .is_err(),
+                "{pair}"
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one exact-pair negative matrix shares the same registry and diff"
+    )]
+    fn exact_exit_pair_never_excuses_other_codes_or_fields() -> Result<()> {
+        let r = Registry::parse(EXIT_ENTRY)?;
+        let p = "specifications/x/X.cfg";
+        let exit = |expected, actual| FieldDiff {
+            field: "exit_code".into(),
+            expected,
+            actual,
+        };
+        let pair = exit(12.into(), 10.into());
+        let dive = Some(&Profile::Dive);
+        assert!(
+            r.excuse(
+                dive,
+                &[],
+                p,
+                Verdict::SafetyViolation,
+                std::slice::from_ref(&pair)
+            )
+            .is_some()
+        );
+        for value in [
+            serde_json::Value::Null,
+            0.into(),
+            77.into(),
+            (-1).into(),
+            256.into(),
+            true.into(),
+            serde_json::json!(10.0),
+            "10".into(),
+        ] {
+            for bad in [exit(12.into(), value.clone()), exit(value, 10.into())] {
+                assert!(
+                    r.excuse(dive, &[], p, Verdict::SafetyViolation, &[bad])
+                        .is_none()
+                );
+            }
+        }
+        for field in [
+            "verdict",
+            "error_class",
+            "violated_property",
+            "counts.depth",
+            "counts.states_generated",
+            "trace.invalid",
+            "trace.validated",
+        ] {
+            let mut mixed = vec![pair.clone()];
+            mixed.extend(diff(field));
+            assert!(
+                r.excuse(dive, &[], p, Verdict::SafetyViolation, &mixed)
+                    .is_none(),
+                "{field}"
+            );
+        }
+        let counts = Registry::parse(
+            &EXIT_ENTRY.replace("fields = []", "fields = [\"counts.states_generated\"]"),
+        )?;
+        let mut mixed = vec![pair.clone()];
+        mixed.extend(diff("counts.states_generated"));
+        assert!(
+            counts
+                .excuse(dive, &[], p, Verdict::SafetyViolation, &mixed)
+                .is_some()
+        );
+        assert!(
+            counts
+                .excuse(
+                    dive,
+                    &[],
+                    p,
+                    Verdict::SafetyViolation,
+                    &diff("counts.states_generated")
+                )
+                .is_none()
+        );
+        for profile in [
+            None,
+            Some(&Profile::Tlc),
+            Some(&Profile::TlcWithOverrides(vec!["x".into()])),
+        ] {
+            assert!(
+                r.excuse(
+                    profile,
+                    &[],
+                    p,
+                    Verdict::SafetyViolation,
+                    std::slice::from_ref(&pair)
+                )
+                .is_none()
+            );
+        }
+        for verdict in [
+            Verdict::Success,
+            Verdict::Unclassified,
+            Verdict::ResourceLimit,
+        ] {
+            assert!(
+                r.excuse(dive, &[], p, verdict, std::slice::from_ref(&pair))
+                    .is_none()
+            );
+        }
+        assert!(
+            r.excuse(
+                dive,
+                &[],
+                "specifications/y/Y.cfg",
+                Verdict::SafetyViolation,
+                &[pair]
+            )
+            .is_none()
+        );
         Ok(())
     }
 

@@ -15,8 +15,8 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-The lead updates these numbers from complete harness reports. The current
-small-tier measurement is producer `e8c82c0e039f8da6308796a5bdf09ec5ab79a4fe`,
+The lead updates these numbers from complete harness reports. The historical
+small-tier reports below are from producer `e8c82c0e039f8da6308796a5bdf09ec5ab79a4fe`,
 merged with an identical tree as `ade12658044bbc9195bae118351434b2082c4df9` in
 [PR #263](https://github.com/Chelis-Lang/dive/pull/263). Every run retains the
 same 154 example, probe and validation-smoke models, unchanged pins, goldens
@@ -33,10 +33,14 @@ The full local gate passed all 1,599 workspace tests without skips, CM1 and
 validation-smoke at 1/4/8 workers, and 456 SANY comparisons. All three required
 source checks and all three post-merge main checks passed. The original
 TLC 93/default 90 floors and both original and current-main per-model no-loss
-comparisons pass in every run. These measurements do not establish full-tier
-agreement or completion of a roadmap feature.
+comparisons were reported as passing under the old comparator. The default
+agreement claim is invalidated by the omitted numeric-exit comparison described
+below. Original floors and failed corrected comparisons remain visible; no
+replacement floor is approved here. These historical measurements do not
+establish current-main complete conformance, full-tier agreement or roadmap completion.
 
-MCDieHardest, P5TLCGetSet and P9Random now agree in all four runs. Reviewed
+MCDieHardest, P5TLCGetSet and P9Random were reported as agreeing in all four runs;
+their default safety rows require ExpectedDivergence for physical 12 → 10. Reviewed
 private startup reconstruction and narrow direct initial random membership
 recover the cases covered by
 [ADR 0093](decisions/0093-temporary-validator-parity-exception.md); its temporary
@@ -45,12 +49,33 @@ comparisons remain evidence of the earlier cuts. Pending validation still earns
 no agreement. General random relations, independent action composition and
 broader validator support remain open.
 
+### Numeric-exit accounting correction
+
+[ADR 0096](decisions/0096-truthful-default-numeric-exit-conformance.md) corrects
+an omitted required observable. Independent diagnosis found 14 old false Agree
+credits in each default report: twelve safety rows physically exited 10 against
+TLC's 12, and M1Syntax/M2Undefined exited 1 against 150. The four old
+ExpectedDivergence rows also omitted their exit differences. Exact pairs are now
+registered on these measured model paths, retaining all other comparison and
+independent-validation obligations. Native CLI/API behavior is unchanged.
+
+The exit-only historical disposition is **76 Agree / 18 ExpectedDivergence /
+60 Unsupported** at each default width, conditioned on the remaining obligations.
+This preserves the 76 prior physically exact agreements as obligations; it is
+an accounting estimate, not a fresh complete current-main certificate or approval
+of a new 76 floor. The original 90/4/60 reports above remain visible, alongside the original
+T3 TLC93/default89 floors and the later current-main TLC93/default90 floors. Fresh complete parent/current four-profile measurements, full
+gates and independent review are pending, including per-model no-loss. The
+at-least-95% eventual parity target and whole roadmap remain open and unchanged.
+
 ### Historical full-tier measurement
 
 The separately audited full-tier reports use source
 `2edbb9bb45593016954540f28f2a9cdd1234ba38` and copied builder
 `df64f21379a4131058094de76d440014b4b30967`, whose source trees are identical.
-This is a historical native-harness measurement, not execution of current main
+These totals also predate exact numeric-exit comparison and have not been
+remeasured or audited here for exit-only disposition. This is a historical
+native-harness measurement, not execution of current main
 or additional independent TLC model truth. All five corpora and every selected
 row are retained. The corrected bookkeeping audit is post-execution; original
 rejected checkers and raw reports remain preserved.

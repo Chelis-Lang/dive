@@ -62,7 +62,7 @@ GOLDEN GENERATE:
                            goldens (<model>.workers-<n>.json) beside the single-worker ones,
                            which it never touches, for worker-introspecting models only, and
                            requires --reason. `run --impl-profile tlc` compares those models
-                           at that count with them, on verdict and error class (ADR 0004)
+                           at that count with them, on verdict, error class and numeric exit (ADR 0004/0096)
     --no-sany | --sany-only
 
 RUN:

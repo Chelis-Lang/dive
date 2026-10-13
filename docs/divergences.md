@@ -882,3 +882,39 @@ refusals. The clean C/P With binder `a` shadowing procedure parameter `a`
 generates SANY-invalid duplicate operators; no successful artifact or CRC is
 credited from those invalid references. Strict #124 frame replay is unchanged.
 See `docs/pluscal-process-procedure-checksums.md` for the exact stage contract.
+
+## D-023: Truthful default numeric-exit accounting
+
+This records the existing stable native exit contract documented in D-008;
+it changes conformance accounting, not native CLI/API behavior. The default
+profile's property violation is physical exit 10 and rejected input is 1.
+`--compat=tlc` retains the pinned TLC's corresponding status. Numeric equality
+is required for Agree in both profiles; documented unequal codes are explicit
+ExpectedDivergence only on the exact registered model paths.
+
+The measured exit-only correction covers these 14 previously false Agree rows:
+
+| Model paths under `specifications/` | Pinned TLC → native default |
+| --- | --- |
+| `CheckpointCoordination/MCCheckpointCoordinationFailure.cfg` | 12 → 10 |
+| `DieHard/DieHard.cfg`, `DieHard/MCDieHarder.cfg`, `DieHard/MCDieHardest.cfg` | 12 → 10 |
+| `N-Queens/Queens.toolbox/FourQueens/MC.cfg` | 12 → 10 |
+| `SlidingPuzzles/SlidingPuzzles.cfg`, `SlidingPuzzles/SlidingPuzzles_anim.cfg` | 12 → 10 |
+| `spanning/MC_spanning.cfg`, `tower_of_hanoi/Hanoi_anim.cfg` | 12 → 10 |
+| `P5TLCGetSet/P5TLCGetSet.cfg`, `P8ParallelDet/P8ParallelDet.cfg`, `P9Random/P9Random.cfg` | 12 → 10 |
+| `M1Syntax/M1Syntax.cfg`, `M2Undefined/M2Undefined.cfg` | 150 → 1 |
+
+The existing two D-010 safety entries also require 12 → 10, P1Overflow
+requires 255 → 0 (D-004), and P2Choose_str requires 12 → 0 (D-006), alongside
+only their previous allowed fields. No wildcard registers future models.
+The optional typed pair in `conformance/expected-divergences.toml` requires the
+exact two integer codes and expected native verdict. Null, signals, unrelated
+codes, booleans, floats and out-of-range values never match. Class, property,
+count, depth and witness differences remain failures unless already explicitly
+allowed; failed or unconfirmed independent trace validation is never excused.
+
+Historical default90/4/60 is qualified as an exit-only estimate of 76 Agree /
+18 ExpectedDivergence / 60 Unsupported, not a fresh conformance certificate or
+an approved lower floor. Original reports and floors remain visible; full
+remeasurement and review are pending. See [ADR 0096](decisions/0096-truthful-default-numeric-exit-conformance.md)
+and [the scoreboard](scoreboard.md#numeric-exit-accounting-correction).
