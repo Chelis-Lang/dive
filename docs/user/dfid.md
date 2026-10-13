@@ -17,7 +17,9 @@ TLC's unrecorded iteration seeds are deterministic.
 
 VIEW, symmetry, liveness and unsupported runtime/storage combinations are named
 refusals. Real counterexamples must pass independent validation. Rust callers
-use `DfidRequest` and `dfid_file`; `to_json()` carries the completion evidence
+cannot inject effectful operator arguments through a captured scope: DFID
+checks the actual callable and refuses before output or exploration. Pure
+captured operator scopes remain supported. Callers use `DfidRequest` and `dfid_file`; `to_json()` carries the completion evidence
 and `exit_status()` the process disposition.
 
 See [DFID reference controls](../../crates/dive-check/tests/fixtures/dfid/README.md),

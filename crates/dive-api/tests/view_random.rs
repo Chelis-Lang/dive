@@ -64,7 +64,11 @@ fn public_view_random_refusal_never_claims_workers_output_or_witness() {
                         );
                         assert_eq!(json["output"], serde_json::json!([]));
                         assert_eq!(json["warnings"], serde_json::json!([]));
-                        assert!(report.render_human().contains("randomness under VIEW needs transformed-fingerprint seeding and independent replay"));
+                        assert!(
+                            report
+                                .render_human()
+                                .contains("randomness under VIEW is not supported")
+                        );
                     }
                 }
             }

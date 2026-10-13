@@ -59,7 +59,7 @@ ADR 0085.
 
 **Evaluator contexts.** `Evaluator::new` and `Evaluator::with_sink` validate
 their context and return `Result<_, ContextError>`, with codes `DIVE-EVAL-C001`
-to `C007`. Scopes are tied to their IR and binding context, and a foreign scope
+to `C005`. Scopes are tied to their IR and binding context, and a foreign scope
 or cached value is refused rather than silently reused. Independent trace,
 enabledness and planning entry points check this ownership before they analyse
 anything.

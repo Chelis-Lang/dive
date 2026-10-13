@@ -87,6 +87,21 @@ All notable changes to this project are documented here. The project will follow
   shared planner. Numeric temporal operands such as `<>1` now retain TLC's
   evaluation error instead of reporting an unsupported feature, including
   code 2215 and exit 255 under `--compat=tlc` (13 in the default profile).
+- Evaluator, model and checker admission scaffolding is removed (#241). Disk
+  seen-state checking now binds PROPERTY and SPECIFICATION roles like the
+  resident route and gives its results, instead of refusing effectful,
+  quantified, strict-substitution or fairness-only roles. Randomness combined with
+  VIEW or SYMMETRY uniformly refuses before binding or search. Ordinary VIEW and
+  non-VIEW native random streams remain available, including configured targets.
+  Constant values are no longer size-limited at evaluator construction. DFID
+  and parallel graph capture refuse effectful models through one conservative
+  effects check instead of per-scope purity proofs, including actual operators
+  supplied in public Rust predicate/action scopes before any backend work.
+  Pure captured operators remain supported. Unused value-admission context error
+  variants are removed. An evaluator now refuses
+  any scope created by another evaluator. The unused deferred-postcondition
+  admission token and its observer entry point are removed after the periodic
+  pipeline deletion.
 
 - Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
   from the trace-validation API. Random draws remain explicitly unsupported.

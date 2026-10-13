@@ -34,6 +34,14 @@ inspect that report's verdict, refusal, completion and validation before asserti
 success. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
+Low-level callers may supply predicate and action scopes. Scope ownership and
+expression references are checked before backend startup. Parallel graph capture
+and DFID also inspect actual captured callables for printing, randomness, I/O or
+live checker reads; a caller-supplied constant-level annotation cannot hide those
+effects. These scopes refuse before worker execution or output. Pure captured
+operators remain usable, and `Evaluator::scope_has_effects` exposes this
+non-evaluating effects check without forcing stored values or callbacks.
+
 | Entry | Meaning |
 | --- | --- |
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |

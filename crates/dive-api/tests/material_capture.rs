@@ -20,7 +20,7 @@ fn input(name: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
     (ir, cfg)
 }
 #[test]
-fn material_context_and_predicate_budget_refuse_before_pool_work() {
+fn foreign_model_context_refuses_before_pool_work() {
     let options = CheckOptions {
         workers: 4,
         ..CheckOptions::tlc(0, 0)
@@ -45,42 +45,6 @@ fn material_context_and_predicate_budget_refuse_before_pool_work() {
         );
         assert_eq!(model.evaluator.take_output(), Vec::<String>::new());
     }
-    let a = dive_sema::analyze_source(
-        "Bound.tla",
-        "---- MODULE Bound ----\nVARIABLE x\nInit == x = TRUE\nR(v) == v = v /\\ x' = x\nNext == R(TRUE)\n====\n",
-        &dive_sema::Options::default(),
-    );
-    let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
-    let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
-        .into_config()
-        .expect("config");
-    let mut model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
-    let def = model.ir.root_def("R").expect("R");
-    let scope = model.evaluator.scope(def).expect("owned scope");
-    let names = dive_value::Interner::new();
-    let foreign = dive_value::Value::Str(names.intern("foreign"));
-    assert!(
-        model
-            .evaluator
-            .scope_bind(&scope, dive_ir::Slot(0), foreign)
-            .is_err()
-    );
-    let value = dive_value::Value::tuple(vec![dive_value::Value::Int(0); 24_999]);
-    let scope = model
-        .evaluator
-        .scope_bind(&scope, dive_ir::Slot(0), value)
-        .expect("admitted stored value within separate evaluator context budget");
-    model.next = Some(dive_model::Pred::new(model.ir.def(def).body, scope));
-    let result = dive_check::capture::explore_concrete_parallel_with_evidence(
-        &model,
-        &options,
-        dive_check::capture::Limits::default(),
-    )
-    .expect("bounded admission");
-    assert!(
-        matches!(result,dive_check::capture::Exploration::Stopped(ref r) if matches!(r.verdict,dive_check::Verdict::Unsupported{..}) && r.workers.used==0 && r.stats.is_none())
-    );
-    assert_eq!(model.evaluator.take_output(), Vec::<String>::new());
 }
 
 #[test]
@@ -88,7 +52,7 @@ fn material_context_and_predicate_budget_refuse_before_pool_work() {
     clippy::too_many_lines,
     reason = "paired public profile and stored representation admission"
 )]
-fn opposite_profile_stored_order_refuses_before_work_but_tuple_domains_remain_invariant() {
+fn stored_material_contexts_complete_in_pool_capture() {
     let a = dive_sema::analyze_source(
         "Order.tla",
         "---- MODULE Order ----\nVARIABLE x\nUnused == \"zeta\"\nOther == \"alpha\"\nInit == x = TRUE\nR(v) == v = v /\\ x' = x\nNext == R(TRUE)\n====\n",
@@ -99,7 +63,7 @@ fn opposite_profile_stored_order_refuses_before_work_but_tuple_domains_remain_in
         .into_config()
         .expect("config");
     for tlc in [true, false] {
-        for matched in [true, false] {
+        {
             let bind = if tlc {
                 dive_model::BindOptions::tlc()
             } else {
@@ -115,18 +79,7 @@ fn opposite_profile_stored_order_refuses_before_work_but_tuple_domains_remain_in
             };
             for kind in ["enum", "raw", "record", "general", "tuple"] {
                 let mut model = dive_model::bind(ir.clone(), &cfg, &bind).expect("model");
-                let run = model.evaluator.options().ctx;
-                let ctx = dive_value::Ctx {
-                    order: if matched {
-                        run.order
-                    } else {
-                        match run.order {
-                            dive_value::ValueOrder::Tlc => dive_value::ValueOrder::Canonical,
-                            dive_value::ValueOrder::Canonical => dive_value::ValueOrder::Tlc,
-                        }
-                    },
-                    ..run
-                };
+                let ctx = model.evaluator.options().ctx;
                 let z = model.names.intern("zeta");
                 let a = model.names.intern("alpha");
                 let values = vec![
@@ -179,17 +132,10 @@ fn opposite_profile_stored_order_refuses_before_work_but_tuple_domains_remain_in
                     dive_check::capture::Limits::default(),
                 )
                 .expect("typed result");
-                if matched || kind == "tuple" {
-                    assert!(
-                        matches!(result, dive_check::capture::Exploration::Complete(_)),
-                        "{tlc}/{matched}/{kind}: {result:?}"
-                    );
-                } else {
-                    assert!(
-                        matches!(result,dive_check::capture::Exploration::Stopped(ref r) if matches!(r.verdict,dive_check::Verdict::Unsupported{..}) && r.workers.used==0 && r.stats.is_none()),
-                        "{tlc}/{kind}: {result:?}"
-                    );
-                }
+                assert!(
+                    matches!(result, dive_check::capture::Exploration::Complete(_)),
+                    "{tlc}/{kind}: {result:?}"
+                );
                 assert_eq!(model.evaluator.take_output(), Vec::<String>::new());
             }
         }

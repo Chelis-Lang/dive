@@ -564,8 +564,6 @@ name-fix/process/procedure serialization or stronger checksum default is added.
 
 | Expanded temporal Action origins in `dive-model` and final-only API/JSON | `tlc2/tool/impl/SpecProcessor.java`, `processConfigProps`: unchanged `configName` passed into every implied-temporal `new Action`, independently of mutable derived `name`; pin `94d0c50` | MIT | Complete18 actual primary projections retain configured, expanded Action and derived role vectors separately;16 complete/2 exported-formal failures. Metadata only, unchanged witness/scheduling contract. |
 
-| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at 94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
-
 | Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |
 
 
@@ -899,28 +897,6 @@ error/counters through joins; no claim reproduces Java graph writes after errors
 natural clock scheduling or ordinary model proof. See
 [ADR0078](decisions/0086-rescue-reset.md) and the
 executable guide.
-
-### Source-owned disk safety role admission (#221)
-
-`dive-model::admit_pure_safety_roles` reuses actual `Binder::process_spec` and
-`process_config` tables and decomposition: MIT pin94d0c50
-`tlc2.tool.impl.SpecProcessor.processSpec/processConfig/processConfigSpec/processConfigProps`,
-`SymbolNodeValueLookupProvider.lookup/getLevelBound`, and `ModuleNode.processConstantDefns`.
-The native structural-only mode refuses evaluation-demanding domains/literals/
-strict substitutions and checks actual native dispatch before startup. It does
-not replace levels/predicates with guessed values. Source visit/depth admission,
-conservative unused roots and pre-startup native refusals are original bounded
-policy, not claimed Java error parity. Resident binding is unchanged; no crate
-edge changes. The declared before-selection and current proof scope are in
-`conformance/probes/disk-safety-roles/` and ADR0075.
-
-The role admission runtime source is frozen at `7fae387c11675b6a72119cc0013dd18f4eac33cb`.
-Its archived selected inputs include 1,347 Git/live pairs and all 61 literal
-include sites/56 targets derived from actual workspace Rust sources. Portable
-commit/tree objects establish the selected Git blob identities without requiring
-an unsquashed producer object in a future clone. This is selected-input provenance,
-not a hermetic build or independent semantic certificate. Runtime/gate histories
-and metadata-only current authority stay separate in the role study.
 
 ## Process-owned procedure Full headers (#225)
 
