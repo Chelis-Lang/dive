@@ -89,8 +89,9 @@ the model is bound. If reading the trace or checking it creates any other
 name (a string the specification never mentions, or one an operator such as
 `ToString` or `Tail` builds on these states), the result is
 `unsupported: runtime string encounter order`, never `valid` or `invalid`.
-A check that draws a random value (`RandomElement`, `Randomization`) is
-likewise refused by name.
+Executed random draws (`RandomElement`, `Randomization`) remain refused.
+The private direct initial-membership operation below checks support without
+drawing a value.
 
 Before entering an `INSTANCE ... WITH` substitution, whose strict bindings are
 evaluated eagerly, the validator refuses a binding from another model's
@@ -162,3 +163,52 @@ validation contract and remain named refusals when executed. Supply the run
 seed/fp when reading `TLCGet("config")`; the configuration becomes available
 after constant binding and before ASSUMEs, matching ordinary API binding.
 This validates the displayed behavior, with no claim of phase or corpus parity.
+
+
+### Direct random initial membership
+
+Private sessions support exactly one variable and a complete Init consisting
+of `x = RandomElement(S)`. Zero-argument definition expansion and labels may
+expose that equality; surrounding Boolean relations, parameterized wrappers,
+native aliases/redirects and INSTANCE relations have no new random authority.
+The shared evaluator evaluates the actual `S` from empty initial slots with
+registers and host effects refused. It accepts nonempty intervals and stored
+finite scalar sets, using the profile's exact value membership. Stored sets
+have a 65,536-entry limit before normalization; compound and lazy set
+representations remain unsupported. A pure expression that actually evaluates
+to a supported stored set is allowed. Empty/non-set/infinite domains and domain
+evaluation errors retain their native error identity in an unsupported report;
+they are not reported as an ordinary out-of-domain witness.
+
+This checks witness validity, not reproduction of a seeded producer sample.
+For P9's `RandomElement(1..1000000)` and `Inv == x<0`, both 730968 and 777 are
+valid initial invariant witnesses; 1000001 is outside Init. An in-domain value
+whose claimed ending is true is invalid. The steps, earlier invariants and
+claimed ending still pass the normal independent checks. Checker seeds, draws,
+counts and goldens are unchanged. Explicit configuration reads in S still use
+the supplied run metadata to determine the actual domain. No random host
+callback receives the witness,
+and the validator never searches for a seed or stream offset.
+
+Randomness with VIEW or SYMMETRY still refuses before binding, including
+unused, untaken and config-selected random references. Absence of that refusal
+grants no purity or host capability.
+
+Startup register effects cannot be combined with this relation. Executed
+startup random definitions (including failed/unused definitions), cached or
+coupled draws, multiple variables, conditional/discarded/wrapped draws, random
+Next/VIEW/properties and other random operations retain sticky refusal. The
+ordinary conservative word-membership fallback retains its existing treatment
+of untaken branches; it grants no random or register access and proves no
+absence of unselected effects. Raw bound-Model validation still refuses every
+executed draw. Every interpretation and repeated validation gets a fresh Core,
+interner and caches; caller registers, cached samples and stream position are
+not authority. This narrow operation makes no full-gate or corpus parity claim.
+
+Candidates and stored entries are scalar. Strings/model values require tokens
+that resolve to their exact text in the private interner. Assigned public states,
+compound candidates, compound stored entries and Deferred domains (including
+cached Deferred sets) refuse before normalization/member callbacks. The public
+helper takes Const or empty Init with the exact slot count and no successor;
+it grants no authority to ordinary random evaluation. Function-valued non-set
+domains retain EC2176 with a static diagnostic, avoiding nested-value formatting.

@@ -913,6 +913,9 @@ pub(crate) fn refuse(op: StdOp) -> EvalError {
 #[allow(clippy::too_many_lines, reason = "a table")]
 pub(crate) fn java_signature(op: StdOp) -> Option<&'static str> {
     Some(match op {
+        StdOp::TlcRandomElement => {
+            "public static tlc2.value.impl.Value tlc2.module.TLC.RandomElement(tlc2.value.impl.Value)"
+        }
         StdOp::NaturalsPlus => {
             "public static tlc2.value.impl.IntValue tlc2.module.Naturals.Plus(tlc2.value.impl.IntValue,tlc2.value.impl.IntValue)"
         }

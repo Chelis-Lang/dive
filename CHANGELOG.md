@@ -1,4 +1,9 @@
 # Changelog
+
+- Private trace validation supports one direct single-variable initial equality
+  `x = RandomElement(S)` over a nonempty interval or stored finite scalar set.
+  It checks exact domain membership and the complete claimed ending, independently
+  of the sampled result. Startup, correlated and later draws remain refused.
 - Replay bypasses caller-owned lazy argument and function result caches, so a
   warmed checker result cannot evade independent composition refusal.
 - Independent trace validation refuses reached action composition before
@@ -11,7 +16,7 @@
 - Trace API and CLI validation reconstruct a private startup runtime from
   immutable source/config inputs. Startup registers and deterministic
   single-candidate Init membership are supported without caller cache/register
-  reuse. Registers after Init, random draws and other host effects remain
+  reuse. Registers after Init, other random draws and other host effects remain
   explicit refusals; raw bound-model validation remains conservative.
   Randomness under VIEW or SYMMETRY retains the shared source/config refusal
   before either ordinary API binding or private startup evaluation.
@@ -145,7 +150,8 @@ All notable changes to this project are documented here. The project will follow
   pipeline deletion.
 
 - Remove the obsolete `dive_trace::Replay` type and ignored replay arguments
-  from the trace-validation API. Random draws remain explicitly unsupported.
+  from the trace-validation API. Ordinary random evaluation remains explicitly
+  unsupported; direct initial support uses independent relation membership.
 
 - Action composition (`A \cdot B`) is evaluated by default, with its TLA+ meaning (D-022).
   `--action-composition=tlc` (or `-Dtlc2.tool.impl.Tool.cdot=true`) reproduces TLC's
