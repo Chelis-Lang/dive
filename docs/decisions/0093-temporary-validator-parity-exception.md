@@ -1,6 +1,6 @@
 # 0093: Temporary validator parity exception
 
-- **Status:** accepted, temporary
+- **Status:** fulfilled; temporary acceptance exception retired
 - **Date:** 2026-10-13
 
 ## Context
@@ -71,3 +71,26 @@ Track both obligations under issue #241. Remove this exception when the named
 cases regain independently validated agreement in the required profiles and
 worker settings without unrelated regressions. This decision grants no full
 corpus, modes, liveness, performance or release completion credit.
+
+## Fulfilment (2026-10-13)
+
+Private startup recovery merged through [PR #262](https://github.com/Chelis-Lang/dive/pull/262),
+and direct initial random membership through [PR #263](https://github.com/Chelis-Lang/dive/pull/263).
+The latter's tested source `e8c82c0e039f8da6308796a5bdf09ec5ab79a4fe` has the same
+tree as merged main `ade12658044bbc9195bae118351434b2082c4df9`. Fresh independent
+review, the full local gate (1,599 tests, no skips, 456 SANY agrees), all four
+complete unchanged 154-model runs and all three required source and main CI
+checks passed.
+
+All three named cases agree in every required profile and worker setting.
+TLC workers 1/4 have 94/94 agrees; default workers 1/4 have 90/90, with four
+expected divergences each. There is no pending validation, disagreement,
+timeout, oracle error or per-model agreement loss against the current or original
+baseline. The original TLC 93/default 90 floors pass. Issues #256 and #257 were
+closed by hand after verification.
+
+The temporary acceptance exception is no longer needed. Its original decision
+and failed measurements above remain historical. Supported startup and random
+relations keep the narrow boundaries in ADR 0016 and the trace guide; this
+fulfilment grants no general validator, liveness, full corpus, modes,
+performance or release completion credit.
