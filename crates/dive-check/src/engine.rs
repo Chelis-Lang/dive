@@ -279,44 +279,6 @@ pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
     })
 }
 
-// Called only after typed IR admission. Source nodes do not reference a
-// native replacement selected solely by the cfg. Binding resolves RHS names
-// through contexts, then installs source native overrides by definition name
-// (SpecProcessor.processModuleOverrides). Match both authorities without
-// evaluating any body. All matching aliases/modules are conservative here:
-// a malformed or shadowed cfg may be refused before its binding diagnostic.
-pub(crate) fn uses_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    uses_random(ir) || configured_random_target(ir, cfg)
-}
-
-// The target alone is an independent admission authority. A visible random
-// node does not prove the selected replacement has the inline/per-state
-// stream routes needed by the current engine (#180).
-pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
-    configured_target_matches(ir, cfg, random_op)
-}
-
-fn configured_target_matches(
-    ir: &dive_ir::Ir,
-    cfg: &dive_config::ModelConfig,
-    predicate: impl Fn(dive_ir::StdOp) -> bool,
-) -> bool {
-    cfg.constants.iter().any(|entry| {
-        let dive_config::ConstantEntry::Substitution { target, .. } = entry else {
-            return false;
-        };
-        ir.modules().iter().any(|module| {
-            module.context.iter().any(|(name, symbol)| {
-                name == &target.text
-                    && matches!(symbol, dive_ir::Symbol::Def(id)
-                            if ir.def(*id).std.is_some_and(&predicate))
-            })
-        }) || ir.defs().iter().any(|def| {
-            def.source.is_none() && def.name == target.text && def.std.is_some_and(&predicate)
-        })
-    })
-}
-
 // A supplied bound model no longer carries its source cfg. Inspect admitted
 // constant bindings and actual redirects without invoking any expression or
 // lazy callback. Unused native imports alone must not refuse pure captures.

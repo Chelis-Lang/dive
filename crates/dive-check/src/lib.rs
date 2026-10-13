@@ -355,19 +355,10 @@ pub(crate) fn run_check_with_checkpoint(
     }
     // Refuse transformed random streams before binding can execute effects.
     // Ordinary VIEW and non-VIEW per-state RNG retain their existing routes.
-    if cfg.view.is_some() && engine::uses_configured_random(ir, cfg) {
+    if let Some(feature) = dive_model::transformed_randomness(ir, cfg) {
         return bare(
             Verdict::Unsupported {
-                feature: "randomness under VIEW is not supported".into(),
-            },
-            opts,
-            ir,
-        );
-    }
-    if cfg.symmetry.is_some() && engine::uses_configured_random(ir, cfg) {
-        return bare(
-            Verdict::Unsupported {
-                feature: "randomness under SYMMETRY is not supported".into(),
+                feature: feature.into(),
             },
             opts,
             ir,

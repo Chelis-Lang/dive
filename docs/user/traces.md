@@ -100,7 +100,7 @@ effects annotations; it does not re-prove them.
 
 ### Initial-predicate level
 
-Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and preserves ordinary state/action contexts thereafter. Random and register refusals remain unchanged.
+Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and preserves ordinary state/action contexts thereafter. Random draws and register access after Init remain refused.
 
 Action composition (`A \cdot B`) currently has no independent intermediate-state
 validator. A reached composition therefore yields `unsupported`, including
@@ -112,3 +112,53 @@ establish trace-validation agreement.
 Replay evaluates lazy arguments and functions under its own restrictions, without
 using or replacing results cached by the caller. Ordinary checking and evaluation
 retain their existing caching.
+
+
+### Private startup registers
+
+`SpecModel::validate`, `read`, `validate_trace` and the CLI reconstruct binding
+and startup from the original source/configuration for every validation. Each
+TLC JSON interpretation has its own interner, evaluator, registers and caches.
+Changing the caller's evaluator registers cannot supply an initial value or
+change a validation, and validation does not write the caller's register file.
+
+Randomness combined with `VIEW` or `SYMMETRY` refuses before ordinary API
+binding or the first private startup attempt. This shares the checker's
+source/config policy, including unused definitions, untaken branches and
+configuration-selected random operators. The refusal does not establish
+purity when it is absent and does not grant a replay or host capability.
+
+Integer and named registers are supported during real constant binding and
+ASSUMEs. If Init accesses registers, the validator determines a single candidate
+from empty variable slots, in source order, then compares it with the first
+trace state. Supported relations are ordered conjunctions, definition and
+INSTANCE expansion, direct variable equalities whose right sides use constants
+or already determined variables, and Boolean filters on determined variables.
+Disjunctions, quantified assignments, membership assignments and unresolved
+variable reads remain explicitly unsupported for this operation. When startup
+has not accessed a register, ordinary conservative predicate membership remains
+available in a new runtime that refuses all register operations. It validates
+only the supplied word and makes no claim that unselected Init candidates lack
+writers. A witnessed writer or any later register access remains refused. Every
+register access after Init, including initial invariants, constraints, optional
+labels and temporal checks, remains refused: other explored states may have
+changed those registers. The raw `dive_trace::validate(&Model, ...)` API retains
+its conservative register refusal.
+
+For example, this startup pattern validates a behavior starting with `x=0`:
+
+```tla
+ASSUME TLCSet(1,42)
+Init == x=0 /\ TLCGet(1)=42
+Next == x'=x+1
+```
+
+Use `SpecModel::from_source` with `INIT Init` and `NEXT Next`, then validate
+`TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])`, as in the Rust
+example above. Random draws remain unsupported even in unused constant
+start-up definitions that actually execute. Printing, wall-clock/host I/O,
+exit/pause, live counters and system properties have no private-startup
+validation contract and remain named refusals when executed. Supply the run
+seed/fp when reading `TLCGet("config")`; the configuration becomes available
+after constant binding and before ASSUMEs, matching ordinary API binding.
+This validates the displayed behavior, with no claim of phase or corpus parity.

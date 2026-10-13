@@ -410,3 +410,67 @@ argument with the checker generator and let the cached Boolean bypass the
 composition refusal. Ordinary drivers retain their existing cache behavior;
 source/config bindings remain the model boundary. No cache contents, purity
 scanner, shape certificate or caller-produced proof authorizes replay.
+
+
+## Amendment 4: private startup and single-candidate initial membership (2026-10-13)
+
+`SpecModel` retains an immutable `dive_model::Recipe`: original lowered source,
+parsed configuration and evaluator options. `dive_trace::Session` reconstructs
+a fresh Core/interner/register file and constant caches with the real binder,
+including unused eligible definitions and failed evaluations whose effects
+precede the error. Predicate-only binding skips checker action construction
+even if another crate unifies the enumerator feature. Configuration names and
+values are installed after constant binding, before ASSUMEs, as in the API.
+No mutable caller host, seeded draw source or cached caller value is inherited.
+
+The raw public Model replay path remains conservative. Private sessions allow
+registers during binding and the one ASSUME pass in each fresh attempt.
+Private Init first uses an independent single-candidate operation. If it
+cannot decide and startup has performed no register operation, pure membership
+may fall back to a fresh conservative runtime that refuses registers even in
+binding and ASSUMEs. It cannot use a witness predicate to authorize register
+operations. The operation starts slots empty,
+executes ordered conjunctions and normal definition/INSTANCE expansion,
+binds direct equalities from values computed independently of the witness,
+and evaluates filters on those slots. Only after the operation assigns every
+variable does it compare the candidate with the witness. It performs no
+initial/successor enumeration or off-word exploration. Unsupported relation
+forms, unresolved reads and depth limits refuse rather than select a
+witness-directed candidate. Pure Init retains ordinary predicate membership.
+
+The register capability ends immediately after Init. Invariants, constraints,
+action properties, labels, Next, finite enabledness and temporal checks cannot
+access it, including checks at the first state. Sticky refusal takes priority
+over both valid and invalid outcomes. Runtime native/key checks likewise
+retain private host-effect refusals when startup catches an evaluation error.
+Random operators are refused rather than sampled or replayed. Each lossy
+interpretation starts again from the immutable recipe; scoring executes no
+private effects. Trace transport uses JSON/text and rebinds atoms through the
+fresh startup interner; runtime-name and typed foreign-atom guards remain.
+
+No dependency edge changes. This amendment implements the startup-only scope
+of #256; it does not resolve random membership #257, seeded reproduction, the
+full conformance gate or the four-profile parity acceptance gate.
+
+
+**The two membership routes have different claims.** The private operation
+refuses a nondeterministic Init whenever binding, ASSUMEs or the attempted Init
+accessed registers. Otherwise a discarded failed operation may be followed by
+fresh conservative predicate membership: its host refuses registers during
+binding, ASSUMEs, Init and every later check, and refuses random/other host
+effects. This is the existing supplied-word membership contract, not a proof
+that unselected candidates have no writes. For example,
+`Init == (x=0 /\ TRUE) \/ (x=1 /\ TLCSet(1,43))` with no startup register
+use admits the supplied x=0 word under conservative membership; x=1 attempts
+the writer and refuses. Any subsequent register read or write also refuses.
+If an ASSUME writes a register first, that Init is refused by the private
+single-candidate operation, with no conservative register-authority fallback.
+
+This deliberately differs from the read-only #256 preparation proposal's
+blanket unseen-candidate refusal. That proposal is design input, not acceptance
+evidence. The distinction preserves pure quantified/membership/disjunctive Init
+coverage without admitting private register effects chosen by a witness. The
+executed controls retain the initial failed blanket-refusal expectation, the
+subsequent explicit conservative-word positives and effect/later-access
+negatives, caller isolation and repeated/lossy validation. Fresh review and the
+actual transplanted full/four-profile gates remain required before acceptance.
