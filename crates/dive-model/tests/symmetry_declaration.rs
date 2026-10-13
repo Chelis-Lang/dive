@@ -130,18 +130,17 @@ fn effectful_or_state_dependent_declarations_are_named_refusals() {
 }
 
 #[test]
-fn unverified_startup_errors_are_refusals_not_tlc_claims() {
+fn measured_startup_errors_match_general_exception_wrapping() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/symmetry-group/tlc-2026.10.06.014338");
-    for (name, detail) in [("SyDivZero", "2179"), ("SyMixedElements", "normalization")] {
+    for name in ["SyDivZero", "SyMixedElements"] {
         let model = fixture(name);
         let error = model.symmetry_declaration().unwrap_err();
-        assert!(matches!(error.kind, ErrorKind::Unsupported { .. }));
-        assert_eq!(error.code(), None);
-        assert!(error.message.contains("SYMMETRY Sym"));
-        assert!(error.message.contains(detail));
+        assert_eq!(error.kind, ErrorKind::Tlc(dive_model::Ec::General));
+        assert_eq!(error.code(), Some(1000));
         let raw = std::fs::read_to_string(root.join(format!("{name}.stdout"))).unwrap();
         assert!(raw.contains("STARTMSG 1000:1"));
+        assert!(raw.contains(&error.tool_text()), "{name}: {error}");
         assert_eq!(
             std::fs::read_to_string(root.join(format!("{name}.exit")))
                 .unwrap()
@@ -149,4 +148,21 @@ fn unverified_startup_errors_are_refusals_not_tlc_claims() {
             "255"
         );
     }
+}
+
+#[test]
+fn other_declaration_evaluation_errors_remain_named_refusals() {
+    let model = model(
+        "M",
+        "---- MODULE M ----\nEXTENDS Integers\nVARIABLE x\nInit == x = TRUE\nNext == UNCHANGED x\nSym == 0^0\n====\n",
+        "INIT Init\nNEXT Next\nSYMMETRY Sym\n",
+    );
+    let error = model.symmetry_declaration().unwrap_err();
+    assert!(matches!(error.kind, ErrorKind::Unsupported { .. }));
+    assert_eq!(error.code(), None);
+    assert!(
+        error
+            .message
+            .contains("SYMMETRY Sym declaration evaluation error (2180)")
+    );
 }

@@ -9,6 +9,7 @@ fn comparison_rejects_forged_sampling_evidence() {
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/test-comparison.py");
     let output = std::process::Command::new("python3")
         .arg("-I")
+        .arg("-B")
         .arg(script)
         .output()
         .expect("comparison controls must run");

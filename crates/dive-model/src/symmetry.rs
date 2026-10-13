@@ -60,7 +60,8 @@ impl Model {
     /// ```
     ///
     /// # Errors
-    /// TLC's proved name/type diagnostics; explicit refusals for unverified
+    /// TLC's proved name/type, division-by-zero and set-comparison diagnostics;
+    /// explicit refusals for unverified
     /// evaluation/normalization startup errors, or effectful, nonconstant and
     /// parameterized declarations. Domain/range
     /// validation, warning construction and kernel exceptions are later stages.
@@ -108,6 +109,14 @@ impl Model {
                     ErrorClass::Bug => {
                         BindError::bug(format!("SYMMETRY {name}: {}", error.message()))
                     }
+                    ErrorClass::Eval
+                        if error.ec() == dive_eval::Ec::DivisionByZero
+                            && error.is_eval_exception() =>
+                    {
+                        // Tool.getSymmetryPerms evaluates before assumptions;
+                        // TLC's outer catch reports this EvalException as GENERAL.
+                        symmetry_exception("tlc2.tool.EvalException", &error.tool_text())
+                    }
                     ErrorClass::Eval => BindError::unsupported(format!(
                         "SYMMETRY {name} declaration evaluation error ({}): {}",
                         error.ec().code(),
@@ -131,6 +140,7 @@ impl Model {
                     "SYMMETRY {name} set normalization: {}",
                     error.message()
                 )),
+                dive_value::ErrorKind::Incomparable => symmetry_runtime_error(error.message()),
                 _ => BindError::unsupported(format!(
                     "SYMMETRY {name} set normalization: {}",
                     error.message()
@@ -153,10 +163,17 @@ impl Model {
 }
 
 fn symmetry_runtime_error(message: &str) -> BindError {
+    symmetry_exception("java.lang.RuntimeException", message)
+}
+
+// MP.ECGeneralMsg disguises Assert.TLCRuntimeException as RuntimeException,
+// while an EvalException retains its real class. Other exception families
+// remain unsupported until their startup classification has been measured.
+fn symmetry_exception(class: &str, message: &str) -> BindError {
     BindError::tlc(
         Ec::General,
         &[&format!(
-            "TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a java.lang.RuntimeException\n: {message}"
+            "TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a {class}\n: {message}"
         )],
     )
 }
