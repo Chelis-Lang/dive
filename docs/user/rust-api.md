@@ -42,6 +42,31 @@ effects. These scopes refuse before worker execution or output. Pure captured
 operators remain usable, and `Evaluator::scope_has_effects` exposes this
 non-evaluating effects check without forcing stored values or callbacks.
 
+Low-level graph consumers implement `dive_check::capture::Observer` and pass it to
+`capture::explore_observed_with_evidence`. Observation currently requires one
+worker; `--compat=tlc` uses the same hook semantics. Methods are inert by default.
+`init` receives accepted roots after Init succeeds. `edge` receives original
+concrete successors, including duplicate and seen-state transitions, followed by
+implicit stutters. `level_done` borrows the graph after every source at that BFS
+level has passed safety checks and the next frontier has been appended. Counters
+include excluded and duplicate generated candidates, independently of the edge
+count. Frontier states can still have empty outgoing rows.
+
+With `--action-composition=tlc`, pure composition capture uses the existing
+inline fallback. Generated counts include intermediate states, while graph and
+observer edges contain only emitted successors and implicit stutters. Other
+stateful checking reasons remain refused. The default `tla` composition mode
+counts emitted successors and can use the ordered parallel executor.
+
+A callback error or panic stops exploration with the actual boundary counters
+and no completed graph. A failed Init or partial level supplies no completion
+event, and an earlier safety failure retains its verdict and counterexample.
+Prefix graphs can support independently validated violations; absence of a
+violation proves nothing before exhaustion. The `Observer` rustdoc contains a
+runnable example. Producer-clock requests and the former dispatch, stopped and
+terminal service APIs have been removed. Ordinary parallel graph capture remains
+available through the unobserved entry points.
+
 | Entry | Meaning |
 | --- | --- |
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |

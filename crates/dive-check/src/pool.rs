@@ -12,18 +12,10 @@
 //! as long as the pool. No `unsafe` code is involved.
 
 use std::panic::{AssertUnwindSafe, catch_unwind};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex, PoisonError};
 
 /// A job: run once by every worker, given its index.
 pub(crate) type Job<'env> = Arc<dyn Fn(usize) + Send + Sync + 'env>;
-
-struct PauseReset<'a>(&'a AtomicBool);
-impl Drop for PauseReset<'_> {
-    fn drop(&mut self) {
-        self.0.store(false, Ordering::Release);
-    }
-}
 
 struct State<'env> {
     /// Incremented for every job.
@@ -45,7 +37,6 @@ pub(crate) struct Pool<'env> {
     done: Condvar,
     /// Threads requested, the coordinator included.
     threads: usize,
-    paused: AtomicBool,
 }
 
 fn panic_message(p: &(dyn std::any::Any + Send)) -> String {
@@ -76,7 +67,6 @@ impl<'env> Pool<'env> {
             start: Condvar::new(),
             done: Condvar::new(),
             threads,
-            paused: AtomicBool::new(false),
         }
     }
 
@@ -94,9 +84,6 @@ impl<'env> Pool<'env> {
     /// # Errors
     /// The message of a panic in any thread (a bug).
     pub(crate) fn run(&self, job: &Job<'env>) -> Result<(), String> {
-        if self.paused.load(Ordering::Acquire) {
-            return Err("job dispatch attempted inside a dispatch pause".into());
-        }
         let mut st = self.lock();
         if st.workers > 0 {
             st.generation += 1;
@@ -120,26 +107,6 @@ impl<'env> Pool<'env> {
             (None, Some(m)) => Err(m),
             (None, None) => Ok(()),
         }
-    }
-
-    /// Hold real dispatch authority across a coordinator callback. This does
-    /// not suspend a Java state queue or finish the logical frontier.
-    pub(crate) fn with_pause<R>(
-        &self,
-        callback: impl FnOnce(&crate::capture::DispatchPause<'_>) -> R,
-    ) -> Result<R, String> {
-        if self.paused.swap(true, Ordering::AcqRel) {
-            return Err("nested dispatch pause".into());
-        }
-        let _reset = PauseReset(&self.paused);
-        let state = self.lock();
-        if state.running != 0 || state.job.is_some() || state.shutdown {
-            return Err("dispatch pause requires a joined live pool".into());
-        }
-        let pause = crate::capture::DispatchPause::new(state.workers + 1, state.generation);
-        let result = callback(&pause);
-        drop(state);
-        Ok(result)
     }
 
     /// Runs `job` as worker 0 on the calling thread only.
@@ -208,8 +175,7 @@ pub(crate) fn with_pool<'env, R>(
             started += 1;
         }
         pool.lock().workers = started - 1;
-        // Coordinator/observer unwind must wake real waiting workers before
-        // thread::scope attempts to join them; timer closure alone is insufficient.
+        // Coordinator unwind must wake waiting workers before scope joins them.
         let shutdown = Shutdown(pool_ref);
         let r = f(pool_ref);
         drop(shutdown);
@@ -221,58 +187,20 @@ pub(crate) fn with_pool<'env, R>(
 #[allow(
     clippy::expect_used,
     clippy::panic,
-    reason = "controlled pool lifecycle/unwind assertions"
+    reason = "controlled coordinator unwind"
 )]
-mod pause_tests {
+mod lifecycle_tests {
     use super::*;
+
     #[test]
-    fn uncaught_coordinator_pause_unwind_shuts_down_and_joins_waiting_workers() {
+    fn coordinator_unwind_after_joined_job_shuts_down_waiting_workers() {
         let result = catch_unwind(AssertUnwindSafe(|| {
             with_pool(4, dive_eval::RECOMMENDED_STACK, |pool| {
                 let job: Job<'_> = Arc::new(|_| {});
-                pool.run(&job).expect("actual joined job");
-                pool.with_pause(|_| panic!("uncaught coordinator pause"))
-                    .expect("actual pause");
+                pool.run(&job).expect("joined job");
+                panic!("controlled coordinator failure");
             });
         }));
         assert!(result.is_err());
-    }
-    #[test]
-    fn pause_owns_mutex_reentry_refuses_and_future_jobs_resume() {
-        for width in [1, 3, 4, 8] {
-            with_pool(width, dive_eval::RECOMMENDED_STACK, |pool| {
-                let visits = Arc::new(std::sync::atomic::AtomicUsize::new(0));
-                let v = visits.clone();
-                let job: Job<'_> = Arc::new(move |_| {
-                    v.fetch_add(1, Ordering::Relaxed);
-                });
-                pool.run(&job).expect("joined first job");
-                pool.with_pause(|pause| {
-                    assert_eq!(pause.workers(), width);
-                    assert!(pool.state.try_lock().is_err());
-                    assert!(pool.run(&job).is_err());
-                    assert!(pool.with_pause(|_| ()).is_err());
-                    assert_eq!(visits.load(Ordering::Relaxed), width);
-                })
-                .expect("actual pause");
-                pool.run(&job).expect("resumed second job");
-                assert_eq!(visits.load(Ordering::Relaxed), width * 2);
-            });
-        }
-    }
-    #[test]
-    fn failed_and_panicking_callbacks_release_dispatch_authority() {
-        with_pool(4, dive_eval::RECOMMENDED_STACK, |pool| {
-            let job: Job<'_> = Arc::new(|_| {});
-            assert_eq!(
-                pool.with_pause(|_| Err::<(), _>("callback")),
-                Ok(Err("callback"))
-            );
-            let panic = catch_unwind(AssertUnwindSafe(|| {
-                pool.with_pause(|_| panic!("controlled failure"))
-            }));
-            assert!(panic.is_err());
-            pool.run(&job).expect("authority released after panic");
-        });
     }
 }
