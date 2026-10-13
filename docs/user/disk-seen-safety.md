@@ -186,7 +186,8 @@ immutable observations.
 The positioned implementation, clean probes and current validation status are
 in [ADR0072](../decisions/0083-storage-and-checkpoint.md) and
 the replay study.
-The bounded role-admission and other mode restrictions above remain.
+The storage and replay-mode restrictions above remain. Model roles bind through
+the same path as resident checking; no separate role-admission proof is required.
 Per-action replay successor buffers are outside the disk-key budget.
 
 The current replay source-bound controls
