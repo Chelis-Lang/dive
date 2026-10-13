@@ -391,3 +391,14 @@ writes and reads version 1 only.
 **Effect.** `MCCheckpointCoordinationFailure`, whose `SubSeq` and `\o` only
 build sequences of model values on the trace, validates under `--compat=tlc`
 instead of being refused.
+
+### Action composition in feature-unified builds (2026-10-13, #241)
+
+Standalone compilation without `enumerate` remains required. Feature unification
+in an API/workspace build must also preserve independence: logical evaluation of
+`A \cdot B` cannot borrow `Gen` to decide the intermediate state. A replay host
+refuses that actual evaluation before the first intermediate state is generated
+and remembers the attempt, including an optional label that swallows the error.
+Ordinary evaluator/checker drivers retain their existing composition semantics.
+The independent finite-cover and periodic predicate walkers explicitly refuse
+composition; no independent composition decision path is implemented yet.

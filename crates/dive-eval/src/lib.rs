@@ -95,6 +95,7 @@ impl Core {
                 self.loc(e)
             )));
         }
+        self.check_action_composition()?;
         Err(EvalError::unsupported(format!(
             "action composition without the successor enumerator (the `enumerate` feature) ({})",
             self.loc(e)

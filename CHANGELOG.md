@@ -1,4 +1,7 @@
 # Changelog
+- Independent trace validation refuses reached action composition before
+  intermediate-state enumeration even in a feature-unified workspace. Public
+  finite-cover and lasso APIs retain the same independent refusal boundary.
 
 - Action-composition controls retain compact generated oracle results and compare
   deciding verdict classes and depth alongside generated/distinct counts.

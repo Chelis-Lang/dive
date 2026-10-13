@@ -101,6 +101,16 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         Ok(())
     }
 
+    /// Checks whether expression evaluation may use the successor generator
+    /// to decide action composition. Independent replay drivers refuse this
+    /// before any intermediate state is generated; ordinary drivers permit it.
+    ///
+    /// # Errors
+    /// A refusal (code 0) or an evaluation error supplied by the driver.
+    fn check_action_composition(&self) -> Result<(), HostError> {
+        Ok(())
+    }
+
     /// `TLCGet("level")` outside `ASSUME` and `Init`: the level of TLC's
     /// `s0`, the state being expanded in the next-state relation and action
     /// checks, the successor in invariants and constraints (initial states
@@ -224,6 +234,13 @@ impl Core {
     fn check_register_access(&self) -> Result<()> {
         match self.host.get() {
             Some(host) => host.check_register_access().map_err(host_error),
+            None => Ok(()),
+        }
+    }
+
+    pub(crate) fn check_action_composition(&self) -> Result<()> {
+        match self.host.get() {
+            Some(host) => host.check_action_composition().map_err(host_error),
             None => Ok(()),
         }
     }

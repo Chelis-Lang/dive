@@ -101,3 +101,10 @@ effects annotations; it does not re-prove them.
 ### Initial-predicate level
 
 Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and preserves ordinary state/action contexts thereafter. Random and register refusals remain unchanged.
+
+Action composition (`A \cdot B`) currently has no independent intermediate-state
+validator. A reached composition therefore yields `unsupported`, including
+when the workspace enables the checker enumerator. Untaken composition branches
+do not run. The public finite-cover and lasso APIs conservatively refuse
+composition in their predicate contexts. Checker composition support does not
+establish trace-validation agreement.

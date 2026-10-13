@@ -1209,6 +1209,11 @@ impl Word<'_> {
                 ));
             }
             match &meta.expr {
+                Expr::Cdot(..) => {
+                    return Err(TemporalError::Unsupported(
+                        crate::COMPOSITION_UNSUPPORTED.to_owned(),
+                    ));
+                }
                 Expr::Let { body, .. } => {
                     let sc = ev
                         .scope_let(&scope, e)

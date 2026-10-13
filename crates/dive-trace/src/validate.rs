@@ -161,6 +161,10 @@ pub const RANDOM_UNSUPPORTED: &str = "a random draw: the value depends on the ch
 /// The reason given when a check accesses search-dependent TLC registers.
 pub const REGISTERS_UNSUPPORTED: &str = "TLCGet/TLCSet registers: their contents depend on evaluations outside the trace, so the independent validator cannot read or write them";
 
+/// Action composition has no independent intermediate-state decision path.
+/// Workspace feature unification must not let replay borrow the checker.
+pub const COMPOSITION_UNSUPPORTED: &str = "action composition: independent validation does not enumerate intermediate states with the checker";
+
 /// What stopped a run early.
 pub(crate) enum Stop {
     Invalid(Failure),
@@ -209,6 +213,7 @@ impl<'a> Run<'a> {
             drew: Mutex::new(None),
             any: AtomicBool::new(false),
             registers: AtomicBool::new(false),
+            composition: AtomicBool::new(false),
         });
         model.evaluator.set_host(host.clone());
         Self {
@@ -245,6 +250,9 @@ impl<'a> Run<'a> {
         }
         if self.host.registers.load(Ordering::Relaxed) {
             return Some(REGISTERS_UNSUPPORTED.to_owned());
+        }
+        if self.host.composition.load(Ordering::Relaxed) {
+            return Some(COMPOSITION_UNSUPPORTED.to_owned());
         }
         self.model
             .has_runtime_names()
@@ -829,6 +837,8 @@ struct TraceHost {
     any: AtomicBool,
     /// Whether any check attempted a register read or write.
     registers: AtomicBool,
+    /// Whether evaluation tried to borrow composition's intermediate search.
+    composition: AtomicBool,
 }
 
 impl Host for TraceHost {
@@ -837,6 +847,14 @@ impl Host for TraceHost {
         Err(HostError {
             code: 0,
             message: REGISTERS_UNSUPPORTED.to_owned(),
+        })
+    }
+
+    fn check_action_composition(&self) -> Result<(), HostError> {
+        self.composition.store(true, Ordering::Relaxed);
+        Err(HostError {
+            code: 0,
+            message: COMPOSITION_UNSUPPORTED.to_owned(),
         })
     }
 

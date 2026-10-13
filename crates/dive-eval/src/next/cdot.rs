@@ -83,6 +83,7 @@ impl Core {
         t: StateVals,
         a: ExprId,
     ) -> Result<Vec<StateVals>> {
+        self.check_action_composition()?;
         let action = Action {
             owner: self.ir.clone(),
             names: self.names.clone(),
