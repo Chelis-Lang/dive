@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"Next","location":{"beginLine":5,"beginColumn":12,"endLine":5,"endColumn":36,"module":"ModeMutation"}},[2,{"x":2}]],[[2,{"x":2}],{"name":"Next","location":{"beginLine":6,"beginColumn":12,"endLine":6,"endColumn":29,"module":"ModeMutation"}},[3,{"x":3}]]],"state":[[1,{"x":0}],[2,{"x":2}],[3,{"x":3}]]},"vars":["x"]}

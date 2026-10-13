@@ -39,11 +39,34 @@ The lower-level `dive_trace` API exposes `validate(&model, &trace)` and
 `validate_doc(&model, &document, &model_values)`. Neither takes a random replay
 token; a random draw during validation remains explicitly unsupported.
 
-`SpecModel::controls` checks a known shortest counterexample, its document
-round trip, and mutations of its states, claim and action labels. Every
-generated mutant must be invalid; a valid or unsupported mutant is a control
-failure. The harness runs these checks with `dive-conformance trace-controls`.
-Random redraw mutations are unavailable while random validation is unsupported.
+`SpecModel::controls` and `SpecModel::mutants` require a known valid shortest
+BFS counterexample. For simulation, DFID, multi-worker or liveness words, use
+`controls_with_mode` or `mutants_with_mode` with `ControlMode::Counterexample`.
+The explicit `ControlMode::ShortestBfs` includes the same drop-state,
+drop-first and swap controls as the compatibility methods. Counterexample mode
+keeps changed-value, truncated-claim, changed-claim and false-label controls;
+it omits the distance-based mutations because a shorter or reordered word may
+also be valid. Mode selection does not search for shorter paths.
+
+Every generated mutant must be invalid through both direct validation and its
+document round trip. Valid or unsupported mutants are control failures; an
+empty negative suite receives no coverage credit. The positive and document
+round-trip checks remain the same in both modes and profiles. The harness's
+`dive-conformance trace-controls` selects shortest-BFS controls only for
+single-worker exhaustive finite counterexamples, using the model mode,
+golden worker count and ending. Random redraw mutations remain unavailable
+while random validation is unsupported.
+
+The pinned TLC regression fixture in
+[`crates/dive-api/tests/fixtures/mode-controls`](../../crates/dive-api/tests/fixtures/mode-controls)
+illustrates the distinction: simulation visits `0, 1, 4, 2, 3`, while BFS
+visits `0, 2, 3`. Dropping `4` leaves another valid counterexample, so it is
+not a negative control for that simulation. The fixture's consuming test runs
+both profiles:
+
+```sh
+cargo test -p dive-api --test trace_control_modes --locked
+```
 
 Validation distinguishes valid, invalid and explicitly refused. Random draws,
 search-dependent register access, unavailable finite deadlock/ENABLED covers,
