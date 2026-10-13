@@ -4,6 +4,7 @@
 //! against them on:
 //! - the verdict class and the error class (the `EC` name of the deciding
 //!   message);
+//! - the numeric process exit code, including an absent observed code;
 //! - the violated property, when the golden names one;
 //! - distinct, generated and queued state counts, and depth;
 //! - the counterexample's length and how it ends (finite, lasso,
@@ -174,12 +175,19 @@ pub fn diff_results_with(
     let mut d = Vec::new();
     let lenient = policy.oracle_leniency && ctx.workers > 1;
     push(&mut d, "verdict", &golden.verdict, &observed.verdict);
+    if observed.verdict == Verdict::LivenessViolation {
+        // Lasso identity is arbitrary; an absent witness is not a lasso.
+        // This prerequisite is independent of count and worker policies.
+        push(&mut d, "trace.present", &true, &observed.trace.is_some());
+    }
     push(
         &mut d,
         "error_class",
         &golden.error_class,
         &observed.error_class,
     );
+    // Word validity and worker/count leniency never waive the observable exit.
+    push(&mut d, "exit_code", &golden.exit_code, &observed.exit_code);
     let omitted = observed.violated_property.is_none() && policy.may_omit_property;
     if golden.violated_property.is_some() && !omitted && !lenient {
         push(
@@ -220,23 +228,30 @@ pub fn diff_results_with(
             &golden.counts.depth,
             &observed.counts.depth,
         );
-        push(
-            &mut d,
-            "trace.length",
-            &golden.trace.as_ref().map(|t| t.length),
-            &observed.trace.as_ref().map(|t| t.length),
-        );
-        push(
-            &mut d,
-            "trace.ending",
-            &ending_kind(golden),
-            &ending_kind(observed),
-        );
+        // Temporal witnesses are independently validated below the harness
+        // boundary; their arbitrary lasso length/ending is not parity (ADR 0086).
+        // Safety retains its shortest BFS witness controls.
+        if golden.verdict != Verdict::LivenessViolation
+            || observed.verdict != Verdict::LivenessViolation
+        {
+            push(
+                &mut d,
+                "trace.length",
+                &golden.trace.as_ref().map(|t| t.length),
+                &observed.trace.as_ref().map(|t| t.length),
+            );
+            push(
+                &mut d,
+                "trace.ending",
+                &ending_kind(golden),
+                &ending_kind(observed),
+            );
+        }
     }
     d
 }
 
-/// Differences on the verdict and the error class only: how a run of a
+/// Differences on verdict, error class and numeric exit code: how a run of a
 /// worker-introspecting model at more than one worker is compared with
 /// TLC's result at the same worker count, whose counts, depth and
 /// counterexample are only approximate (ADR 0004, amendment of 2026-10-09).
@@ -250,6 +265,7 @@ pub fn diff_verdict_and_class(golden: &OracleResult, observed: &OracleResult) ->
         &golden.error_class,
         &observed.error_class,
     );
+    push(&mut d, "exit_code", &golden.exit_code, &observed.exit_code);
     d
 }
 
@@ -490,6 +506,61 @@ mod tests {
     }
 
     #[test]
+    fn numeric_exit_is_exact_for_every_count_and_worker_policy() {
+        for (verdict, exit) in [
+            (Verdict::Success, 0),
+            (Verdict::SafetyViolation, 12),
+            (Verdict::LivenessViolation, 13),
+        ] {
+            let mut golden = result(verdict, 1, 2, 1, Some(1));
+            golden.exit_code = Some(exit);
+            for code in [None, Some(0), Some(12), Some(13)] {
+                let mut observed = golden.clone();
+                observed.exit_code = code;
+                for workers in [1, 4] {
+                    for counts_comparable in [true, false] {
+                        for oracle_leniency in [false, true] {
+                            let diffs = diff_results_with(
+                                &golden,
+                                &observed,
+                                CompareContext {
+                                    workers,
+                                    counts_comparable,
+                                },
+                                ComparePolicy {
+                                    oracle_leniency,
+                                    may_omit_property: true,
+                                },
+                            );
+                            if code == Some(exit) {
+                                assert_eq!(diffs, Vec::<FieldDiff>::new());
+                            } else {
+                                assert_eq!(diffs.len(), 1);
+                                assert_eq!(diffs[0].field, "exit_code");
+                                assert_eq!(diffs[0].expected, serde_json::json!(exit));
+                                assert_eq!(diffs[0].actual, serde_json::json!(code));
+                            }
+                        }
+                    }
+                }
+                let diffs = diff_verdict_and_class(&golden, &observed);
+                assert_eq!(diffs.len(), usize::from(code != Some(exit)));
+                if code != Some(exit) {
+                    assert_eq!(diffs[0].field, "exit_code");
+                }
+            }
+        }
+        // Legitimate finite temporal2116/exit12 remains an equal result.
+        let mut finite = result(Verdict::LivenessViolation, 1, 2, 1, Some(1));
+        finite.exit_code = Some(12);
+        assert_eq!(diff_results(&finite, &finite, ONE), Vec::<FieldDiff>::new());
+        assert_eq!(
+            diff_verdict_and_class(&finite, &finite),
+            Vec::<FieldDiff>::new()
+        );
+    }
+
+    #[test]
     fn differences_are_reported_by_field() {
         let a = result(Verdict::SafetyViolation, 4, 5, 4, Some(4));
         let b = result(Verdict::SafetyViolation, 4, 6, 3, Some(3));
@@ -584,8 +655,8 @@ mod tests {
     }
 
     #[test]
-    fn ending_and_queue_are_compared() {
-        let a = result(Verdict::LivenessViolation, 3, 4, 3, Some(3));
+    fn safety_ending_and_queue_are_compared() {
+        let a = result(Verdict::SafetyViolation, 3, 4, 3, Some(3));
         let mut b = a.clone();
         if let Some(t) = b.trace.as_mut() {
             t.ending = TraceEnding::Stuttering;
@@ -659,5 +730,55 @@ mod tests {
         let f = crosscheck_manifest(&exp, &bad, true);
         assert_eq!(f.len(), 1);
         assert_eq!(f[0].golden, serde_json::Value::from("safety failure"));
+    }
+    #[test]
+    #[allow(
+        clippy::expect_used,
+        reason = "independently bound witness and comparator test assertions"
+    )]
+    fn temporal_lasso_choices_do_not_mask_counts_property_or_invalidity() {
+        use dive_api::trace::{Ending, TraceDoc, Validation};
+        use dive_api::trace::{SpecModel, TraceOptions};
+        let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x' \\in {0,1}\nP == []<>(x=2)\n====\n";
+        let model = SpecModel::from_source(
+            "M.tla",
+            source,
+            "INIT Init\nNEXT Next\nPROPERTY P\n",
+            &TraceOptions::default(),
+        )
+        .expect("model");
+        let word = |values: Vec<serde_json::Value>| {
+            let mut doc = TraceDoc::behavior(values).expect("document");
+            doc.ending = Some(Ending::Lasso { back_to: 0 });
+            doc.properties = vec!["P".into()];
+            doc
+        };
+        let short = word(vec![serde_json::json!({"x":0})]);
+        let long = word(vec![serde_json::json!({"x":0}), serde_json::json!({"x":1})]);
+        assert_eq!(model.validate(&short).validation, Validation::Valid);
+        assert_eq!(model.validate(&long).validation, Validation::Valid);
+        let invalid = word(vec![serde_json::json!({"x":0}), serde_json::json!({"x":3})]);
+        assert!(matches!(
+            model.validate(&invalid).validation,
+            Validation::Invalid(_)
+        ));
+        let mut golden = result(Verdict::LivenessViolation, 5, 6, 5, Some(1));
+        golden.violated_property = Some("P".into());
+        let mut observed = golden.clone();
+        observed.trace.as_mut().expect("trace").length = 2;
+        observed.trace.as_mut().expect("trace").ending = TraceEnding::Lasso { back_to: Some(1) };
+        assert_eq!(diff_results(&golden, &observed, ONE), [] as [FieldDiff; 0]);
+        observed.counts.states_generated = Some(999);
+        assert!(
+            diff_results(&golden, &observed, ONE)
+                .iter()
+                .any(|d| d.field == "counts.states_generated")
+        );
+        observed.violated_property = Some("Q".into());
+        assert!(
+            diff_results(&golden, &observed, ONE)
+                .iter()
+                .any(|d| d.field == "violated_property")
+        );
     }
 }

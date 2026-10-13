@@ -870,7 +870,7 @@ fn run_model(
     // Under `--compat=tlc`, `TLCGet("config").worker` is the physical
     // worker count, as in TLC (D-011), so a model that reads it may
     // legitimately behave as TLC does at that count: it is compared with
-    // TLC's own run at the same count, on verdict and error class (ADR 0004,
+    // TLC's own run at the same count, on verdict, error class and exit code (ADR 0004,
     // amendment of 2026-10-09). The default profile reports the logical
     // count, 1, so the single-worker golden applies at every count there.
     let compat = !imp.is_oracle()
@@ -960,18 +960,34 @@ fn run_model(
                 };
                 let mut trace_note = match &worker_golden {
                     Some(_) => Some(format!(
-                        "compared with TLC at {workers} workers on verdict and error class (the model reads TLCGet(\"config\"); ADR 0004)"
+                        "compared with TLC at {workers} workers on verdict, error class and exit code (the model reads TLCGet(\"config\"); ADR 0004)"
                     )),
                     None if compat && m.worker_introspecting && workers > 1 => Some(format!(
                         "no worker-specific golden at {workers} workers; compared with the single-worker golden"
                     )),
                     None => None,
                 };
-                if !imp.is_oracle() && result.trace.is_some() {
+                if !imp.is_oracle()
+                    && (result.trace.is_some() || result.verdict == Verdict::LivenessViolation)
+                {
                     // Charter rule 2: a counterexample must be independently
                     // replayed before it can count. The harness validates it
                     // itself (ADR 0016 §3).
-                    let check = imp.trace_validated(&req, &result, &golden.result);
+                    let mut check = imp.trace_validated(&req, &result, &golden.result);
+                    if result.verdict == Verdict::LivenessViolation
+                        && result.trace.as_ref().is_none_or(|trace| {
+                            trace.json.is_none()
+                                || trace.json_unavailable.is_some()
+                                || trace.omitted.is_some()
+                        })
+                    {
+                        // Even a validator hook cannot vouch for an absent
+                        // document. The ordinary hook freshly binds/replays
+                        // available words; no implementation JSON claim counts.
+                        check = crate::trace_check::TraceCheck::no(
+                            "temporal violation has no available counterexample document",
+                        );
+                    }
                     if !check.validated {
                         // Unconfirmed (refused by name) can at best be
                         // pending; shown wrong is a disagreement.
@@ -1004,7 +1020,10 @@ fn run_model(
                     // Everything compared agrees; only the independent
                     // validation could not confirm the counterexample.
                     // Not an agreement until the validator vouches for it.
-                    _ if diffs.iter().all(|d| d.field == "trace.validated") => {
+                    _ if diffs.iter().all(|d| {
+                        matches!(d.field.as_str(), "trace.validated" | "trace.present")
+                    }) =>
+                    {
                         Outcome::AgreePendingTraceValidation
                     }
                     _ => Outcome::Disagree,

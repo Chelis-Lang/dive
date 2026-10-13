@@ -455,15 +455,24 @@ fn safety_and_resource_stops_in_partial_levels_prevent_failing_callbacks() {
 }
 
 #[test]
-fn unsupported_observation_width_runs_no_callback() {
-    let opts = CheckOptions {
-        workers: 4,
-        ..CheckOptions::tlc(0, 0)
-    };
-    let m = model("Init == x=0\nNext == x'=x", "INIT Init\nNEXT Next\n", &opts);
-    let mut events = Events::default();
-    assert!(
-        matches!(observed(&m,&opts,Limits::default(),&mut events),Exploration::Stopped(result) if matches!(result.verdict,Verdict::Unsupported { .. }))
-    );
-    assert!(events.roots.is_empty() && events.edges.is_empty() && events.levels.is_empty());
+fn four_worker_observation_uses_the_actual_pool() {
+    for opts in [
+        CheckOptions {
+            workers: 4,
+            ..CheckOptions::tlc(0, 0)
+        },
+        CheckOptions {
+            workers: 4,
+            ..CheckOptions::dive(0)
+        },
+    ] {
+        let m = model("Init == x=0\nNext == x'=x", "INIT Init\nNEXT Next\n", &opts);
+        let mut events = Events::default();
+        let result = complete(observed(&m, &opts, Limits::default(), &mut events));
+        assert_eq!(result.workers.used, 4);
+        assert!(!result.workers.sequential);
+        assert_eq!(events.roots.len(), 1);
+        assert_eq!(events.levels.len(), 1);
+        assert_eq!(events.edges.len(), 2);
+    }
 }

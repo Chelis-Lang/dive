@@ -31,8 +31,8 @@ safety exploration completes (`-lncheck final`). The verdict is the same as
 under TLC's periodic schedule, but TLC's periodic schedule depends on wall-clock
 time and queue state. dive therefore does not emulate periodic timing. Counts at
 a liveness violation are compared only when the oracle ran with
-`-lncheck final`. Any periodic-check feature dive adds later is a dive option
-with deterministic triggers, not a reproduction of TLC's clock.
+`-lncheck final`. ADR 0094 now implements the owner-approved completed-level default schedule;
+Final remains the TLC-compatible reference. There is no reproduction of TLC's clock.
 
 **Counterexamples.** dive's default lasso is short and deterministic
 (`--lasso short`). A violation is reported only when the candidate word passes
@@ -52,9 +52,9 @@ are refused until supported.
 class and message, and are never swallowed by a fallback branch. Unsupported
 shapes and resource limits are named refusals, not errors in the spec.
 
-**Store and identity.** Temporal checking over the exact store is refused until
-the exact store can provide a temporal proof. Fingerprint-store results keep the
-store's collision qualification. Symmetry with liveness follows ADR 0019 §4 and
+**Store and identity.** Exhaustive temporal capture supports exact storage;
+fingerprint-store results keep the store's collision qualification. A completed-level
+prefix is never an exact or probabilistic exhaustiveness claim. Symmetry with liveness follows ADR 0019 §4 and
 ADR 0085.
 
 **Evaluator contexts.** `Evaluator::new` and `Evaluator::with_sink` validate

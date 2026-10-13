@@ -1,19 +1,17 @@
-//! Final-only pure liveness analysis through the shared safety engine.
+//! Scoped temporal planning and graph checking through the shared safety engine.
 //!
-//! This library coordinator does not implement TLC's exact planning/selection,
-//! periodic checks or symmetry. WF/SF expansion uses TLC-side enabledness. Counterexample candidates
-//! still require independent validation; direct formula evaluation attributes
-//! their complete configured property set.
-//! The CLI retains its liveness refusal until that integration is complete.
+//! Final analysis requires exhaustive capture. The prepared graph kernel also
+//! finds candidates on completed-level prefixes; no absence of a prefix lasso
+//! proves Holds. Candidates always require fresh independent validation.
 
 use dive_check::{CheckOptions, CheckResult, capture};
 use dive_eval::{St, next::StateVals};
 use dive_model::Model;
 
 use crate::Graph;
-use crate::formula::{self, AtomKind, Recurrence, Tableau};
+use crate::formula::{self, Recurrence, Tableau};
 use crate::plan::{self, Plan, PlanningError};
-use crate::product::{self, Labels, Product};
+use crate::product::{self, Product};
 
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
@@ -26,7 +24,8 @@ pub struct Limits {
     pub product: product::Limits,
     /// Maximum temporal properties planned before exploration.
     pub properties: usize,
-    /// Maximum state and action label cells for one property.
+    /// Maximum state/action cells and additional concrete-coherence work for
+    /// one property, including bounded lossless transport bytes.
     pub atom_cells: usize,
 }
 impl Default for Limits {
@@ -76,6 +75,8 @@ pub struct Candidate {
 pub enum AnalysisError {
     /// Pure predicate planning failed.
     Planning(PlanningError),
+    /// TLC's observable formula classification, without tableau identities.
+    Classification(crate::tlc_plan::ProjectionError),
     /// Tableau construction failed.
     Tableau(formula::FormulaError),
     /// Product construction or acceptance search failed.
@@ -89,6 +90,17 @@ pub enum AnalysisError {
         /// Source span and location of the predicate.
         source: Box<plan::Source>,
         /// Error or unsupported value.
+        detail: String,
+        /// Typed evaluator cause, preserving error class and TLC code.
+        error: Box<dive_eval::EvalError>,
+    },
+    /// Actual concrete occurrences cannot safely use the stored quotient.
+    Concrete {
+        /// Property whose evaluation reached this point.
+        property: String,
+        /// Original predicate or Next source.
+        source: Box<plan::Source>,
+        /// The observed incoherence or unavailable bounded replay.
         detail: String,
     },
     /// A named coordinator resource bound.
@@ -107,6 +119,7 @@ impl AnalysisError {
     pub fn code(&self) -> &'static str {
         match self {
             Self::Planning(e) => e.code(),
+            Self::Classification(e) => e.code(),
             Self::Tableau(_) => "DIVE-L0030",
             Self::Product(_) => "DIVE-L0031",
             Self::Exploration(_) => "DIVE-L0032",
@@ -115,6 +128,7 @@ impl AnalysisError {
             Self::Unsupported(_) => "DIVE-L0035",
             Self::Inconsistent(_) => "DIVE-L0036",
             Self::CaptureThread(_) => "DIVE-L0037",
+            Self::Concrete { .. } => "DIVE-L0038",
         }
     }
 }
@@ -123,6 +137,7 @@ impl std::fmt::Display for AnalysisError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Planning(e) => e.fmt(f),
+            Self::Classification(e) => e.fmt(f),
             Self::Tableau(e) => e.fmt(f),
             Self::Product(e) => e.fmt(f),
             Self::Exploration(v) => write!(f, "liveness exploration stopped: {:?}", v.verdict),
@@ -130,6 +145,7 @@ impl std::fmt::Display for AnalysisError {
                 property,
                 source,
                 detail,
+                ..
             } => write!(
                 f,
                 "{}: liveness atom for {property} at {}: {detail}",
@@ -140,6 +156,16 @@ impl std::fmt::Display for AnalysisError {
             Self::Unsupported(s) => write!(f, "unsupported liveness analysis: {s}"),
             Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
             Self::CaptureThread(s) => write!(f, "liveness capture thread failure: {s}"),
+            Self::Concrete {
+                property,
+                source,
+                detail,
+            } => write!(
+                f,
+                "{}: unsupported concrete temporal quotient for {property} at {}: {detail}",
+                self.code(),
+                source.location
+            ),
         }
     }
 }
@@ -190,6 +216,8 @@ pub struct ExplorationEvidence {
     pub output: Vec<String>,
     /// Startup warnings with TLC message codes.
     pub warnings: Vec<(u32, String)>,
+    /// None for exhausted exploration; Some for a completed-level prefix.
+    pub boundary: Option<u64>,
 }
 impl From<&capture::Complete> for ExplorationEvidence {
     fn from(capture: &capture::Complete) -> Self {
@@ -199,6 +227,20 @@ impl From<&capture::Complete> for ExplorationEvidence {
             collision: capture.collision.clone(),
             output: capture.output.clone(),
             warnings: capture.warnings.clone(),
+            boundary: None,
+        }
+    }
+}
+
+impl From<&capture::Prefix> for ExplorationEvidence {
+    fn from(prefix: &capture::Prefix) -> Self {
+        Self {
+            stats: prefix.stats,
+            workers: prefix.workers.clone(),
+            collision: prefix.collision.clone(),
+            output: prefix.output.clone(),
+            warnings: prefix.warnings.clone(),
+            boundary: Some(prefix.level),
         }
     }
 }
@@ -224,7 +266,7 @@ impl std::error::Error for Failure {
     }
 }
 
-fn atom(
+pub(crate) fn atom(
     model: &Model,
     plan: &Plan,
     index: usize,
@@ -232,66 +274,13 @@ fn atom(
     property: &str,
 ) -> Result<bool, AnalysisError> {
     let pred = &plan.atoms[index].pred;
-    let failure = |detail| AnalysisError::Atom {
+    let failure = |error: dive_eval::EvalError| AnalysisError::Atom {
         property: property.into(),
         source: Box::new(plan::Source::new(model, pred.location)),
-        detail,
+        detail: error.to_string(),
+        error: Box::new(error),
     };
-    plan.atoms[index]
-        .evaluate(model, st)
-        .map_err(|e| failure(e.to_string()))
-}
-
-fn labels(
-    model: &Model,
-    plan: &Plan,
-    graph: &capture::BehaviorGraph,
-    property: &str,
-    limit: usize,
-) -> Result<Labels, AnalysisError> {
-    let edges = graph
-        .edges
-        .iter()
-        .try_fold(0_usize, |n, r| n.checked_add(r.len()))
-        .ok_or(AnalysisError::Limit("atom cells"))?;
-    graph
-        .states
-        .len()
-        .checked_add(edges)
-        .and_then(|n| n.checked_mul(plan.atoms.len()))
-        .filter(|n| *n <= limit)
-        .ok_or(AnalysisError::Limit("atom cells"))?;
-    let mut states = Vec::new();
-    let mut actions = Vec::new();
-    for (index, pred) in plan.atoms.iter().enumerate() {
-        let mut state_row = Vec::new();
-        let mut action_rows = Vec::new();
-        for (v, vals) in graph.states.iter().enumerate() {
-            state_row.push(if pred.kind == AtomKind::State {
-                atom(model, plan, index, &St::state(vals.clone()), property)?
-            } else {
-                false
-            });
-            let mut row = Vec::new();
-            for edge in &graph.edges[v] {
-                row.push(if pred.kind == AtomKind::Action {
-                    atom(
-                        model,
-                        plan,
-                        index,
-                        &St::action(vals.clone(), graph.states[edge.to].clone()),
-                        property,
-                    )?
-                } else {
-                    false
-                });
-            }
-            action_rows.push(row);
-        }
-        states.push(state_row);
-        actions.push(action_rows);
-    }
-    Ok(Labels { states, actions })
+    plan.atoms[index].evaluate(model, st).map_err(failure)
 }
 
 fn attribute(
@@ -381,13 +370,20 @@ pub fn analyze_final_with_evidence(
     })
 }
 
-fn analyze_observed(
-    model: &Model,
-    opts: &CheckOptions,
+/// Prepared scoped temporal formulas, compiled once for a run.
+/// Successful preparation alone is not a verdict.
+pub struct Prepared {
+    plans: Vec<(Plan, Tableau, Vec<Recurrence>)>,
     limits: Limits,
-    stage: &mut Stage,
-    exploration: &mut Option<Box<ExplorationEvidence>>,
-) -> Result<Analysis, AnalysisError> {
+}
+
+/// Prepares every behavior conjunct and property before graph exploration.
+/// TLC's classifier is applied to original fairness and properties before
+/// negation; its resource bounds remain separate from semantic refusals.
+///
+/// # Errors
+/// Unsupported language/context, evaluator errors or explicit formula limits.
+pub fn prepare(model: &Model, limits: Limits) -> Result<Prepared, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
     }
@@ -399,12 +395,43 @@ fn analyze_observed(
     if model.property_claims().len() > limits.properties {
         return Err(AnalysisError::Limit("properties"));
     }
-    let plans: Vec<(Plan, Tableau, Vec<Recurrence>)> = model
+    let lowered = model
         .property_claims()
         .iter()
         .map(|p| {
-            let plan = plan::lower_violation(model, &p.pred, limits.formula)
-                .map_err(AnalysisError::Planning)?;
+            plan::lower_violation(model, &p.pred, limits.formula).map_err(AnalysisError::Planning)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let fairness = model
+        .temporals
+        .iter()
+        .map(|p| {
+            plan::lower(model, &p.pred, limits.formula)
+                .map(|p| p.formula)
+                .map_err(AnalysisError::Planning)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    // TLC parseLiveness receives getImpliedTemporals after SpecProcessor
+    // separates initial, invariant and action properties. Original configured
+    // claims remain in the graph plans and independent attribution below.
+    let properties = model
+        .implied_temporals
+        .iter()
+        .map(|p| {
+            plan::lower(model, &p.pred, limits.formula)
+                .map(|p| p.formula)
+                .map_err(AnalysisError::Planning)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    crate::tlc_plan::classify(
+        &fairness.iter().collect::<Vec<_>>(),
+        &properties.iter().collect::<Vec<_>>(),
+        limits.formula,
+    )
+    .map_err(AnalysisError::Classification)?;
+    let plans = lowered
+        .into_iter()
+        .map(|plan| {
             let (core, conditions) = plan
                 .formula
                 .factor_recurrences(limits.formula.formula_nodes)
@@ -413,7 +440,18 @@ fn analyze_observed(
                 formula::compile(&core, limits.formula).map_err(AnalysisError::Tableau)?;
             Ok((plan, tableau, conditions))
         })
-        .collect::<Result<_, AnalysisError>>()?;
+        .collect::<Result<Vec<_>, AnalysisError>>()?;
+    Ok(Prepared { plans, limits })
+}
+
+fn analyze_observed(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    stage: &mut Stage,
+    exploration: &mut Option<Box<ExplorationEvidence>>,
+) -> Result<Analysis, AnalysisError> {
+    let prepared = prepare(model, limits)?;
     *stage = Stage::Capture;
     let captured =
         match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
@@ -422,10 +460,16 @@ fn analyze_observed(
         })? {
             capture::Exploration::Complete(c) => *c,
             capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
+            capture::Exploration::Prefix(_) => {
+                return Err(AnalysisError::Inconsistent(
+                    "unobserved capture returned a prefix",
+                ));
+            }
         };
-    let word = analyze_captured(model, &plans, &captured, limits, stage).inspect_err(|_| {
-        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
-    })?;
+    let word = check_graph(model, &prepared, &captured.graph, &captured.options, stage)
+        .inspect_err(|_| {
+            *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
+        })?;
     Ok(match word {
         Some(word) => Analysis::Candidate(Candidate {
             target_property: word.target_property,
@@ -439,35 +483,50 @@ fn analyze_observed(
     })
 }
 
-struct CandidateWord {
-    target_property: String,
-    properties: Vec<String>,
-    states: Vec<StateVals>,
-    back_to: usize,
-    edges: Vec<capture::Edge>,
+/// An attributed accepting word; it still requires independent validation.
+#[derive(Clone, Debug)]
+pub struct CandidateWord {
+    /// Property whose negation selected this word.
+    pub target_property: String,
+    /// Every configured claim false on this word.
+    pub properties: Vec<String>,
+    /// Concrete word positions in IR variable order.
+    pub states: Vec<StateVals>,
+    /// Zero-based closing target.
+    pub back_to: usize,
+    /// Real captured transitions, including closure.
+    pub edges: Vec<capture::Edge>,
 }
 
-fn analyze_captured(
+/// Finds and attributes an accepting word on a committed graph.
+/// None on a prefix does not establish Holds; only exhaustive capture does.
+/// `options` must be the actual producer options; alias identity preparation
+/// never infers a producer profile from stored values or public graph fields.
+///
+/// # Errors
+/// Exact labeling, product search, attribution or an explicit bound failed.
+pub fn check_graph(
     model: &Model,
-    plans: &[(Plan, Tableau, Vec<Recurrence>)],
-    captured: &capture::Complete,
-    limits: Limits,
+    prepared: &Prepared,
+    behavior: &capture::BehaviorGraph,
+    options: &CheckOptions,
     stage: &mut Stage,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
+    let plans = &prepared.plans;
+    let limits = prepared.limits;
     *stage = Stage::Product;
     let graph = Graph::new(
-        captured
-            .graph
+        behavior
             .edges
             .iter()
             .map(|r| r.iter().map(|e| e.to).collect())
             .collect(),
-        captured.graph.roots.clone(),
+        behavior.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
     for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans) {
         *stage = Stage::Atoms;
-        let labels = labels(model, plan, &captured.graph, &p.name, limits.atom_cells)?;
+        let labels = crate::concrete::labels(model, plan, behavior, options, &p.name, limits)?;
         *stage = Stage::Product;
         let product =
             Product::with_recurrences(&graph, tableau, &labels, conditions, limits.product)
@@ -476,10 +535,10 @@ fn analyze_captured(
             let steps = lasso.prefix.iter().chain(&lasso.cycle);
             let states: Vec<StateVals> = steps
                 .clone()
-                .map(|s| captured.graph.states[s.from].clone())
+                .map(|s| behavior.states[s.from].clone())
                 .collect();
             let edges = steps
-                .map(|s| captured.graph.edges[s.from][s.edge].clone())
+                .map(|s| behavior.edges[s.from][s.edge].clone())
                 .collect();
             *stage = Stage::Attribution;
             let properties =

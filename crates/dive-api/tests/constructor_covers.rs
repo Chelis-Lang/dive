@@ -208,6 +208,9 @@ fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
+                    Outcome::PrefixViolation(prefix) => {
+                        panic!("final API returned a prefix: {prefix:?}")
+                    }
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(

@@ -1,4 +1,4 @@
-# Final temporal checking from Rust
+# Temporal checking from Rust
 
 `dive_api::temporal::check_final` checks the supported pure temporal subset
 once the safety graph is completely explored. It returns either a holding
@@ -25,6 +25,7 @@ match report.outcome() {
     }
     Outcome::Holds(evidence) => println!("{} distinct states", evidence.stats.distinct),
     Outcome::Safety(result) => println!("earlier safety result: {:?}", result.verdict),
+    Outcome::PrefixViolation(v) => println!("completed level {}", v.exploration().level),
 }
 ```
 
@@ -51,15 +52,27 @@ product construction; these are **entry/work counts**, not byte limits or a
 wall-clock deadline, and do not bound the preceding binding stage. Fingerprint mode retains the safety engine's collision
 qualifications; exact mode stores full states.
 
-This API uses final checking and deterministic short-lasso selection. Passing
-`CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does
-not select TLC's exact lasso, periodic schedule or evaluation-error timing.
-It does not replace the strict TLC conformance path. Ordinary `dive check`
-retains its temporal refusal unless final/short checking is explicitly selected.
-TLC's exact lasso is not reproduced in any mode (ADR 0082); `--lasso tlc` is a
-usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify`
-reproduces TLC's liveness formula refusals (errors 2213 and 2214) for a later
-stage to wire in.
+Capture retains accepted original Init occurrences in `graph.initials` and
+generated targets in `graph.concrete`. Labels evaluate those actual values;
+bounded source-alias and projected Next/constraint checks precede a graph result.
+Incoherence or unavailable safe replay returns source-named `DIVE-L0038`;
+evaluator errors retain their original typed causes. Initial occurrences share
+the graph entry bound; additional coherence/transport/expansion work consumes
+the existing per-property atom and replay budgets. Raw statistics exclude it.
+`analyze::check_graph` requires the actual producer `CheckOptions` explicitly.
+`capture::prepare_replay_identity` shares the ordinary identity kernel and
+discards its key; it does not certify graph completeness or grant host authority.
+
+`check_final` uses final checking and retains exhausted-only `Complete` evidence.
+Ordinary checking is also available through
+`check_with_schedule_with_evidence(..., Schedule::Default, ...)`; its distinct
+`Outcome::PrefixViolation` contains actual `Prefix` counters/graph and two successful
+fresh-model validations. A prefix cannot be converted into Holds. Schedule::Final
+runs only after exhaustion. TLC-compatible ordinary requests select Final; the
+default profile selects growth-gated completed levels (D-014, ADR 0094).
+TLC's exact lasso is not reproduced; `--lasso tlc` remains a usage error.
+The 2213/2214 classifier now runs before tableau compilation in both profiles;
+accepting its rejected language remains a separate policy decision.
 
 
 Original configured PROPERTY formulas are retained for attribution. A universal
@@ -79,30 +92,25 @@ not turn this malformed formula into a feature refusal. The check report names
 
 ## Command-line access
 
-The same backend is available explicitly:
-
 ```sh
-dive check Model.tla --lncheck final --lasso short --store exact --seed 17 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --seed 7 --workers 4 --output json
 ```
 
-Both flags are required. The model must have a temporal property; ordinary
-safety checks use the existing command without these flags. Supported final
-checking returns success or independently validated periodic counterexamples;
-unsupported formulas, missing independent covers and limits return no verdict.
-Safety violations found during exploration retain their full original report.
+Ordinary temporal requests use schema 2; ordinary safety requests retain schema 1.
+Explicit `--lncheck final` and `--lncheck deterministic` select a schedule;
+`--lasso short` is optional. A violation includes every false claim, a validated
+lossless `counterexample.trace` and a one-based displayed `back_to`; the inner
+trace document retains its zero-based closing index. Prefix statistics are the
+actual completed boundary, with `execution.exhausted: false` and
+`completed_level`. Holds requires complete capture. A failed later stage retains
+work but no verdict. Default/compat temporal violations exit 10/13.
 
-Opt-in requests use JSON schema 2. Ordinary checks retain schema 1. A temporal
-violation includes `properties`, an independently admitted tagged `counterexample.trace`, a 1-based
-`counterexample.back_to`, and `counterexample.validation: "valid"`. The trace
-document itself retains its own schema and 0-based back edge. Save the trace
-field and replay it with `dive validate-trace` against the same spec/config.
-
-`--compat=tlc` with these explicit overrides is labeled `tlc+overrides`. It
-selects TLC's values and reports temporal violations with exit 13, but does
-not claim TLC-exact lasso selection, finite-prefix stopping, temporal error
-classes or periodic scheduling. The `tlc` class field stays null for temporal
-holds/violations. Default-profile violations exit 10. The ordinary strict
-conformance path retains its temporal refusal until those counterparts land.
+`--compat=tlc` ordinary requests use Final and preserve one-worker pinned-final
+counts/depth/property/error controls. Short-lasso choice alone is not an override.
+Explicit deterministic compat scheduling discloses its D-014 difference. It may
+stop before later safety events and has boundary counts instead of final totals;
+no blanket statistics leniency is implied. Unsupported scopes, effects, independent
+covers and explicit bounds remain refusals. See [the user guide](user/temporal.md).
 
 Capture honors the requested worker pool for supported pure models, while
 fixed eight-source waves bound scratch retention. Bounds are counts of retained entries,

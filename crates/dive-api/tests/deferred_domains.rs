@@ -75,6 +75,9 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
                                 assert_eq!(v.validation().validation, Validation::Valid);
                                 &v.candidate().exploration
                             }
+                            Outcome::PrefixViolation(prefix) => {
+                                panic!("final API returned a prefix: {prefix:?}")
+                            }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };
                         assert_eq!(

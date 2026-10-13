@@ -188,7 +188,8 @@ fn mode(v: &Value, profile: &Profile, workers: u32) -> std::result::Result<(), S
     Ok(())
 }
 
-fn counts(v: &Value) -> std::result::Result<Counts, String> {
+/// Parses actual schema-2 work counters without applying study comparison policy.
+pub(crate) fn counts(v: &Value) -> std::result::Result<Counts, String> {
     let s = &v["statistics"];
     let n = |k: &str| {
         s[k].as_u64()
@@ -202,7 +203,8 @@ fn counts(v: &Value) -> std::result::Result<Counts, String> {
     })
 }
 
-fn lasso_document(v: &Value) -> std::result::Result<TraceDoc, String> {
+/// Parses the existing lossless lasso/display/property contract; does not validate semantics.
+pub(crate) fn lasso_document(v: &Value) -> std::result::Result<TraceDoc, String> {
     let doc = TraceDoc::from_json(&v["counterexample"]["trace"])?;
     let Some(Ending::Lasso { back_to }) = doc.ending else {
         return Err("temporal result needs a lasso document".into());

@@ -315,7 +315,8 @@ fn check_command(
     let mut checkpoint_counters = dive_api::checkpoint::Counters::Tlc;
     let mut counters_given = false;
     let mut final_check = false;
-    let mut short_lasso = false;
+    let mut deterministic_check = false;
+
     let mut file: Option<&str> = None;
     let mut json = false;
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
@@ -346,22 +347,21 @@ fn check_command(
             },
             "--lncheck" => match value().as_deref() {
                 Some("final") => final_check = true,
+                Some("deterministic") => deterministic_check = true,
+                Some("default") => {}
                 _ => {
-                    return usage_error(
-                        err,
-                        "--lncheck currently supports explicit `final` with --lasso short",
-                    );
+                    return usage_error(err, "--lncheck expects final, deterministic or default");
                 }
             },
             "--lasso" => match value().as_deref() {
-                Some("short") => short_lasso = true,
+                Some("short") => {}
                 Some("tlc") => {
                     return usage_error(
                         err,
                         "--lasso tlc is not supported: dive does not reproduce TLC's lasso choice; use --lasso short (an independently validated counterexample)",
                     );
                 }
-                _ => return usage_error(err, "--lasso expects `short` with --lncheck final"),
+                _ => return usage_error(err, "--lasso expects short"),
             },
             "--store" => match value().as_deref() {
                 Some("exact") => req.store = dive_api::Store::Exact,
@@ -552,7 +552,8 @@ fn check_command(
         if let Err(error) = seen_policy.limits.validate() {
             return usage_error(err, &error.to_string());
         }
-        if final_check || checkpoint_path.is_some() || recover_path.is_some() {
+        if final_check || deterministic_check || checkpoint_path.is_some() || recover_path.is_some()
+        {
             return usage_error(
                 err,
                 "disk seen-state retention with temporal/capture or checkpoint/recovery is not implemented",
@@ -560,17 +561,19 @@ fn check_command(
         }
         req.seen_disk = Some(seen_policy);
     }
-    if final_check != short_lasso {
+    if final_check && deterministic_check {
         return usage_error(
             err,
-            "bounded temporal checking needs --lncheck final and --lasso short",
+            "--lncheck final and deterministic cannot both be selected",
         );
     }
     if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
         return usage_error(err, "--frontier-directory requires --frontier-memory-bytes");
     }
-    req.temporal = if final_check && short_lasso {
+    req.temporal = if final_check {
         dive_api::TemporalMode::FinalShort
+    } else if deterministic_check {
+        dive_api::TemporalMode::Deterministic
     } else {
         dive_api::TemporalMode::Ordinary
     };

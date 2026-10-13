@@ -12,6 +12,10 @@ use dive_value::Value;
 use std::{path::Path, sync::Arc};
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "retain the complete existing final-domain matrix and explicit nonexhaustive-result rejection"
+)]
 fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/lazy-domains");
     for kind in ["Function", "Record", "Product", "Subset"] {
@@ -76,6 +80,9 @@ fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() 
                                 assert!(!holds, "{name}");
                                 assert_eq!(v.validation().validation, Validation::Valid);
                                 &v.candidate().exploration
+                            }
+                            Outcome::PrefixViolation(prefix) => {
+                                panic!("final API returned a prefix: {prefix:?}")
                             }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };

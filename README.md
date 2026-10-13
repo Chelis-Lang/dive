@@ -8,10 +8,10 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > parsing, safety `dive check`, finite pure safety `dive simulate`, and
 > `dive validate-trace` are implemented.
 > The protected conformance gate compares safety results with pinned TLC
-> goldens. Rust callers can use bounded final temporal checking with
-> independently validated counterexamples. Pure safety symmetry now retains
-> concrete validated traces; unsupported symmetry interactions and ordinary
-> temporal checking still refuse. Configured native random replacements refuse
+> goldens. Ordinary supported temporal checking uses completed-level checks
+> by default and final checks under TLC compatibility, with freshly validated
+> counterexamples. Pure safety symmetry retains concrete validated traces;
+> unsupported temporal scopes and symmetry interactions still refuse. Configured native random replacements refuse
 > before startup until their stream authority is proved. See `docs/scoreboard.md`
 > for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
 
@@ -46,9 +46,9 @@ cargo nextest run --workspace
 
 The toolchain is pinned in `rust-toolchain.toml`, and rustup installs it automatically.
 
-For the supported bounded temporal subset, opt into final checking and an
-independently validated short lasso with
-`dive check Model.tla --lncheck final --lasso short --output json`.
+For supported temporal properties, use `dive check Model.tla --output json`.
+The default schedule checks completed levels; `--compat=tlc` uses final checking.
+`--lncheck final` explicitly selects exhaustive checking in either profile.
 See [temporal checking](docs/temporal-api.md#command-line-access) for scope,
 lossless traces and compatibility limits.
 

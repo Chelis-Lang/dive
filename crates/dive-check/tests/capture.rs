@@ -33,6 +33,7 @@ fn model(source: &str, config: &str, opts: &CheckOptions) -> dive_model::Model {
 fn complete(model: &dive_model::Model, opts: &CheckOptions) -> capture::Complete {
     match capture::explore(model, opts, Limits::default()) {
         Exploration::Complete(c) => *c,
+        Exploration::Prefix(prefix) => panic!("unobserved capture returned a prefix: {prefix:?}"),
         Exploration::Stopped(v) => panic!("{v:?}"),
     }
 }
@@ -255,6 +256,7 @@ fn ordered_parallel_capture_matches_inline_across_profiles_stores_and_chaos() {
 
 fn stopped(m: &dive_model::Model, opts: &CheckOptions, limits: Limits) -> dive_check::CheckResult {
     match capture::explore(m, opts, limits) {
+        Exploration::Prefix(prefix) => panic!("unobserved capture returned a prefix: {prefix:?}"),
         Exploration::Stopped(r) => *r,
         Exploration::Complete(_) => panic!("a bound or safety stop cannot expose a complete graph"),
     }
@@ -663,6 +665,9 @@ fn concrete_parallel_source_rows_equal_inline_across_scheduling_and_fixed_bounds
             )
             .expect("evidence");
             match result {
+                Exploration::Prefix(prefix) => {
+                    panic!("unobserved capture returned a prefix: {prefix:?}")
+                }
                 Exploration::Stopped(r) => {
                     assert!(matches!(r.verdict, Verdict::ResourceLimit { .. }));
                     outcomes.push(false);

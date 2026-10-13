@@ -1,11 +1,9 @@
-//! Bounded final temporal checking for Rust callers.
+//! Supported temporal checking with independent counterexample validation.
 //!
-//! This API checks the supported pure temporal subset and independently validates
-//! every periodic counterexample before returning it as a violation. It binds a
-//! fresh model for each run and for validation. It selects a deterministic short
-//! lasso, including with TLC value semantics; TLC-exact selection and periodic
-//! checking are not implemented here. Ordinary [`crate::check_file`] retains the strict temporal refusal; its
-//! explicit final/short option exposes this backend and labels TLC overrides.
+//! Final checking requires exhaustive capture. Ordinary checking can also stop
+//! at a deterministic completed-level boundary after a freshly bound validator
+//! accepts both the typed and serialized word. No prefix can establish Holds.
+//! TLC lasso choice and wall-clock scheduling are not reproduced.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -26,6 +24,9 @@ pub enum Outcome {
     /// A concrete periodic word falsifies the named properties and passes
     /// the independent validator. TLC's exact lasso selection is not claimed.
     Violation(Box<ValidatedCounterexample>),
+    /// Independently validated violation found at a completed-level prefix.
+    /// No exhaustive exploration or Holds is implied.
+    PrefixViolation(Box<ValidatedPrefixCounterexample>),
     /// The safety engine stopped before temporal checking could complete.
     /// This preserves its verdict, statistics, output and counterexample;
     /// unsupported features and resource limits are never success.
@@ -59,12 +60,45 @@ impl ValidatedCounterexample {
     }
 }
 
+/// A validated counterexample and the actual nonexhaustive search boundary.
+/// Private fields prevent callers from manufacturing a temporal verdict.
+#[derive(Clone, Debug)]
+pub struct ValidatedPrefixCounterexample {
+    word: dive_liveness::analyze::CandidateWord,
+    exploration: capture::Prefix,
+    document: TraceDoc,
+    validation: ValidationReport,
+}
+impl ValidatedPrefixCounterexample {
+    /// Attributed word with a zero-based closing target.
+    #[must_use]
+    pub fn word(&self) -> &dive_liveness::analyze::CandidateWord {
+        &self.word
+    }
+    /// Actual completed-level prefix; never Complete.
+    #[must_use]
+    pub fn exploration(&self) -> &capture::Prefix {
+        &self.exploration
+    }
+    /// Lossless independently validated trace document.
+    #[must_use]
+    pub fn document(&self) -> &TraceDoc {
+        &self.document
+    }
+    /// Independent serialized-word validation, always Valid.
+    #[must_use]
+    pub fn validation(&self) -> &ValidationReport {
+        &self.validation
+    }
+}
+
 /// A temporal result with total binding, exploration and validation time.
 #[derive(Clone, Debug)]
 pub struct Report {
     outcome: Outcome,
     options: CheckOptions,
     elapsed: Duration,
+    schedule: dive_liveness::periodic_backend::Schedule,
 }
 impl Report {
     /// The temporal outcome or the complete safety stop.
@@ -76,6 +110,11 @@ impl Report {
     #[must_use]
     pub fn options(&self) -> &CheckOptions {
         &self.options
+    }
+    /// Actual deterministic schedule; no wall-clock service ordering.
+    #[must_use]
+    pub const fn schedule(&self) -> dive_liveness::periodic_backend::Schedule {
+        self.schedule
     }
     /// Total wall-clock time, including independent validation.
     #[must_use]
@@ -100,6 +139,13 @@ pub enum Error {
         /// Independent validation details.
         report: ValidationReport,
     },
+    /// Independent replay refused or refuted a prefix word.
+    PrefixValidation {
+        /// Attributed word that did not validate.
+        word: Box<dive_liveness::analyze::CandidateWord>,
+        /// Independent validation result; never Valid here.
+        report: ValidationReport,
+    },
     /// A value could not be represented in the tagged trace document.
     Document(String),
     /// The evaluation thread failed to start or panicked.
@@ -113,12 +159,12 @@ impl Error {
         match self {
             Self::Binding(_) => "DIVE-A0030",
             Self::Analysis(e) => e.code(),
-            Self::Validation { report, .. }
+            Self::Validation { report, .. } | Self::PrefixValidation { report, .. }
                 if matches!(report.validation, Validation::Invalid(_)) =>
             {
                 "DIVE-A0031"
             }
-            Self::Validation { .. } => "DIVE-A0032",
+            Self::Validation { .. } | Self::PrefixValidation { .. } => "DIVE-A0032",
             Self::Document(_) => "DIVE-A0033",
             Self::Thread(_) => "DIVE-A0034",
         }
@@ -129,7 +175,7 @@ impl std::fmt::Display for Error {
         match self {
             Self::Binding(e) => e.fmt(f),
             Self::Analysis(e) => e.fmt(f),
-            Self::Validation { report, .. } => write!(
+            Self::Validation { report, .. } | Self::PrefixValidation { report, .. } => write!(
                 f,
                 "{}: temporal candidate did not pass independent validation: {:?}",
                 self.code(),
@@ -221,8 +267,8 @@ impl Failure {
     /// a claim that no work ran.
     #[must_use]
     pub fn capture_completed(&self) -> Option<bool> {
-        if self.exploration.is_some() {
-            Some(true)
+        if let Some(exploration) = &self.exploration {
+            Some(exploration.boundary.is_none())
         } else if matches!(
             self.stage,
             Stage::Binding | Stage::Analysis(dive_liveness::analyze::Stage::Planning)
@@ -298,69 +344,7 @@ fn run(
         bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?;
     match dive_liveness::analyze::analyze_final_with_evidence(&model, options, limits) {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
-        Ok(Analysis::Candidate(candidate)) => {
-            // Rebind separately: validation cannot inspect the checker's graph
-            // or depend on its mutable evaluator/host state.
-            let validation_model = bind(ir, config, options).map_err(|error| {
-                Failure::after(error, Stage::Validation, &candidate.exploration)
-            })?;
-            let trace = Trace {
-                states: candidate.states.clone(),
-                // Labels are optional; the validator checks the relation itself.
-                // Closing/implicit stuttering semantics come from the ending.
-                labels: vec![None; candidate.states.len()],
-                ending: Ending::Lasso {
-                    back_to: candidate.back_to,
-                },
-                length: Some(candidate.states.len()),
-                properties: candidate.properties.clone(),
-            };
-            let report = dive_trace::validate(&validation_model, &trace);
-            if report.validation != Validation::Valid {
-                let exploration = Some(Box::new(
-                    dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
-                ));
-                return Err(Failure {
-                    error: Error::Validation {
-                        candidate: Box::new(candidate),
-                        report,
-                    },
-                    stage: Stage::Validation,
-                    exploration,
-                    elapsed: Duration::ZERO,
-                });
-            }
-            let document = trace.to_doc(&validation_model).map_err(|error| {
-                Failure::after(
-                    Error::Document(error),
-                    Stage::Document,
-                    &candidate.exploration,
-                )
-            })?;
-            // Validate the serialized form too; a conversion bug must not turn
-            // a certified in-memory word into an incorrect user-facing trace.
-            let report =
-                dive_trace::validate_doc(&validation_model, &document, &config.model_values).0;
-            if report.validation != Validation::Valid {
-                let exploration = Some(Box::new(
-                    dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
-                ));
-                return Err(Failure {
-                    error: Error::Validation {
-                        candidate: Box::new(candidate),
-                        report,
-                    },
-                    stage: Stage::Validation,
-                    exploration,
-                    elapsed: Duration::ZERO,
-                });
-            }
-            Ok(Outcome::Violation(Box::new(ValidatedCounterexample {
-                candidate,
-                document,
-                validation: report,
-            })))
-        }
+        Ok(Analysis::Candidate(candidate)) => finish_candidate(ir, config, options, candidate),
         Err(dive_liveness::analyze::Failure {
             error: AnalysisError::Exploration(result),
             ..
@@ -372,6 +356,333 @@ fn run(
             elapsed: Duration::ZERO,
         }),
     }
+}
+
+enum WordFailure {
+    Error(Error),
+    Validation(ValidationReport),
+}
+
+// Both paths rebind independently and check both the typed and serialized word.
+fn validate_word(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    states: &[dive_eval::next::StateVals],
+    back_to: usize,
+    properties: &[String],
+) -> Result<(TraceDoc, ValidationReport), WordFailure> {
+    let model = bind(ir, config, options).map_err(WordFailure::Error)?;
+    let trace = Trace {
+        states: states.to_vec(),
+        labels: vec![None; states.len()],
+        ending: Ending::Lasso { back_to },
+        length: Some(states.len()),
+        properties: properties.to_vec(),
+    };
+    let report = dive_trace::validate(&model, &trace);
+    if report.validation != Validation::Valid {
+        return Err(WordFailure::Validation(report));
+    }
+    let document = trace
+        .to_doc(&model)
+        .map_err(|error| WordFailure::Error(Error::Document(error)))?;
+    let report = dive_trace::validate_doc(&model, &document, &config.model_values).0;
+    if report.validation != Validation::Valid {
+        return Err(WordFailure::Validation(report));
+    }
+    Ok((document, report))
+}
+
+fn finish_candidate(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    candidate: Candidate,
+) -> Result<Outcome, Failure> {
+    match validate_word(
+        ir,
+        config,
+        options,
+        &candidate.states,
+        candidate.back_to,
+        &candidate.properties,
+    ) {
+        Ok((document, validation)) => Ok(Outcome::Violation(Box::new(ValidatedCounterexample {
+            candidate,
+            document,
+            validation,
+        }))),
+        Err(error) => {
+            let exploration = Some(Box::new((&candidate.exploration).into()));
+            let (error, stage) = match error {
+                WordFailure::Validation(report) => (
+                    Error::Validation {
+                        candidate: Box::new(candidate),
+                        report,
+                    },
+                    Stage::Validation,
+                ),
+                WordFailure::Error(error) => {
+                    let stage = if matches!(error, Error::Document(_)) {
+                        Stage::Document
+                    } else {
+                        Stage::Validation
+                    };
+                    (error, stage)
+                }
+            };
+            Err(Failure {
+                error,
+                stage,
+                exploration,
+                elapsed: Duration::ZERO,
+            })
+        }
+    }
+}
+
+struct ValidatedWord {
+    word: dive_liveness::analyze::CandidateWord,
+    document: TraceDoc,
+    validation: ValidationReport,
+}
+struct LevelConsumer<'a> {
+    model: &'a Model,
+    ir: &'a Arc<Ir>,
+    config: &'a ModelConfig,
+    options: &'a CheckOptions,
+    prepared: &'a dive_liveness::analyze::Prepared,
+    last: u64,
+    boundary: Option<u64>,
+    pending: Option<Result<ValidatedWord, Failure>>,
+}
+impl capture::Observer for LevelConsumer<'_> {
+    fn level_control(
+        &mut self,
+        level: u64,
+        graph: &capture::BehaviorGraph,
+        stats: dive_check::Stats,
+    ) -> Result<capture::LevelControl, String> {
+        use dive_liveness::periodic_backend::Growth;
+        if stats.left_on_queue == 0
+            || !(Growth {
+                size: stats.distinct,
+                last: self.last,
+            })
+            .due(Growth::DEFAULT_THRESHOLD)
+        {
+            return Ok(capture::LevelControl::Continue);
+        }
+        let mut stage = dive_liveness::analyze::Stage::Atoms;
+        let result = dive_liveness::analyze::check_graph(
+            self.model,
+            self.prepared,
+            graph,
+            self.options,
+            &mut stage,
+        )
+        .map_err(|error| Failure::before(Error::Analysis(error), Stage::Analysis(stage)))
+        .and_then(|word| match word {
+            None => Ok(None),
+            Some(word) => match validate_word(
+                self.ir,
+                self.config,
+                self.options,
+                &word.states,
+                word.back_to,
+                &word.properties,
+            ) {
+                Ok((document, validation)) => Ok(Some(ValidatedWord {
+                    word,
+                    document,
+                    validation,
+                })),
+                Err(error) => {
+                    let (error, stage) = match error {
+                        WordFailure::Validation(report) => (
+                            Error::PrefixValidation {
+                                word: Box::new(word),
+                                report,
+                            },
+                            Stage::Validation,
+                        ),
+                        WordFailure::Error(error) => {
+                            let stage = if matches!(error, Error::Document(_)) {
+                                Stage::Document
+                            } else {
+                                Stage::Validation
+                            };
+                            (error, stage)
+                        }
+                    };
+                    Err(Failure::before(error, stage))
+                }
+            },
+        });
+        self.last = stats.distinct;
+        match result {
+            Ok(None) => Ok(capture::LevelControl::Continue),
+            Ok(Some(word)) => {
+                self.boundary = Some(level);
+                self.pending = Some(Ok(word));
+                Ok(capture::LevelControl::Stop)
+            }
+            Err(failure) => {
+                let message = failure.to_string();
+                self.boundary = Some(level);
+                self.pending = Some(Err(failure));
+                Err(message)
+            }
+        }
+    }
+}
+
+fn run_model(
+    model: &Model,
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    schedule: dive_liveness::periodic_backend::Schedule,
+    limits: Limits,
+) -> Result<Outcome, Failure> {
+    use dive_liveness::analyze::{self, ExplorationEvidence};
+    let prepared = analyze::prepare(model, limits).map_err(|error| {
+        Failure::before(
+            Error::Analysis(error),
+            Stage::Analysis(analyze::Stage::Planning),
+        )
+    })?;
+    let mut consumer = LevelConsumer {
+        model,
+        ir,
+        config,
+        options,
+        prepared: &prepared,
+        last: 1,
+        boundary: None,
+        pending: None,
+    };
+    let captured = if schedule == dive_liveness::periodic_backend::Schedule::Final {
+        capture::explore_with_evidence(model, options, limits.capture)
+    } else {
+        capture::explore_observed_with_evidence(model, options, limits.capture, &mut consumer)
+    }
+    .map_err(|error| Failure::before(Error::Thread(error), Stage::Unknown))?;
+    match captured {
+        capture::Exploration::Stopped(result) => {
+            if let Some(Err(mut failure)) = consumer.pending {
+                if let Some(stats) = result.stats {
+                    failure.exploration = Some(Box::new(ExplorationEvidence {
+                        stats,
+                        workers: result.workers.clone(),
+                        collision: result.collision.clone(),
+                        output: result.output.clone(),
+                        warnings: result.warnings.clone(),
+                        boundary: consumer.boundary,
+                    }));
+                }
+                Err(failure)
+            } else {
+                Ok(Outcome::Safety(result))
+            }
+        }
+        capture::Exploration::Prefix(prefix) => {
+            let Some(Ok(validated)) = consumer.pending else {
+                return Err(Failure::before(
+                    Error::Analysis(analyze::AnalysisError::Inconsistent(
+                        "consumer stopped without a validated word",
+                    )),
+                    Stage::Unknown,
+                ));
+            };
+            Ok(Outcome::PrefixViolation(Box::new(
+                ValidatedPrefixCounterexample {
+                    word: validated.word,
+                    exploration: *prefix,
+                    document: validated.document,
+                    validation: validated.validation,
+                },
+            )))
+        }
+        capture::Exploration::Complete(complete) => {
+            let mut stage = analyze::Stage::Atoms;
+            let word = analyze::check_graph(
+                model,
+                &prepared,
+                &complete.graph,
+                &complete.options,
+                &mut stage,
+            )
+            .map_err(|error| {
+                Failure::after(Error::Analysis(error), Stage::Analysis(stage), &complete)
+            })?;
+            match word {
+                None => Ok(Outcome::Holds(complete)),
+                Some(word) => finish_candidate(
+                    ir,
+                    config,
+                    options,
+                    Candidate {
+                        target_property: word.target_property,
+                        properties: word.properties,
+                        states: word.states,
+                        back_to: word.back_to,
+                        edges: word.edges,
+                        exploration: *complete,
+                    },
+                ),
+            }
+        }
+    }
+}
+
+/// Runs ordinary safety or supported temporal checking with a deterministic
+/// completed-level schedule. No-claims models use the normal safety path and
+/// the same binding/host; prefix absence never establishes Holds.
+///
+/// ```
+/// use std::sync::Arc;
+/// use dive_api::temporal::{check_with_schedule_with_evidence, Outcome};
+/// use dive_check::CheckOptions;
+/// use dive_liveness::{analyze::Limits, periodic_backend::Schedule};
+/// let a = dive_sema::analyze_source("M.tla",
+///     "---- MODULE M ----\nVARIABLE x\nInit == x=TRUE\nNext == x'=~x\nP == []<>(~x)\n====\n",
+///     &Default::default());
+/// let ir = Arc::new(dive_ir::lower(&a)?);
+/// let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n").into_config().ok_or("config")?;
+/// let report = check_with_schedule_with_evidence(&ir, &cfg, &CheckOptions::dive(7), Schedule::Default, Limits::default())?;
+/// assert!(matches!(report.outcome(), Outcome::PrefixViolation(v) if v.exploration().stats.left_on_queue == 1));
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// # Errors
+/// Planning, exact labeling, product construction, independent validation or
+/// explicit bounds failed. The failure retains available actual search facts.
+pub fn check_with_schedule_with_evidence(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    schedule: dive_liveness::periodic_backend::Schedule,
+    limits: Limits,
+) -> Result<Report, Failure> {
+    let started = Instant::now();
+    let outcome = match dive_check::check_with_temporal(ir, config, options, |model| {
+        run_model(model, ir, config, options, schedule, limits)
+    }) {
+        dive_check::CheckDispatch::Safety(result) => Ok(Outcome::Safety(result)),
+        dive_check::CheckDispatch::Temporal(result) => result,
+    }
+    .map_err(|mut failure| {
+        failure.elapsed = started.elapsed();
+        failure
+    })?;
+    Ok(Report {
+        outcome,
+        options: options.clone(),
+        elapsed: started.elapsed(),
+        schedule,
+    })
 }
 
 /// Binds and checks a lowered specification's pure temporal properties after
@@ -446,6 +757,7 @@ pub fn check_final_with_evidence(
         outcome,
         options: options.clone(),
         elapsed: started.elapsed(),
+        schedule: dive_liveness::periodic_backend::Schedule::Final,
     })
 }
 

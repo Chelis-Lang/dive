@@ -13,6 +13,10 @@ match the pinned TLC on:
 dive does not emulate arbitrary or nondeterministic TLC internals, such as
 timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
+Scoped ordinary completed-level consumer controls are separate from the corpus
+measurements below. They do not update agree/refuse counts or certify phase completion;
+full corpus/gate measurements remain required after integration (ADR 0094).
+
 ## Corpus scoreboard
 
 The lead updates these numbers from complete harness reports. The current
@@ -105,7 +109,7 @@ surfaces.
 | Temporal graph construction | partial |
 | WF/SF fairness | partial |
 | Liveness acceptance, counterexamples and attribution | partial |
-| Periodic/final/off liveness schedules | missing |
+| Periodic/final/off liveness schedules | partial: scoped completed-level/final consumer controls; off remains missing |
 | Simulation, generation and random replay | partial |
 | DFID checking | partial |
 | Granted environment, file and process effects | missing |

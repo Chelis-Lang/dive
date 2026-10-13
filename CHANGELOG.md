@@ -4,6 +4,20 @@
   `x = RandomElement(S)` over a nonempty interval or stored finite scalar set.
   It checks exact domain membership and the complete claimed ending, independently
   of the sampled result. Startup, correlated and later draws remain refused.
+
+- Ordinary supported temporal checking now uses growth-gated completed BFS levels
+  by default and final checking under TLC compatibility. Only freshly validated
+  typed and serialized counterexamples can stop at a prefix; Holds still requires
+  exhaustion. Reports retain actual boundary counts/queue/width, exact evaluator
+  causes and classifier codes. No-claims safety retains one startup binding.
+  Original Init and successor occurrences retain their temporal evaluation
+  errors. Bounded checks refuse incoherent stored-state projections. Temporal
+  harness agreement requires an available independently validated word and an
+  exact numeric exit code, including worker-specific comparisons. The native
+  harness reads ordinary schema-2 temporal reports with actual boundary counts
+  and lossless lasso targets; inconsistent prefix schedule/level/depth/queue
+  metadata is rejected. Schema-1 safety mapping is retained.
+
 - Replay bypasses caller-owned lazy argument and function result caches, so a
   warmed checker result cannot evade independent composition refusal.
 - Independent trace validation refuses reached action composition before

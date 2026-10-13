@@ -334,6 +334,9 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                                 );
                                 &v.candidate().exploration
                             }
+                            Outcome::PrefixViolation(prefix) => {
+                                panic!("final API returned a prefix: {prefix:?}")
+                            }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };
                         assert_eq!(

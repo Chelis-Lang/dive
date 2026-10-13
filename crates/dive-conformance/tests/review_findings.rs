@@ -2,7 +2,7 @@
 //! every test here FAILS on 0eb93d5 and should pass once the finding is fixed.
 
 use dive_conformance::cache::Cache;
-use dive_conformance::compare::{CompareContext, Outcome, diff_results};
+use dive_conformance::compare::{CompareContext, FieldDiff, Outcome, diff_results};
 use dive_conformance::config::Config;
 use dive_conformance::corpus::ModelMode;
 use dive_conformance::divergence::Profile;
@@ -134,6 +134,7 @@ struct World {
     commit: String,
     jar_sha: String,
     corpus_root: PathBuf,
+    counts_comparable: bool,
 }
 
 const MANIFEST: &str = r#"{
@@ -153,6 +154,14 @@ fn world() -> Result<World, Box<dyn std::error::Error>> {
 
 /// [`world`] with `x_tla` as the text of `X.tla`.
 fn world_with(x_tla: &str) -> Result<World, Box<dyn std::error::Error>> {
+    world_with_config(x_tla, "\n", true)
+}
+
+fn world_with_config(
+    x_tla: &str,
+    cfg: &str,
+    counts_comparable: bool,
+) -> Result<World, Box<dyn std::error::Error>> {
     let tmp = dive_conformance::util::TempDir::new("review")?;
     // Corpus repository.
     let src = tmp.path().join("src");
@@ -162,9 +171,17 @@ fn world_with(x_tla: &str) -> Result<World, Box<dyn std::error::Error>> {
         src.join(".gitignore"),
         "*\n!*/\n!*.tla\n!*.cfg\n!manifest.json\n!.gitignore\n*_TTrace_*.tla\n",
     )?;
-    std::fs::write(spec.join("manifest.json"), MANIFEST)?;
+    let manifest = if counts_comparable {
+        MANIFEST.to_owned()
+    } else {
+        MANIFEST.replace(
+            "\"mode\": \"exhaustive search\"",
+            "\"mode\": {\"simulate\": {\"traceCount\": 1}}",
+        )
+    };
+    std::fs::write(spec.join("manifest.json"), manifest)?;
     std::fs::write(spec.join("X.tla"), x_tla)?;
-    std::fs::write(spec.join("X.cfg"), "\n")?;
+    std::fs::write(spec.join("X.cfg"), cfg)?;
     std::fs::write(spec.join("Helper.tla"), "---- MODULE Helper ----\n====\n")?;
     git(&src, &["init", "-q"])?;
     git(&src, &["add", "-A"])?;
@@ -197,6 +214,7 @@ fn world_with(x_tla: &str) -> Result<World, Box<dyn std::error::Error>> {
         commit,
         jar_sha,
         corpus_root,
+        counts_comparable,
     })
 }
 
@@ -231,9 +249,13 @@ impl World {
             model: GoldenModel {
                 id: "specifications/x/X.cfg".to_owned(),
                 module: "specifications/x/X.tla".to_owned(),
-                mode: ModelMode::Exhaustive,
+                mode: if self.counts_comparable {
+                    ModelMode::Exhaustive
+                } else {
+                    ModelMode::Simulate { traces: 1 }
+                },
                 features: vec![],
-                counts_comparable: true,
+                counts_comparable: self.counts_comparable,
             },
             workers,
             result,
@@ -281,6 +303,15 @@ impl World {
         imp: &dyn Implementation,
         workers: Vec<u32>,
     ) -> DResult<dive_conformance::report::Report> {
+        self.run_kind(imp, workers, true)
+    }
+
+    fn run_kind(
+        &self,
+        imp: &dyn Implementation,
+        workers: Vec<u32>,
+        sany: bool,
+    ) -> DResult<dive_conformance::report::Report> {
         let opts = RunOptions {
             corpora: vec!["examples".to_owned()],
             sany_phase: dive_conformance::sany::SanyPhase::Full,
@@ -298,7 +329,7 @@ impl World {
             },
             crosscheck_manifest: false,
             models: true,
-            sany: true,
+            sany,
             report_dir: self.repo.join("reports"),
             summary_path: None,
         };
@@ -584,27 +615,361 @@ fn m5_every_golden_command_pins_the_seed() -> TestResult {
     Ok(())
 }
 
-/// M6. The way a counterexample ends is in the golden but never compared: a
-/// liveness golden with a lasso agrees with a finite (non-)counterexample of
-/// the same length, and the harness has no trace-validation hook to catch it.
+/// M6's original negative obligation: a finite non-counterexample cannot
+/// agree with a temporal violation. The public pipeline independently rejects
+/// it; arbitrary endings of genuinely valid temporal words are not parity.
 #[test]
-fn m6_trace_ending_is_compared() {
-    let mut golden = safety(3, 4, 3, 3);
-    golden.verdict = Verdict::LivenessViolation;
-    golden.verdict_code = Some(2116);
-    golden.error_class = Some("TLC_TEMPORAL_PROPERTY_VIOLATED".to_owned());
-    if let Some(t) = golden.trace.as_mut() {
-        t.ending = TraceEnding::Lasso { back_to: Some(1) };
+fn m6_finite_temporal_non_counterexample_is_independently_rejected() -> TestResult {
+    let w = world_with_config(TEMPORAL_SOURCE, TEMPORAL_CONFIG, true)?;
+    let golden = temporal_word(1, false);
+    w.write_model_golden(golden.clone())?;
+    let mut result = golden;
+    let trace = result.trace.as_mut().ok_or("trace")?;
+    trace.ending = TraceEnding::Finite;
+    let doc = trace.json.as_mut().ok_or("document")?;
+    doc["ending"] = serde_json::json!({"kind":"behavior"});
+    let spec = dive_api::trace::SpecModel::load(
+        &w.corpus_root.join("specifications/x/X.tla"),
+        &w.corpus_root.join("specifications/x/X.cfg"),
+        &dive_api::trace::TraceOptions {
+            compat_tlc: true,
+            ..Default::default()
+        },
+    )?;
+    let finite = dive_api::trace::TraceDoc::from_json(doc)?;
+    assert!(matches!(
+        spec.read(&finite).0.validation,
+        dive_api::trace::Validation::Invalid(_)
+    ));
+    let imp = WordFake::new(result, false);
+    let report = w.run_kind(&imp, vec![1, 4], false)?;
+    assert_eq!(imp.calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+    for run in &report.models[0].runs {
+        assert_eq!(run.outcome, Outcome::Disagree, "{run:?}");
+        assert!(run.diffs.iter().any(|d| d.field == "trace.invalid"));
     }
-    let mut observed = golden.clone();
-    if let Some(t) = observed.trace.as_mut() {
-        t.ending = TraceEnding::Finite;
+    Ok(())
+}
+
+const TEMPORAL_SOURCE: &str = "---- MODULE X ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x\nP == <>(x=1)\n====\n";
+const TEMPORAL_CONFIG: &str = "INIT Init\nNEXT Next\nPROPERTY P\n";
+
+fn temporal_word(length: usize, invalid: bool) -> OracleResult {
+    let mut result = safety(1, 2, 1, length as u64);
+    result.verdict = Verdict::LivenessViolation;
+    result.verdict_code = Some(2116);
+    result.error_class = Some("TLC_TEMPORAL_PROPERTY_VIOLATED".into());
+    result.exit_code = Some(13);
+    result.exit_status = Some("VIOLATION_LIVENESS".into());
+    result.violated_property = Some("P".into());
+    result.error_codes = vec![2116];
+    result.trace = Some(Trace {
+        length: length as u64,
+        ending: TraceEnding::Lasso { back_to: Some(1) },
+        json: Some(serde_json::json!({
+        "format":"dive-trace", "version":1, "variables":["x"],
+        "states":(0..length).map(|_|serde_json::json!({"values":{"x":u8::from(invalid)}})).collect::<Vec<_>>(),
+        "ending":{"kind":"lasso","back_to":0}, "length":length, "properties":["P"]
+        })),
+        steps: None,
+        omitted: None,
+        json_unavailable: None,
+    });
+    result
+}
+
+struct WordFake {
+    result: OracleResult,
+    calls: std::sync::atomic::AtomicUsize,
+    unchecked_yes: bool,
+    worker_result: Option<OracleResult>,
+}
+impl WordFake {
+    fn new(result: OracleResult, unchecked_yes: bool) -> Self {
+        Self {
+            result,
+            calls: std::sync::atomic::AtomicUsize::new(0),
+            unchecked_yes,
+            worker_result: None,
+        }
     }
-    let ctx = CompareContext {
-        workers: 1,
-        counts_comparable: true,
-    };
-    assert_ne!(diff_results(&golden, &observed, ctx), Vec::new());
+}
+impl Implementation for WordFake {
+    fn name(&self) -> String {
+        "word-control".into()
+    }
+    fn is_oracle(&self) -> bool {
+        false
+    }
+    fn profile(&self) -> Option<Profile> {
+        self.worker_result.as_ref().map(|_| Profile::Tlc)
+    }
+    fn check_model(&self, req: &ModelRequest<'_>) -> DResult<ImplResult<OracleResult>> {
+        Ok(ImplResult::Completed {
+            result: self
+                .worker_result
+                .as_ref()
+                .filter(|_| req.workers > 1)
+                .unwrap_or(&self.result)
+                .clone(),
+            command: vec![],
+            elapsed: Duration::ZERO,
+        })
+    }
+    fn parse_module(&self, _: &Path, _: &str, _: Duration) -> DResult<ImplResult<SanyResult>> {
+        Ok(ImplResult::Unsupported("unused".into()))
+    }
+    fn trace_validated(
+        &self,
+        req: &ModelRequest<'_>,
+        result: &OracleResult,
+        golden: &OracleResult,
+    ) -> dive_conformance::trace_check::TraceCheck {
+        self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        if self.unchecked_yes {
+            return dive_conformance::trace_check::TraceCheck::yes("deliberately unchecked hook");
+        }
+        match dive_conformance::trace_check::load_model(req.corpus_root, req.model, &[], true) {
+            Ok(spec) => {
+                dive_conformance::trace_check::validate_counterexample(&spec, result, golden)
+            }
+            Err(error) => dive_conformance::trace_check::TraceCheck::no(error),
+        }
+    }
+}
+
+#[test]
+fn temporal_documents_and_independent_validation_are_required_by_public_pipeline() -> TestResult {
+    for comparable in [true, false] {
+        let w = world_with_config(TEMPORAL_SOURCE, TEMPORAL_CONFIG, comparable)?;
+        let golden = temporal_word(1, false);
+        w.write_model_golden(golden.clone())?;
+        let mut cases = Vec::new();
+        let mut missing = golden.clone();
+        missing.trace = None;
+        cases.push(missing);
+        let mut unavailable = golden.clone();
+        if let Some(trace) = &mut unavailable.trace {
+            trace.json = None;
+            trace.json_unavailable = Some("control unavailable".into());
+        }
+        cases.push(unavailable);
+        let mut no_json = golden.clone();
+        if let Some(trace) = &mut no_json.trace {
+            trace.json = None;
+        }
+        cases.push(no_json);
+        for result in cases {
+            for unchecked_yes in [false, true] {
+                let imp = WordFake::new(result.clone(), unchecked_yes);
+                let report = w.run_kind(&imp, vec![1, 4], false)?;
+                assert_eq!(report.models.len(), 1);
+                assert_eq!(report.models[0].model, "specifications/x/X.cfg");
+                assert_eq!(imp.calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+                for run in &report.models[0].runs {
+                    assert_eq!(run.outcome, Outcome::AgreePendingTraceValidation, "{run:?}");
+                    assert!(run.diffs.iter().any(|d| d.field == "trace.validated"));
+                }
+                assert_eq!(report.summary.models.get(&Outcome::Agree).copied(), Some(0));
+            }
+        }
+        let mut malformed = golden.clone();
+        if let Some(trace) = &mut malformed.trace {
+            trace.json = Some(serde_json::json!({"not":"a word"}));
+        }
+        let unvalidated = WordFake::new(malformed, false);
+        let report = w.run_kind(&unvalidated, vec![1, 4], false)?;
+        assert!(
+            report.models[0]
+                .runs
+                .iter()
+                .all(|r| r.outcome != Outcome::Agree)
+        );
+        let invalid = WordFake::new(temporal_word(2, true), false);
+        let report = w.run_kind(&invalid, vec![1, 4], false)?;
+        assert!(
+            report.models[0]
+                .runs
+                .iter()
+                .all(|r| r.outcome == Outcome::Disagree
+                    && r.diffs.iter().any(|d| d.field == "trace.invalid"))
+        );
+        let valid = WordFake::new(temporal_word(2, false), false);
+        let report = w.run_kind(&valid, vec![1, 4], false)?;
+        assert_eq!(valid.calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+        assert!(
+            report.models[0]
+                .runs
+                .iter()
+                .all(|r| r.outcome == Outcome::Agree),
+            "{report:?}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn temporal_exit_is_exact_after_independent_public_pipeline_replay() -> TestResult {
+    for comparable in [true, false] {
+        let w = world_with_config(TEMPORAL_SOURCE, TEMPORAL_CONFIG, comparable)?;
+        let golden = temporal_word(1, false);
+        w.write_model_golden(golden.clone())?;
+        for stutter in [false, true] {
+            for exit in [Some(13), Some(0), None, Some(12)] {
+                let mut observed = temporal_word(3, false);
+                if stutter {
+                    let trace = observed.trace.as_mut().ok_or("trace")?;
+                    trace.ending = TraceEnding::Stuttering;
+                    trace.json.as_mut().ok_or("document")?["ending"] =
+                        serde_json::json!({"kind":"stuttering"});
+                }
+                observed.exit_code = exit;
+                observed.exit_status = exit.map(|code| {
+                    match code {
+                        0 => "SUCCESS",
+                        12 => "VIOLATION_SAFETY",
+                        _ => "VIOLATION_LIVENESS",
+                    }
+                    .into()
+                });
+                let imp = WordFake::new(observed, false);
+                let report = w.run_kind(&imp, vec![1, 4], false)?;
+                assert_eq!(imp.calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+                assert_eq!(report.models.len(), 1);
+                for run in &report.models[0].runs {
+                    assert_eq!(
+                        run.outcome,
+                        if exit == Some(13) {
+                            Outcome::Agree
+                        } else {
+                            Outcome::Disagree
+                        },
+                        "{run:?}"
+                    );
+                    if exit == Some(13) {
+                        assert_eq!(run.diffs, Vec::<FieldDiff>::new());
+                    } else {
+                        assert_eq!(
+                            run.diffs.len(),
+                            1,
+                            "valid word must not hide exact exit: {run:?}"
+                        );
+                        assert_eq!(run.diffs[0].field, "exit_code");
+                        assert_eq!(run.diffs[0].expected, serde_json::json!(13));
+                        assert_eq!(run.diffs[0].actual, serde_json::json!(exit));
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn worker_golden_temporal_exit_is_exact_after_independent_replay() -> TestResult {
+    let source = TEMPORAL_SOURCE
+        .replace("EXTENDS Naturals", "EXTENDS Naturals,TLC")
+        .replace("====", "Unused == TLCGet(\"config\").worker\n====");
+    for comparable in [true, false] {
+        let w = world_with_config(&source, TEMPORAL_CONFIG, comparable)?;
+        let single = temporal_word(1, false);
+        let mut many = temporal_word(1, false);
+        many.exit_code = Some(12);
+        many.exit_status = Some("VIOLATION_SAFETY".into());
+        w.write_model_golden(single.clone())?;
+        w.write_golden_at(many.clone(), 4, Some("actual worker-path control"))?;
+        for exit in [Some(12), Some(0), None, Some(13)] {
+            let mut observed_many = temporal_word(3, false);
+            observed_many.exit_code = exit;
+            observed_many.exit_status = exit.map(|_| "worker control".into());
+            // Preserve the existing approximate-count/depth worker policy.
+            observed_many.counts = Counts {
+                distinct_states: Some(17),
+                states_generated: Some(19),
+                depth: Some(99),
+                ..Counts::default()
+            };
+            let mut imp = WordFake::new(single.clone(), false);
+            imp.worker_result = Some(observed_many);
+            let report = w.run_kind(&imp, vec![1, 4], false)?;
+            assert!(report.models[0].worker_introspecting);
+            assert_eq!(imp.calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+            assert_eq!(report.models[0].runs[0].outcome, Outcome::Agree);
+            let run = &report.models[0].runs[1];
+            assert_eq!(
+                run.outcome,
+                if exit == Some(12) {
+                    Outcome::Agree
+                } else {
+                    Outcome::Disagree
+                },
+                "{run:?}"
+            );
+            assert!(
+                run.detail
+                    .as_ref()
+                    .is_some_and(|note| note.contains("TLC at 4 workers"))
+            );
+            if exit == Some(12) {
+                assert_eq!(run.diffs, Vec::<FieldDiff>::new());
+            } else {
+                assert_eq!(run.diffs.len(), 1);
+                assert_eq!(run.diffs[0].field, "exit_code");
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn finite_temporal_exit_twelve_retains_pinned_classifier_and_pipeline_positive() -> TestResult {
+    let capture = include_str!("fixtures/temporal-prefix/tlc-2026.10.06.014338/QtEmpty.stdout");
+    let classified = classify_stdout(capture, 12);
+    assert_eq!(classified.verdict, Verdict::LivenessViolation);
+    assert_eq!(classified.exit_code, Some(12));
+    assert_eq!(
+        classified.trace.as_ref().ok_or("trace")?.ending,
+        TraceEnding::Finite
+    );
+    assert_eq!(classify_stdout(capture, 0).verdict, Verdict::OracleError);
+    let source = include_str!("fixtures/temporal-prefix/specs/QtEmpty/QtEmpty.tla")
+        .replace("MODULE QtEmpty", "MODULE X");
+    let config = include_str!("fixtures/temporal-prefix/specs/QtEmpty/QtEmpty.cfg");
+    for comparable in [true, false] {
+        let w = world_with_config(&source, config, comparable)?;
+        let mut golden = classified.clone();
+        // The existing temporal transport interprets the finite report's
+        // absent back edge as stuttering; this actual Next self-edge is valid.
+        golden.trace.as_mut().ok_or("trace")?.json = Some(serde_json::json!({
+            "format":"dive-trace", "version":1, "variables":["x"],
+            "states":[{"values":{"x":0}}], "length":1,
+            "ending":{"kind":"stuttering"}, "properties":["P"]
+        }));
+        w.write_model_golden(golden.clone())?;
+        for exit in [Some(12), Some(0), None, Some(13)] {
+            let mut observed = golden.clone();
+            observed.exit_code = exit;
+            let imp = WordFake::new(observed, false);
+            let report = w.run_kind(&imp, vec![1, 4], false)?;
+            assert_eq!(imp.calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+            for run in &report.models[0].runs {
+                assert_eq!(
+                    run.outcome,
+                    if exit == Some(12) {
+                        Outcome::Agree
+                    } else {
+                        Outcome::Disagree
+                    },
+                    "{run:?}"
+                );
+                if exit != Some(12) {
+                    assert_eq!(run.diffs.len(), 1);
+                    assert_eq!(run.diffs[0].field, "exit_code");
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 // ------------------------------------------ worker-introspecting models
@@ -703,7 +1068,7 @@ fn introspecting_world() -> Result<World, Box<dyn std::error::Error>> {
 
 /// Issue #55 (ADR 0004, amendment of 2026-10-09): under `--compat=tlc` a
 /// worker-introspecting model at N > 1 workers is compared with TLC at N
-/// workers, on verdict and error class only.
+/// workers, on verdict, error class and numeric exit code.
 #[test]
 fn compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count() -> TestResult {
     let w = introspecting_world()?;
@@ -735,7 +1100,7 @@ fn compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count() -> Test
             assert!(
                 r.detail
                     .as_deref()
-                    .is_some_and(|d| d.contains("verdict and error class")),
+                    .is_some_and(|d| d.contains("verdict, error class and exit code")),
                 "{r:?}"
             );
         }
@@ -816,5 +1181,72 @@ fn compat_worker_golden_still_compares_the_verdict() -> TestResult {
         vec![4],
     )?;
     assert_eq!(report.models[0].outcome, Outcome::Disagree);
+    Ok(())
+}
+
+#[test]
+fn actual_emitted_prefix_metadata_cannot_gain_public_agreement() -> TestResult {
+    use dive_conformance::dive::{CheckMapping, check_result};
+    let source = TEMPORAL_SOURCE
+        .replace("Next == x'=x", "Next == x'=(x+1)%4")
+        .replace("P == <>(x=1)", "P == <>(x=3)");
+    let w = world_with_config(&source, TEMPORAL_CONFIG, true)?;
+    let mut golden = temporal_word(1, false);
+    golden.exit_code = Some(10);
+    golden.counts = Counts {
+        distinct_states: Some(2),
+        states_generated: Some(2),
+        states_left_on_queue: Some(1),
+        depth: Some(2),
+    };
+    w.write_model_golden(golden)?;
+    for workers in [1, 4] {
+        let actual = dive_api::check_file(&dive_api::CheckRequest {
+            file: w.corpus_root.join("specifications/x/X.tla"),
+            workers: Some(workers),
+            seed: Some(0),
+            fp: Some(0),
+            ..Default::default()
+        })?
+        .to_json();
+        assert_eq!(actual["execution"]["completed_level"], 1);
+        assert_eq!(actual["statistics"]["left_on_queue"], 1);
+        for mutation in ["original", "final-prefix", "false-level"] {
+            let mut raw = actual.clone();
+            match mutation {
+                "final-prefix" => raw["options"]["lncheck"] = serde_json::json!("final"),
+                "false-level" => raw["execution"]["completed_level"] = serde_json::json!(999_999),
+                _ => {}
+            }
+            let process = dive_conformance::process::ProcessOutcome {
+                exit_code: Some(10),
+                signal: None,
+                timed_out: false,
+                stdout: raw.to_string(),
+                stderr: String::new(),
+                elapsed: Duration::ZERO,
+            };
+            let CheckMapping::Result(mapped) = check_result(&process, false) else {
+                return Err("expected mapped native report".into());
+            };
+            // The existing honest hook independently binds/replays this pure
+            // fixture. It never trusts the producer's JSON validation flag.
+            let imp = WordFake::new(*mapped, false);
+            let report = w.run_kind(&imp, vec![u32::try_from(workers)?], false)?;
+            let run = &report.models[0].runs[0];
+            assert_eq!(
+                run.outcome,
+                if mutation == "original" {
+                    Outcome::Agree
+                } else {
+                    Outcome::Disagree
+                },
+                "{mutation}: {run:?}"
+            );
+            if mutation == "original" {
+                assert_eq!(imp.calls.load(std::sync::atomic::Ordering::SeqCst), 1);
+            }
+        }
+    }
     Ok(())
 }

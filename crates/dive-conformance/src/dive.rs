@@ -8,8 +8,9 @@
 //! - models are checked with `dive check --output json`, and its report is
 //!   mapped to the oracle vocabulary ([`check_result`]): the deciding TLC
 //!   message code dive reports gives the verdict and error class, the
-//!   statistics are taken only where TLC prints them, and the
-//!   counterexample's length and printed states are kept. A refusal, a
+//!   schema-1 safety statistics are taken where TLC prints them; schema-2
+//!   temporal reports retain their actual work counters and completed boundary.
+//!   Counterexample length, ending and available lossless document are kept. A refusal, a
 //!   resource limit, or an error whose TLC class dive does not claim yet is
 //!   `unsupported`, naming it. dive's counterexample document
 //!   (`counterexample.trace`) is validated by the harness itself with
@@ -57,6 +58,7 @@ use crate::tlc::result::{
 use crate::util::{TempDir, capture, redact};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
@@ -184,8 +186,8 @@ impl DiveImplementation {
         })
     }
 
-    /// Raw black-box model run. Final/short observation is assessed separately
-    /// from the strict schema-1 conformance mapping.
+    /// Raw black-box model run. Ordinary reports use strict schema-1 safety
+    /// or schema-2 temporal mapping; final/short study observation stays separate.
     pub(crate) fn run_model(
         &self,
         req: &ModelRequest<'_>,
@@ -547,6 +549,213 @@ fn as_i32(v: &Value) -> Option<i32> {
     v.as_i64().and_then(|c| i32::try_from(c).ok())
 }
 
+struct Schema2Fields {
+    counts: Counts,
+    trace: Option<Trace>,
+}
+
+// These are the current API's ordinary/final typed routes, not an admission
+// certificate. Independent model replay is still the harness hook's job.
+#[allow(
+    clippy::too_many_lines,
+    reason = "explicit schema, route, boundary, work and witness checks"
+)]
+fn schema2_fields(
+    v: &Value,
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+) -> std::result::Result<Schema2Fields, String> {
+    let options = &v["options"];
+    let kind = v["verdict"].as_str().ok_or("missing verdict")?;
+    if !matches!(options["lncheck"].as_str(), Some("final" | "deterministic"))
+        || options["lasso"] != "short"
+        || if tlc_profile {
+            !matches!(options["profile"].as_str(), Some("tlc" | "tlc+overrides"))
+        } else {
+            options["profile"] != "dive"
+        }
+    {
+        return Err("unknown schema-2 temporal route/profile".into());
+    }
+    let requested = options["workers"]["requested"]
+        .as_u64()
+        .filter(|n| *n > 0 && u32::try_from(*n).is_ok())
+        .ok_or("invalid requested worker width")?;
+    let stage = v["execution"]["stage"].as_str();
+    let no_execution =
+        v["execution"].is_null() && matches!(kind, "rejected" | "unsupported" | "resource-limit");
+    if !no_execution
+        && !matches!(
+            stage,
+            Some(
+                "complete"
+                    | "level-boundary"
+                    | "binding"
+                    | "planning"
+                    | "capture"
+                    | "atoms"
+                    | "product"
+                    | "validation"
+                    | "document"
+                    | "unknown"
+            )
+        )
+    {
+        return Err("unknown schema-2 execution stage".into());
+    }
+    let truth = matches!(kind, "success" | "liveness-violation");
+    let used = options["workers"]["used"].as_u64();
+    if used.is_none_or(|n| n > requested || (truth && n == 0))
+        && !(stage == Some("unknown")
+            && kind == "internal-error"
+            && options["workers"]["used"].is_null())
+    {
+        return Err("invalid actual worker width".into());
+    }
+    let counts = if v["statistics"].is_null() {
+        if truth {
+            return Err("temporal truth has no actual statistics".into());
+        }
+        Counts::default()
+    } else {
+        let counts = crate::final_study::counts(v)?;
+        let initial = v["statistics"]["initial_generated"]
+            .as_u64()
+            .ok_or("missing/noninteger statistics.initial_generated")?;
+        if v["statistics"]["reported_by_tlc"].as_bool().is_none()
+            || counts.distinct_states > counts.states_generated
+            || counts.states_generated.is_some_and(|n| initial > n)
+        {
+            return Err("contradictory schema-2 actual statistics".into());
+        }
+        counts
+    };
+    if truth {
+        let complete = stage == Some("complete")
+            && v["execution"]["capture_completed"] == true
+            && v["execution"]["exhausted"] == true
+            && v["execution"]
+                .get("completed_level")
+                .is_some_and(Value::is_null);
+        let prefix = stage == Some("level-boundary")
+            && options["lncheck"] == "deterministic"
+            && v["execution"]["capture_completed"] == false
+            && v["execution"]["exhausted"] == false
+            && v["execution"]["completed_level"]
+                .as_u64()
+                .is_some_and(|level| {
+                    level > 0
+                        && level
+                            .checked_add(1)
+                            .is_some_and(|depth| counts.depth == Some(depth))
+                })
+            && counts.states_left_on_queue.is_some_and(|n| n > 0);
+        if !(complete || prefix && kind == "liveness-violation")
+            || (complete && counts.states_left_on_queue != Some(0))
+        {
+            return Err("temporal truth contradicts its completed boundary".into());
+        }
+    } else if !no_execution
+        && v["execution"]
+            .get("capture_completed")
+            .is_none_or(|x| !x.is_boolean() && !x.is_null())
+    {
+        return Err("missing/invalid capture completion evidence".into());
+    }
+    let default_exit = match kind {
+        "success" => 0,
+        "liveness-violation"
+        | "invariant-violation"
+        | "property-violation"
+        | "action-property-violation"
+        | "postcondition-false" => 10,
+        "deadlock" => 11,
+        "assumption-failure" => 12,
+        "evaluation-error" | "not-completely-specified" => {
+            if v["error_site"] == "assumption" {
+                12
+            } else {
+                13
+            }
+        }
+        "model-error" | "rejected" => 1,
+        "unsupported" | "resource-limit" => 3,
+        "internal-error" => 14,
+        _ => return Err("unknown schema-2 verdict".into()),
+    };
+    if !tlc_profile && outcome.exit_code != Some(default_exit) {
+        return Err("schema-2 verdict contradicts its native exit".into());
+    }
+    if matches!(kind, "unsupported" | "resource-limit")
+        && v["message"].as_str().is_none_or(|s| s.trim().is_empty())
+    {
+        return Err("schema-2 refusal must name its feature/limit".into());
+    }
+    if v["tlc"]["verified"] == true {
+        let code = v["tlc"]["code"]
+            .as_i64()
+            .and_then(|n| i32::try_from(n).ok())
+            .ok_or("missing/noninteger TLC code")?;
+        if ec_name(code).is_none()
+            || v["tlc"]["name"].as_str() != ec_name(code)
+            || v["tlc"]["exit_status"]
+                .as_i64()
+                .and_then(|n| i32::try_from(n).ok())
+                .is_none_or(|exit| {
+                    if code == 2193 {
+                        exit != 0
+                    } else {
+                        !crate::tlc::codes::exit_statuses_for(code).contains(&exit)
+                    }
+                })
+            || (kind == "success" && code != 2193)
+            || (kind == "liveness-violation" && code != 2116)
+            || match kind {
+                "invariant-violation" => !matches!(code, 2107 | 2110),
+                "property-violation" => code != 2108,
+                "action-property-violation" => code != 2112,
+                "deadlock" => code != 2114,
+                "model-error" | "evaluation-error" | "not-completely-specified" => matches!(
+                    verdict_for_code(code),
+                    Some(
+                        Verdict::Success
+                            | Verdict::SafetyViolation
+                            | Verdict::LivenessViolation
+                            | Verdict::Deadlock
+                            | Verdict::ActionPropertyViolation
+                    )
+                ),
+                _ => !truth && matches!(code, 2193 | 2116),
+            }
+        {
+            return Err("schema-2 verdict contradicts its verified TLC class".into());
+        }
+    }
+    let trace = if kind == "liveness-violation" {
+        let doc = crate::final_study::lasso_document(v)?;
+        // This is only the typed report contract, never independent authority.
+        if v["counterexample"]["validation"] != "valid" {
+            return Err("schema-2 violation has no validated-word report".into());
+        }
+        Some(Trace {
+            length: doc.states.len() as u64,
+            ending: TraceEnding::Lasso {
+                back_to: v["counterexample"]["back_to"].as_u64(),
+            },
+            json: Some(v["counterexample"]["trace"].clone()),
+            steps: None,
+            omitted: None,
+            json_unavailable: None,
+        })
+    } else {
+        if kind == "success" && (!v["counterexample"].is_null() || !v["property"].is_null()) {
+            return Err("schema-2 success carries a counterexample/property".into());
+        }
+        None
+    };
+    Ok(Schema2Fields { counts, trace })
+}
+
 /// Maps a `dive check --output json` run into the oracle vocabulary.
 /// `tlc_profile`: the run was under `--compat=tlc`, so its exit code must be
 /// TLC's for the verdict.
@@ -573,14 +782,35 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
             );
         }
     };
-    if v.get("schema_version").and_then(Value::as_u64) != Some(DIVE_JSON_SCHEMA)
-        || v.get("command").and_then(Value::as_str) != Some("check")
-    {
+    let schema2 = match v.get("schema_version").and_then(Value::as_u64) {
+        Some(1) => false,
+        Some(2) => true,
+        _ => {
+            return unclassified(
+                outcome.exit_code,
+                "dive check's report has an unknown schema".into(),
+            );
+        }
+    };
+    if v.get("command").and_then(Value::as_str) != Some("check") {
         return unclassified(
             outcome.exit_code,
-            "dive check's report has an unknown schema".to_owned(),
+            "dive check's report has an unknown command".into(),
         );
     }
+    let temporal = if schema2 {
+        match schema2_fields(&v, outcome, tlc_profile) {
+            Ok(fields) => Some(fields),
+            Err(why) => {
+                return unclassified(
+                    outcome.exit_code,
+                    format!("malformed schema-2 check report: {why}"),
+                );
+            }
+        }
+    } else {
+        None
+    };
     let s = |k: &str| v.get(k).and_then(Value::as_str).map(str::to_owned);
     let verdict = s("verdict").unwrap_or_default();
     let message = s("message").unwrap_or_default();
@@ -674,7 +904,9 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
         );
     };
     let stats = &v["statistics"];
-    let counts = if stats.get("reported_by_tlc").and_then(Value::as_bool) == Some(true) {
+    let counts = if let Some(fields) = &temporal {
+        fields.counts.clone()
+    } else if stats.get("reported_by_tlc").and_then(Value::as_bool) == Some(true) {
         let n = |k: &str| stats.get(k).and_then(Value::as_u64);
         Counts {
             distinct_states: n("distinct"),
@@ -685,38 +917,44 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
     } else {
         Counts::default()
     };
-    let trace = v["counterexample"]
-        .get("states")
-        .and_then(Value::as_array)
-        .map(|states| {
-            let text = |st: &Value, k: &str| {
-                st.get(k)
-                    .and_then(Value::as_str)
-                    .unwrap_or_default()
-                    .trim_end()
-                    .to_owned()
-            };
-            let steps: Vec<TraceStep> = states
-                .iter()
-                .map(|st| TraceStep {
-                    label: text(st, "label"),
-                    state: text(st, "text"),
-                })
-                .collect();
-            Trace {
-                length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
-                ending: TraceEnding::Finite,
-                // dive's own document (`counterexample.trace`, dive-trace's
-                // format), which the harness validates itself (ADR 0016 §3).
-                json: v["counterexample"]
-                    .get("trace")
-                    .filter(|t| !t.is_null())
-                    .cloned(),
-                steps: Some(steps),
-                omitted: None,
-                json_unavailable: None,
-            }
-        });
+    let trace = if let Some(fields) = &temporal
+        && matches!(verdict.as_str(), "success" | "liveness-violation")
+    {
+        fields.trace.clone()
+    } else {
+        v["counterexample"]
+            .get("states")
+            .and_then(Value::as_array)
+            .map(|states| {
+                let text = |st: &Value, k: &str| {
+                    st.get(k)
+                        .and_then(Value::as_str)
+                        .unwrap_or_default()
+                        .trim_end()
+                        .to_owned()
+                };
+                let steps: Vec<TraceStep> = states
+                    .iter()
+                    .map(|st| TraceStep {
+                        label: text(st, "label"),
+                        state: text(st, "text"),
+                    })
+                    .collect();
+                Trace {
+                    length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
+                    ending: TraceEnding::Finite,
+                    // dive's own document (`counterexample.trace`, dive-trace's
+                    // format), which the harness validates itself (ADR 0016 §3).
+                    json: v["counterexample"]
+                        .get("trace")
+                        .filter(|t| !t.is_null())
+                        .cloned(),
+                    steps: Some(steps),
+                    omitted: None,
+                    json_unavailable: None,
+                }
+            })
+    };
     let collision = v["collision"].as_object().map(|c| CollisionProbability {
         optimistic: c
             .get("optimistic")
@@ -748,7 +986,20 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
             .filter_map(|w| w.get("code").and_then(as_i32))
             .collect(),
         unresolved_modules: Vec::new(),
-        note: (!notes.is_empty()).then(|| notes.join(" ")),
+        note: {
+            let mut note = notes.join(" ");
+            if schema2 && v["execution"]["stage"] == "level-boundary" {
+                if !note.is_empty() {
+                    note.push(' ');
+                }
+                let _ = write!(
+                    note,
+                    "Actual completed-level prefix {}; not exhaustive.",
+                    v["execution"]["completed_level"]
+                );
+            }
+            (!note.is_empty()).then_some(note)
+        },
     }))
 }
 
@@ -1026,6 +1277,289 @@ mod tests {
             panic!("a result");
         };
         assert_eq!(r.counts, Counts::default());
+    }
+
+    fn emitted_temporal(next: &str, property: &str, compat: bool, workers: usize) -> Value {
+        emitted_temporal_with_mode(
+            next,
+            property,
+            compat,
+            workers,
+            dive_api::TemporalMode::Ordinary,
+        )
+    }
+
+    #[allow(
+        clippy::expect_used,
+        reason = "test fixture construction and typed public API result"
+    )]
+    fn emitted_temporal_with_mode(
+        next: &str,
+        property: &str,
+        compat: bool,
+        workers: usize,
+        temporal: dive_api::TemporalMode,
+    ) -> Value {
+        let temp = TempDir::new("native-schema2").expect("fixture");
+        let file = temp.path().join("Actual.tla");
+        std::fs::write(&file, format!("---- MODULE Actual ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == {next}\nP == {property}\n====\n")).expect("source");
+        std::fs::write(
+            file.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY P\n",
+        )
+        .expect("config");
+        dive_api::check_file(&dive_api::CheckRequest {
+            file,
+            compat_tlc: compat,
+            workers: Some(workers),
+            seed: Some(0),
+            fp: Some(0),
+            temporal,
+            ..Default::default()
+        })
+        .expect("actual typed report")
+        .to_json()
+    }
+
+    #[test]
+    #[allow(clippy::panic, reason = "test assertions on mapper variant")]
+    fn schema2_prefix_route_and_boundary_are_producer_coherent() {
+        for compat in [false, true] {
+            for workers in [1, 4] {
+                let prefix = emitted_temporal_with_mode(
+                    "x'=(x+1)%4",
+                    "<>(x=3)",
+                    compat,
+                    workers,
+                    dive_api::TemporalMode::Deterministic,
+                );
+                assert_eq!(prefix["options"]["lncheck"], "deterministic");
+                assert_eq!(prefix["execution"]["completed_level"], 1);
+                assert_eq!(prefix["statistics"]["depth"], 2);
+                assert_eq!(prefix["statistics"]["left_on_queue"], 1);
+                let exit = if compat { 13 } else { 10 };
+                let CheckMapping::Result(result) =
+                    check_result(&outcome(exit, &prefix.to_string()), compat)
+                else {
+                    panic!("actual prefix");
+                };
+                assert_eq!(result.verdict, Verdict::LivenessViolation);
+                for (path, value) in [
+                    ("/options/lncheck", serde_json::json!("final")),
+                    ("/execution/completed_level", serde_json::json!(0)),
+                    ("/execution/completed_level", serde_json::json!(999_999)),
+                    ("/execution/completed_level", serde_json::json!(u64::MAX)),
+                    ("/execution/completed_level", serde_json::json!(-1)),
+                    ("/execution/completed_level", serde_json::json!(1.5)),
+                    ("/execution/completed_level", serde_json::json!("1")),
+                    ("/execution/completed_level", Value::Null),
+                    ("/statistics/left_on_queue", serde_json::json!(0)),
+                    ("/statistics/left_on_queue", serde_json::json!(-1)),
+                    ("/statistics/left_on_queue", serde_json::json!("1")),
+                    ("/statistics/left_on_queue", Value::Null),
+                    ("/statistics/depth", serde_json::json!(1)),
+                    ("/statistics/depth", serde_json::json!(3)),
+                    ("/statistics/depth", serde_json::json!("2")),
+                    ("/statistics/depth", Value::Null),
+                ] {
+                    let mut changed = prefix.clone();
+                    if let Some(field) = changed.pointer_mut(path) {
+                        *field = value;
+                    }
+                    let CheckMapping::Result(bad) =
+                        check_result(&outcome(exit, &changed.to_string()), compat)
+                    else {
+                        panic!("malformed prefix");
+                    };
+                    assert_eq!(bad.verdict, Verdict::Unclassified, "{path}: {bad:?}");
+                }
+                for path in ["/execution", "/statistics"] {
+                    let mut missing = prefix.clone();
+                    if let Some(fields) = missing.pointer_mut(path).and_then(Value::as_object_mut) {
+                        fields.remove(if path == "/execution" {
+                            "completed_level"
+                        } else {
+                            "left_on_queue"
+                        });
+                    }
+                    let CheckMapping::Result(bad) =
+                        check_result(&outcome(exit, &missing.to_string()), compat)
+                    else {
+                        panic!("missing boundary field");
+                    };
+                    assert_eq!(bad.verdict, Verdict::Unclassified);
+                }
+                for mode in [
+                    dive_api::TemporalMode::Deterministic,
+                    dive_api::TemporalMode::FinalShort,
+                ] {
+                    let complete = emitted_temporal_with_mode(
+                        "x'=(x+1)%4",
+                        "[]<>(x>=0)",
+                        compat,
+                        workers,
+                        mode,
+                    );
+                    assert_eq!(complete["execution"]["exhausted"], true);
+                    let CheckMapping::Result(result) =
+                        check_result(&outcome(0, &complete.to_string()), compat)
+                    else {
+                        panic!("actual exhaustive truth");
+                    };
+                    assert_eq!(result.verdict, Verdict::Success);
+                }
+            }
+        }
+    }
+
+    #[test]
+    #[allow(clippy::panic, reason = "test assertions on mapper variant")]
+    fn schema2_actual_emitter_counts_lasso_and_exhaustion_map_strictly() {
+        for compat in [false, true] {
+            for workers in [1, 4] {
+                let report = emitted_temporal("x'=x", "<>(x=1)", compat, workers);
+                assert_eq!(report["schema_version"], 2);
+                let CheckMapping::Result(r) = check_result(
+                    &outcome(if compat { 13 } else { 10 }, &report.to_string()),
+                    compat,
+                ) else {
+                    panic!("actual native temporal result");
+                };
+                assert_eq!(r.verdict, Verdict::LivenessViolation);
+                assert_eq!(r.exit_code, Some(if compat { 13 } else { 10 }));
+                assert_eq!(r.violated_property.as_deref(), Some("P"));
+                assert_eq!(
+                    (
+                        r.counts.distinct_states,
+                        r.counts.states_generated,
+                        r.counts.depth,
+                        r.counts.states_left_on_queue
+                    ),
+                    (Some(1), Some(2), Some(1), Some(0))
+                );
+                assert_eq!(
+                    r.trace.as_ref().map(|t| t.ending.clone()),
+                    Some(TraceEnding::Lasso { back_to: Some(1) })
+                );
+                assert!(r.trace.as_ref().is_some_and(|t| t.json.is_some()));
+                let holds = emitted_temporal("x'=x", "[]<>(x=0)", compat, workers);
+                assert_eq!(holds["execution"]["exhausted"], true);
+                let CheckMapping::Result(ok) =
+                    check_result(&outcome(0, &holds.to_string()), compat)
+                else {
+                    panic!("exhaustive Holds");
+                };
+                assert_eq!(ok.verdict, Verdict::Success, "{ok:?}: {holds}");
+                assert_eq!(ok.counts.states_generated, Some(2));
+                let mut prefix_success = holds.clone();
+                prefix_success["execution"] = serde_json::json!({
+                "stage":"level-boundary","capture_completed":false,"exhausted":false,"completed_level":0});
+                let CheckMapping::Result(bad) =
+                    check_result(&outcome(0, &prefix_success.to_string()), compat)
+                else {
+                    panic!("malformed result");
+                };
+                assert_eq!(bad.verdict, Verdict::Unclassified);
+            }
+        }
+        let prefix = emitted_temporal("x'=(x+1)%4", "<>(x=3)", false, 4);
+        assert_eq!(prefix["execution"]["stage"], "level-boundary");
+        let CheckMapping::Result(r) = check_result(&outcome(10, &prefix.to_string()), false) else {
+            panic!("real prefix violation");
+        };
+        assert_eq!(r.verdict, Verdict::LivenessViolation);
+        assert_eq!(
+            r.counts.states_generated,
+            prefix["statistics"]["generated"].as_u64()
+        );
+        assert_eq!(
+            r.counts.states_left_on_queue,
+            prefix["statistics"]["left_on_queue"].as_u64()
+        );
+        assert!(
+            r.note
+                .as_ref()
+                .is_some_and(|n| n.contains("not exhaustive"))
+        );
+    }
+
+    #[test]
+    #[allow(
+        clippy::panic,
+        clippy::expect_used,
+        reason = "test assertions and known fixture paths"
+    )]
+    fn schema2_malformed_report_and_unclaimed_class_never_become_truth() {
+        let base = emitted_temporal("x'=x", "<>(x=1)", true, 4);
+        for (path, value) in [
+            ("/schema_version", serde_json::json!(3)),
+            ("/command", serde_json::json!("simulate")),
+            ("/statistics/generated", serde_json::json!(-1)),
+            ("/statistics/depth", serde_json::json!(1.5)),
+            ("/statistics/distinct", serde_json::Value::Null),
+            ("/statistics/left_on_queue", serde_json::json!("0")),
+            ("/statistics/initial_generated", serde_json::json!(3)),
+            ("/execution/stage", serde_json::json!("timer")),
+            ("/execution/exhausted", serde_json::json!(false)),
+            ("/options/lncheck", serde_json::json!("off")),
+            ("/options/workers/used", serde_json::json!(5)),
+            ("/counterexample/ending", serde_json::json!("finite")),
+            ("/counterexample/back_to", serde_json::json!(2)),
+            ("/counterexample/length", serde_json::json!(0)),
+            ("/counterexample/trace", serde_json::Value::Null),
+            ("/counterexample/states/0/values/x", serde_json::json!(1)),
+            ("/properties", serde_json::json!(["Other"])),
+            ("/tlc/name", serde_json::json!("GENERAL")),
+            ("/tlc/code", serde_json::json!(9999)),
+            ("/tlc/exit_status", serde_json::json!(0)),
+            ("/verdict", serde_json::json!("success")),
+        ] {
+            let mut bad = base.clone();
+            *bad.pointer_mut(path).expect("fixture path") = value;
+            let CheckMapping::Result(r) = check_result(&outcome(13, &bad.to_string()), true) else {
+                panic!("malformed case {path}");
+            };
+            assert_eq!(r.verdict, Verdict::Unclassified, "{path}: {r:?}");
+        }
+        let mut missing = base.clone();
+        missing["statistics"]
+            .as_object_mut()
+            .expect("stats")
+            .remove("generated");
+        let CheckMapping::Result(r) = check_result(&outcome(13, &missing.to_string()), true) else {
+            panic!("missing");
+        };
+        assert_eq!(r.verdict, Verdict::Unclassified);
+        let overflow = base
+            .to_string()
+            .replace("\"generated\":2", "\"generated\":18446744073709551616");
+        let CheckMapping::Result(r) = check_result(&outcome(13, &overflow), true) else {
+            panic!("overflow");
+        };
+        assert_eq!(r.verdict, Verdict::Unclassified);
+        for code in [0, 12, 255] {
+            let CheckMapping::Result(r) = check_result(&outcome(code, &base.to_string()), true)
+            else {
+                panic!("exit");
+            };
+            assert_eq!(r.verdict, Verdict::Unclassified);
+        }
+        let mut unclaimed = base.clone();
+        unclaimed["tlc"]["verified"] = Value::Bool(false);
+        assert!(matches!(
+            check_result(&outcome(13, &unclaimed.to_string()), true),
+            CheckMapping::Refused(_)
+        ));
+        let mut refusal = base.clone();
+        refusal["verdict"] = Value::String("resource-limit".into());
+        refusal["message"] = Value::String("actual graph entry bound".into());
+        refusal["tlc"] = Value::Null;
+        refusal["counterexample"] = Value::Null;
+        refusal["execution"] = serde_json::json!({"stage":"capture","capture_completed":false});
+        assert!(matches!(
+            check_result(&outcome(3, &refusal.to_string()), true),
+            CheckMapping::Refused(_)
+        ));
     }
 
     #[test]

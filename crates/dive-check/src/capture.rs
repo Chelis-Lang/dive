@@ -26,7 +26,8 @@ pub struct Limits {
     /// counts can therefore exceed this bound by that state. This is not a
     /// complete seen-set or aggregate heap budget.
     pub states: usize,
-    /// Maximum generated and implicit-stutter edges combined.
+    /// Maximum retained original Init occurrences and generated/implicit-stutter
+    /// edges combined. Original successor values share their edge's entry.
     pub edges: usize,
     /// Maximum generated states, including duplicates and out-of-model states.
     pub generated: u64,
@@ -71,6 +72,19 @@ pub struct ConcreteSuccessor {
     pub label: String,
 }
 
+/// An accepted original Init occurrence, including a seen-state occurrence.
+#[derive(Clone, Debug)]
+pub struct ConcreteInitial {
+    /// The stored root identity, without replacing the original values.
+    pub to: usize,
+    /// Original IR-ordered concrete values.
+    pub state: StateVals,
+    /// Original Init generation ordinal.
+    pub ordinal: u64,
+    /// Original Init action label.
+    pub label: String,
+}
+
 /// Actual retained safety graph completion. Public graph fields, copied
 /// statistics and a zero queue cannot construct this producer-owned receipt.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -102,11 +116,35 @@ impl GraphCompletion {
             }
             previous = Some(root);
         }
+        let mut initial_roots = vec![false; states];
+        for initial in &graph.initials {
+            let Some(present) = initial_roots.get_mut(initial.to) else {
+                return Err(bug("original initial identity outside graph"));
+            };
+            if graph.roots.binary_search(&initial.to).is_err() {
+                return Err(bug("original initial identity is not a root"));
+            }
+            *present = true;
+        }
+        if graph.initials.len() as u64 > counters.initial_generated
+            || graph.roots.iter().any(|root| !initial_roots[*root])
+        {
+            return Err(bug("inconsistent original initial occurrences"));
+        }
+        // Original Init occurrences share the existing graph-entry bound.
+        let mut retained = graph.initials.len();
+        if retained > limits.edges {
+            return Err(limit("completion initial occurrences"));
+        }
         let mut edges = 0usize;
         let mut concrete_successors = 0usize;
         // The already-admitted retention limits bound this structural scan.
         // No values are hashed, normalized, compared or evaluated here.
         for (source, (row, concrete)) in graph.edges.iter().zip(&graph.concrete).enumerate() {
+            retained = retained
+                .checked_add(row.len())
+                .filter(|&n| n <= limits.edges)
+                .ok_or_else(|| limit("completion retained occurrences"))?;
             edges = edges
                 .checked_add(row.len())
                 .filter(|&n| n <= limits.edges)
@@ -158,6 +196,17 @@ impl GraphCompletion {
     pub fn limits(&self) -> Limits {
         self.limits
     }
+}
+
+/// A coordinator consumer's decision at a completed BFS level.
+/// Stopping retains a prefix and never certifies exhaustive exploration.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum LevelControl {
+    /// Continue exploring the next frontier.
+    #[default]
+    Continue,
+    /// Stop after this completed level, without evaluating postconditions.
+    Stop,
 }
 
 /// Receives committed initialization and completed BFS levels on the coordinator.
@@ -231,6 +280,20 @@ pub trait Observer: Send {
     ) -> Result<(), String> {
         Ok(())
     }
+
+    /// Controls exploration after all edge and level callbacks succeeded.
+    /// Errors and panics remain failures, distinct from a deliberate stop.
+    ///
+    /// # Errors
+    /// Return a diagnostic when this consumer cannot complete its work.
+    fn level_control(
+        &mut self,
+        _level: u64,
+        _graph: &BehaviorGraph,
+        _stats: Stats,
+    ) -> Result<LevelControl, String> {
+        Ok(LevelControl::Continue)
+    }
 }
 
 /// A fully explored behavior graph in the engine's discovery order.
@@ -248,6 +311,9 @@ pub struct BehaviorGraph {
     pub concrete: Vec<Vec<ConcreteSuccessor>>,
     /// Distinct in-model initial states in discovery order.
     pub roots: Vec<usize>,
+    /// Accepted original Init occurrences in generator order, including aliases.
+    /// Retention shares the existing graph-edge/occurrence entry bound.
+    pub initials: Vec<ConcreteInitial>,
 }
 
 /// Evidence from a completed safety exploration. Standard capture does not
@@ -290,10 +356,166 @@ impl Complete {
     }
 }
 
+/// Prepares an actual replayed occurrence using ordinary capture's exact or
+/// fingerprint identity kernel, discarding the key. This may perform the same
+/// set normalization as producer key preparation; constructor classes remain
+/// intact. It never inserts a state, changes counters, invokes observers or
+/// grants capture/host authority. VIEW/SYMMETRY and foreign profiles refuse.
+///
+/// `options` must be the actual producer options. `work_limit` bounds
+/// callback-free transport and finite value expansion; the returned charge
+/// must be deducted from the consumer's remaining work budget.
+///
+/// # Errors
+/// Context/profile mismatch, unavailable callback-free bounded preparation,
+/// or the original typed value-key error.
+///
+/// ```
+/// use std::sync::Arc;
+/// use dive_check::{CheckOptions, capture::prepare_replay_identity};
+/// let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\n\
+///               Init == x=0\nNext == x'=x\n====\n";
+/// let ir = Arc::new(dive_ir::lower(&dive_sema::analyze_source(
+///     "M.tla", source, &Default::default()))?);
+/// let cfg = dive_config::parse("INIT Init\nNEXT Next\n").into_config().ok_or("invalid config")?;
+/// let options = CheckOptions::dive(7);
+/// let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions {
+///     eval: options.eval, no_deadlock: false, host: None,
+/// })?;
+/// let original = Arc::from([Some(dive_value::Value::Int(0))]);
+/// let charged = prepare_replay_identity(&model, &options, &original, 1000)?;
+/// assert!(charged <= 1000);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep shared identity guards and callback-free work admission together"
+)]
+pub fn prepare_replay_identity(
+    model: &Model,
+    options: &CheckOptions,
+    state: &StateVals,
+    work_limit: usize,
+) -> Result<usize, dive_eval::EvalError> {
+    use dive_eval::EvalError;
+    use dive_value::{SetKind, Value, codec};
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|error| EvalError::unsupported(error.to_string()))?;
+    model
+        .validate_context()
+        .map_err(|error| EvalError::unsupported(error.to_string()))?;
+    if model.view.is_some()
+        || model.symmetry.is_some()
+        || model.evaluator.options() != &options.eval
+    {
+        return Err(EvalError::unsupported(
+            "concrete identity preparation with VIEW/SYMMETRY or foreign profile",
+        ));
+    }
+    let mut charge = 0usize;
+    let mut pending = Vec::new();
+    for value in state.iter() {
+        let value = value
+            .as_ref()
+            .ok_or_else(|| EvalError::bug("incomplete identity occurrence"))?;
+        let remaining = work_limit
+            .checked_sub(charge)
+            .ok_or_else(|| EvalError::resource_limit("concrete identity preparation work"))?;
+        let bound = codec::frontier_size_bound(value, remaining).map_err(|error| {
+            if error.kind() == dive_value::ErrorKind::DiveLimit {
+                EvalError::resource_limit(error.message())
+            } else {
+                EvalError::unsupported("concrete identity preparation requires deferred callbacks")
+            }
+        })?;
+        charge = charge
+            .checked_add(bound)
+            .ok_or_else(|| EvalError::resource_limit("concrete identity preparation work"))?;
+        pending.push(value.clone());
+    }
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Fcn(function) => {
+                pending.extend(
+                    function
+                        .iter()
+                        .flat_map(|(key, value)| [key, value.clone()]),
+                );
+            }
+            Value::Set(set) => {
+                let elements = if matches!(set.kind(), SetKind::Enum | SetKind::Raw) {
+                    Some(set.elements(options.eval.ctx)?)
+                } else {
+                    None
+                };
+                // Infinite classes reach the actual key error without an
+                // invented cardinality operation. Finite lazy expansion is
+                // bounded before the shared key kernel can allocate it.
+                if !matches!(
+                    set.kind(),
+                    SetKind::Nat | SetKind::Int | SetKind::Strings | SetKind::Seq
+                ) {
+                    let count = usize::try_from(set.size(options.eval.ctx)?).map_err(|_| {
+                        EvalError::resource_limit("concrete identity expansion work")
+                    })?;
+                    let cost = count
+                        .checked_mul(codec::frontier_size_bound(
+                            &Value::Set(set.clone()),
+                            work_limit,
+                        )?)
+                        .ok_or_else(|| {
+                            EvalError::resource_limit("concrete identity expansion work")
+                        })?;
+                    charge = charge
+                        .checked_add(cost)
+                        .filter(|n| *n <= work_limit)
+                        .ok_or_else(|| {
+                            EvalError::resource_limit("concrete identity expansion work")
+                        })?;
+                }
+                pending.extend(set.components().into_iter().map(|(_, value)| value));
+                if let Some(elements) = elements {
+                    pending.extend(elements.iter().cloned());
+                }
+            }
+            _ => {}
+        }
+    }
+    engine::prepare_identity(model, options, state)?;
+    Ok(charge)
+}
+
+/// Actual search evidence at a deliberate completed-level stop.
+/// This cannot be used as a [`Complete`] or as evidence that properties hold.
+#[derive(Clone, Debug)]
+pub struct Prefix {
+    /// The completed level at which the consumer stopped.
+    pub level: u64,
+    /// Run settings, including store, seed and profile.
+    pub options: CheckOptions,
+    /// Committed graph; unexpanded frontier rows may be empty.
+    pub graph: BehaviorGraph,
+    /// Actual completed-boundary counters, including the remaining frontier.
+    pub stats: Stats,
+    /// Fingerprint collision qualification, absent for exact storage.
+    pub collision: Option<Collision>,
+    /// Requested and actual workers.
+    pub workers: Workers,
+    /// Startup and exploration output in execution order.
+    pub output: Vec<String>,
+    /// Startup warnings with stable TLC codes.
+    pub warnings: Vec<(u32, String)>,
+    /// Actual capture time through this boundary.
+    pub elapsed: std::time::Duration,
+}
+
 fn elapsed(result: &mut Exploration, duration: std::time::Duration) {
     match result {
         Exploration::Stopped(stop) => stop.elapsed = duration,
         Exploration::Complete(complete) => complete.safety_result.elapsed = duration,
+        Exploration::Prefix(prefix) => prefix.elapsed = duration,
     }
 }
 
@@ -302,6 +524,8 @@ fn elapsed(result: &mut Exploration, duration: std::time::Duration) {
 pub enum Exploration {
     /// Complete safety exploration; explicitly not a temporal verdict.
     Complete(Box<Complete>),
+    /// A deliberate completed-level consumer stop; never an exhaustive graph.
+    Prefix(Box<Prefix>),
     /// A safety stop, unsupported feature, resource bound or internal failure.
     /// No partial graph is exposed as complete.
     Stopped(Box<CheckResult>),
@@ -324,6 +548,7 @@ impl<K: Ord> Collector<K> {
                 edges: vec![],
                 concrete: vec![],
                 roots: vec![],
+                initials: vec![],
             },
             limits,
             count: 0,
@@ -470,7 +695,19 @@ impl<K: Ord> Collector<K> {
                 label: label.to_owned(),
             });
         } else {
+            if self.count >= self.limits.edges {
+                return Err(limit("original initial occurrences"));
+            }
             self.root(target);
+            self.count += 1;
+            // Shared entry admission is charged before this original is retained.
+            // The receipt changes neither identity nor generated counters.
+            self.graph.initials.push(ConcreteInitial {
+                to: target,
+                state: concrete,
+                ordinal,
+                label: label.to_owned(),
+            });
         }
         Ok(())
     }
@@ -633,8 +870,9 @@ pub fn explore_concrete_parallel_with_evidence(
     Ok(result)
 }
 
-/// Capture and observe successful initialization and completed levels at one worker.
-/// Both the inline and ordered pool executors deliver the same events. Failure
+/// Capture and observe successful initialization and completed levels.
+/// Both the inline and ordered pool executors deliver the same events at the
+/// requested width, preserving the normal capture admission and worker planning. Failure
 /// stops exploration without exposing a completed graph; no temporal verdict is implied.
 ///
 /// # Errors
@@ -647,15 +885,6 @@ pub fn explore_observed_with_evidence(
 ) -> Result<Exploration, String> {
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
-    }
-    if opts.workers != 1 {
-        return Ok(stopped(
-            Verdict::Unsupported {
-                feature: "level observation currently requires one worker".into(),
-            },
-            model,
-            opts,
-        ));
     }
     let started = std::time::Instant::now();
     let mut result = run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)))?;
@@ -804,6 +1033,8 @@ fn explore_inner(
             ..Default::default()
         },
     );
+    result.frontier = outcome.frontier;
+    result.predecessor = outcome.predecessor;
     result.verdict = outcome.verdict;
     result.stats = outcome.stats;
     result.tlc_prints_stats = outcome.tlc_prints_stats;
@@ -813,6 +1044,26 @@ fn explore_inner(
     result.output.extend(outcome.output);
     result.notes = outcome.notes;
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
+    if let Some(level) = outcome.boundary {
+        if !result.frontier.failures.is_empty() || !result.predecessor.failures.is_empty() {
+            return Exploration::Stopped(Box::new(result));
+        }
+        let (Some(graph), Some(stats)) = (outcome.graph, result.stats) else {
+            result.verdict = bug("observer boundary did not retain graph/statistics");
+            return Exploration::Stopped(Box::new(result));
+        };
+        return Exploration::Prefix(Box::new(Prefix {
+            level,
+            options: opts.clone(),
+            graph,
+            stats,
+            collision: result.collision,
+            workers: result.workers,
+            output: result.output,
+            warnings: result.warnings,
+            elapsed: std::time::Duration::ZERO,
+        }));
+    }
     if result.verdict != Verdict::Success {
         return Exploration::Stopped(Box::new(result));
     }
@@ -849,7 +1100,7 @@ fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration 
 #[cfg(test)]
 #[allow(clippy::panic, reason = "controlled internal thread failure")]
 mod evidence_controls {
-    use super::{BehaviorGraph, Edge, GraphCompletion, Limits};
+    use super::{BehaviorGraph, ConcreteInitial, Edge, GraphCompletion, Limits};
     use crate::Stats;
     #[test]
     fn completed_graph_requires_actual_rows_roots_stutters_and_statistics() {
@@ -862,6 +1113,12 @@ mod evidence_controls {
             }]],
             concrete: vec![vec![]],
             roots: vec![0],
+            initials: vec![ConcreteInitial {
+                to: 0,
+                state: Vec::new().into(),
+                ordinal: 0,
+                label: "Init".into(),
+            }],
         };
         let stats = Stats {
             generated: 1,
@@ -903,6 +1160,7 @@ mod evidence_controls {
             edges: vec![],
             concrete: vec![],
             roots: vec![],
+            initials: vec![],
         };
         assert!(GraphCompletion::finalize(&empty, Stats::default(), limits).is_ok());
     }

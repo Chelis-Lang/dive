@@ -99,17 +99,8 @@ pub use result::{
 /// Runs on its own thread with the evaluator's recommended stack.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResult {
-    if let Err(error) = dive_eval::validate_ir(ir) {
-        return bare(context_verdict(&error), opts, ir);
-    }
-    if opts.predecessor_directory.is_some() && opts.predecessor_memory_bytes.is_none() {
-        return bare(
-            Verdict::Unsupported {
-                feature: "predecessor directory requires predecessor memory budget".into(),
-            },
-            opts,
-            ir,
-        );
+    if let Some(result) = check_preflight(ir, opts) {
+        return result;
     }
     let started = Instant::now();
     let run = || run_check(ir, cfg, opts);
@@ -126,6 +117,84 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     };
     result.elapsed = started.elapsed();
     result
+}
+
+fn check_preflight(ir: &Arc<Ir>, opts: &CheckOptions) -> Option<CheckResult> {
+    if let Err(error) = dive_eval::validate_ir(ir) {
+        return Some(bare(context_verdict(&error), opts, ir));
+    }
+    if opts.predecessor_directory.is_some() && opts.predecessor_memory_bytes.is_none() {
+        return Some(bare(
+            Verdict::Unsupported {
+                feature: "predecessor directory requires predecessor memory budget".into(),
+            },
+            opts,
+            ir,
+        ));
+    }
+    None
+}
+
+/// Either ordinary safety checking or a consumer of a bound temporal model.
+/// A consumer result is not a safety verdict or an admission to graph capture.
+#[derive(Debug)]
+pub enum CheckDispatch<T> {
+    /// The existing safety result, including prebinding refusals.
+    Safety(Box<CheckResult>),
+    /// The supplied temporal consumer's result.
+    Temporal(T),
+}
+
+fn safety_dispatch<T>(result: CheckResult) -> CheckDispatch<T> {
+    CheckDispatch::Safety(Box::new(result))
+}
+
+/// Runs the normal prebinding/setup path once, dispatching temporal models to
+/// a consumer before search. Models without temporal claims run ordinary safety
+/// with the same bound model and host, so startup effects are never repeated.
+/// The consumer must still use the capture and temporal APIs' own checks.
+/// Panics and prebinding failures produce a safety failure, never a consumer result.
+///
+/// ```
+/// use std::sync::Arc;
+/// use dive_check::{CheckDispatch, CheckOptions};
+/// let a = dive_sema::analyze_source("M.tla",
+///     "---- MODULE M ----\nVARIABLE x\nInit == x=TRUE\nNext == x'=x\nP == []<>x\n====\n",
+///     &Default::default());
+/// let ir = Arc::new(dive_ir::lower(&a)?);
+/// let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n").into_config().ok_or("config")?;
+/// // This measures claims; it makes no temporal verdict.
+/// let result = dive_check::check_with_temporal(&ir, &cfg, &CheckOptions::tlc(0, 7),
+///     |model| model.property_claims().len());
+/// assert!(matches!(result, CheckDispatch::Temporal(1)));
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+pub fn check_with_temporal<T: Send>(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    consumer: impl FnOnce(&dive_model::Model) -> T + Send,
+) -> CheckDispatch<T> {
+    if let Some(result) = check_preflight(ir, opts) {
+        return safety_dispatch(result);
+    }
+    let started = Instant::now();
+    let result = std::thread::scope(|scope| {
+        std::thread::Builder::new()
+            .stack_size(dive_eval::RECOMMENDED_STACK)
+            .spawn_scoped(scope, || {
+                run_dispatched(ir, cfg, opts, None, Some(consumer))
+            })
+            .map_err(|error| format!("cannot start the checking thread: {error}"))
+            .and_then(|thread| thread.join().map_err(|_| "the checker panicked".to_owned()))
+    });
+    let mut dispatched = result.unwrap_or_else(|message| {
+        safety_dispatch(bare(Verdict::InternalError { message }, opts, ir))
+    });
+    if let CheckDispatch::Safety(result) = &mut dispatched {
+        result.elapsed = started.elapsed();
+    }
+    dispatched
 }
 
 /// The verdict for an error of the binding stage.
@@ -343,26 +412,49 @@ pub(crate) fn run_check_with_checkpoint(
     ir: &Arc<Ir>,
     cfg: &ModelConfig,
     opts: &CheckOptions,
-    mut checkpoint: Option<&mut checkpoint::Session>,
+    checkpoint: Option<&mut checkpoint::Session>,
 ) -> CheckResult {
+    match run_dispatched(ir, cfg, opts, checkpoint, None::<fn(&dive_model::Model)>) {
+        CheckDispatch::Safety(result) => *result,
+        CheckDispatch::Temporal(()) => bare(
+            Verdict::InternalError {
+                message: "safety dispatch unexpectedly invoked a temporal consumer".into(),
+            },
+            opts,
+            ir,
+        ),
+    }
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "shared ordered binding, dispatch and safety execution"
+)]
+fn run_dispatched<T>(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    mut checkpoint: Option<&mut checkpoint::Session>,
+    consumer: Option<impl FnOnce(&dive_model::Model) -> T>,
+) -> CheckDispatch<T> {
     if let Some(disk) = &opts.seen_disk {
         if let Err(error) = disk.limits.validate() {
-            return bare(seen::verdict(&error), opts, ir);
+            return safety_dispatch(bare(seen::verdict(&error), opts, ir));
         }
         if checkpoint.is_some() {
-            return bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, opts, ir);
+            return safety_dispatch(bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, opts, ir));
         }
     }
     // Refuse transformed random streams before binding can execute effects.
     // Ordinary VIEW and non-VIEW per-state RNG retain their existing routes.
     if let Some(feature) = dive_model::transformed_randomness(ir, cfg) {
-        return bare(
+        return safety_dispatch(bare(
             Verdict::Unsupported {
                 feature: feature.into(),
             },
             opts,
             ir,
-        );
+        ));
     }
     let mut notes = Vec::new();
     let host = Arc::new(engine::run_host(opts));
@@ -382,7 +474,7 @@ pub(crate) fn run_check_with_checkpoint(
             let mut r = bare(model_error(&f.error), opts, ir);
             messages(&f.output, &mut r);
             r.notes = notes;
-            return r;
+            return safety_dispatch(r);
         }
     };
     let mut r = bare(Verdict::Success, opts, ir);
@@ -392,7 +484,7 @@ pub(crate) fn run_check_with_checkpoint(
             r.verdict = Verdict::Unsupported {
                 feature: "randomness under SYMMETRY is not supported".into(),
             };
-            return r;
+            return safety_dispatch(r);
         }
         let mode = if opts.profile == Profile::Tlc {
             dive_model::symmetry::Mode::Tlc
@@ -413,16 +505,32 @@ pub(crate) fn run_check_with_checkpoint(
             Ok(None) => {}
             Err(error) => {
                 r.verdict = model_error(&error);
-                return r;
+                return safety_dispatch(r);
             }
         }
+    }
+    if !m.implied_temporals.is_empty()
+        && let Some(consumer) = consumer
+    {
+        if let Some(unsupported) = m
+            .unsupported
+            .iter()
+            .find(|u| u.kind != dive_model::UnsupportedKind::TemporalProperty)
+        {
+            r.verdict = Verdict::Unsupported {
+                feature: unsupported.feature.clone(),
+            };
+            r.notes = notes;
+            return safety_dispatch(r);
+        }
+        return CheckDispatch::Temporal(consumer(&m));
     }
     if let Some(u) = m.unsupported.first() {
         r.verdict = Verdict::Unsupported {
             feature: u.feature.clone(),
         };
         r.notes = notes;
-        return r;
+        return safety_dispatch(r);
     }
     // TLC creates its model checker here: `TLCGet("config")` and the
     // checker's names exist from now on, and the counters read 0.
@@ -435,7 +543,7 @@ pub(crate) fn run_check_with_checkpoint(
         && let Err(verdict) = session.admit_model(&m)
     {
         r.verdict = verdict;
-        return r;
+        return safety_dispatch(r);
     }
     let assumptions = m.check_assumptions();
     r.output.extend(m.take_output());
@@ -444,12 +552,12 @@ pub(crate) fn run_check_with_checkpoint(
         AssumptionOutcome::False { message, .. } => {
             r.verdict = Verdict::AssumptionFalse { message };
             r.notes = notes;
-            return r;
+            return safety_dispatch(r);
         }
         AssumptionOutcome::Error { error, message, .. } => {
             r.verdict = class::assumption_error(&error, message);
             r.notes = notes;
-            return r;
+            return safety_dispatch(r);
         }
     }
     let outcome = if let Some(session) = checkpoint.take() {
@@ -486,7 +594,7 @@ pub(crate) fn run_check_with_checkpoint(
     }
     note_canonical_stop(opts, &r.verdict, &mut notes);
     r.notes = notes;
-    r
+    safety_dispatch(r)
 }
 
 /// Shared default-profile qualification for an observed safety stop.

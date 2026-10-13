@@ -1,59 +1,65 @@
 # Temporal checking
 
-The exposed checker is an explicit bounded final/short mode:
+Ordinary checking runs the supported temporal subset:
 
 ```sh
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --lncheck final --lasso short --seed 7 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --seed 7 --workers 4 --output json
 ```
 
-The example reports a real liveness violation. Although `Next` always increments
-before four, TLA+ temporal behaviors can stutter at zero; there is no fairness
-condition in this model requiring the increment action to occur.
+The default profile checks after completed BFS levels when distinct-state growth
+since the last check exceeds 10%, and always checks at exhaustion. Under
+`--compat=tlc`, ordinary checking uses the final schedule, matching the pinned
+`-lncheck final` oracle. `--lncheck final` selects final checking in either
+profile; `--lncheck deterministic` selects completed levels explicitly.
+`--lasso short` is optional. `--lasso tlc` remains a usage error: TLC's arbitrary
+lasso choice is not an observable parity requirement.
 
-This mode explores the supported graph, checks once at the end, chooses a
-deterministic short periodic witness and independently replays it in memory and
-as a lossless document. It checks the complete configured property claims,
-including the closing edge. The flags are explicit because this is not TLC's
-periodic schedule, exact selected lasso or all evaluation-error timing.
-A TLC value profile plus these flags is reported as `tlc+overrides`.
+A candidate becomes a violation only after a fresh independent model accepts
+both its typed word and serialized trace, including closing edge, fairness and
+all false configured claims. An unexpanded frontier cannot establish disabledness:
+ENABLED is evaluated exactly, independently of captured outgoing edges. A prefix
+without a validated lasso continues searching. Holds requires exhaustive capture.
+Models without temporal claims keep the ordinary safety path and one startup binding.
 
-Pure supported boolean/temporal operators, finite quantification and WF/SF
-predicates have scoped limits. Unknown ENABLED/fairness covers, runtime effects,
-dynamic/exported scopes and other unproved constructs refuse. Ordinary strict
-`dive check` retains its temporal refusal. A diagnostic planning/tableau/product
-API that completes has not issued a temporal verdict.
+Temporal atoms use original generated targets, including seen-state occurrences.
+Original Init aliases and source variants are checked too. If equal stored
+identities produce different atom truth or incompatible Next/constraint rows,
+checking returns a source-named `DIVE-L0038` refusal. Replay that cannot safely
+preserve effects, names, composition or bounds also refuses at that point.
+Actual evaluator errors retain their typed class/code; they cannot become Holds.
+Bounded identity preparation uses the capture's actual exact/fingerprint options
+and preserves constructor classes. It grants no host access or capture authority.
 
-Schema 2 distinguishes opt-in temporal checking from ordinary safety schema 1.
-`properties` names complete claims, and periodic counterexamples carry validation
-and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
-Rust `temporal::check` example, supported forms, limits, source-qualified errors
-and indexing conventions.
+Temporal reports use schema 2; ordinary safety reports keep schema 1. Reports
+include actual generated/distinct/depth/queue counters, requested/used workers,
+seed, store/collision qualification and selected schedule. `execution.exhausted`
+and `capture_completed` are false on a deliberate prefix stop, with
+`completed_level` naming its boundary. Default deterministic stopping can prevent
+a later safety failure and differ from final counts: this is the disclosed D-014
+schedule difference, not an assertion that prefix counters equal final goldens.
+A short lasso alone does not label TLC values as overrides; explicitly selecting
+deterministic scheduling under compat does.
 
-## Final checking in the TLC profile
+The example has no fairness forcing increments. Stuttering at zero is a valid
+violation of eventual termination. The deterministic route stops at its first
+completed level, while final checking explores the full finite graph. Both words
+are independently validated. Temporal violations exit 10 by default and 13 under
+compat. Planning/label evaluation errors retain their error class, TLC code and
+exit; 2213/2214 formula classification runs before tableau construction. Bounds
+and unsupported validation remain refusals, never success.
 
-`dive check --compat=tlc --lncheck final --lasso short` checks temporal
-properties with TLC's value semantics and reports a deterministic short lasso
-that passes independent replay. The profile is labeled `tlc+overrides`, because
-TLC's own lasso choice is not reproduced: it depends on hash-table and SCC
-visitation order, which are not parity obligations (ADR 0082, ADR 0086).
-`--lasso tlc` is a usage error. Periodic scheduling is not implemented yet.
+VIEW/SYMMETRY temporal lifting, fresh effects/register reads/random draws,
+action-composition replay, unsupported scopes, spill/seen-disk/checkpoint,
+postconditions with temporal checks and valid `_PERIODIC` hooks remain named
+refusals. Invalid `_PERIODIC` names/arity retain TLC codes 2229/2228. Finite
+independent ENABLED covers and every formula/capture/product bound still apply.
+Original Init occurrences share the graph edge/occurrence bound. Additional
+alias cells, replay and callback-free transport/expansion work consume existing
+budgets; consumer work never changes raw generated/distinct counts.
+Limits count entries/work, not total process memory; fixed capture waves retain
+at most eight concurrently expanded source units.
 
-Malformed numeric temporal operands, such as `Bad == <>1`, report
-`evaluation-error` before exploration, with TLC code 2215 (`TLC_EXPECTED_VALUE`).
-The process exits 255 under `--compat=tlc` and 13 in the default profile. Effects
-and unsupported scopes still refuse before planning executes them.
-
-Final checking also preserves binding errors: a missing `_PERIODIC` definition
-reports TLC code 2229, and a parameterized definition reports 2228. Both exit
-151 under `--compat=tlc` and 1 in the default profile. A valid `_PERIODIC` hook
-still refuses by name until hook execution is implemented.
-
-## Rust APIs
-
-`dive_api::temporal` is the Rust entry point (see
-[the temporal API contract](../temporal-api.md)). `dive-liveness` exposes the
-kernel it uses: planning (`plan`), the tableau (`formula`), the product and
-lasso search (`product`, `search`), the coordinator (`analyze`), TLC's liveness
-formula classifier for `--compat=tlc` (`tlc_plan::classify`, TLC errors 2213
-and 2214) and the growth trigger for future periodic checks
-(`periodic_backend::Growth`).
+Rust callers retain `temporal::check_final` and its exhausted-only evidence.
+`temporal::check_with_schedule_with_evidence` also returns a distinct
+`Outcome::PrefixViolation`, whose exploration is a Prefix, never Complete.
+See [the API guide](../temporal-api.md) and [ADR 0094](../decisions/0094-ordinary-completed-level-liveness.md).

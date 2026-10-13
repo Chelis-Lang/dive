@@ -193,6 +193,7 @@ fn replay_identity_mismatch_retains_typed_position_without_fake_library_poison()
     let mut outcome = crate::engine::Outcome {
         seen: None,
         graph: None,
+        boundary: None,
         frontier: crate::FrontierUsage::default(),
         predecessor: crate::PredecessorUsage::default(),
         verdict: super::verdict(&error),

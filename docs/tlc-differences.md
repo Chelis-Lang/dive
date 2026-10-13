@@ -739,9 +739,19 @@ claims and derived role names stay separate; no new default is adopted.
 
 ## D-014: Periodic liveness checking has a replayable schedule
 
-**Status:** ordinary scheduling remains planned, with an owner-approved deterministic default. The approved `--lncheck=deterministic` interface will check at the documented level boundaries in ADR 0018. The TLC counterpart will retain wall-clock scheduling for `--lncheck=default`. Explicit bounded final checking is separate; this planned schedule does not run through the ordinary strict checker yet.
+**Status:** supported ordinary temporal checking now uses growth-gated completed
+BFS levels in the default profile, and Final under compat. Explicit
+`--lncheck deterministic` uses the same boundary schedule under compat;
+`--lncheck final` selects exhaustion in either profile. See ADR 0094 and
+[the temporal user guide](user/temporal.md).
 
-The periodic backend controller now implements the pinned callback order. All 296 controlled pinned-method observations retain queue suspension, force state, deciding codes and PERIODIC effect order. This is a backend building block: clock-ratio math, graph-growth authority, quiescence and checkpoint persistence remain pending, and no ordinary model verdict is enabled.
+All sources/waves in a level and their safety/storage checks complete before a
+check runs. No timer, queue-suspension service or callback-order emulation remains.
+A candidate is independently validated on a fresh model, in typed and serialized
+form, before stopping. No-lasso prefixes continue; Holds requires exhaustion.
+Actual boundary counts and pending queue are disclosed and may differ from final
+oracle totals or prevent a later safety event. This is a narrow schedule
+change, not blanket count leniency or a success claim on a prefix.
 
 **Example and measurement.** The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct states in three pinned-TLC runs. All found the same violation, but the stopping counts depended on time. Fixed level boundaries make those counts reproducible across workers. They are a named scheduling difference, not a claim of exact TLC scheduling. Evidence: ADR 0017 §6 and the recorded probe transcripts.
 

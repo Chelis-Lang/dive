@@ -861,7 +861,7 @@ pub(crate) fn levels_from<S: Keyed>(
     });
     search.set = set.into_inner().unwrap_or_else(PoisonError::into_inner);
     // Statistics computed with the set outside the search report its size.
-    let stats = if stop.is_none() {
+    let stats = if stop.is_none() && search.observer_boundary.is_none() {
         search.stats(0)
     } else {
         stats
@@ -1164,6 +1164,9 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 }),
                 stats,
             );
+        }
+        if search.observer_boundary.is_some() {
+            return (None, stats);
         }
         frontier = Arc::new(next_frontier);
         first_id = new_first;

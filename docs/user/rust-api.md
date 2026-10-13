@@ -43,8 +43,9 @@ operators remain usable, and `Evaluator::scope_has_effects` exposes this
 non-evaluating effects check without forcing stored values or callbacks.
 
 Low-level graph consumers implement `dive_check::capture::Observer` and pass it to
-`capture::explore_observed_with_evidence`. Observation currently requires one
-worker; `--compat=tlc` uses the same hook semantics. Methods are inert by default.
+`capture::explore_observed_with_evidence`. Observation supports the inline and ordered
+parallel executors at the admitted requested width; `--compat=tlc` uses the same
+hook semantics. Methods are inert by default.
 `init` receives accepted roots after Init succeeds. `edge` receives original
 concrete successors, including duplicate and seen-state transitions, followed by
 implicit stutters. `level_done` borrows the graph after every source at that BFS
@@ -65,7 +66,7 @@ Prefix graphs can support independently validated violations; absence of a
 violation proves nothing before exhaustion. The `Observer` rustdoc contains a
 runnable example. Producer-clock requests and the former dispatch, stopped and
 terminal service APIs have been removed. Ordinary parallel graph capture remains
-available through the unobserved entry points.
+available through both observed and unobserved entry points.
 
 | Entry | Meaning |
 | --- | --- |
@@ -77,7 +78,8 @@ available through the unobserved entry points.
 | `dfid_file` | Iterations and explicit completion evidence |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |
 | `trace::SpecModel` | Independent implementation/witness replay |
-| `temporal::check` | Explicit bounded final/short backend with private validated violations |
+| `temporal::check_final` | Exhaustive final backend with private freshly validated violations |
+| `temporal::check_with_schedule_with_evidence` | Ordinary safety or final/completed-level temporal checks; distinct validated prefix evidence |
 | `check_file_checkpoint` | Bounded actual native safety pause/recovery |
 
 Request fields make profile and module resolution explicit. Rust APIs do not

@@ -431,6 +431,30 @@ pub(crate) fn complete_values(s: &[Option<Value>]) -> Result<Vec<Value>, Verdict
     })
 }
 
+/// Applies the identical key preparation as ordinary capture, discarding the
+/// key. No seen set, trace log, host counters or callbacks are involved.
+pub(crate) fn prepare_identity(
+    m: &Model,
+    opts: &CheckOptions,
+    state: &StateVals,
+) -> Result<(), EvalError> {
+    fn keyed<S: Keyed>(m: &Model, opts: &CheckOptions, state: &StateVals) -> Result<(), EvalError> {
+        let order: Vec<_> = m.ir.tlc_var_order().iter().map(|v| v.index()).collect();
+        let keyer = S::keyer(opts, &order).map_err(EvalError::bug)?;
+        let values = values(state).ok_or_else(|| EvalError::bug("incomplete identity input"))?;
+        S::key(&keyer, &values, false, m.evaluator.options().ctx)
+            .map(|_| ())
+            .map_err(|error| match error {
+                StoreError::Value(value) => EvalError::from(value),
+                other => EvalError::bug(other.to_string()),
+            })
+    }
+    match opts.store {
+        StoreMode::Exact => keyed::<ExactSet>(m, opts, state),
+        StoreMode::Fingerprint => keyed::<FpSet>(m, opts, state),
+    }
+}
+
 #[cfg(test)]
 mod concrete_value_tests {
     use super::{Value, Verdict, complete_values};
@@ -716,9 +740,9 @@ fn observer_bug(message: &str) -> Verdict {
     }
 }
 
-fn observer_call(callback: impl FnOnce() -> Result<(), Verdict>) -> Result<(), Verdict> {
+fn observer_call<T>(callback: impl FnOnce() -> Result<T, Verdict>) -> Result<T, Verdict> {
     match std::panic::catch_unwind(std::panic::AssertUnwindSafe(callback)) {
-        Ok(Ok(())) => Ok(()),
+        Ok(Ok(value)) => Ok(value),
         Ok(Err(verdict)) => Err(verdict),
         Err(_) => Err(Verdict::InternalError {
             message: "behavior observer callback panicked".into(),
@@ -747,6 +771,7 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) capture: Option<Collector<S::Key>>,
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
     pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
+    pub(crate) observer_boundary: Option<u64>,
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
@@ -801,7 +826,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         let first = usize::try_from(first_id).map_err(|_| Verdict::InternalError {
             message: "observed source id exceeds address space".into(),
         })?;
-        observer_call(|| {
+        let control = observer_call(|| {
             let graph = capture.graph();
             let end = first
                 .checked_add(sources)
@@ -836,8 +861,15 @@ impl<S: Keyed> Search<'_, '_, S> {
             }
             observer
                 .level_done(level, graph, stats)
+                .map_err(observer_failure)?;
+            observer
+                .level_control(level, graph, stats)
                 .map_err(observer_failure)
-        })
+        })?;
+        if control == crate::capture::LevelControl::Stop {
+            self.observer_boundary = Some(level);
+        }
+        Ok(())
     }
 
     /// Native transaction state is only present on admitted pure safety runs.
@@ -1360,6 +1392,9 @@ impl<S: Keyed> Search<'_, '_, S> {
                     stats,
                 );
             }
+            if self.observer_boundary.is_some() {
+                return (None, stats);
+            }
             level += 1;
         }
         (None, self.stats(0))
@@ -1768,6 +1803,7 @@ impl<S: Keyed> Search<'_, '_, S> {
 pub(crate) struct Outcome {
     pub seen: Option<crate::SeenUsage>,
     pub graph: Option<BehaviorGraph>,
+    pub boundary: Option<u64>,
     pub frontier: crate::FrontierUsage,
     pub predecessor: crate::result::PredecessorUsage,
     pub verdict: Verdict,
@@ -1922,6 +1958,7 @@ fn search_in<S: Keyed>(
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
+                boundary: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: Verdict::Unsupported { feature },
                 stats: None,
@@ -1942,6 +1979,7 @@ fn search_in<S: Keyed>(
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
+                boundary: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: Verdict::InternalError { message },
                 stats: None,
@@ -1959,6 +1997,7 @@ fn search_in<S: Keyed>(
             seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
+            boundary: None,
             frontier: crate::FrontierUsage::default(),
             verdict: Verdict::InternalError {
                 message: format!(
@@ -1996,6 +2035,7 @@ fn search_in<S: Keyed>(
                 )),
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
+                boundary: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: crate::seen::verdict(&error),
                 stats: None,
@@ -2027,6 +2067,7 @@ fn search_in<S: Keyed>(
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
         checkpoint,
         observer,
+        observer_boundary: None,
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
@@ -2151,7 +2192,12 @@ fn search_in<S: Keyed>(
         ] {
             host.set_counter(counter, i64::try_from(value).ok());
         }
-        let verdict = if no_actions {
+        let boundary = s.observer_boundary;
+        let verdict = if boundary.is_some() {
+            Verdict::Unsupported {
+                feature: "capture stopped at completed-level consumer boundary".into(),
+            }
+        } else if no_actions {
             Verdict::Success
         } else {
             postconditions(m).unwrap_or(Verdict::Success)
@@ -2165,8 +2211,9 @@ fn search_in<S: Keyed>(
                     seen: None,
                     predecessor: crate::result::PredecessorUsage::default(),
                     graph: s.capture.take().map(Collector::finish),
+                    boundary,
                     frontier,
-                    collision: if verdict == Verdict::Success {
+                    collision: if verdict == Verdict::Success || boundary.is_some() {
                         collision
                     } else {
                         None
@@ -2259,6 +2306,7 @@ fn search_in<S: Keyed>(
             seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
+            boundary: None,
             frontier,
             // TLC prints statistics after an error in the initial states, not
             // after a violation there (probe `InitViolation`, fixtures `ErInit*`).
@@ -2324,6 +2372,7 @@ mod predecessor_tests {
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
+                boundary: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: verdict.clone(),
                 stats: None,
@@ -2369,6 +2418,7 @@ mod predecessor_tests {
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
+                boundary: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: verdict.clone(),
                 stats: Some(stats),

@@ -351,7 +351,7 @@ fn check_reports_a_violation_with_each_profiles_exit_code() {
 }
 
 #[test]
-fn check_refuses_and_rejects_with_distinct_codes() {
+fn ordinary_temporal_violation_and_input_errors_have_distinct_codes() {
     assert_eq!(dive(&["check"]).status.code(), Some(2));
     let tla = temp_file(
         "CheckLive.tla",
@@ -364,8 +364,10 @@ fn check_refuses_and_rejects_with_distinct_codes() {
         "--config",
         &cfg.to_string_lossy(),
     ]);
-    assert_eq!(out.status.code(), Some(3));
-    assert!(String::from_utf8_lossy(&out.stdout).contains("unsupported: temporal"));
+    assert_eq!(out.status.code(), Some(10));
+    assert!(
+        String::from_utf8_lossy(&out.stdout).contains("Independently validated counterexample")
+    );
     let bad = temp_file("CheckBad.tla", "---- MODULE CheckBad ----\nx == y\n====\n");
     let out = dive(&["check", &bad.to_string_lossy(), "--compat=tlc"]);
     assert_eq!(out.status.code(), Some(150));
@@ -384,10 +386,15 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
     let cfg = spec.with_extension("cfg");
     assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY P Q\n").is_ok());
     let path = spec.to_string_lossy();
-    // Ordinary checking keeps its explicit refusal until full temporal
-    // compatibility is implemented.
     let ordinary = dive(&["check", &path, "--compat=tlc", "--output", "json"]);
-    assert_eq!(ordinary.status.code(), Some(3));
+    assert_eq!(ordinary.status.code(), Some(13));
+    let ordinary: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
+    assert_eq!(ordinary["verdict"], "liveness-violation");
+    assert_eq!(ordinary["properties"], serde_json::json!(["P"]));
+    assert_eq!(ordinary["counterexample"]["validation"], "valid");
+    assert_eq!(ordinary["tlc"]["code"], 2116);
+    assert_eq!(ordinary["tlc"]["verified"], true);
+    assert_eq!(ordinary["execution"]["exhausted"], true);
     for (profile, code) in [("tlc", 13), ("dive", 10)] {
         let run = |store: &str, workers: &str| {
             dive(&[
@@ -428,13 +435,15 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
             assert_eq!(a["statistics"], b["statistics"]);
             assert_eq!(
                 a["options"]["profile"],
-                if profile == "tlc" {
-                    "tlc+overrides"
-                } else {
-                    "dive"
-                }
+                if profile == "tlc" { "tlc" } else { "dive" }
             );
-            assert_eq!(a["options"]["tlc_exact_temporal"], false);
+            assert_eq!(a["execution"]["capture_completed"], true);
+            assert_eq!(a["execution"]["exhausted"], true);
+            for field in ["verdict", "properties", "statistics", "counterexample"] {
+                if profile == "tlc" {
+                    assert_eq!(ordinary[field], a[field], "ordinary/final {field}");
+                }
+            }
             assert_eq!(a["options"]["lncheck"], "final");
             assert_eq!(a["options"]["lasso"], "short");
             assert_eq!(a["options"]["seed"], 17);
@@ -444,7 +453,9 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
                 b["options"]["temporal_bounds"]["successors_per_unit"],
                 65_536
             );
-            assert!(a["tlc"].is_null(), "unverified TLC class cannot be claimed");
+            assert_eq!(a["tlc"]["code"], 2116);
+            assert_eq!(a["tlc"]["name"], "TLC_TEMPORAL_PROPERTY_VIOLATED");
+            assert_eq!(a["tlc"]["verified"], true);
             let trace_path = temp_file(
                 &format!("temporal-{profile}-{store}.json"),
                 &a["counterexample"]["trace"].to_string(),
@@ -626,6 +637,10 @@ fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "end-to-end ordinary/final safety and option-admission controls"
+)]
 fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     let spec = temp_file(
         "TemporalSafety.tla",
@@ -652,12 +667,23 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     assert_eq!(base["verdict"], "invariant-violation");
     assert_eq!(base["counterexample"]["ending"], "finite");
     assert_eq!(base["statistics"]["distinct"], 2);
-    for flags in [
-        ["--lncheck", "final"],
-        ["--lasso", "short"],
-        ["--lasso", "tlc"],
-        ["--lncheck", "off"],
-    ] {
+    for flags in [["--lncheck", "final"], ["--lasso", "short"]] {
+        let ordinary = dive(&[
+            "check",
+            &path,
+            flags[0],
+            flags[1],
+            "--output=json",
+            "--seed=0",
+        ]);
+        assert_eq!(ordinary.status.code(), Some(10));
+        let ordinary: serde_json::Value =
+            serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
+        for field in ["verdict", "property", "statistics", "counterexample"] {
+            assert_eq!(ordinary[field], base[field], "{flags:?}: {field}");
+        }
+    }
+    for flags in [["--lasso", "tlc"], ["--lncheck", "off"]] {
         assert_eq!(
             dive(&["check", &path, flags[0], flags[1]]).status.code(),
             Some(2)

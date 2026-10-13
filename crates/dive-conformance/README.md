@@ -94,7 +94,7 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
 - For TLC, a model's outcome is its single-worker run. Multi-worker runs appear only in the worker-invariance section.
 - For anything else, every worker count must match, and any variance is `disagree`.
 - v1.7.4 may omit violated temporal-property names, because its capability probe shows it never prints them.
-- Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`. Under `--impl-profile tlc` (or `tlc+overrides`), dive reports the physical worker count as TLC does (D-011), so such a model's run at N > 1 workers is compared with the worker-specific golden at N, if there is one, on the verdict and error class only, and is left out of the worker-invariance judgement (ADR 0004, amendment of 2026-10-09). Without one, the single-worker golden applies on every field. The default profile reports the logical count, 1, and always uses the single-worker golden.
+- Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`. Under `--impl-profile tlc` (or `tlc+overrides`), dive reports the physical worker count as TLC does (D-011), so such a model's run at N > 1 workers is compared with the worker-specific golden at N, if there is one, on the verdict, error class and numeric exit code, and is left out of the worker-invariance judgement (ADR 0004, amendment of 2026-10-09). Without one, the single-worker golden applies on every field. The default profile reports the logical count, 1, and always uses the single-worker golden.
 - Simulation models compare verdict-level fields only.
 - Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The exception is an implementation that refuses every model (`Implementation::models_unsupported`): its models are `unsupported`, and the detail notes a missing golden. The summary asserts that the totals equal the selection.
 
@@ -253,6 +253,22 @@ pub trait Implementation: Sync {
 
 **Rules for adapters:**
 - A violation can `agree` only if the harness validates the counterexample (charter rule 2). The default `trace_validated` says no; `dive` overrides it with the in-process validator (`src/trace_check.rs`). An adapter whose tool emits counterexamples in dive's trace format can do the same.
+  A non-oracle temporal verdict requires an available word at every worker and
+  count policy. Missing/unavailable/unvalidated words remain pending, and invalid
+  words disagree. Different independently valid lasso lengths/endings are allowed;
+  safety witness comparisons retain their existing exact contract. Numeric exit
+  codes remain exact at every worker/count policy and with worker-specific
+  goldens; a valid word cannot excuse a missing or different exit. The narrow
+  finite temporal2116/exit12 classifier remains unchanged. The native adapter
+  consumes ordinary schema-2 reports directly, retaining actual generated,
+  distinct, queue and depth fields even when `reported_by_tlc` is false. It does
+  not force a Final request. Exhausted success and completed-level violations
+  have distinct boundary checks; partial success is malformed. A temporal prefix
+  requires deterministic scheduling, a positive completed level, nonempty next
+  frontier and actual depth equal to the checked level plus one. Lossless lasso
+  metadata is checked structurally, then replayed under the actual profile and
+  module paths. Unknown schemas/routes, malformed counters and unclaimed classes
+  never establish agreement.
 - Return `ImplResult::Unsupported(reason)` for anything the tool does not implement exactly. Never return a partial or approximate result.
 - Results use the oracle vocabulary. `verdict` and `error_class` must be the TLC `EC` name of the equivalent outcome; counts, depth and trace length go in their fields.
 

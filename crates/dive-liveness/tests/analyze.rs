@@ -238,10 +238,12 @@ fn atom_errors_retain_a_diagnostic_and_source_span() {
         property,
         source,
         detail,
+        error: cause,
     } = error
     else {
         panic!("atom error");
     };
+    assert_eq!(cause.ec(), dive_eval::Ec::DivisionByZero);
     assert_eq!(property, "Prop");
     assert!(source.origin.file.is_some());
     assert!(source.origin.range.0 < source.origin.range.1);
