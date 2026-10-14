@@ -90,6 +90,8 @@ pub(crate) struct Core {
     pub(crate) sink: Arc<dyn PrintSink>,
     /// Actual Print/PrintT events, including quiet captures and empty text.
     pub(crate) printed: std::sync::atomic::AtomicBool,
+    /// Exclusive simulation entry on this shared core, including evaluator clones.
+    pub(crate) simulation_active: std::sync::atomic::AtomicBool,
     /// The run hosting the evaluator, and TLC's register file.
     pub(crate) host: crate::host::HostSlot,
     /// How many names were interned at start-up
@@ -174,6 +176,7 @@ impl Core {
             printed: std::sync::atomic::AtomicBool::new(false),
             startup_names: std::sync::atomic::AtomicUsize::new(0),
             host: crate::host::HostSlot::default(),
+            simulation_active: std::sync::atomic::AtomicBool::new(false),
         }
     }
 

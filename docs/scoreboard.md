@@ -186,6 +186,15 @@ default workers 1/4 each have 91 agreements, four registered divergences and 59
 refusals. No corpus agreement is added by this change. Simulation/generation and
 DFID stay partial; schedulers and general coverage remain open.
 
+## Runtime Print extension
+
+Ordinary finite one-worker simulation supports direct, captured and configured
+Print/PrintT with separate startup/runtime output and quiet independent word
+validation. Reached random/register/I/O effects remain named refusals; M/#239,
+generation and schedulers remain partial. Print qualification on the latest main,
+fresh review, full gate and publication are pending; the accepted statistics
+measurements above are not retagged onto this candidate. See `docs/user/simulation.md`.
+
 ## Checker exit-convention candidate
 
 [ADR 0097](decisions/0097-check-exit-conventions.md) records the lead's new
@@ -253,3 +262,25 @@ floors and the original per-ID population and observables. No corpus agreement i
 Earlier measurements retain their original source labels, including the failed
 `565bffe8` gate. Publication CI is a separate obligation; this bounded repair
 does not establish full-tier agreement, at-least-95% parity or roadmap completion.
+
+## Current-parent ordinary simulation Print acceptance
+
+The accepted scope is bounded Print/PrintT runtime capture, private replay output
+discard and shared-core simulation ownership. It adds no complete-state-space or
+expression coverage claim. Historical pending/rejected-cut qualifications retain
+their original source identities; the current-parent measurement is below.
+
+Runtime source `2fa57f734adf1a065555d7ab18f40b1cd2ca416b`, tree `24f070f2b326d5a6526c8342b09f471e62179b21`, directly based on actual accepted API main `4b6b6fd4a6bb1e0c69a9b0abfce61c52a0237571`.
+
+Its actual full gate passed 1,745 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
+
+Current-parent scoped execution passed 73 tests with no failures, ignores or filtering and recorded 36 JSON CLI cases; the separate human controls and fresh review keep their actual receipt bindings.
+
+| Profile | Workers | Original IDs | Agree | Refused | Expected divergence | Disagree | Timeout |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| TLC | 1 | 154 | 95 | 59 | 0 | 0 | 0 |
+| TLC | 4 | 154 | 95 | 59 | 0 | 0 | 0 |
+| default | 1 | 154 | 91 | 59 | 4 | 0 | 0 |
+| default | 4 | 154 | 91 | 59 | 4 | 0 | 0 |
+
+Historical failed overlap, rejected cuts and invalid experiments remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full M/#239, generation, schedulers, distribution/DFID and general coverage remain open; sampling is no safety/liveness proof.

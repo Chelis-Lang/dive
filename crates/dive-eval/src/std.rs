@@ -412,13 +412,13 @@ impl Core {
                     self.print_normalized(a)?,
                     self.print_normalized(b)?
                 );
-                self.print(text);
+                self.print_event(text)?;
                 Ok(b.clone())
             }
             StdOp::TlcPrintT => {
                 let a = v(0)?;
                 let text = self.print_normalized(a)?;
-                self.print(text);
+                self.print_event(text)?;
                 Ok(Value::TRUE)
             }
             StdOp::TlcToString => {
@@ -688,6 +688,21 @@ impl Core {
                 self.ppr(v)
             ),
         )
+    }
+
+    /// Applies the run's fallible output policy after normal Print rendering.
+    fn print_event(&self, text: String) -> Result<()> {
+        let emit = self.host.get().map_or(Ok(true), |host| {
+            host.print_output(&text).map_err(crate::host::host_error)
+        })?;
+        if emit {
+            self.print(text);
+        } else {
+            // A quiet replay still evaluated the actual Print operation.
+            self.printed
+                .store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+        Ok(())
     }
 
     /// `Print`'s rendering: a deep-normalized copy, pretty-printed.

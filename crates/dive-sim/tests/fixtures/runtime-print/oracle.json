@@ -1,0 +1,177 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "seed": 0,
+  "aril": 0,
+  "traces": 1,
+  "workers": 1,
+  "primary_probes": [
+    {
+      "model": "RuntimePrintDirect",
+      "depth": 1,
+      "native_scope": "supported",
+      "exit": 0,
+      "codes": [],
+      "generated": 2,
+      "states": [
+        0,
+        1
+      ],
+      "printed": [
+        "\"startup\"",
+        "\"init\"",
+        "0  1"
+      ],
+      "stdout_sha256": "44abe467229d3882d47407286237af14a032af845231956b960797a475c218b1"
+    },
+    {
+      "model": "RuntimePrintDirect",
+      "depth": 3,
+      "native_scope": "supported",
+      "exit": 12,
+      "codes": [
+        2110,
+        2121
+      ],
+      "generated": 3,
+      "states": [
+        0,
+        1,
+        2
+      ],
+      "printed": [
+        "\"startup\"",
+        "\"init\"",
+        "0  1",
+        "1  2"
+      ],
+      "stdout_sha256": "ee447b9b80d884f93448ec5c90ae0b9b716983082b46d08ac286e05b833b754c"
+    },
+    {
+      "model": "RuntimePrintCaptured",
+      "depth": 1,
+      "native_scope": "supported",
+      "exit": 0,
+      "codes": [],
+      "generated": 2,
+      "states": [
+        0,
+        1
+      ],
+      "printed": [
+        "0"
+      ],
+      "stdout_sha256": "acb6a49adf0042626e8bfa8c5adb0f76a9d88c24b1bef21de0c3c9d3a08b9912"
+    },
+    {
+      "model": "RuntimePrintCaptured",
+      "depth": 3,
+      "native_scope": "supported",
+      "exit": 12,
+      "codes": [
+        2110,
+        2121
+      ],
+      "generated": 3,
+      "states": [
+        0,
+        1,
+        2
+      ],
+      "printed": [
+        "0",
+        "1"
+      ],
+      "stdout_sha256": "0f54299eb0a903a85ec4ba90370ea48f04f67d5bf34fc377f8dcae8226db8a1d"
+    },
+    {
+      "model": "RuntimePrintConfigured",
+      "depth": 1,
+      "native_scope": "supported",
+      "exit": 0,
+      "codes": [],
+      "generated": 2,
+      "states": [
+        0,
+        1
+      ],
+      "printed": [
+        "0"
+      ],
+      "stdout_sha256": "dfe00a15390710768d803ca86e41b4f58258ed6fce979c33db182ab97cf1d4fc"
+    },
+    {
+      "model": "RuntimePrintConfigured",
+      "depth": 3,
+      "native_scope": "supported",
+      "exit": 12,
+      "codes": [
+        2110,
+        2121
+      ],
+      "generated": 3,
+      "states": [
+        0,
+        1,
+        2
+      ],
+      "printed": [
+        "0",
+        "1"
+      ],
+      "stdout_sha256": "5d7ebc6a586711a5623512bf423fa86796185035720040e5076e59c0c4b3e4a6"
+    },
+    {
+      "model": "RuntimePrintConditional",
+      "depth": 1,
+      "native_scope": "supported",
+      "exit": 0,
+      "codes": [],
+      "generated": 2,
+      "states": [
+        0,
+        1
+      ],
+      "printed": [
+        "0"
+      ],
+      "stdout_sha256": "fc1b1abd798d657c82b29987df43f18bee57e72a6e7c3ffcb846f58acbf5ade1"
+    },
+    {
+      "model": "RuntimePrintConditional",
+      "depth": 3,
+      "native_scope": "unsupported",
+      "exit": 12,
+      "codes": [
+        2110,
+        2121
+      ],
+      "generated": 3,
+      "states": [
+        0,
+        1,
+        2
+      ],
+      "printed": [
+        "0"
+      ],
+      "stdout_sha256": "3264c456fc55233313e3540fb86e8cef1def16514120e766f049303eda5356b0"
+    },
+    {
+      "model": "RuntimePrintRegister",
+      "depth": 1,
+      "native_scope": "unsupported",
+      "exit": 0,
+      "codes": [],
+      "generated": 2,
+      "states": [
+        0,
+        1
+      ],
+      "printed": [
+        "0"
+      ],
+      "stdout_sha256": "41d9d285d544a44eb11e16ce0187f7fca20a2bfb450e016d0f9454334e578049"
+    }
+  ]
+}

@@ -1177,6 +1177,31 @@ their recorded revisions. Configured constant-effect refusals remain explicit;
 broader simulation, generation, schedulers, DFID and coverage remain pending.
 See [the simulation contract](user/simulation.md).
 
+## Ordinary simulation Print/PrintT
+
+The return and rendering behavior follows MIT `tlc2.module.TLC.Print` and
+`PrintT` at pinned tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b`.
+The existing evaluator performs argument evaluation and rendering; a fallible
+host hook then emits or discards the event. Private fresh-word validation permits
+these value semantics while discarding its own binding/replay output without
+copying caller callbacks, hosts or atoms. Other reached effects retain their
+existing refusals, including D-017 host-access restrictions.
+
+Nine clean finite primary simulation probes at seed 0/aril 0, one worker and
+one trace establish direct, higher-order and configured logger output phases,
+including the original startup Print event before Init/runtime printing. The
+compact consumed fixture records actual generated counts, exits, deciding codes
+and words. Reached RandomElement/register cases remain native refusals, not
+claimed agreements. Genuine raw producer data and tool/input bindings remain
+outside the repository; native scoped verification, fresh review and publication
+must retain their actual new-source identities. Full M/#239 remains open.
+
+This Print source rederive preserves the accepted basic-statistics/inventory
+implementation and adds combined Print plus none/basic controls. The genuine
+nine-probe fixture and earlier scoped measurements retain their original source
+bindings. Latest-main native qualification, fresh review, full gate and Print
+publication remain pending; the accepted statistics gate is not Print gate credit.
+
 ## Empty-property final checking and model-error origin
 
 When the configured `PROPERTY` list is literally empty,
@@ -1206,3 +1231,23 @@ source/main CI checks are separate obligations. Ordinary liveness, broader API
 coverage, the runtime-name trace refusal (#124) and the complete roadmap remain
 open. See [the temporal API contract](temporal-api.md) and
 [the temporal checking guide](user/temporal.md).
+
+## Current-parent Print capture and shared-core acceptance
+
+Ordinary finite simulation retains invocation-owned Print/PrintT output under
+its declared event/text limits. Independent private startup/replay retains value
+semantics while discarding its own output. A shared evaluator core's simulation
+lease preserves operational ownership through host restoration; overlapping or
+reentrant simulation refuses without taking another invocation's output.
+Reached random/register/I/O and other unsupported effects retain their refusals.
+None/basic sampled-flow settings keep their existing bounds and meaning.
+
+Runtime source `2fa57f734adf1a065555d7ab18f40b1cd2ca416b`, tree `24f070f2b326d5a6526c8342b09f471e62179b21`, directly based on actual accepted API main `4b6b6fd4a6bb1e0c69a9b0abfce61c52a0237571`.
+
+Its actual full gate passed 1,745 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
+
+Current-parent scoped execution passed 73 tests with no failures, ignores or filtering and recorded 36 JSON CLI cases; the separate human controls and fresh review keep their actual receipt bindings.
+
+Historical failed overlap, rejected cuts and invalid experiments remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full M/#239, generation, schedulers, distribution/DFID and general coverage remain open; sampling is no safety/liveness proof.
+See [the simulation contract](user/simulation.md) and
+[the independent trace contract](user/traces.md).

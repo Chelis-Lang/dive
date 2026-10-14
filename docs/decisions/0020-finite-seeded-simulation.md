@@ -28,8 +28,9 @@ same sequence of random draws and prime-stride disabled-action retries.
 TLC mode derives its worker seed with `RandomGenerator(seed, aril).nextLong()`
 and retains that worker stream across traces. An omitted seed is generated and
 reported; TLC ignores aril in this case. The default profile uses the existing
-stable per-trace streams. Extra workers and spec-level effects are not yet
-implemented: refuse them, preserving the architecture for later scaling.
+stable per-trace streams. Extra workers remain unsupported. Ordinary Print/PrintT is checked when reached;
+other runtime host effects remain named refusals, preserving the architecture
+for later scaling.
 
 The public API returns a separate versioned simulation report. Its terminal
 sampled result always states `exhaustive: false` and `model_proved: false`.
@@ -59,7 +60,7 @@ evaluation and false assumptions.
 Fixtures retain raw transcripts and trace modules with jar/JRE provenance.
 
 This is a partial simulation implementation. Liveness/fairness, spec-level
-randomness/runtime effects, compound initial deep normalization, implied-initial
+randomness and other runtime effects, compound initial deep normalization, implied-initial
 properties, action properties combined with state/action constraints, ALIAS/POSTCONDITION, generation, RL/probabilistic modes, continuation
 and parallel/distributed execution remain explicit refusals. See
 `crates/dive-sim/README.md` for the supported surface and reproduction.
@@ -70,3 +71,34 @@ validator currently requires constraints on property-ending edges. This slice
 refuses the combination by name before sampling rather than weakening that
 validator or reporting a false internal error. The control report accounts for
 22 agreements and this one named refusal separately.
+
+
+## Runtime Print extension
+
+Ordinary Print/PrintT preserves evaluator argument, rendering and return-value
+semantics in direct, captured and configured calls. The producer retains actual
+binding output separately from runtime output. A fallible host policy bounds
+retained runtime Print events/text. Fresh independent validation evaluates the
+same operations but discards replay output before any sink callback; reached
+random/register/I/O refusals and the private Init register contract remain.
+No callback purity certificate, random replay proof or scheduler is added.
+Nine pinned tiny primary probes distinguish real startup, Init and step output;
+seven are admitted words and two remain named reached-effect refusals.
+See `crates/dive-sim/README.md` for limits; M/#239 remains partial.
+
+
+## Shared evaluator simulation ownership
+
+One simulation owns a bound evaluator core through host cleanup. Low-level
+`simulate(&Model, ...)` calls on that same core, including cloned models, refuse
+overlap or reentry without waiting: `unsupported` names concurrent/reentrant
+simulation, with preflight stage, zero work and no output or host change. Existing
+preflight option/feature refusals retain priority. Separate bound cores, including
+separate API loads, can run concurrently. Callers must not mix foreign evaluator
+or host operations with an active simulation; ordinary evaluator APIs are unchanged.
+
+The run lease is operational ownership of the actual shared core. It releases
+after the original host is restored, including error, limit and unsupported
+returns. It introduces no TLS, callback admission or cache authority. The earlier
+external overlap diagnostic and each scoped qualification retain their original
+source bindings. Fresh review, latest-parent transfer and full gates remain pending.
