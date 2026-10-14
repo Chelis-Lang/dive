@@ -1161,3 +1161,44 @@ fn composition_modes_and_jvm_alias_override_profile_in_either_order()
     }
     Ok(())
 }
+
+#[test]
+fn simulation_basic_statistics_are_optional_and_replayable() {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-sim/tests/fixtures/SimChoice.tla");
+    for profile in [false, true] {
+        let mut args = vec![
+            "simulate",
+            file.to_str().unwrap_or_default(),
+            "--traces",
+            "3",
+            "--depth",
+            "5",
+            "--seed",
+            "7",
+            "--output",
+            "json",
+        ];
+        if profile {
+            args.push("--compat=tlc");
+        }
+        let plain = dive(&args);
+        assert!(plain.status.success(), "{plain:?}");
+        args.extend(["--stats", "basic"]);
+        let counted = dive(&args);
+        assert!(counted.status.success(), "{counted:?}");
+        let a: serde_json::Value = serde_json::from_slice(&plain.stdout).unwrap_or_default();
+        let b: serde_json::Value = serde_json::from_slice(&counted.stdout).unwrap_or_default();
+        assert_eq!(a["traces"], b["traces"]);
+        assert_eq!(a["statistics"], b["statistics"]);
+        assert_eq!(b["options"]["action_stats"], true);
+        assert_eq!(b["action_flow"]["mode"], "basic");
+        let replay = dive(&args);
+        assert_eq!(counted.stdout, replay.stdout);
+    }
+    for (stats, code) in [("wrong", 2), ("full", 3)] {
+        let output = dive(&["simulate", "missing.tla", "--traces", "1", "--stats", stats]);
+        assert_eq!(output.status.code(), Some(code), "{output:?}");
+        assert_eq!(output.stdout, [] as [u8; 0]);
+    }
+}

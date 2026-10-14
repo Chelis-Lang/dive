@@ -175,6 +175,17 @@ surfaces.
 | Complete corpus, harness and release certification | partial |
 | Global TLC profile and approved better defaults | partial |
 
+## Basic simulation statistics
+
+Finite one-worker simulation provides bound action inventories and optional basic
+counts of consecutive chosen actions. These sample statistics do not prove
+state-space or expression coverage. The full gate passed 1,716 tests with no
+skips, 84 doctests and 456 SANY cases. All four unchanged 154-model runs preserve
+the accepted baseline: TLC workers 1/4 each have 95 agreements and 59 refusals;
+default workers 1/4 each have 91 agreements, four registered divergences and 59
+refusals. No corpus agreement is added by this change. Simulation/generation and
+DFID stay partial; schedulers and general coverage remain open.
+
 ## Checker exit-convention candidate
 
 [ADR 0097](decisions/0097-check-exit-conventions.md) records the lead's new
