@@ -2301,7 +2301,14 @@ recreate old archives. This is not a result-changing default or a new divergence
 mathematical canonical keys and fingerprints are unchanged. Native error metadata
 still reports `verified: false` for this ported diagnostic site; representation
 matching does not certify every error class. Independent transported-witness
-checks remain separate. See the full evidence.
+checks remain separate. The consumed comparison controls cover both literal
+and integer-domain representations against a string-domain record: TLC mode
+keeps its comparison error, while default D-009 yields the structural answer.
+Those comparisons cannot detect the lost representation bit. Application remains
+the representation-discriminating control; independently checked invariant
+witnesses validate mathematical word correctness and cannot detect that bit.
+See [storage and recovery](user/storage-recovery.md) and the consumed
+`storage_tuple_function` tests.
 ### Actual committed request-prefix limitation (#204)
 
 The Rust request diagnostic publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.

@@ -41,6 +41,19 @@ success. These files are transient search storage, not checkpoints. The
 transient queue files use structural format 2 (`DIVEFQ02`/`DIVEFI02`); version-1
 files refuse.
 
+Structural format 2 preserves whether a value was built as a literal tuple or
+as a function over consecutive integers. This matters for diagnostics: applying
+such a function to a string must keep its function-domain error after spill or
+recovery. Canonical state keys and fingerprints still use mathematical equality.
+The regression suite covers application, independently validated invariant
+witnesses, and tuple/function comparison across both profiles, both stores,
+workers 1/4/8, forced frontier/predecessor spill and level-zero recovery. Comparison
+alone does not distinguish the stored representation. Application detects the
+representation-dependent diagnostic; the witness controls independently validate
+the mathematical trace and cannot detect the lost representation bit. Version-1
+trace JSON remains a separate transport format and does not establish storage
+correctness.
+
 ## Native checkpoints
 
 Checkpoints are a separate, bounded, safety-only feature:
