@@ -301,6 +301,7 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
         seen: None,
         predecessor: crate::result::PredecessorUsage::default(),
         verdict,
+        binding_model_error: false,
         stats: None,
         tlc_prints_stats: false,
         counterexample: None,
@@ -380,6 +381,7 @@ pub(crate) fn run_check_with_checkpoint(
         Ok(m) => m,
         Err(f) => {
             let mut r = bare(model_error(&f.error), opts, ir);
+            r.binding_model_error = matches!(r.verdict, Verdict::ModelError { .. });
             messages(&f.output, &mut r);
             r.notes = notes;
             return r;
@@ -413,6 +415,7 @@ pub(crate) fn run_check_with_checkpoint(
             Ok(None) => {}
             Err(error) => {
                 r.verdict = model_error(&error);
+                r.binding_model_error = matches!(r.verdict, Verdict::ModelError { .. });
                 return r;
             }
         }

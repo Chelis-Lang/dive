@@ -17,6 +17,12 @@ including the closing edge. The flags are explicit because this is not TLC's
 periodic schedule, exact selected lasso or all evaluation-error timing.
 A TLC value profile plus these flags is reported as `tlc+overrides`.
 
+When the configuration has no `PROPERTY` entries, these flags leave ordinary
+safety checking in charge: invariants, initialization/successor errors,
+assumptions and other safety settings retain their usual behavior. No temporal
+claim or capture proof is issued. Configured state/action properties and real
+temporal properties retain the existing final-mode route and its bounds/refusals.
+
 Pure supported boolean/temporal operators, finite quantification and WF/SF
 predicates have scoped limits. Unknown ENABLED/fairness covers, runtime effects,
 dynamic/exported scopes and other unproved constructs refuse. Ordinary strict
@@ -83,7 +89,10 @@ and unsupported scopes still refuse before planning executes them.
 
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
-151 in both semantic profiles; `--exit-codes native` selects 1. A valid `_PERIODIC` hook
+151 in both semantic profiles; `--exit-codes native` selects 1. Binding and
+symmetry-preparation model errors report the `binding` execution stage, including
+when an empty property list takes the ordinary safety route. Engine model errors
+retain the `capture` stage. A valid `_PERIODIC` hook
 still refuses by name until hook execution is implemented.
 
 ## Rust APIs

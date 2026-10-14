@@ -377,6 +377,9 @@ pub struct CheckResult {
     pub predecessor: PredecessorUsage,
     /// The verdict.
     pub verdict: Verdict,
+    /// Whether a model error originated during binding or symmetry preparation,
+    /// before the engine started. Engine model errors leave this false.
+    pub binding_model_error: bool,
     /// Statistics at the stop, when the search started.
     pub stats: Option<Stats>,
     /// Whether TLC prints statistics for this result. TLC prints none for a
