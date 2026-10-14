@@ -295,7 +295,7 @@ std_ops! {
     SvgSVGElemToString = ("SVG", "SVGElemToString", 1, Value, Annotated, Extension, false, "tlc2.overrides.SVG.SVGElemToString");
     SvgNodeOfRingNetwork = ("SVG", "NodeOfRingNetwork", 5, Value, Annotated, Extension, false, "tlc2.overrides.SVG.ringNetwork");
     SvgNodesOfDirectedMultiGraph = ("SVG", "NodesOfDirectedMultiGraph", 3, Value, Annotated, Extension, false, "tlc2.overrides.SVG.directedMultiGraph");
-    SvgPointOnLine = ("SVG", "PointOnLine", 3, Value, Annotated, Extension, false, "tlc2.overrides.SVG.pointOnLine");
+    SvgPointOnLine = ("SVG", "PointOnLine", 3, Value, Annotated, Core, false, "tlc2.overrides.SVG.pointOnLine");
     SequencesExtSetToSeq = ("SequencesExt", "SetToSeq", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.SetToSeq");
     SequencesExtSetToSeqs = ("SequencesExt", "SetToSeqs", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.SetToSeqs");
     SequencesExtContains = ("SequencesExt", "Contains", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.Contains");

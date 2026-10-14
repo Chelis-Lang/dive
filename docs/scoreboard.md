@@ -284,3 +284,37 @@ Current-parent scoped execution passed 73 tests with no failures, ignores or fil
 | default | 4 | 154 | 91 | 59 | 4 | 0 | 0 |
 
 Historical failed overlap, rejected cuts and invalid experiments remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full M/#239, generation, schedulers, distribution/DFID and general coverage remain open; sampling is no safety/liveness proof.
+
+## Bounded SVG PointOnLine candidate
+
+This separate transfer candidate adds the pinned numeric helper for literal
+stored signed32 coordinate records. Historical primary and native controls retain
+their recorded revisions. The direct24b499 `bc070808` slice passed bounded
+scoped controls and independent review; it is not current-parent gate credit.
+Current-source transfer qualification, fresh review, full gate, unchanged
+complete corpus matrices and publication remain pending. No
+scoreboard totals change. Computed/deferred representations and unimplemented
+JVM errors remain named refusals. SVG serialization, graph/ring layout, animation
+host effects and full CommunityModules/Examples/VTS parity remain open.
+
+## Current-parent bounded SVG PointOnLine acceptance
+
+The accepted scope is the bounded numeric helper for stored coordinate records.
+The current-source finite controls include numeric/error/deferred/resource and
+provider routing, Point/Print same-Core cleanup and independent word validation.
+Earlier invalid and historical measurements keep their original identities.
+
+Runtime source `d40c12e626a0c300faeea20adebc1ba9a5f0ec97`, tree `045ccf994a7aadad2ae7f121487a1bab258d88fe`, directly based on actual accepted Print main `952c84bb38e0c044da5188c03712c3758604f219`.
+
+Its actual full gate passed 1,753 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
+
+Current-parent finite scoped execution passed 76 tests with no failures, ignores or filtering and recorded 36 JSON CLI cases; all three external probes and the genuinely fresh independent review keep their actual receipt bindings.
+
+| Profile | Workers | Original IDs | Agree | Refused | Expected divergence | Disagree | Timeout |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| TLC | 1 | 154 | 95 | 59 | 0 | 0 | 0 |
+| TLC | 4 | 154 | 95 | 59 | 0 | 0 | 0 |
+| default | 1 | 154 | 91 | 59 | 4 | 0 | 0 |
+| default | 4 | 154 | 91 | 59 | 4 | 0 | 0 |
+
+Historical compile/parser failures, invalid compound-initial fixture and review build attempts remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full SVG/C, layout, serialization, animation and general CommunityModules parity remain open; issue #272 remains open.

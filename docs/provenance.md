@@ -1251,3 +1251,57 @@ Current-parent scoped execution passed 73 tests with no failures, ignores or fil
 Historical failed overlap, rejected cuts and invalid experiments remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full M/#239, generation, schedulers, distribution/DFID and general coverage remain open; sampling is no safety/liveness proof.
 See [the simulation contract](user/simulation.md) and
 [the independent trace contract](user/traces.md).
+
+## Bounded SVG PointOnLine numeric override
+
+`crates/dive-eval/src/svg.rs` follows the installed
+[`SVG.pointOnLine`](https://github.com/tlaplus/CommunityModules/blob/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules/tlc2/overrides/SVG.java)
+(MIT, release `202610040242`). Signed32 coordinate subtraction precedes
+binary64 division/addition and Java double-to-int narrowing. Wrapping subtraction
+and a truncating/saturating float-to-signed32 cast preserve this order, including
+NaN zero; mathematical floor division and unbounded differences are not the
+installed operation. Both profiles use the same result on this slice.
+
+Pinned tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` `MethodValue.eval`
+invokes the typed Java method on evaluated arguments; `RecordValue.select`
+returns null for missing coordinates. Unimplemented JVM representation/error
+shapes remain named refusals. Deferred function values stay unmaterialized while
+later argument expressions are evaluated; existing argument errors and explicit
+TLA redirects retain their precedence. Records are bounded at 256 stored fields
+and evaluator depth remains an independent resource guard.
+
+The historical implementation `68909913`, corrected only for reference inventory
+as `ca72da1e`, supplies the reviewed numeric kernel and consumed fixtures. Its
+nineteen actual primary controls include eleven numeric results, seven JVM-shape
+errors and a later division error; a separate primary checker fixture reports
+Inv/2110, exit12, two generated/distinct states and depth2. The historical
+independent review's thirteen primary controls and native good/forged words keep
+their original revisions. They are not new current-source runs.
+
+This source-only rederivation adds the small helper to current evaluator routing,
+retains accepted Json/M/S code and adapts its CLI control to ADR0097 physical
+statuses. Compact inputs at `crates/dive-eval/tests/fixtures/svg-point/inputs.json`
+are consumed by tests; the small SVG module is a binding fixture, not an oracle
+snapshot. The earlier direct24b499 leaf `bc070808` passed eighteen scoped tests and four
+real CLI profile/store good/forged/refusal groups, followed by an independent
+bounded numerical/public-API review. Those measurements retain that revision.
+This new API/Print-parent transfer still needs current-source qualification,
+fresh transfer review, full gate and complete corpus matrices. No new Examples/VTS agreement, SVG completion
+or coverage percentage is claimed.
+
+## Current-parent bounded SVG PointOnLine acceptance
+
+The bounded signed32 stored-record PointOnLine helper follows the pinned
+CommunityModules override: wrapping coordinate subtraction, binary64
+interpolation and truncating/saturating narrowing. Deferred and unimplemented
+representations retain named refusals and existing error/host/redirect priority.
+Accepted API error routing and Print shared-Core ownership remain intact.
+
+Runtime source `d40c12e626a0c300faeea20adebc1ba9a5f0ec97`, tree `045ccf994a7aadad2ae7f121487a1bab258d88fe`, directly based on actual accepted Print main `952c84bb38e0c044da5188c03712c3758604f219`.
+
+Its actual full gate passed 1,753 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
+
+Current-parent finite scoped execution passed 76 tests with no failures, ignores or filtering and recorded 36 JSON CLI cases; all three external probes and the genuinely fresh independent review keep their actual receipt bindings.
+
+Historical compile/parser failures, invalid compound-initial fixture and review build attempts remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full SVG/C, layout, serialization, animation and general CommunityModules parity remain open; issue #272 remains open.
+See [the module contract](user/modules.md).
