@@ -335,6 +335,20 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
   - `ChooseIntern` and `ChooseInternUnused` (this example);
   - `PrintChoose`, `PrintSets` and `PrintFcns` (122 printed values in all, matched byte for byte).
 
+Pure `Json!ToJson` uses D-006's canonical default object/set order. TLC mode
+refuses objects with two or more keys and compound keys containing multi-field
+records, including nested tuple/set/function children, because normalized dive
+functions do not retain TLC's construction history. Scalars, sequences, finite
+sets and bounded keys without missing history have a native conversion path;
+strings use Gson escaping without HTML escaping. Domain traversal obeys the
+configured evaluation-depth guard before printing and refuses symbolic/deferred
+set expansion. Array/Object entry points and JSON file operations remain refused.
+The consumed Json fixtures preserve historical oracle observations; focused
+native/pinned-oracle controls and independent review cover the supported path.
+Independent replay accepts already-interned JSON strings. Newly created runtime
+names in TLC-profile deciding words retain the existing named refusal (#124),
+so these words earn no agreement. See [the module guide](user/modules.md).
+
 ---
 
 ## D-007: Exhaustiveness claims can be unconditional
@@ -950,7 +964,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
     `dive analyze` does not re-translate (that is `dive-pluscal`'s job), so it could accept
     such a module. No corpus module or mutant has shown this.
 - **Evaluation refusals** (`dive-eval`). The evaluator refuses, naming the feature, rather than guess:
-  - a Java-overridden operator dive does not implement yet: `JavaTime`, the `Json` operators, most of `TLCExt` (`AssertError`, `TLCCache`, `TLCFP`, ...), `Randomization!RandomSubsetSet`, and the CommunityModules operators `FiniteSetsExt!kSubset`, `Combinatorics`, `Statistics!ChiSquare`, `VectorClocks!CausalOrder`, `GraphViz` and `SVG`. TLC never uses these operators' TLA+ definitions, so dive does not either;
+  - a Java-overridden operator dive does not implement yet: `JavaTime`, Json file operations and representation-dependent Array/Object entry points, most of `TLCExt` (`AssertError`, `TLCCache`, `TLCFP`, ...), `Randomization!RandomSubsetSet`, and the CommunityModules operators `FiniteSetsExt!kSubset`, `Combinatorics`, `Statistics!ChiSquare`, `VectorClocks!CausalOrder`, `GraphViz` and `SVG`. TLC never uses these operators' TLA+ definitions, so dive does not either;
   - cases of implemented overrides whose TLC result depends on something dive does not track: `BagsExt!FoldBag` on a bag of two or more elements, `Bags!BagOfAll` with an operator that has side effects, and the error a few `Bags`, `Functions` and `IsInjective`/`AntiFunction` cases raise when values TLC cannot compare meet in an order dive does not know;
   - `TLCGet` keys that read TLC's internal description of the run (`"spec"`, `"action"`, `"revision"`) or its JVM (`"-D..."`), the live counters (`"generated"`, `"distinct"`, `"queue"`, `"diameter"`, `"stats"`, `"duration"`) while states are being checked (they are provided while assumptions are checked), and `TLCSet("pause", TRUE)`;
   - the random operators when the evaluator runs without a model checker providing a random stream (for example `ASSUME`s evaluated on their own);
@@ -969,7 +983,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - temporal properties (liveness checking is not implemented yet) and `SYMMETRY`;
   - simulation mode;
   - action composition (`\cdot`) with conjuncts after it or variables assigned before it, in the default mode (D-022);
-  - anything the binding stage or the evaluator refuses (for example `IOUtils`, `Json` and the CommunityModules operators listed above);
+  - anything the binding stage or the evaluator refuses (for example `IOUtils`, Json file operations and the CommunityModules operators listed above);
   - evaluation errors whose exact TLC error class depends on value-source metadata not yet retained by dive. The 175-model error matrix identifies ten such cases explicitly; dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
 
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.

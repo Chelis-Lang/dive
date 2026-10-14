@@ -495,6 +495,13 @@ impl Core {
                     .collect::<Result<_>>()?;
                 self.call_random(op, &vals)
             }
+            StdOp::JsonToJson => self.to_json(v(0)?, e),
+            StdOp::JsonToJsonArray | StdOp::JsonToJsonObject => {
+                Err(EvalError::unsupported(format!(
+                    "{} (representation-dependent array/object conversion)",
+                    op.qualified_name()
+                )))
+            }
             _ => match self.call_ext(env, st, op, args, e) {
                 Some(r) => r,
                 None => Err(refuse(op)),
