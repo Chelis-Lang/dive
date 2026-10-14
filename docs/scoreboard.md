@@ -174,3 +174,13 @@ surfaces.
 | Public Rust APIs and cargo-test integration | partial |
 | Complete corpus, harness and release certification | partial |
 | Global TLC profile and approved better defaults | partial |
+
+## Checker exit-convention candidate
+
+[ADR 0097](decisions/0097-check-exit-conventions.md) records the lead's new
+explicit choice of TLC physical statuses for ordinary `dive check`, independent
+of evaluator semantics, with native CLI/API access retained. The tables above
+remain exact historical measurements. The conditional small-tier projection
+90 Agree /4 ExpectedDivergence /60 Unsupported is not actual corpus evidence
+or a replacement floor; fresh review, full gate, all four complete reports
+and CI remain required. Expected divergence never earns agreement.

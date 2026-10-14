@@ -41,12 +41,13 @@
 # same violation at the same depth, with the same property and counterexample
 # length, but stops after a different number of states. Only the counts at the
 # stop differ; under --compat=tlc both models agree (CM1 gate).
+# ADR 0097 actual CLI controls return 12 in the ordinary default for both rows;
+# only their count differences remain. Historical 12/10 measurements are retained.
 
 [[divergence]]
 id = "d010-missionaries-and-cannibals"
 pattern = "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg"
 profile = "dive"
-exit_code_pair = { expected = 12, actual = 10 }
 expected_verdict = "safety-violation"
 fields = ["counts.states_generated"]
 justification = "Canonical exploration order (D-010) generates one more state (226 vs TLC's 225) before reaching the same Solution violation at the same depth"
@@ -56,7 +57,6 @@ link = "docs/divergences.md#registry"
 id = "d010-acp-nb-wrong-tlc"
 pattern = "specifications/acp/ACP_NB_WRONG_TLC.cfg"
 profile = "dive"
-exit_code_pair = { expected = 12, actual = 10 }
 expected_verdict = "safety-violation"
 fields = [
   "counts.distinct_states",

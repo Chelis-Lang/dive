@@ -67,3 +67,13 @@ skips later unforced checks for that value. Consider a separately named
 is not implemented, no new default is approved, and the TLC-equivalent setting
 must preserve the recorded IEEE arithmetic. Component evidence and the native
 diagnostic ResourceLimit experiment are qualified in [D-014](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
+
+## Checker CLI exit default (resolved 2026-10-14)
+
+**Resolved by the lead under the owner's delegated judgment toward eventual
+parity:** ordinary `dive check` selects TLC physical statuses without changing
+evaluator semantics. `--exit-codes native` preserves the historical CLI route;
+Rust `CheckReport::exit_code()` retains its historical profile contract. This
+is a new explicit decision, not an implication of ADR 0096 or the expert's
+earlier plan. See [ADR 0097](decisions/0097-check-exit-conventions.md). Actual
+new corpus measurements and all existing floors remain separate obligations.

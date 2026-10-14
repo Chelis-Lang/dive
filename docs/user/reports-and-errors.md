@@ -21,12 +21,14 @@ certificate. Missing counters/worker evidence remain absent instead of invented.
 A valid finite implementation trace says that trace satisfies the checked
 relation; it does not establish every possible behavior of the implementation.
 
-CLI parse/analysis/translation use their own exit conventions. Default safety
-checking uses 0 for no error, 1 for rejected input, 2 for usage/I/O, 3 for
-unsupported/resource limits, 4 for internal failure, 10 for property violation,
-11 for deadlock, 12 for assumption failure and 13 for evaluation error. TLC
-mode uses its corresponding statuses: the included invariant example exits 12.
-Opt-in final/short liveness violations exit 10 by default and 13 with TLC values.
+CLI parse/analysis/translation use their own exit conventions. `dive check`
+uses TLC's deciding physical status in both semantic profiles: the included
+invariant example exits 12 and a cyclic final/short liveness violation exits 13.
+Both conventions keep 0 for success, 2 for usage/I/O, 3 for unsupported/resource
+limits and 4 for internal failure. `--exit-codes native` selects the historical
+statuses: 1 for rejected input, 10 for property violation, 11 for deadlock,
+12 for assumption failure and 13 for evaluation error. `--compat=tlc` also
+selects TLC evaluation; it is independent of the chosen exit convention.
 DFID and simulation require their report qualifications even on exit zero.
 
 Stable diagnostic codes and spans belong to the report; display text is intended
@@ -36,13 +38,15 @@ the status. Generated harness reports in
 user commands. Keep profile and schema version in any automation protocol.
 
 Conformance reports compare the physical numeric exit exactly, even when a
-worker-specific comparison omits counts. Default 10 versus TLC 12 is a real
+worker-specific comparison omits counts. Native 10 versus TLC 12 is a real
 observable difference. The harness can label only an explicitly registered
 exact TLC/native pair as `expected-divergence`, conditioned on its declared
 verdict, permitted other fields and independent trace validation. It never
 counts that result as `agree`; absent, signaled or unrelated exits fail.
 See [D-023](../tlc-differences.md#d-023-default-process-exits-are-distinct-conformance-observables)
-for the historical accounting correction. The CLI/API exit contract is unchanged.
+for the historical accounting correction and current CLI decision. Historical
+Rust `CheckReport::exit_code()` remains profile-based; select a convention with
+`exit_code_for`.
 
 A safety, action-property, liveness or deadlock verdict needs a whole independently
 validated counterexample to earn conformance agreement, including in
