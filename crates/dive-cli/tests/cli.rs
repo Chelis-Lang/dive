@@ -15,7 +15,7 @@ fn symmetry_startup_general_errors_have_real_process_exit_parity() {
         .join("../dive-model/tests/fixtures/symmetry-group/specs");
     for name in ["SyDivZero", "SyMixedElements"] {
         let file = root.join(name).join(format!("{name}.tla"));
-        for (profile, exit) in [("--compat=dive", 1), ("--compat=tlc", 255)] {
+        for (profile, exit) in [("--compat=dive", 255), ("--compat=tlc", 255)] {
             let output = dive(&[
                 "check",
                 &file.to_string_lossy(),
@@ -316,7 +316,7 @@ fn check_reports_a_violation_with_each_profiles_exit_code() {
     let tla = temp_file("CheckMe.tla", CHECK_SPEC);
     let cfg = temp_file("CheckMe.cfg", "INIT Init\nNEXT Next\nINVARIANT Inv\n");
     let (tla, cfg) = (tla.to_string_lossy(), cfg.to_string_lossy());
-    // TLC's exit status under --compat=tlc, dive's own otherwise.
+    // Physical statuses follow TLC even with native evaluator semantics.
     let tlc = dive(&[
         "check",
         &tla,
@@ -343,7 +343,19 @@ fn check_reports_a_violation_with_each_profiles_exit_code() {
         let own = dive(&[
             "check", &tla, "--config", &cfg, "--store", store, "--seed", "7",
         ]);
-        assert_eq!(own.status.code(), Some(10), "{store}");
+        assert_eq!(own.status.code(), Some(12), "{store}");
+        let native = dive(&[
+            "check",
+            &tla,
+            "--config",
+            &cfg,
+            "--store",
+            store,
+            "--seed",
+            "7",
+            "--exit-codes=native",
+        ]);
+        assert_eq!(native.status.code(), Some(10), "native {store}");
         let text = String::from_utf8_lossy(&own.stdout);
         assert!(text.contains("Error: Invariant Inv is violated."), "{text}");
         assert!(text.contains("seed 7"), "{text}");
@@ -388,7 +400,7 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
     // compatibility is implemented.
     let ordinary = dive(&["check", &path, "--compat=tlc", "--output", "json"]);
     assert_eq!(ordinary.status.code(), Some(3));
-    for (profile, code) in [("tlc", 13), ("dive", 10)] {
+    for (profile, code) in [("tlc", 13), ("dive", 13)] {
         let run = |store: &str, workers: &str| {
             dive(&[
                 "check",
@@ -479,7 +491,7 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
         "--store",
         "exact",
     ]);
-    assert_eq!(human.status.code(), Some(10));
+    assert_eq!(human.status.code(), Some(13));
     assert!(
         String::from_utf8_lossy(&human.stdout).contains("Independently validated counterexample")
     );
@@ -525,11 +537,8 @@ fn final_binding_errors_preserve_primary_periodic_classes_and_exits() {
                     args.extend(["--lncheck=final", "--lasso=short"]);
                 }
                 let output = dive(&args);
-                let expected_exit = if profile == "--compat=tlc" {
-                    i32::try_from(control["exit"].as_i64().unwrap_or_default()).unwrap_or_default()
-                } else {
-                    1
-                };
+                let expected_exit =
+                    i32::try_from(control["exit"].as_i64().unwrap_or_default()).unwrap_or_default();
                 assert_eq!(output.status.code(), Some(expected_exit));
                 let report: serde_json::Value =
                     serde_json::from_slice(&output.stdout).unwrap_or_default();
@@ -597,7 +606,7 @@ fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
         )
         .is_ok()
     );
-    for (profile, exit) in [("--compat=dive", 13), ("--compat=tlc", 255)] {
+    for (profile, exit) in [("--compat=dive", 255), ("--compat=tlc", 255)] {
         let output = dive(&[
             "check",
             &spec.to_string_lossy(),
@@ -647,7 +656,7 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         "--output=json",
         "--seed=0",
     ]);
-    assert_eq!(base.status.code(), Some(10));
+    assert_eq!(base.status.code(), Some(12));
     let base: serde_json::Value = serde_json::from_slice(&base.stdout).unwrap_or_default();
     assert_eq!(base["verdict"], "invariant-violation");
     assert_eq!(base["counterexample"]["ending"], "finite");
@@ -684,7 +693,7 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         "--lasso=short",
         "--output=json",
     ]);
-    assert_eq!(supported.status.code(), Some(10));
+    assert_eq!(supported.status.code(), Some(13));
     let supported: serde_json::Value =
         serde_json::from_slice(&supported.stdout).unwrap_or_default();
     assert_eq!(supported["verdict"], "liveness-violation");
@@ -1116,6 +1125,16 @@ fn composition_modes_and_jvm_alias_override_profile_in_either_order()
             &[
                 "-Dtlc2.tool.impl.Tool.cdot=true",
                 "--action-composition=off",
+            ],
+            "off",
+            75,
+            1,
+        ),
+        (
+            &[
+                "-Dtlc2.tool.impl.Tool.cdot=true",
+                "--action-composition=off",
+                "--exit-codes=native",
             ],
             "off",
             13,

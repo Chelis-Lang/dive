@@ -34,11 +34,11 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit and 4 internal error. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -318,6 +318,7 @@ fn check_command(
     let mut short_lasso = false;
     let mut file: Option<&str> = None;
     let mut json = false;
+    let mut exit_convention = dive_api::ExitConvention::Tlc;
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
         let _ = writeln!(err, "error: {m}");
         ExitCode::from(EXIT_USAGE)
@@ -334,6 +335,11 @@ fn check_command(
                 Some("json") => json = true,
                 Some("human") => json = false,
                 _ => return usage_error(err, "--output expects `human` or `json`"),
+            },
+            "--exit-codes" => match value().as_deref() {
+                Some("native") => exit_convention = dive_api::ExitConvention::Native,
+                Some("tlc") => exit_convention = dive_api::ExitConvention::Tlc,
+                _ => return usage_error(err, "--exit-codes expects `native` or `tlc`"),
             },
             "--compat" => match value().as_deref() {
                 Some("tlc") => req.compat_tlc = true,
@@ -619,11 +625,19 @@ fn check_command(
         }
     };
     if json {
-        let _ = writeln!(out, "{}", report.to_json());
+        let _ = writeln!(
+            out,
+            "{}",
+            report.to_json_with_exit_convention(exit_convention)
+        );
     } else {
-        let _ = write!(out, "{}", report.render_human());
+        let _ = write!(
+            out,
+            "{}",
+            report.render_human_with_exit_convention(exit_convention)
+        );
     }
-    ExitCode::from(report.exit_code())
+    ExitCode::from(report.exit_code_for(exit_convention))
 }
 
 /// `dive validate-trace <file> --trace <trace.json> [--config cfg] [--claim ENDING]

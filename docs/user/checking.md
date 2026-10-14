@@ -5,6 +5,43 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
+## Process statuses
+
+`dive check` uses TLC process statuses by default, with native semantic choices
+still active unless `--compat=tlc` selects TLC evaluation. An invariant violation
+exits 12 and a rejected specification 150. Configuration rejection exits 151;
+initial/action properties and supported cyclic liveness use 13. Deciding error
+classes determine other verdict statuses. Success is 0; usage 2, unsupported or
+resource limit 3 and internal error 4 mean their existing distinct outcomes.
+These statuses do not prove an unverified error class or validate a missing trace.
+
+```sh
+dive check docs/user/examples/Counter.tla --seed 7 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --seed 7 --workers 1 --exit-codes native --output json
+```
+
+`--exit-codes native` keeps the historical CLI contract: invariant/property 10,
+rejected input 1, deadlock 11, assumption 12 and evaluation error 13. Both inline
+`--exit-codes=native` and separate arguments are supported; the last explicit
+exit selection wins independently of `--compat` or `DIVE_COMPAT`. Native exits
+with TLC evaluation are labeled `tlc+overrides`.
+
+JSON adds the actual selected `exit_code`, `options.exit_codes` and
+`options.semantic_profile`; `options.profile` includes compatibility overrides.
+Human output displays the selected convention and process status. The existing
+`tlc` object describes the deciding error class, independently of the selected
+exit convention; `verified: false` stays unverified.
+
+Rust callers keep `CheckReport::exit_code()`, `to_json()` and `render_human()`
+behavior. To select explicitly, use `ExitConvention::Tlc` or `Native` with
+`exit_code_for`, `to_json_with_exit_convention` and
+`render_human_with_exit_convention`. Changing presentation does not rerun the
+checker or mutate its evaluator or counterexample.
+
+This applies only to `check`; other commands keep their documented statuses.
+The named finite temporal 2116/exit 12 runtime boundary remains unsupported;
+selecting TLC statuses does not implement that missing stream shape.
+
 The explicit BFS checker loads a configuration, binds constants and roles,
 evaluates assumptions, then explores supported initial and successor states.
 It checks invariants, supported action properties, constraints and deadlocks.
@@ -14,8 +51,8 @@ Use the sibling `.cfg` or select one with `--config FILE.cfg`.
 A pure `SYMMETRY` declaration is prepared before assumptions and initial states.
 Division by zero in that declaration and incompatible values encountered while
 normalizing its set report `model-error`, TLC `GENERAL` (1000), with no search
-statistics or counterexample. The TLC profile exits 255; the default profile
-uses its existing model-error exit 1. The default comparison policy may produce
+statistics or counterexample. Both semantic profiles exit 255 by default; `--exit-codes native`
+uses the historical model-error exit 1. The default comparison policy may produce
 a different explanatory message for a mixed set, while retaining this class.
 For example, this fixture fails before exploring any state:
 
@@ -127,8 +164,9 @@ refusals and
 [follow-up #190](https://github.com/Chelis-Lang/dive/issues/190).
 
 
-For automation, a default invariant violation exits 10; with `--compat=tlc`
-it uses TLC's physical status (normally 12 for a safety invariant). Conformance
+For automation, an invariant violation uses TLC's physical status (normally 12)
+in both semantic profiles. `--exit-codes native` selects the historical status 10.
+`--compat=tlc` also selects TLC evaluation. Conformance
 compares these numeric statuses exactly. Known default differences count as
 ExpectedDivergence only for declared exact pairs and valid independent witnesses,
 never as Agree. See [reports and errors](reports-and-errors.md).

@@ -78,12 +78,12 @@ visitation order, which are not parity obligations (ADR 0082, ADR 0086).
 
 Malformed numeric temporal operands, such as `Bad == <>1`, report
 `evaluation-error` before exploration, with TLC code 2215 (`TLC_EXPECTED_VALUE`).
-The process exits 255 under `--compat=tlc` and 13 in the default profile. Effects
+The process exits 255 in both semantic profiles; `--exit-codes native` selects 13. Effects
 and unsupported scopes still refuse before planning executes them.
 
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
-151 under `--compat=tlc` and 1 in the default profile. A valid `_PERIODIC` hook
+151 in both semantic profiles; `--exit-codes native` selects 1. A valid `_PERIODIC` hook
 still refuses by name until hook execution is implemented.
 
 ## Rust APIs

@@ -1,5 +1,11 @@
 # Changelog
 
+- `dive check` now uses TLC physical process statuses independently of its
+  evaluator profile. `--exit-codes native` retains the historical CLI statuses;
+  existing Rust `CheckReport::exit_code()` callers are unchanged. New typed
+  convention methods and JSON/human reports disclose the selected status and
+  mixed compatibility. This is the new explicit ADR 0097 decision; earlier
+  numeric-exit accounting measurements remain historical.
 - Final temporal predicates and independent trace replay support authoritative
   `Sequences!SelectSeq` with binder-free pure state user/LAMBDA callbacks and
   known forwarded lexical captures. Each real invocation checks actual elements

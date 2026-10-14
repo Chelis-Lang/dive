@@ -885,10 +885,20 @@ See `docs/pluscal-process-procedure-checksums.md` for the exact stage contract.
 
 ## D-023: Truthful default numeric-exit accounting
 
-This records the existing stable native exit contract documented in D-008;
-it changes conformance accounting, not native CLI/API behavior. The default
-profile's property violation is physical exit 10 and rejected input is 1.
-`--compat=tlc` retains the pinned TLC's corresponding status. Numeric equality
+**Current CLI status (ADR 0097):** ordinary `dive check` now uses TLC physical
+statuses while retaining its native evaluator defaults. `--exit-codes native`
+and historical `CheckReport::exit_code()` keep the earlier native contract.
+The following captures describe the measurement correction before this new
+explicit runtime default decision. New agreement requires actual matching
+exits and every existing count/property/class/witness obligation; no corpus
+projection below is new measured credit.
+
+
+The original correction recorded the then-stable native exit contract documented
+in D-008; it changed conformance accounting while preserving CLI/API behavior.
+That historical default used physical exit 10 for property violations and 1
+for rejected input. It now requires `--exit-codes native`; ordinary checking
+uses TLC's deciding status in both semantic profiles. Numeric equality
 is required for Agree in both profiles; documented unequal codes are explicit
 ExpectedDivergence only on the exact registered model paths.
 
@@ -904,7 +914,9 @@ The measured exit-only correction covers these 14 previously false Agree rows:
 | `P5TLCGetSet/P5TLCGetSet.cfg`, `P8ParallelDet/P8ParallelDet.cfg`, `P9Random/P9Random.cfg` | 12 → 10 |
 | `M1Syntax/M1Syntax.cfg`, `M2Undefined/M2Undefined.cfg` | 150 → 1 |
 
-The existing two D-010 safety entries also require 12 → 10, P1Overflow
+The historical two D-010 safety entries also required 12 → 10; their ordinary
+CLI statuses now match12 in direct controls, while their unchanged count
+exceptions remain. P1Overflow
 requires 255 → 0 (D-004), and P2Choose_str requires 12 → 0 (D-006), alongside
 only their previous allowed fields. No wildcard registers future models.
 The optional typed pair in `conformance/expected-divergences.toml` requires the
