@@ -241,3 +241,78 @@ fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
         "{sampled}"
     );
 }
+
+#[test]
+fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
+    for compat_tlc in [false, true] {
+        for name in ["SimChoice", "SimInvariant"] {
+            let mut request = SimulateRequest {
+                file: fixture().with_file_name(format!("{name}.tla")),
+                compat_tlc,
+                seed: Some(7),
+                depth: Some(5),
+                traces: 3,
+                ..Default::default()
+            };
+            let plain = simulate_file(&request).unwrap().to_json();
+            request.action_stats = true;
+            let counted_report = simulate_file(&request).unwrap();
+            assert!(
+                counted_report
+                    .render_human()
+                    .contains("action flow (chosen transitions)")
+            );
+            let counted = counted_report.to_json();
+            assert_eq!(counted, simulate_file(&request).unwrap().to_json());
+            for field in [
+                "result",
+                "observed_result",
+                "tlc_code",
+                "exit_code",
+                "statistics",
+                "traces",
+            ] {
+                assert_eq!(counted[field], plain[field], "{name}, {field}: {counted}");
+            }
+            assert_eq!(counted["model_proved"], false);
+            assert!(plain["action_flow"].is_null());
+            assert_eq!(counted["action_flow"]["mode"], "basic");
+            assert_eq!(counted["action_flow"]["scope"], "chosen-transitions");
+            if name == "SimInvariant" {
+                assert_eq!(counted["result"], "violation", "{counted}");
+                assert_eq!(counted["violation_validated"], true, "{counted}");
+                let mut document =
+                    dive_api::trace::TraceDoc::from_json(&counted["traces"][0]["document"])
+                        .unwrap();
+                document.states[1]["x"] = serde_json::json!(42);
+                let independent = dive_api::trace::SpecModel::load(
+                    &request.file,
+                    &request.file.with_extension("cfg"),
+                    &dive_api::trace::TraceOptions {
+                        compat_tlc,
+                        ..Default::default()
+                    },
+                )
+                .unwrap();
+                assert!(matches!(
+                    independent.validate(&document).validation,
+                    dive_api::trace::Validation::Invalid(_)
+                ));
+                // A failing candidate is retained as evidence but was never chosen.
+                assert_eq!(
+                    counted["action_flow"]["transitions"]
+                        .as_array()
+                        .unwrap()
+                        .as_slice(),
+                    [] as [Value; 0]
+                );
+            }
+            request.workers = Some(4);
+            let refused = simulate_file(&request).unwrap().to_json();
+            assert_eq!(refused["result"], "unsupported");
+            assert_eq!(refused["options"]["workers_requested"], 4);
+            assert_eq!(refused["options"]["workers_used"], 0);
+            assert!(refused["action_flow"].is_null());
+        }
+    }
+}

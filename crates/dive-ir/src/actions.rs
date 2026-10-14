@@ -37,7 +37,7 @@ use crate::expr::{Arg, Expr, JunctionKind, OpRef, QuantKind};
 use crate::ids::{DefId, ExprId};
 use crate::std_op::StdOp;
 use crate::{DefScope, Ir, Level, SlotKind};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// What an action is named after.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -144,11 +144,46 @@ pub fn split(
     frame: DefId,
     redirects: &BTreeMap<DefId, DefId>,
 ) -> Split {
+    split_with_values(ir, root, name, frame, redirects, &BTreeSet::new())
+}
+
+/// [`split`] with the binding stage's actual value lookups for definitions.
+///
+/// `values` contains definitions whose lookup returns a value rather than a
+/// definition, including values installed by successful start-up evaluation.
+/// A reference to one is a single action at its invocation location, named
+/// after the original definition. The splitter never evaluates or forces a
+/// value. Definition redirects remain distinct: looking up `Op <- Other`
+/// returns `Other`'s definition even when looking up `Other` returns a value.
+/// Callers without bound lookup information use [`split`].
+///
+/// ```
+/// # use std::collections::{BTreeMap, BTreeSet};
+/// # use dive_ir::{Ir, DefId};
+/// # use dive_ir::actions::{ActionName, split_with_values};
+/// # fn example(ir: &Ir, next: DefId, redirects: &BTreeMap<DefId, DefId>,
+/// #     actual_value_lookups: &BTreeSet<DefId>) {
+/// let actions = split_with_values(
+///     ir, ir.def(next).body, ActionName::Def(next), next,
+///     redirects, actual_value_lookups,
+/// );
+/// # }
+/// ```
+#[must_use]
+pub fn split_with_values(
+    ir: &Ir,
+    root: ExprId,
+    name: ActionName,
+    frame: DefId,
+    redirects: &BTreeMap<DefId, DefId>,
+    values: &BTreeSet<DefId>,
+) -> Split {
     let mut s = Splitter {
         ir,
         defs: BTreeMap::new(),
         pending: Vec::new(),
         redirects,
+        values,
     };
     let root = s.tree(root, name, frame);
     while let Some(d) = s.pending.pop() {
@@ -172,6 +207,7 @@ struct Splitter<'a> {
     defs: BTreeMap<DefId, ActionTree>,
     pending: Vec<DefId>,
     redirects: &'a BTreeMap<DefId, DefId>,
+    values: &'a BTreeSet<DefId>,
 }
 
 impl Splitter<'_> {
@@ -271,6 +307,12 @@ impl Splitter<'_> {
     /// TLC overrides it in Java (the lookup then gives the override, and the
     /// application is one action named after it).
     fn use_of(&mut self, e: ExprId, d: DefId, constant: bool) -> ActionTree {
+        if self.values.contains(&d) {
+            return ActionTree::Leaf {
+                expr: e,
+                name: ActionName::Def(d),
+            };
+        }
         if let Some(&r) = self.redirects.get(&d) {
             return self.inline(e, r, constant);
         }
@@ -555,5 +597,48 @@ Next == A \\/ \\E i \\in {1, 2} : B(i) \\/ B(x) \\/ (x' = 3 /\\ x = 0)
         );
         assert!(text.contains("constant_args: true"), "{text}");
         assert!(s.defs.contains_key(&ir.root_def("A").unwrap_or(DefId(0))));
+    }
+
+    #[test]
+    fn bound_values_preserve_original_calls_without_flattening_redirects() {
+        let Some(ir) = ir(
+            "---- MODULE M ----\nVARIABLE x\nNever == FALSE\nReplacement == FALSE\nNext == Never\n====\n",
+        ) else {
+            unreachable!("lowering failed");
+        };
+        let next = ir.root_def("Next").unwrap_or(DefId(0));
+        let never = ir.root_def("Never").unwrap_or(DefId(0));
+        let replacement = ir.root_def("Replacement").unwrap_or(DefId(0));
+        let root = ir.def(next).body;
+        let redirects = BTreeMap::from([(never, replacement)]);
+        let unbound = split(&ir, root, ActionName::Def(next), next, &redirects);
+        assert!(matches!(unbound.root, ActionTree::Inline { def, .. } if def == replacement));
+        let value = split_with_values(
+            &ir,
+            root,
+            ActionName::Def(next),
+            next,
+            &redirects,
+            &BTreeSet::from([never]),
+        );
+        assert_eq!(
+            value.root,
+            ActionTree::Leaf {
+                expr: root,
+                name: ActionName::Def(never)
+            }
+        );
+        let redirected = split_with_values(
+            &ir,
+            root,
+            ActionName::Def(next),
+            next,
+            &redirects,
+            &BTreeSet::from([replacement]),
+        );
+        assert_eq!(
+            redirected, unbound,
+            "a redirected definition is not a value lookup of the original call"
+        );
     }
 }

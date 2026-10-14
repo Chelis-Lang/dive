@@ -35,6 +35,28 @@ refused, rather than pretending it has TLC's meaning.
 The final chosen state is included, so an uncompressed trace can contain
 `depth + 1` states. No infinite trace count is silently selected.
 
+## Basic action flows
+
+`--stats basic --output json` (`SimulateRequest::action_stats = true`) records
+chosen action pairs, including initial-predicate to first-action transitions.
+This corresponds to TLC `-simulate num=N,stats=basic`; statistics default to off.
+The sparse `action_flow.transitions` array retains raw counts, including stutters.
+`actions` groups parameter contexts by the predicate's source file and location,
+as TLC's basic action graph does. A group's label represents its first context;
+`bound_action_ids` identifies all combined contexts. No DOT file, graph layout,
+wall-clock update schedule or logarithmic display weight is emulated.
+
+Counting runs after a candidate is chosen. Generated-state totals still count
+all complete candidates checked, before constraints and properties, as before.
+A duplicate candidate affects that total but contributes an action-flow edge only
+if chosen. Excluded candidates, disabled attempts, violated invariants/action
+properties and evaluation failures do not count as chosen transitions. Init
+failures and depth-zero samples have empty flows. Resource limits retain the
+completed chosen prefix. Disabled/preflight-refused statistics are `null`.
+This does not implement source-expression coverage, full context statistics,
+probabilistic generation or a new scheduling algorithm. Independent validation
+and existing one-worker restrictions continue to apply.
+
 ## Evidence and limits
 
 `tests/fixtures/choice-oracle.json` records ten clean pinned TLC runs: five

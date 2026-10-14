@@ -1,19 +1,19 @@
 //! The initial predicates and the next-state relation as the successor
 //! generator's actions (`dive_eval::next`, WP-C2).
 //!
-//! `dive_ir::actions::split` builds the tree TLC's `Tool.getActions` walks,
-//! with the configuration's overrides as redirects;
+//! `dive_ir::actions::split_with_values` builds the tree TLC's `Tool.getActions`
+//! walks, with actual value lookups and configuration overrides as redirects;
 //! `Evaluator::actions_in` expands it with values (split `\E` domains and
 //! inlined arguments evaluated in TLC's empty state) into TLC's action list,
 //! numbered after the initial predicates (`Tool.java:225-241`). A next-state
 //! relation found under an instance's substitutions is one action, as TLC
 //! does not split a `SubstIn` with substitutions.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use dive_eval::ErrorClass;
 use dive_eval::next::Action;
-use dive_ir::actions::{ActionName, split};
+use dive_ir::actions::{ActionName, split_with_values};
 use dive_ir::{DefId, Expr};
 
 use crate::bind::{Binder, R};
@@ -21,6 +21,20 @@ use crate::error::BindError;
 use crate::tables::Look;
 
 impl Binder<'_> {
+    /// Actual non-definition lookups, without evaluating or forcing values.
+    fn split_values(&self) -> R<BTreeSet<DefId>> {
+        let mut out = BTreeSet::new();
+        for i in 0..self.t.ir.defs().len() {
+            let def = DefId(u32::try_from(i).map_err(|_| {
+                BindError::unsupported("too many definitions for action splitting".to_owned())
+            })?);
+            if matches!(self.t.lookup_def(def), Look::Value(_) | Look::Literal(_)) {
+                out.insert(def);
+            }
+        }
+        Ok(out)
+    }
+
     /// The configuration's overrides of definitions, as `split` takes them.
     fn split_redirects(&self) -> BTreeMap<DefId, DefId> {
         let mut out = BTreeMap::new();
@@ -66,13 +80,39 @@ impl Binder<'_> {
                     .map_err(|e| crate::BindError::unsupported(e.to_string()))?,
             ]);
         }
-        let tree = split(
-            &ir,
-            next.expr,
-            name,
-            next.scope.def(),
-            &self.split_redirects(),
-        );
+        let redirects = self.split_redirects();
+        let values = self.split_values()?;
+        let mut tree =
+            split_with_values(&ir, next.expr, name, next.scope.def(), &redirects, &values);
+        // A configured constant can look up a definition even when a direct
+        // reference to that definition looks up its start-up value. Configured
+        // expansion needs the target's body tree, not a flattened value lookup.
+        let targets: BTreeSet<_> = self
+            .t
+            .consts
+            .iter()
+            .filter_map(|look| match look {
+                Some(Look::Def(def) | Look::Java(_, def)) => Some(*def),
+                _ => None,
+            })
+            .collect();
+        for def in targets {
+            if tree.defs.contains_key(&def) {
+                continue;
+            }
+            let target = split_with_values(
+                &ir,
+                ir.def(def).body,
+                ActionName::Def(def),
+                def,
+                &redirects,
+                &values,
+            );
+            tree.defs.insert(def, target.root);
+            for (nested, body) in target.defs {
+                tree.defs.entry(nested).or_insert(body);
+            }
+        }
         self.ev()
             .actions_in(&next.scope, &tree, first)
             .map_err(|e| match e.class() {

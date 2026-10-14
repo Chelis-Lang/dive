@@ -1,0 +1,859 @@
+{
+  "reason": "Regression for actual bound lookup-state action predicate/name inventory and configured-definition target splitting",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "measurement": "Pinned production TLC basic simulation DOT plus separately executed actual-simulator REDUCE predicate-location diagnostic; depth-zero TRUE/error cases establish inventory only",
+  "cases": [
+    {
+      "name": "SharedFalse",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "SharedFalse",
+          "begin": [
+            3,
+            9
+          ],
+          "end": [
+            3,
+            13
+          ]
+        },
+        {
+          "name": "FalseAction",
+          "module": "SharedFalse",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            19
+          ]
+        },
+        {
+          "name": "FalseAction",
+          "module": "SharedFalse",
+          "begin": [
+            6,
+            24
+          ],
+          "end": [
+            6,
+            34
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "SharedFalse",
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SimChoice",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "SimChoice",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            20
+          ]
+        },
+        {
+          "name": "A",
+          "module": "SimChoice",
+          "begin": [
+            5,
+            6
+          ],
+          "end": [
+            5,
+            21
+          ]
+        },
+        {
+          "name": "Disabled",
+          "module": "SimChoice",
+          "begin": [
+            8,
+            14
+          ],
+          "end": [
+            8,
+            21
+          ]
+        },
+        {
+          "name": "B",
+          "module": "SimChoice",
+          "begin": [
+            6,
+            6
+          ],
+          "end": [
+            6,
+            15
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Inactive",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "Inactive",
+          "begin": [
+            3,
+            9
+          ],
+          "end": [
+            3,
+            13
+          ]
+        },
+        {
+          "name": "Disabled",
+          "module": "Inactive",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            16
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "Inactive",
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ActiveAlias",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ActiveAlias",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Base",
+          "module": "ActiveAlias",
+          "begin": [
+            5,
+            12
+          ],
+          "end": [
+            5,
+            17
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Params",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "Params",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "A",
+          "module": "Params",
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "MultiInit",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "MultiInit",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        },
+        {
+          "name": "Next",
+          "module": "MultiInit",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DirectFalse",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "DirectFalse",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "FALSE",
+          "module": "DirectFalse",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            13
+          ]
+        },
+        {
+          "name": "FALSE",
+          "module": "DirectFalse",
+          "begin": [
+            6,
+            18
+          ],
+          "end": [
+            6,
+            22
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "DirectFalse",
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DirectTrue",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "DirectTrue",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "TRUE",
+          "module": "DirectTrue",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            12
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "DirectTrue",
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SharedTrue",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "SharedTrue",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Always",
+          "module": "SharedTrue",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            14
+          ]
+        },
+        {
+          "name": "Always",
+          "module": "SharedTrue",
+          "begin": [
+            7,
+            19
+          ],
+          "end": [
+            7,
+            24
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "SharedTrue",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConstantComparison",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ConstantComparison",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Never",
+          "module": "ConstantComparison",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "Never",
+          "module": "ConstantComparison",
+          "begin": [
+            7,
+            18
+          ],
+          "end": [
+            7,
+            22
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "ConstantComparison",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConstantDisjunction",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ConstantDisjunction",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Never",
+          "module": "ConstantDisjunction",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "ConstantDisjunction",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NestedConstantAlias",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "NestedConstantAlias",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Alias",
+          "module": "NestedConstantAlias",
+          "begin": [
+            8,
+            9
+          ],
+          "end": [
+            8,
+            13
+          ]
+        },
+        {
+          "name": "Alias",
+          "module": "NestedConstantAlias",
+          "begin": [
+            8,
+            18
+          ],
+          "end": [
+            8,
+            22
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "NestedConstantAlias",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RedirectToConstant",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "RedirectToConstant",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "FALSE",
+          "module": "RedirectToConstant",
+          "begin": [
+            6,
+            16
+          ],
+          "end": [
+            6,
+            20
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "RedirectToConstant",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ValueOverride",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ValueOverride",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "FalseAction",
+          "module": "ValueOverride",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            19
+          ]
+        },
+        {
+          "name": "FalseAction",
+          "module": "ValueOverride",
+          "begin": [
+            7,
+            24
+          ],
+          "end": [
+            7,
+            34
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "ValueOverride",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConstantDeclarationRedirect",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ConstantDeclarationRedirect",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "FALSE",
+          "module": "ConstantDeclarationRedirect",
+          "begin": [
+            6,
+            16
+          ],
+          "end": [
+            6,
+            20
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "ConstantDeclarationRedirect",
+          "begin": [
+            7,
+            9
+          ],
+          "end": [
+            7,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ConstantDeclarationValue",
+      "primary_split_failed": true,
+      "groups": []
+    },
+    {
+      "name": "ParameterizedFalse",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ParameterizedFalse",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "FALSE",
+          "module": "ParameterizedFalse",
+          "begin": [
+            5,
+            13
+          ],
+          "end": [
+            5,
+            17
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "ParameterizedFalse",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ParameterizedComparison",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "ParameterizedComparison",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Never",
+          "module": "ParameterizedComparison",
+          "begin": [
+            5,
+            13
+          ],
+          "end": [
+            5,
+            17
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "ParameterizedComparison",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmptyExists",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "EmptyExists",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "Next",
+          "module": "EmptyExists",
+          "begin": [
+            6,
+            10
+          ],
+          "end": [
+            6,
+            27
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "EmptyExists",
+          "begin": [
+            5,
+            9
+          ],
+          "end": [
+            5,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "name": "FailedConstantEvaluation",
+      "primary_split_failed": false,
+      "groups": [
+        {
+          "name": "Init",
+          "module": "FailedConstantEvaluation",
+          "begin": [
+            4,
+            9
+          ],
+          "end": [
+            4,
+            13
+          ]
+        },
+        {
+          "name": "\\div",
+          "module": "FailedConstantEvaluation",
+          "begin": [
+            5,
+            8
+          ],
+          "end": [
+            5,
+            15
+          ]
+        },
+        {
+          "name": "Step",
+          "module": "FailedConstantEvaluation",
+          "begin": [
+            6,
+            9
+          ],
+          "end": [
+            6,
+            14
+          ]
+        }
+      ]
+    }
+  ]
+}
