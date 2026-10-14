@@ -429,14 +429,22 @@ See `docs/native-checkpoint.md` and the source/raw control study at
 
 | | |
 |---|---|
-| **Kind** | Structured answers preserved; default physical exits differ (D-023) |
+| **Kind** | Structured answers preserved; checker exit conventions are separately selectable (D-023) |
 | **Default** | Human-readable output; `--output json` gives a versioned schema |
 | **TLC behaviour** | TLC-style output conventions under `--compat=tlc` |
 | **Status** | `dive parse`, `dive analyze` and `dive check` implemented; the rest planned |
 
 **What TLC does.** Results come as human-oriented text, or as the `-tool` message stream meant for the Toolbox. Counterexamples are available as JSON only through `-dumpTrace json`. SANY's error messages give a location, but no stable error codes and no suggested fix. SANY's command line exits 0 on semantic errors unless you pass `-error-codes`.
 
-**`dive check` exit codes.** Under `--compat=tlc` a verdict exits with TLC's status (0, 10 to 14, 75 to 77, 150, 151, 255). dive's default profile uses its own, documented in `dive --help`: 0 no error, 1 rejected input, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation error. In both profiles 2 is a usage error, 3 a refusal or resource limit (no verdict) and 4 an internal error.
+**`dive check` exit codes.** TLC physical statuses are now the CLI default in
+both evaluator profiles (ADR 0097). `--exit-codes native` retains0 success,
+1 rejected input,10 property violation,11 deadlock,12 assumption and13 evaluation
+error. Both conventions retain2 usage,3 unsupported/resource and4 internal error.
+`--compat=tlc` also selects TLC evaluation; an explicit native exit override is
+reported as `tlc+overrides`. Historical Rust `CheckReport::exit_code()` remains
+profile-based. JSON discloses the semantic profile, selected convention and
+physical status. See [the checker guide](user/checking.md#process-statuses).
+
 
 **Finite temporal-prefix exit codes.** With `S = {}`, this property is false
 already in the initial state:
@@ -2657,16 +2665,25 @@ The default profile's generated counts leave out TLC's 450,000 and 5,808 interme
 
 ## D-023: Default process exits are distinct conformance observables
 
-The stable `dive check` default statuses described in D-008 remain unchanged:
-property violations exit 10 and rejected inputs exit 1. TLC compatibility uses
-the pinned oracle's status instead. For example:
+**Current CLI decision (ADR 0097):** ordinary checking now selects TLC physical
+statuses independently of native semantics; `--exit-codes native` and the
+historical Rust API preserve the old contract. This changes actual runtime
+status, not conformance comparison. The measurements below are historical;
+new complete matrix results and the original floors remain separate.
+
+
+The earlier accounting correction preserved the then-default statuses described
+in D-008: property violations exited 10 and rejected inputs exited 1. Those
+statuses now require `--exit-codes native`; ordinary checking selects the pinned
+TLC status independently of evaluation. For example:
 
 ```sh
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --workers 1 --seed 7 --output json
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --compat=tlc --workers 1 --seed 7 --fp 0 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --exit-codes native --workers 1 --seed 7 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --workers 1 --seed 7 --fp 0 --output json
 ```
 
-The same invariant violation exits 10 by default and 12 in compatibility mode.
+The same invariant violation exits 10 with the native convention and 12 with
+the default TLC convention. Both commands retain native evaluator semantics.
 The corpus harness now compares actual numeric process exits exactly in both
 its ordinary and worker-specific paths. A registered default difference can
 be ExpectedDivergence, with the exact TLC/native numeric pair and every other

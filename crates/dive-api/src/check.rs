@@ -19,10 +19,10 @@ pub const CHECK_SCHEMA_VERSION: u32 = 1;
 /// retain schema 1; version 2 adds periodic endings, claims and mode metadata.
 pub const TEMPORAL_CHECK_SCHEMA_VERSION: u32 = 2;
 
-/// Exit codes of `dive check` in dive's default profile. Under
-/// `--compat=tlc` a verdict exits with TLC's status instead
-/// (`EC.ExitStatus`: 0, 10–14, 75–77, 150, 151, 255), and the codes below
-/// marked "both" keep their meaning.
+/// Historical native exit codes, selected by `dive check --exit-codes native`
+/// and the dive profile's [`CheckReport::exit_code`]. The CLI default uses TLC's
+/// deciding status independently of evaluator profile (`EC.ExitStatus`: 0,
+/// 10–14, 75–77, 150, 151, 255). Codes below marked "both" keep their meaning.
 pub mod exit {
     /// No error found.
     pub const SUCCESS: u8 = 0;
@@ -45,6 +45,38 @@ pub mod exit {
     /// Evaluation failed: an error, a failed `Assert`, an overflow, an
     /// incompletely specified state.
     pub const EVALUATION: u8 = 13;
+}
+
+/// Process status conventions, independently of evaluator semantics.
+///
+/// `dive check` selects [`Self::Tlc`] by default. Existing
+/// [`CheckReport::exit_code`] callers retain their profile's historical status;
+/// select explicitly with [`CheckReport::exit_code_for`].
+///
+/// ```
+/// use dive_api::{CheckReport, ExitConvention};
+/// fn process_status(report: &CheckReport) -> u8 {
+///     report.exit_code_for(ExitConvention::Tlc)
+/// }
+/// # let _ = process_status;
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ExitConvention {
+    /// Historical native statuses, including violation 10 and rejection 1.
+    Native,
+    /// The existing deciding TLC error-class status, without changing evaluation.
+    Tlc,
+}
+
+impl ExitConvention {
+    /// The CLI spelling reported in `options.exit_codes`.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Native => "native",
+            Self::Tlc => "tlc",
+        }
+    }
 }
 
 /// The store `dive check` uses.
@@ -436,10 +468,27 @@ impl CheckReport {
         }
     }
 
-    /// The process exit code (see [`exit`]).
+    /// The historical API profile's exit code (see [`exit`]).
+    ///
+    /// This remains native for the dive profile and TLC for the TLC profile.
+    /// The CLI's independent default is selected with [`Self::exit_code_for`].
     #[must_use]
     pub fn exit_code(&self) -> u8 {
-        let tlc = self.profile == Profile::Tlc;
+        self.exit_code_for(if self.profile == Profile::Tlc {
+            ExitConvention::Tlc
+        } else {
+            ExitConvention::Native
+        })
+    }
+
+    /// Selects a process status without changing the evaluator's profile.
+    ///
+    /// TLC statuses come from the deciding class, not its reported message.
+    /// Refusal/resource 3 and internal error 4 are preserved in both conventions.
+    /// This does not establish parity of an unverified class or model result.
+    #[must_use]
+    pub fn exit_code_for(&self, convention: ExitConvention) -> u8 {
+        let tlc = convention == ExitConvention::Tlc;
         match &self.phase {
             Phase::SpecRejected(_) => {
                 if tlc {
@@ -536,6 +585,48 @@ impl CheckReport {
             Profile::Tlc => "tlc",
             Profile::Dive => "dive",
         }
+    }
+
+    fn profile_for_exit_convention(&self, convention: ExitConvention) -> &'static str {
+        if self.profile == Profile::Tlc && convention == ExitConvention::Native {
+            "tlc+overrides"
+        } else {
+            self.profile_name()
+        }
+    }
+
+    /// Reports an explicitly selected physical status and its convention.
+    ///
+    /// The underlying evaluator settings and deciding class are unchanged.
+    /// Native statuses with TLC evaluation are labeled `tlc+overrides`.
+    /// [`Self::to_json`] retains its historical API document.
+    #[must_use]
+    pub fn to_json_with_exit_convention(&self, convention: ExitConvention) -> Value {
+        let mut document = self.to_json();
+        document["exit_code"] = json!(self.exit_code_for(convention));
+        document["options"]["exit_codes"] = json!(convention.as_str());
+        document["options"]["semantic_profile"] = json!(if self.profile == Profile::Tlc {
+            "tlc"
+        } else {
+            "dive"
+        });
+        document["options"]["profile"] = json!(self.profile_for_exit_convention(convention));
+        document
+    }
+
+    /// Human output with the resolved physical status and compatibility label.
+    /// [`Self::render_human`] retains its historical API output.
+    #[must_use]
+    pub fn render_human_with_exit_convention(&self, convention: ExitConvention) -> String {
+        use std::fmt::Write as _;
+        let mut output = self.render_human_profile(self.profile_for_exit_convention(convention));
+        let _ = writeln!(
+            output,
+            "Exit codes: {} (process status {})",
+            convention.as_str(),
+            self.exit_code_for(convention)
+        );
+        output
     }
 
     /// The `options` block: profile, options and seed (ADR 0010).
@@ -959,6 +1050,11 @@ impl CheckReport {
     /// by the run's options and the `Print` output.
     #[must_use]
     pub fn render_human(&self) -> String {
+        self.render_human_profile(self.profile_name())
+    }
+
+    #[allow(clippy::too_many_lines, reason = "one complete human check report")]
+    fn render_human_profile(&self, profile: &str) -> String {
         use std::fmt::Write as _;
         let mut out = String::new();
         let o = &self.opts;
@@ -971,7 +1067,7 @@ impl CheckReport {
             out,
             "dive check {}: profile {}, store {}{fp}, seed {}, {} worker(s) requested, {} used",
             self.file,
-            self.profile_name(),
+            profile,
             o.store.name(),
             o.seed,
             self.workers_requested,
