@@ -1176,3 +1176,33 @@ against the accepted baseline. Earlier oracle and source measurements retain
 their recorded revisions. Configured constant-effect refusals remain explicit;
 broader simulation, generation, schedulers, DFID and coverage remain pending.
 See [the simulation contract](user/simulation.md).
+
+## Empty-property final checking and model-error origin
+
+When the configured `PROPERTY` list is literally empty,
+`dive_api::temporal::check_final` delegates to ordinary safety checking and
+returns `Outcome::Safety`. It does not bind twice, build a temporal capture,
+consume temporal limits or issue a temporal holding claim. Binding and
+symmetry-preparation model errors retain their actual `binding` origin;
+engine model errors retain `capture`. `CheckResult::binding_model_error`
+records that origin without inferring it from an error class or statistics.
+Configured state/action properties keep the existing final-mode route.
+
+The reviewed runtime source is `72ae013e8897b56eb76574ad3fb7a7293a7b53c3`, tree
+`a5dbf925b8165bf7b6f345d55bf34359dc9a2c8a`, directly based on accepted main
+`24b4994d78403b36bb716c6aca408370c8e7393f`. Its actual full gate passed
+1,726 workspace tests without skips, 84
+doctests and 456 SANY comparisons; CM1 and validation-smoke passed at 1/4/8.
+The completed original 154-model matrix retains the original 600-second bounds,
+pins, goldens and per-ID no-loss obligations at TLC/default workers 1/4.
+No corpus agreement is added by this bounded routing repair.
+
+Scoped independent review covers 93 tests, eight production 2PC controls and
+107 adversarial cases across 203 CLI calls. These and the full-gate/matrix
+measurements retain their actual runtime source identity; the two later
+Markdown acceptance notes do not retag them. The earlier `565bffe8` failed gate
+is preserved and receives no corrected-source completion credit. Publication
+source/main CI checks are separate obligations. Ordinary liveness, broader API
+coverage, the runtime-name trace refusal (#124) and the complete roadmap remain
+open. See [the temporal API contract](temporal-api.md) and
+[the temporal checking guide](user/temporal.md).

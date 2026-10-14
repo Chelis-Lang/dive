@@ -931,7 +931,12 @@ impl CheckReport {
                     "search_event_before_storage_failure": r.frontier.deciding_event_before_failure,
                 });
                 if self.temporal != TemporalMode::Ordinary {
-                    doc["execution"] = json!({"stage": "capture", "capture_completed": false});
+                    let stage = if r.binding_model_error {
+                        "binding"
+                    } else {
+                        "capture"
+                    };
+                    doc["execution"] = json!({"stage": stage, "capture_completed": false});
                 }
                 if self.opts.predecessor_memory_bytes.is_some() {
                     let p = &r.predecessor;

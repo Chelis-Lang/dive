@@ -26,7 +26,8 @@ pub enum Outcome {
     /// A concrete periodic word falsifies the named properties and passes
     /// the independent validator. TLC's exact lasso selection is not claimed.
     Violation(Box<ValidatedCounterexample>),
-    /// The safety engine stopped before temporal checking could complete.
+    /// The ordinary safety result when no properties are configured, or a
+    /// safety stop before temporal checking could complete.
     /// This preserves its verdict, statistics, output and counterexample;
     /// unsupported features and resource limits are never success.
     Safety(Box<CheckResult>),
@@ -403,6 +404,9 @@ fn run(
 /// Explicitly unsupported temporal scopes/features, entry-count resource bounds,
 /// binding/evaluation failures, failed independent validation or internal errors.
 /// Safety stops are retained as [`Outcome::Safety`], never a temporal verdict.
+/// With no configured `PROPERTY` entries, the ordinary safety checker runs
+/// directly and its complete result is returned as [`Outcome::Safety`]. Temporal
+/// analysis limits do not apply to that route; safety settings remain unchanged.
 pub fn check_final(
     ir: &Arc<Ir>,
     config: &ModelConfig,
@@ -425,6 +429,15 @@ pub fn check_final_with_evidence(
     limits: Limits,
 ) -> Result<Report, Failure> {
     let started = Instant::now();
+    if config.properties.is_empty() {
+        // No temporal claim was requested. Enter the ordinary checker before
+        // temporal binding so startup effects run once under its real host.
+        return Ok(Report {
+            outcome: Outcome::Safety(Box::new(dive_check::check(ir, config, options))),
+            options: options.clone(),
+            elapsed: started.elapsed(),
+        });
+    }
     let outcome = std::thread::scope(|s| {
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
