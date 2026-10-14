@@ -58,6 +58,9 @@ impl Core {
         }
         match op.kind() {
             StdKind::Value => {
+                if op == StdOp::SvgPointOnLine {
+                    return self.eval_svg_point(env, st, args, e);
+                }
                 let mut vals = Vec::with_capacity(args.len());
                 for a in args {
                     vals.push(match a {

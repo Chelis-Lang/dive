@@ -1,5 +1,10 @@
 # Changelog
 
+- Add bounded `SVG!PointOnLine` with the installed override's signed32 wrapping,
+  binary64 interpolation and truncating/saturating result in both profiles.
+  Unimplemented argument representations remain named refusals; SVG layout,
+  serialization and animation completion remain unsupported.
+
 - Low-level simulation refuses overlapping/reentrant calls on a shared evaluator
   core before evaluation, preserving each run's output limits and caller host.
   Separate bound cores remain independent; cleanup restores the host before
