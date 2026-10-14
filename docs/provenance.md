@@ -728,15 +728,25 @@ on 2026-10-12 (ADR 0016, amendment 3). No code from it remains.
 
 ### Structural storage format 2 (#195)
 
-The pinned `tlc2/value/impl/TupleValue` and `FcnRcdValue` application/write
-contracts at `94d0c50` (MIT) retain distinct concrete classes despite mathematical
-function equality. The native `codec::encode_step`/decoder use separate tuple
-and tuple-function tags; this is dive's own versioned format, not Java byte
-interoperability. Canonical encoding and FP64 remain unchanged. CP02/FQ02/FI02
-admission and preserved predecessor-only format are documented in ADR 0060.
-Paired minimal raw reference/memory/spill/recovery evidence is in
-`conformance/probes/storage-tuple-function/`; equal error exits alone receive no
-representation-conformance credit.
+The pinned `tlc2/value/impl/TupleValue` and `FcnRcdValue` application, comparison
+and write contracts at `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT) retain
+distinct concrete classes despite mathematical function equality. The native
+`codec::encode_step`/decoder use separate tuple and tuple-function tags; this is
+dive's versioned format. Canonical encoding and FP64 are unchanged. Structural
+CP02/FQ02/FI02 and predecessor formats are documented in ADR 0083.
+
+The consumed inputs in
+`crates/dive-api/tests/fixtures/storage-tuple-function/specs/` cover application,
+an independently checked invariant witness, and comparison of literal tuples
+and integer-domain functions against a string-domain record. Pinned TLC reports
+GENERAL 1000 followed by NESTED_EXPRESSION 2103, exit 75, generated/distinct 1/1
+and depth 1 for both comparison inputs. Default D-009 structural comparison
+finishes with generated/distinct 3/2 and depth 2. The storage matrix compares the
+complete model report across memory, each frontier/predecessor spill combination,
+and level-zero pause/recovery with retained counters, in both profiles and both
+stores at workers 1/4/8. The measured comparison error site stays unverified;
+preserving its diagnostic is not independent error-witness validation. Raw runs
+are regenerated from the pins and kept outside the source tree.
 | Actual request-prefix publication (#204, ADR0062) | Pin94d0c50 local `tlc2.tool.Worker.run/doNext`, `ModelChecker.doNextCheckLiveness/doPeriodicWork`, inherited real `StateQueue.suspendAll`; complete24 controlled observations in `conformance/probes/committed-prefix` | MIT | Shared ordered-prefix transaction is a separate bounded design. Original Next-return, graph-write, error and cleanup boundaries retained; no ordinary clock/queue/count/model-proof parity asserted. |
 
 The #204 primary root-pointer observer queries `getPtr(fp, -1)`: authoritative
