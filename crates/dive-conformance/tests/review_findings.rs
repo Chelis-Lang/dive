@@ -638,7 +638,7 @@ fn assumption_false() -> OracleResult {
         verdict: Verdict::AssumptionFailure,
         verdict_code: Some(2104),
         error_class: Some("TLC_ASSUMPTION_FALSE".to_owned()),
-        exit_code: Some(12),
+        exit_code: Some(10),
         exit_status: Some("VIOLATION_ASSUMPTION".to_owned()),
         violated_property: None,
         trace: None,
@@ -653,6 +653,7 @@ fn assumption_false() -> OracleResult {
 /// count is 1, so it never fails.
 struct WorkerFake {
     profile: Option<Profile>,
+    worker_exit: Option<i32>,
 }
 
 impl Implementation for WorkerFake {
@@ -675,6 +676,7 @@ impl Implementation for WorkerFake {
                         distinct_states: Some(99),
                         ..Counts::default()
                     },
+                    exit_code: self.worker_exit,
                     ..assumption_false()
                 }
             } else {
@@ -703,7 +705,7 @@ fn introspecting_world() -> Result<World, Box<dyn std::error::Error>> {
 
 /// Issue #55 (ADR 0004, amendment of 2026-10-09): under `--compat=tlc` a
 /// worker-introspecting model at N > 1 workers is compared with TLC at N
-/// workers, on verdict and error class only.
+/// workers, on verdict, error class and exact physical numeric exit.
 #[test]
 fn compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count() -> TestResult {
     let w = introspecting_world()?;
@@ -723,6 +725,7 @@ fn compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count() -> Test
     let report = w.run(
         &WorkerFake {
             profile: Some(Profile::Tlc),
+            worker_exit: Some(10),
         },
         vec![1, 3, 4, 8],
     )?;
@@ -735,13 +738,93 @@ fn compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count() -> Test
             assert!(
                 r.detail
                     .as_deref()
-                    .is_some_and(|d| d.contains("verdict and error class")),
+                    .is_some_and(|d| d.contains("verdict, error class and numeric exit")),
                 "{r:?}"
             );
         }
     }
     // The single-worker golden is untouched and still applies at 1.
     assert_eq!(m.runs[0].verdict, Some(Verdict::Success));
+    Ok(())
+}
+
+/// Numeric process exits are exact even where counts are intentionally
+/// omitted for a worker-introspecting model. The deciding assumption fixture
+/// is read from the pinned primary's actual worker-specific goldens.
+#[test]
+fn worker_specific_numeric_exits_are_exact_while_counts_are_ignored() -> TestResult {
+    let w = introspecting_world()?;
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let root = repo.join("conformance/golden");
+    for workers in [3, 4, 8] {
+        let path = worker_golden_path(
+            &root,
+            ORACLE,
+            "examples",
+            "specifications/DieHard/MCDieHardest.cfg",
+            workers,
+        );
+        let pinned: ModelGolden = serde_json::from_str(&std::fs::read_to_string(path)?)?;
+        assert_eq!(pinned.workers, workers);
+        assert_eq!(pinned.result.verdict, Verdict::AssumptionFailure);
+        assert_eq!(pinned.result.verdict_code, Some(2104));
+        assert_eq!(
+            pinned.result.error_class.as_deref(),
+            Some("TLC_ASSUMPTION_FALSE")
+        );
+        assert_eq!(pinned.result.exit_code, Some(10));
+        assert_eq!(dive_conformance::tlc::codes::exit_statuses_for(2104), &[10]);
+        assert_ne!(pinned.result.counts.distinct_states, Some(99));
+        w.write_golden_at(
+            pinned.result,
+            workers,
+            Some("pinned assumption exit fixture"),
+        )?;
+    }
+    for exit in [
+        Some(10),
+        Some(11),
+        None,
+        Some(0),
+        Some(12),
+        Some(77),
+        Some(255),
+    ] {
+        let report = w.run(
+            &WorkerFake {
+                profile: Some(Profile::Tlc),
+                worker_exit: exit,
+            },
+            vec![3, 4, 8],
+        )?;
+        let expected = if exit == Some(10) {
+            Outcome::Agree
+        } else {
+            Outcome::Disagree
+        };
+        let model = &report.models[0];
+        assert!(model.worker_introspecting);
+        assert_eq!(model.outcome, expected);
+        assert_eq!(model.runs.len(), 3);
+        for row in &model.runs {
+            assert_eq!(row.outcome, expected, "{row:?}");
+            assert_eq!(row.exit_code, exit);
+            assert_eq!(row.verdict, Some(Verdict::AssumptionFailure));
+            assert_eq!(row.verdict_code, Some(2104));
+            assert_eq!(row.distinct_states, Some(99));
+            if exit == Some(10) {
+                assert_eq!(
+                    row.diffs,
+                    Vec::<dive_conformance::compare::FieldDiff>::new()
+                );
+            } else {
+                assert_eq!(row.diffs.len(), 1, "{row:?}");
+                assert_eq!(row.diffs[0].field, "exit_code");
+                assert_eq!(row.diffs[0].expected, serde_json::json!(10));
+                assert_eq!(row.diffs[0].actual, serde_json::json!(exit));
+            }
+        }
+    }
     Ok(())
 }
 
@@ -753,6 +836,7 @@ fn compat_without_a_worker_golden_compares_with_the_single_worker_one() -> TestR
     let report = w.run(
         &WorkerFake {
             profile: Some(Profile::Tlc),
+            worker_exit: Some(10),
         },
         vec![1, 4],
     )?;
@@ -767,12 +851,19 @@ fn compat_without_a_worker_golden_compares_with_the_single_worker_one() -> TestR
 fn default_profile_ignores_worker_goldens() -> TestResult {
     let w = introspecting_world()?;
     w.write_golden_at(assumption_false(), 4, Some("test"))?;
-    let report = w.run(&WorkerFake { profile: None }, vec![1, 4])?;
+    let report = w.run(
+        &WorkerFake {
+            profile: None,
+            worker_exit: Some(10),
+        },
+        vec![1, 4],
+    )?;
     assert_eq!(report.models[0].outcome, Outcome::Agree);
     // A run that failed the assumption at 4 workers would disagree there.
     let report = w.run(
         &WorkerFake {
             profile: Some(Profile::Dive),
+            worker_exit: Some(10),
         },
         vec![4],
     )?;
@@ -788,6 +879,7 @@ fn worker_golden_needs_a_reason() -> TestResult {
     let report = w.run(
         &WorkerFake {
             profile: Some(Profile::Tlc),
+            worker_exit: Some(10),
         },
         vec![4],
     )?;
@@ -812,6 +904,7 @@ fn compat_worker_golden_still_compares_the_verdict() -> TestResult {
     let report = w.run(
         &WorkerFake {
             profile: Some(Profile::Tlc),
+            worker_exit: Some(10),
         },
         vec![4],
     )?;

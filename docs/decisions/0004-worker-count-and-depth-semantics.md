@@ -61,3 +61,19 @@ Lead decision (from WP-D3, PR #54). Examples `MCDieHardest` asserts `TLCGet("con
 2. **Comparison.** A run of a flagged model under the `tlc` profile (or `tlc+overrides`) at N > 1 workers is compared with the worker-specific golden at N, if there is one, on the verdict and the error class only: TLC's multi-worker counts, depth and counterexample are approximate (decisions 1 and 2). The run is left out of the worker-invariance judgement, since the variance there is TLC's own. A counterexample in such a run is still validated (ADR 0016). The golden must match the pinned corpus, oracle and model entry and record a reason; otherwise the run is an `oracle-error`. Without a worker-specific golden, the single-worker golden applies on every field, as before, and the report says so.
 3. **The default profile is unchanged.** It reports the logical worker count, 1, at every `--workers` setting (D-011), so the single-worker golden applies at every worker count, worker-specific goldens or not.
 4. **Goldens generated.** `MCDieHardest` at 3, 4 and 8 workers: `assumption-failure`, `TLC_ASSUMPTION_FALSE` at each. With them, `run --impl dive --filter 'specifications/DieHard/MCDieHardest.cfg' --workers 1,3,4,8` agrees in both profiles: before, the `tlc` profile disagreed at 3, 4 and 8 workers.
+
+## Numeric-exit qualification (2026-10-13)
+
+The historical worker-introspecting amendment's "verdict and error class only"
+phrasing omitted a required observable. [ADR 0096](0096-truthful-default-numeric-exit-conformance.md)
+corrects both ordinary and worker-specific comparison to include the exact
+physical numeric exit, including an absent code. Worker-specific counts, depth
+and witness shape remain outside this comparison; independent counterexample
+validation remains required. Numeric exits are never waived by worker/count
+leniency. For the pinned `MCDieHardest` assumption at 3/4/8 workers, deciding
+EC2104 has actual exit 10, not safety exit 12. No golden or classifier changes.
+
+The earlier observations and original floors remain historical text, qualified
+by ADR 0096's accounting correction. Fresh complete measurements and review
+remain required; this qualification approves no replacement floor or fresh
+parity certificate.

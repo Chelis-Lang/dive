@@ -4,6 +4,7 @@
 //! against them on:
 //! - the verdict class and the error class (the `EC` name of the deciding
 //!   message);
+//! - the numeric process exit code, including an absent observed code;
 //! - the violated property, when the golden names one;
 //! - distinct, generated and queued state counts, and depth;
 //! - the counterexample's length and how it ends (finite, lasso,
@@ -180,6 +181,8 @@ pub fn diff_results_with(
         &golden.error_class,
         &observed.error_class,
     );
+    // Worker/count policies never waive the physical process exit.
+    push(&mut d, "exit_code", &golden.exit_code, &observed.exit_code);
     let omitted = observed.violated_property.is_none() && policy.may_omit_property;
     if golden.violated_property.is_some() && !omitted && !lenient {
         push(
@@ -236,7 +239,7 @@ pub fn diff_results_with(
     d
 }
 
-/// Differences on the verdict and the error class only: how a run of a
+/// Differences on verdict, error class and numeric exit code: how a run of a
 /// worker-introspecting model at more than one worker is compared with
 /// TLC's result at the same worker count, whose counts, depth and
 /// counterexample are only approximate (ADR 0004, amendment of 2026-10-09).
@@ -250,6 +253,8 @@ pub fn diff_verdict_and_class(golden: &OracleResult, observed: &OracleResult) ->
         &golden.error_class,
         &observed.error_class,
     );
+    // Worker/count policies never waive the physical process exit.
+    push(&mut d, "exit_code", &golden.exit_code, &observed.exit_code);
     d
 }
 
@@ -487,6 +492,70 @@ mod tests {
     fn identical_results_agree() {
         let a = result(Verdict::Success, 4, 5, 4, None);
         assert_eq!(diff_results(&a, &a.clone(), ONE), Vec::<FieldDiff>::new());
+    }
+
+    #[test]
+    fn numeric_exit_is_exact_for_every_count_and_worker_policy() {
+        for (verdict, exit) in [
+            (Verdict::Success, 0),
+            (Verdict::SafetyViolation, 12),
+            (Verdict::LivenessViolation, 13),
+        ] {
+            let mut golden = result(verdict, 1, 2, 1, Some(1));
+            golden.exit_code = Some(exit);
+            for code in [
+                None,
+                Some(-1),
+                Some(0),
+                Some(10),
+                Some(12),
+                Some(13),
+                Some(77),
+                Some(256),
+            ] {
+                let mut observed = golden.clone();
+                observed.exit_code = code;
+                for workers in [1, 4] {
+                    for counts_comparable in [true, false] {
+                        for oracle_leniency in [false, true] {
+                            let diffs = diff_results_with(
+                                &golden,
+                                &observed,
+                                CompareContext {
+                                    workers,
+                                    counts_comparable,
+                                },
+                                ComparePolicy {
+                                    oracle_leniency,
+                                    may_omit_property: true,
+                                },
+                            );
+                            if code == Some(exit) {
+                                assert_eq!(diffs, Vec::<FieldDiff>::new());
+                            } else {
+                                assert_eq!(diffs.len(), 1);
+                                assert_eq!(diffs[0].field, "exit_code");
+                                assert_eq!(diffs[0].expected, serde_json::json!(exit));
+                                assert_eq!(diffs[0].actual, serde_json::json!(code));
+                            }
+                        }
+                    }
+                }
+                let diffs = diff_verdict_and_class(&golden, &observed);
+                assert_eq!(diffs.len(), usize::from(code != Some(exit)));
+                if code != Some(exit) {
+                    assert_eq!(diffs[0].field, "exit_code");
+                }
+            }
+        }
+        // Legitimate finite temporal2116/exit12 remains an equal result.
+        let mut finite = result(Verdict::LivenessViolation, 1, 2, 1, Some(1));
+        finite.exit_code = Some(12);
+        assert_eq!(diff_results(&finite, &finite, ONE), Vec::<FieldDiff>::new());
+        assert_eq!(
+            diff_verdict_and_class(&finite, &finite),
+            Vec::<FieldDiff>::new()
+        );
     }
 
     #[test]

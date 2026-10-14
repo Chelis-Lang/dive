@@ -126,3 +126,14 @@ trace do not confer independent validation. See the measured selection and
 refusals and
 [follow-up #190](https://github.com/Chelis-Lang/dive/issues/190).
 
+
+For automation, a default invariant violation exits 10; with `--compat=tlc`
+it uses TLC's physical status (normally 12 for a safety invariant). Conformance
+compares these numeric statuses exactly. Known default differences count as
+ExpectedDivergence only for declared exact pairs and valid independent witnesses,
+never as Agree. See [reports and errors](reports-and-errors.md).
+
+The conformance harness requires whole counterexamples for safety, action-property,
+liveness and deadlock verdicts at every width. Missing or metadata-only words
+receive no agreement credit; present words must validate independently. This
+also holds when a worker-specific comparison omits witness shape.
