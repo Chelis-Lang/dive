@@ -1,0 +1,29 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "command": [
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-fp",
+    "0",
+    "-config",
+    "JsonSupported.cfg",
+    "JsonSupported.tla"
+  ],
+  "exit": 0,
+  "expected": [
+    "1",
+    "true",
+    "false",
+    "[1,2,3]",
+    "[\"x\",true,[1,2]]",
+    "\"atom\"",
+    "[]",
+    "[1,2,3]",
+    "[1,2]",
+    "{\"a\":1}"
+  ]
+}

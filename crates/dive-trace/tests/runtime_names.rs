@@ -164,20 +164,69 @@ fn configured_sequence_aliases_follow_the_same_rule() {
 }
 
 #[test]
-fn pure_native_string_constructors_are_not_trusted() {
-    // Json is classified as pure. The evaluator does not implement `ToJson`
-    // yet, so the ASSUME refuses before any name can be created.
+fn pure_native_string_constructors_obey_the_runtime_name_boundary() {
+    // ToJson(0) returns the source-interned string "0", so replay creates no
+    // name. Pure conversion does not waive Init, Next or the claimed ending.
     let source = tuple_replay_source("ASSUME ToJson(0)=\"0\"", "Tail(<<0,1>>)")
         .replace("Sequences, TLC", "Sequences, TLC, Json");
     for lossy in [false, true] {
         let model = tuple_replay_model(&source, "");
         assert!(model.runtime_name_order);
-        assert!(matches!(
+        assert_eq!(
             validate_doc(&model, &tuple_replay_doc(1, lossy), &[])
                 .0
                 .validation,
-            Validation::Unsupported(_)
-        ));
+            Validation::Valid
+        );
+
+        let initial = if lossy {
+            TraceDoc::from_json(&json!({
+                "vars":["x"],
+                "counterexample":{"action":[],"state":[[1,{"x":1}],[2,{"x":1}]]}
+            }))
+            .expect("lossy forged initial state")
+        } else {
+            TraceDoc::behavior(vec![json!({"x":1}), json!({"x":1})]).expect("forged initial state")
+        }
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+        let ending = if lossy {
+            TraceDoc::from_json(&json!({
+                "vars":["x"],"counterexample":{"action":[],"state":[[1,{"x":0}]]}
+            }))
+            .expect("lossy forged invariant ending")
+        } else {
+            TraceDoc::behavior(vec![json!({"x":0})]).expect("forged invariant ending")
+        }
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+        for (role, forged) in [
+            ("initial", initial),
+            ("step", tuple_replay_doc(2, lossy)),
+            ("ending", ending),
+        ] {
+            // Each word starts from a fresh binding; a positive word cannot
+            // seed the namespace used to decide a negative control.
+            let fresh = tuple_replay_model(&source, "");
+            assert!(
+                matches!(
+                    validate_doc(&fresh, &forged, &[]).0.validation,
+                    Validation::Invalid(_)
+                ),
+                "{role}; lossy={lossy}"
+            );
+        }
+
+        // "9137" is absent from the source: the ASSUME creates it while
+        // converting 9000+137. Keep the exact named refusal for this case.
+        let generated = tuple_replay_source("ASSUME ToJson(9000+137) # \"x\"", "Tail(<<0,1>>)")
+            .replace("Sequences, TLC", "Sequences, TLC, Json");
+        let fresh = tuple_replay_model(&generated, "");
+        assert!(fresh.runtime_name_order);
+        assert_eq!(
+            validate_doc(&fresh, &tuple_replay_doc(1, lossy), &[])
+                .0
+                .validation,
+            refused()
+        );
     }
 }
 

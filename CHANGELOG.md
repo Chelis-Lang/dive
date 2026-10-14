@@ -1,5 +1,11 @@
 # Changelog
 
+- Added bounded pure `Json!ToJson` conversion with Gson string escaping and the
+  existing canonical default order. TLC object histories, representation-dependent
+  Array/Object entry points, unbounded domain printing and JSON file operations
+  retain named refusals. Independent trace replay accepts already-interned JSON
+  strings; newly created runtime names retain the existing named refusal.
+
 - Storage regression coverage now includes literal-tuple and integer-domain
   function comparison through forced frontier/predecessor spill and checkpoint
   recovery, alongside the existing application and independent-witness controls.

@@ -1118,3 +1118,41 @@ For an invalid compound first SelectSeq operand, the existing bounded stored-val
 walk runs before error rendering; deferred providers inside sets, records or
 nonsequence functions refuse without enumeration. Ordinary scalar/type/empty
 priority remains unchanged, and valid sequence elements are not preflighted.
+
+## Bounded pure Json conversion
+
+`crates/dive-eval/src/json.rs` adapts MIT `tlc2.module.Json` (`getNode`,
+`isValidSequence`, `getObjectNode`, `getArrayNode`) at tlaplus
+`94d0c5070852b37b801bb8998c436383ab7ee37b`, with the matching CommunityModules
+`modules/tlc2/overrides/Json.java` and `modules/Json.tla` at
+`78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3`. Gson's compact non-HTML-safe string
+escaping is shared with the existing value-layer serializer; its format source
+is Apache-2.0. Runtime conversion is native and performs no host I/O.
+
+The salvage reference is historical source `1f21101a8e8ccc7bda05be6d8dab24378f139254`,
+tree `7ad7e85c9a98ad3603cd5eff0718fc771cd4d74f`. Only its two Json commits are
+adapted onto accepted main `8036d335fcfcd4cd8ff9848632b6c06a94010ba2`; no old
+checker, validator, host, PlusCal, simulation or dependency-graph implementation
+is imported. Tests use production model binding. The opaque deferred-key control
+now exercises the public evaluator rather than relying on the removed opaque
+context-admission requirement; it measures provider calls after construction.
+
+Pinned `getObjectNode(FcnRcdValue)` prints non-string domains with `toString()`.
+`RecordValue.toString` retains original field order, absent from normalized dive
+records. The consumed `JsonDomainHistory` keeps `Unused == [a |-> 0]` before a
+`[b |-> 1, a |-> 2]` construction: historical primary output retained `b,a`,
+including inside tuple/set/function keys, and the equality predicate was TRUE.
+TLC value order refuses these missing-history cases; canonical default order
+follows D-006. Domain traversal borrows stored children under the evaluator
+recursion guard before sorting/printing and refuses symbolic/deferred expansion.
+Representation-dependent Array/Object entry points and host I/O remain refused.
+
+The consumed compact `tests/fixtures/json/oracle.json` records ten historical
+outputs from `tlc-2026.10.06.014338` with the configured full CommunityModules
+classpath. Genuine raw producer files remain outside the repository; prior
+filename-collision comparisons receive no credit. Focused native/pinned-oracle
+controls and a fresh independent review validate the supported conversion and
+refusals. The runtime-name regression distinguishes names already interned by
+model binding from newly created JSON strings; the latter retain the existing
+TLC-profile trace-validation refusal (#124). Full-gate and corpus measurements
+use their actual recorded source revisions rather than historical source labels.

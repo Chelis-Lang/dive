@@ -196,3 +196,19 @@ independent mathematical witness validation cannot detect a lost representation
 bit. Old value-bearing archives refuse; canonical keys, fingerprints and version-1 trace JSON retain
 their separate contracts. This bounded coverage does not complete storage,
 distribution or the full roadmap and adds no corpus agreement claim.
+
+## Bounded pure Json
+
+Bounded `Json!ToJson` and consumed fixtures are salvaged onto accepted main
+`8036d335`, using the frozen historical implementation `1f21101a` as a reference.
+Focused native/pinned-oracle controls and fresh independent review cover the
+supported conversions and named refusals. The full local gate has 1,703 passing
+tests, 83 passing doctests and 456 SANY agreements. Actual TLC-profile small
+corpus runs at one and four workers each have 95 agreements and 59 refusals;
+the JSON override probe moves from refusal to agreement with success, one
+distinct state, two generated states and depth one. The other 94 agreements
+preserve their observable results. The CommunityModules family remains partial.
+Array/Object entry points, file operations, lost TLC object histories and
+unbounded domain printing retain named refusals. Newly created JSON string names
+in TLC-profile deciding words retain the existing independent replay refusal
+(#124) and earn no agreement. Full Json/C parity remains open.
