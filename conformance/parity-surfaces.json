@@ -1053,7 +1053,7 @@
   "override_registry": {
     "source": {
       "path": "crates/dive-ir/src/std_op.rs",
-      "sha256": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8"
+      "sha256": "fde3609f73f8342b2ee89c65ba8e3ca977b75b93e0462a529fc5d9190083fd53"
     },
     "rows": [
       {
@@ -2779,7 +2779,7 @@
         "arity": 3,
         "kind": "Value",
         "installation_phase": "Annotated",
-        "registry_support": "Extension",
+        "registry_support": "Core",
         "impure": false,
         "java_methods": "tlc2.overrides.SVG.pointOnLine",
         "line": 298,

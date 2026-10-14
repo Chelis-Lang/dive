@@ -58,6 +58,7 @@ mod options;
 mod random_relation;
 mod scope;
 mod std;
+mod svg;
 mod tla_cmp;
 mod tlc_enum;
 

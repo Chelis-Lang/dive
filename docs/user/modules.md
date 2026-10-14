@@ -81,3 +81,31 @@ reference inventory in `conformance/parity-surfaces.json`. The
 [maintained TLC differences log](../tlc-differences.md) describes approved changes
 and known limitations. These inventories and curated examples do not certify
 all standard-module or CommunityModules behavior.
+
+`SVG!PointOnLine(from, to, segment)` has a bounded native path for literal stored
+records with `x` and `y` coordinates and a segment, all 32-bit integers. Both
+profiles wrap coordinate subtraction as signed32, then divide and add in
+binary64 before truncating the result toward zero. The final cast returns zero
+for NaN and saturates infinities or out-of-range values to the signed32 endpoints.
+With segment zero, an unchanged coordinate becomes zero and a positive/negative
+difference becomes the corresponding endpoint. This follows the installed Java
+override and can differ from the module's TLA definition using integer division.
+
+Each record has at most 256 stored fields; extra fields are ignored. Computed or
+converted functions, deferred inputs, missing or noninteger coordinates and
+unimplemented JVM argument shapes remain named refusals. The field bound and
+configured evaluation depth remain resource limits. Argument expressions retain
+left-to-right evaluation before representation checks, and an explicit TLA
+definition override retains priority.
+
+The consumed fixture uses a small SVG binding module and reaches an invariant
+violation after two states:
+
+```sh
+dive check crates/dive-api/tests/fixtures/svg-point/Point.tla --module-path crates/dive-eval/tests/fixtures/svg-point --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+```
+
+Its expected physical CLI status is 12; `--exit-codes native` explicitly selects
+10. Rust `CheckReport::exit_code()` retains its profile-specific API contract.
+This helper does not implement SVG element serialization, graph/ring layout,
+host process access or animation completion.
