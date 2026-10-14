@@ -72,12 +72,35 @@ impl Implementation for Refuser {
 }
 
 fn setup(tmp: &Path) -> Result<(PathBuf, Cache), Box<dyn std::error::Error>> {
+    setup_spec(tmp, "---- MODULE X ----\n====\n", "\n")
+}
+
+fn setup_spec(
+    tmp: &Path,
+    source: &str,
+    cfg: &str,
+) -> Result<(PathBuf, Cache), Box<dyn std::error::Error>> {
+    setup_named_spec(tmp, source, cfg, "x", "X", "X")
+}
+
+fn setup_named_spec(
+    tmp: &Path,
+    source: &str,
+    cfg: &str,
+    directory: &str,
+    module: &str,
+    model: &str,
+) -> Result<(PathBuf, Cache), Box<dyn std::error::Error>> {
     let src = tmp.join("src");
-    let spec = src.join("specifications/x");
+    let spec = src.join(format!("specifications/{directory}"));
     std::fs::create_dir_all(&spec)?;
-    std::fs::write(spec.join("manifest.json"), MANIFEST)?;
-    std::fs::write(spec.join("X.tla"), "---- MODULE X ----\n====\n")?;
-    std::fs::write(spec.join("X.cfg"), "\n")?;
+    let manifest = MANIFEST
+        .replace("specifications/x/", &format!("specifications/{directory}/"))
+        .replace("X.tla", &format!("{module}.tla"))
+        .replace("X.cfg", &format!("{model}.cfg"));
+    std::fs::write(spec.join("manifest.json"), manifest)?;
+    std::fs::write(spec.join(format!("{module}.tla")), source)?;
+    std::fs::write(spec.join(format!("{model}.cfg")), cfg)?;
     std::fs::write(spec.join("Apa.cfg"), "\n")?;
     std::fs::write(spec.join("Helper.tla"), "---- MODULE Helper ----\n====\n")?;
     git(&src, &["init", "-q"])?;
@@ -242,12 +265,43 @@ impl Implementation for Optioned {
             elapsed: Duration::ZERO,
         })
     }
+    fn trace_validated(
+        &self,
+        req: &ModelRequest<'_>,
+        result: &OracleResult,
+        golden: &OracleResult,
+    ) -> dive_conformance::trace_check::TraceCheck {
+        match dive_conformance::trace_check::load_model(
+            req.corpus_root,
+            req.model,
+            &[],
+            self.profile == Some(Profile::Tlc),
+        ) {
+            Ok(spec) => {
+                dive_conformance::trace_check::validate_counterexample(&spec, result, golden)
+            }
+            Err(e) => dive_conformance::trace_check::TraceCheck::no(e),
+        }
+    }
     fn parse_module(&self, _r: &Path, _m: &str, _t: Duration) -> DResult<ImplResult<SanyResult>> {
         Ok(ImplResult::Unsupported("test".to_owned()))
     }
 }
 
 fn write_success_golden(repo: &Path, config: &Config) -> TestResult {
+    write_result_golden(repo, config, success())
+}
+
+fn write_result_golden(repo: &Path, config: &Config, result: OracleResult) -> TestResult {
+    write_result_golden_at(repo, config, result, 1)
+}
+
+fn write_result_golden_at(
+    repo: &Path,
+    config: &Config,
+    result: OracleResult,
+    workers: u32,
+) -> TestResult {
     let oracle = config.oracles.default_oracle()?.clone();
     let corpus = config.corpora.corpus("examples")?.clone();
     let golden = ModelGolden {
@@ -262,8 +316,8 @@ fn write_success_golden(repo: &Path, config: &Config) -> TestResult {
             features: vec![],
             counts_comparable: true,
         },
-        workers: 1,
-        result: success(),
+        workers,
+        result,
         provenance: Provenance {
             oracle: OracleProvenance {
                 id: oracle.id.clone(),
@@ -286,19 +340,29 @@ fn write_success_golden(repo: &Path, config: &Config) -> TestResult {
             command: vec![],
             trace_command: None,
             timeout_seconds: 1,
-            reason: None,
+            reason: (workers > 1).then(|| "test worker-specific word obligation".into()),
             generator: "test".to_owned(),
             generated_at: String::new(),
             elapsed_ms: 1,
             uncompared_counts: None,
         },
     };
-    let path = model_golden_path(
-        &repo.join("conformance/golden"),
-        &oracle.id,
-        "examples",
-        "specifications/x/X.cfg",
-    );
+    let path = if workers == 1 {
+        model_golden_path(
+            &repo.join("conformance/golden"),
+            &oracle.id,
+            "examples",
+            "specifications/x/X.cfg",
+        )
+    } else {
+        dive_conformance::golden::worker_golden_path(
+            &repo.join("conformance/golden"),
+            &oracle.id,
+            "examples",
+            "specifications/x/X.cfg",
+            workers,
+        )
+    };
     std::fs::create_dir_all(path.parent().ok_or("parent")?)?;
     std::fs::write(&path, to_pretty(&golden)?)?;
     Ok(())
@@ -386,3 +450,223 @@ fn result_changing_options_never_agree() -> TestResult {
     assert_eq!(report.models[0].outcome, Outcome::DivergenceMode);
     Ok(())
 }
+
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "source-bound mapper/pipeline positive and negative matrix shares one pinned model"
+)]
+fn default_exit_pairs_preserve_physical_codes_and_independent_words() -> TestResult {
+    use dive_api::trace::{Ending, TraceDoc};
+    use dive_conformance::dive::{CheckMapping, check_result};
+    use dive_conformance::process::ProcessOutcome;
+    use serde_json::json;
+
+    let tmp = dive_conformance::util::TempDir::new("exact-default-exit")?;
+    let (repo, cache) = setup_spec(
+        tmp.path(),
+        "---- MODULE X ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x+1\nInv == x<2\n====\n",
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+    )?;
+    let config = Config::load(&repo)?;
+    let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1}), json!({"x":2})])?
+        .with_ending(Ending::Invariant("Inv".into()));
+    let native = json!({
+        "schema_version":1, "command":"check", "verdict":"invariant-violation", "property":"Inv",
+        "tlc":{"code":2110,"name":"TLC_INVARIANT_VIOLATED_BEHAVIOR","exit_status":12,"verified":true},
+        "statistics":{"reported_by_tlc":true,"distinct":3,"generated":3,"left_on_queue":0,"depth":3},
+        "counterexample":{"states":[{"text":"x = 0"},{"text":"x = 1"},{"text":"x = 2"}],"trace":doc.to_json()}
+    });
+    let mapped =
+        |document: &serde_json::Value, code| -> Result<OracleResult, Box<dyn std::error::Error>> {
+            let process = ProcessOutcome {
+                exit_code: code,
+                signal: if code.is_none() { Some(9) } else { None },
+                timed_out: false,
+                stdout: document.to_string(),
+                stderr: String::new(),
+                elapsed: Duration::ZERO,
+            };
+            match check_result(&process, false) {
+                CheckMapping::Result(r) => Ok(*r),
+                CheckMapping::Refused(reason) => Err(reason.into()),
+            }
+        };
+    let golden = mapped(&native, Some(12))?;
+    write_result_golden(&repo, &config, golden)?;
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        r#"
+[[divergence]]
+id = "known-native-property-status"
+pattern = "specifications/x/X.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "established native property status"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+"#,
+    )?;
+    let mut opts = options(&repo, vec!["specifications/x/X.cfg".into()]);
+    opts.sany = false;
+    let run =
+        |document: &serde_json::Value, code, profile| -> Result<_, Box<dyn std::error::Error>> {
+            let imp = Optioned {
+                options: vec![],
+                profile: Some(profile),
+                result: mapped(document, code)?,
+            };
+            Ok(pipeline::run(&config, &cache, &imp, None, &opts)?)
+        };
+    for code in [
+        None,
+        Some(-1),
+        Some(0),
+        Some(10),
+        Some(12),
+        Some(13),
+        Some(77),
+        Some(256),
+    ] {
+        for profile in [Profile::Dive, Profile::Tlc] {
+            let report = run(&native, code, profile.clone())?;
+            let expected = if code == Some(12) {
+                Outcome::Agree
+            } else if code == Some(10) && profile == Profile::Dive {
+                Outcome::ExpectedDivergence
+            } else {
+                Outcome::Disagree
+            };
+            assert_eq!(report.models[0].outcome, expected, "{profile:?} / {code:?}");
+            for row in &report.models[0].runs {
+                assert_eq!(row.exit_code, code);
+                assert_eq!(row.outcome, expected);
+                if code != Some(12) {
+                    assert!(row.diffs.iter().any(|d| d.field == "exit_code"));
+                }
+            }
+        }
+    }
+    for mutation in [
+        "invalid-word",
+        "unconfirmed-word",
+        "fresh-name-word",
+        "class",
+        "class-null",
+        "class-bool",
+        "class-float",
+        "class-range",
+        "property",
+        "counts",
+    ] {
+        let mut bad = native.clone();
+        match mutation {
+            "invalid-word" => {
+                let mut wrong = doc.clone();
+                wrong.states[1].insert("x".into(), json!(99));
+                bad["counterexample"]["trace"] = wrong.to_json();
+            }
+            "unconfirmed-word" => bad["counterexample"]["trace"] = serde_json::Value::Null,
+            "fresh-name-word" => {
+                let mut wrong = doc.clone();
+                wrong.states[1].insert("x".into(), json!("previously unseen name"));
+                bad["counterexample"]["trace"] = wrong.to_json();
+            }
+            "class" => bad["tlc"]["code"] = json!(99999),
+            "class-null" => bad["tlc"]["code"] = serde_json::Value::Null,
+            "class-bool" => bad["tlc"]["code"] = json!(true),
+            "class-float" => bad["tlc"]["code"] = json!(2110.0),
+            "class-range" => bad["tlc"]["code"] = json!(2_147_483_648_u64),
+            "property" => bad["property"] = json!("Other"),
+            "counts" => bad["statistics"]["generated"] = json!(99),
+            _ => return Err(format!("unknown test mutation {mutation}").into()),
+        }
+        let report = run(&bad, Some(10), Profile::Dive)?;
+        assert_eq!(report.models[0].outcome, Outcome::Disagree, "{mutation}");
+        if mutation.ends_with("word") {
+            assert!(
+                report.models[0].runs.iter().all(|r| r
+                    .diffs
+                    .iter()
+                    .any(|d| d.field == "trace.invalid" || d.field == "trace.validated")),
+                "{mutation}"
+            );
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn exact_exit_pair_cannot_excuse_a_named_word_refusal() -> TestResult {
+    use dive_api::trace::{Ending, TraceDoc};
+    use dive_conformance::tlc::result::{Trace, TraceEnding};
+    use serde_json::json;
+
+    let tmp = dive_conformance::util::TempDir::new("exit-word-refusal")?;
+    let (repo, cache) = setup_spec(
+        tmp.path(),
+        "---- MODULE X ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0\nNext == x'=RandomElement({1})\nInv == x<1\n====\n",
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+    )?;
+    let config = Config::load(&repo)?;
+    let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])?
+        .with_ending(Ending::Invariant("Inv".into()));
+    let mut golden = success();
+    golden.verdict = Verdict::SafetyViolation;
+    golden.verdict_code = Some(2110);
+    golden.error_class = Some("TLC_INVARIANT_VIOLATED_BEHAVIOR".into());
+    golden.exit_code = Some(12);
+    golden.violated_property = Some("Inv".into());
+    golden.trace = Some(Trace {
+        length: 2,
+        ending: TraceEnding::Finite,
+        json: Some(doc.to_json()),
+        steps: None,
+        omitted: None,
+        json_unavailable: None,
+    });
+    write_result_golden(&repo, &config, golden.clone())?;
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        r#"
+[[divergence]]
+id = "known-native-property-status"
+pattern = "specifications/x/X.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "established native property status"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+"#,
+    )?;
+    let mut result = golden;
+    result.exit_code = Some(10);
+    let imp = Optioned {
+        options: vec![],
+        profile: Some(Profile::Dive),
+        result,
+    };
+    let mut opts = options(&repo, vec!["specifications/x/X.cfg".into()]);
+    opts.sany = false;
+    opts.workers = vec![1, 4, 8];
+    let report = pipeline::run(&config, &cache, &imp, None, &opts)?;
+    assert_eq!(report.models[0].outcome, Outcome::Disagree);
+    for row in &report.models[0].runs {
+        assert_eq!(row.exit_code, Some(10));
+        assert!(row.diffs.iter().any(|d| d.field == "exit_code"));
+        assert!(row.diffs.iter().any(|d| d.field == "trace.validated"));
+        assert!(!row.diffs.iter().any(|d| d.field == "trace.invalid"));
+        assert!(
+            row.detail
+                .as_deref()
+                .is_some_and(|s| s.contains("unsupported"))
+        );
+    }
+    Ok(())
+}
+
+// These controls share the source-bound temporary corpus and golden helpers.
+#[path = "pipeline_totals/whole_words.rs"]
+mod whole_words;

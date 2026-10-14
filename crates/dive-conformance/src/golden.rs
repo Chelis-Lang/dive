@@ -170,7 +170,10 @@ pub fn model_golden_path(root: &Path, oracle: &str, corpus: &str, model_id: &str
 /// workers: TLC's own result at that worker count, kept beside the
 /// single-worker golden (never replacing it) for a worker-introspecting
 /// model, against which `--compat=tlc` runs at that count are compared on
-/// verdict and error class only (ADR 0004, amendment of 2026-10-09).
+/// verdict, error class and exact physical numeric exit (ADR 0004's
+/// worker-introspecting amendment; numeric-exit correction in ADR 0096).
+/// Counts, depth and witness shape are not compared through this path;
+/// independent counterexample validation remains required.
 #[must_use]
 pub fn worker_golden_path(
     root: &Path,

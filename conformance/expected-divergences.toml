@@ -10,14 +10,17 @@
 #
 # Under `dive`, a disagreement matching an entry below, with the entry's
 # expected verdict and with every differing field among the entry's
-# `fields`, is reported as `expected-divergence`. It is never counted
+# `fields` or its exact `exit_code_pair`, is reported as `expected-divergence`. It is never counted
 # as `agree`. Everything else is `disagree`. The registry never applies under
 # `tlc` or `tlc+overrides`, and an entry naming them is a configuration error.
 #
-# Entry shape (every field required except one of profile/option). `fields`
+# Entry shape (exit_code_pair is optional; give exactly one profile/option). `fields`
 # are globs over the compared fields (`verdict`, `error_class`,
 # `violated_property`, `counts.*`, `trace.length`, `trace.ending`); list only
-# those that actually differ. Trace validation can never be excused.
+# those that actually differ. Numeric exits require exit_code_pair with integer
+# expected/actual codes in 0..255; field globs cannot excuse exits. The declared
+# pair must occur alongside only permitted other differences. Trace validation
+# can never be excused.
 #
 # [[divergence]]
 # id = "big-integers"                         # stable, unique
@@ -43,6 +46,7 @@
 id = "d010-missionaries-and-cannibals"
 pattern = "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg"
 profile = "dive"
+exit_code_pair = { expected = 12, actual = 10 }
 expected_verdict = "safety-violation"
 fields = ["counts.states_generated"]
 justification = "Canonical exploration order (D-010) generates one more state (226 vs TLC's 225) before reaching the same Solution violation at the same depth"
@@ -52,6 +56,7 @@ link = "docs/divergences.md#registry"
 id = "d010-acp-nb-wrong-tlc"
 pattern = "specifications/acp/ACP_NB_WRONG_TLC.cfg"
 profile = "dive"
+exit_code_pair = { expected = 12, actual = 10 }
 expected_verdict = "safety-violation"
 fields = [
   "counts.distinct_states",
@@ -68,6 +73,7 @@ link = "docs/divergences.md#registry"
 id = "d004-p1-overflow"
 pattern = "specifications/P1Overflow/P1Overflow.cfg"
 profile = "dive"
+exit_code_pair = { expected = 255, actual = 0 }
 expected_verdict = "success"
 fields = ["verdict", "error_class", "counts.*"]
 justification = "Unbounded integers (D-004): x reaches 2147483648, where TLC's 32-bit integers raise TLC_INTEGER_TOO_BIG; in TLA+ the invariant holds and the search ends after 3 states, as dive reports"
@@ -77,7 +83,152 @@ link = "docs/divergences.md#registry"
 id = "d006-p2-choose-str"
 pattern = "specifications/P2Choose/P2Choose_str.cfg"
 profile = "dive"
+exit_code_pair = { expected = 12, actual = 0 }
 expected_verdict = "success"
 fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.length", "trace.ending"]
 justification = "Canonical CHOOSE order (D-006): CHOOSE e \\in {\"zeta\", \"alpha\", \"mid\"} : TRUE is \"alpha\" in the canonical order and \"zeta\" in TLC's interning order. TLA+ fixes neither, so SLex holds under dive's default and is violated under TLC's"
 link = "docs/divergences.md#registry"
+
+# D-023: established native exit statuses previously omitted by comparison.
+# Exact measured model paths only; no wildcard for future liveness outcomes.
+# Every other compared field and independent trace validation must still agree.
+
+[[divergence]]
+id = "d023-checkpointcoordination-mccheckpointcoordinationfailure"
+pattern = "specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-diehard-diehard"
+pattern = "specifications/DieHard/DieHard.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-diehard-mcdieharder"
+pattern = "specifications/DieHard/MCDieHarder.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-diehard-mcdiehardest"
+pattern = "specifications/DieHard/MCDieHardest.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-n-queens-queens-toolbox-fourqueens-mc"
+pattern = "specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-slidingpuzzles-slidingpuzzles"
+pattern = "specifications/SlidingPuzzles/SlidingPuzzles.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-slidingpuzzles-slidingpuzzles_anim"
+pattern = "specifications/SlidingPuzzles/SlidingPuzzles_anim.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-spanning-mc_spanning"
+pattern = "specifications/spanning/MC_spanning.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-tower_of_hanoi-hanoi_anim"
+pattern = "specifications/tower_of_hanoi/Hanoi_anim.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-m1syntax-m1syntax"
+pattern = "specifications/M1Syntax/M1Syntax.cfg"
+profile = "dive"
+expected_verdict = "parse-error"
+fields = []
+exit_code_pair = { expected = 150, actual = 1 }
+justification = "Established native rejected-input status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-m2undefined-m2undefined"
+pattern = "specifications/M2Undefined/M2Undefined.cfg"
+profile = "dive"
+expected_verdict = "semantic-error"
+fields = []
+exit_code_pair = { expected = 150, actual = 1 }
+justification = "Established native rejected-input status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-p5tlcgetset-p5tlcgetset"
+pattern = "specifications/P5TLCGetSet/P5TLCGetSet.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-p8paralleldet-p8paralleldet"
+pattern = "specifications/P8ParallelDet/P8ParallelDet.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+[[divergence]]
+id = "d023-p9random-p9random"
+pattern = "specifications/P9Random/P9Random.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = []
+exit_code_pair = { expected = 12, actual = 10 }
+justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
+link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
