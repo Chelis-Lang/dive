@@ -62,9 +62,21 @@ For this exit-only historical correction, default 90 Agree / 4 ExpectedDivergenc
 / 60 Unsupported becomes an estimate of 76 / 18 / 60 at each width, conditioned
 on every other obligation. Original reports and floors remain visible. This
 is neither a fresh current-main measurement nor approval of a new 76 floor.
-Fresh complete four-profile measurements, the full gate and independent review
-remain required before the lead records acceptance. Every genuinely exact prior
-agreement must be preserved. The at-least-95% eventual parity target and full
+Before acceptance, the lead required complete corrected parent/current
+four-profile measurements, the full gate and independent review. Every
+genuinely exact prior agreement remains protected. The at-least-95% eventual parity target and full
 roadmap remain unchanged. No pins, goldens, corpus selections or resource bounds
-change. See [the scoreboard qualification](../scoreboard.md#numeric-exit-accounting-correction)
+change.
+
+The completed correction in [PR #266](https://github.com/Chelis-Lang/dive/pull/266)
+was published as `0e00c942b5ad371acadb9b805509ebceef313cd4`, with the exact tree
+of tested producer `643b0f1351feccca56968cd8032093f53ccd2c8d`. Fresh independent
+review, the full local gate, all eight corrected parent/current measurements,
+and required source and post-merge CI passed. Both widths retain TLC 94 Agree /
+60 Unsupported and default 76 Agree /18 ExpectedDivergence /60 Unsupported,
+with unchanged per-model outcomes and no disagreement, timeout, oracle error or
+pending validation. This confirms the accounting estimate without authorizing
+a silent new numeric floor. The delegated measurement repair preserves the
+actual corrected parent agreement set; historical default-floor comparisons
+remain failed. See [the scoreboard qualification](../scoreboard.md#numeric-exit-accounting-correction)
 and [D-023](../divergences.md#d-023-truthful-default-numeric-exit-accounting).
