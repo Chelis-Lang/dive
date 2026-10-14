@@ -977,7 +977,12 @@ impl Host for TraceHost {
                 message: format!("{}: {RANDOM_UNSUPPORTED}", op.qualified_name()),
             });
         }
-        if self.private_host() && op.impure() && !matches!(op, StdOp::TlcTLCGet | StdOp::TlcTLCSet)
+        if self.private_host()
+            && op.impure()
+            && !matches!(
+                op,
+                StdOp::TlcTLCGet | StdOp::TlcTLCSet | StdOp::TlcPrint | StdOp::TlcPrintT
+            )
         {
             return self.refuse_effect(format!(
                 "{}: private trace startup does not support this host effect",
@@ -985,6 +990,13 @@ impl Host for TraceHost {
             ));
         }
         Ok(())
+    }
+
+    fn print_output(&self, _text: &str) -> Result<bool, HostError> {
+        // Reconstruct Print's value semantics without invoking any sink or
+        // counting replay/startup reconstruction as producer output. The
+        // evaluator still checks arguments and performs normal rendering.
+        Ok(false)
     }
 
     fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), HostError> {

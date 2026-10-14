@@ -1,5 +1,19 @@
 # Changelog
 
+- Low-level simulation refuses overlapping/reentrant calls on a shared evaluator
+  core before evaluation, preserving each run's output limits and caller host.
+  Separate bound cores remain independent; cleanup restores the host before
+  releasing ownership. Qualification and publication remain pending.
+
+- Ordinary single-worker finite simulation evaluates runtime `Print`/`PrintT`,
+  including captured operators (#239), with retained event/text limits. Binding
+  and backend output remain separate; fresh independent validation preserves
+  return/error semantics while discarding replay output before sink callbacks.
+  Reached random/register/other host effects remain refused. This does not
+  complete simulation, generation or schedulers. The accepted `none`/`basic`
+  action-statistics behavior is retained; qualification of this Print candidate
+  on the latest main, its full gate and publication remain pending.
+
 - Explicit final/short checking without configured `PROPERTY` entries now runs
   ordinary safety checking and returns its real result without duplicate startup
   evaluation or a temporal holding/capture claim. Configured properties retain

@@ -142,7 +142,6 @@ fn every_register_access_after_init_and_generic_startup_effects_stay_refused() {
         ("x'=x+1 /\\ TLCSet(1,x')", "x<2", ""),
         ("x'=IF TLCGet(1)=42 THEN x+1 ELSE x", "x<2", ""),
         ("x'=x+1", "TLCGet(1)=42", ""),
-        ("x'=x+1", "x<2", "Unused == PrintT(\"hello\")"),
         ("x'=x+1", "x<2", "Unused == RandomElement({7})"),
         ("x'=x+1", "x<2", "Unused == TLCSet(\"pause\",FALSE)"),
     ] {
@@ -363,4 +362,30 @@ fn named_and_aggregate_registers_share_the_startup_only_boundary() {
         m.validate(&doc(&[0, 1, 2], false)).validation,
         Validation::Unsupported(_)
     ));
+}
+
+#[test]
+fn replay_startup_and_runtime_prints_keep_returns_without_caller_events() {
+    let m = model(
+        "",
+        r"x=0 /\ PrintT(0)",
+        "x'=Print(x,x+1)",
+        "x<2",
+        "Unused == PrintT(\"hello\")",
+    );
+    let before = m.model().evaluator.has_print_event();
+    for lossy in [false, true] {
+        for _ in 0..2 {
+            assert_eq!(
+                m.validate(&doc(&[0, 1, 2], lossy)).validation,
+                Validation::Valid
+            );
+            assert_eq!(m.model().evaluator.has_print_event(), before);
+            assert_eq!(m.model().evaluator.take_output(), Vec::<String>::new());
+            assert!(matches!(
+                m.validate(&doc(&[0, 42, 2], lossy)).validation,
+                Validation::Invalid(_)
+            ));
+        }
+    }
 }
