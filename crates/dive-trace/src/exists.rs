@@ -87,6 +87,8 @@ struct Search<'a> {
     state: &'a State,
     limits: Limits,
     steps: usize,
+    invocation: Option<St>,
+    state_source: bool,
 }
 impl Search<'_> {
     fn step(&mut self, depth: usize) -> Result<(), ExistsError> {
@@ -104,13 +106,48 @@ impl Search<'_> {
         Ok(())
     }
     fn read(&self, expr: ExprId, scope: &Scope, st: &St) -> Result<Value, ExistsError> {
-        self.model
-            .evaluator
-            .eval_scoped(scope, expr, st)
-            .map_err(|e| {
-                ExistsError::Invalid(format!("{}: {e}", self.model.evaluator.location(expr)))
-            })
+        let result = if self.invocation.is_some() {
+            self.model
+                .evaluator
+                .eval_scoped_pure(scope, expr, st, self.limits.expressions)
+        } else {
+            self.model.evaluator.eval_scoped(scope, expr, st)
+        };
+        result.map_err(|e| {
+            if self.invocation.is_some() {
+                match e.class() {
+                    dive_eval::ErrorClass::Unsupported => {
+                        return ExistsError::Unsupported(e.to_string());
+                    }
+                    dive_eval::ErrorClass::ResourceLimit => {
+                        return ExistsError::Limit("pure predicate work");
+                    }
+                    _ => {}
+                }
+            }
+            ExistsError::Invalid(format!("{}: {e}", self.model.evaluator.location(expr)))
+        })
     }
+    fn constant_state(&self) -> St {
+        self.invocation
+            .as_ref()
+            .map_or_else(St::constant, St::at_constant)
+    }
+    fn current_state(&self) -> St {
+        self.at_state(self.state)
+    }
+    fn at_state(&self, state: &State) -> St {
+        self.invocation
+            .as_ref()
+            .map_or_else(|| St::state(state.clone()), |st| st.at_state(state.clone()))
+    }
+    fn at_action(&self, before: &State, after: &State) -> St {
+        self.invocation.as_ref().map_or_else(
+            || St::action(before.clone(), after.clone()),
+            |st| st.at_action(before.clone(), after.clone()),
+        )
+    }
+
     fn boolean(&self, expr: ExprId, scope: &Scope, st: &St) -> Result<bool, ExistsError> {
         match self.read(expr, scope, st)? {
             Value::Bool(b) => Ok(b),
@@ -147,6 +184,32 @@ impl Search<'_> {
         {
             return Err(ExistsError::Unsupported(
                 "effects, temporal expressions or nested ENABLED".into(),
+            ));
+        }
+        if self.state_source
+            && (node.level > Level::State
+                || matches!(
+                    node.expr,
+                    Expr::Prime(_)
+                        | Expr::Unchanged(_)
+                        | Expr::Var { primed: true, .. }
+                        | Expr::StepBox { .. }
+                        | Expr::StepAngle { .. }
+                        | Expr::Cdot(_, _)
+                        | Expr::Builtin {
+                            op: BuiltinOp::Prime | BuiltinOp::Unchanged | BuiltinOp::Cdot,
+                            ..
+                        }
+                        | Expr::Apply {
+                            callee: OpRef::Builtin(
+                                BuiltinOp::Prime | BuiltinOp::Unchanged | BuiltinOp::Cdot
+                            ),
+                            ..
+                        }
+                ))
+        {
+            return Err(ExistsError::Unsupported(
+                "action/primed state helper source".into(),
             ));
         }
         match &node.expr {
@@ -195,6 +258,22 @@ impl Search<'_> {
             }
             Expr::Apply { callee, args } => {
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+                    if self.invocation.is_some() {
+                        let mut remaining = self.limits.expressions.saturating_sub(self.steps);
+                        let projection = self
+                            .model
+                            .evaluator
+                            .scope_selectseq_call(scope, callee, args, &mut remaining)
+                            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                        self.steps = self.limits.expressions.saturating_sub(remaining);
+                        if let Some((sequence, bodies)) = projection {
+                            self.scan(sequence, scope, prime, needed, depth + 1)?;
+                            for (body, captured) in bodies {
+                                self.scan_state_source(body, &captured, prime, needed, depth + 1)?;
+                            }
+                            return Ok(());
+                        }
+                    }
                     return Err(ExistsError::Unsupported(
                         "higher-order action argument".into(),
                     ));
@@ -210,7 +289,7 @@ impl Search<'_> {
                         let d = self.model.evaluator.redirected(*d);
                         let def = self.model.ir.def(d);
                         if !self.model.evaluator.is_value_override(d) && def.std.is_none() {
-                            let sc = self.constant_call(scope, d, args, depth + 1)?;
+                            let sc = self.scoped_call(scope, d, args, prime, needed, depth + 1)?;
                             return self.scan(def.body, &sc, prime, needed, depth + 1);
                         }
                         if !self.model.evaluator.is_value_override(d) {
@@ -273,6 +352,7 @@ impl Search<'_> {
             Expr::Local(r) => match self.model.evaluator.scope_slot(scope, *r) {
                 SlotView::Value(_) => {}
                 SlotView::Lazy(body, sc) => self.scan(body, &sc, prime, needed, depth + 1)?,
+                SlotView::AnalysisBound if self.state_source => {}
                 _ => {
                     return Err(ExistsError::Unsupported(
                         "opaque local action context".into(),
@@ -292,6 +372,69 @@ impl Search<'_> {
         }
         Ok(())
     }
+    fn scan_state_source(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        prime: bool,
+        needed: &mut BTreeSet<VarId>,
+        depth: usize,
+    ) -> Result<(), ExistsError> {
+        let saved = self.state_source;
+        self.state_source = true;
+        let result = self.scan(expr, scope, prime, needed, depth);
+        self.state_source = saved;
+        result
+    }
+
+    fn scoped_call(
+        &mut self,
+        scope: &Scope,
+        def: DefId,
+        args: &[Arg],
+        prime: bool,
+        needed: &mut BTreeSet<VarId>,
+        depth: usize,
+    ) -> Result<Scope, ExistsError> {
+        let ev = &self.model.evaluator;
+        let d = self.model.ir.def(def);
+        if self.invocation.is_none() || d.params.len() != 1 || d.level > Level::State {
+            return self.constant_call(scope, def, args, depth);
+        }
+        self.step(depth)?;
+        if d.recursive
+            || d.std.is_some()
+            || ev.is_value_override(def)
+            || d.params.iter().any(|p| p.arity != 0)
+            || args.len() != 1
+        {
+            return Err(ExistsError::Unsupported(
+                "recursive/overridden/higher-order state helper".into(),
+            ));
+        }
+        let Arg::Expr { expr: actual, .. } = args[0] else {
+            return Err(ExistsError::Unsupported(
+                "operator state helper argument".into(),
+            ));
+        };
+        self.scan_state_source(actual, scope, prime, needed, depth + 1)?;
+        // This retains source lexical thunks, never current-state actual values.
+        let called = ev
+            .scope_apply(scope, def, args)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+        let mut remaining = self.limits.expressions.saturating_sub(self.steps);
+        let captures = ev
+            .scope_operator_captures(&called, &mut remaining)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+            .ok_or_else(|| ExistsError::Unsupported("opaque state helper captures".into()))?;
+        self.steps = self.limits.expressions.saturating_sub(remaining);
+        for (body, captured) in captures {
+            self.scan_state_source(body, &captured, prime, needed, depth + 1)?;
+        }
+        self.scan_state_source(d.body, &called, prime, needed, depth + 1)?;
+        Ok(called)
+    }
+
     // Necessary covers may inspect a parameter only after proving its actual
     // argument is pure constant data. No state/action thunk is evaluated early.
     fn constant_call(
@@ -336,7 +479,7 @@ impl Search<'_> {
                     "state-dependent action argument".into(),
                 ));
             }
-            values.push(self.read(*expr, scope, &St::constant())?);
+            values.push(self.read(*expr, scope, &self.constant_state())?);
         }
         ev.scope_call_values(scope, def, values)
             .map_err(|e| ExistsError::Unsupported(e.to_string()))
@@ -386,7 +529,7 @@ impl Search<'_> {
             .scope_bindings_bounded(
                 scope,
                 expr,
-                &St::state(self.state.clone()),
+                &self.current_state(),
                 self.limits.domain_values.min(self.limits.expressions),
             )
             .map_err(|e| {
@@ -556,7 +699,7 @@ impl Search<'_> {
         if self.model.ir.node(b).level > Level::State {
             return Ok(Cover::default());
         }
-        let value = self.read(b, scope, &St::state(self.state.clone()))?;
+        let value = self.read(b, scope, &self.current_state())?;
         let ds = if op == BuiltinOp::Eq {
             vec![value]
         } else {
@@ -608,7 +751,7 @@ impl Search<'_> {
         }
         if node.level <= Level::State {
             return Ok(Cover {
-                impossible: !self.boolean(expr, scope, &St::state(self.state.clone()))?,
+                impossible: !self.boolean(expr, scope, &self.current_state())?,
                 domains: Domains::new(),
             });
         }
@@ -637,7 +780,8 @@ impl Search<'_> {
                     .is_value_override(self.model.evaluator.redirected(*d)) =>
             {
                 let d = self.model.evaluator.redirected(*d);
-                let sc = self.constant_call(scope, d, args, depth + 1)?;
+                let sc =
+                    self.scoped_call(scope, d, args, false, &mut BTreeSet::new(), depth + 1)?;
                 self.cover(self.model.ir.def(d).body, &sc, depth + 1)
             }
             Expr::Label { body, .. } | Expr::Selected(body) => self.cover(*body, scope, depth + 1),
@@ -646,7 +790,7 @@ impl Search<'_> {
                 self.quantified(expr, *kind, *body, scope, depth)
             }
             Expr::If { cond, then, other } if self.model.ir.node(*cond).level <= Level::State => {
-                let b = self.boolean(*cond, scope, &St::state(self.state.clone()))?;
+                let b = self.boolean(*cond, scope, &self.current_state())?;
                 self.cover(if b { *then } else { *other }, scope, depth + 1)
             }
             Expr::Unchanged(e) => self.unchanged(*e, scope, depth + 1),
@@ -679,7 +823,7 @@ pub fn exists_successor(
     nonstuttering: Option<&Pred>,
     limits: Limits,
 ) -> Result<Decision, ExistsError> {
-    let decision = decide(model, action, state, nonstuttering, limits);
+    let decision = decide(model, action, state, nonstuttering, limits, None);
     if model.has_runtime_names() {
         return Err(ExistsError::Unsupported(
             crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
@@ -688,12 +832,47 @@ pub fn exists_successor(
     decision
 }
 
+/// Decides the original finite-cover membership relation with one fresh pure
+/// predicate resource budget shared across cover reads and original candidate
+/// evaluations. No checker context or admission decision is accepted.
+///
+/// # Errors
+/// As [`exists_successor`], including bounded callback/context refusals.
+pub fn exists_successor_pure(
+    model: &Model,
+    action: &Pred,
+    state: &State,
+    nonstuttering: Option<&Pred>,
+    limits: Limits,
+    binding_limit: usize,
+) -> Result<Decision, ExistsError> {
+    let decision = decide(
+        model,
+        action,
+        state,
+        nonstuttering,
+        limits,
+        Some(binding_limit),
+    );
+    if model.has_runtime_names() {
+        return Err(ExistsError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+        ));
+    }
+    decision
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep original validation, cover and first-witness order explicit with resource initialization"
+)]
 fn decide(
     model: &Model,
     action: &Pred,
     state: &State,
     nonstuttering: Option<&Pred>,
     limits: Limits,
+    binding_limit: Option<usize>,
 ) -> Result<Decision, ExistsError> {
     model
         .evaluator
@@ -725,6 +904,17 @@ fn decide(
         state,
         limits,
         steps: 0,
+        invocation: binding_limit
+            .map(|limit| {
+                model.evaluator.begin_pure_predicate(
+                    &action.scope,
+                    &St::state(state.clone()),
+                    limit,
+                )
+            })
+            .transpose()
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?,
+        state_source: false,
     };
     let mut needed = BTreeSet::new();
     cx.scan(action.expr, &action.scope, false, &mut needed, 0)?;
@@ -764,7 +954,7 @@ fn decide(
         .filter(|n| *n <= limits.assignments)
         .ok_or(ExistsError::Limit("assignments"))?;
     let before = nonstuttering
-        .map(|p| cx.read(p.expr, &p.scope, &St::state(state.clone())))
+        .map(|p| cx.read(p.expr, &p.scope, &cx.current_state()))
         .transpose()?;
     for i in 0..count {
         let mut quotient = i;
@@ -774,15 +964,11 @@ fn decide(
             quotient /= ds.len();
         }
         let witness: State = Arc::from(values);
-        if !cx.boolean(
-            action.expr,
-            &action.scope,
-            &St::action(state.clone(), witness.clone()),
-        )? {
+        if !cx.boolean(action.expr, &action.scope, &cx.at_action(state, &witness))? {
             continue;
         }
         if let (Some(sub), Some(before)) = (nonstuttering, &before) {
-            let after = cx.read(sub.expr, &sub.scope, &St::state(witness.clone()))?;
+            let after = cx.read(sub.expr, &sub.scope, &cx.at_state(&witness))?;
             if model
                 .evaluator
                 .equal_values(before, &after)

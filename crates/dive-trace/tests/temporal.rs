@@ -395,3 +395,134 @@ fn temporal_action_subscript_short_circuit_includes_closing_edge() {
     let bad = vec![state(0), state(1)];
     assert!(evaluate_lasso(&model, &predicate(&model, "Angle"), &bad, 1).is_err());
 }
+
+#[test]
+fn selectseq_independent_fresh_lasso_checks_forwarded_state_and_lexical_callbacks() {
+    let source = r"---- MODULE SelectWord ----
+EXTENDS Integers, Sequences
+VARIABLE x
+Init==x=0
+Next==x'=1-x
+Forward(F(_),s)==SelectSeq(s,F)
+Capture(k)==LET Test(y)==y=k IN Forward(Test,<<0,1,0>>)
+P==[] (Capture(x)=IF x=0 THEN <<0,0>> ELSE <<1>>)
+Bad==<>[] (Capture(x) = <<0,0>>)
+====";
+    // Bind anew, independently of any planner or checker result/cache.
+    let model = bound(source, "INIT Init\nNEXT Next\n");
+    let states = vec![
+        Arc::from([Some(Value::Int(0))]),
+        Arc::from([Some(Value::Int(1))]),
+    ];
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "P"), &states, 0).expect("fresh trace"),
+        vec![true, true]
+    );
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Bad"), &states, 0).expect("false claim"),
+        vec![false, false]
+    );
+    let fresh = bound(source, "INIT Init\nNEXT Next\nPROPERTY Bad\n");
+    let doc = TraceDoc::behavior(vec![serde_json::json!({"x":0}), serde_json::json!({"x":1})])
+        .expect("word")
+        .with_ending(Ending::Lasso { back_to: 0 })
+        .with_properties(vec!["Bad".into()]);
+    assert_eq!(
+        dive_trace::validate_doc(&fresh, &doc, &[]).0.validation,
+        dive_trace::Validation::Valid
+    );
+    let forged = TraceDoc::behavior(vec![serde_json::json!({"x":0}), serde_json::json!({"x":2})])
+        .expect("forged word")
+        .with_ending(Ending::Lasso { back_to: 0 })
+        .with_properties(vec!["Bad".into()]);
+    assert!(matches!(
+        dive_trace::validate_doc(
+            &bound(source, "INIT Init\nNEXT Next\nPROPERTY Bad\n"),
+            &forged,
+            &[]
+        )
+        .0
+        .validation,
+        dive_trace::Validation::Invalid(_)
+    ));
+    let unknown = TraceDoc::behavior(vec![serde_json::json!({"x":"post-bind-name"})])
+        .expect("unknown name")
+        .with_ending(Ending::Stuttering)
+        .with_properties(vec!["Bad".into()]);
+    assert!(matches!(
+        dive_trace::validate_doc(
+            &bound(source, "INIT Init\nNEXT Next\nPROPERTY Bad\n"),
+            &unknown,
+            &[]
+        )
+        .0
+        .validation,
+        dive_trace::Validation::Unsupported(_)
+    ));
+    for callback in [
+        "LAMBDA y: y=x'",
+        "LAMBDA y: \\E z \\in {y}: z=x",
+        "LAMBDA y: y \\in Seq({x})",
+    ] {
+        let source = format!(
+            "---- MODULE SelectWordRefusal ----\nEXTENDS Integers, Sequences\nVARIABLE x\nInit==x=0\nNext==x'=x\nP==[] [(SelectSeq(<<0>>, {callback}) = <<0>>)]_x\n===="
+        );
+        let fresh = bound(&source, "INIT Init\nNEXT Next\n");
+        assert!(
+            matches!(
+                evaluate_lasso(&fresh, &predicate(&fresh, "P"), &states, 0),
+                Err(TemporalError::Unsupported(_))
+            ),
+            "{callback}"
+        );
+    }
+}
+
+#[test]
+fn selectseq_independent_nonstuttering_uses_one_aggregate_budget_per_position() {
+    let items = std::iter::repeat_n("x", 2500).collect::<Vec<_>>().join(",");
+    let source = format!(
+        "---- MODULE SelectTraceAggregate ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\nKeep(y)==TRUE\nSub==SelectSeq(<<{items}>>,Keep)\nSingle==[] (Sub = <<{items}>>)\nBox==[] [TRUE]_Sub\n===="
+    );
+    let model = bound(&source, "INIT Init\nNEXT Next\n");
+    let states = vec![
+        Arc::from([Some(Value::Int(0))]),
+        Arc::from([Some(Value::Int(1))]),
+    ];
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Single"), &states, 0)
+            .expect("one sub-evaluation per position fits"),
+        vec![true, true]
+    );
+    let error = evaluate_lasso(&model, &predicate(&model, "Box"), &states, 0)
+        .expect_err("independent aggregate before/after work");
+    assert!(matches!(error,TemporalError::Unsupported(ref detail) if detail.contains("work")));
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Single"), &states, 0)
+            .expect("fresh independent invocation after exhaustion"),
+        vec![true, true]
+    );
+}
+
+#[test]
+fn selectseq_independent_enabled_negation_and_fairness_use_original_lazy_state_helpers() {
+    let model = bound(
+        "---- MODULE SelectTraceEnabled ----\nEXTENDS Sequences\nVARIABLE x\nInit == x = <<0>>\nNext==x'=x\nPure(S)==SelectSeq(S,LAMBDA y:y=Head(x))\nAction==(x'=x) /\\ (Pure(x) = x)\nE==[] ENABLED Action\nN==[] ~ENABLED Action\nOrdinary==[] ENABLED Next\nFair==WF_x(Action)\nStrong==SF_x(Action)\n====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let states = vec![Arc::from([Some(Value::tuple(vec![0.into()]))])];
+    for (name, expected) in [
+        ("Ordinary", true),
+        ("E", true),
+        ("N", false),
+        ("Fair", true),
+        ("Strong", true),
+    ] {
+        assert_eq!(
+            evaluate_lasso(&model, &predicate(&model, name), &states, 0)
+                .expect("independent original relation/finite covers"),
+            vec![expected],
+            "{name}"
+        );
+    }
+}

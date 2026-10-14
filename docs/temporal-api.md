@@ -37,7 +37,7 @@ pass validation before the API returns a violation.
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
 zero-arity definitions, pure constant/state-argument operators, finite constant-domain quantifiers with explicit sets
 or intervals (including tuple bindings), direct `ENABLED`, and weak/strong fairness over supported
-pure actions. Action/temporal arguments, higher-order calls, nonconstant/unbounded quantification, dynamic scopes, effects and
+pure actions. Action/temporal arguments, higher-order calls other than the [SelectSeq subset](user/temporal.md), nonconstant/unbounded quantification, dynamic scopes, effects and
 checker-register reads remain explicit refusals. The independent validator
 needs a finite successor cover to prove some ENABLED/fairness cases; missing
 covers return a validation refusal even if analysis finds a candidate.
@@ -120,8 +120,11 @@ remain validation refusals.
 Independent ENABLED/fairness proofs now follow pure constant-argument action
 calls and value-bound locals. Covers retain each call's scalar/tuple context,
 and every witness is tested against the original relation. Missing primed
-variable covers, lazy state arguments in the independent finite-cover search,
-and higher-order calls still refuse.
+variable covers and arbitrary state/action arguments in the independent
+finite-cover search remain refused. The bounded SelectSeq route also follows
+ordinary unary pure <=State helpers through lazy source arguments, retaining
+sequence and captured callback state dependencies in the required covers.
+Explicit primed/action callback sources and higher-order calls outside the [SelectSeq subset](user/temporal.md) still refuse.
 The `SfDisabled` probe specifically requires false ENABLED on its stuttering
 cycle; a recurring action cannot stand in for this proof.
 
@@ -130,8 +133,8 @@ including nested forwarding, tuple arguments and state guards. State bindings
 remain lazy and retain their caller context; priming inside the callee reads
 the successor value. Planning checks instantiated levels before classifying
 an atom or folding a constant. The independent word evaluator resolves those
-contexts separately. Action/temporal arguments and higher-order operators
-remain named refusals.
+contexts separately. Action/temporal arguments and higher-order operators outside
+the [SelectSeq subset](user/temporal.md) remain named refusals.
 
 Finite constant-domain quantifiers inside state/action predicates now retain
 all instantiated body scopes during planning and independent word validation.

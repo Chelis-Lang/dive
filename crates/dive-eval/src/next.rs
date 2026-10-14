@@ -654,12 +654,16 @@ impl Gen<'_, '_> {
                 s0: StateRef::Vals(self.s1.clone()),
                 s1: StateRef::Empty,
                 control: control::INIT,
+                selectseq: None,
+                selectseq_callback: false,
             }
         } else {
             St {
                 s0: self.s0.clone(),
                 s1: StateRef::Vals(self.s1.clone()),
                 control: control::CLEAR,
+                selectseq: None,
+                selectseq_callback: false,
             }
         }
     }
@@ -672,6 +676,8 @@ impl Gen<'_, '_> {
                 s0: StateRef::Vals(self.s1.clone()),
                 s1: StateRef::Null,
                 control: control::CLEAR,
+                selectseq: None,
+                selectseq_callback: false,
             }
         } else {
             self.st()
@@ -756,11 +762,15 @@ impl Gen<'_, '_> {
             s0: self.s0.clone(),
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         };
         let s1 = St {
             s0: StateRef::Vals(self.s1.clone()),
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         };
         let v1 = self.core.eval_v(&mut item.env.clone(), &s0, item.expr)?;
         let v2 = self.core.eval_v(&mut item.env.clone(), &s1, item.expr)?;
@@ -1204,11 +1214,15 @@ impl Gen<'_, '_> {
             s0: self.s0.clone(),
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         };
         let st1 = St {
             s0: StateRef::Vals(self.s1.clone()),
             s1: StateRef::Null,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         };
         let v0 = self.core.eval_v(&mut env.clone(), &st0, e)?;
         let v1 = self.core.eval_v(&mut env.clone(), &st1, e)?;
@@ -1815,6 +1829,8 @@ impl Expander<'_> {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         };
         match t {
             ActionTree::Leaf { expr, name } => {
@@ -1951,6 +1967,8 @@ impl Expander<'_> {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         };
         let attempt = (|| -> std::result::Result<(), Split1> {
             let d = core.ir.def(def);
@@ -2032,6 +2050,52 @@ impl Evaluator {
         sub: Option<ExprId>,
         state: StateVals,
     ) -> Result<bool> {
+        self.enabled_scoped_context(scope, action, sub, state, None)
+    }
+
+    /// Evaluates the original ENABLED search sharing an existing pure predicate
+    /// invocation's resource counters. With no context, initializes one fresh
+    /// invocation using `limit`. This supplies no enabledness/admission proof.
+    ///
+    /// # Errors
+    /// Invalid scope/state/context, unsupported callback or original search error.
+    pub fn enabled_scoped_pure(
+        &self,
+        scope: &Scope,
+        action: ExprId,
+        sub: Option<ExprId>,
+        st: &St,
+        limit: usize,
+    ) -> Result<bool> {
+        self.validate_scope(scope)?;
+        if let Some(policy) = &st.selectseq
+            && !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
+        {
+            return Err(EvalError::unsupported(
+                "foreign pure predicate invocation context",
+            ));
+        }
+        let bounded = if st.selectseq.is_some() {
+            st.clone()
+        } else {
+            self.begin_pure_predicate(scope, st, limit)?
+        };
+        let StateRef::Vals(state) = &bounded.s0 else {
+            return Err(EvalError::general(
+                "ENABLED requires a complete current state",
+            ));
+        };
+        self.enabled_scoped_context(scope, action, sub, state.clone(), Some(&bounded))
+    }
+
+    fn enabled_scoped_context(
+        &self,
+        scope: &Scope,
+        action: ExprId,
+        sub: Option<ExprId>,
+        state: StateVals,
+        invocation: Option<&St>,
+    ) -> Result<bool> {
         self.validate_scope(scope)?;
         self.admit_scoped_expr(scope, action)?;
         if let Some(sub) = sub {
@@ -2048,6 +2112,8 @@ impl Evaluator {
         let en = Enab {
             core: self.core.clone(),
             s0: StateRef::Vals(state),
+            selectseq: invocation.and_then(|st| st.selectseq.clone()),
+            selectseq_callback: invocation.is_some_and(|st| st.selectseq_callback),
         };
         let successor = vec![None; self.core.ir.vars().len()].into();
         Ok(en.enabled(action, &acts, &env, successor)?.is_some())
@@ -2070,6 +2136,8 @@ impl Core {
         let en = Enab {
             core: self.clone(),
             s0: st.s0.clone(),
+            selectseq: st.selectseq.clone(),
+            selectseq_callback: st.selectseq_callback,
         };
         let found = en.enabled(a, &None, &env1, s1)?;
         Ok(Ev::V(Value::Bool(found.is_some())))
@@ -2079,6 +2147,8 @@ impl Core {
 struct Enab {
     core: Arc<Core>,
     s0: StateRef,
+    selectseq: Option<Arc<crate::env::SelectSeqBudget>>,
+    selectseq_callback: bool,
 }
 
 impl Enab {
@@ -2087,6 +2157,8 @@ impl Enab {
             s0: self.s0.clone(),
             s1: StateRef::Vals(s1.clone()),
             control: control::ENABLED,
+            selectseq: self.selectseq.clone(),
+            selectseq_callback: self.selectseq_callback,
         }
     }
 
@@ -2119,11 +2191,15 @@ impl Enab {
                     s0: self.s0.clone(),
                     s1: StateRef::Empty,
                     control: control::ENABLED,
+                    selectseq: self.selectseq.clone(),
+                    selectseq_callback: self.selectseq_callback,
                 };
                 let st1 = St {
                     s0: StateRef::Vals(s1.clone()),
                     s1: StateRef::Null,
                     control: control::PRIMED,
+                    selectseq: self.selectseq.clone(),
+                    selectseq_callback: self.selectseq_callback,
                 };
                 let v1 = self.core.eval_v(&mut item.env.clone(), &st0, item.expr)?;
                 let v2 = self.core.eval_v(&mut item.env.clone(), &st1, item.expr)?;
@@ -2550,11 +2626,15 @@ impl Enab {
                     s0: self.s0.clone(),
                     s1: StateRef::Empty,
                     control: control::ENABLED,
+                    selectseq: self.selectseq.clone(),
+                    selectseq_callback: self.selectseq_callback,
                 };
                 let st1 = St {
                     s0: StateRef::Vals(s1.clone()),
                     s1: StateRef::Empty,
                     control: control::PRIMED,
+                    selectseq: self.selectseq.clone(),
+                    selectseq_callback: self.selectseq_callback,
                 };
                 let v0 = core.eval_v(&mut env.clone(), &st0, e)?;
                 let v1 = core.eval_v(&mut env.clone(), &st1, e)?;

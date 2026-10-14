@@ -23,6 +23,44 @@ dynamic/exported scopes and other unproved constructs refuse. Ordinary strict
 `dive check` retains its temporal refusal. A diagnostic planning/tableau/product
 API that completes has not issued a temporal verdict.
 
+Pure state predicates can call authoritative `Sequences!SelectSeq` with a unary
+user definition or `LAMBDA`, including a known forwarded operator and lexical
+captures. For example, `SelectSeq(<<0,1,0>>, LAMBDA y: y=x)` returns `<<0,0>>`
+when `x=0` and `<<1>>` when `x=1`; duplicate positions and order are preserved.
+The planner and independent trace evaluator resolve the captured scopes
+separately, so a forwarded state callback is not folded as a constant.
+
+This subset excludes callback binders, deferred functions/providers, action or
+temporal callbacks, recursive/higher-order callbacks, native/configured
+predicate targets and retained dynamic callback contexts. Unused captured
+bodies and stored values are checked too. These combinations report a named
+`unsupported` result. Other higher-order standard operators remain refused.
+This includes direct and negated `ENABLED` and WF/SF enabledness atoms when the
+independent validator can derive complete finite successor covers. Ordinary
+unary pure state helpers enter through their original lazy lexical arguments;
+callback captures and sequence dependencies remain part of the cover checks.
+Missing covers, explicit primed/action callback sources, generic higher-order
+action forwarding and action composition retain named refusals. Independent
+replay can also prove fairness from an action recurring on the repeated cycle
+without querying enabledness.
+Each atom evaluation starts one fresh aggregate work budget, shared by its
+original before/after/body evaluations and nested calls. An enabledness atom
+shares that budget through its complete original search; the independent trace
+search initializes its own counters and shares them through cover reads,
+candidate relations and nonstuttering comparisons. The existing native
+loop checks each actual element before invoking its original callback and stops
+at the first error. Empty sequences invoke no callback. Bounded predicate
+execution bypasses definition and lazy argument result caches, leaving caller
+caches untouched. Authoritative configured/prebound and startup values retain
+their original semantics; reading such a value does not invoke a selection
+loop. During an actual selection, a captured alias of that same input is
+checked by storage identity at the sequence shell; its elements are checked as
+the loop reaches them. Reading the alias inside the callback still checks the
+whole consumed value. Unrelated stored captures get no exemption. Source-only
+capability checks on manually prebound API scopes remain strict and can refuse
+such a stored input before any loop executes. These checks enforce capability and work limits, not
+predicate truth or a temporal verdict. Both value profiles use this same subset.
+
 Schema 2 distinguishes opt-in temporal checking from ordinary safety schema 1.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the

@@ -1056,3 +1056,55 @@ The actual retained P9 seed 0 witness 730968 is a positive control; the old
 x=777 rejection is historical producer-sample mismatch evidence. Corrected
 #257 and ADR 0016 amendment 5 separate existential witness validity from seeded
 producer reproduction. Multiple/cached/correlated calls remain unsupported.
+
+
+### SelectSeq callbacks in pure temporal predicates
+
+The native selection loop in `crates/dive-eval/src/std.rs` continues the existing
+port of `tlc2.module.Sequences.SelectSeq` at tlaplus `94d0c50` (MIT): convert the
+first argument, return on an empty sequence, visit original positions in order,
+apply the original predicate once per position, and preserve selected duplicates
+and original typed errors. No new oracle algorithm is ported.
+
+The evaluator's callback resolver and invocation-local bounded mode are native
+Rust capability/work checks. They retain the actual lexical frame and refuse
+unsupported binder, provider, effect, dynamic and ownership shapes without
+normalizing providers or evaluating predicate truth. Definition/thunk caches
+are bypassed only for that mode; ordinary evaluation keeps its existing cache
+semantics. Authoritative configured/prebound and startup values are unchanged
+and are not runtime callback certificates. Existing pure constant/IF probes
+also enter the bounded mode with their original limits and error order. Each
+atom replay initializes its own aggregate resource counters, shared through
+sequential sub-evaluations; the trace evaluator initializes separate counters.
+Planning and `dive-trace` independently walk returned scopes and
+compute levels; neither shares a checker certificate or predicate result cache.
+Scoped controls cover actual callback shapes, empty/error order, real bindings,
+aggregate duplicate work, cold/warm cache isolation and fresh word/document
+validation. These source controls confer no corpus parity credit; the three
+previously reached corpus sites still require the normal measured gates.
+
+The runtime capture-storage traversal treats only the pointer-identical current
+SelectSeq input as a sequence shell, preserving per-element first-error order.
+It does not use value equality or normalization; callback reads perform the
+full reached-value traversal and unrelated captures remain strict. Structural
+source-only projections receive no evaluated sequence and keep their direct
+prebound-scope capability refusal. This is resource checking, not admission or
+truth evidence.
+
+The enabledness extension propagates that resource context through the existing
+`Enab` state/control constructors and continuations. Ordinary `enabled_scoped`
+and `exists_successor` retain their previous None-context paths. The independent
+finite-cover search initializes its own context and retains its original cover,
+assignment and first-witness rules; it does not use the checker enumerator or
+checker admission. Ordinary unary <=State helper actuals stay lazy source
+thunks. Source dependency scanning preserves successor bookkeeping through
+sequence, callback and helper state captures without admitting explicit primed
+or action callback sources. Unsupported composition refuses before generator
+delegation. Scoped controls exercise enabledness/negation/WF/SF, complete and
+missing covers, shared exhaustion, stored profile/owner errors and synthetic
+warm-cache isolation. Actual bound startup semantics are unchanged.
+
+For an invalid compound first SelectSeq operand, the existing bounded stored-value
+walk runs before error rendering; deferred providers inside sets, records or
+nonsequence functions refuse without enumeration. Ordinary scalar/type/empty
+priority remains unchanged, and valid sequence elements are not preflighted.

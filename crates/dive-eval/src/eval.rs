@@ -40,7 +40,21 @@ impl Core {
 
     /// Evaluates `e`.
     pub(crate) fn eval(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
-        self.eval_inner(env, st, e).map_err(|err| err.at(e))
+        let result = self.eval_inner(env, st, e).map_err(|err| err.at(e))?;
+        if st.selectseq_callback {
+            match &result {
+                Ev::V(value) => crate::Evaluator {
+                    core: self.clone(),
+                    collected: None,
+                }
+                .check_selectseq_value(st, value)
+                .map_err(|err| err.at(e))?,
+                Ev::F(_) => {
+                    return Err(EvalError::unsupported("SelectSeq deferred callback value").at(e));
+                }
+            }
+        }
+        Ok(result)
     }
 
     /// Evaluates `e` and computes a lazy function's value (TLC's implicit
@@ -465,6 +479,8 @@ impl Core {
                     s0: st.s1.clone(),
                     s1: StateRef::Null,
                     control: St::primed_if_enabled(st.control),
+                    selectseq: st.selectseq.clone(),
+                    selectseq_callback: st.selectseq_callback,
                 };
                 self.eval(env, &st1, *a)
             }
@@ -476,6 +492,8 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Empty,
                         control: st.control,
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     *a,
                 )?;
@@ -485,6 +503,8 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: St::primed_if_enabled(st.control),
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     *a,
                 )?;
@@ -511,6 +531,8 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Empty,
                         control: st.control,
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     *sub,
                 )?;
@@ -520,6 +542,8 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: St::primed_if_enabled(st.control),
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     *sub,
                 )?;
@@ -609,10 +633,12 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Null,
                         control: st.control,
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     };
                     return self.eval(&mut t.env.clone(), &st1, t.expr);
                 }
-                let cache = self.reuse_expression_cache();
+                let cache = self.reuse_expression_cache() && st.selectseq.is_none();
                 if cache && let Some(v) = t.cached(st) {
                     return Ok(v);
                 }
@@ -688,6 +714,8 @@ impl Core {
                     s0: st.s1.clone(),
                     s1: StateRef::Null,
                     control: St::primed_if_enabled(st.control),
+                    selectseq: st.selectseq.clone(),
+                    selectseq_callback: st.selectseq_callback,
                 };
                 return self.force(env, &sv, &st1, e);
             }
@@ -708,6 +736,8 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: st.control,
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     c,
                     e,
@@ -775,15 +805,22 @@ impl Core {
             return self.eval_std(env, st, op, &[], e);
         }
         if self.cacheable(d) {
-            if let Some(v) = self.def_cache[d.index()].get() {
+            if st.selectseq.is_none()
+                && let Some(v) = self.def_cache[d.index()].get()
+            {
                 return Ok(Ev::V(v.clone()));
             }
             // TLC evaluates constant definitions once, at start-up, in an empty
             // context; only successes are kept.
             let _g = self.enter(e)?;
             let mut fresh = Env::new(d, def.depth, def.frame.len(), None, Dyn::default());
-            let v = self.eval(&mut fresh, &St::constant(), def.body)?;
-            if let Ev::V(v) = &v {
+            let mut constant = St::constant();
+            constant.selectseq.clone_from(&st.selectseq);
+            constant.selectseq_callback = st.selectseq_callback;
+            let v = self.eval(&mut fresh, &constant, def.body)?;
+            if st.selectseq.is_none()
+                && let Ev::V(v) = &v
+            {
                 let _ = self.def_cache[d.index()].set(v.clone());
             }
             return Ok(v);
@@ -2227,6 +2264,8 @@ impl Core {
                     s0: st.s1.clone(),
                     s1: StateRef::Null,
                     control: St::primed_if_enabled(st.control),
+                    selectseq: st.selectseq.clone(),
+                    selectseq_callback: st.selectseq_callback,
                 };
                 return self.eval(env, &st1, arg(0)?);
             }
@@ -2238,6 +2277,8 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Empty,
                         control: st.control,
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     a,
                 )?;
@@ -2247,6 +2288,8 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: St::primed_if_enabled(st.control),
+                        selectseq: st.selectseq.clone(),
+                        selectseq_callback: st.selectseq_callback,
                     },
                     a,
                 )?;

@@ -59,23 +59,31 @@ impl PredicateAtom {
         let ev = &model.evaluator;
         ev.validate_model_context(&model.ir, &model.names)?;
         ev.validate_predicate(&self.pred.scope, self.pred.expr)?;
+        let invocation = ev.begin_pure_predicate(&self.pred.scope, st, self.binding_limit)?;
+        let st = &invocation;
         if let AtomTest::Enabled { sub } = self.test {
             ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
-            let StateRef::Vals(current) = &st.s0 else {
+            let StateRef::Vals(_) = &st.s0 else {
                 return Err(EvalError::general("ENABLED atom requires a current state"));
             };
-            return ev.enabled_scoped(&self.pred.scope, self.pred.expr, sub, current.clone());
+            return ev.enabled_scoped_pure(
+                &self.pred.scope,
+                self.pred.expr,
+                sub,
+                st,
+                self.binding_limit,
+            );
         }
         if let AtomTest::NegatedEnabled { action } = self.test {
             ev.validate_predicate(&self.pred.scope, action)?;
             ev.check_finite_bindings(&self.pred.scope, action, st, self.binding_limit)?;
-            let StateRef::Vals(current) = &st.s0 else {
+            let StateRef::Vals(_) = &st.s0 else {
                 return Err(EvalError::general(
                     "negated ENABLED atom requires a current state",
                 ));
             };
             return ev
-                .enabled_scoped(&self.pred.scope, action, None, current.clone())
+                .enabled_scoped_pure(&self.pred.scope, action, None, st, self.binding_limit)
                 .map(|b| !b);
         }
         if let AtomTest::Nonstuttering { sub } = self.test {
@@ -88,31 +96,42 @@ impl PredicateAtom {
             ev.check_finite_bindings(
                 &self.pred.scope,
                 sub,
-                &St::state(before.clone()),
+                &st.at_state(before.clone()),
                 self.binding_limit,
             )?;
             ev.check_finite_bindings(
                 &self.pred.scope,
                 sub,
-                &St::state(after.clone()),
+                &st.at_state(after.clone()),
                 self.binding_limit,
             )?;
-            let a = ev.eval_scoped(&self.pred.scope, sub, &St::state(before.clone()))?;
-            let b = ev.eval_scoped(&self.pred.scope, sub, &St::state(after.clone()))?;
+            let a = ev.eval_scoped_pure(
+                &self.pred.scope,
+                sub,
+                &st.at_state(before.clone()),
+                self.binding_limit,
+            )?;
+            let b = ev.eval_scoped_pure(
+                &self.pred.scope,
+                sub,
+                &st.at_state(after.clone()),
+                self.binding_limit,
+            )?;
             if ev.equal_values(&a, &b)? {
                 return Ok(false);
             }
         }
         ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
-        let holds = match model.eval(&self.pred, st)? {
-            Value::Bool(b) => b,
-            v => {
-                return Err(EvalError::general(format!(
-                    "temporal predicate is {}, not boolean",
-                    v.kind_name()
-                )));
-            }
-        };
+        let holds =
+            match ev.eval_scoped_pure(&self.pred.scope, self.pred.expr, st, self.binding_limit)? {
+                Value::Bool(b) => b,
+                v => {
+                    return Err(EvalError::general(format!(
+                        "temporal predicate is {}, not boolean",
+                        v.kind_name()
+                    )));
+                }
+            };
 
         Ok(holds)
     }
@@ -293,11 +312,12 @@ impl Lower<'_> {
     }
 
     fn bool_constant(&self, expr: ExprId, scope: &Scope) -> Result<bool, PlanningError> {
-        match self
-            .model
-            .evaluator
-            .eval_scoped(scope, expr, &St::constant())
-        {
+        match self.model.evaluator.eval_scoped_pure(
+            scope,
+            expr,
+            &St::constant(),
+            self.limits.formula_nodes,
+        ) {
             Ok(Value::Bool(b)) => Ok(b),
             Ok(_) if matches!(&self.model.ir.nodes()[expr.index()].expr, Expr::Num(_)) => {
                 let Expr::Num(text) = &self.model.ir.nodes()[expr.index()].expr else {
@@ -385,11 +405,11 @@ impl Lower<'_> {
             let values = args
                 .iter()
                 .map(|arg| match arg {
-                    Arg::Expr { expr: arg, .. } => {
-                        ev.eval_scoped(scope, *arg, &St::constant()).map_err(|e| {
+                    Arg::Expr { expr: arg, .. } => ev
+                        .eval_scoped_pure(scope, *arg, &St::constant(), self.limits.formula_nodes)
+                        .map_err(|e| {
                             self.refused(*arg, format!("constant temporal argument: {e}"))
-                        })
-                    }
+                        }),
                     Arg::Op { .. } => Err(self.refused(expr, "operator argument in temporal call")),
                 })
                 .collect::<Result<Vec<_>, _>>()?;
@@ -832,6 +852,26 @@ impl Lower<'_> {
         if node.level == Level::Temporal {
             return Ok(Level::Temporal);
         }
+        if let Expr::Apply { callee, args } = &node.expr {
+            let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
+            if let Some((sequence, bodies)) = ev
+                .scope_selectseq_call(scope, callee, args, &mut work)
+                .map_err(|error| self.refused(expr, error.to_string()))?
+            {
+                self.steps = self.limits.expansion_steps - work;
+                let mut level = node
+                    .level
+                    .max(self.scoped_level(sequence, scope, depth + 1)?);
+                for (body, captured) in bodies {
+                    let callback_level = self.scoped_level(body, &captured, depth + 1)?;
+                    if callback_level > Level::State {
+                        return Err(self.refused(expr, "SelectSeq action/temporal callback"));
+                    }
+                    level = level.max(callback_level);
+                }
+                return Ok(level);
+            }
+        }
         let mut level = node.level;
         for child in node.expr.children() {
             level = level.max(self.scoped_level(child, scope, depth + 1)?);
@@ -1028,7 +1068,7 @@ impl Lower<'_> {
                 _ => None,
             };
             if let Some((op, args)) = call {
-                let standard = match op {
+                let standard = match op.clone() {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
                         let d = self.checked_definition(e, d)?;
@@ -1059,6 +1099,23 @@ impl Lower<'_> {
                 };
                 if standard == Some(StdOp::TlcTLCGet) {
                     return Err(self.refused(e, "TLCGet requires the liveness search host"));
+                }
+                if standard == Some(StdOp::SequencesSelectSeq) {
+                    let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
+                    let (sequence, bodies) = ev
+                        .scope_selectseq_call(&scope, &op, args, &mut work)
+                        .map_err(|error| self.refused(e, error.to_string()))?
+                        .ok_or_else(|| self.refused(e, "SelectSeq callback context/level"))?;
+                    self.steps = self.limits.expansion_steps - work;
+                    for (body, captured) in bodies {
+                        self.forwarded_context(body, &captured, depth + 1)?;
+                        if self.scoped_level(body, &captured, depth + 1)? > Level::State {
+                            return Err(self.refused(e, "SelectSeq callback context/level"));
+                        }
+                        todo.push((body, captured, depth + 1));
+                    }
+                    todo.push((sequence, scope.clone(), depth + 1));
+                    continue;
                 }
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     return Err(self.refused(e, "higher-order predicate argument"));
@@ -1193,7 +1250,8 @@ impl Lower<'_> {
             // converts guard/then/else in source order before level fallback.
             if self.scoped_level(*cond, scope, depth)? <= Level::Action {
                 self.pure_atom(*cond, scope)?;
-                match ev.eval_scoped(scope, *cond, &St::constant()) {
+                match ev.eval_scoped_pure(scope, *cond, &St::constant(), self.limits.formula_nodes)
+                {
                     Ok(Value::Bool(chosen)) => {
                         return self.expr(if chosen { *then } else { *other }, scope, depth + 1);
                     }

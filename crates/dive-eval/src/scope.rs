@@ -221,7 +221,7 @@ impl Evaluator {
         Ok(Some(native))
     }
 
-    fn operator_value_analysis(
+    pub(crate) fn operator_value_analysis(
         &self,
         scope: &Scope,
         value: crate::env::OpVal,
@@ -271,6 +271,47 @@ impl Evaluator {
         )))
     }
 
+    pub(crate) fn selectseq_value_analysis(
+        &self,
+        scope: &Scope,
+        value: crate::env::OpVal,
+        work: &mut usize,
+    ) -> Result<Option<(DefId, Scope)>> {
+        self.validate_scope(scope)?;
+        *work = work
+            .checked_sub(self.core.consts.len().saturating_add(1))
+            .ok_or_else(|| EvalError::resource_limit("SelectSeq target work"))?;
+        let crate::env::OpVal::Def {
+            def,
+            parent,
+            dynamic: None,
+        } = &value
+        else {
+            return Err(EvalError::unsupported(
+                "SelectSeq retained dynamic/native callback",
+            ));
+        };
+        let definition = self.admit_def(*def)?;
+        match definition.scope {
+            DefScope::Local { parent: owner } | DefScope::Inline { parent: owner }
+                if parent.as_ref().is_none_or(|frame| {
+                    frame.def != owner || frame.depth != definition.depth.saturating_sub(1)
+                }) =>
+            {
+                return Err(EvalError::unsupported(
+                    "SelectSeq incompatible lexical callback owner",
+                ));
+            }
+            DefScope::TopLevel if parent.is_some() => {
+                return Err(EvalError::unsupported(
+                    "SelectSeq unexpected lexical callback owner",
+                ));
+            }
+            _ => {}
+        }
+        self.operator_value_analysis(scope, value)
+    }
+
     /// Projects every captured lazy expression and known user operator body.
     ///
     /// This performs no evaluation, normalization or callback. Returned bodies
@@ -288,6 +329,15 @@ impl Evaluator {
         &self,
         scope: &Scope,
         work: &mut usize,
+    ) -> Result<Option<Vec<(ExprId, Scope)>>> {
+        self.operator_captures(scope, work, false)
+    }
+
+    pub(crate) fn operator_captures(
+        &self,
+        scope: &Scope,
+        work: &mut usize,
+        selectseq: bool,
     ) -> Result<Option<Vec<(ExprId, Scope)>>> {
         self.validate_scope(scope)?;
         Self::operator_capture_step(work)?;
@@ -363,14 +413,22 @@ impl Evaluator {
                         )
                     }
                     Sv::Op(operator) => {
-                        if self.native_operator_value(operator, work)?.is_some() {
+                        if selectseq
+                            && !matches!(operator, crate::env::OpVal::Def { dynamic: None, .. })
+                        {
+                            return Ok(None);
+                        }
+                        if !selectseq && self.native_operator_value(operator, work)?.is_some() {
                             // The whitelist has no lexical body/captured callback.
                             // Actual arguments still require independent proof.
                             continue;
                         }
-                        let Some((def, source)) =
+                        let resolved = if selectseq {
+                            self.selectseq_value_analysis(&context_scope, operator.clone(), work)?
+                        } else {
                             self.operator_value_analysis(&context_scope, operator.clone())?
-                        else {
+                        };
+                        let Some((def, source)) = resolved else {
                             return Ok(None);
                         };
                         (self.core.ir.def(def).body, source)
@@ -1020,6 +1078,13 @@ impl Evaluator {
     pub fn eval_scoped(&self, scope: &Scope, expr: ExprId, st: &St) -> Result<Value> {
         self.admit_scoped_expr(scope, expr)?;
         self.validate_scope(scope)?;
+        if st.selectseq.as_ref().is_some_and(|policy| {
+            !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
+        }) {
+            return Err(EvalError::unsupported(
+                "foreign pure predicate invocation context",
+            ));
+        }
         let mut env = scope.env.clone();
         let ev = self.core.eval(&mut env, st, expr)?;
         self.core.force_fcn(ev)
