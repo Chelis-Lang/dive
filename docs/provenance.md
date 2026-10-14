@@ -1156,3 +1156,23 @@ refusals. The runtime-name regression distinguishes names already interned by
 model binding from newly created JSON strings; the latter retain the existing
 TLC-profile trace-validation refusal (#124). Full-gate and corpus measurements
 use their actual recorded source revisions rather than historical source labels.
+
+## Basic simulation action inventories and flows
+
+The bounded action inventory and sampled-flow port follows tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT):
+`SimulationWorkerStatistics.collectPostSuccessor`,
+`Simulator.getActionFlowGraphSnapshot(REDUCE)`, `Action.getDefinition`,
+`SpecProcessor.processConstantDefns`, `SymbolNodeValueLookupProvider.lookup` and
+`Tool.getActionsAppl`. Sparse chosen-action counts retain source-location context
+reduction. Actual value lookups preserve invocation predicates; configured
+definition targets supply body trees without flattening lookup state.
+
+The bounded conformance controls cover twenty generated inventory cases, public
+inventories, chosen pairs and supported production DOT weights, including
+cached-disjunction seed/aril cases. The current leaf passed independent scoped
+review, the full workspace gate and all four unchanged small-corpus comparisons
+against the accepted baseline. Earlier oracle and source measurements retain
+their recorded revisions. Configured constant-effect refusals remain explicit;
+broader simulation, generation, schedulers, DFID and coverage remain pending.
+See [the simulation contract](user/simulation.md).

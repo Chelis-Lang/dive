@@ -6,6 +6,10 @@
 //! refuse by name. The independent trace validator remains outside this crate.
 #![forbid(unsafe_code)]
 
+mod statistics;
+
+pub use statistics::{ActionFlow, ActionGroup};
+
 use dive_eval::next::{Flow, StateVals};
 use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, St};
 use dive_ir::Effects;
@@ -33,6 +37,8 @@ pub struct Options {
     pub max_retained: usize,
     /// Maximum generated states, including discarded candidates.
     pub max_generated: u64,
+    /// Collect chosen action flows, combining source locations as TLC `stats=basic`.
+    pub action_stats: bool,
 }
 
 impl Options {
@@ -48,6 +54,7 @@ impl Options {
             max_candidates: 1_000_000,
             max_retained: 1_000_000,
             max_generated: 10_000_000,
+            action_stats: false,
         }
     }
 }
@@ -121,6 +128,8 @@ pub struct Report {
     pub traces_started: u64,
     /// Concrete trace data, retained subject to the request's bound.
     pub traces: Vec<Trace>,
+    /// Optional chosen-action counts; absent when disabled or preflight refused.
+    pub action_flow: Option<ActionFlow>,
 }
 
 /// Simulates a bound model with TLC's default (non-probabilistic) enumerator.
@@ -139,10 +148,20 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
         pending_violation: None,
         traces_started: 0,
         traces: Vec::new(),
+        action_flow: None,
     };
     if let Some(outcome) = preflight(model, opts) {
         report.outcome = outcome;
         return report;
+    }
+    if opts.action_stats {
+        match ActionFlow::new(model) {
+            Ok(flow) => report.action_flow = Some(flow),
+            Err(error) => {
+                report.outcome = classify(&error, None);
+                return report;
+            }
+        }
     }
     report.stage = "assumptions";
     match model.check_assumptions() {
@@ -168,7 +187,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
             return Flow::Stop;
         }
         report.initial_candidates += 1;
-        inits.push(StateVals::from(s.state));
+        inits.push((StateVals::from(s.state), s.action.id()));
         Flow::Continue
     });
     if let Err(e) = enumeration {
@@ -183,7 +202,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
     }
     report.generated = report.initial_candidates;
     let mut selected_inits = Vec::new();
-    for init in &inits {
+    for (init, action_id) in &inits {
         if init.iter().any(Option::is_none) {
             report.outcome = Outcome::Error {
                 code: 2106,
@@ -206,7 +225,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
             return report;
         }
         match allowed(model, &model.constraints, &st) {
-            Ok(true) => selected_inits.push(init.clone()),
+            Ok(true) => selected_inits.push((init.clone(), *action_id)),
             Ok(false) => {}
             Err(e) => {
                 report.outcome = classify(&e, None);
@@ -225,7 +244,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
     // exposes that operation, refuse compound initial values instead of guessing.
     if selected_inits
         .iter()
-        .flat_map(|s| s.iter())
+        .flat_map(|(s, _)| s.iter())
         .flatten()
         .any(|v| matches!(v, Value::Set(_) | Value::Fcn(_)))
     {
@@ -246,7 +265,9 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
             RandomMode::Dive => streams.simulation_trace(id),
         };
         report.traces_started += 1;
-        let mut states = vec![selected_inits[index(&mut rng, selected_inits.len())].clone()];
+        let (init, mut previous_action) =
+            selected_inits[index(&mut rng, selected_inits.len())].clone();
+        let mut states = vec![init];
         if retained >= opts.max_retained {
             report.outcome = Outcome::Limit("simulation retained-state bound".to_owned());
             return report;
@@ -356,6 +377,15 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
             }
             retained += 1;
             states.push(candidates[index(&mut rng, candidates.len())].clone());
+            let chosen_action = model.actions[action_index].id();
+            if let Some(flow) = &mut report.action_flow
+                && let Err(error) = flow.record(previous_action, chosen_action)
+            {
+                report.traces.push(Trace { id, states });
+                report.outcome = classify(&error, None);
+                return report;
+            }
+            previous_action = chosen_action;
         }
         worker = rng;
         report.traces.push(Trace { id, states });

@@ -4,6 +4,7 @@ use crate::trace::{Ending, SpecModel, TraceDoc, TraceOptions};
 use dive_sim::{Options, Outcome};
 use dive_stdlib::random::RandomMode;
 use serde_json::{Value, json};
+use std::fmt::Write as _;
 use std::path::PathBuf;
 
 /// Version of simulation reports, separate from exhaustive checking reports.
@@ -38,6 +39,8 @@ pub struct SimulateRequest {
     pub workers: Option<usize>,
     /// TLC's `-deadlock`: disable deadlock checking.
     pub no_deadlock: bool,
+    /// Collect source-location action flows, corresponding to TLC `stats=basic`.
+    pub action_stats: bool,
     /// Modules searched before standard modules.
     pub library_paths: Vec<PathBuf>,
     /// Modules searched after standard modules.
@@ -67,13 +70,24 @@ impl SimulateReport {
     /// Human-readable sampling summary that never claims a proof.
     #[must_use]
     pub fn render_human(&self) -> String {
-        format!(
+        let mut text = format!(
             "simulation: {} ({} traces, {} generated states; no exhaustive proof)\nseed: {}\n",
             self.document["result"].as_str().unwrap_or("internal-error"),
             self.document["statistics"]["traces_started"],
             self.document["statistics"]["generated"],
             self.document["options"]["seed"]
-        )
+        );
+        if let Some(transitions) = self.document["action_flow"]["transitions"].as_array() {
+            text.push_str("action flow (chosen transitions):\n");
+            for edge in transitions {
+                let _ = writeln!(
+                    text,
+                    "  group {} -> group {}: {}",
+                    edge["from"], edge["to"], edge["count"]
+                );
+            }
+        }
+        text
     }
 }
 
@@ -98,6 +112,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         req.traces,
     );
     let options = Options {
+        action_stats: req.action_stats,
         aril: if req.compat_tlc && req.seed.is_none() {
             0
         } else {
@@ -129,6 +144,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             pending_violation: None,
             traces_started: 0,
             traces: Vec::new(),
+            action_flow: None,
         }
     } else {
         let executed = std::thread::scope(|scope| {
@@ -157,6 +173,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                         "message": message, "exit_code": 4, "violation_validated": false,
                         "options": { "seed": seed, "seed_given": req.seed.is_some(),
                             "aril": options.aril, "aril_requested": req.aril,
+                            "action_stats": req.action_stats,
                             "depth": options.depth, "traces": options.traces,
                             "workers_requested": req.workers.unwrap_or(1), "workers_used": workers_used,
                             "execution_stage": if workers_used == 0 { "worker-start" } else { "worker-failure" } },
@@ -326,6 +343,19 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         json!({"kind": pending.kind, "name": pending.name, "tlc_code": pending.code,
             "validation": "unavailable", "reason": "complete trace exceeds retained-state bound"})
     });
+    let action_flow = result.action_flow.as_ref().map(|flow| {
+        let actions: Vec<_> = flow.actions.iter().map(|action| json!({
+            "id": action.id, "name": action.name, "label": action.label,
+            "initial": action.initial, "bound_action_ids": action.bound_action_ids,
+            "location": {"module": action.location.file.map(|f| &model.model().ir.files()[f.index()].module),
+                "begin": action.location.begin, "end": action.location.end},
+        })).collect();
+        let transitions: Vec<_> = flow.transitions.iter().map(|(&(from, to), &count)| {
+            json!({"from": from, "to": to, "count": count})
+        }).collect();
+        json!({"mode": "basic", "scope": "chosen-transitions", "actions": actions,
+            "transitions": transitions})
+    });
     let document = json!({
         "schema_version": SIMULATE_SCHEMA_VERSION, "command": "simulate",
         "file": req.file.display().to_string(), "config": config.display().to_string(),
@@ -337,10 +367,10 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "depth": options.depth, "traces": options.traces, "workers_requested": req.workers.unwrap_or(1),
             "workers_used": u8::from(result.stage != "preflight"),
             "execution_stage": result.stage, "execution_scope": "simulation-backend",
-            "mode": "finite-safety", "probabilistic": false },
+            "mode": "finite-safety", "probabilistic": false, "action_stats": req.action_stats },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
             "scope": if matches!(result.outcome, Outcome::Sampled) { "complete-request" } else { "completed-prefix" } },
-        "traces": traces,
+        "traces": traces, "action_flow": action_flow,
     });
     Ok(SimulateReport { document, exit })
 }

@@ -123,6 +123,15 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Finite simulation accepts `--stats basic` and
+  `SimulateRequest::action_stats`, returning sparse counts of consecutive chosen
+  actions grouped by predicate source location. Counts include Init provenance
+  and stutters and retain the chosen prefix on failures. Unused value-bound
+  invocations preserve their names and locations; configured definition targets
+  retain their action bodies. Sampling, seeded replay
+  and independent safety validation keep their existing contract. This does not
+  complete probabilistic generation, schedulers, DFID or expression coverage.
+
 - Remove the empty `dive-compile` and `dive-lsp` workspace placeholders and their
   unused dependency permissions. Language-server and native-compilation work
   remain on the post-v1 roadmap (ADR 0095).
