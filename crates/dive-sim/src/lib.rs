@@ -2,7 +2,7 @@
 //!
 //! Implements the pinned TLC's ordinary, single-worker `Simulator` and
 //! `SimulationWorker` selection loop. A finished sample is explicitly not a
-//! model-checking proof. Temporal checking, effects, and unsupported options
+//! model-checking proof. Temporal checking, unsupported runtime effects, and unsupported options
 //! refuse by name. The independent trace validator remains outside this crate.
 #![forbid(unsafe_code)]
 
@@ -12,7 +12,7 @@ pub use statistics::{ActionFlow, ActionGroup};
 
 use dive_eval::next::{Flow, StateVals};
 use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, St};
-use dive_ir::Effects;
+mod host;
 use dive_model::{Model, Named};
 use dive_stdlib::random::{RandomMode, RandomSource, Stream, Streams};
 use dive_value::Value;
@@ -39,6 +39,11 @@ pub struct Options {
     pub max_generated: u64,
     /// Collect chosen action flows, combining source locations as TLC `stats=basic`.
     pub action_stats: bool,
+    /// Maximum retained runtime Print/PrintT events (startup output is separate).
+    pub max_output_events: usize,
+    /// Maximum UTF-8 bytes retained in runtime Print/PrintT text. This does not
+    /// bound temporary rendering allocations or total process memory.
+    pub max_output_bytes: usize,
 }
 
 impl Options {
@@ -55,6 +60,8 @@ impl Options {
             max_retained: 1_000_000,
             max_generated: 10_000_000,
             action_stats: false,
+            max_output_events: 100_000,
+            max_output_bytes: 16 * 1024 * 1024,
         }
     }
 }
@@ -130,16 +137,62 @@ pub struct Report {
     pub traces: Vec<Trace>,
     /// Optional chosen-action counts; absent when disabled or preflight refused.
     pub action_flow: Option<ActionFlow>,
+    /// Actual backend output, separate from binding and independent replay.
+    /// Warning events preserve their existing distinction from Print events.
+    pub runtime_output: Vec<dive_eval::capture::Captured>,
 }
 
 /// Simulates a bound model with TLC's default (non-probabilistic) enumerator.
-/// Run on a thread with [`dive_eval::RECOMMENDED_STACK`].
+/// Run on a thread with [`dive_eval::RECOMMENDED_STACK`]. A shared evaluator core,
+/// including clones, admits one simulation at a time. Overlap or reentry refuses
+/// before evaluation; separate bound cores may run concurrently. Callers must
+/// not mix foreign evaluator or host operations with an active simulation.
 #[must_use]
 #[allow(
     clippy::too_many_lines,
     reason = "keep the pinned simulator selection and callback ordering together"
 )]
 pub fn simulate(model: &Model, opts: &Options) -> Report {
+    // Preflight keeps its no-evaluation contract. Effects are checked only
+    // when reached after it, including captured operator arguments.
+    if preflight(model, opts).is_some() {
+        return simulate_inner(model, opts);
+    }
+    // Declared before HostRestore so reverse drop order restores the original
+    // host before releasing shared-core simulation ownership, on every return.
+    let Some(_lease) = model.evaluator.try_simulation_lease() else {
+        return Report {
+            stage: "preflight",
+            outcome: Outcome::Unsupported(
+                "concurrent or reentrant simulation on the same evaluator".to_owned(),
+            ),
+            generated: 0,
+            initial_candidates: 0,
+            pending_violation: None,
+            traces_started: 0,
+            traces: Vec::new(),
+            action_flow: None,
+            runtime_output: Vec::new(),
+        };
+    };
+    let host = host::SimulationHost::new(opts);
+    let _restore = host::HostRestore::install(&model.evaluator, host.clone());
+    let capture = dive_eval::capture::PrintCapture::start();
+    let mut report = simulate_inner(model, opts);
+    report.runtime_output = model.evaluator.filter_captured_warnings(capture.take());
+    if let Some(reason) = host.limit() {
+        report.outcome = Outcome::Limit(reason.to_owned());
+    } else if let Some(reason) = host.denied() {
+        report.outcome = Outcome::Unsupported(reason);
+    }
+    report
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep the pinned simulator selection and callback ordering together"
+)]
+fn simulate_inner(model: &Model, opts: &Options) -> Report {
     let mut report = Report {
         stage: "preflight",
         outcome: Outcome::Sampled,
@@ -149,6 +202,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
         traces_started: 0,
         traces: Vec::new(),
         action_flow: None,
+        runtime_output: Vec::new(),
     };
     if let Some(outcome) = preflight(model, opts) {
         report.outcome = outcome;
@@ -459,28 +513,6 @@ fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         return Some(Outcome::Limit(
             "simulation action count exceeds TLC integer indexing".to_owned(),
         ));
-    }
-    let forbidden = Effects::IMPURE.union(Effects::OPEN);
-    let predicates = model
-        .init
-        .iter()
-        .map(|i| &i.pred)
-        .chain(model.next.iter())
-        .chain(model.invariants.iter().map(|n| &n.pred))
-        .chain(model.implied_actions.iter().map(|n| &n.pred))
-        .chain(model.constraints.iter().map(|n| &n.pred))
-        .chain(model.action_constraints.iter().map(|n| &n.pred));
-    if predicates.into_iter().any(|p| {
-        model.ir.node(p.expr).effects.intersects(forbidden)
-            || model.evaluator.scope_shares_side_effects(&p.scope)
-    }) || model.assumptions.iter().any(|d| {
-        model
-            .ir
-            .node(model.ir.def(*d).body)
-            .effects
-            .intersects(forbidden)
-    }) {
-        return refusal("simulation effects or unresolved constant-operator effects");
     }
     None
 }

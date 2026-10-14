@@ -222,7 +222,6 @@ fn correlated_wrapped_and_later_random_uses_remain_refused() {
                 ),
                 ("UNCHANGED x", "x<0", "ASSUME TLCSet(1,42)", vec![json!(7)]),
                 ("UNCHANGED x", "TLCGet(1)=0", "", vec![json!(7)]),
-                ("UNCHANGED x", "Print(x,FALSE)", "", vec![json!(7)]),
             ] {
                 let m = model("x=RandomElement({7})", next, inv, extra, tlc, Some((0, 0)));
                 assert!(
@@ -291,7 +290,6 @@ fn actual_domain_evaluation_cannot_use_the_witness_or_host() {
                 "{x}",
                 "IF TLCSet(1,42) THEN {7} ELSE {8}",
                 "{RandomElement({7})}",
-                "IF Print(7,TRUE) THEN {7} ELSE {8}",
             ] {
                 let m = model(
                     &format!("x=RandomElement({domain})"),
@@ -330,6 +328,127 @@ fn actual_domain_evaluation_cannot_use_the_witness_or_host() {
                 m.validate(&doc(&[json!(7)], lossy)).validation,
                 Validation::Valid
             );
+        }
+    }
+}
+
+#[test]
+fn quiet_print_domains_check_the_real_branch_without_caller_effects() {
+    use dive_eval::{Host, HostError};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    #[derive(Debug)]
+    struct CallerHost(AtomicUsize);
+    impl Host for CallerHost {
+        fn print_output(&self, _text: &str) -> Result<bool, HostError> {
+            self.0.fetch_add(1, Ordering::Relaxed);
+            Ok(true)
+        }
+        fn random(
+            &self,
+            _op: dive_ir::StdOp,
+            _args: &[Value],
+            _ctx: dive_value::Ctx,
+        ) -> Option<Result<Value, HostError>> {
+            self.0.fetch_add(1, Ordering::Relaxed);
+            Some(Err(HostError {
+                code: 0,
+                message: "caller random stream must not be reached".into(),
+            }))
+        }
+    }
+    for tlc in [false, true] {
+        for lossy in [false, true] {
+            for (predicate, actual, forged) in [
+                ("Print(7,TRUE)", 7, 8),
+                ("Print(7,FALSE)", 8, 7),
+                ("PrintT(7)", 7, 8),
+            ] {
+                let domain = format!("IF {predicate} THEN {{7}} ELSE {{8}}");
+                let m = model(
+                    &format!("x=RandomElement({domain})"),
+                    "UNCHANGED x",
+                    "x<0",
+                    "",
+                    tlc,
+                    Some((0, 0)),
+                );
+                let host = Arc::new(CallerHost(AtomicUsize::new(0)));
+                let caller: Arc<dyn Host> = host.clone();
+                let _previous = m.model().evaluator.replace_host(Some(caller.clone()));
+                let output = dive_eval::capture::PrintCapture::start();
+                for _ in 0..2 {
+                    assert_eq!(
+                        m.validate(&doc(&[json!(actual)], lossy)).validation,
+                        Validation::Valid
+                    );
+                    invalid(
+                        m.validate(&doc(&[json!(forged)], lossy)).validation,
+                        Check::Init,
+                    );
+                }
+                assert_eq!(output.take(), [] as [dive_eval::capture::Captured; 0]);
+                assert_eq!(host.0.load(Ordering::Relaxed), 0);
+                let restored = m.model().evaluator.replace_host(None).expect("caller host");
+                assert!(Arc::ptr_eq(&restored, &caller));
+            }
+        }
+    }
+}
+
+#[test]
+fn quiet_print_endings_check_the_actual_boolean() {
+    for tlc in [false, true] {
+        for lossy in [false, true] {
+            let violated = model(
+                "x=RandomElement({7})",
+                "UNCHANGED x",
+                "Print(x,FALSE)",
+                "",
+                tlc,
+                None,
+            );
+            assert_eq!(
+                violated.validate(&doc(&[json!(7)], lossy)).validation,
+                Validation::Valid
+            );
+            let satisfied = model(
+                "x=RandomElement({7})",
+                "UNCHANGED x",
+                "Print(x,TRUE)",
+                "",
+                tlc,
+                None,
+            );
+            invalid(
+                satisfied.validate(&doc(&[json!(7)], lossy)).validation,
+                Check::Ending,
+            );
+        }
+    }
+}
+
+#[test]
+fn quiet_print_domain_errors_are_not_membership_results() {
+    for tlc in [false, true] {
+        for lossy in [false, true] {
+            for domain in [
+                "IF Print(1\\div0,TRUE) THEN {7} ELSE {8}",
+                "IF Print(7,7) THEN {7} ELSE {8}",
+            ] {
+                let m = model(
+                    &format!("x=RandomElement({domain})"),
+                    "UNCHANGED x",
+                    "x<0",
+                    "",
+                    tlc,
+                    None,
+                );
+                assert!(matches!(
+                    m.validate(&doc(&[json!(7)], lossy)).validation,
+                    Validation::Unsupported(_)
+                ));
+            }
         }
     }
 }

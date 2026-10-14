@@ -70,7 +70,19 @@ impl SimulateReport {
     /// Human-readable sampling summary that never claims a proof.
     #[must_use]
     pub fn render_human(&self) -> String {
-        let mut text = format!(
+        let mut text = String::new();
+        for field in ["startup_output", "runtime_output"] {
+            if let Some(events) = self.document[field].as_array() {
+                for event in events {
+                    if let Some(line) = event["text"].as_str() {
+                        text.push_str(line);
+                        text.push('\n');
+                    }
+                }
+            }
+        }
+        let _ = write!(
+            text,
             "simulation: {} ({} traces, {} generated states; no exhaustive proof)\nseed: {}\n",
             self.document["result"].as_str().unwrap_or("internal-error"),
             self.document["statistics"]["traces_started"],
@@ -145,6 +157,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             traces_started: 0,
             traces: Vec::new(),
             action_flow: None,
+            runtime_output: Vec::new(),
         }
     } else {
         let executed = std::thread::scope(|scope| {
@@ -367,10 +380,14 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "depth": options.depth, "traces": options.traces, "workers_requested": req.workers.unwrap_or(1),
             "workers_used": u8::from(result.stage != "preflight"),
             "execution_stage": result.stage, "execution_scope": "simulation-backend",
-            "mode": "finite-safety", "probabilistic": false, "action_stats": req.action_stats },
+            "mode": "finite-safety", "probabilistic": false, "action_stats": req.action_stats,
+            "max_output_events": options.max_output_events, "max_output_bytes": options.max_output_bytes },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
             "scope": if matches!(result.outcome, Outcome::Sampled) { "complete-request" } else { "completed-prefix" } },
         "traces": traces, "action_flow": action_flow,
+        "runtime_output": result.runtime_output.iter().map(|event| json!({
+            "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
+        })).collect::<Vec<_>>(),
     });
     Ok(SimulateReport { document, exit })
 }

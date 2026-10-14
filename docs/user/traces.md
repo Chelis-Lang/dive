@@ -157,9 +157,13 @@ Next == x'=x+1
 Use `SpecModel::from_source` with `INIT Init` and `NEXT Next`, then validate
 `TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])`, as in the Rust
 example above. Random draws remain unsupported even in unused constant
-start-up definitions that actually execute. Printing, wall-clock/host I/O,
-exit/pause, live counters and system properties have no private-startup
-validation contract and remain named refusals when executed. Supply the run
+start-up definitions that actually execute. Print/PrintT preserve actual argument
+and rendering errors and return values during private startup and word validation;
+rendered replay output is discarded before any sink callback. Producer binding
+and runtime output remain separate from this quiet reconstruction. This grants
+no additional random/register/I/O access. Wall-clock/host I/O, exit/pause, live
+counters and system properties have no private-startup validation contract and
+remain named refusals when executed. Supply the run
 seed/fp when reading `TLCGet("config")`; the configuration becomes available
 after constant binding and before ASSUMEs, matching ordinary API binding.
 This validates the displayed behavior, with no claim of phase or corpus parity.

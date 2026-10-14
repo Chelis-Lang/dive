@@ -125,6 +125,22 @@ pub use crate::scope::{Scope, SlotView};
 use crate::core::Core;
 use crate::env::{Dyn, Env, Ev};
 
+/// Exclusive simulation entry on a shared evaluator core. Dropping the lease
+/// permits the next simulation. The driver must restore its host before drop.
+/// Ordinary evaluator operations and host setters keep their existing behavior;
+/// callers must not mix foreign evaluator/host operations with an active simulation.
+#[derive(Debug)]
+pub struct SimulationLease<'a> {
+    active: &'a ::std::sync::atomic::AtomicBool,
+}
+
+impl Drop for SimulationLease<'_> {
+    fn drop(&mut self) {
+        self.active
+            .store(false, ::std::sync::atomic::Ordering::Release);
+    }
+}
+
 /// What the configuration binds a constant to.
 #[derive(Clone, Debug)]
 pub enum ConstBinding {
@@ -255,6 +271,29 @@ impl Evaluator {
         }
     }
 
+    /// Applies the run's warning history to captured output without calling
+    /// any sink. Print events are retained even when their text repeats.
+    /// This is an alternative to [`Self::release`] for drivers that return
+    /// captured observations themselves; do not release the filtered warnings
+    /// a second time, since they are already recorded in the run's history.
+    ///
+    /// ```
+    /// use dive_eval::{Evaluator, capture::{Captured, PrintCapture}};
+    /// fn retained(ev: &Evaluator, cap: &PrintCapture) -> Vec<Captured> {
+    ///     ev.filter_captured_warnings(cap.take())
+    /// }
+    /// ```
+    #[must_use]
+    pub fn filter_captured_warnings(
+        &self,
+        lines: Vec<capture::Captured>,
+    ) -> Vec<capture::Captured> {
+        lines
+            .into_iter()
+            .filter(|line| !line.warning || self.core.first_warning(&line.text))
+            .collect()
+    }
+
     /// Whether evaluating in `scope` can run an expression with side effects
     /// (`Print`, `TLCSet`, randomness, ...) through a lazily evaluated value
     /// that every evaluation shares: a cached `LazyValue` or a lazy function
@@ -330,6 +369,37 @@ impl Evaluator {
             core: Arc::new(Core::new(model, opts, sink)),
             collected: None,
         })
+    }
+
+    /// Claims exclusive simulation entry without waiting. Evaluator clones share
+    /// the same core, so overlapping and reentrant claims return `None`.
+    /// Hold this lease through host restoration. Independent cores remain free
+    /// to simulate concurrently. No host-registration lock is held by the lease.
+    ///
+    /// ```
+    /// use dive_eval::Evaluator;
+    /// fn shared_core(ev: &Evaluator) {
+    ///     let lease = ev.try_simulation_lease();
+    ///     assert!(lease.is_some());
+    ///     assert!(ev.clone().try_simulation_lease().is_none());
+    ///     drop(lease);
+    ///     assert!(ev.try_simulation_lease().is_some());
+    /// }
+    /// ```
+    #[must_use]
+    pub fn try_simulation_lease(&self) -> Option<SimulationLease<'_>> {
+        self.core
+            .simulation_active
+            .compare_exchange(
+                false,
+                true,
+                ::std::sync::atomic::Ordering::AcqRel,
+                ::std::sync::atomic::Ordering::Acquire,
+            )
+            .ok()
+            .map(|_| SimulationLease {
+                active: &self.core.simulation_active,
+            })
     }
 
     /// Installs the run hosting the evaluator (see [`Host`]): the model

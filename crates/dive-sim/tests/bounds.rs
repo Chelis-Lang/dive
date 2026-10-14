@@ -78,10 +78,6 @@ fn temporal_effects_and_compound_normalization_are_named_refusals() {
             "INIT Init\nNEXT Next\nPROPERTY Live\n",
         ),
         (
-            "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = RandomElement({1, 2})\n====\n",
-            "INIT Init\nNEXT Next\n",
-        ),
-        (
             "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = <<0>>\nNext == x' = x\n====\n",
             "INIT Init\nNEXT Next\n",
         ),
@@ -349,4 +345,21 @@ fn basic_action_flows_keep_standard_operator_action_names() {
         flow.transitions.is_empty(),
         "depth zero does not evaluate the failing action"
     );
+}
+
+#[test]
+fn reached_randomness_is_refused_during_actual_sampling() {
+    let source = "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = RandomElement({1, 2})\n====\n";
+    let report = run(
+        source,
+        "INIT Init\nNEXT Next\n",
+        &Options::new(0, RandomMode::Tlc, 3, 1),
+    );
+    assert!(
+        matches!(report.outcome, Outcome::Unsupported(ref why) if why.contains("RandomElement"))
+    );
+    assert_eq!(report.stage, "sampling");
+    assert_eq!(report.traces_started, 1);
+    assert_eq!(report.generated, 1);
+    assert_eq!(report.runtime_output.len(), 0);
 }

@@ -88,6 +88,18 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         Ok(())
     }
 
+    /// Checks a rendered Print/PrintT event before any output sink is called.
+    /// Arguments and rendering have already been evaluated. `false` preserves
+    /// the operator's return value while discarding replay output; `true`
+    /// emits the event. Ordinary hosts keep the existing output behavior.
+    ///
+    /// # Errors
+    /// A named refusal or an output resource bound. Rendering's temporary
+    /// allocation is not bounded by this hook.
+    fn print_output(&self, _text: &str) -> Result<bool, HostError> {
+        Ok(true)
+    }
+
     /// Checks a string TLCGet/TLCSet key before accessing host state.
     ///
     /// # Errors

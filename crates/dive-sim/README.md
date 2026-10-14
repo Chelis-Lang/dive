@@ -11,7 +11,7 @@ call the exhaustive checker or the trace validator.
 ## Implemented contract
 
 This first slice implements ordinary, single-worker, finite safety simulation
-on pure predicates. TLC's optional JVM `Tool.probabilistic` mode is a different
+on supported predicates, with runtime Print/PrintT. TLC's optional JVM `Tool.probabilistic` mode is a different
 algorithm and is explicitly unsupported. The initial predicates are enumerated
 once, with duplicates. The entire initial vector is collected before any
 completeness, invariant or constraint check. Initial-generation failures retain
@@ -83,7 +83,7 @@ it is not substituted for the concrete validation input. All reports contain
 `exhaustive: false` and `model_proved: false`, even when sampling exits zero.
 `sampled` means the requested finite sample completed without finding a bug.
 
-Temporal/fairness simulation, runtime effects and random operators in the
+Temporal/fairness simulation, unsupported runtime effects and random operators in the
 specification, unresolved constant-operator effects, compound initial-state
 deep normalization, implied-initial properties, action properties combined with state/action constraints, ALIAS, POSTCONDITION,
 probabilistic/RL simulation, generation, distributed execution, continuation
@@ -131,3 +131,50 @@ statistics even though its evidence cannot be serialized or certified.
 The independent review
 records the additional 1,344 budget controls and the discovered validator
 contract boundary. F-024 and F-035 remain partial and audit-required.
+
+## Runtime Print/PrintT
+
+Actual native calls are checked during evaluation, including captured operator
+arguments and configured logger definitions. Print/PrintT retain their normal
+argument evaluation, rendering and return values. A temporary simulation host
+refuses reached random/register/other host effects before access and restores
+the caller host on return. This uses no callback purity certificate or random
+replay proof. Existing unsupported model options and startup binding failures
+remain named refusals.
+
+Backend output is captured on the actual simulation worker thread and returned
+separately from binding output. Independent fresh-word validation discards
+rendered replay output before any sink callback, while preserving argument,
+rendering and type errors. The existing private Init register contract and
+random/runtime-name/host-I/O refusals are unchanged. Print output limits cover
+retained events and UTF-8 text only, not temporary rendering or process memory;
+warnings retain their existing once-per-run policy outside these Print counters.
+
+`tests/fixtures/runtime-print/oracle.json` contains nine generated tiny clean
+primary results from the pinned TLC/JRE. Supported direct/captured/configured
+words and output phases are tested independently; reached random/register rows
+remain explicit refusals rather than agreements. Same-stream and lazy-return
+controls are separate from the primary simulation rows. This does not complete
+M/#239, generation, schedulers, DFID or general coverage.
+
+Combined source controls exercise Print with both none/basic action statistics,
+preserving the accepted inventory and chosen-edge contracts. Latest-main native
+qualification, fresh review, full gate and Print publication remain pending.
+Historical scoped/oracle results retain their original source bindings.
+
+
+## Shared evaluator simulation ownership
+
+One simulation owns a bound evaluator core through host cleanup. Low-level
+`simulate(&Model, ...)` calls on that same core, including cloned models, refuse
+overlap or reentry without waiting: `unsupported` names concurrent/reentrant
+simulation, with preflight stage, zero work and no output or host change. Existing
+preflight option/feature refusals retain priority. Separate bound cores, including
+separate API loads, can run concurrently. Callers must not mix foreign evaluator
+or host operations with an active simulation; ordinary evaluator APIs are unchanged.
+
+The run lease is operational ownership of the actual shared core. It releases
+after the original host is restored, including error, limit and unsupported
+returns. It introduces no TLS, callback admission or cache authority. The earlier
+external overlap diagnostic and each scoped qualification retain their original
+source bindings. Fresh review, latest-parent transfer and full gates remain pending.
