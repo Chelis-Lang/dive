@@ -335,6 +335,16 @@ impl Core {
             StdOp::SequencesSelectSeq => {
                 let s = v(0)?;
                 let Some(t) = self.to_tuple(s) else {
+                    if st.selectseq.is_some() && matches!(s, Value::Fcn(_) | Value::Set(_)) {
+                        // Invalid compound operands may contain deferred values
+                        // that error rendering would otherwise enumerate. Valid
+                        // sequences are checked only in the original loop below.
+                        crate::Evaluator {
+                            core: self.clone(),
+                            collected: None,
+                        }
+                        .check_selectseq_value(st, s)?;
+                    }
                     return Err(self.arg_error("first", "SelectSeq", "sequence", s));
                 };
                 if t.is_empty() {
@@ -348,6 +358,42 @@ impl Core {
                 };
                 let mut out = Vec::new();
                 for x in t {
+                    if let Some(policy) = &st.selectseq {
+                        if let Value::Fcn(function) = s
+                            && function.kind() != dive_value::FcnKind::Tuple
+                            && function.order() != self.ctx.order
+                        {
+                            return Err(EvalError::unsupported("SelectSeq stored sequence order"));
+                        }
+                        let evaluator = crate::Evaluator {
+                            core: self.clone(),
+                            collected: None,
+                        };
+                        let scope = crate::Scope {
+                            env: env.clone(),
+                            owner: self.ir.clone(),
+                            names: self.names.clone(),
+                            context: Arc::downgrade(self),
+                            wrapper: policy.wrapper,
+                        };
+                        let mut remaining = policy
+                            .remaining
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner);
+                        *remaining = remaining
+                            .checked_sub(1)
+                            .ok_or_else(|| EvalError::resource_limit("SelectSeq element work"))?;
+                        evaluator.selectseq_context(
+                            &scope,
+                            test.clone(),
+                            Some(x),
+                            s.as_fcn(),
+                            &mut remaining,
+                        )?;
+                        // The finite walk above has this actual value bound in
+                        // the exact lexical frame and shares the invocation's
+                        // remaining work. It never inspects predicate truth.
+                    }
                     match self.apply_op_values(env, st, test, std::slice::from_ref(x), e)? {
                         Value::Bool(true) => out.push(x.clone()),
                         Value::Bool(false) => {}
@@ -542,6 +588,7 @@ impl Core {
                     &mut callee,
                     &St {
                         control: crate::env::control::CLEAR,
+                        selectseq_callback: st.selectseq.is_some(),
                         ..st.clone()
                     },
                     d.body,
@@ -1044,4 +1091,43 @@ pub(crate) fn java_signature(op: StdOp) -> Option<&'static str> {
         }
         _ => return crate::community::java_signature(op),
     })
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "native empty argument priority control")]
+mod selectseq_native_tests {
+    use super::*;
+    #[test]
+    fn selectseq_native_empty_sequence_precedes_second_argument_shape_checks() {
+        let analysis = dive_sema::analyze_source(
+            "SelectEmpty.tla",
+            "---- MODULE SelectEmpty ----\nP==TRUE\n====",
+            &dive_sema::Options::default(),
+        );
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let def = ir.root_def("P").expect("definition");
+        let ev = crate::Evaluator::new(crate::Model::new(ir.clone()), crate::Options::tlc())
+            .expect("evaluator");
+        let mut env = ev.scope(def).expect("native scope").env;
+        for args in [
+            vec![StdArg::V(Value::tuple(vec![])), StdArg::V(7.into())],
+            vec![
+                StdArg::V(Value::tuple(vec![])),
+                StdArg::Op(OpVal::Std(StdOp::SequencesLen)),
+            ],
+        ] {
+            assert_eq!(
+                ev.core
+                    .call_value_op(
+                        &mut env,
+                        &St::constant(),
+                        StdOp::SequencesSelectSeq,
+                        &args,
+                        ir.def(def).body
+                    )
+                    .expect("native empty short circuit"),
+                Value::tuple(vec![])
+            );
+        }
+    }
 }

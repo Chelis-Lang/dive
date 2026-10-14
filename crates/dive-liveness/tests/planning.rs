@@ -487,3 +487,307 @@ fn direct_temporal_and_runtime_atoms_match_pinned_order_controls() {
         dive_eval::ErrorClass::Unsupported
     );
 }
+
+#[test]
+fn selectseq_user_lambda_and_forwarded_lexical_callbacks_read_actual_states() {
+    let model = bound(
+        r#"---- MODULE SelectCallbacks ----
+EXTENDS Integers, Sequences
+VARIABLE x
+Init == x = 0
+Next == x' = 1-x
+Read(a) == a[2] = "read"
+Write(a) == a[2] = "write"
+Forward(F(_), s) == SelectSeq(s, F)
+Captured(k) == LET Test(y) == y = k IN Forward(Test, <<0,1,0>>)
+D == [] (SelectSeq(<< <<1,"read">>, <<2,"write">>, <<1,"read">> >>, Read)
+          = << <<1,"read">>, <<1,"read">> >>)
+W == [] (SelectSeq(<< <<1,"read">>, <<2,"write">> >>, Write) = << <<2,"write">> >>)
+T == [] (SelectSeq(<<[Type |-> "User"],[Type |-> "Other"],[Type |-> "User"]>>,
+                 LAMBDA y: y.Type="User") = <<[Type |-> "User"],[Type |-> "User"]>>)
+P == [] (Captured(x) = IF x=0 THEN <<0,0>> ELSE <<1>>)
+Q == [] (Captured(1-x) = IF x=0 THEN <<1>> ELSE <<0,0>>)
+===="#,
+        "INIT Init\nNEXT Next\n",
+    );
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config");
+    let default = dive_model::bind(model.ir.clone(), &cfg, &dive_model::BindOptions::default())
+        .expect("default profile");
+    for model in [model, default] {
+        for name in ["D", "W", "T", "P", "Q"] {
+            let plan = lower(&model, &pred(&model, name), Limits::default()).expect(name);
+            assert!(
+                !plan.atoms.is_empty(),
+                "callback formal is conservatively state-level: {name}"
+            );
+            for x in [0, 1] {
+                let st = St::state(Arc::from([Some(Value::Int(x))]));
+                for atom in &plan.atoms {
+                    assert!(atom.evaluate(&model, &st).expect(name), "{name}: x={x}");
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn selectseq_temporal_callbacks_keep_named_capability_refusals() {
+    for callback in [
+        "LAMBDA y: y=x'",
+        "LAMBDA y: \\E z \\in {y}: z=x",
+        "LAMBDA y: [z \\in {y} |-> z] = [z \\in {y} |-> z]",
+        "LAMBDA y: y \\in Seq({x})",
+        "LAMBDA y: PrintT(y)",
+        "LAMBDA y: ToString(y)=\"0\"",
+        "LAMBDA y: ENABLED (x'=y)",
+        "LAMBDA y: RandomElement({TRUE,FALSE})",
+        "LAMBDA y: IF TRUE THEN y=x ELSE (\\E z \\in {y}: z=x)",
+    ] {
+        let source = format!(
+            "---- MODULE SelectRefused ----\nEXTENDS Integers, Sequences, TLC\nVARIABLE x\nInit==x=0\nNext==x'=x\nP==[] [(SelectSeq(<<0>>, {callback}) = <<0>>)]_x\n===="
+        );
+        let model = bound(&source, "INIT Init\nNEXT Next\n");
+        assert!(
+            lower(&model, &pred(&model, "P"), Limits::default()).is_err(),
+            "{callback}"
+        );
+    }
+}
+
+#[test]
+fn bounded_selectseq_preserves_empty_native_errors_and_first_element_priority() {
+    let model = bound(
+        r"---- MODULE SelectPriority ----
+EXTENDS Sequences
+VARIABLE x
+Init==x = <<>>
+Next==x'=x
+Empty==SelectSeq(<<>>, LAMBDA y: 7)
+Wrong==SelectSeq(7, LAMBDA y: TRUE)
+Nonbool==SelectSeq(<<0>>, LAMBDA y: 7)
+Run==SelectSeq(x, LAMBDA y: y[1]=0)
+====",
+        "INIT Init\nNEXT Next\n",
+    );
+    for name in ["Empty", "Wrong", "Nonbool"] {
+        let p = pred(&model, name);
+        let raw = model
+            .evaluator
+            .eval_scoped(&p.scope, p.expr, &St::constant());
+        let checked = model
+            .evaluator
+            .eval_scoped_pure(&p.scope, p.expr, &St::constant(), 4096);
+        assert_eq!(
+            raw.map_err(|e| e.to_string()),
+            checked.map_err(|e| e.to_string()),
+            "{name}"
+        );
+    }
+    for name in ["Empty", "Wrong"] {
+        let p = pred(&model, name);
+        assert_eq!(
+            model
+                .evaluator
+                .eval_scoped(&p.scope, p.expr, &St::constant())
+                .map_err(|e| e.to_string()),
+            model
+                .evaluator
+                .eval_scoped_pure(&p.scope, p.expr, &St::constant(), 0)
+                .map_err(|e| e.to_string()),
+            "{name}: exhausted budget still preserves native first argument/empty priority"
+        );
+    }
+    let nonbool = pred(&model, "Nonbool");
+    assert!(
+        model
+            .evaluator
+            .eval_scoped_pure(&nonbool.scope, nonbool.expr, &St::constant(), 0)
+            .expect_err("no callback invocation after exhaustion")
+            .to_string()
+            .contains("work")
+    );
+    let p = pred(&model, "Run");
+    let large = Value::tuple(vec![0.into(); 30_000]);
+    let first = St::state(Arc::from([Some(Value::tuple(vec![
+        0.into(),
+        large.clone(),
+    ]))]));
+    let raw = model
+        .evaluator
+        .eval_scoped(&p.scope, p.expr, &first)
+        .expect_err("first scalar is not function");
+    let checked = model
+        .evaluator
+        .eval_scoped_pure(&p.scope, p.expr, &first, 4096)
+        .expect_err("first typed error wins");
+    assert_eq!(raw.to_string(), checked.to_string());
+    let reverse = St::state(Arc::from([Some(Value::tuple(vec![large, 0.into()]))]));
+    assert!(
+        model
+            .evaluator
+            .eval_scoped_pure(&p.scope, p.expr, &reverse, 4096)
+            .expect_err("first reached oversized element")
+            .to_string()
+            .contains("work")
+    );
+}
+
+#[test]
+fn selectseq_constant_and_if_probes_keep_bounds_with_warm_enclosing_caches() {
+    let mut model = bound(
+        "---- MODULE SelectConstant ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=TRUE\nNext==x'=x\nKeep(y)==TRUE\nSelected==SelectSeq(<<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>,Keep)\nWrapper==Selected\nSame==Selected = <<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>\nP==[] Same\nI==IF Same THEN <>x ELSE <>~x\n====",
+        "INIT Init\nNEXT Next\n",
+    );
+    // Synthetic mechanism coverage: binding's authoritative precomputed values
+    // are distinct from evaluator result caches. Rebuild scopes under a raw
+    // evaluator over the identical IR/names; do not reuse bound-role scopes.
+    let mut inputs = dive_eval::Model::new(model.ir.clone());
+    inputs.names = model.names.clone();
+    model.evaluator =
+        dive_eval::Evaluator::new(inputs, dive_eval::Options::tlc()).expect("raw evaluator");
+    let selected = pred(&model, "Wrapper");
+    assert_eq!(
+        model
+            .evaluator
+            .eval_scoped(&selected.scope, selected.expr, &St::constant())
+            .expect("warm enclosing definition cache"),
+        Value::tuple(vec![0.into(); 20])
+    );
+    for name in ["P", "I"] {
+        lower(&model, &pred(&model, name), Limits::default())
+            .expect("ordinary definition/IF evaluation");
+    }
+    for name in ["P", "I"] {
+        let limits = Limits {
+            formula_nodes: 1,
+            ..Limits::default()
+        };
+        let error = lower(&model, &pred(&model, name), limits)
+            .expect_err("aggregate callback work at existing constant/IF probe");
+        assert!(error.to_string().contains("work"), "{name}: {error}");
+    }
+}
+
+#[test]
+fn selectseq_nonstuttering_shares_one_budget_and_next_atom_starts_fresh() {
+    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    let model = bound(
+        "---- MODULE SelectAggregate ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\nKeep(y)==TRUE\nSub==SelectSeq(<<x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x>>,Keep)\nBody==TRUE\nSingle==Sub = <<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>\n====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let sub = pred(&model, "Sub");
+    let before: Arc<[Option<Value>]> = Arc::from([Some(Value::Int(0))]);
+    let after: Arc<[Option<Value>]> = Arc::from([Some(Value::Int(1))]);
+    let limit = (1..4096)
+        .find(|limit| {
+            model
+                .evaluator
+                .eval_scoped_pure(&sub.scope, sub.expr, &St::state(before.clone()), *limit)
+                .is_ok()
+        })
+        .expect("individual sub-evaluation fits");
+    assert_eq!(
+        model
+            .evaluator
+            .eval_scoped_pure(&sub.scope, sub.expr, &St::state(after.clone()), limit)
+            .expect("after fits alone"),
+        Value::tuple(vec![1.into(); 20])
+    );
+    let atom = PredicateAtom {
+        pred: pred(&model, "Body"),
+        kind: AtomKind::Action,
+        test: AtomTest::Nonstuttering { sub: sub.expr },
+        binding_limit: limit,
+    };
+    let st = St::action(before, after);
+    assert!(
+        atom.evaluate(&model, &st)
+            .expect_err("one aggregate budget for before/after/body")
+            .to_string()
+            .contains("work")
+    );
+    let single = PredicateAtom {
+        pred: pred(&model, "Single"),
+        kind: AtomKind::State,
+        test: AtomTest::Predicate,
+        binding_limit: limit,
+    };
+    assert!(
+        single
+            .evaluate(&model, &st)
+            .expect("next atom has fresh budget")
+    );
+    let generous = PredicateAtom {
+        binding_limit: 4096,
+        ..atom.clone()
+    };
+    assert!(
+        generous
+            .evaluate(&model, &st)
+            .expect("original nonstuttering before/after/body order")
+    );
+    assert!(
+        atom.evaluate(&model, &st)
+            .expect_err("fresh small budget still aggregates")
+            .to_string()
+            .contains("work")
+    );
+}
+
+#[test]
+fn selectseq_enabled_negation_and_fairness_preserve_original_atom_semantics() {
+    let model = bound(
+        "---- MODULE SelectEnabled ----\nEXTENDS Sequences\nVARIABLE x\nInit == x = <<0>>\nNext==x'=x\nPure(S)==SelectSeq(S,LAMBDA y:y=Head(x))\nAction==(x'=x) /\\ (Pure(x) = x)\nE==[] ENABLED Action\nN==[] ~ENABLED Action\nOrdinary==[] ENABLED Next\nFair==WF_x(Action)\nStrong==SF_x(Action)\n====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let st = St::state(Arc::from([Some(Value::tuple(vec![0.into()]))]));
+    for name in ["Ordinary", "E", "N", "Fair", "Strong"] {
+        let plan =
+            lower(&model, &pred(&model, name), Limits::default()).expect("pure ENABLED/fairness");
+        if name == "E" || name == "N" {
+            assert_eq!(
+                plan.atoms[0]
+                    .evaluate(&model, &st)
+                    .expect("original enabled search"),
+                name == "E"
+            );
+        }
+    }
+}
+
+#[test]
+fn selectseq_manual_prebound_atom_retains_structural_capability_refusal() {
+    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    let model = bound(
+        "---- MODULE SelectPrebound ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=x\nRun(S)==SelectSeq(S,LAMBDA y:y[1]=0) = <<>>\n====",
+        "INIT Init\nNEXT Next\n",
+    );
+    let def = model.ir.root_def("Run").expect("run");
+    let scope = model
+        .evaluator
+        .scope_call_values(
+            &model.evaluator.scope(def).expect("scope"),
+            def,
+            vec![Value::tuple(vec![
+                0.into(),
+                Value::tuple(vec![0.into(); 30_000]),
+            ])],
+        )
+        .expect("manually prebound direct input");
+    let atom = PredicateAtom {
+        pred: Pred::new(model.ir.def(def).body, scope),
+        kind: AtomKind::State,
+        test: AtomTest::Predicate,
+        binding_limit: 4096,
+    };
+    // Source-only capability checks have no evaluated current native input:
+    // they retain strict storage checks and cannot claim runtime loop admission.
+    assert!(
+        atom.evaluate(&model, &St::state(Arc::from([Some(0.into())])))
+            .expect_err("direct prebound capability refusal")
+            .to_string()
+            .contains("work")
+    );
+}

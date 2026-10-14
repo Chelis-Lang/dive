@@ -9,7 +9,7 @@ use dive_model::{Model, Pred};
 use dive_value::Value;
 
 use crate::State;
-use crate::exists::{Decision, Limits, exists_successor};
+use crate::exists::{Decision, Limits, exists_successor_pure};
 
 /// Why temporal evaluation cannot establish a truth value.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -286,7 +286,7 @@ impl Word<'_> {
                 .iter()
                 .map(|state| {
                     let pred = Pred::new(*action, scope.clone());
-                    exists_successor(self.model, &pred, state, None, Limits::default())
+                    exists_successor_pure(self.model, &pred, state, None, Limits::default(), 4096)
                         .map(|d| matches!(d, Decision::Enabled { .. }))
                         .map_err(|e| TemporalError::Unsupported(format!("ENABLED: {e}")))
                 })
@@ -408,9 +408,16 @@ impl Word<'_> {
             let disabled: Vec<bool> = self.states[self.back_to..]
                 .iter()
                 .map(|state| {
-                    exists_successor(self.model, &action, state, Some(&sub), Limits::default())
-                        .map(|d| matches!(d, Decision::Disabled))
-                        .map_err(|e| TemporalError::Unsupported(format!("fairness ENABLED: {e}")))
+                    exists_successor_pure(
+                        self.model,
+                        &action,
+                        state,
+                        Some(&sub),
+                        Limits::default(),
+                        4096,
+                    )
+                    .map(|d| matches!(d, Decision::Disabled))
+                    .map_err(|e| TemporalError::Unsupported(format!("fairness ENABLED: {e}")))
                 })
                 .collect::<Result<_, _>>()?;
             // WF = GF(~enabled) OR GF(occurs); SF = FG(~enabled) OR GF(occurs).
@@ -448,10 +455,19 @@ impl Word<'_> {
             } else {
                 i + 1
             };
+            let invocation = ev
+                .begin_pure_predicate(
+                    scope,
+                    &St::action(state.clone(), self.states[next].clone()),
+                    4096,
+                )
+                .map_err(|e| {
+                    TemporalError::Unsupported(format!("temporal subscript at position {i}: {e}"))
+                })?;
             let read = |at: usize| {
-                let st = St::state(self.states[at].clone());
+                let st = invocation.at_state(self.states[at].clone());
                 ev.check_finite_bindings(scope, sub, &st, 4096)?;
-                ev.eval_scoped(scope, sub, &st)
+                ev.eval_scoped_pure(scope, sub, &st, 4096)
             };
             let same = (|| {
                 let before = read(i)?;
@@ -465,12 +481,12 @@ impl Word<'_> {
                 out.push(boxed);
                 continue;
             }
-            let st = St::action(state.clone(), self.states[next].clone());
+            let st = invocation;
             ev.check_finite_bindings(scope, action, &st, 4096)
                 .map_err(|e| {
                     TemporalError::Unsupported(format!("temporal action at position {i}: {e}"))
                 })?;
-            match ev.eval_scoped(scope, action, &st) {
+            match ev.eval_scoped_pure(scope, action, &st, 4096) {
                 Ok(Value::Bool(b)) => out.push(b),
                 Ok(v) => {
                     return Err(TemporalError::Invalid(format!(
@@ -504,7 +520,11 @@ impl Word<'_> {
                 .map_err(|e| {
                     TemporalError::Unsupported(format!("temporal atom at position {i}: {e}"))
                 })?;
-            match self.model.evaluator.eval_scoped(scope, expr, &st) {
+            match self
+                .model
+                .evaluator
+                .eval_scoped_pure(scope, expr, &st, 4096)
+            {
                 Ok(Value::Bool(b)) => out.push(b),
                 Ok(v) => {
                     return Err(TemporalError::Invalid(format!(
@@ -594,11 +614,11 @@ impl Word<'_> {
             let values = args
                 .iter()
                 .map(|arg| match arg {
-                    Arg::Expr { expr, .. } => {
-                        ev.eval_scoped(scope, *expr, &St::constant()).map_err(|e| {
+                    Arg::Expr { expr, .. } => ev
+                        .eval_scoped_pure(scope, *expr, &St::constant(), 4096)
+                        .map_err(|e| {
                             TemporalError::Unsupported(format!("constant temporal argument: {e}"))
-                        })
-                    }
+                        }),
                     Arg::Op { .. } => Err(TemporalError::Unsupported(
                         "operator temporal argument".into(),
                     )),
@@ -1072,6 +1092,28 @@ impl Word<'_> {
         if node.level == Level::Temporal {
             return Ok(Level::Temporal);
         }
+        if let Expr::Apply { callee, args } = &node.expr {
+            let mut work = 100_000_usize.saturating_sub(*steps);
+            if let Some((sequence, bodies)) = ev
+                .scope_selectseq_call(scope, callee, args, &mut work)
+                .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+            {
+                *steps = 100_000 - work;
+                let mut level =
+                    node.level
+                        .max(self.scoped_level(sequence, scope, depth + 1, steps)?);
+                for (body, captured) in bodies {
+                    let callback_level = self.scoped_level(body, &captured, depth + 1, steps)?;
+                    if callback_level > Level::State {
+                        return Err(TemporalError::Unsupported(
+                            "SelectSeq action/temporal callback".into(),
+                        ));
+                    }
+                    level = level.max(callback_level);
+                }
+                return Ok(level);
+            }
+        }
         let mut level = node.level;
         for child in node.expr.children() {
             level = level.max(self.scoped_level(child, scope, depth + 1, steps)?);
@@ -1297,7 +1339,7 @@ impl Word<'_> {
                 _ => None,
             };
             if let Some((op, args)) = call {
-                let standard = match op {
+                let standard = match op.clone() {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
                         let d = self.checked_definition(d)?;
@@ -1333,6 +1375,27 @@ impl Word<'_> {
                     _ => None,
                 };
                 Self::check_native(standard)?;
+                if standard == Some(StdOp::SequencesSelectSeq) {
+                    let mut work = 100_000_usize.saturating_sub(*steps);
+                    let (sequence, bodies) = ev
+                        .scope_selectseq_call(&scope, &op, args, &mut work)
+                        .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                        .ok_or_else(|| {
+                            TemporalError::Unsupported("SelectSeq callback context/level".into())
+                        })?;
+                    *steps = 100_000 - work;
+                    for (body, captured) in bodies {
+                        self.forwarded_context(body, &captured, depth + 1, steps)?;
+                        if self.scoped_level(body, &captured, depth + 1, steps)? > Level::State {
+                            return Err(TemporalError::Unsupported(
+                                "SelectSeq callback context/level".into(),
+                            ));
+                        }
+                        todo.push((body, captured, depth + 1));
+                    }
+                    todo.push((sequence, scope.clone(), depth + 1));
+                    continue;
+                }
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     return Err(TemporalError::Unsupported(
                         "higher-order periodic predicate argument".into(),
