@@ -15,7 +15,32 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-The lead updates these numbers from complete harness reports. The historical
+The lead updates these numbers from complete harness reports. The corrected
+small-tier baseline below uses producer
+`643b0f1351feccca56968cd8032093f53ccd2c8d`, published with an identical tree as
+`0e00c942b5ad371acadb9b805509ebceef313cd4` in
+[PR #266](https://github.com/Chelis-Lang/dive/pull/266). All four runs retain the
+same 154 models, pins, goldens and 600-second bounds.
+
+| Date | Profile | Workers | Entries | Agree | Pending validation | Unsupported | Expected divergence | Disagree | Timeout | Oracle error |
+|------|---------|--------:|--------:|------:|-------------------:|------------:|--------------------:|---------:|--------:|-------------:|
+| 2026-10-14 | TLC | 1 | 154 | 94 | 0 | 60 | 0 | 0 | 0 | 0 |
+| 2026-10-14 | TLC | 4 | 154 | 94 | 0 | 60 | 0 | 0 | 0 | 0 |
+| 2026-10-14 | default | 1 | 154 | 76 | 0 | 60 | 18 | 0 | 0 | 0 |
+| 2026-10-14 | default | 4 | 154 | 76 | 0 | 60 | 18 | 0 | 0 | 0 |
+
+The exact source passed fresh independent review, the full local gate with
+1,609 workspace tests and no skips, 80 doctests, CM1 and validation-smoke at
+1/4/8, and 456 SANY comparisons. All three required source CI checks and all
+three post-merge main checks passed. The complete corrected parent/current
+matrix has eight actual measurements: seven fresh campaigns and the unchanged
+candidate full-gate TLC1 report. Every per-model outcome is unchanged between
+the corrected parent and candidate. This accepts the accounting correction;
+it does not establish full-tier or at-least-95% parity.
+
+### Historical small-tier measurement
+
+The historical
 small-tier reports below are from producer `e8c82c0e039f8da6308796a5bdf09ec5ab79a4fe`,
 merged with an identical tree as `ade12658044bbc9195bae118351434b2082c4df9` in
 [PR #263](https://github.com/Chelis-Lang/dive/pull/263). Every run retains the
@@ -59,14 +84,18 @@ ExpectedDivergence rows also omitted their exit differences. Exact pairs are now
 registered on these measured model paths, retaining all other comparison and
 independent-validation obligations. Native CLI/API behavior is unchanged.
 
-The exit-only historical disposition is **76 Agree / 18 ExpectedDivergence /
-60 Unsupported** at each default width, conditioned on the remaining obligations.
-This preserves the 76 prior physically exact agreements as obligations; it is
-an accounting estimate, not a fresh complete current-main certificate or approval
-of a new 76 floor. The original 90/4/60 reports above remain visible, alongside the original
-T3 TLC93/default89 floors and the later current-main TLC93/default90 floors. Fresh complete parent/current four-profile measurements, full
-gates and independent review are pending, including per-model no-loss. The
-at-least-95% eventual parity target and whole roadmap remain open and unchanged.
+The exit-only historical estimate was **76 Agree / 18 ExpectedDivergence /
+60 Unsupported** at each default width. The actual corrected parent/current
+measurements above now confirm those totals with all other comparison and
+independent-word obligations enforced. The owner delegated judgment toward
+eventual parity; the accepted measurement repair protects the actual corrected
+parent's genuine agreement set and health. It does not approve a silent new
+76 floor. The original 90/4/60 reports remain visible, alongside the original
+T3 TLC93/default89 floors and the later TLC93/default90 floors. Corrected
+comparisons against the historical default 90-credit reports fail because
+fourteen credits omitted unequal exits. The TLC93 floor and all 94 corrected
+parent agreements are preserved. Expected divergence never earns agreement.
+The at-least-95% eventual parity target and whole roadmap remain open and unchanged.
 
 ### Historical full-tier measurement
 
