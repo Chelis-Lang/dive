@@ -81,10 +81,6 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
     ),
     ("dive-pluscal", &["dive-syntax", "dive-sema"]),
     (
-        "dive-compile",
-        &["dive-ir", "dive-value", "dive-stdlib", "dive-model"],
-    ),
-    (
         "dive-api",
         &[
             "dive-syntax",
@@ -101,14 +97,9 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-sim",
             "dive-trace",
             "dive-pluscal",
-            "dive-compile",
         ],
     ),
-    (
-        "dive-lsp",
-        &["dive-syntax", "dive-sema", "dive-ir", "dive-api"],
-    ),
-    ("dive-cli", &["dive-api", "dive-lsp", "dive-conformance"]),
+    ("dive-cli", &["dive-api", "dive-conformance"]),
     (
         "dive-conformance",
         &["dive-api", "dive-value", "dive-config", "dive-trace"],

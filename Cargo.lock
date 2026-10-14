@@ -190,10 +190,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dive-compile"
-version = "0.0.0"
-
-[[package]]
 name = "dive-config"
 version = "0.0.0"
 dependencies = [
@@ -252,10 +248,6 @@ dependencies = [
  "dive-value",
  "serde_json",
 ]
-
-[[package]]
-name = "dive-lsp"
-version = "0.0.0"
 
 [[package]]
 name = "dive-model"

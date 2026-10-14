@@ -97,6 +97,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Remove the empty `dive-compile` and `dive-lsp` workspace placeholders and their
+  unused dependency permissions. Language-server and native-compilation work
+  remain on the post-v1 roadmap (ADR 0095).
+
 - PlusCal corpus measurement verifies pinned inputs and compares complete native
   check reports for both translations without crediting refusals or malformed
   error classes. `--help` succeeds, and relative `--dive` paths are resolved
