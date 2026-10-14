@@ -4,6 +4,14 @@
 once the safety graph is completely explored. It returns either a holding
 result, an independently validated periodic counterexample, or the safety
 engine's earlier stop. Planning and validation refusals return an error.
+If the configuration has no `PROPERTY` entries, it runs the ordinary safety
+checker directly and returns `Outcome::Safety`, including a successful exhausted
+safety result. Binding and symmetry-preparation model errors retain the reported
+`binding` stage; engine model errors and other safety stops retain `capture`.
+`CheckResult::binding_model_error` records this actual origin without inferring it
+from an error class or statistics. It does not bind twice or issue a temporal holding/capture proof;
+temporal limits are unused on this route. All ordinary checker settings remain
+in force. Configured state/action properties retain the existing final-mode route.
 
 ```rust
 use std::sync::Arc;

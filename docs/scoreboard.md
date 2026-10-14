@@ -223,3 +223,33 @@ Array/Object entry points, file operations, lost TLC object histories and
 unbounded domain printing retain named refusals. Newly created JSON string names
 in TLC-profile deciding words retain the existing independent replay refusal
 (#124) and earn no agreement. Full Json/C parity remains open.
+
+## Empty-property final-checking safety route
+
+The bounded API/CLI repair in [#275](https://github.com/Chelis-Lang/dive/issues/275)
+preserves ordinary safety behavior when there are literally no configured
+`PROPERTY` entries and records actual binding/preparation model-error origin.
+A configured state/action property is not an empty property list. No temporal
+holding/capture proof or general liveness/API parity is credited on this route.
+
+Runtime measurements use source `72ae013e8897b56eb76574ad3fb7a7293a7b53c3`, tree
+`a5dbf925b8165bf7b6f345d55bf34359dc9a2c8a`, based on accepted main
+`24b4994d78403b36bb716c6aca408370c8e7393f`. The actual full gate passed
+1,726 workspace tests with zero skips, 84
+doctests, CM1 and validation-smoke at 1/4/8, and 456 SANY comparisons.
+The complete original 154-model matrix uses unchanged pins, goldens and
+600-second bounds. The counts below are the observed runtime counts, not
+measurements of the later documentation-only publication tree.
+
+| Date | Profile | Workers | Entries | Agree | Pending validation | Unsupported | Expected divergence | Disagree | Timeout | Oracle error |
+|------|---------|--------:|--------:|------:|-------------------:|------------:|--------------------:|---------:|--------:|-------------:|
+| 2026-10-14 | TLC | 1 | 154 | 95 | 0 | 59 | 0 | 0 | 0 | 0 |
+| 2026-10-14 | TLC | 4 | 154 | 95 | 0 | 59 | 0 | 0 | 0 | 0 |
+| 2026-10-14 | default | 1 | 154 | 91 | 0 | 59 | 4 | 0 | 0 | 0 |
+| 2026-10-14 | default | 4 | 154 | 91 | 0 | 59 | 4 | 0 | 0 | 0 |
+
+All four comparisons preserve the accepted main TLC95/default91 agreement
+floors and the original per-ID population and observables. No corpus agreement is added by this bounded routing repair.
+Earlier measurements retain their original source labels, including the failed
+`565bffe8` gate. Publication CI is a separate obligation; this bounded repair
+does not establish full-tier agreement, at-least-95% parity or roadmap completion.

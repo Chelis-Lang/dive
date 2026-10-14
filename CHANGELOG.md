@@ -1,5 +1,11 @@
 # Changelog
 
+- Explicit final/short checking without configured `PROPERTY` entries now runs
+  ordinary safety checking and returns its real result without duplicate startup
+  evaluation or a temporal holding/capture claim. Configured properties retain
+  their existing analysis route and bounds. Pre-search binding/preparation model
+  errors retain the binding stage; engine errors retain the capture stage.
+
 - Added bounded pure `Json!ToJson` conversion with Gson string escaping and the
   existing canonical default order. TLC object histories, representation-dependent
   Array/Object entry points, unbounded domain printing and JSON file operations
