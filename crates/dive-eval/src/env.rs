@@ -93,6 +93,16 @@ pub struct St {
     /// The successor (`s1`).
     pub s1: StateRef,
     pub(crate) control: u8,
+    pub(crate) selectseq: Option<Arc<SelectSeqBudget>>,
+    pub(crate) selectseq_callback: bool,
+}
+
+#[derive(Debug)]
+pub(crate) struct SelectSeqBudget {
+    pub(crate) limit: usize,
+    pub(crate) wrapper: Option<ExprId>,
+    pub(crate) context: std::sync::Weak<crate::core::Core>,
+    pub(crate) remaining: std::sync::Mutex<usize>,
 }
 
 impl St {
@@ -104,6 +114,8 @@ impl St {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CONST,
+            selectseq: None,
+            selectseq_callback: false,
         }
     }
 
@@ -116,6 +128,8 @@ impl St {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         }
     }
 
@@ -126,6 +140,50 @@ impl St {
             s0: StateRef::Vals(state),
             s1: StateRef::Empty,
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
+        }
+    }
+
+    /// Reads a supplied current state with clear control, preserving any
+    /// invocation-local predicate work budget. The successor is empty.
+    ///
+    /// ```
+    /// use dive_eval::{St, StateRef};
+    /// use std::sync::Arc;
+    /// let edge = St::action(Arc::from([Some(0.into())]), Arc::from([Some(1.into())]));
+    /// let current = edge.at_state(Arc::from([Some(1.into())]));
+    /// assert!(matches!(current.s1, StateRef::Empty));
+    /// ```
+    #[must_use]
+    pub fn at_state(&self, state: Arc<[Option<Value>]>) -> Self {
+        Self {
+            s0: StateRef::Vals(state),
+            s1: StateRef::Empty,
+            control: control::CLEAR,
+            ..self.clone()
+        }
+    }
+
+    /// Reads constant data under the original constant-state semantics while
+    /// preserving invocation-local resource counters.
+    #[must_use]
+    pub fn at_constant(&self) -> Self {
+        Self {
+            selectseq: self.selectseq.clone(),
+            selectseq_callback: self.selectseq_callback,
+            ..Self::constant()
+        }
+    }
+
+    /// Reads the original relation between two supplied states with clear
+    /// control, preserving invocation-local resource counters.
+    #[must_use]
+    pub fn at_action(&self, s0: Arc<[Option<Value>]>, s1: Arc<[Option<Value>]>) -> Self {
+        Self {
+            selectseq: self.selectseq.clone(),
+            selectseq_callback: self.selectseq_callback,
+            ..Self::action(s0, s1)
         }
     }
 
@@ -155,6 +213,8 @@ impl St {
             s0: StateRef::Vals(s0),
             s1: StateRef::Vals(s1),
             control: control::CLEAR,
+            selectseq: None,
+            selectseq_callback: false,
         }
     }
 

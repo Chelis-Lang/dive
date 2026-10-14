@@ -556,3 +556,234 @@ fn let_bound_necessary_covers_preserve_outer_values_and_real_witnesses() {
         Err(ExistsError::Limit(_))
     ));
 }
+
+fn selectseq_model(body: &str, options: &dive_model::BindOptions) -> Model {
+    let src = format!(
+        "---- MODULE SelectCover ----\nEXTENDS Integers, Sequences\nVARIABLES x,y\nInit == x=0 /\\ y=0\nNext == UNCHANGED <<x,y>>\nAlways(z)==TRUE\nPure(S)==SelectSeq(S,LAMBDA z:z=x)\n{body}\n===="
+    );
+    let analysis =
+        dive_sema::analyze_source("SelectCover.tla", &src, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("cfg");
+    dive_model::bind(ir, &cfg, options).expect("bind")
+}
+
+#[test]
+fn selectseq_independent_lazy_helper_subscript_requires_sequence_and_callback_state_covers() {
+    use dive_trace::exists::exists_successor_pure;
+    for options in [
+        dive_model::BindOptions::tlc(),
+        dive_model::BindOptions::default(),
+    ] {
+        let m = selectseq_model(
+            "A==x'=1 /\\ y'=1\nMissingX==y'=1\nMissingY==x'=1\nSub==Pure(<<y>>)\nHidden(S)==LET T==x' IN SelectSeq(S,LAMBDA z:z=T)\nBad==x'=1 /\\ y'=1 /\\ Hidden(<<y>>) = <<y>>",
+            &options,
+        );
+        let sub = pred(&m, "Sub");
+        let d = exists_successor_pure(
+            &m,
+            &pred(&m, "A"),
+            &state(0, 0),
+            Some(&sub),
+            Limits::default(),
+            4096,
+        )
+        .expect("complete cover includes sequence and captured callback state dependencies");
+        let Decision::Enabled { witness } = d else {
+            panic!("concrete changed witness")
+        };
+        assert_eq!(witness, state(1, 1));
+        for name in ["MissingX", "MissingY", "Bad"] {
+            assert!(
+                matches!(
+                    exists_successor_pure(
+                        &m,
+                        &pred(&m, name),
+                        &state(0, 0),
+                        Some(&sub),
+                        Limits::default(),
+                        4096
+                    ),
+                    Err(ExistsError::Unsupported(_))
+                ),
+                "{name}"
+            );
+        }
+        assert!(
+            matches!(
+                exists_successor(
+                    &m,
+                    &pred(&m, "A"),
+                    &state(0, 0),
+                    Some(&sub),
+                    Limits::default()
+                ),
+                Err(ExistsError::Unsupported(_))
+            ),
+            "ordinary API keeps its original state-helper refusal"
+        );
+    }
+}
+
+#[test]
+fn selectseq_independent_search_shares_aggregate_work_and_refuses_exhaustion_as_a_limit() {
+    use dive_trace::exists::exists_successor_pure;
+    let items = std::iter::repeat_n("x", 20).collect::<Vec<_>>().join(",");
+    let m = selectseq_model(
+        &format!("A==x'=1 /\\ y'=1\nSub==SelectSeq(<<{items}>>,Always)"),
+        &dive_model::BindOptions::tlc(),
+    );
+    let sub = pred(&m, "Sub");
+    let st = St::state(state(0, 0));
+    let minimum = (1..4096)
+        .find(|limit| {
+            m.evaluator
+                .eval_scoped_pure(&sub.scope, sub.expr, &st, *limit)
+                .is_ok()
+        })
+        .expect("one subscript fits");
+    for _ in 0..2 {
+        assert!(
+            matches!(
+                exists_successor_pure(
+                    &m,
+                    &pred(&m, "A"),
+                    &state(0, 0),
+                    Some(&sub),
+                    Limits::default(),
+                    minimum
+                ),
+                Err(ExistsError::Limit(_))
+            ),
+            "before/after share context; never Disabled or Invalid on exhaustion"
+        );
+        assert!(
+            matches!(
+                exists_successor_pure(
+                    &m,
+                    &pred(&m, "A"),
+                    &state(0, 0),
+                    Some(&sub),
+                    Limits::default(),
+                    4096
+                ),
+                Ok(Decision::Enabled { .. })
+            ),
+            "fresh search after exhaustion"
+        );
+    }
+    let mut foreign = selectseq_model("A==x'=1 /\\ y'=1", &dive_model::BindOptions::tlc());
+    let foreign_action = pred(&foreign, "A");
+    foreign.evaluator = m.evaluator.clone();
+    assert!(
+        matches!(
+            exists_successor_pure(
+                &foreign,
+                &foreign_action,
+                &state(0, 0),
+                None,
+                Limits::default(),
+                4096
+            ),
+            Err(ExistsError::Unsupported(_))
+        ),
+        "foreign model/evaluator context"
+    );
+}
+
+#[test]
+fn selectseq_independent_reached_values_keep_first_error_and_stored_profile_refusals() {
+    use dive_trace::exists::exists_successor_pure;
+    let m = selectseq_model(
+        "Priority(S)==SelectSeq(S,LAMBDA z:z[1]=0)\nA==x'=x /\\ y'=y /\\ Priority(x) = <<>>\nOwned==x'=x /\\ y'=y /\\ Pure(x) = x",
+        &dive_model::BindOptions::tlc(),
+    );
+    let large = Value::tuple(vec![0.into(); 30_000]);
+    let first: State = Arc::from([
+        Some(Value::tuple(vec![0.into(), large.clone()])),
+        Some(0.into()),
+    ]);
+    let error = exists_successor_pure(&m, &pred(&m, "A"), &first, None, Limits::default(), 4096)
+        .expect_err("first reached callback scalar error");
+    assert!(
+        matches!(error,ExistsError::Invalid(ref text) if text.contains("2154")),
+        "{error}"
+    );
+    let reverse: State = Arc::from([Some(Value::tuple(vec![large, 0.into()])), Some(0.into())]);
+    assert!(
+        matches!(
+            exists_successor_pure(&m, &pred(&m, "A"), &reverse, None, Limits::default(), 4096),
+            Err(ExistsError::Limit(_))
+        ),
+        "first reached resource value wins in reverse order"
+    );
+    let wrong_order = Value::set(vec![0.into()], dive_value::Ctx::dive()).expect("foreign order");
+    let wrong: State = Arc::from([Some(Value::tuple(vec![wrong_order])), Some(0.into())]);
+    let error = exists_successor_pure(
+        &m,
+        &pred(&m, "Owned"),
+        &wrong,
+        None,
+        Limits::default(),
+        4096,
+    )
+    .expect_err("stored profile checked before callback comparison");
+    assert!(
+        matches!(error,ExistsError::Unsupported(ref text) if text.contains("order")),
+        "{error}"
+    );
+}
+
+#[test]
+fn selectseq_independent_synthetic_warm_cache_isolation_enforces_fresh_search_budget() {
+    use dive_trace::exists::exists_successor_pure;
+    let items = std::iter::repeat_n("0", 20).collect::<Vec<_>>().join(",");
+    let mut m = selectseq_model(
+        &format!(
+            "Selected==SelectSeq(<<{items}>>,Always)\nWrapper==Selected\nA==x'=1 /\\ y'=1 /\\ Selected = <<{items}>>"
+        ),
+        &dive_model::BindOptions::tlc(),
+    );
+    // Synthetic cache-mechanics coverage only: actual bound startup values are
+    // authoritative and retain their original behavior. Rebuild scopes after
+    // installing a source-identical raw evaluator with no prebound startup data.
+    let mut inputs = dive_eval::Model::new(m.ir.clone());
+    inputs.names = m.names.clone();
+    m.evaluator = dive_eval::Evaluator::new(inputs, dive_eval::Options::tlc())
+        .expect("raw source-identical evaluator");
+    // Snapshot only the synthetic evaluator's already-owned initial namespace
+    // before any warm/evaluation operation. No authoritative values are added.
+    m.evaluator.seal_startup_names();
+    let selected = pred(&m, "Wrapper");
+    let warm = m
+        .evaluator
+        .eval_scoped(&selected.scope, selected.expr, &St::constant())
+        .expect("warm result cache");
+    let a = pred(&m, "A");
+    for _ in 0..2 {
+        let result = exists_successor_pure(&m, &a, &state(0, 0), None, Limits::default(), 1);
+        assert!(
+            matches!(result, Err(ExistsError::Limit(_))),
+            "whole enclosing warm cache cannot bypass callback work: {result:?}"
+        );
+        assert!(
+            matches!(
+                exists_successor_pure(&m, &a, &state(0, 0), None, Limits::default(), 4096),
+                Ok(Decision::Enabled { .. })
+            ),
+            "fresh invocation after exhaustion"
+        );
+    }
+    let after = m
+        .evaluator
+        .eval_scoped(&selected.scope, selected.expr, &St::constant())
+        .expect("caller cache retained");
+    assert!(
+        warm.as_fcn()
+            .expect("tuple")
+            .ptr_eq(after.as_fcn().expect("tuple"))
+    );
+}

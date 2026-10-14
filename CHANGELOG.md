@@ -1,5 +1,14 @@
 # Changelog
 
+- Final temporal predicates and independent trace replay support authoritative
+  `Sequences!SelectSeq` with binder-free pure state user/LAMBDA callbacks and
+  known forwarded lexical captures. Each real invocation checks actual elements
+  in sequence order under a shared atom budget, including enabledness search
+  and nonstuttering comparisons. Independent ENABLED/fairness checks retain
+  complete finite covers and lazy pure state helpers. Bounded predicate
+  evaluation bypasses caller definition/thunk result caches. Action, binder, dynamic, provider, effectful
+  and configured/native predicate shapes retain named refusals.
+
 - Conformance now compares physical numeric exits exactly in ordinary and
   worker-specific paths. Known default differences require declared integer
   TLC/native pairs and count as ExpectedDivergence, never Agree. Native CLI/API
