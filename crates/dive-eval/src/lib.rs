@@ -50,6 +50,7 @@ mod error;
 mod eval;
 mod finite;
 mod host;
+mod json;
 mod lazy;
 #[cfg(feature = "enumerate")]
 pub mod next;
