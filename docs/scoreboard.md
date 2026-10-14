@@ -184,3 +184,15 @@ remain exact historical measurements. The conditional small-tier projection
 90 Agree /4 ExpectedDivergence /60 Unsupported is not actual corpus evidence
 or a replacement floor; fresh review, full gate, all four complete reports
 and CI remain required. Expected divergence never earns agreement.
+
+## Tuple/function storage regression coverage (#195)
+
+Structural format 2 retains the concrete tuple/function distinction through
+frontier spill and checkpoint/recovery. The consumed regression selection covers
+application and independently validated invariant witnesses, plus comparison
+controls, in both profiles/stores at workers 1/4/8 with plain/chaos scheduling.
+Application detects the representation-dependent diagnostic; comparison and
+independent mathematical witness validation cannot detect a lost representation
+bit. Old value-bearing archives refuse; canonical keys, fingerprints and version-1 trace JSON retain
+their separate contracts. This bounded coverage does not complete storage,
+distribution or the full roadmap and adds no corpus agreement claim.

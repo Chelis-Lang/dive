@@ -104,6 +104,34 @@ fn independent(name: &str, compat: bool) -> SpecModel {
     )
     .expect("independent model")
 }
+fn assert_comparison(reference: &Value, compat: bool) {
+    if compat {
+        assert_eq!(reference["verdict"], "evaluation-error");
+        assert!(
+            reference["message"]
+                .as_str()
+                .expect("cause")
+                .ends_with("Attempted to compare an integer with non-integer:\n\"a\".")
+        );
+        assert_eq!(reference["statistics"]["generated"], 1);
+        assert_eq!(reference["statistics"]["distinct"], 1);
+        assert_eq!(reference["statistics"]["depth"], 1);
+        assert_eq!(reference["tlc"]["code"], 2103);
+        assert_eq!(reference["tlc"]["reported"], 1000);
+        assert_eq!(reference["tlc"]["exit_status"], 75);
+        // Storage must preserve the measured class without
+        // upgrading this uncertified evaluator error site.
+        assert_eq!(reference["tlc"]["verified"], false);
+    } else {
+        // D-009 compares these distinct domains structurally.
+        assert_eq!(reference["verdict"], "success");
+        assert_eq!(reference["statistics"]["generated"], 3);
+        assert_eq!(reference["statistics"]["distinct"], 2);
+        assert_eq!(reference["statistics"]["depth"], 2);
+        assert_eq!(reference["tlc"]["code"], 2193);
+        assert_eq!(reference["tlc"]["exit_status"], 0);
+    }
+}
 fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedules: &[Option<u64>]) {
     let directory = directory();
     let mut serial = 0;
@@ -128,6 +156,8 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                     assert_eq!(reference["tlc"]["reported"], 1000);
                     // This ported diagnostic remains an uncertified error site.
                     assert_eq!(reference["tlc"]["verified"], false);
+                } else if matches!(name, "CompareFunction" | "CompareTuple") {
+                    assert_comparison(&reference, compat);
                 } else {
                     assert_eq!(reference["verdict"], "invariant-violation");
                     assert_eq!(reference["statistics"]["generated"], 4);
@@ -236,6 +266,11 @@ controls!(apply_tlc, "Apply", true);
 controls!(apply_dive, "Apply", false);
 controls!(witness_tlc, "Witness", true);
 controls!(witness_dive, "Witness", false);
+// Pinned TLC compares both representations through integer-domain functions.
+controls!(compare_function_tlc, "CompareFunction", true);
+controls!(compare_function_dive, "CompareFunction", false);
+controls!(compare_tuple_tlc, "CompareTuple", true);
+controls!(compare_tuple_dive, "CompareTuple", false);
 
 #[test]
 fn actual_older_ambiguous_archive_refuses_without_search() {

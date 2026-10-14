@@ -1,5 +1,10 @@
 # Changelog
 
+- Storage regression coverage now includes literal-tuple and integer-domain
+  function comparison through forced frontier/predecessor spill and checkpoint
+  recovery, alongside the existing application and independent-witness controls.
+  The storage guide documents structural format 2 and its separate trace contract.
+
 - `dive check` now uses TLC physical process statuses independently of its
   evaluator profile. `--exit-codes native` retains the historical CLI statuses;
   existing Rust `CheckReport::exit_code()` callers are unchanged. New typed
