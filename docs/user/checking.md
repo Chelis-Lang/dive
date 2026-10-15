@@ -59,8 +59,10 @@ storage, debugger, coverage and dump flags refuse by name rather than selecting
 native modes with different contracts. Unknown or malformed arguments exit 1;
 recognized unsupported options exit 3 before input access. Input I/O errors go
 to stderr and use 150 for the module and 151 for the configuration. The adapter
-retains the file API's source-before-configuration input checks; it does not yet
-reproduce TLC's configuration-first priority when both inputs are invalid.
+reads and parses the configuration first, as TLC does: a missing or malformed
+configuration exits 151 even when the module is also missing.
+`dive_api::check_file_tlc_inputs` provides the same input order for Rust callers;
+filenames must already include their extensions.
 Native commands retain their existing statuses and input ordering. These
 entrypoints implement a checking subset; full TLC toolchain parity remains open.
 
