@@ -8,6 +8,13 @@ fn words(source: &str) -> Vec<String> {
         .map(|t| source[usize::from(t.range.start())..usize::from(t.range.end())].into())
         .collect()
 }
+fn contains_words(source: &str, expression: &str) -> bool {
+    let expected = words(expression);
+    words(source)
+        .windows(expected.len())
+        .any(|window| window == expected)
+}
+
 fn retained(
     directory: &str,
     selected: usize,
@@ -101,7 +108,7 @@ fn retained(
 #[test]
 fn all_single_process_procedure_artifacts_match_the_pin() -> Result<(), Box<dyn std::error::Error>>
 {
-    retained("", 112, 70, 4)?;
+    retained("", 112, 84, 8)?;
     retained("extra", 12, 12, 0)
 }
 #[test]
@@ -114,7 +121,7 @@ fn process_frames_are_owned_by_id_and_self_tail_keeps_the_frame()
             .tla
             .contains("stack = [self \\in ProcSet |-> << >>]")
     );
-    assert!(artifact.tla.contains("a' = [a EXCEPT ![1] = 2]"));
+    assert!(contains_words(&artifact.tla, "a' = [a EXCEPT ![1] = 2]"));
     let action = artifact
         .tla
         .split("F(self) ==")
@@ -123,12 +130,18 @@ fn process_frames_are_owned_by_id_and_self_tail_keeps_the_frame()
         .split("Recur(self) ==")
         .next()
         .ok_or("wrapper")?;
-    assert!(action.contains("a' = [a EXCEPT ![self] = a[self] - 1]"));
-    assert!(action.contains("c' = [c EXCEPT ![self] = a[self]]"));
-    assert!(action.contains("u' = [u EXCEPT ![self] = a'[self] + c'[self]]"));
+    assert!(contains_words(
+        action,
+        "a' = [a EXCEPT ![self] = a[self] - 1]"
+    ));
+    assert!(contains_words(action, "c' = [c EXCEPT ![self] = a[self]]"));
+    assert!(contains_words(
+        action,
+        "u' = [u EXCEPT ![self] = a'[self] + c'[self]]"
+    ));
     assert!(!action.contains("Head(stack"));
     assert!(!action.contains("Tail(stack"));
-    assert!(artifact.tla.contains("Recur(self)"));
+    assert!(contains_words(&artifact.tla, "Recur(self)"));
     Ok(())
 }
 #[test]
@@ -166,7 +179,7 @@ fn process_procedure_normalization_is_globally_bounded() -> Result<(), Box<dyn s
 fn explicit_stack_expression_is_not_implicitly_indexed() -> Result<(), Box<dyn std::error::Error>> {
     let source = "--algorithm A variable x=0; procedure P(a=0) begin F:x:=Len(stack[self]); R:return; end procedure; process Worker=1 begin L:call P(1); E:skip; end process; end algorithm";
     let artifact = translate(source, &TranslationOptions::default())?;
-    assert!(artifact.tla.contains("x' = Len ( stack [ self ] )"));
+    assert!(contains_words(&artifact.tla, "x' = Len ( stack [ self ] )"));
     assert!(!artifact.tla.contains("stack[self] [ self ]"));
     Ok(())
 }

@@ -6,12 +6,14 @@ Every algorithm ported or adapted from another implementation is recorded here. 
 - the source's licence;
 - the nature of the port: semantics matched, or algorithm adapted.
 
-The canonical tlaplus tools are MIT-licensed. Translated code carries attribution.
+The canonical tlaplus tools are MIT-licensed. Translated code carries attribution. The PlusCal stage port retains the upstream
+[MIT notice](../crates/dive-pluscal/src/translate/pcal/LICENSE).
 
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
 | `dive-api` ordinary TLC-profile final routing and `dive-conformance` schema-2 transport | Existing dive `final_roles`, final analyzer/independent replay, and `final_study::lasso_document`; TLC `tlc2/output/EC.java` at `94d0c50`; ADRs 0082 and 0086 | MIT | Original integration of the existing bounded final backend, preserving the actual startup binding and ordinary safety tail. Structural display/document consistency handling was independently written after reading the existing study helper; no historical whole mapper or periodic/performance cache implementation imported. Success 2193/0 and temporal violation 2116/13 retain pinned classifications; arbitrary periodic word choice and queue population are excluded from parity by ADR 0086 and the issue #241 owner contract, with fresh independent replay mandatory. Generated-count parity is required at one worker; distinct/depth/class/physical exit/property remain strict at multiple workers. The separate historical TLC oracle self-check policy is unchanged. Raw queue values and the producer's queue-zero exhausted-capture check remain; finite safety length/ending comparisons remain strict. Historical `tlc-probes` inputs, stdout, command and exits for `LvNoFair`, `LvWeakFair`, `LvWFIntermittent` and `LvActionProp` were directly read before adding ordinary-route tests; their recorded `94d0c50`, worker-1/fp-0/seed-0/final observations remain historical, not new oracle runs. No new oracle measurements are recorded here |
 | TLC checking entrypoints (`dive-cli/src/tlc.rs`, shared dispatch and thin binaries) | tlaplus `tlc2/TLC.java` argument handling (`-modelcheck`, config/module suffixes, workers/seed/fp/deadlock, `-lncheck`, absolute-root `ToolIO.userDir`) and `util/SimpleFilenameToStream.java` user-directory/CWD resolution; pinned `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Checking-only argument semantics adapted after direct source reading, with the existing `dive-api` backend/report and fresh `SpecModel` replay. Historical internal X parser/validation helpers at `fb2fb3c34b8ae5697434677f1c344051bc8d3452` were consulted, not imported wholesale; no message renderer or removed API was restored. `tests/fixtures/tlc-check/primary.json` retains four explicitly historical pinned safety observations, not current-source execution evidence. TLC tool/mode protocols and configuration-first error priority remain outside this experiment; no corpus credit or full compatibility claim. |
+| `dive-pluscal` translation (`translate/pcal/`) | tlaplus `pcal/ParseAlgorithm`, `PcalSymTab`, `PcalFixIDs`, `PcalTranslate`, `PcalTLAGen`, `TLAExpr`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Reference semantics ported stage by stage: source-order macros, labels/grouping, scoped IDs, explosion and stack frames, priming/subscripts and layout-sensitive expression substitution. Native pre-allocation bounds and source associations; expanded control-flow depth checks and bounded output-fragment construction are dive designs. No runtime Java delegation. Replaces the older `emit.rs`/`fairness.rs` generation paths; checksum serialization is retained. |
 | `dive-pluscal` bounded sequential procedure checksum (`translate/checksum.rs`) | tlaplus `pcal/AST.java` (`Procedure`, `PVarDecl`, `Call`, `Return`, `CallGoto`, `VectorToSeqString`), `ParseAlgorithm.java` (`GetProcedure`, `GetCall` mutable proceduresCalled alias and CallGoto fold), `PCalTLAGenerator.translate`, `PcalTranslate.Explode`; commit `94d0c50` | MIT | Exact original post-generation header AST templates; independent development-only expanded ownership captures; shared nested-vector mutation stays refused. ADR 0058; complete 132-case selection preserves failed/native/reference stage distinctions |
 | `dive-check` native checkpoint/resume (`checkpoint.rs`, ordered completed-level engine) | tlaplus `tlc2/tool/ModelChecker.java` (`checkpoint`, `recover`, `doInit`), `AbstractChecker.java`, `Worker.java`, `TLCTrace.java`, `queue/DiskStateQueue.java`, `fp/MemFPSet.java`, `util/InternTable.java`, commit `94d0c50` | MIT | Recovery resumes queue without Init, preserves concrete trace/order and restores intern names before evaluation; ADR 0038 recomputes VIEW/symmetry keys via the live configured path, retaining actual concrete discoveries; TLC generated/initial counter reset matched. Pure parallel recovery retains resolved configured keys and concrete discoveries in ordered commits, resumes the actual saved level and resolves counter/record limits at the inline prefix (ADR0038 addendum). Native bounded single-file format and completed-level pausing are dive designs, not Java byte interoperability. Source hashes/raw counts in `conformance/probes/native-checkpoint/` |
 | `dive-eval` `Evaluator::intern_bfs_config` and `dive-check` startup | tlaplus `tlc2/tool/AbstractChecker.java` constructor and `createConfig`, commit `94d0c50` | MIT | Eagerly intern bfs, seed, fingerprint polynomial and install strings in source order; clean seed 0/7/14 captures in `crates/dive-check/tests/fixtures/runtime-names/` reproduce counts and chosen violation |
@@ -517,11 +519,11 @@ keep original parallel source/raw evidence separate from current storage control
 | --- | --- | --- | --- |
 | `dive-pluscal::rewrite`, `dive-api::rewrite`, CLI editing policy | `pcal.trans.performTranslation`, `findTokenPair`; `pcal.Validator.CHECKSUM_PATTERN`, `checksum(Vector)`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Native bounded span selection and pure replacement, UTF-8 line-concatenation CRC32 and recognized header fields. Explicit partial sentinel, overwrite grant and byte quotas are native policy. Primary-body exact-byte editing is development-only evidence; native generated artifacts have separate admission controls. This historical body-only increment preceded the separate post-translation AST serializer below. Other AST shapes, exact generator formatting and file writes remain pending; fair CRC collision retained as D-020. |
 
-## Native post-translation PlusCal AST checksum
+## Procedure-free post-translation PlusCal AST checksum
 
 | Native component | Pinned reference | License | Adaptation and evidence boundary |
 | --- | --- | --- | --- |
-| `dive-pluscal::algorithm_checksum_at` (`translate/checksum.rs`) and Full rewrite policy | `pcal.AST.toString`, `TLAExpr.toString`, AST indentation helpers; `ParseAlgorithm` default declarations; `PcalTranslate.removeNameConflicts`, `translate`, `Explode`; `trans.performTranslation` and `Validator` AST CRC expression; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded sequential reference templates/token encoding and proved transparent C block flattening; native serialized bytes compared to each primary post-translation capture. Name-fix/unproved AST contexts refuse; Java probes are development-only. Full CRC derivation and body/source replacement remain separate from TLA admission/model proof. Fair-only CRC weakness reproduced and flagged, not corrected (D-020). |
+| `dive-pluscal::algorithm_checksum_at` (`translate/checksum.rs`) and best-effort rewrite policy | `pcal.AST.toString`, `TLAExpr.toString`, AST indentation helpers; `ParseAlgorithm` default declarations; `PcalTranslate.removeNameConflicts`, `translate`, `Explode`; `trans.performTranslation` and `Validator` AST CRC expression; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded sequential reference templates/token encoding and proved transparent C block flattening; native serialized bytes compared to each primary post-translation capture. Name-fix/unproved AST contexts refuse; Java probes are development-only. Exact CRC derivation and body/source replacement remain separate from TLA admission/model proof. Unavailable algorithm CRC is not a rewrite gate. The fair-only CRC weakness is reproduced, not corrected (D-020). |
 
 ### Scoped final attribution and cardinality-one DNF (#134)
 
@@ -664,7 +666,7 @@ measured comment boundary without weakening standalone EOF. Full artifact
 admission and independent model proof remain separate. See
 `crates/dive-pluscal/macro-checksum-acceptance/` and ADR 0049.
 
-| `dive-api` PlusCal generated declaration insertion (`translate.rs`) | pinned `pcal.trans` translation-section placement immediately after the owned algorithm closing line, commit `94d0c50` | MIT semantics | C/P trailing generated-name references and real unknown-name negatives, with original `Lock` failure retained; strict enclosing-module analysis remains required |
+| `dive-api` PlusCal generated declaration insertion (`translate.rs`) | pinned `pcal.trans` translation-section placement at the existing block, otherwise immediately after the owned algorithm closing line, commit `94d0c50` | MIT semantics | C/P trailing generated-name references and real unknown-name negatives, with original `Lock` failure retained; strict enclosing-module analysis remains required |
 
 | Algorithm closing-line admission (`dive-api/src/translate.rs`, `dive-pluscal/src/rewrite.rs`) | pinned `pcal/trans.java` line847 `endStuff` admission and line853 section insertion; Java `String.trim` through ASCII 0x20 | MIT semantics | Both C/P empty/space/tab/CRLF/line-comment positives and inline/block-comment/NBSP negatives; original standalone false acceptances and SANY-invalid formfeed outputs retained |
 
@@ -756,7 +758,7 @@ for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
 preserved as an observer limitation, without tableau write-authority credit.
 Worker/controller outcomes and native owned publication remain separately
 measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
-| `dive-pluscal` typed nested procedure header view (`translate/checksum_transfers.rs`, `checksum.rs`) | tlaplus `pcal/PcalTranslate.java` `CopyAndExplodeLastStmt`, `ExplodeLabeledStmt`, `ExplodeWhile`, `ExplodeCall`, `ExplodeReturn`, `UpdatePC`; `PCalTLAGen.GenAssign/SortSass`; `AST.Assign/SingleAssign` and `TLAExpr.toString`; commit `94d0c50` | MIT | Typed shared child-vector mutation only; outer source vectors remain copied/preserved. Clean original-after-generation CRC authority is separate from direct exploded ownership. ADR 0061; complete 180-row declared selection |
+| Historical retired `dive-pluscal` nested procedure header view (`translate/checksum_transfers.rs`, `checksum.rs`) | tlaplus `pcal/PcalTranslate.java` `CopyAndExplodeLastStmt`, `ExplodeLabeledStmt`, `ExplodeWhile`, `ExplodeCall`, `ExplodeReturn`, `UpdatePC`; `PCalTLAGen.GenAssign/SortSass`; `AST.Assign/SingleAssign` and `TLAExpr.toString`; commit `94d0c50` | MIT | Typed shared child-vector mutation only; outer source vectors remain copied/preserved. Clean original-after-generation CRC authority is separate from direct exploded ownership. ADR 0061; complete 180-row declared selection |
 
 Nested procedure header continuation also matches pinned `PcalTranslate.IsTRUE`
 (single logical token line), `ExplodeWhile` tail mutation/discard, and
@@ -801,9 +803,9 @@ and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
 pre-review native run's single event is retained as failed output evidence.
 
 
-## Acyclic procedure-body checksum calls (#219)
+## Historical retired Acyclic procedure-body checksum calls (#219)
 
-`checksum_transfers.rs` discovers source-owned procedure call vectors separately
+The removed `checksum_transfers.rs` discovered source-owned procedure call vectors separately
 from main's LAST-header alias. `checksum.rs` emits each body vector then distinct
 main targets only on the last declaration. The matched source is pinned
 `pcal.ParseAlgorithm.GetProcedure` (reset/store shared vector) and `GetCall`
@@ -817,9 +819,9 @@ is delegated to. ADR0073 and the complete130-row declared study retain all old
 errors/refusals and the first ENOSPC capture separately.
 
 
-## Recursive sequential procedure Full checksum graphs (#223)
+## Historical retired Recursive sequential procedure Full checksum graphs (#223)
 
-`checksum_transfers.rs` retains bounded source-owned call vectors separately
+The removed `checksum_transfers.rs` retained bounded source-owned call vectors separately
 from `ParseAlgorithm.GetProcedure/GetCall` LAST-main alias. `PcalTranslate`
 `CopyAndExplodeLastStmt` and `ExplodeCallReturn` (1284–1490) provide self/cross-owner
 tail assignment/frame/local/entry order; `PcalTLAGen.GenAssign` supplies
@@ -910,9 +912,9 @@ natural clock scheduling or ordinary model proof. See
 [ADR0078](decisions/0086-rescue-reset.md) and the
 executable guide.
 
-## Process-owned procedure Full headers (#225)
+## Historical retired Process-owned procedure Full headers (#225)
 
-`translate/checksum_transfers.rs` follows pinned `ParseAlgorithm.GetProcedure`
+The removed `translate/checksum_transfers.rs` followed pinned `ParseAlgorithm.GetProcedure`
 (694/720) and `GetProcess` (737/755): each process resets and stores its own
 proceduresCalled vector, while sequential main aliases LAST. Original parsed
 source spans identify each owner; vectors retain encounter order and duplicate
@@ -1034,6 +1036,111 @@ Discovery remains sorted lexical selection; unreadable selected inputs fail the
 run. The pinned JRE archive identifies the unpacked tree, without attesting every
 unpacked file. Full corpus measurement, gates and actual-main acceptance require
 fresh execution after integration; prior producer/reviewer results are historical.
+
+
+## PlusCal option semantics and artifact preferences
+
+The shared `translate/options.rs` context and public CLI/API flags follow pinned
+`pcal/trans.java` `parseAndProcessArguments` at commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT): termination/fairness defaults,
+source spellings, noDoneDisjunct, width, version, reporting and backup/cfg
+preferences. `PcalParams.VersionToNumber` supplies decimal thousandths and Java
+i32 wrapping; `ParseAlgorithm` supplies the pre-1.5 pc/stutter optimization switch
+and exactly-1.5 sequential fair spelling. `PcalTLAGen.GenNext` supplies the
+no-done-disjunct effect. Its secondary single-assignment wrap guard tests an empty
+self expression; admitted process IDs and `self` are nonempty, so that guard does
+not add a reachable decision for these controls.
+
+`crates/dive-pluscal/tests/fixtures/remaining-options/primary.json` is derived from
+the recorded pinned translator controls and independently SANY-validated version
+artifacts. The consumed 28 rows assert exact body bytes, body CRC, original/header
+AST CRC, termination cfg requirements and requested label locations. These are
+translator controls, not model-check parity. API and CLI tests keep both profiles,
+source overrides, replacement/checksum consistency and no-write/no-proof results.
+The external preparation histories retain the forced-CRLF writer experiment,
+writeAST exit255, debug CRC difference, illegal-source-option exit0 and corrected
+local-spec x=42 output; no primary was rerun for this implementation cut.
+
+The earlier simple original-AST increment ports `AST.lineCol`, `Indent`/`EndIndent`,
+`VarDecl`, `LabeledStmt`, `Assign`, `SingleAssign` and `Lhs` serialization from
+the same source pin. `ParseAlgorithm.GetAssign` and `InnerMakeLabeledStmtSeq`
+provide the source locations; `trans.WriteAST` provides the original-stage wrapper.
+The original operation stops before `removeNameConflicts` and `translate`, skips
+the post-generation shared-transfer overlay and returns no header CRC. The existing
+post-generation checksum path retains that overlay and its prior constraints.
+`fixtures/original-ast/primary.json` consumes two retained actual `-writeAST`
+artifacts, the actual `-debug` header/body CRC pair and four retained pinned
+DEFINE original-tree serializations exported after `removeNameConflicts` and
+`translate` by `AstDump`. Those exports are not pre-generation `-writeAST`
+measurements. The selected collision-free definitions and assignment/skip bodies
+retain their bytes through these stages; procedure/macro stage ownership is not
+inferred. No primary process was run for this increment.
+At that increment, procedure/macro original ownership, debug compound locations,
+pre-1.5 process/procedure ASTs and specification-backed translation stayed
+unimplemented by name; the semantic continuation below updates the current scope.
+File preferences are in-memory plans, not filesystem side-effect parity. The
+measurement tool's `--label` transports the actual `-label` argument to both
+translators; no new oracle or campaign result is claimed.
+
+The semantic original-stage continuation ports `ParseAlgorithm.GetProcedure`,
+`GetProcess`, `GetCall`, `ExpandMacroCall`, `SubstituteInSingleAssign`,
+`InnerMakeLabeledStmtSeq` and `ClassifyStmtSeq`, plus the AST procedure/process,
+compound and expression serialization templates from the same source pin.
+`pcal::original` reuses typed build/labels/macro/expression kernels. Its original-only
+builder mode retains parser-vector ownership through the last sequential
+procedure/main boundary; process vectors reset independently. Original expressions
+retain internal empty physical lines and Java UTF-16 token widths from `TLAToken.getWidth`;
+normalized If/Either debug locations
+remain distinct from the grouped label's saved source position. The existing
+post-generation shared-transfer Writer remains independent.
+
+`fixtures/original-ast-ownership` contains 32 genuine `pcal.trans -writeAST` /
+`-debug -writeAST` artifacts captured before fixing or generation, eight supported
+debug-header/body controls, three SANY-valid debug headers with unfinished native
+labelled-transfer ownership, and four invalid source families. Successful WriteAST
+controls produce AST.tla and exit255 through the pinned null translation path;
+these records do not establish a universal exit rule or native file-write parity.
+All eleven separately captured debug translations pass pinned SANY. No post-generation
+AstDump export is relabelled as an original-stage measurement. The modern original
+serializer does not certify a translated module or model, and does not expose an
+early-stage header CRC. At that increment, generated debug procedure/labelled-transfer/
+renaming ownership, historical fields, backends, filesystem writes and full P stayed
+pending; the following debug-transfer continuation updates the current scope.
+
+The debug-transfer continuation ports the observable alias rules of
+`PcalTranslate.CopyAndExplodeLastStmt`, its WithGoto wrapper, `ExplodeLabelIf`,
+`ExplodeLabelEither`, `ExplodeLabeledStmt` and `ExplodeWhile`. Labelled entry vectors
+are shallow copies; nonempty nested compound vectors remain shared, while empty
+inputs produce fresh vectors that are not assigned back to LabelIf/Clause fields.
+Converted source If/Either coordinates become explicit before generated compound
+nodes inherit their source LabelIf/LabelEither locations. Header growth uses the
+existing shared budget and real UpdatePC constructor; original artifacts remain
+before these mutations. The existing plain transfer Writer is unchanged.
+
+The three retained labelled controls now consume exact primary header/body pairs.
+The measured While CRC `5df9de` equals its original CRC, rather than proving a
+mutation. Separately named `owners_sequences_translation_debug` invokes genuine
+pcal.trans -debug with explicit EXTENDS Sequences, then actual SANY. It binds header
+`b8cfe3ef` and body `5cd8f98a`. A reached exact-body failure exposed three extra
+spaces before frame RHS `\o`; the common frame writer now follows
+`MakeNewStackTopExprPretty` (operator column2 minus first-token column1). This is a
+shared layout prerequisite, not fixture-specific formatting or a generation redesign.
+
+Only flat, disjoint, explicitly labelled sequential procedural headers are lifted;
+reached structural tests preserve named compound/process, macro/DEFINE,
+automatic/fairness-label, renaming, simultaneous-ordering, unresolved-call,
+argument-count and return-owner boundaries. SANY reaches semantic processing and
+linting of Case with one changed-since-translation warning in all twelve debug
+controls; the old nested-macro control also has an embedded missing-label validator
+error because SANY lacks the translator's -label context. No clean original
+checksum-validation credit follows from exit0. The actual-main source continuation
+preserves the complete translator stages and the separately corrected shared
+effective-grammar selector. Original AST ownership now uses that selector directly;
+malformed-first, source-option masking, resource and strict-region boundaries remain.
+The measurement helper retains its current pin/protocol kernels while adding only
+actual `-label` transport to both translation command builders and the result record.
+Full P, full149, fresh final review, gates, model parity and real filesystem writes
+remain pending, and #246 is untouched.
 
 
 
@@ -1336,3 +1443,54 @@ Current-parent finite execution passed 140 selected tests with no failures, igno
 
 Historical source/runtime failures, invalid external helpers and review experiments remain preserved and uncredited. This later two-Markdown transfer does not retag measurements; actual source/main CI is separately verified. General API, temporal and TLC parity, broad P/C/M completion and issue #272 remain open; no state-space gain or roadmap completion follows from this bounded change.
 See [the temporal API contract](temporal-api.md) and [final checking](user/temporal.md).
+
+## Current PlusCal best-effort checksum retirement
+
+Issue241's expert DELETE disposition retires `translate/checksum_transfers.rs` and
+its procedure-header alias/expansion assertions. Earlier provenance sections for
+nested, acyclic, recursive and process-owned Full headers describe historical
+captures and removed compatibility machinery, not current algorithm-CRC support.
+Procedure-free exact serialization and line-concatenation body CRC remain real
+features. `pcal.Validator` (pinned94d0c507) recognizes a disabled pcal value while
+still checking TLA CRC; `pcal.trans` preserves that spelling and updates present
+body CRCs. Genuine ordinary pcal/SANY/TLC controls confirmed algorithm/body warnings,
+literal omission losing body warnings, and Noop overwrites before implementation.
+The new consumed best-effort-checksum fixtures are byte copies of actual pinned
+primary outputs: original source and exact/disabled-input routes remain distinct.
+No native runtime invokes Java, and header choice is not model-parity credit.
+
+The retired procedure-header capture filenames in the historical sections above
+are provenance records, not active fixture consumers. Only the485 orphan `.ast`
+files in those six families and the procedural Elsif family are removed. All740 original manifest facts remain;
+688 row instances have genuine current Git inputs, with explicit sibling lineage.
+The52 absent-input instances/26 IDs (including14 successful primary facts) are
+unexercised debt, not native refusals or successes. Original-AST ownership captures
+and generation/body-CRC fixtures are separate active controls.
+
+The separate procedural Elsif fixture family retains32 genuine inputs and primary
+body-CRC facts, with generator/resource and API module-admission controls. It adds
+32 input rows to the688 source-closed rows above; the52 missing historical rows
+remain unexercised. Its former32 header-alias AST captures are included in the485
+retired orphan files. No procedure-free exact CRC or original-AST fixture is removed.
+
+The rewrite separator follows pinned `PcalTLAGen.GenSpec`/`GenTermination`'s final
+empty line before `END TRANSLATION`. The actual Case primary control exposed a
+missing native separator even with equal algorithm/body CRCs. Editing now retains
+that separator and charges its bytes to the rewrite quota; no header stripping,
+body-CRC substitution or primary fixture change is used to claim equality.
+
+The physical-line coordinate fix follows Java `BufferedReader.readLine`: bare CR,
+LF and CRLF each delimit one line while native byte offsets remain original.
+Actual pinned LF/bareCR translation modules are identical (body CRC `c38de1c8`);
+a bound pre-fix native API probe produced `98ffe10c` for bareCR. The fix changes
+only generator/original-tree position indexing; legacy direct exact CRC retains
+its named bareCR Unsupported boundary. Uniform/mixed line, span and tab controls
+and genuine module/body comparisons cover the change separately from checksum
+admission retirement.
+
+The compatibility overwrite choice is a distinct later implementation decision
+from retaining native protection in the initial checksum plan. `pcal.trans`'s
+ordinary Noop behavior is the counterpart: default native protection is retained,
+explicit native overwrite remains available, and the global TLC profile resolves
+that overwrite automatically. The newly captured exact modified-body pcal/SANY
+control regenerates the original complete primary module with physical exit0.

@@ -29,9 +29,11 @@ mod rewrite;
 pub use rewrite::{
     ChecksumPolicy, RewriteOptions, RewriteReport, RewriteRequest, rewrite_file, rewrite_source,
 };
+mod original_ast;
 mod translate;
 /// Native PlusCal fairness selection, including pinned translator option spellings.
 pub use dive_pluscal::FairnessOption as TranslationFairness;
+pub use original_ast::{OriginalAstReport, original_ast_file, original_ast_source};
 pub use translate::{
     TRANSLATE_SCHEMA_VERSION, TranslationReport, TranslationRequest, translate_file,
     translate_source,

@@ -18,6 +18,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
     }
     let mut editing = dive_api::RewriteOptions::default();
     let mut rewrite = false;
+    let mut original_ast = false;
     let mut editing_flag = false;
     let mut file = None;
     let mut json = false;
@@ -27,6 +28,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         match argument.as_str() {
             "--compat=tlc" => request.compat_tlc = true,
             "--rewrite" => rewrite = true,
+            "--ast" => original_ast = true,
             "--replace-modified" => {
                 editing.replace_modified = true;
                 editing_flag = true;
@@ -42,8 +44,60 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                     }
                 }
             }
-            "--label" | "-label" | "--report-labels" | "-reportLabels" => {
-                request.limits.insert_missing_labels = true;
+            "--label" | "-label" => request.limits.insert_missing_labels = true,
+            "--report-labels" | "-reportLabels" => request.limits.report_labels = true,
+            "-termination" => request.limits.check_termination = true,
+            "-noDoneDisjunct" => request.limits.no_done_disjunct = true,
+            "-lineWidth" => {
+                let Some(width) = arguments
+                    .next()
+                    .and_then(|s| s.parse::<i32>().ok())
+                    .filter(|n| *n >= 60)
+                else {
+                    let _ = writeln!(err, "error: -lineWidth expects an i32 value at least 60");
+                    return ExitCode::from(2);
+                };
+                request.limits.line_width = width;
+            }
+            "-version" => {
+                let Some(version) = arguments.next() else {
+                    let _ = writeln!(err, "error: -version expects a language version");
+                    return ExitCode::from(2);
+                };
+                request.limits.version = Some(version.clone());
+            }
+            "-noold" => request.limits.no_old = true,
+            "-nocfg" => request.limits.no_configuration = true,
+            "-unixEOL" => request.limits.unix_eol = true,
+            "-debug" => request.limits.debug = true,
+            "-writeAST" => request.limits.write_ast = true,
+            "-spec" | "-myspec" | "-spec2" | "-myspec2" => {
+                let Some(name) = arguments.next() else {
+                    let _ = writeln!(err, "error: {argument} expects a specification name");
+                    return ExitCode::from(2);
+                };
+                if request.limits.specification_backend.is_some() {
+                    let _ = writeln!(
+                        err,
+                        "error: conflicting specification-backed translator options"
+                    );
+                    return ExitCode::from(2);
+                }
+                request.limits.specification_backend = Some((argument.clone(), name.clone()));
+            }
+            "--help" | "-help" => {
+                let _ = writeln!(
+                    out,
+                    "dive translate [OPTIONS] MODULE.tla\n\
+Native in-memory translation; --rewrite returns a replacement with checksums.\n\
+Supported: -label -labelRoot ROOT -reportLabels -nof -wf -sf -wfNext\n\
+           -termination -noDoneDisjunct -lineWidth N -version V -debug\n\
+Artifact plan: -noold -nocfg -unixEOL (no files are written)\n\
+Original AST: --ast returns bytes in memory (no translated-module acceptance)\n\
+Explicitly unsupported: -writeAST -spec -myspec -spec2 -myspec2 --write\n\
+See docs/pluscal-translation.md for version/AST limits and JSON reports."
+                );
+                return ExitCode::SUCCESS;
             }
             "--label-root" | "-labelRoot" => {
                 let Some(root) = arguments.next() else {
@@ -85,7 +139,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                 };
                 paths.push(value.into());
             }
-            "--fair" | "-termination" | "-nocfg" | "-version" | "-width" | "--write" => {
+            "--fair" | "-width" | "--write" => {
                 let _ = writeln!(
                     err,
                     "unsupported PlusCal translation option {argument}; no artifact produced"
@@ -115,11 +169,26 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         let _ = writeln!(err, "error: checksum/replacement flags require --rewrite");
         return ExitCode::from(2);
     }
+    if original_ast && rewrite {
+        let _ = writeln!(
+            err,
+            "error: --ast and --rewrite select different artifact stages"
+        );
+        return ExitCode::from(2);
+    }
     let path = std::path::Path::new(file);
     if let Some(parent) = path.parent() {
         request.analyze.after_standard.push(parent.into());
     }
-    let result = if rewrite {
+    let result = if original_ast {
+        dive_api::original_ast_file(path, &request).map(|report| {
+            (
+                report.exit_code(),
+                report.artifact_available(),
+                report.to_json(),
+            )
+        })
+    } else if rewrite {
         dive_api::rewrite_file(
             path,
             &dive_api::RewriteRequest {
@@ -137,7 +206,50 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
             if json {
                 let _ = writeln!(out, "{document}");
             } else if accepted {
-                let source = if rewrite {
+                if let Some(warnings) = document["replacement"]["warnings"].as_array() {
+                    for warning in warnings {
+                        if let Some(message) = warning["message"].as_str() {
+                            let _ =
+                                writeln!(err, "warning: algorithm checksum unavailable: {message}");
+                        }
+                    }
+                }
+                if document["translation_options"]["report_labels"] == true
+                    && let Some(labels) = document["artifact"]["inserted_labels"].as_array()
+                    && !labels.is_empty()
+                {
+                    let _ = writeln!(
+                        err,
+                        "{}",
+                        if labels.len() == 1 {
+                            "The following label was added:"
+                        } else {
+                            "The following labels were added:"
+                        }
+                    );
+                    for label in labels {
+                        if let (Some(name), Some(line), Some(column)) = (
+                            label["name"].as_str(),
+                            label["position"]["line"].as_u64(),
+                            label["position"]["column"].as_u64(),
+                        ) {
+                            if let (Some(definition_line), Some(definition_column)) = (
+                                label["macro_definition_position"]["line"].as_u64(),
+                                label["macro_definition_position"]["column"].as_u64(),
+                            ) {
+                                let _ = writeln!(
+                                    err,
+                                    "  {name} at line {definition_line}, column {definition_column} of macro called at line {line}, column {column}"
+                                );
+                            } else {
+                                let _ = writeln!(err, "  {name} at line {line}, column {column}");
+                            }
+                        }
+                    }
+                }
+                let source = if original_ast {
+                    &document["ast_artifact"]["module_source"]
+                } else if rewrite {
                     &document["replacement"]["module_source"]
                 } else {
                     &document["module_source"]

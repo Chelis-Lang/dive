@@ -441,6 +441,29 @@ See `docs/native-checkpoint.md` and the source/raw control study at
 
 ## D-008: Results are data, and diagnostics are built for people and agents
 
+D-008 PlusCal original AST data: `dive translate --ast` returns an earlier-stage
+`AST.tla` representation in memory. Exit0 and `artifact_available: true` mean bytes
+are available; `accepted` and `generated_module_accepted` stay false. Both profiles
+use this explicit native operation. It does not replace pinned `-writeAST`, whose
+filesystem side effects remain unsupported. Bounded simple debug/header shapes
+match retained primary CRCs, including measured compounds and macro substitutions.
+Modern original procedure/macro ownership is measured before generation; generated
+debug labelled-compound and measured flat procedural headers now match exact CRC
+pairs. Compound/process-owned procedures, renaming/ordering and historical fields
+remain unfinished. The retained SANY semantic successes carry warnings and do not
+prove clean original PlusCal checksum validation.
+See [the current PlusCal guide](pluscal-translation.md).
+
+**Current PlusCal translation.** Scoped renaming, multiline macro substitution,
+branch labels, symbolic process domains and procedure frames follow pinned
+`pcal.trans`. Existing translation blocks are replaced in their original slot.
+Native expansion limits and generated-operator collisions are explicit
+refusals. Public artifact acceptance still requires enclosing-module syntax,
+name and level analysis: pcal can write a `PrintT` reference without `EXTENDS
+TLC`, but dive rejects that module. Optional algorithm CRC serialization keeps a narrower procedure-free
+scope without gating rewriting. See [the current guide](pluscal-translation.md); historical
+PlusCal increment notes below describe earlier boundaries.
+
 | | |
 |---|---|
 | **Kind** | Structured answers preserved; checker exit conventions are separately selectable (D-023) |
@@ -2005,15 +2028,14 @@ four original/edited C/P validator controls. This is a missed source edit, not
 an admitted algorithm-equivalence claim: `trans.performTranslation` and
 `Validator` hash `"fair"` alone because of Java ternary-expression precedence.
 
-**Status: measured upstream candidate; no native correction adopted.** Native
-block rewriting derives the reference CRC for its proved bounded sequential
-post-translation AST subset, including this weakness, flagged as
-`fair_header_crc_only=true`. `algorithm_checksum_verified` and `algorithm_matched`
-mean reference CRC derivation/equality, not source identity or proof. Other AST
-shapes remain named full-checksum refusals. Explicit `--checksums tla` disables
-algorithm CRC and verifies only the generated body; that partial policy is
-reported as an override under `--compat=tlc`. A future corrected option would require
-a named TLC counterpart and its own approved default decision.
+**Status: measured upstream candidate; no corrected fair CRC adopted.** Native
+rewriting retains the reference CRC for its supported procedure-free AST subset,
+including this measured constant CRC. It does not certify source identity.
+If an exact algorithm CRC is unavailable, rewriting disables that value and
+retains the real body CRC. Both `--checksums full` and `--checksums tla` select
+this best-effort policy in either profile. The native body overwrite grant and
+ordinary primary overwrite behavior are described under D-008. A future
+corrected fair option still needs its own approved default decision.
 
 All six primary sources/artifacts and four unchanged-body source-edit controls
 remain in `crates/dive-pluscal/rewrite-acceptance/fair-checksum/`. Body CRC and
@@ -2029,7 +2051,7 @@ default or ordinary liveness certificate. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
 
 
-**D-008 checksum continuation:** nested `elsif` and multiple `with` binders now
+**Historical checksum-era scope (superseded by issue #241):** **D-008 checksum continuation:** nested `elsif` and multiple `with` binders now
 have bounded reference AST serialization. Strict operator-tree comparisons
 caught dive omitting the pinned empty-`else` TRUE conjunct; the original mismatch
 and paired empty/explicit-Skip controls remain visible. Native now preserves
@@ -2068,7 +2090,7 @@ selection remains evidence; see the concrete capture guide.
 Ordinary periodic checking and full family certification remain unfinished.
 
 
-**D-008 finite-process Full reports.** Declared-fairness finite process records
+**Historical checksum-era scope (superseded by issue #241):** **D-008 finite-process Full reports.** Declared-fairness finite process records
 now have proved native post-translation AST/CRC derivation, separately checked
 from admitted generated modules. Raw multiline process checksum matching does
 not lift the generator's layout refusal. Supported explicit process fairness and
@@ -2120,18 +2142,18 @@ missing-label cases were rejected. Those failures and exact primary outputs are
 preserved before the native source-context guard.
 
 **Status: measured upstream interoperability candidate; no corrected default.**
-For proved finite process shapes, dive derives Full CRCs from the exact explicit
+For supported procedure-free process shapes, dive derives exact CRCs from explicit
 CLI/API options and reports `translation_options` on every replacement request.
 The API has one fairness enum; the CLI rejects repeated/conflicting fairness
-flags before loading. Native generation and Full derivation admit only the proved source fairness/label
+flags before loading. Native generation and exact derivation use the source fairness/label
 subset documented in [source options](pluscal-translation.md); unknown,
 malformed, conflicting and other unproved source contexts refuse by name. Store/replay explicit settings with the
 artifact and configure reference validation consistently. An unconfigured
 Validator result never proves the source was edited.
 
-The compatibility counterpart is the same pinned CRC/options context under
-`--compat=tlc`, not a new checksum scheme. `--checksums tla` is the explicit
-partial body-only policy. The unchanged `--fair algorithm` weakness (D-020)
+When available, the compatibility counterpart is the same pinned CRC/options
+context under `--compat=tlc`. Both checksum flag spellings now select best-effort
+CRC derivation; unavailable algorithm CRCs are disabled in either profile. The unchanged `--fair algorithm` weakness (D-020)
 can also hide changes, and its `NO_DIVERGENCE` result does not certify identity.
 Raw AST/CRC agreement, usable artifact admission, finite checking and independent
 witness validation stay separate (D-008).
@@ -2305,7 +2327,7 @@ values, which is not part of a trace's meaning. dive writes and reads trace
 format version 1 only, and the flag is gone. The 36 original and 108 altered
 shape failures of version 1 described above remain.
 
-D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
+**Historical checksum-era scope (superseded by issue #241):** D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
 labelled sequential procedure can now use Full editing. The pinned original
 header AST retains top-level calls but shared If/With/Either branch vectors are
 mutated by Explode; these six new shapes remain named checksum refusals. Two
@@ -2345,14 +2367,14 @@ See [storage and recovery](user/storage-recovery.md) and the consumed
 ### Actual committed request-prefix limitation (#204)
 
 The Rust request diagnostic publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
-D-008 nested sequential procedure checksum continuation (ADR 0061): Full editing
+**Historical checksum-era scope (superseded by issue #241):** D-008 nested sequential procedure checksum continuation (ADR 0061): Full editing
 uses typed shared header vectors for proved If/With/Either/While transfers. The
 180-row selection retains the old six byte mismatches/refusals and all primary
 errors/invalid outputs; no reference defect is silently repaired. Broader call
 scopes and strict #124 saved-frame replay remain qualified. See
 [the user guide](pluscal-translation.md).
 
-The bounded nested-procedure checksum implementation retains a failed development
+**Historical checksum-era scope (superseded by issue #241):** The bounded nested-procedure checksum implementation retains a failed development
 producer that sorted shared call frames even after `while TRUE` discarded their
 generated tail. The repaired path preserves pinned creation order for that tail.
 Separately, TLC optimizes `(TRUE)` only when its tokens occupy one logical line;
@@ -2377,7 +2399,7 @@ budgets, recovery and total-memory qualifications remain unchanged.
 ### Request-owned service limitation (#208)
 
 The Rust diagnostic now services one real request after successful source-prefix graph publication and physical frontier append, including an empty request with no invented source. Pin94d0c50 measured empty FALSE2104 and repeated unchanged graph FALSE2104, hook division errors2179/exit2, and written-graph temporal2116 before the hook. Actual candidate words are replayed independently; clock/suspendAll/count/checkpoint parity remains unfinished. Every failed adapter/EOF-race and incorrect native test assumption remains preserved; no new TLC bug/default or ordinary verdict is declared.
-D-008 P elsif procedure-checksum continuation (ADR0066): the native flat source
+**Historical checksum-era scope (superseded by issue #241):** D-008 P elsif procedure-checksum continuation (ADR0066): the native flat source
 branch list now has a typed virtual nested-If header view for the pinned shared
 Else-vector mutation. Before this increment the32 clean C/P controls produced17
 exact pairs and15 named P refusals; focused stored-header bytes/CRC now match all32.
@@ -2386,7 +2408,7 @@ CRC equality. General procedure/scoped checksums and strict saved-frame replay
 remain qualified; see [the runnable guide](pluscal-translation.md).
 
 
-D-008 disjoint sequential procedure checksum continuation (ADR 0069): main can
+**Historical checksum-era scope (superseded by issue #241):** D-008 disjoint sequential procedure checksum continuation (ADR 0069): main can
 call globally disjoint, explicitly labelled procedures through the bounded Full
 editor. With declarations `Put(z,a)` then `Get(q,b)`, main calls `Put(1,2)` then
 `Get(3,4)`, the pinned stored header keeps `Put.proceduresCalled` empty and stores
@@ -2469,7 +2491,7 @@ memory replay's repeated-output contract is not extended here. Clean primary
 records and the original failed output are retained in the replay study.
 
 
-The bounded acyclic procedure continuation also preserves TLC's call-list alias.
+**Historical checksum-era scope (superseded by issue #241):** The bounded acyclic procedure continuation also preserves TLC's call-list alias.
 For `Outer(p)` calling `Inner(p+1)`, with main calling `Outer(1)`, pinned stored
 header lists Outer=[Inner], Inner=[Outer], CRC `256207b7`. Reversing declarations
 lists Inner=[], Outer=[Inner,Outer], CRC `90b81514`. A runtime chain to Leaf has
@@ -2484,9 +2506,9 @@ detection. [Runnable C/P and Rust examples](pluscal-translation.md)
 explain artifact/model boundaries and the unchanged strict saved-frame #124 gap.
 
 
-## D-008: Recursive procedure headers without a termination claim
+## Historical D-008: Recursive procedure headers without a termination claim
 
-The bounded editor now derives pinned Full headers for proved disjoint
+The retired bounded editor derived pinned Full headers for disjoint
 sequential recursive source programs. `Recur(n)` with a decreasing base case
 has paired C/P header CRC `72442bcc`; an unused recursive owner still serializes.
 Source call vectors and the LAST main alias stay distinct. Self tail calls keep
@@ -2575,7 +2597,7 @@ as the resident route and gives the resident route's results, including for
 effectful, quantified and fairness-only specifications. Temporal obligations are
 an explicit unsupported combination. [CLI/Rust contract](user/disk-seen-safety.md).
 
-D-008 process-owned procedure checksum continuation (ADR0079): the stored
+**Historical checksum-era scope (superseded by issue #241):** D-008 process-owned procedure checksum continuation (ADR0079): the stored
 original header gives each process its own called-procedure vector. Calling a
 procedure from a process does not append the call to the last procedure header,
 as sequential main does. Parameter/local/frame fields remain unindexed in this
@@ -2737,3 +2759,41 @@ paths and adds exact exit pairs to four existing semantic entries. It does not
 register future liveness or scheduling differences. Old default agreement counts
 omitted this required observable; [the scoreboard](scoreboard.md#numeric-exit-accounting-correction)
 retains and qualifies them while fresh complete measurements remain pending.
+
+
+D-008 PlusCal checksum/API continuation: schema2 translation reports contain real
+artifact/replacement acceptance, whole-module analysis and requested/effective
+settings without proof-only fields or duplicate option-context dumps. The one
+best-effort checksum policy retains exact procedure-free CRCs and the real TLA
+body CRC; unavailable algorithm CRCs use `chksum(pcal) \in STRING`, including in
+compatibility mode. This is an explicit header difference, not byte equality to
+an unlike unmodified primary translation. A predeclared primary input with that
+value disabled preserves it during actual retranslation; original primary facts
+remain separate. Literal clause omission disables body-change warning detection
+and is not emitted. Unknown CRCs never gate generation/rewrite/debug or claim a
+model result. Default native modified-body protection keeps `--replace-modified` as the
+explicit counterpart; the TLC profile resolves ordinary pinned pcal's Noop
+overwrite behavior automatically. Algorithm changes
+alone regenerate without a grant. Old Full/TranslationOnly inputs alias the one
+policy; direct exact procedure CRCs remain unsupported. Full flags/filesystem/
+backends/149 and ordinary model-checking milestones remain open. See the current
+[PlusCal guide](pluscal-translation.md) and [ADR0084](decisions/0084-pluscal-translation.md).
+
+Current PlusCal overwrite policy: the default API/CLI protects modified or
+unverified existing bodies, with `--replace-modified` as its explicit overwrite
+counterpart. `--compat=tlc` resolves that protection to ordinary primary Noop
+overwrite automatically. Pure low-level `rewrite_document` retains its caller's
+explicit policy. `requested_editing` records input settings, `editing` records
+effective settings, and old body CRC/match data remains observable. Marker,
+source-option, generation, module-analysis and quota refusals are unchanged.
+The fresh exact modified-body primary control supports its own complete output
+comparison; missing/disabled header variants do not inherit header byte-identity
+credit from that control.
+
+The historical checksum-era scope notes above preserve earlier primary facts and
+retired admission boundaries. They do not describe current translation support:
+checksum availability no longer gates generation, rewriting or debug, and exact
+procedure-header alias serialization has been removed. Procedure-free exact CRC
+and original-AST operations remain real features. See the current
+[PlusCal contract](pluscal-translation.md); historical input gaps and model-parity
+obligations remain open.

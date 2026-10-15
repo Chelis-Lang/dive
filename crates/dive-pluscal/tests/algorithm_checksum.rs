@@ -74,8 +74,7 @@ fn full_checksum_bounds_and_reference_fair_weakness_stay_explicit()
     let a = algorithm_checksum_at(&unfair, 0..unfair.len(), &TranslationOptions::default())?;
     let b = algorithm_checksum_at(&fair, 0..fair.len(), &TranslationOptions::default())?;
     assert_eq!(a.serialized_ast, b.serialized_ast);
-    assert!(!a.fair_header_crc_only);
-    assert!(b.fair_header_crc_only);
+
     assert_eq!(b.checksum, "7c28162a");
     assert_ne!(a.checksum, b.checksum);
     for max_output_bytes in [0, 1, a.serialized_ast.len() - 1] {

@@ -1,0 +1,9 @@
+{
+  "id": "modifiers_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A procedure P() begin P1-:return; end procedure;\nprocedure Q() begin Q1+:return; end procedure;\nbegin E-:call P(); B+:call Q(); C:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "source-error",
+  "primary_exit": 255,
+  "artifact_exists": false
+}

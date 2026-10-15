@@ -110,7 +110,7 @@ fn retained_selection(
 }
 #[test]
 fn retained_normalization_artifacts_and_errors() -> Result<(), Box<dyn std::error::Error>> {
-    retained_selection("", 110, 82)?;
+    retained_selection("", 110, 86)?;
     retained_selection("interactions", 16, 11)
 }
 

@@ -32,15 +32,12 @@ fn false_branch_call_still_contributes_and_unused_does_not() {
     assert!(!artifact.tla.contains("WF_vars(Unused(1))"));
 }
 #[test]
-fn sequential_modifier_remains_named_and_small_output_is_bounded() {
+fn sequential_modifier_follows_primary_and_small_output_is_bounded() {
     let source = "--algorithm A { variable x=0; procedure Add(a=0) { Entry: + x:=x+a; Finish:return; }; { Start:call Add(1); Last:skip; } }";
-    assert_eq!(
-        translate(source, &TranslationOptions::default())
-            .expect_err("unproved sequential modifier")
-            .diagnostic
-            .code,
-        Code::Unsupported
-    );
+    let artifact =
+        translate(source, &TranslationOptions::default()).expect("pinned sequential modifier");
+    assert!(artifact.program_counter);
+    assert!(!artifact.tla.contains("WF_vars(") && !artifact.tla.contains("SF_vars("));
     let options = TranslationOptions {
         max_output_bytes: 80,
         ..TranslationOptions::default()

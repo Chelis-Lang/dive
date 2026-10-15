@@ -44,25 +44,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut flags = std::env::args().skip(1);
     while let Some(flag) = flags.next() {
         match flag.as_str() {
-            "-label" | "-reportLabels" => options.insert_missing_labels = true,
+            "-label" => options.insert_missing_labels = true,
+            "-reportLabels" => options.report_labels = true,
+            "-noDoneDisjunct" => options.no_done_disjunct = true,
+            "-lineWidth" => {
+                options.line_width = flags.next().ok_or("missing line width")?.parse()?;
+            }
+            "-version" => options.version = Some(flags.next().ok_or("missing version")?),
+            "-noold" => options.no_old = true,
+            "-nocfg" => options.no_configuration = true,
+            "-unixEOL" => options.unix_eol = true,
+            "-debug" => options.debug = true,
+            "-writeAST" => options.write_ast = true,
+            "-spec" | "-myspec" | "-spec2" | "-myspec2" => {
+                options.specification_backend = Some((flag, flags.next().ok_or("missing spec")?));
+            }
             "-labelRoot" => options.label_root = flags.next().ok_or("missing label root")?,
             "-nof" => options.fairness = dive_pluscal::FairnessOption::None,
             "-wf" => options.fairness = dive_pluscal::FairnessOption::Weak,
             "-sf" => options.fairness = dive_pluscal::FairnessOption::Strong,
             "-wfNext" => options.fairness = dive_pluscal::FairnessOption::Next,
-            "-termination" => {
-                let error = dive_pluscal::Diagnostic {
-                    code: dive_pluscal::Code::Unsupported,
-                    span: dive_pluscal::ast::Span {
-                        start: 0,
-                        end: source.len(),
-                    },
-                    message: "unsupported PlusCal translation option: -termination".into(),
-                };
-                let document = serde_json::json!({"stage":"Normalization","error":error,"code":error.code.as_str(),"model_proved":false,"exhaustive":false});
-                writeln!(std::io::stdout(), "{document}")?;
-                return Ok(());
-            }
+            "-termination" => options.check_termination = true,
             _ => return Err("unknown development option".into()),
         }
     }

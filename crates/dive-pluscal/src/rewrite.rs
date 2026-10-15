@@ -2,20 +2,33 @@
 use crate::{Code, Diagnostic, ast::Span};
 use serde::{Deserialize, Serialize};
 
-/// Checksum contract requested for a rewritten document.
+/// Rewriting always computes the body CRC and uses an optional exact algorithm CRC.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChecksumPolicy {
-    /// Require proved original post-translation header AST and body checksums.
-    /// Unimplemented AST shapes are refused, never silently downgraded.
+    /// Keep an exact algorithm CRC when available; otherwise disable only that
+    /// value using the pinned `\\in STRING` spelling and retain the body CRC.
     #[default]
-    Full,
-    /// Explicitly disable algorithm CRC and record the exact generated-body CRC.
-    TranslationOnly,
+    #[serde(alias = "Full", alias = "TranslationOnly")]
+    BestEffort,
+}
+impl ChecksumPolicy {
+    /// Compatibility spelling for the unified best-effort policy.
+    #[allow(
+        non_upper_case_globals,
+        reason = "preserve the former public API spelling"
+    )]
+    pub const Full: Self = Self::BestEffort;
+    /// Compatibility spelling; no longer a separate forced body-only policy.
+    #[allow(
+        non_upper_case_globals,
+        reason = "preserve the former public API spelling"
+    )]
+    pub const TranslationOnly: Self = Self::BestEffort;
 }
 /// In-memory replacement limits and explicit overwrite policy.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RewriteOptions {
-    /// Checksum surface; incomplete algorithm verification is never implicit.
+    /// Unified best-effort checksum policy; old input spellings remain accepted.
     pub checksums: ChecksumPolicy,
     /// Maximum source and rewritten document bytes, checked before construction.
     pub max_bytes: usize,
@@ -28,7 +41,7 @@ pub struct RewriteOptions {
 impl Default for RewriteOptions {
     fn default() -> Self {
         Self {
-            checksums: ChecksumPolicy::Full,
+            checksums: ChecksumPolicy::BestEffort,
             max_bytes: 4_194_304,
             replace_modified: false,
             normalize_newlines: false,
@@ -40,13 +53,10 @@ impl Default for RewriteOptions {
 pub struct PreviousChecksum {
     /// Recorded hexadecimal CRC, if the recognized header supplies one.
     pub recorded: Option<String>,
-    /// Recorded algorithm CRC; body-only editing never verifies this field.
+    /// Recorded algorithm CRC; rewriting does not use it as an edit gate.
     pub algorithm_recorded: Option<String>,
     /// Whether a recognized old header deliberately disables algorithm CRC.
     pub algorithm_disabled: bool,
-    /// Reference CRC equality, only for a proved full-checksum request.
-    /// Equality does not establish source identity, especially for fair headers.
-    pub algorithm_matched: Option<bool>,
     /// CRC of the original body lines, without newline bytes.
     pub computed: String,
     /// Exact case-sensitive match, as in pinned Java; absence is unverified.
@@ -79,11 +89,10 @@ pub struct RewritePlan {
     pub module_source: String,
     /// CRC of generated body lines, excluding line-ending bytes.
     pub translation_checksum: String,
-    /// Whether the algorithm checksum was derived from a proved reference AST.
-    /// The recorded `--fair` CRC weakness remains visible in `algorithm_checksum`.
-    pub algorithm_checksum_verified: bool,
-    /// Exact serialized AST evidence; absent for explicit body-only requests.
-    pub algorithm_checksum: Option<crate::AlgorithmChecksum>,
+    /// Exact algorithm CRC when its serializer supports the source.
+    pub algorithm_checksum: Option<String>,
+    /// Nonfatal checksum unavailability; generation and body integrity remain independent.
+    pub warnings: Vec<Diagnostic>,
     /// Selection and previous body verification evidence.
     pub selection: RewriteSelection,
     /// Whether unchanged source newline bytes were normalized.
@@ -322,13 +331,35 @@ pub fn owned_algorithm_comment_region(
 ///
 /// # Errors
 /// Syntax/unsupported/resource diagnostics with exact source byte spans.
+pub fn select_rewrite(
+    source: &str,
+    options: &RewriteOptions,
+) -> Result<RewriteSelection, Diagnostic> {
+    select_rewrite_with_parser(
+        source,
+        options,
+        &crate::Options {
+            max_bytes: options.max_bytes,
+            ..crate::Options::default()
+        },
+    )
+}
+
+/// Select a source replacement using the resolved input grammar and parser bounds.
+/// Callers resolve options from the original whole file before masking a previous
+/// translation. Syntax failures retain the raw candidate for downstream admission;
+/// a successfully parsed first algorithm owns only its consumed prefix.
+///
+/// # Errors
+/// Syntax/unsupported/resource diagnostics with exact source byte spans.
 #[allow(
     clippy::too_many_lines,
     reason = "ordered line/lexical selection retains deciding source spans"
 )]
-pub fn select_rewrite(
+pub fn select_rewrite_with_parser(
     source: &str,
     options: &RewriteOptions,
+    parser: &crate::Options,
 ) -> Result<RewriteSelection, Diagnostic> {
     if source.len() > options.max_bytes {
         return Err(failure(
@@ -403,7 +434,6 @@ pub fn select_rewrite(
                 }),
                 Some(body),
                 Some(PreviousChecksum {
-                    algorithm_matched: None,
                     recorded,
                     algorithm_recorded,
                     algorithm_disabled,
@@ -449,14 +479,7 @@ pub fn select_rewrite(
             // Low-level source selection is not grammar/artifact admission.
             // Refine only a proved complete prefix; malformed grammar keeps
             // its raw region and the strict downstream deciding diagnostic.
-            let region = match owned_algorithm_comment_region(
-                source,
-                comment,
-                &crate::Options {
-                    max_bytes: options.max_bytes,
-                    ..crate::Options::default()
-                },
-            ) {
+            let region = match owned_algorithm_comment_region(source, comment, parser) {
                 Ok(owned) => owned,
                 Err(error) if matches!(error.code, Code::Resource | Code::Internal) => {
                     return Err(error);
@@ -544,7 +567,7 @@ pub fn mask_previous(source: &str, previous: Option<Span>) -> String {
 /// module semantic admission belong to the caller and are never implied here.
 ///
 /// # Errors
-/// Unproved full-AST shape, changed/unverified checksum, or resource limit.
+/// Changed/unverified body checksum, invalid editing boundaries, or resource limit.
 pub fn rewrite_document(
     source: &str,
     body: &str,
@@ -558,11 +581,11 @@ pub fn rewrite_document(
     )
 }
 /// Build a replacement with the exact label/options context used by generation.
-/// Full checksums are available only for the independently proved AST subset.
+/// Algorithm CRC availability never gates replacement; the body CRC is always written.
 /// A supplied body is never an admitted artifact or model proof by itself.
 ///
 /// # Errors
-/// Named unsupported AST shape, modified/unverified integrity or byte limits.
+/// Modified/unverified body integrity, invalid source or byte limits.
 #[allow(
     clippy::too_many_lines,
     reason = "source replacement and both integrity contracts remain ordered and bounded"
@@ -580,28 +603,24 @@ pub fn rewrite_document_with_translation_options(
             "PlusCal rewrite body byte limit reached",
         ));
     }
-    let mut selection = select_rewrite(source, options)?;
-    let algorithm_checksum = if options.checksums == ChecksumPolicy::Full {
-        let masked = mask_previous(source, selection.previous);
-        let result = crate::algorithm_checksum_at(
-            &masked,
-            selection.algorithm.start..selection.algorithm.end,
-            translation,
-        )
+    // Validate marker/layout boundaries before resolving original source options.
+    select_rewrite(source, options)?;
+    let context = crate::resolve_translation_options(source, translation)
         .map_err(|error| error.diagnostic)?;
-        if let Some(old) = &mut selection.checksum {
-            old.algorithm_matched = Some(old.algorithm_recorded.as_ref() == Some(&result.checksum));
-            if old.algorithm_matched == Some(false) && !options.replace_modified {
-                return Err(failure(
-                    Code::Unsupported,
-                    selection.previous.unwrap_or_default(),
-                    "existing algorithm checksum is modified, missing or disabled; explicit replacement is required",
-                ));
-            }
+    let selection = select_rewrite_with_parser(source, options, &context.effective.parser)?;
+    let masked = mask_previous(source, selection.previous);
+    let mut warnings = Vec::new();
+    let algorithm_checksum = match crate::algorithm_checksum_at(
+        &masked,
+        selection.algorithm.start..selection.algorithm.end,
+        translation,
+    ) {
+        Ok(result) => Some(result.checksum),
+        Err(error) if matches!(error.diagnostic.code, Code::Unsupported | Code::Resource) => {
+            warnings.push(error.diagnostic);
+            None
         }
-        Some(result)
-    } else {
-        None
+        Err(error) => return Err(error.diagnostic),
     };
     if selection.checksum.as_ref().is_some_and(|c| !c.matched) && !options.replace_modified {
         return Err(failure(
@@ -628,7 +647,7 @@ pub fn rewrite_document_with_translation_options(
     let checksum = translation_checksum(body);
     let algorithm_value = algorithm_checksum.as_ref().map_or_else(
         || "\\in STRING".to_owned(),
-        |checksum| format!("= \"{}\"", checksum.checksum),
+        |checksum| format!("= \"{checksum}\""),
     );
     let checksum_header = format!(
         "\\* BEGIN TRANSLATION (chksum(pcal) {algorithm_value} /\\ chksum(tla) = \"{checksum}\")"
@@ -683,11 +702,17 @@ pub fn rewrite_document_with_translation_options(
     });
     let prefix_newline = span.start > 0 && !source[..span.start].ends_with(['\r', '\n']);
     let body_lines = lines(body);
+    // PcalTLAGen ends its final Spec/Termination block with an empty line.
+    // Preserve an existing empty line, or add that real separator before END.
+    let final_separator = body_lines.last().is_none_or(|line| !line.text.is_empty());
     let replacement_bytes = header
         .len()
         .checked_add(body_lines.iter().map(|l| l.text.len()).sum::<usize>())
         .and_then(|s| {
-            s.checked_add((body_lines.len() + 2 + usize::from(prefix_newline)) * newline.len())
+            s.checked_add(
+                (body_lines.len() + 2 + usize::from(prefix_newline) + usize::from(final_separator))
+                    * newline.len(),
+            )
         })
         .and_then(|s| s.checked_add(end_marker.len()))
         .ok_or_else(|| failure(Code::Resource, span, "PlusCal rewrite output size overflow"))?;
@@ -711,6 +736,9 @@ pub fn rewrite_document_with_translation_options(
     replacement.push_str(newline);
     for line in body_lines {
         replacement.push_str(line.text);
+        replacement.push_str(newline);
+    }
+    if final_separator {
         replacement.push_str(newline);
     }
     replacement.push_str(&end_marker);
@@ -741,8 +769,8 @@ pub fn rewrite_document_with_translation_options(
         replacement,
         module_source,
         translation_checksum: checksum,
-        algorithm_checksum_verified: algorithm_checksum.is_some(),
         algorithm_checksum,
+        warnings,
         selection,
         newlines_normalized: options.normalize_newlines,
     })

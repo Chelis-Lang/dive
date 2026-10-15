@@ -21,9 +21,9 @@ fn generated_declarations_precede_trailing_definitions() -> Result<(), Box<dyn s
                 let report = dive_api::rewrite_source(&file, &source, &request);
                 assert!(report.accepted(), "{}", report.to_json());
                 let document = report.to_json();
-                assert_eq!(document["model_proved"], false);
-                assert_eq!(document["exhaustive"], false);
-                assert_eq!(document["algorithm_checksum_verified"], true);
+                assert!(document.get("model_proved").is_none());
+                assert!(document.get("exhaustive").is_none());
+                assert!(document["replacement"]["algorithm_checksum"].is_string());
                 let generated = document["replacement"]["module_source"]
                     .as_str()
                     .ok_or("missing replacement")?;
@@ -49,7 +49,7 @@ fn generated_declarations_precede_trailing_definitions() -> Result<(), Box<dyn s
             assert!(!report.accepted());
             let document = report.to_json();
             assert_eq!(document["result"], "rejected");
-            assert_eq!(document["model_proved"], false);
+            assert!(document.get("model_proved").is_none());
             assert!(document.get("replacement").is_none());
             assert!(document.to_string().contains("neverGenerated"));
         }
@@ -87,8 +87,8 @@ fn closing_line_context_matches_reference_admission() -> Result<(), Box<dyn std:
                 );
                 for document in [translated.to_json(), rewritten.to_json()] {
                     assert_eq!(document["accepted"], expected, "{file}: {document}");
-                    assert_eq!(document["model_proved"], false);
-                    assert_eq!(document["exhaustive"], false);
+                    assert!(document.get("model_proved").is_none());
+                    assert!(document.get("exhaustive").is_none());
                     if !expected {
                         assert_eq!(document["result"], "rejected");
                         assert!(document.get("replacement").is_none());
@@ -129,19 +129,19 @@ fn marker_order_and_lexical_boundaries_match_primary() -> Result<(), Box<dyn std
                     },
                 );
                 let document = report.to_json();
-                assert_eq!(document["model_proved"], false);
-                assert_eq!(document["exhaustive"], false);
+                assert!(document.get("model_proved").is_none());
+                assert!(document.get("exhaustive").is_none());
                 if row["translated"] == true && row["reference_errors"] == false {
                     assert!(report.accepted(), "{id}: {document}");
                     assert_eq!(
-                        document["replacement"]["algorithm_checksum"]["serialized_ast"],
+                        exact_algorithm_ast(&source)?,
                         std::fs::read_to_string(
                             base.join("primary").join(format!("{id}.translated.ast"))
                         )?,
                         "{id}"
                     );
                     assert_eq!(
-                        document["replacement"]["algorithm_checksum"]["checksum"], row["header"][0],
+                        document["replacement"]["algorithm_checksum"], row["header"][0],
                         "{id}"
                     );
                 } else {
@@ -152,4 +152,20 @@ fn marker_order_and_lexical_boundaries_match_primary() -> Result<(), Box<dyn std
         }
     }
     Ok(())
+}
+
+fn exact_algorithm_ast(source: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let options = dive_pluscal::TranslationOptions::default();
+    let context = dive_pluscal::resolve_translation_options(source, &options)?;
+    let selection = dive_pluscal::rewrite::select_rewrite_with_parser(
+        source,
+        &dive_pluscal::rewrite::RewriteOptions::default(),
+        &context.effective.parser,
+    )?;
+    Ok(dive_pluscal::algorithm_checksum_at(
+        source,
+        selection.algorithm.start..selection.algorithm.end,
+        &options,
+    )?
+    .serialized_ast)
 }

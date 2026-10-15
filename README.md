@@ -24,6 +24,13 @@ other TLC mode protocols still refuse. See
 flags, path resolution and statuses.
 
 
+Native PlusCal translation supports bounded debug-header serialization and a separate
+`--ast` in-memory original AST operation for measured procedure/macro and compound
+ownership, plus measured termination, done-disjunct, wrapping,
+sequential version and label-reporting options. File preferences return an
+in-memory plan; broader AST shapes, backends and filesystem writes remain unfinished. See
+[the translator guide](docs/pluscal-translation.md).
+
 ## Documentation
 
 Start with the [user manual](docs/user/README.md) and its

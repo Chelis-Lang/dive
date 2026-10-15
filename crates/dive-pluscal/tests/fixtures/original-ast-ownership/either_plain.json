@@ -1,0 +1,9 @@
+{
+  "id": "either_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A begin L:either skip; or skip; end either; B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type |-> \"either\", \n                           ors  |-> << <<[type |-> \"skip\"]>>, \n                                       <<[type |-> \"skip\"]>> >>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

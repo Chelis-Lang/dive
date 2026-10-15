@@ -1,16 +1,16 @@
 //! Native bounded in-memory translation-block replacement; no file writes.
-use crate::{ApiError, TranslationRequest, analyze_source, translate_source};
+use crate::{ApiError, TranslationRequest, analyze_source};
 pub use dive_pluscal::rewrite::{ChecksumPolicy, RewriteOptions};
 use dive_pluscal::{Code, Diagnostic};
 use serde_json::{Value, json};
 use std::{io::Read as _, path::Path};
 
-/// Generation/admission options and an explicit partial-checksum editing policy.
+/// Generation settings and in-memory editing policy.
 #[derive(Clone, Debug, Default)]
 pub struct RewriteRequest {
     /// Native PlusCal generation and enclosing-module resolution.
     pub translation: TranslationRequest,
-    /// Source edit policy; default requires a proved post-translation AST CRC.
+    /// Source edit limits and modified-body protection; CRCs use best effort.
     pub editing: RewriteOptions,
 }
 /// Stage-separated replacement report; it never certifies a checked model.
@@ -36,6 +36,27 @@ impl RewriteReport {
         self.document.clone()
     }
 }
+// Describe emitted replacement bytes, rather than predicting the editor policy.
+fn replacement_newlines(replacement: &str) -> &'static str {
+    match replacement
+        .find(['\r', '\n'])
+        .map(|at| &replacement.as_bytes()[at..])
+    {
+        Some([b'\r', b'\n', ..]) => "crlf",
+        Some([b'\r', ..]) => "cr",
+        _ => "lf",
+    }
+}
+
+fn effective_editing(request: &RewriteRequest) -> RewriteOptions {
+    let mut editing = request.editing.clone();
+    if request.translation.compat_tlc {
+        // Ordinary pinned pcal.trans uses its Noop overwrite callback.
+        editing.normalize_newlines = true;
+        editing.replace_modified = true;
+    }
+    editing
+}
 fn report(
     file: &str,
     request: &RewriteRequest,
@@ -43,7 +64,11 @@ fn report(
     stage: &str,
     details: Value,
 ) -> RewriteReport {
-    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"translation_options":request.translation.limits,"requested_translation_options":request.translation.limits,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
+    let mut document = json!({"schema_version":2,"command":"translate-rewrite","file":file,
+        "result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},
+        "stage":stage,"accepted":status==0,"exit_code":status,
+        "profile":if request.translation.compat_tlc {"tlc"} else {"dive"},
+        "editing":effective_editing(request),"requested_editing":request.editing,"requested_translation_options":request.translation.limits});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }
@@ -69,10 +94,8 @@ fn failure(
     )
 }
 /// Generate, replace and validate a module in memory. Nothing is written to disk.
-/// Full post-translation/Explode AST checksum requests refuse unproved AST shapes.
-/// Translation-only CRC is
-/// an explicit opt-in, including under compatibility (`tlc+overrides`). Existing
-/// unverified/modified bodies require another explicit replacement grant.
+/// An unavailable algorithm CRC disables only that value; body CRCs remain real.
+/// Existing unverified/modified bodies require an explicit replacement grant.
 ///
 /// ```
 /// use dive_api::{ChecksumPolicy, RewriteOptions, RewriteRequest, rewrite_source};
@@ -83,7 +106,7 @@ fn failure(
 /// };
 /// let report = rewrite_source("R.tla", source, &request);
 /// assert!(report.accepted());
-/// assert_eq!(report.to_json()["model_proved"], false);
+/// assert!(report.to_json()["replacement"]["translation_checksum"].is_string());
 /// ```
 #[must_use]
 pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> RewriteReport {
@@ -108,7 +131,12 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
             });
     }
     let masked = dive_pluscal::rewrite::mask_previous(source, selection.previous);
-    let generated = translate_source(file, &masked, &request.translation);
+    let generated = crate::translate::translate_source_at_insertion(
+        file,
+        &masked,
+        &request.translation,
+        selection.previous.map(|previous| previous.start),
+    );
     if !generated.accepted() {
         return report(
             file,
@@ -128,10 +156,7 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
             json!({"diagnostic":{"code":"DIVE-P0050","message":"accepted generator omitted body"}}),
         );
     };
-    let mut editing = request.editing.clone();
-    if request.translation.compat_tlc {
-        editing.normalize_newlines = true;
-    }
+    let editing = effective_editing(request);
     let plan = match dive_pluscal::rewrite::rewrite_document_with_translation_options(
         source,
         body,
@@ -151,12 +176,19 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
             json!({"analysis":analysis.to_json(),"replacement_returned":false}),
         );
     }
+    let mut filesystem_plan = generated["filesystem_plan"].clone();
+    filesystem_plan["source_newlines"] = json!(if editing.normalize_newlines {
+        "normalized-lf"
+    } else {
+        "preserved"
+    });
+    filesystem_plan["body_newlines"] = json!(replacement_newlines(&plan.replacement));
     report(
         file,
         request,
         0,
         "replacement-analysis",
-        json!({"translation_options":context.effective,"option_context":context,"algorithm_checksum_verified":plan.algorithm_checksum_verified,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
+        json!({"translation_options":context.effective,"source_options":context.source_declaration,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"filesystem_plan":filesystem_plan}),
     )
 }
 /// Read a bounded UTF-8 module and return its in-memory replacement plan.

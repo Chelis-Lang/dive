@@ -869,8 +869,8 @@ fn translate_returns_an_admitted_module_without_rewriting_input()
     );
     let document: serde_json::Value = serde_json::from_slice(&out.stdout)?;
     assert_eq!(document["result"], "artifact");
-    assert_eq!(document["model_proved"], false);
-    assert_eq!(document["exhaustive"], false);
+    assert!(document.get("model_proved").is_none());
+    assert!(document.get("exhaustive").is_none());
     assert_eq!(document["analysis"]["accepted"], true);
     assert!(
         document["module_source"]
@@ -930,7 +930,7 @@ fn translate_label_options_preserve_files_and_default_configuration()
             doc["artifact"]["configuration"],
             "CONSTANT defaultInitValue = defaultInitValue\n"
         );
-        assert_eq!(doc["model_proved"], false);
+        assert!(doc.get("model_proved").is_none());
     }
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
@@ -967,7 +967,7 @@ fn translate_process_storage_and_label_default_are_explicit()
         doc["artifact"]["configuration"],
         "CONSTANT defaultInitValue = defaultInitValue\n"
     );
-    assert_eq!(doc["model_proved"], false);
+    assert!(doc.get("model_proved").is_none());
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
 }
@@ -1074,8 +1074,8 @@ fn translate_process_fairness_is_explicit_and_never_a_proof()
         let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
         assert_eq!(doc["limits"]["fairness"], option);
         assert_eq!(doc["accepted"], true);
-        assert_eq!(doc["exhaustive"], false);
-        assert_eq!(doc["model_proved"], false);
+        assert!(doc.get("exhaustive").is_none());
+        assert!(doc.get("model_proved").is_none());
         assert!(
             doc["artifact"]["tla"]
                 .as_str()
@@ -1301,6 +1301,380 @@ fn recursive_state_property_final_mode_matches_ordinary_evaluation()
                 assert!(b["tlc"].is_null());
             }
         }
+    }
+    Ok(())
+}
+
+#[test]
+fn translate_remaining_flags_report_artifacts_without_writing()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE TranslateFlags ----\nEXTENDS Naturals,TLC\n(* --algorithm A variable x=0; begin L:x:=1; E:skip; end algorithm; *)\n====\n";
+    let file = temp_file("TranslateFlags.tla", source);
+    let path = file.to_string_lossy();
+    let out = dive(&[
+        "translate",
+        &path,
+        "-termination",
+        "-noDoneDisjunct",
+        "-lineWidth",
+        "60",
+        "-version",
+        "1.903",
+        "-noold",
+        "-nocfg",
+        "-unixEOL",
+        "--rewrite",
+        "--output",
+        "json",
+    ]);
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+    assert_eq!(doc["translation_options"]["line_width"], 60);
+    assert_eq!(doc["translation_options"]["version"], "1.903");
+    assert_eq!(doc["artifact"]["configuration"], "PROPERTY Termination\n");
+    assert_eq!(doc["filesystem_plan"]["writes_performed"], false);
+    assert_eq!(doc["filesystem_plan"]["backup_requested"], false);
+    assert_eq!(doc["filesystem_plan"]["configuration_requested"], false);
+    assert_eq!(std::fs::read_to_string(&file)?, source);
+    let debug = dive(&["translate", &path, "-debug", "--output", "json"]);
+    assert_eq!(
+        debug.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&debug.stderr)
+    );
+    let debug_doc: serde_json::Value = serde_json::from_slice(&debug.stdout)?;
+    assert_eq!(debug_doc["translation_options"]["debug"], true);
+    assert_eq!(std::fs::read_to_string(&file)?, source);
+    {
+        let flag = "-writeAST";
+        let out = dive(&["translate", &path, flag, "--output", "json"]);
+        assert_eq!(out.status.code(), Some(3));
+        let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+        assert!(
+            doc["diagnostic"]["message"]
+                .as_str()
+                .is_some_and(|message| message.contains(flag.trim_start_matches('-')))
+        );
+        assert!(doc.get("module_source").is_none());
+    }
+    for flag in ["-spec", "-myspec", "-spec2", "-myspec2"] {
+        let out = dive(&["translate", &path, flag, "LocalSpec", "--output", "json"]);
+        assert_eq!(out.status.code(), Some(3));
+        assert_eq!(std::fs::read_to_string(&file)?, source);
+    }
+    let help = dive(&["translate", "-help"]);
+    assert_eq!(help.status.code(), Some(0));
+    assert!(String::from_utf8_lossy(&help.stdout).contains("-lineWidth"));
+    let bad = dive(&["translate", &path, "-lineWidth", "59"]);
+    assert_eq!(bad.status.code(), Some(2));
+    Ok(())
+}
+
+#[test]
+fn translate_report_labels_is_distinct_from_insertion() -> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE TranslateReportLabels ----\nEXTENDS Naturals,TLC\n(* --algorithm A variable x=0; process P\\in {1,2} begin x:=1; end process; end algorithm; *)\n====\n";
+    let file = temp_file("TranslateReportLabels.tla", source);
+    let path = file.to_string_lossy();
+    let report = dive(&["translate", &path, "-reportLabels", "-labelRoot", "Step"]);
+    assert_eq!(report.status.code(), Some(0));
+    assert!(
+        String::from_utf8_lossy(&report.stderr)
+            .contains("The following label was added:\n  Step1 at line 3, column 57")
+    );
+    let inserted = dive(&["translate", &path, "-label", "-labelRoot", "Step"]);
+    assert_eq!(inserted.status.code(), Some(0));
+    assert_eq!(report.stdout, inserted.stdout);
+    assert!(!String::from_utf8_lossy(&inserted.stderr).contains("labels were added"));
+    assert_eq!(std::fs::read_to_string(file)?, source);
+    Ok(())
+}
+
+#[test]
+fn translate_original_ast_and_debug_consume_primary_controls()
+-> Result<(), Box<dyn std::error::Error>> {
+    let fixture: serde_json::Value = serde_json::from_str(include_str!(
+        "../../dive-pluscal/tests/fixtures/original-ast/primary.json"
+    ))?;
+    let controls = fixture["controls"].as_array().ok_or("controls")?;
+    let source = controls[0]["source"].as_str().ok_or("source")?;
+    let file = temp_file("Case.tla", source);
+    let path = file.to_string_lossy();
+    for compat_tlc in [false, true] {
+        let profile: &[&str] = if compat_tlc { &["--compat=tlc"] } else { &[] };
+        for (debug, index) in [(false, 0usize), (true, 1)] {
+            let mut args = vec!["translate", path.as_ref(), "--ast", "--output", "json"];
+            args.extend_from_slice(profile);
+            if debug {
+                args.push("-debug");
+            }
+            let output = dive(&args);
+            assert_eq!(
+                output.status.code(),
+                Some(0),
+                "{}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            let doc: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(
+                doc["ast_artifact"]["module_source"],
+                controls[index]["original_module"]
+            );
+            assert_eq!(doc["artifact_available"], true);
+            assert_eq!(doc["accepted"], false);
+            assert_eq!(doc["writes_performed"], false);
+        }
+        let mut args = vec![
+            "translate",
+            path.as_ref(),
+            "-debug",
+            "--rewrite",
+            "--output",
+            "json",
+        ];
+        args.extend_from_slice(profile);
+        let output = dive(&args);
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let doc: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(
+            doc["replacement"]["algorithm_checksum"],
+            controls[2]["algorithm_crc"]
+        );
+    }
+    let human = dive(&["translate", path.as_ref(), "--ast", "-debug"]);
+    assert_eq!(human.status.code(), Some(0));
+    assert_eq!(
+        String::from_utf8(human.stdout)?,
+        controls[1]["original_module"].as_str().ok_or("module")?
+    );
+    assert_eq!(std::fs::read_to_string(&file)?, source);
+    for name in ["AST.tla", "Case.old", "Case.cfg"] {
+        assert!(!file.with_file_name(name).exists());
+    }
+    let conflict = dive(&["translate", path.as_ref(), "--ast", "--rewrite"]);
+    assert_eq!(conflict.status.code(), Some(2));
+    Ok(())
+}
+
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "paired profiles and untouched sentinel assertions consume each stage-specific CLI control"
+)]
+fn translate_original_ownership_controls_keep_files_untouched()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/tests/fixtures/original-ast-ownership");
+    for compat_tlc in [false, true] {
+        for id in [
+            "owners_debug",
+            "macro_multiline_debug",
+            "label_if_debug",
+            "corrected_c_wrapper_debug",
+            "if_translation_debug",
+            "with_translation_debug",
+            "corrected_macro_nested_translation_debug",
+            "label_if_translation_debug",
+            "label_either_translation_debug",
+            "while_translation_debug",
+            "owners_sequences_translation_debug",
+        ] {
+            let row: serde_json::Value =
+                serde_json::from_str(&std::fs::read_to_string(root.join(format!("{id}.json")))?)?;
+            let source = row["source"].as_str().ok_or("source")?;
+            let file = temp_file(&format!("Ownership-{id}-{compat_tlc}.tla"), source)
+                .with_file_name("Case.tla");
+            std::fs::write(&file, source)?;
+            for name in ["AST.tla", "Case.old", "Case.cfg"] {
+                std::fs::write(file.with_file_name(name), format!("\\* sentinel {name}\n"))?;
+            }
+            let path = file.to_string_lossy();
+            let profile: &[&str] = if compat_tlc { &["--compat=tlc"] } else { &[] };
+            let mut args = vec![
+                "translate",
+                path.as_ref(),
+                "--ast",
+                "-debug",
+                "--output",
+                "json",
+            ];
+            args.extend_from_slice(profile);
+            if row["insert_labels"] == true {
+                args.push("-label");
+            }
+            let output = dive(&args);
+            assert_eq!(
+                output.status.code(),
+                Some(0),
+                "{id}: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            let doc: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(doc["artifact_available"], true);
+            assert_eq!(doc["accepted"], false);
+            assert_eq!(doc["generated_module_accepted"], false);
+            assert_eq!(doc["writes_performed"], false);
+            if row["stage"] == "pre-generation WriteAST" {
+                assert_eq!(
+                    doc["ast_artifact"]["module_source"], row["original_module"],
+                    "{id}"
+                );
+            } else {
+                let mut args = vec![
+                    "translate",
+                    path.as_ref(),
+                    "-debug",
+                    "--rewrite",
+                    "--output",
+                    "json",
+                ];
+                args.extend_from_slice(profile);
+                if row["insert_labels"] == true {
+                    args.push("-label");
+                }
+                let output = dive(&args);
+                if row["native_pending"].is_string() {
+                    assert_eq!(output.status.code(), Some(3));
+                } else {
+                    assert_eq!(
+                        output.status.code(),
+                        Some(0),
+                        "{id}: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                    let doc: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+                    if id == "owners_sequences_translation_debug" {
+                        // This genuine owned-procedure fixture has no exact CRC after
+                        // retiring header-transfer emulation; original AST/body remain real.
+                        assert!(doc["replacement"]["algorithm_checksum"].is_null());
+                        assert!(doc["replacement"]["warnings"].as_array().is_some_and(
+                            |warnings| warnings.iter().any(|warning| warning["code"]
+                                == "Unsupported"
+                                && warning["message"].as_str().is_some_and(|message| {
+                                    message.contains("procedure AST checksum is unavailable")
+                                }))
+                        ));
+                    } else {
+                        assert_eq!(
+                            doc["replacement"]["algorithm_checksum"],
+                            row["algorithm_crc"]
+                        );
+                    }
+                    assert_eq!(doc["replacement"]["translation_checksum"], row["body_crc"]);
+                }
+            }
+            let mut args = vec!["translate", path.as_ref(), "-writeAST", "--output", "json"];
+            args.extend_from_slice(profile);
+            assert_eq!(dive(&args).status.code(), Some(3));
+            assert_eq!(std::fs::read_to_string(&file)?, source);
+            for name in ["AST.tla", "Case.old", "Case.cfg"] {
+                assert_eq!(
+                    std::fs::read_to_string(file.with_file_name(name))?,
+                    format!("\\* sentinel {name}\n")
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn translate_best_effort_checksum_is_data_and_invalid_fair_flag_stays_a_cli_error()
+-> Result<(), Box<dyn std::error::Error>> {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/tests/fixtures/procedure/cases/Procedure_P_simple.tla");
+    let text = file.to_str().ok_or("path")?;
+    let before = std::fs::read(&file)?;
+    for compat_tlc in [false, true] {
+        let profile: &[&str] = if compat_tlc { &["--compat=tlc"] } else { &[] };
+        for policy in ["full", "tla"] {
+            let mut args = vec![
+                "translate",
+                text,
+                "--rewrite",
+                "--checksums",
+                policy,
+                "--output",
+                "json",
+            ];
+            args.extend_from_slice(profile);
+            let output = dive(&args);
+            assert_eq!(output.status.code(), Some(0));
+            let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(report["schema_version"], 2);
+            assert_eq!(report["analysis"]["accepted"], true);
+            assert!(report["replacement"]["algorithm_checksum"].is_null());
+            assert!(report.get("model_proved").is_none());
+            assert!(
+                report["replacement"]["module_source"].as_str().is_some_and(
+                    |module| module.contains("chksum(pcal) \\in STRING /\\ chksum(tla) = ")
+                )
+            );
+        }
+        let mut args = vec!["translate", text, "-fair"];
+        args.extend_from_slice(profile);
+        let invalid = dive(&args);
+        assert_eq!(invalid.status.code(), Some(2));
+        assert!(
+            String::from_utf8_lossy(&invalid.stderr)
+                .contains("unknown dive translate option -fair")
+        );
+    }
+    let human = dive(&["translate", text, "--rewrite"]);
+    assert_eq!(human.status.code(), Some(0));
+    assert!(String::from_utf8_lossy(&human.stderr).contains("algorithm checksum unavailable"));
+    assert_eq!(std::fs::read(&file)?, before);
+    Ok(())
+}
+
+#[test]
+fn translate_compat_overwrites_like_primary_noop_and_default_requires_the_grant()
+-> Result<(), Box<dyn std::error::Error>> {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/tests/fixtures/best-effort-checksum/Case.modified-body-input.tla");
+    let before = std::fs::read(&file)?;
+    let input = std::str::from_utf8(&before)?;
+    let run_file = temp_file("Primary-modified-body", input).with_file_name("Case.tla");
+    std::fs::write(&run_file, &before)?;
+    let path = run_file.to_str().ok_or("path")?;
+    for (flags, accepted) in [
+        (vec![], false),
+        (vec!["--replace-modified"], true),
+        (vec!["--compat=tlc"], true),
+    ] {
+        let mut args = vec!["translate", path, "--rewrite", "--output", "json"];
+        args.extend(flags);
+        let output = dive(&args);
+        assert_eq!(output.status.code(), Some(if accepted { 0 } else { 3 }));
+        let doc: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(doc["accepted"], accepted);
+        if accepted {
+            assert_eq!(doc["editing"]["replace_modified"], true);
+            assert_eq!(
+                doc["replacement"]["selection"]["checksum"]["matched"],
+                false
+            );
+            assert!(
+                doc["replacement"]["module_source"]
+                    .as_str()
+                    .is_some_and(|source| source.contains("x' = 1") && !source.contains("x' = 2"))
+            );
+        } else {
+            assert_eq!(doc["editing"]["replace_modified"], false);
+            assert!(doc.get("replacement").is_none());
+        }
+        assert_eq!(std::fs::read(&file)?, before);
+        assert_eq!(std::fs::read(&run_file)?, before);
     }
     Ok(())
 }

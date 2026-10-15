@@ -1,0 +1,11 @@
+{
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "flags": [],
+  "pcal_exit": 0,
+  "sany_exit": 0,
+  "sany_accepted": true,
+  "actual_primary_lf_and_cr_modules_equal": true,
+  "actual_primary_body_crc": "c38de1c8",
+  "qualification": "Genuine ordinary pinned pcal.trans/SANY outputs. Original bareCR input preserved raw. Native unavailable algorithm header is deliberately unlike original primary exact header; no whole-module identity credit for unlike modules."
+}

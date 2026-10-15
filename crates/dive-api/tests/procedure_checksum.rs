@@ -1,73 +1,97 @@
-//! Full procedure editing and resource/unsupported boundaries never claim proof.
+//! Best-effort algorithm CRCs retain real body integrity and whole-module analysis.
 use dive_api::{ChecksumPolicy, RewriteRequest, rewrite_source};
-const SOURCE: &str = include_str!(
-    "../../dive-pluscal/tests/fixtures/procedure-checksum/cases/ProcedureCrc_P_basic.tla"
-);
+use std::path::Path;
+
 #[test]
-fn procedure_full_and_body_only_admission_are_explicit_and_idempotent()
+fn genuine_source_population_preserves_body_crc_and_artifact_acceptance()
 -> Result<(), Box<dyn std::error::Error>> {
-    for compat_tlc in [false, true] {
-        for policy in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+    let base = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/tests/fixtures/procedure-checksum");
+    let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
+        base.join("primary/manifest.json"),
+    )?)?;
+    for row in manifest["rows"].as_array().ok_or("rows")? {
+        let id = row["id"].as_str().ok_or("id")?;
+        let source = std::fs::read_to_string(base.join(format!("cases/{id}.tla")))?;
+        if row["flags"][0] == "-fair" {
+            // Invalid primary CLI flag; typed generation is not that CLI operation.
+            assert_eq!(row["translated"], false);
+            assert_eq!(row["reference_errors"], true);
+            continue;
+        }
+        for compat_tlc in [false, true] {
             let mut request = RewriteRequest::default();
             request.translation.compat_tlc = compat_tlc;
-            request.editing.checksums = policy;
-            let report = rewrite_source("ProcedureCrc_P_basic.tla", SOURCE, &request);
-            assert!(report.accepted(), "{}", report.to_json());
+            request.translation.limits.insert_missing_labels = row["flags"][0] == "-label";
+            request.translation.limits.fairness = match row["flags"][0].as_str() {
+                Some("-wf") => dive_api::TranslationFairness::Weak,
+                Some("-sf") => dive_api::TranslationFairness::Strong,
+                Some("-nof") => dive_api::TranslationFairness::None,
+                Some("-wfNext") => dive_api::TranslationFairness::Next,
+                _ => dive_api::TranslationFairness::Declared,
+            };
+            let report = rewrite_source(&format!("{id}.tla"), &source, &request);
             let doc = report.to_json();
-            assert_eq!(doc["model_proved"], false);
-            assert_eq!(doc["exhaustive"], false);
-            assert_eq!(
-                doc["algorithm_checksum_verified"],
-                policy == ChecksumPolicy::Full
-            );
-            assert_eq!(doc["body_checksum_verified"], true);
-            assert_eq!(
-                doc["profile"],
-                if compat_tlc {
-                    if policy == ChecksumPolicy::Full {
-                        "tlc"
-                    } else {
-                        "tlc+overrides"
-                    }
-                } else {
-                    "dive"
-                }
-            );
-            let source = doc["replacement"]["module_source"]
-                .as_str()
-                .ok_or("accepted replacement lacks source")?;
-            let again = rewrite_source("ProcedureCrc_P_basic.tla", source, &request);
-            assert!(again.accepted(), "{}", again.to_json());
-            assert_eq!(again.to_json()["replacement"]["module_source"], source);
+            assert_eq!(doc["schema_version"], 2);
+            assert!(doc.get("model_proved").is_none());
+            assert!(doc.get("exhaustive").is_none());
+            assert!(doc.get("pending").is_none());
+            if row["translated"] == true
+                && row["reference_errors"] == false
+                && row["sany"]["accepted"] == true
+            {
+                assert!(report.accepted(), "{id}: {doc}");
+                assert_eq!(doc["analysis"]["accepted"], true);
+                assert_eq!(
+                    doc["replacement"]["translation_checksum"], row["header"][1],
+                    "{id}: primary body CRC"
+                );
+                assert_eq!(
+                    doc["replacement"]["algorithm_checksum"],
+                    serde_json::Value::Null
+                );
+                let replacement = doc["replacement"]["module_source"]
+                    .as_str()
+                    .ok_or("source")?;
+                assert!(replacement.contains(r"chksum(pcal) \in STRING /\ chksum(tla) = "));
+                let repeated = rewrite_source(&format!("{id}.tla"), replacement, &request);
+                assert!(repeated.accepted(), "{id}: {}", repeated.to_json());
+                assert_eq!(
+                    repeated.to_json()["replacement"]["module_source"],
+                    replacement
+                );
+            } else {
+                assert!(
+                    !report.accepted(),
+                    "{id}: no artifact credit for actual primary failure: {doc}"
+                );
+                assert!(doc.get("replacement").is_none());
+            }
         }
     }
     Ok(())
 }
+
 #[test]
-fn proved_nested_mutation_is_admitted_but_resource_limits_have_no_replacement() {
-    let nested = include_str!(
-        "../../dive-pluscal/tests/fixtures/procedure-checksum/cases/ProcedureCrc_P_if_call.tla"
-    );
-    for compat_tlc in [false, true] {
-        let mut request = RewriteRequest::default();
-        request.translation.compat_tlc = compat_tlc;
-        let report = rewrite_source("ProcedureCrc_P_if_call.tla", nested, &request);
-        assert!(report.accepted(), "{}", report.to_json());
-        let doc = report.to_json();
-        assert_eq!(doc["result"], "replacement");
-        assert_eq!(
-            doc["replacement"]["algorithm_checksum"]["serialized_ast"],
-            include_str!(
-                "../../dive-pluscal/tests/fixtures/procedure-checksum/primary/ProcedureCrc_P_if_call.translated.ast"
-            )
-        );
-        assert_eq!(doc["model_proved"], false);
-        for limit in [0, 1, 16, 256] {
-            request.translation.limits.max_output_bytes = limit;
-            let report = rewrite_source("ProcedureCrc_P_basic.tla", SOURCE, &request);
-            assert!(!report.accepted(), "{}", report.to_json());
-            assert!(report.to_json().get("replacement").is_none());
-            assert_eq!(report.to_json()["model_proved"], false);
+fn policy_aliases_share_behavior_and_generation_limits_still_refuse()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source =
+        include_str!("../../dive-pluscal/tests/fixtures/procedure/cases/Procedure_P_simple.tla");
+    for spelling in ["BestEffort", "Full", "TranslationOnly"] {
+        let policy: ChecksumPolicy = serde_json::from_value(serde_json::json!(spelling))?;
+        assert_eq!(policy, ChecksumPolicy::BestEffort);
+        for compat_tlc in [false, true] {
+            let mut request = RewriteRequest::default();
+            request.translation.compat_tlc = compat_tlc;
+            request.editing.checksums = policy;
+            assert!(rewrite_source("Procedure_P_simple.tla", source, &request).accepted());
+            for limit in [0, 1, 16, 256] {
+                request.translation.limits.max_output_bytes = limit;
+                let report = rewrite_source("Procedure_P_simple.tla", source, &request);
+                assert!(!report.accepted());
+                assert!(report.to_json().get("replacement").is_none());
+            }
         }
     }
+    Ok(())
 }

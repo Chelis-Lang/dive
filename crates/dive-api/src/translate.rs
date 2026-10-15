@@ -1,12 +1,12 @@
 //! Bounded native sequential/finite-process PlusCal artifacts, validated as enclosing modules.
 use crate::{AnalyzeOptions, ApiError, analyze_source};
-use dive_pluscal::{Code, TranslationOptions, ast::Span};
+use dive_pluscal::{Code, TranslationOptions};
 use serde_json::{Value, json};
 use std::io::Read as _;
 use std::path::Path;
 
 /// Version of native translation report documents.
-pub const TRANSLATE_SCHEMA_VERSION: u32 = 1;
+pub const TRANSLATE_SCHEMA_VERSION: u32 = 2;
 /// Translation mode and explicit resource/module resolution settings.
 #[derive(Clone, Debug, Default)]
 pub struct TranslationRequest {
@@ -15,7 +15,8 @@ pub struct TranslationRequest {
     /// Module resolution for validating the resulting module.
     pub analyze: AnalyzeOptions,
     /// Global compatibility selection. Current supported generation is shared;
-    /// historical flags, exact formatting and broader rewrite/checksum shapes remain pending.
+    /// specification backends and broader
+    /// checksum shapes remain pending.
     pub compat_tlc: bool,
 }
 /// Stage-separated translation report. Acceptance never means a model proof.
@@ -42,6 +43,13 @@ impl TranslationReport {
         self.document.clone()
     }
 }
+pub(crate) fn translation_artifact_json(artifact: &dive_pluscal::Translation) -> Value {
+    let mut value = json!(artifact);
+    if let Some(object) = value.as_object_mut() {
+        object.remove("option_context");
+    }
+    value
+}
 fn report(
     file: &str,
     request: &TranslationRequest,
@@ -57,29 +65,15 @@ fn report(
     };
     let mut document = json!({"schema_version":TRANSLATE_SCHEMA_VERSION,"command":"translate","file":file,
         "profile":if request.compat_tlc {"tlc"} else {"dive"},"result":result,"stage":stage,"accepted":status==0,
-        "exit_code":status,"model_proved":false,"exhaustive":false,"limits":request.limits,
-        "pending":["unproved-overlapping-process-domains","unproved-sequential-procedure-modifiers","name-renaming","unproved-scoped-process-procedure-renaming","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-writing","unproved-ast-checksum-shapes","mapping-format"]});
+        "exit_code":status,"limits":request.limits});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }
     TranslationReport { document, status }
 }
-fn refused(
-    file: &str,
-    request: &TranslationRequest,
-    span: Span,
-    feature: &str,
-) -> TranslationReport {
-    report(
-        file,
-        request,
-        3,
-        "selection",
-        json!({"diagnostic":{"code":"DIVE-P0090","span":span,"message":format!("unsupported PlusCal translation: {feature}")}}),
-    )
-}
 /// Translates a file in memory without rewriting it or invoking external tools.
-/// The file must contain one algorithm in a block comment and no old translation.
+/// The file must contain one algorithm in a block comment. An existing translation
+/// is replaced in its original location; nothing is written to disk.
 /// Generated modules pass native syntax/name/level analysis before acceptance.
 ///
 /// # Errors
@@ -120,14 +114,25 @@ pub fn translate_file(
 /// original spans refer to this exact UTF-8 source. No file mapping/checksum
 /// compatibility or complete PlusCal translation coverage is implied.
 #[must_use]
-#[allow(
-    clippy::too_many_lines,
-    reason = "ordered source selection, bounded generation and enclosing-module validation retain deciding-stage evidence"
-)]
 pub fn translate_source(
     file: &str,
     source: &str,
     request: &TranslationRequest,
+) -> TranslationReport {
+    translate_source_at_insertion(file, source, request, None)
+}
+
+/// Generates at the final placement before module analysis, including rewrite's
+/// masked view of a previous block located after intervening user definitions.
+#[allow(
+    clippy::too_many_lines,
+    reason = "ordered source selection, bounded generation and enclosing-module validation retain deciding-stage evidence"
+)]
+pub(crate) fn translate_source_at_insertion(
+    file: &str,
+    source: &str,
+    request: &TranslationRequest,
+    insertion_override: Option<usize>,
 ) -> TranslationReport {
     if source.len() > 4_194_304 {
         return report(
@@ -138,108 +143,100 @@ pub fn translate_source(
             json!({"diagnostic":{"code":"DIVE-P0040","span":{"start":0,"end":0},"message":"PlusCal module source exceeds 4 MiB"}}),
         );
     }
-    let mut selected = None;
-    let mut module_end = None;
-    for token in dive_syntax::tokens::tokenize_spec(source) {
-        let start = usize::from(token.range.start());
-        let end = usize::from(token.range.end());
-        let text = &source[start..end];
-        if token.kind == dive_syntax::SyntaxKind::END_MODULE {
-            module_end = Some(start);
-        }
-        if token.kind == dive_syntax::SyntaxKind::BLOCK_COMMENT {
-            if token.error.is_some() {
-                return report(
-                    file,
-                    request,
-                    1,
-                    "selection",
-                    json!({"diagnostic":{"code":"DIVE-P0001","span":{"start":start,"end":end},"message":"unterminated module block comment"}}),
-                );
-            }
-            let candidate =
-                dive_pluscal::rewrite::algorithm_comment_region(source, Span { start, end });
-            if candidate.is_none() {
-                continue;
-            }
-            // Pinned trans.java admits only whitespace or a line comment after
-            // the closing delimiter, and inserts after that complete line.
-            let closing_line = source[end..]
-                .find('\n')
-                .map_or(source.len(), |offset| end + offset);
-            let tail = source[end..closing_line].trim_matches(|character: char| character <= ' ');
-            if !tail.is_empty() && !tail.starts_with("\\*") {
-                return report(
-                    file,
-                    request,
-                    1,
-                    "selection",
-                    json!({"diagnostic":{"code":"DIVE-P0002","span":{"start":end,"end":closing_line},"message":"text after algorithm closing comment must be whitespace or a line comment"}}),
-                );
-            }
-            let insertion = closing_line + usize::from(closing_line < source.len());
-            let region = match dive_pluscal::rewrite::owned_algorithm_comment_region(
-                source,
-                Span { start, end },
-                &request.limits.parser,
-            ) {
-                Ok(region) => region,
-                Err(error) => {
-                    let status = match error.code {
-                        Code::Unsupported | Code::Resource => 3,
-                        Code::Internal => 4,
-                        _ => 1,
-                    };
-                    return report(
-                        file,
-                        request,
-                        status,
-                        "selection",
-                        json!({"code":error.code.as_str(),"diagnostic":error}),
-                    );
-                }
-            };
-            if selected
-                .replace((region.start..region.end, insertion))
-                .is_some()
+    let selection = match dive_pluscal::rewrite::select_rewrite(
+        source,
+        &dive_pluscal::rewrite::RewriteOptions::default(),
+    ) {
+        Ok(selection) => selection,
+        Err(mut diagnostic) => {
+            // Plain translation has always refused incomplete marker layouts;
+            // retain that public selection boundary while sharing rewrite's selector.
+            if diagnostic.code == Code::Syntax
+                && diagnostic.message == "missing or reversed translation marker pair"
             {
-                return refused(
-                    file,
-                    request,
-                    Span { start, end },
-                    "multiple algorithm selection",
-                );
+                diagnostic.code = Code::Unsupported;
+                "unsupported incomplete translation marker pair"
+                    .clone_into(&mut diagnostic.message);
             }
-        }
-        if token.kind.is_trivia()
-            && (text.contains("BEGIN TRANSLATION") || text.contains("END TRANSLATION"))
-        {
-            return refused(
+            let status = match diagnostic.code {
+                Code::Unsupported | Code::Resource => 3,
+                Code::Internal => 4,
+                _ => 1,
+            };
+            return report(
                 file,
                 request,
-                Span { start, end },
-                "rewriting an existing translation/checksum",
+                status,
+                "selection",
+                json!({"code": diagnostic.code.as_str(), "diagnostic": diagnostic}),
             );
         }
-    }
-    let Some((region, insertion)) = selected else {
-        return refused(
-            file,
-            request,
-            Span::default(),
-            "missing algorithm block comment",
-        );
     };
-    let Some(_) = module_end else {
+    if let Some(previous) = selection.previous
+        && let Some(declaration) = dive_pluscal::source_option_declaration_span(source)
+        && declaration.start < previous.end
+        && declaration.end > previous.start
+    {
         return report(
             file,
             request,
-            1,
-            "selection",
-            json!({"diagnostic":{"code":"DIVE-P0002","span":{"start":0,"end":source.len()},"message":"missing enclosing TLA module terminator"}}),
+            3,
+            "source-options",
+            json!({"diagnostic": {
+                "code": "DIVE-P0090", "span": declaration,
+                "message": "unsupported PlusCal source option declaration inside previous translation; masking would change the deciding context",
+            }}),
         );
+    }
+    let context = match dive_pluscal::resolve_translation_options(source, &request.limits) {
+        Ok(context) => context,
+        Err(error) => {
+            let status = match error.diagnostic.code {
+                Code::Unsupported | Code::Resource => 3,
+                Code::Internal => 4,
+                _ => 1,
+            };
+            return report(
+                file,
+                request,
+                status,
+                "translation",
+                json!({"translation_stage":error.stage,"diagnostic":error.diagnostic,"code":error.diagnostic.code.as_str()}),
+            );
+        }
     };
-    let artifact = match dive_pluscal::translate_at(source, region, &request.limits) {
+    let selection = match dive_pluscal::rewrite::select_rewrite_with_parser(
+        source,
+        &dive_pluscal::rewrite::RewriteOptions::default(),
+        &context.effective.parser,
+    ) {
+        Ok(selection) => selection,
+        Err(diagnostic) => {
+            let status = match diagnostic.code {
+                Code::Unsupported | Code::Resource => 3,
+                Code::Internal => 4,
+                _ => 1,
+            };
+            return report(
+                file,
+                request,
+                status,
+                "selection",
+                json!({"code":diagnostic.code.as_str(),"diagnostic":diagnostic}),
+            );
+        }
+    };
+    let masked = dive_pluscal::rewrite::mask_previous(source, selection.previous);
+    let region = selection.algorithm.start..selection.algorithm.end;
+    let insertion = insertion_override.unwrap_or_else(|| {
+        selection
+            .previous
+            .map_or(selection.insertion, |previous| previous.start)
+    });
+    let replacement_end = selection
+        .previous
+        .map_or(insertion, |previous| previous.end);
+    let artifact = match dive_pluscal::translate_at(&masked, region, &request.limits) {
         Ok(artifact) => artifact,
         Err(error) => {
             let status = match error.diagnostic.code {
@@ -256,11 +253,18 @@ pub fn translate_source(
             );
         }
     };
+    let body = if selection.previous.is_some() {
+        format!(
+            "\\* BEGIN TRANSLATION\n{}\n\\* END TRANSLATION\n",
+            artifact.tla
+        )
+    } else {
+        artifact.tla.clone()
+    };
     let generated = format!(
-        "{}\n{}\n{}",
+        "{}\n{body}\n{}",
         &source[..insertion],
-        artifact.tla,
-        &source[insertion..]
+        &source[replacement_end..]
     );
     let analysis = analyze_source(file, &generated, &request.analyze);
     if !analysis.accepted() {
@@ -277,6 +281,14 @@ pub fn translate_source(
         request,
         0,
         "artifact-analysis",
-        json!({"translation_options":artifact.option_context.effective,"requested_translation_options":request.limits,"option_context":artifact.option_context,"artifact":artifact,"module_source":generated,"analysis":analysis.to_json()}),
+        json!({"translation_options":artifact.option_context.effective,"requested_translation_options":request.limits,"source_options":artifact.option_context.source_declaration,"artifact":translation_artifact_json(&artifact),"module_source":generated,"analysis":analysis.to_json(),"filesystem_plan":{
+            "writes_performed":false,
+            "backup_requested":!artifact.option_context.effective.no_old,
+            "configuration_requested":!artifact.option_context.effective.no_configuration,
+            "configuration_requirements":artifact.configuration,
+            "unix_eol_requested":artifact.option_context.effective.unix_eol,
+            "body_newlines":"lf",
+            "source_newlines":"preserved"
+        }}),
     )
 }

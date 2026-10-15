@@ -1,0 +1,9 @@
+{
+  "id": "while_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; begin L:while x<2 do x:=x+1; I:skip; end while; B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n(*0, 0*)[type     |-> \"uniprocess\", \n         name  |-> \"A\", \n         decls  |-> <<(*3, 28*)[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n         defs   |-> <<  >>,\n         prcds  |-> <<>>,\n         body  |-> <<(*3, 41*)[label |-> \"L\",\n                               stmts |-> <<(*3, 41*)[type    |-> \"while\", \n                                                     test    |-> << \"x\", \"<\", \"2\" >>,\n                                                     labDo   |-> <<(*3, 64*)[label |-> \"I\",\n                                                                             stmts |-> <<(*3, 64*)[type |-> \"skip\"]>>]>>,\n                                                     unlabDo |-> <<(*3, 54*)[type |-> \"assignment\",\n                                                                             ass  |-> <<(*3, 54*)[lhs |-> (*3, 54*)[var |-> \"x\", sub |-> <<  >>],\n                                                                                                  rhs |-> << \"x\", \"+\", \"1\" >>]>>]>>]>>], \n                     (*3, 83*)[label |-> \"B\",\n                               stmts |-> <<(*3, 83*)[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

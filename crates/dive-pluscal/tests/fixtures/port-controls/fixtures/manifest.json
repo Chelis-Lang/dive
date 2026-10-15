@@ -1,0 +1,255 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "reason": "Replace former translator admission limitations with pinned semantic controls",
+  "rows": [
+    {
+      "id": "EmptyThen",
+      "input": "EmptyThen.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "EmptyThen.translated.tla"
+      }
+    },
+    {
+      "id": "WithPc",
+      "input": "WithPc.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "WithPc.translated.tla"
+      }
+    },
+    {
+      "id": "ChoosePrint",
+      "input": "ChoosePrint.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ChoosePrint.translated.tla"
+      }
+    },
+    {
+      "id": "UnicodeForall",
+      "input": "UnicodeForall.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "UnicodeForall.translated.tla"
+      }
+    },
+    {
+      "id": "UnicodeExists",
+      "input": "UnicodeExists.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "UnicodeExists.translated.tla"
+      }
+    },
+    {
+      "id": "UnicodeFunction",
+      "input": "UnicodeFunction.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "UnicodeFunction.translated.tla"
+      }
+    },
+    {
+      "id": "MacroFreeProcessName",
+      "input": "MacroFreeProcessName.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "MacroFreeProcessName.translated.tla"
+      }
+    },
+    {
+      "id": "NonliteralDomain",
+      "input": "NonliteralDomain.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "NonliteralDomain.translated.tla"
+      }
+    },
+    {
+      "id": "ProcessSelfInitializer",
+      "input": "ProcessSelfInitializer.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ProcessSelfInitializer.translated.tla"
+      }
+    },
+    {
+      "id": "OverlappingDomains",
+      "input": "OverlappingDomains.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "OverlappingDomains.translated.tla"
+      }
+    },
+    {
+      "id": "ProcedureProcessFreeName",
+      "input": "ProcedureProcessFreeName.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ProcedureProcessFreeName.translated.tla"
+      }
+    },
+    {
+      "id": "SharedProcedure",
+      "input": "SharedProcedure.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "SharedProcedure.translated.tla"
+      }
+    },
+    {
+      "id": "SelfTail",
+      "input": "SelfTail.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "SelfTail.translated.tla"
+      }
+    },
+    {
+      "id": "ProcessSelfTail",
+      "input": "ProcessSelfTail.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ProcessSelfTail.translated.tla"
+      }
+    },
+    {
+      "id": "ProcessStack",
+      "input": "ProcessStack.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ProcessStack.translated.tla"
+      }
+    },
+    {
+      "id": "SequentialModifier",
+      "input": "SequentialModifier.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "SequentialModifier.translated.tla"
+      }
+    },
+    {
+      "id": "ProcedureGraph",
+      "input": "ProcedureGraph.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ProcedureGraph.translated.tla"
+      }
+    },
+    {
+      "id": "ApiAwait",
+      "input": "ApiAwait.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ApiAwait.translated.tla"
+      },
+      "sany": {
+        "status": "accepted",
+        "exit_code": 0
+      }
+    },
+    {
+      "id": "ApiOverlap",
+      "input": "ApiOverlap.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ApiOverlap.translated.tla"
+      },
+      "sany": {
+        "status": "accepted",
+        "exit_code": 0
+      }
+    },
+    {
+      "id": "ApiForeignRead",
+      "input": "ApiForeignRead.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "ApiForeignRead.translated.tla"
+      },
+      "sany": {
+        "status": "accepted",
+        "exit_code": 0
+      }
+    },
+    {
+      "id": "PrintWithoutTLC",
+      "input": "PrintWithoutTLC.tla",
+      "options": [],
+      "primary": {
+        "status": "translated"
+      },
+      "translated": {
+        "path": "PrintWithoutTLC.translated.tla"
+      },
+      "sany": {
+        "status": "rejected",
+        "exit_code": 4,
+        "error_class": "unknown-name",
+        "unknown_operator": "PrintT"
+      }
+    }
+  ]
+}

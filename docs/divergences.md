@@ -309,8 +309,10 @@ claims and derived role names stay separate; no new default is adopted.
 Clean pinned `pcal.trans` exits 0 for a sequential variable named `Next` or
 `vars`, but SANY rejects each generated module. All five SANY-invalid outputs
 in the complete translation matrix remain visible. Native generation refuses
-unproved generated-name/binder collisions in both profiles and admits an
-artifact only after complete-module syntax/name/level analysis. No alternate
+generated-operator collisions in both profiles and admits an artifact only
+after complete-module syntax/name/level analysis. Scoped name rewriting,
+multiline substitutions and branch labels now follow the pinned translator;
+successful generation does not imply an available Full algorithm checksum. No alternate
 naming default is adopted. Minimal example, raw evidence and pending options
 are recorded in `docs/tlc-differences.md` and `docs/pluscal-translation.md`.
 
@@ -604,11 +606,11 @@ The pinned PlusCal translator computes `7c28162a` for every tested `--fair`
 algorithm, because its ternary checksum expression hashes only `"fair"` and
 omits the normalized AST. Changing `x=0` to `x=9` without changing the translation
 leaves `Validator` reporting `NO_DIVERGENCE`. C/P primary bodies still have different
-TLA CRCs. No native corrected default is adopted. Bounded sequential full AST
-serialization now reproduces the reference CRC, with `fair_header_crc_only=true`
-reporting this weakness. `algorithm_checksum_verified` means verified reference
-CRC derivation, not source identity or proof. Unproved AST shapes remain named
-refusals; `--rewrite --checksums tla` explicitly disables algorithm CRC. See D-020 in the
+TLA CRCs. No native corrected fair CRC default is adopted. Exact
+procedure-free AST serialization retains the reference CRC, including this
+weakness. That CRC is not source identity or proof. Unavailable algorithm CRCs
+use the disabled-value spelling while retaining the real generated-body CRC;
+`--checksums full` and `--checksums tla` select the same best-effort policy. See D-020 in the
 [user log](tlc-differences.md), D-008 for separate artifact admission, and
 `crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
 source-edit controls.
@@ -630,10 +632,10 @@ explicitly unsupported; no archive certificate or total-memory claim is added.
 See `conformance/probes/native-checkpoint-runtime-names/README.md` and
 `docs/native-checkpoint.md#pure-strings-and-recovery-encounter-order`.
 
-D-008 checksum continuation retains strict generated-operator CST comparison,
+**Historical checksum-era scope (superseded by issue #241):** D-008 checksum continuation retains strict generated-operator CST comparison,
 including an initially missing empty-Else TRUE conjunct now reproduced exactly.
 The checksum-only producer did not lift multiline-generation refusal. The later
-bounded non-junction sequential generator is documented in `docs/pluscal-multiline.md`;
+bounded non-junction sequential generator is documented in `docs/pluscal-translation.md`;
 multiline junction/macro/process/procedure layouts and empty-Then generation still
 refuse explicitly. All 320 primary controls and original
 failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
@@ -656,7 +658,7 @@ deferred/opaque refusals are documented in the guide.
 No ordinary scheduling or whole-corpus certification is implied.
 
 
-D-008 finite-process Full checksum continuation: declared-fairness records and
+**Historical checksum-era scope (superseded by issue #241):** D-008 finite-process Full checksum continuation: declared-fairness records and
 source-owned modifier lists have native post-Explode byte/CRC controls in
 `crates/dive-pluscal/process-checksum-acceptance/`. Exact-CST/SANY/Validator
 admission and finite model/witness stages remain separate. Unproved process
@@ -688,7 +690,7 @@ D-020's fair-only CRC weakness remains. See [D-021 user evidence](tlc-difference
 unconfigured and original ignored-option native captures in
 `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
 
-D-008 process checksum options update: supported explicit fairness and inserted
+**Historical checksum-era scope (superseded by issue #241):** D-008 process checksum options update: supported explicit fairness and inserted
 label settings now have stage-separated raw/full controls; unproved procedure/macro ASTs,
 scoped renaming and unproved source-option declarations remain named Full refusals.
 F-034/F-035 are still partial; CRC derivation, artifact admission and finite
@@ -820,7 +822,7 @@ and a failed native diagnostic resource experiment in [the known-issues log](tlc
 A finite-ratio improvement remains under consideration; no ratio default changes.
 
 
-D-008 disjoint sequential procedure Full checksum continuation (ADR 0069)
+**Historical checksum-era scope (superseded by issue #241):** D-008 disjoint sequential procedure Full checksum continuation (ADR 0069)
 represents target/current frame owners separately from the last declaration's
 shared main-call vector. The original 64 C/P rows retain 62 clean reference
 translations and two grammar errors; two corrected declarations and 32 declared
@@ -867,7 +869,7 @@ credit. Pure key/count replay, original errors and positioned failure evidence
 remain separately qualified. This adds no result-changing default.
 
 
-D-008 acyclic sequential procedure Full checksum continuation (ADR0073) separates
+**Historical checksum-era scope (superseded by issue #241):** D-008 acyclic sequential procedure Full checksum continuation (ADR0073) separates
 actual body edges from the reference LAST-header main-call alias. The clean
 130-row C/P selection retains the original98 and adds32 acyclic shapes;
 original-header/CRC, exploded frames, public artifact and replay evidence remain
@@ -878,9 +880,9 @@ D-020 fair-header weakness are unchanged. See
 partial and strict saved-frame replay stays qualified under #124.
 
 
-## D-008 recursive sequential procedure checksum continuation
+## Historical D-008 recursive sequential procedure checksum continuation
 
-The bounded Full editor now serializes proved source-finite self/mutual call
+The retired bounded Full editor serialized source-finite self/mutual call
 vectors without unrolling execution. Pinned ordinary/tail ownership and LAST
 header alias remain distinct in both profiles; quotas and D-020 CRC weakness do
 not change. The 162-case selection keeps all 130 predecessors and two new
@@ -895,14 +897,14 @@ results. Temporal checking with disk keys remains unsupported; requested
 widths still disclose actual inline execution.
 [Executable CLI/Rust guide](user/disk-seen-safety.md).
 
-D-008's process-owned procedure Full-checksum continuation (#225/ADR0079)
+**Historical checksum-era scope (superseded by issue #241):** D-008's process-owned procedure Full-checksum continuation (#225/ADR0079)
 separates original stored header ownership from process-indexed runtime slots.
 One unfair finite process/one disjoint labelled procedure has bounded native
 serialization; general process/fairness/scoped checksum contexts remain named
 refusals. The clean C/P With binder `a` shadowing procedure parameter `a`
 generates SANY-invalid duplicate operators; no successful artifact or CRC is
 credited from those invalid references. Strict #124 frame replay is unchanged.
-See `docs/pluscal-process-procedure-checksums.md` for the exact stage contract.
+See [the current PlusCal contract](pluscal-translation.md).
 
 ## D-023: Truthful default numeric-exit accounting
 
@@ -951,3 +953,56 @@ Historical default90/4/60 is qualified as an exit-only estimate of 76 Agree /
 an approved lower floor. Original reports and floors remain visible; full
 remeasurement and review are pending. See [ADR 0096](decisions/0096-truthful-default-numeric-exit-conformance.md)
 and [the scoreboard](scoreboard.md#numeric-exit-accounting-correction).
+
+D-008 original PlusCal AST artifact continuation: explicit `translate --ast` and
+public original-AST APIs expose bounded earlier-stage bytes as data in both
+profiles. `artifact_available` does not mean a generated enclosing module was
+accepted, no header CRC is claimed at that stage, and no file is written. Actual
+`-writeAST` remains a named filesystem refusal; its retained successful primary
+writes return null from translation and exit255. Procedure-free `-debug` header CRCs match
+the retained primary while preserving TLA body bytes. Modern original procedure/
+macro and compound ownership now have genuine pre-generation controls. Generated
+debug labelled compound procedure-free headers retain exact CRC/body controls.
+The historical flat procedural header CRC captures describe retired alias
+emulation; current direct exact procedure CRCs are unavailable. Broader flags and
+historical later-stage fields remain unfinished. SANY semantic/linting success with warnings
+is separate from original checksum validation. This adds no semantic
+default or completed flag/corpus milestone. See [the guide](pluscal-translation.md).
+
+
+D-008 PlusCal checksum/API continuation: schema2 translation reports contain real
+artifact/replacement acceptance, whole-module analysis and requested/effective
+settings without proof-only fields or duplicate option-context dumps. The one
+best-effort checksum policy retains exact procedure-free CRCs and the real TLA
+body CRC; unavailable algorithm CRCs use `chksum(pcal) \in STRING`, including in
+compatibility mode. This is an explicit header difference, not byte equality to
+an unlike unmodified primary translation. A predeclared primary input with that
+value disabled preserves it during actual retranslation; original primary facts
+remain separate. Literal clause omission disables body-change warning detection
+and is not emitted. Unknown CRCs never gate generation/rewrite/debug or claim a
+model result. Default native modified-body protection keeps `--replace-modified` as the
+explicit counterpart; the TLC profile resolves ordinary pinned pcal's Noop
+overwrite behavior automatically. Algorithm changes
+alone regenerate without a grant. Old Full/TranslationOnly inputs alias the one
+policy; direct exact procedure CRCs remain unsupported. Full flags/filesystem/
+backends/149 and ordinary model-checking milestones remain open. See the current
+[PlusCal guide](pluscal-translation.md) and [ADR0084](decisions/0084-pluscal-translation.md).
+
+Current PlusCal overwrite policy: the default API/CLI protects modified or
+unverified existing bodies, with `--replace-modified` as its explicit overwrite
+counterpart. `--compat=tlc` resolves that protection to ordinary primary Noop
+overwrite automatically. Pure low-level `rewrite_document` retains its caller's
+explicit policy. `requested_editing` records input settings, `editing` records
+effective settings, and old body CRC/match data remains observable. Marker,
+source-option, generation, module-analysis and quota refusals are unchanged.
+The fresh exact modified-body primary control supports its own complete output
+comparison; missing/disabled header variants do not inherit header byte-identity
+credit from that control.
+
+The historical checksum-era scope notes above preserve earlier primary facts and
+retired admission boundaries. They do not describe current translation support:
+checksum availability no longer gates generation, rewriting or debug, and exact
+procedure-header alias serialization has been removed. Procedure-free exact CRC
+and original-AST operations remain real features. See the current
+[PlusCal contract](pluscal-translation.md); historical input gaps and model-parity
+obligations remain open.

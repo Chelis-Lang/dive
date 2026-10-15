@@ -1,0 +1,9 @@
+{
+  "id": "define_gap_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; define H == x +\n\n 1 end define; begin L:x:=H; B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n(*0, 0*)[type     |-> \"uniprocess\", \n         name  |-> \"A\", \n         decls  |-> <<(*3, 28*)[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n         defs   |-> << \"H\", \"==\", \"x\", \"+\"\n\n, \"1\" >>,\n         prcds  |-> <<>>,\n         body  |-> <<(*5, 24*)[label |-> \"L\",\n                               stmts |-> <<(*5, 24*)[type |-> \"assignment\",\n                                                     ass  |-> <<(*5, 24*)[lhs |-> (*5, 24*)[var |-> \"x\", sub |-> <<  >>],\n                                                                          rhs |-> << \"H\" >>]>>]>>], \n                     (*5, 32*)[label |-> \"B\",\n                               stmts |-> <<(*5, 32*)[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

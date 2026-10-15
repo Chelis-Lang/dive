@@ -9,6 +9,7 @@
 //! Everything is written under `--out`; nothing is written to the repository.
 
 use std::collections::BTreeMap;
+use std::ffi::OsStr;
 use std::fmt::Write as _;
 use std::fs::File;
 use std::path::{Path, PathBuf};
@@ -24,7 +25,7 @@ mod pins;
 
 const USAGE: &str =
     "usage: cargo xtask pluscal-corpus [--help] [--out DIR] [--dive BIN] [--cache DIR]
-                       [--filter TEXT] [--timeout SECS] [--check] [--check-timeout SECS]
+                       [--filter TEXT] [--timeout SECS] [--label] [--check] [--check-timeout SECS]
 
     --help               show this usage without loading pins or running children
     --out DIR            output directory (default <target-dir>/pluscal-corpus);
@@ -33,11 +34,13 @@ const USAGE: &str =
     --cache DIR          conformance cache (default $DIVE_CACHE_DIR or ~/.cache/dive)
     --filter TEXT        only modules whose corpus path contains TEXT
     --timeout SECS       per-translation time limit (default 60)
+    --label              pass the real -label option to both translators
     --check              model-check both translations of modules with a .cfg
     --check-timeout SECS per-check time limit (default 120)";
 
 struct Config {
     help: bool,
+    label: bool,
     /// Module libraries in the cache (TLAPS, CommunityModules), passed to dive.
     libraries: Vec<PathBuf>,
     out: PathBuf,
@@ -93,6 +96,7 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
     let summary = summarize(&records);
     write(&config.out.join("results.json"), &{
         let mut text = serde_json::to_string_pretty(&json!({
+            "translation_flags": translation_flags(&config),
             "jar": jar.display().to_string(),
             "java": java.display().to_string(),
             "libraries": config.libraries,
@@ -129,6 +133,7 @@ fn parse_args(args: &[String]) -> Result<Config> {
 fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> Result<Config> {
     let mut config = Config {
         help: false,
+        label: false,
         libraries: Vec::new(),
         out: target.join("pluscal-corpus"),
         dive: target.join("release/dive"),
@@ -150,6 +155,7 @@ fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> 
             "--timeout" => config.timeout = seconds(&value()?)?,
             "--check-timeout" => config.check_timeout = seconds(&value()?)?,
             "--check" => config.check = true,
+            "--label" => config.label = true,
             _ => return Err(USAGE.to_owned()),
         }
     }
@@ -159,6 +165,39 @@ fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> 
         config.dive = cwd.join(config.dive);
     }
     Ok(config)
+}
+
+fn translation_flags(config: &Config) -> &'static [&'static str] {
+    if config.label { &["-label"] } else { &[] }
+}
+
+fn primary_translation_command(config: &Config, java: &Path, jar: &Path, name: &OsStr) -> Command {
+    let mut command = Command::new(java);
+    command
+        .arg("-XX:+UseSerialGC")
+        .arg("-cp")
+        .arg(jar)
+        .arg("pcal.trans")
+        .args(translation_flags(config))
+        .arg(name);
+    command
+}
+
+fn native_translation_command(config: &Config, name: &OsStr, source_dir: &Path) -> Command {
+    let mut command = Command::new(&config.dive);
+    with_libraries(command.arg("translate"), config)
+        .args(translation_flags(config))
+        .arg(name)
+        // pcal.trans always replaces an existing translation.
+        .arg("--rewrite")
+        .arg("--checksums")
+        .arg("tla")
+        .arg("--replace-modified")
+        .arg("--output")
+        .arg("json")
+        .arg("--module-path")
+        .arg(source_dir);
+    command
 }
 
 /// Adds only the verified pinned module libraries.
@@ -374,12 +413,7 @@ fn measure(
     }
 
     let pcal = run(
-        Command::new(java)
-            .arg("-XX:+UseSerialGC")
-            .arg("-cp")
-            .arg(jar)
-            .arg("pcal.trans")
-            .arg(name),
+        &mut primary_translation_command(config, java, jar, name),
         &pcal_dir,
         "pcal",
         config.timeout,
@@ -388,17 +422,7 @@ fn measure(
     let pcal_message = pcal_message(&pcal);
 
     let dive = run(
-        with_libraries(Command::new(&config.dive).arg("translate"), config)
-            .arg(name)
-            // pcal.trans always replaces an existing translation.
-            .arg("--rewrite")
-            .arg("--checksums")
-            .arg("tla")
-            .arg("--replace-modified")
-            .arg("--output")
-            .arg("json")
-            .arg("--module-path")
-            .arg(source_dir),
+        &mut native_translation_command(config, name, source_dir),
         &dive_dir,
         "dive",
         config.timeout,
@@ -851,7 +875,7 @@ mod tests {
         assert_eq!(defaults.filter, None);
         assert_eq!(defaults.timeout, Duration::from_secs(60));
         assert_eq!(defaults.check_timeout, Duration::from_secs(120));
-        assert!(!defaults.check && !defaults.help);
+        assert!(!defaults.check && !defaults.help && !defaults.label);
         let explicit = parse(&[
             "--out",
             "results",
@@ -866,6 +890,7 @@ mod tests {
             "--check-timeout",
             "7",
             "--check",
+            "--label",
             "--help",
         ])?;
         assert_eq!(explicit.out, Path::new("results"));
@@ -874,7 +899,7 @@ mod tests {
         assert_eq!(explicit.filter.as_deref(), Some("Lock.tla"));
         assert_eq!(explicit.timeout, Duration::ZERO);
         assert_eq!(explicit.check_timeout, Duration::from_secs(7));
-        assert!(explicit.check && explicit.help);
+        assert!(explicit.check && explicit.help && explicit.label);
         for flag in [
             "--out",
             "--dive",
@@ -885,11 +910,93 @@ mod tests {
         ] {
             assert!(parse(&[flag]).is_err(), "missing value: {flag}");
         }
-        for flag in ["--unknown", "--label", "--compat=tlc", "--jobs"] {
+        for flag in ["--unknown", "--compat=tlc", "--jobs"] {
             assert!(parse(&[flag]).is_err(), "unimplemented option: {flag}");
         }
         for seconds in ["-1", "1.5", "NaN", "18446744073709551616"] {
             assert!(parse(&["--timeout", seconds]).is_err(), "{seconds}");
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn actual_label_option_reaches_both_translation_commands() -> Result<()> {
+        for label in [false, true] {
+            let args = if label {
+                vec!["--label".to_owned()]
+            } else {
+                Vec::new()
+            };
+            let mut config = parse_args_at(
+                &args,
+                Path::new("invocation"),
+                Path::new("build"),
+                "cache".into(),
+            )?;
+            config.libraries.push("verified-library".into());
+            let flags: Vec<String> = translation_flags(&config)
+                .iter()
+                .map(|flag| (*flag).to_owned())
+                .collect();
+            assert_eq!(
+                flags,
+                if label {
+                    vec!["-label".to_owned()]
+                } else {
+                    Vec::new()
+                }
+            );
+            assert_eq!(
+                serde_json::to_value(translation_flags(&config)).map_err(|e| e.to_string())?,
+                json!(flags)
+            );
+            let primary = primary_translation_command(
+                &config,
+                Path::new("java"),
+                Path::new("oracle.jar"),
+                OsStr::new("Case.tla"),
+            );
+            let native =
+                native_translation_command(&config, OsStr::new("Case.tla"), Path::new("source"));
+            assert_eq!(primary.get_program(), OsStr::new("java"));
+            assert_eq!(native.get_program(), config.dive.as_os_str());
+            let actual = |command: &Command| {
+                command
+                    .get_args()
+                    .map(|arg| arg.to_string_lossy().into_owned())
+                    .collect::<Vec<_>>()
+            };
+            let mut expected_primary = vec![
+                "-XX:+UseSerialGC".into(),
+                "-cp".into(),
+                "oracle.jar".into(),
+                "pcal.trans".into(),
+            ];
+            expected_primary.extend(flags.clone());
+            expected_primary.push("Case.tla".into());
+            let mut expected_native = vec![
+                "translate".into(),
+                "--library-path".into(),
+                "verified-library".into(),
+            ];
+            expected_native.extend(flags);
+            expected_native.extend(
+                [
+                    "Case.tla",
+                    "--rewrite",
+                    "--checksums",
+                    "tla",
+                    "--replace-modified",
+                    "--output",
+                    "json",
+                    "--module-path",
+                    "source",
+                ]
+                .into_iter()
+                .map(str::to_owned),
+            );
+            assert_eq!(actual(&primary), expected_primary);
+            assert_eq!(actual(&native), expected_native);
         }
         Ok(())
     }

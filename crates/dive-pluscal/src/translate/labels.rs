@@ -23,24 +23,7 @@ pub(super) fn normalize(
     parsed: &mut Parsed,
     options: &TranslationOptions,
 ) -> Result<Vec<InsertedLabel>, TranslationError> {
-    let root = &options.label_root;
-    let mut chars = root.chars();
-    if root.len() > 256 {
-        return Err(error(
-            TranslationStage::Normalization,
-            Code::Resource,
-            parsed.algorithm.span,
-            "PlusCal label-root byte limit (256) reached",
-        ));
-    }
-    if !chars.next().is_some_and(|c| c.is_ascii_alphabetic())
-        || !chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
-    {
-        return Err(failure(
-            parsed.algorithm.span,
-            "label root must start with an ASCII letter and contain only ASCII letters, digits or underscore (maximum 256 bytes)",
-        ));
-    }
+    validate_root(options, parsed.algorithm.span)?;
     let blocks = match &parsed.algorithm.body {
         Body::Sequential(block) => vec![block.clone()],
         Body::Processes(processes) => processes.iter().map(|p| p.body.clone()).collect(),
@@ -77,6 +60,31 @@ pub(super) fn normalize(
         ));
     }
     Ok(labels.added)
+}
+/// Shared option boundary for both semantic original and checksum grouping.
+pub(super) fn validate_root(
+    options: &TranslationOptions,
+    span: Span,
+) -> Result<(), TranslationError> {
+    let root = &options.label_root;
+    let mut chars = root.chars();
+    if root.len() > 256 {
+        return Err(error(
+            TranslationStage::Normalization,
+            Code::Resource,
+            span,
+            "PlusCal label-root byte limit (256) reached",
+        ));
+    }
+    if !chars.next().is_some_and(|c| c.is_ascii_alphabetic())
+        || !chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+    {
+        return Err(failure(
+            span,
+            "label root must start with an ASCII letter and contain only ASCII letters, digits or underscore (maximum 256 bytes)",
+        ));
+    }
+    Ok(())
 }
 // One pass instead of rescanning the entire source for every generated label.
 fn positions(parsed: &Parsed) -> BTreeMap<usize, crate::ast::Position> {

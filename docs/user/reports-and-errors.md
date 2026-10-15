@@ -7,7 +7,7 @@ Use its result fields; do not interpret all commands through safety-check keys.
 | Operation | What to inspect |
 | --- | --- |
 | Parse/analyze | `accepted`, `diagnostics`; no property check |
-| Translate | `result`, `accepted`, `stage`, `model_proved: false` |
+| Translate | Schema 2: `result`, `accepted`, `stage`, artifact/replacement, complete-module analysis and effective options |
 | Safety check | `verdict`, counts, options, warnings, collision and counterexample |
 | Final/short check | Schema 2, complete `properties`, execution and validated closing edge |
 | Simulation | `result`, `exhaustive: false`, `model_proved: false`, observed/pending validation |
