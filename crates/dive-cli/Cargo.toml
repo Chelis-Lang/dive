@@ -1,6 +1,7 @@
 [package]
 name = "dive-cli"
 description = "The dive command-line interface"
+default-run = "dive"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,6 +12,10 @@ repository.workspace = true
 [[bin]]
 name = "dive"
 path = "src/main.rs"
+
+[[bin]]
+name = "tlc"
+path = "src/bin/tlc.rs"
 
 [dependencies]
 dive-api = { workspace = true }

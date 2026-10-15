@@ -134,6 +134,14 @@ None is implemented.
 
 ## Approved M6 additions (2026-10-09)
 
+The checking-only TLC adapter uses D-008's existing human/JSON
+reports and D-013's bounded short-lasso selection: `dive tlc -lncheck final`
+selects that backend directly. Tool framing and other TLC mode protocols remain
+named refusals. Filename normalization belongs to the adapter; native file APIs
+are unchanged. Configuration-first input-error priority is not implemented on
+this route. See the
+[checking guide](user/checking.md#tlc-checking-entrypoints).
+
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |
 |---|---|---|---|---|
 | D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | none: TLC's exact lasso is not a parity obligation (ADR 0082); `--compat=tlc` keeps the short validated lasso. `--lasso=tlc` was withdrawn on 2026-10-12 and its emulation removed | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; bounded ordered parallel capture with 1/4/8/chaos controls; ordinary periodic and remaining recovery/error boundaries stay refused. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |

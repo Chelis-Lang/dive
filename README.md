@@ -15,6 +15,13 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > before startup until their stream authority is proved. See `docs/scoreboard.md`
 > for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
 
+The checking-only `dive tlc` and installed `tlc` adapter accepts common TLC
+checking flags and module/configuration basenames. `-lncheck final` selects the
+existing bounded, independently validated short-lasso route. Tool messages and
+other TLC mode protocols still refuse. See
+[the checking guide](docs/user/checking.md#tlc-checking-entrypoints) for supported
+flags, path resolution and statuses.
+
 
 ## Documentation
 

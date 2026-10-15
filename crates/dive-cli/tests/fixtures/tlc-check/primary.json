@@ -1,0 +1,93 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "worker_count": 1,
+  "seed": 7,
+  "fp": 0,
+  "oracle_extra_args": [
+    "-tool",
+    "-noGenerateSpecTE"
+  ],
+  "cases": [
+    {
+      "case": "success",
+      "module": "Probe",
+      "args": [],
+      "exit": 0,
+      "verdict": "success",
+      "property": null,
+      "code": 2193,
+      "statistics": {
+        "generated": 3,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "trace_values": []
+    },
+    {
+      "case": "violation",
+      "module": "Probe",
+      "args": [
+        "-config",
+        "Fail"
+      ],
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "property": "Inv",
+      "code": 2110,
+      "statistics": {
+        "generated": 3,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "trace_values": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "case": "deadlock-only",
+      "module": "Probe",
+      "args": [
+        "-config",
+        "Dead"
+      ],
+      "exit": 11,
+      "verdict": "deadlock",
+      "property": null,
+      "code": 2114,
+      "statistics": {
+        "generated": 3,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "trace_values": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "case": "initial-failure",
+      "module": "Probe",
+      "args": [
+        "-config",
+        "Initial"
+      ],
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "property": "Bad",
+      "code": 2107,
+      "statistics": null,
+      "trace_values": [
+        0
+      ]
+    }
+  ],
+  "evidence_scope": "Historical pinned observations from X head 85970351f81958dc9455559fdd4cd3cdbaa2429a; not a current-source execution or qualification."
+}
