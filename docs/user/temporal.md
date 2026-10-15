@@ -73,7 +73,30 @@ that ordinary engine. Each obligation retains its scope, order and name; the
 checker binds once and retains its startup output and random stream. This initial
 route requires profile-default evaluation/fingerprints, polynomial 0, fingerprint
 storage, no storage budget/directory options, deadlock or sequential override, or
-chaos flag. Seed and worker requests are retained. Other options and randomness
+chaos flag. The TLC profile also admits `--action-composition=tlc` with every
+other setting unchanged, for example:
+
+```sh
+cargo run --locked --offline -p dive-cli --bin dive -- check \
+  crates/dive-api/tests/fixtures/ordinary-cdot/CompositionFinal.tla \
+  --config crates/dive-api/tests/fixtures/ordinary-cdot/hold.cfg \
+  --compat tlc --action-composition tlc --fp 0 --seed 0 --workers 1 --output json
+```
+
+This checked Hold example reports success, with 5 generated states, 2 distinct
+states and depth 2.
+
+The Rust counterpart is `CheckRequest { compat_tlc: true,
+action_composition: Some(ActionComposition::Tlc), fp: Some(0), ..request }`.
+Composition intermediates retain their original generated-state charges and
+sequential execution reason. This option does not add independent composition
+replay: a candidate requiring composed original Next or a composed closing edge
+still refuses without a published word. Holding on a complete captured graph
+requires no candidate replay; genuine violations still require it. Composed
+ENABLED/fairness predicates retain their bounded pure-predicate refusal. TLC's
+`off` default and the default profile are unchanged; `tla` and other evaluator,
+storage or explicit sequential overrides do not gain ordinary dispatch support.
+Seed and worker requests are retained. Other options and randomness
 under VIEW or SYMMETRY keep the existing final-mode route and error priority.
 Real temporal property roles still require temporal analysis and independent
 periodic-word validation. A state-only `PROPERTY P` is checked in the initial state by the ordinary engine;

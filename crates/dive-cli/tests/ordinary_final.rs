@@ -87,3 +87,64 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
     }
     Ok(())
 }
+
+#[test]
+fn existing_tlc_composition_option_keeps_counts_and_safe_validation_refusal()
+-> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "dive-cli-ordinary-cdot-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_nanos()
+    ));
+    std::fs::create_dir(&directory)?;
+    let spec = Spec(directory);
+    let file = spec.0.join("CompositionFinal.tla");
+    std::fs::write(
+        &file,
+        include_str!("../../dive-api/tests/fixtures/ordinary-cdot/CompositionFinal.tla"),
+    )?;
+    let oracle: serde_json::Value = serde_json::from_str(include_str!(
+        "../../dive-api/tests/fixtures/ordinary-cdot/oracle.json"
+    ))?;
+    for case in oracle["cases"].as_array().ok_or("cases")? {
+        let holds = case["case"] == "hold";
+        std::fs::write(
+            file.with_extension("cfg"),
+            if holds {
+                include_str!("../../dive-api/tests/fixtures/ordinary-cdot/hold.cfg")
+            } else {
+                include_str!("../../dive-api/tests/fixtures/ordinary-cdot/fail.cfg")
+            },
+        )?;
+        for workers in [1, 4] {
+            let output = run(&file, "tlc", workers, &["--action-composition=tlc"])?;
+            assert_eq!(output.status.code(), Some(if holds { 0 } else { 3 }));
+            let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(value["schema_version"], 2);
+            assert_eq!(value["options"]["profile"], "tlc");
+            assert_eq!(value["execution"]["capture_completed"], true);
+            for field in ["generated", "distinct", "depth"] {
+                assert_eq!(value["statistics"][field], case[field]);
+            }
+            assert_eq!(
+                value["verdict"],
+                if holds { "success" } else { "unsupported" }
+            );
+            assert!(value["counterexample"].is_null());
+        }
+        for extra in [
+            vec!["--action-composition=tla"],
+            vec!["--action-composition=tlc", "--sequential"],
+            vec!["--action-composition=tlc", "--store=exact"],
+        ] {
+            let output = run(&file, "tlc", 1, &extra)?;
+            let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(output.status.code(), Some(3));
+            assert_eq!(value["schema_version"], 1);
+            assert_eq!(value["verdict"], "unsupported");
+        }
+    }
+    Ok(())
+}

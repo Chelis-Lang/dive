@@ -1,5 +1,10 @@
 # Changelog
 
+- Ordinary TLC-profile bounded final checking also accepts the existing
+  `--action-composition=tlc` option with otherwise default resident settings.
+  Original intermediate generated counts and independent composition refusals
+  remain; a counterexample is published only after independent validation.
+
 - Deferred finite-filter binding can resolve scalar value-bound constants in
   otherwise pure configured redirect sources. This bounded, callback-free
   metadata inspection uses the existing domain work/depth limits; predicate and
