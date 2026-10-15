@@ -6,7 +6,9 @@
 
 use crate::Graph;
 use crate::formula::{AtomKind, Recurrence, Tableau};
-use crate::search::{Acceptance, Lasso, SearchError, Step, find_lasso};
+use crate::search::{
+    Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso, find_lasso_view,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Truth values of all supplied atomic predicates.
@@ -73,6 +75,22 @@ pub struct Product {
     acceptance: Acceptance,
     behavior_states: Vec<usize>,
     original_edges: Vec<Vec<usize>>,
+}
+
+struct Parts<A> {
+    graph: Graph,
+    acceptance: A,
+    behavior_states: Vec<usize>,
+    original_edges: Vec<Vec<usize>>,
+}
+
+// Borrowed only while finalizing one builder; both routes retain the same
+// renumbering, adjacency order and original-edge projection.
+struct Ordered<'a> {
+    pairs: &'a [(usize, usize)],
+    order: &'a [usize],
+    edges: &'a [Vec<usize>],
+    original_edges: &'a [Vec<usize>],
 }
 
 struct Builder<'a> {
@@ -170,7 +188,11 @@ impl Builder<'_> {
         Ok(())
     }
 
-    fn finish(self, roots: BTreeSet<usize>) -> Result<Product, ProductError> {
+    fn finish<A>(
+        self,
+        roots: BTreeSet<usize>,
+        acceptance: impl FnOnce(Ordered<'_>) -> A,
+    ) -> Result<Parts<A>, ProductError> {
         // Discovery order must never choose the witness. Renumber retained
         // pairs in the original Cartesian (behavior, tableau) order. Removing
         // unreachable ids preserves every reachable tie-break and edge order.
@@ -195,37 +217,12 @@ impl Builder<'_> {
             .iter()
             .map(|&old| std::mem::take(&mut original[old]))
             .collect();
-        let states = (0..self.tableau.promise_count)
-            .map(|p| {
-                ordered
-                    .iter()
-                    .map(|&old| self.tableau.nodes[self.pairs[old].1].fulfilled[p])
-                    .collect()
-            })
-            .collect();
-        let recurrent = edges.iter().map(|row| vec![true; row.len()]).collect();
-        let actions = self
-            .conditions
-            .iter()
-            .map(|condition| {
-                ordered
-                    .iter()
-                    .enumerate()
-                    .map(|(id, &old)| {
-                        let v = self.pairs[old].0;
-                        original_edges[id]
-                            .iter()
-                            .map(|&e| {
-                                condition.evaluate(|atom| match atom.kind {
-                                    AtomKind::State => self.labels.states[atom.index][v],
-                                    AtomKind::Action => self.labels.actions[atom.index][v][e],
-                                })
-                            })
-                            .collect()
-                    })
-                    .collect()
-            })
-            .collect();
+        let acceptance = acceptance(Ordered {
+            pairs: &self.pairs,
+            order: &ordered,
+            edges: &edges,
+            original_edges: &original_edges,
+        });
         let roots = roots
             .into_iter()
             .map(|old| renumber[old])
@@ -233,13 +230,9 @@ impl Builder<'_> {
             .into_iter()
             .collect();
         let graph = Graph::new(edges, roots).map_err(|e| ProductError::Shape(e.to_string()))?;
-        Ok(Product {
+        Ok(Parts {
             graph,
-            acceptance: Acceptance {
-                recurrent,
-                states,
-                actions,
-            },
+            acceptance,
             behavior_states: ordered.iter().map(|&old| self.pairs[old].0).collect(),
             original_edges,
         })
@@ -319,46 +312,55 @@ impl Product {
         conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        validate(graph, tableau, labels)?;
-        for atom in conditions.iter().flat_map(Recurrence::atoms) {
-            let count = match atom.kind {
-                AtomKind::State => labels.states.len(),
-                AtomKind::Action => labels.actions.len(),
-            };
-            if atom.index >= count {
-                return Err(ProductError::Shape(
-                    "recurrence predicate outside label table".into(),
-                ));
+        let parts = build(graph, tableau, labels, conditions, limits, |input| {
+            let states = (0..tableau.promise_count)
+                .map(|p| {
+                    input
+                        .order
+                        .iter()
+                        .map(|&old| tableau.nodes[input.pairs[old].1].fulfilled[p])
+                        .collect()
+                })
+                .collect();
+            let recurrent = input
+                .edges
+                .iter()
+                .map(|row| vec![true; row.len()])
+                .collect();
+            let actions = conditions
+                .iter()
+                .map(|condition| {
+                    input
+                        .order
+                        .iter()
+                        .enumerate()
+                        .map(|(id, &old)| {
+                            let v = input.pairs[old].0;
+                            input.original_edges[id]
+                                .iter()
+                                .map(|&e| {
+                                    condition.evaluate(|atom| match atom.kind {
+                                        AtomKind::State => labels.states[atom.index][v],
+                                        AtomKind::Action => labels.actions[atom.index][v][e],
+                                    })
+                                })
+                                .collect()
+                        })
+                        .collect()
+                })
+                .collect();
+            Acceptance {
+                recurrent,
+                states,
+                actions,
             }
-        }
-        let mut builder = Builder {
-            graph,
-            tableau,
-            labels,
-            conditions,
-            limits,
-            pairs: Vec::new(),
-            ids: BTreeMap::new(),
-            edges: Vec::new(),
-            original_edges: Vec::new(),
-            edge_count: 0,
-            steps: 0,
-        };
-        let mut roots = BTreeSet::new();
-        for &v in &graph.roots {
-            for &n in &tableau.roots {
-                builder.inspect()?;
-                if builder.fits_state(v, n) {
-                    roots.insert(builder.visit(v, n)?);
-                }
-            }
-        }
-        let mut cursor = 0;
-        while cursor < builder.pairs.len() {
-            builder.expand(cursor)?;
-            cursor += 1;
-        }
-        builder.finish(roots)
+        })?;
+        Ok(Self {
+            graph: parts.graph,
+            acceptance: parts.acceptance,
+            behavior_states: parts.behavior_states,
+            original_edges: parts.original_edges,
+        })
     }
 
     /// Finds an accepting behavior and projects its edge positions back to
@@ -375,21 +377,218 @@ impl Product {
         else {
             return Ok(None);
         };
-        let project = |steps: &[Step]| {
-            steps
-                .iter()
-                .map(|s| Step {
-                    from: self.behavior_states[s.from],
-                    edge: self.original_edges[s.from][s.edge],
-                    to: self.behavior_states[s.to],
-                })
-                .collect()
+        Ok(Some(project_lasso(
+            &lasso,
+            &self.behavior_states,
+            &self.original_edges,
+        )))
+    }
+}
+
+fn build<A>(
+    graph: &Graph,
+    tableau: &Tableau,
+    labels: &Labels,
+    conditions: &[Recurrence],
+    limits: Limits,
+    acceptance: impl FnOnce(Ordered<'_>) -> A,
+) -> Result<Parts<A>, ProductError> {
+    validate(graph, tableau, labels)?;
+    for atom in conditions.iter().flat_map(Recurrence::atoms) {
+        let count = match atom.kind {
+            AtomKind::State => labels.states.len(),
+            AtomKind::Action => labels.actions.len(),
         };
-        Ok(Some(Lasso {
-            root: self.behavior_states[lasso.root],
-            entry: self.behavior_states[lasso.entry],
-            prefix: project(&lasso.prefix),
-            cycle: project(&lasso.cycle),
+        if atom.index >= count {
+            return Err(ProductError::Shape(
+                "recurrence predicate outside label table".into(),
+            ));
+        }
+    }
+    let mut builder = Builder {
+        graph,
+        tableau,
+        labels,
+        conditions,
+        limits,
+        pairs: Vec::new(),
+        ids: BTreeMap::new(),
+        edges: Vec::new(),
+        original_edges: Vec::new(),
+        edge_count: 0,
+        steps: 0,
+    };
+    let mut roots = BTreeSet::new();
+    for &v in &graph.roots {
+        for &n in &tableau.roots {
+            builder.inspect()?;
+            if builder.fits_state(v, n) {
+                roots.insert(builder.visit(v, n)?);
+            }
+        }
+    }
+    let mut cursor = 0;
+    while cursor < builder.pairs.len() {
+        builder.expand(cursor)?;
+        cursor += 1;
+    }
+    builder.finish(roots, acceptance)
+}
+
+// Each column packs one Boolean per product vertex or flattened product edge.
+// Recurrent-edge truth is uniformly true for constructed products.
+struct CompactAcceptance {
+    states: Vec<Vec<u64>>,
+    actions: Vec<Vec<u64>>,
+    edge_offsets: Vec<usize>,
+}
+
+fn bit(words: &[u64], index: usize) -> bool {
+    words[index / 64] & (1_u64 << (index % 64)) != 0
+}
+
+fn set_bit(words: &mut [u64], index: usize, value: bool) {
+    if value {
+        words[index / 64] |= 1_u64 << (index % 64);
+    }
+}
+
+impl CompactAcceptance {
+    fn new(
+        input: &Ordered<'_>,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+    ) -> Self {
+        let states = (0..tableau.promise_count)
+            .map(|p| {
+                let mut words = vec![0; input.order.len().div_ceil(64)];
+                for (v, &old) in input.order.iter().enumerate() {
+                    set_bit(
+                        &mut words,
+                        v,
+                        tableau.nodes[input.pairs[old].1].fulfilled[p],
+                    );
+                }
+                words
+            })
+            .collect();
+        let mut edge_offsets = Vec::new();
+        let mut edges = 0;
+        if !conditions.is_empty() {
+            edge_offsets.reserve_exact(input.edges.len() + 1);
+            edge_offsets.push(0);
+            for row in input.edges {
+                // The shared builder already checked every retained-edge addition.
+                edges += row.len();
+                edge_offsets.push(edges);
+            }
+        }
+        let mut scratch = Vec::new();
+        let actions = conditions
+            .iter()
+            .map(|condition| {
+                let mut words = vec![0; edges.div_ceil(64)];
+                for (id, &old) in input.order.iter().enumerate() {
+                    let v = input.pairs[old].0;
+                    for (position, &e) in input.original_edges[id].iter().enumerate() {
+                        let truth = condition.evaluate_with_scratch(
+                            |atom| match atom.kind {
+                                AtomKind::State => labels.states[atom.index][v],
+                                AtomKind::Action => labels.actions[atom.index][v][e],
+                            },
+                            &mut scratch,
+                        );
+                        set_bit(&mut words, edge_offsets[id] + position, truth);
+                    }
+                }
+                words
+            })
+            .collect();
+        Self {
+            states,
+            actions,
+            edge_offsets,
+        }
+    }
+}
+
+/// Coordinator-only product with flat acceptance bits. All legacy construction
+/// guards run before materializing acceptance, just as for public owned products.
+pub(crate) struct CompactProduct {
+    parts: Parts<CompactAcceptance>,
+}
+
+impl CompactProduct {
+    pub(crate) fn with_recurrences(
+        graph: &Graph,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+        limits: Limits,
+    ) -> Result<Self, ProductError> {
+        let parts = build(graph, tableau, labels, conditions, limits, |input| {
+            CompactAcceptance::new(&input, tableau, labels, conditions)
+        })?;
+        Ok(Self { parts })
+    }
+
+    pub(crate) fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
+        let lasso = find_lasso_view(&self.parts.graph, self).map_err(ProductError::Search)?;
+        Ok(lasso.map(|lasso| {
+            project_lasso(
+                &lasso,
+                &self.parts.behavior_states,
+                &self.parts.original_edges,
+            )
         }))
     }
 }
+
+impl AcceptanceAccess for CompactProduct {
+    fn state_count(&self) -> usize {
+        self.parts.acceptance.states.len()
+    }
+
+    fn action_count(&self) -> usize {
+        self.parts.acceptance.actions.len()
+    }
+
+    fn recurrent(&self, _: usize, _: usize) -> bool {
+        true
+    }
+
+    fn state(&self, condition: usize, vertex: usize) -> bool {
+        bit(&self.parts.acceptance.states[condition], vertex)
+    }
+
+    fn action(&self, condition: usize, source: usize, edge: usize) -> bool {
+        let labels = &self.parts.acceptance;
+        bit(
+            &labels.actions[condition],
+            labels.edge_offsets[source] + edge,
+        )
+    }
+}
+
+fn project_lasso(lasso: &Lasso, behavior_states: &[usize], original_edges: &[Vec<usize>]) -> Lasso {
+    let project = |steps: &[Step]| {
+        steps
+            .iter()
+            .map(|s| Step {
+                from: behavior_states[s.from],
+                edge: original_edges[s.from][s.edge],
+                to: behavior_states[s.to],
+            })
+            .collect()
+    };
+    Lasso {
+        root: behavior_states[lasso.root],
+        entry: behavior_states[lasso.entry],
+        prefix: project(&lasso.prefix),
+        cycle: project(&lasso.cycle),
+    }
+}
+
+#[cfg(test)]
+mod compact_tests;
