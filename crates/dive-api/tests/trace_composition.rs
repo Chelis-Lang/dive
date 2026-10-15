@@ -245,3 +245,68 @@ fn pure_warmed_arguments_remain_decidable() {
         }
     }
 }
+
+#[test]
+fn a_pure_forward_step_cannot_authorize_a_composed_closing_edge() {
+    for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
+        let with_property = |next: &str| {
+            let src = source(next, "P == <>(x=2)");
+            let analysis =
+                dive_sema::analyze_source("Composition.tla", &src, &dive_sema::Options::default());
+            assert!(analysis.accepted());
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+                .into_config()
+                .expect("configuration");
+            let mut options = dive_model::BindOptions::tlc();
+            options.eval.action_composition = mode;
+            dive_model::bind(ir, &cfg, &options).expect("model")
+        };
+        for warm in [false, true] {
+            let m = with_property("IF x=0 THEN x'=1 ELSE ((x'=2) \\cdot (x'=0))");
+            if warm {
+                let next = m.ir.root_def("Next").expect("Next");
+                assert_eq!(
+                    m.evaluator
+                        .eval_def(
+                            next,
+                            &St::action(Arc::from([Some(1.into())]), Arc::from([Some(0.into())]))
+                        )
+                        .expect("ordinary composed closing edge"),
+                    dive_value::Value::TRUE
+                );
+            }
+            let prefix = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])
+                .expect("actual pure forward prefix");
+            assert_eq!(
+                dive_trace::validate_doc(&m, &prefix, &[]).0.validation,
+                Validation::Valid
+            );
+            let mut document = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])
+                .expect("word")
+                .with_ending(dive_trace::Ending::Lasso { back_to: 0 });
+            document.properties = vec!["P".into()];
+            assert_eq!(
+                dive_trace::validate_doc(&m, &document, &[]).0.validation,
+                Validation::Unsupported(format!(
+                    "unsupported temporal validation: {}",
+                    dive_trace::COMPOSITION_UNSUPPORTED
+                ))
+            );
+            assert_eq!(m.evaluator.take_output(), [] as [String; 0]);
+            let pure = with_property("IF x=0 THEN x'=1 ELSE x'=0");
+            assert_eq!(
+                dive_trace::validate_doc(&pure, &document, &[]).0.validation,
+                Validation::Valid
+            );
+            let mut forged = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":9})])
+                .expect("forged word")
+                .with_ending(dive_trace::Ending::Lasso { back_to: 0 });
+            forged.properties = vec!["P".into()];
+            assert!(matches!(
+                dive_trace::validate_doc(&pure, &forged, &[]).0.validation,
+                Validation::Invalid(_)
+            ));
+        }
+    }
+}

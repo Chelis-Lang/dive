@@ -1,0 +1,46 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "workers": 1,
+  "seed": 0,
+  "fp": 0,
+  "action_composition": "tlc",
+  "cases": [
+    {
+      "case": "hold",
+      "physical_exit": 0,
+      "generated": 5,
+      "distinct": 2,
+      "depth": 2,
+      "property": null,
+      "verdict": "success",
+      "stdout_sha256": "5ae659c7b0cc6d8a8325489b3e1e3823a6131e31e31a658422df8c0fb385897a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "fail",
+      "physical_exit": 13,
+      "generated": 5,
+      "distinct": 2,
+      "depth": 2,
+      "property": "Fail",
+      "verdict": "liveness-violation",
+      "stdout_sha256": "8593ee1981478e202ebcbfa7013321e5bbf01fd70e0767c25bceda1f0bc9d4cb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "word": {
+    "states": [
+      {
+        "x": false
+      },
+      {
+        "x": true
+      }
+    ],
+    "ending": "stuttering",
+    "property": "Fail",
+    "qualification": "Parsed directly from actual primary raw, not independently validated; native original-Next replay remains expected Unsupported."
+  },
+  "qualification": "Two actual primary controls; native composed Next replay remains unsupported. No original model coverage claim."
+}

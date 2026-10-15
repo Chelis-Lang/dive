@@ -2674,6 +2674,12 @@ is pending.
 
 ## D-022: Action composition works by default, with its TLA+ meaning
 
+Ordinary TLC-profile bounded final checking accepts the existing
+`--action-composition=tlc` option with otherwise default resident settings.
+It preserves intermediate generated counts. Independent replay still refuses
+reached composition, so a candidate requiring it is not published as a violation.
+See [temporal checking](user/temporal.md) for the exact option scope.
+
 | | |
 |---|---|
 | **Kind** | Different answer (only for specs that use `\cdot`) |
