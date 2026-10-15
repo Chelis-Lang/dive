@@ -4,7 +4,10 @@
 //! subformula yields a truth value at every position of the given word.
 
 use dive_eval::{ConstBinding, Scope, SlotView, St};
-use dive_ir::{Arg, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind, StdOp};
+use dive_ir::{
+    Arg, ConstId, DefId, DefScope, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind,
+    StdOp,
+};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -557,6 +560,60 @@ impl Word<'_> {
         Ok(target)
     }
 
+    // Resolve the original direct declaration independently of the planner.
+    // Return only its lazy call scope; no analysis result is execution authority.
+    fn configured_call(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        constant: ConstId,
+        args: &[Arg],
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(DefId, Scope), TemporalError> {
+        *steps = steps.saturating_add(1);
+        if depth > 256 || *steps > 100_000 || args.len() > 4096 {
+            return Err(TemporalError::Unsupported(
+                "configured temporal call bound".into(),
+            ));
+        }
+        let ev = &self.model.evaluator;
+        ev.validate_model_context(&self.model.ir, &self.model.names)
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        ev.validate_predicate(scope, expr)
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        let Some(ConstBinding::Def(def)) = ev.constant_binding(constant) else {
+            return Err(TemporalError::Unsupported(
+                "unbound/value-bound temporal atom operator".into(),
+            ));
+        };
+        let def = self.checked_definition(def)?;
+        let target = self.model.ir.def(def);
+        if target.scope != DefScope::TopLevel
+            || target.recursive
+            || target.std.is_some()
+            || ev.is_value_override(def)
+            || target.level > Level::Action
+            || target.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(TemporalError::Unsupported(
+                "configured temporal atom operator target".into(),
+            ));
+        }
+        let called = ev
+            .scope_apply(scope, def, args)
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        for arg in args {
+            let Arg::Expr { expr: actual, .. } = arg else {
+                return Err(TemporalError::Unsupported(
+                    "higher-order configured temporal argument".into(),
+                ));
+            };
+            self.check_scoped_context_mode(*actual, scope, depth + 1, steps, true)?;
+        }
+        Ok((def, called))
+    }
+
     fn scoped_call(
         &self,
         scope: &Scope,
@@ -1001,6 +1058,14 @@ impl Word<'_> {
             | Expr::StepBox { .. } => return Ok(Level::Action),
 
             Expr::Apply {
+                callee: OpRef::Const(constant),
+                args,
+            } => {
+                let (def, called) =
+                    self.configured_call(expr, scope, *constant, args, depth + 1, steps)?;
+                return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
+            }
+            Expr::Apply {
                 callee: OpRef::Param(local),
                 args,
             } => {
@@ -1216,16 +1281,27 @@ impl Word<'_> {
         self.check_scoped_context(expr, scope, 0, &mut 0)
     }
 
-    #[allow(
-        clippy::too_many_lines,
-        reason = "independent scoped purity walk and refusal paths"
-    )]
     fn check_scoped_context(
         &self,
         expr: ExprId,
         scope: &Scope,
         depth: usize,
         steps: &mut usize,
+    ) -> Result<(), TemporalError> {
+        self.check_scoped_context_mode(expr, scope, depth, steps, false)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "independent scoped walk; inspection mode never evaluates unused binder domains"
+    )]
+    fn check_scoped_context_mode(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+        inspect_only: bool,
     ) -> Result<(), TemporalError> {
         // ExprId alone is not a context: inspect each distinct application.
         let mut todo = vec![(expr, scope.clone(), depth)];
@@ -1263,17 +1339,35 @@ impl Word<'_> {
                     todo.push((*body, sc, depth + 1));
                     continue;
                 }
-                Expr::Quant { body, .. } => {
-                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
-                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
-                    continue;
-                }
-                Expr::SetMap { expr: body, .. }
+                Expr::Quant { body, .. }
+                | Expr::SetMap { expr: body, .. }
                 | Expr::SetFilter { pred: body, .. }
                 | Expr::FcnCons { body, .. } => {
-                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
-                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    if inspect_only {
+                        let sc = ev
+                            .scope_binder_analysis(&scope, e)
+                            .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                        todo.extend(meta.expr.children().into_iter().map(|child| {
+                            (
+                                child,
+                                if child == *body {
+                                    sc.clone()
+                                } else {
+                                    scope.clone()
+                                },
+                                depth + 1,
+                            )
+                        }));
+                    } else {
+                        let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
+                        todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    }
                     continue;
+                }
+                Expr::RecFcn { .. } if inspect_only => {
+                    return Err(TemporalError::Unsupported(
+                        "recursive function in configured temporal argument".into(),
+                    ));
                 }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
@@ -1288,6 +1382,21 @@ impl Word<'_> {
                     }
                 },
                 Expr::Subst { body, bindings } => {
+                    if inspect_only
+                        && bindings.iter().any(|binding| {
+                            matches!(
+                                binding.value,
+                                Arg::Expr {
+                                    pass: dive_ir::Pass::Strict,
+                                    ..
+                                }
+                            )
+                        })
+                    {
+                        return Err(TemporalError::Unsupported(
+                            "eager substitution in configured temporal argument".into(),
+                        ));
+                    }
                     substitution_is_pure(self.model, &scope, bindings)?;
                     let sc = ev
                         .scope_subst(&scope, e)
@@ -1345,7 +1454,26 @@ impl Word<'_> {
                         let d = self.checked_definition(d)?;
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
-                            let sc = self.scoped_call(&scope, d, args, depth + 1, steps)?;
+                            let sc = if inspect_only {
+                                if def.recursive
+                                    || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
+                                {
+                                    return Err(TemporalError::Unsupported(
+                                        "recursive/higher-order configured argument".into(),
+                                    ));
+                                }
+                                todo.extend(args.iter().filter_map(|arg| match arg {
+                                    Arg::Expr { expr, .. } => {
+                                        Some((*expr, scope.clone(), depth + 1))
+                                    }
+                                    Arg::Op { .. } => None,
+                                }));
+                                ev.scope_apply(&scope, d, args).map_err(|error| {
+                                    TemporalError::Unsupported(error.to_string())
+                                })?
+                            } else {
+                                self.scoped_call(&scope, d, args, depth + 1, steps)?
+                            };
                             todo.push((def.body, sc, depth + 1));
                             continue;
                         }
@@ -1356,6 +1484,11 @@ impl Word<'_> {
                         }
                     }
                     OpRef::Param(local) => {
+                        if inspect_only {
+                            return Err(TemporalError::Unsupported(
+                                "operator parameter in configured temporal argument".into(),
+                            ));
+                        }
                         if self
                             .native_parameter(&scope, local, args, depth + 1, steps)?
                             .is_some()
@@ -1367,7 +1500,13 @@ impl Word<'_> {
                         todo.push((ir.def(def).body, called, depth + 1));
                         continue;
                     }
-                    OpRef::Subst(_) | OpRef::Const(_) => {
+                    OpRef::Const(constant) => {
+                        let (def, called) =
+                            self.configured_call(e, &scope, constant, args, depth + 1, steps)?;
+                        todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
+                    OpRef::Subst(_) => {
                         return Err(TemporalError::Unsupported(
                             "dynamically bound temporal atom operator".into(),
                         ));
@@ -1375,6 +1514,11 @@ impl Word<'_> {
                     _ => None,
                 };
                 Self::check_native(standard)?;
+                if inspect_only && args.iter().any(|arg| matches!(arg, Arg::Op { .. })) {
+                    return Err(TemporalError::Unsupported(
+                        "higher-order configured temporal argument".into(),
+                    ));
+                }
                 if standard == Some(StdOp::SequencesSelectSeq) {
                     let mut work = 100_000_usize.saturating_sub(*steps);
                     let (sequence, bodies) = ev

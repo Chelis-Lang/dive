@@ -7,7 +7,8 @@
 
 use dive_eval::{ConstBinding, Ec, ErrorClass, EvalError, Scope, SlotView, St, StateRef};
 use dive_ir::{
-    Arg, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, QuantKind, StdOp,
+    Arg, ConstId, DefId, DefScope, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin,
+    QuantKind, StdOp,
 };
 use dive_model::{Model, Pred};
 use dive_value::Value;
@@ -421,6 +422,58 @@ impl Lower<'_> {
         }
     }
 
+    // A direct declaration retains its configured origin. Do not route it
+    // through captured-operator analysis, where that origin is intentionally
+    // unavailable. This projects lazy bindings only; callers inspect the body.
+    fn configured_call(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        constant: ConstId,
+        args: &[Arg],
+        depth: usize,
+    ) -> Result<(DefId, Scope), PlanningError> {
+        self.step()?;
+        if depth > 256 || args.len() > self.limits.formula_nodes {
+            return Err(PlanningError::formula(
+                self.model,
+                self.root_expr,
+                FormulaError::Limit("configured call bindings/depth"),
+            ));
+        }
+        let ev = &self.model.evaluator;
+        ev.validate_model_context(&self.model.ir, &self.model.names)
+            .map_err(|e| self.refused(expr, e.to_string()))?;
+        ev.validate_predicate(scope, expr)
+            .map_err(|e| self.refused(expr, e.to_string()))?;
+        let Some(ConstBinding::Def(def)) = ev.constant_binding(constant) else {
+            return Err(self.refused(expr, "unbound/value-bound predicate operator"));
+        };
+        let def = self.checked_definition(expr, def)?;
+        let target = self.model.ir.def(def);
+        if target.scope != DefScope::TopLevel
+            || target.recursive
+            || target.std.is_some()
+            || ev.is_value_override(def)
+            || target.level > Level::Action
+            || target.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(self.refused(expr, "configured predicate operator target"));
+        }
+        let called = ev
+            .scope_apply(scope, def, args)
+            .map_err(|e| self.refused(expr, e.to_string()))?;
+        for arg in args {
+            let Arg::Expr { expr: actual, .. } = arg else {
+                return Err(self.refused(expr, "higher-order configured predicate argument"));
+            };
+            // Inspect unused actuals too, without forcing a value or binder
+            // domain. Runtime preflight follows the actually used lazy slots.
+            self.pure_scoped_mode(*actual, scope, depth + 1, true)?;
+        }
+        Ok((def, called))
+    }
+
     fn operator_context(
         &mut self,
         expr: ExprId,
@@ -770,6 +823,14 @@ impl Lower<'_> {
             | Expr::StepBox { .. } => return Ok(Level::Action),
 
             Expr::Apply {
+                callee: OpRef::Const(constant),
+                args,
+            } => {
+                let (def, called) =
+                    self.configured_call(expr, scope, *constant, args, depth + 1)?;
+                return self.scoped_level(ir.def(def).body, &called, depth + 1);
+            }
+            Expr::Apply {
                 callee: OpRef::Param(local),
                 args,
             } => {
@@ -962,15 +1023,25 @@ impl Lower<'_> {
         self.pure_scoped(expr, scope, 0)
     }
 
-    #[allow(
-        clippy::too_many_lines,
-        reason = "scoped purity walk and explicit refusal paths"
-    )]
     fn pure_scoped(
         &mut self,
         expr: ExprId,
         scope: &Scope,
         depth: usize,
+    ) -> Result<(), PlanningError> {
+        self.pure_scoped_mode(expr, scope, depth, false)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "shared scoped purity walk; inspection mode never evaluates binder domains or actuals"
+    )]
+    fn pure_scoped_mode(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        inspect_only: bool,
     ) -> Result<(), PlanningError> {
         // The same expression may occur under distinct parameter values. Do not
         // deduplicate by expression ID: every context must be checked.
@@ -1007,17 +1078,35 @@ impl Lower<'_> {
                     todo.push((*body, sc, depth + 1));
                     continue;
                 }
-                Expr::Quant { body, .. } => {
-                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
-                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
-                    continue;
-                }
-                Expr::SetMap { expr: body, .. }
+                Expr::Quant { body, .. }
+                | Expr::SetMap { expr: body, .. }
                 | Expr::SetFilter { pred: body, .. }
                 | Expr::FcnCons { body, .. } => {
-                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
-                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    if inspect_only {
+                        let sc = ev
+                            .scope_binder_analysis(&scope, e)
+                            .map_err(|error| self.refused(e, error.to_string()))?;
+                        todo.extend(n.expr.children().into_iter().map(|child| {
+                            (
+                                child,
+                                if child == *body {
+                                    sc.clone()
+                                } else {
+                                    scope.clone()
+                                },
+                                depth + 1,
+                            )
+                        }));
+                    } else {
+                        let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
+                        todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    }
                     continue;
+                }
+                Expr::RecFcn { .. } if inspect_only => {
+                    return Err(
+                        self.refused(e, "recursive function in configured predicate argument")
+                    );
                 }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
@@ -1027,7 +1116,22 @@ impl Lower<'_> {
                     }
                     _ => return Err(self.refused(e, "opaque scoped predicate atom")),
                 },
-                Expr::Subst { body, .. } => {
+                Expr::Subst { body, bindings } => {
+                    if inspect_only
+                        && bindings.iter().any(|binding| {
+                            matches!(
+                                binding.value,
+                                Arg::Expr {
+                                    pass: dive_ir::Pass::Strict,
+                                    ..
+                                }
+                            )
+                        })
+                    {
+                        return Err(
+                            self.refused(e, "eager substitution in configured predicate argument")
+                        );
+                    }
                     let sc = ev
                         .scope_subst(&scope, e)
                         .map_err(|error| self.refused(e, error.to_string()))?;
@@ -1074,13 +1178,36 @@ impl Lower<'_> {
                         let d = self.checked_definition(e, d)?;
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
-                            let sc = self.scoped_call(e, &scope, d, args, depth + 1)?;
+                            let sc = if inspect_only {
+                                if def.recursive
+                                    || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
+                                {
+                                    return Err(self
+                                        .refused(e, "recursive/higher-order configured argument"));
+                                }
+                                todo.extend(args.iter().filter_map(|arg| match arg {
+                                    Arg::Expr { expr, .. } => {
+                                        Some((*expr, scope.clone(), depth + 1))
+                                    }
+                                    Arg::Op { .. } => None,
+                                }));
+                                ev.scope_apply(&scope, d, args)
+                                    .map_err(|error| self.refused(e, error.to_string()))?
+                            } else {
+                                self.scoped_call(e, &scope, d, args, depth + 1)?
+                            };
                             todo.push((def.body, sc, depth + 1));
                             continue;
                         }
                         def.std
                     }
                     OpRef::Param(local) => {
+                        if inspect_only {
+                            return Err(self.refused(
+                                e,
+                                "operator parameter in configured predicate argument",
+                            ));
+                        }
                         if self
                             .native_parameter(e, &scope, local, args, depth + 1)?
                             .is_some()
@@ -1092,13 +1219,22 @@ impl Lower<'_> {
                         todo.push((ir.def(def).body, called, depth + 1));
                         continue;
                     }
-                    OpRef::Const(_) | OpRef::Subst(_) => {
+                    OpRef::Const(constant) => {
+                        let (def, called) =
+                            self.configured_call(e, &scope, constant, args, depth + 1)?;
+                        todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
+                    OpRef::Subst(_) => {
                         return Err(self.refused(e, "dynamically bound predicate operator"));
                     }
                     _ => None,
                 };
                 if standard == Some(StdOp::TlcTLCGet) {
                     return Err(self.refused(e, "TLCGet requires the liveness search host"));
+                }
+                if inspect_only && args.iter().any(|arg| matches!(arg, Arg::Op { .. })) {
+                    return Err(self.refused(e, "higher-order configured predicate argument"));
                 }
                 if standard == Some(StdOp::SequencesSelectSeq) {
                     let mut work = self.limits.expansion_steps.saturating_sub(self.steps);

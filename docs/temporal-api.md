@@ -73,7 +73,13 @@ pass validation before the API returns a violation.
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
 zero-arity definitions, pure constant/state-argument operators, finite constant-domain quantifiers with explicit sets
 or intervals (including tuple bindings), direct `ENABLED`, and weak/strong fairness over supported
-pure actions. Action/temporal arguments, higher-order calls other than the [SelectSeq subset](user/temporal.md), nonconstant/unbounded quantification, dynamic scopes, effects and
+pure actions. Direct configured first-order top-level user operators retain
+lazy scoped value/action arguments inside those pure atoms; their actual bodies
+are checked independently by planning and trace replay. Configured native,
+recursive, higher-order, temporal, value-overridden, substituted and captured
+operator targets remain refused. Unused actuals are inspected for effects and
+scope without forcing their values or binder domains. Other action/temporal
+argument forwarding, higher-order calls other than the [SelectSeq subset](user/temporal.md), nonconstant/unbounded quantification, dynamic scopes, effects and
 checker-register reads remain explicit refusals. The independent validator
 needs a finite successor cover to prove some ENABLED/fairness cases; missing
 covers return a validation refusal even if analysis finds a candidate.

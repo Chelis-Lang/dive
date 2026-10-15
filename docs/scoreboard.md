@@ -15,6 +15,33 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
+### Accepted Bits baseline
+
+The current accepted Bits tree is `f5c999ff7b91689658eb6c9e55488300386d7598`,
+measured at producer `5f9e11505eda76020b9cbd03f2f4ceae6262a937` and merged unchanged
+as `bd8804e8681a1d2c60a62abd58d32ac692512c77` in
+[PR #286](https://github.com/Chelis-Lang/dive/pull/286). The four actual native
+campaigns retain the complete original 154 IDs, pins, goldens and 600-second bounds:
+
+| Date | Profile | Workers | Entries | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
+|------|---------|--------:|--------:|------:|------------:|--------------------:|-------------------------------------------:|
+| 2026-10-15 | TLC | 1 | 154 | 129 | 25 | 0 | 0 |
+| 2026-10-15 | TLC | 4 | 154 | 129 | 25 | 0 | 0 |
+| 2026-10-15 | default | 1 | 154 | 92 | 58 | 4 | 0 |
+| 2026-10-15 | default | 4 | 154 | 93 | 58 | 3 | 0 |
+
+The producer passed the full local gate: 1,871 Rust tests with no skips,
+91 doctests, 456 SANY comparisons, and CM1/validation-smoke at 1/4/8 workers.
+All three required source and post-merge main CI jobs passed, including the
+actual cargo-deny step for the changed lockfile (main run `38709617664`).
+Both native widths use the maintained one-worker-reference comparator. Historical
+actual TLC4 Hanoi counts/depth remain different and receive no exact TLC4-match
+credit. Issue #272's broader Bits gap and complete temporal parity remain open.
+The configured feature's two added Reply IDs are separate fixtures and add no
+real-model credit to these legacy totals.
+
+### Historical corrected small-tier baseline
+
 The lead updates these numbers from complete harness reports. The corrected
 small-tier baseline below uses producer
 `643b0f1351feccca56968cd8032093f53ccd2c8d`, published with an identical tree as
@@ -367,7 +394,7 @@ translation, rewriting or debug generation. Schema2 removes proof-only reporting
 current full149/native-versus-primary model checking remains unmeasured and P
 remains partial. Unlike headers do not receive exact-byte agreement credit.
 
-## Pinned local Bits native reference candidate
+## Historical pinned local Bits native reference candidate
 
 Three retained directTLC4 Hanoi runs report243distinct/907generated/depth33;
 historical native4 and the primary/golden1 report233/768/depth32, with the same
@@ -393,3 +420,11 @@ Issue #272 remains open; this source proposal is not runtime acceptance.
 
 No existing corpus totals/floors change. General Java support and full Bits/C
 parity remain incomplete. Original negative/invalid attempts remain retained.
+
+Direct configured first-order user operators in retained pure temporal atoms
+have two dedicated pinned Reply probes under
+`conformance/corpus/configured-temporal-operators`: success and a named temporal
+violation, each with 2 distinct/3 generated states and depth 2. Captured,
+substituted, recursive and native configured targets retain refusals. This
+source increment adds no measured real-corpus agreement or phase completion;
+older census rows retain their original producer identities.
