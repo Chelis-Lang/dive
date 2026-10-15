@@ -91,6 +91,8 @@ struct Search<'a> {
     state_source: bool,
     inspect_only: bool,
     configured_cover: bool,
+
+    recursive_analysis_depth: usize,
 }
 impl Search<'_> {
     fn step(&mut self, depth: usize) -> Result<(), ExistsError> {
@@ -155,6 +157,9 @@ impl Search<'_> {
                 };
                 self.scan(*expr, scope, false, &mut BTreeSet::new(), depth + 1)?;
             }
+            // Retain configured origin through helpers, lazy slots and empty binders.
+            // Inspect the target before any cover/domain evaluation can occur.
+            self.scan(target.body, &called, false, &mut BTreeSet::new(), depth + 1)?;
             Ok((def, called))
         })();
         self.inspect_only = saved;
@@ -426,6 +431,44 @@ impl Search<'_> {
                     self.scan(e, scope, prime, needed, depth + 1)?;
                 }
             }
+            Expr::RecFcn { bounds, body, .. } => {
+                if self.inspect_only {
+                    return Err(ExistsError::Unsupported(
+                        "recursive function in configured action context".into(),
+                    ));
+                }
+                if prime {
+                    return Err(ExistsError::Unsupported(
+                        "primed recursive function domain/capture".into(),
+                    ));
+                }
+                for bound in bounds {
+                    let domain = bound.domain.ok_or_else(|| {
+                        ExistsError::Unsupported("unbounded recursive domain".into())
+                    })?;
+                    self.scan_state_source(domain, scope, false, needed, depth + 1)?;
+                }
+                let analysis = self
+                    .model
+                    .evaluator
+                    .scope_binder_analysis(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.scan_recursive_source(*body, &analysis, needed, depth + 1)?;
+                if self.recursive_analysis_depth == 0 {
+                    let state = self.current_state();
+                    let function = self
+                        .model
+                        .evaluator
+                        .scope_recursive_function_bounded(
+                            scope,
+                            expr,
+                            &state,
+                            self.limits.domain_values.min(self.limits.expressions),
+                        )
+                        .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                    self.scan_recursive_function(scope, &function, needed, depth + 1)?;
+                }
+            }
             Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                 let scopes = self.finite_scopes(expr, scope, prime, depth + 1)?;
                 for sc in scopes {
@@ -471,9 +514,20 @@ impl Search<'_> {
                 self.scan(*body, &sc, prime, needed, depth + 1)?;
             }
             Expr::Local(r) => match self.model.evaluator.scope_slot(scope, *r) {
+                SlotView::Function(_) if self.inspect_only => {
+                    return Err(ExistsError::Unsupported(
+                        "recursive function in configured action context".into(),
+                    ));
+                }
                 SlotView::Value(_) => {}
                 SlotView::Lazy(body, sc) => self.scan(body, &sc, prime, needed, depth + 1)?,
                 SlotView::AnalysisBound if self.state_source || self.inspect_only => {}
+
+                SlotView::Function(function)
+                    if !prime && self.recursive_analysis_depth == 0 && !self.inspect_only =>
+                {
+                    self.scan_recursive_function_source(scope, &function, needed, depth + 1)?;
+                }
                 _ => {
                     return Err(ExistsError::Unsupported(
                         "opaque local action context".into(),
@@ -493,6 +547,69 @@ impl Search<'_> {
         }
         Ok(())
     }
+    fn scan_recursive_source(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        needed: &mut BTreeSet<VarId>,
+        depth: usize,
+    ) -> Result<(), ExistsError> {
+        let saved = self.recursive_analysis_depth;
+        self.recursive_analysis_depth += 1;
+        let result = self.scan_state_source(expr, scope, false, needed, depth);
+        self.recursive_analysis_depth = saved;
+        result
+    }
+
+    fn recursive_contexts(
+        &self,
+        scope: &Scope,
+        function: &Arc<dive_eval::LazyFcn>,
+    ) -> Result<dive_eval::RecursiveScopes, ExistsError> {
+        self.model
+            .evaluator
+            .recursive_function_body_scopes_bounded(
+                scope,
+                function,
+                &self.current_state(),
+                self.limits.domain_values.min(self.limits.expressions),
+            )
+            .map_err(|e| match e.class() {
+                dive_eval::ErrorClass::ResourceLimit => ExistsError::Limit("recursive bindings"),
+                _ => ExistsError::Unsupported(e.to_string()),
+            })
+    }
+
+    fn scan_recursive_function_source(
+        &mut self,
+        scope: &Scope,
+        function: &Arc<dive_eval::LazyFcn>,
+        needed: &mut BTreeSet<VarId>,
+        depth: usize,
+    ) -> Result<(), ExistsError> {
+        let captured = self.recursive_contexts(scope, function)?;
+        let analysis = self
+            .model
+            .evaluator
+            .scope_binder_analysis(&captured.source, captured.constructor)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+        self.scan_recursive_source(captured.body, &analysis, needed, depth + 1)
+    }
+
+    fn scan_recursive_function(
+        &mut self,
+        scope: &Scope,
+        function: &Arc<dive_eval::LazyFcn>,
+        needed: &mut BTreeSet<VarId>,
+        depth: usize,
+    ) -> Result<(), ExistsError> {
+        let captured = self.recursive_contexts(scope, function)?;
+        for binding in captured.bindings {
+            self.scan(captured.body, &binding, false, needed, depth + 1)?;
+        }
+        Ok(())
+    }
+
     fn scan_state_source(
         &mut self,
         expr: ExprId,
@@ -644,6 +761,14 @@ impl Search<'_> {
                     "primed action quantifier domain".into(),
                 ));
             }
+        }
+        if self.recursive_analysis_depth != 0 {
+            return self
+                .model
+                .evaluator
+                .scope_binder_analysis(scope, expr)
+                .map(|scope| vec![scope])
+                .map_err(|e| ExistsError::Unsupported(e.to_string()));
         }
         self.model
             .evaluator
@@ -1125,6 +1250,8 @@ fn decide(
         state_source: false,
         inspect_only: false,
         configured_cover: false,
+
+        recursive_analysis_depth: 0,
     };
     let mut needed = BTreeSet::new();
     cx.scan(action.expr, &action.scope, false, &mut needed, 0)?;

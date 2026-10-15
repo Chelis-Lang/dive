@@ -1,0 +1,393 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reason": "Primary-first finite recursive function temporal scope slice; allocator originals remain unrun",
+  "source_head": "81cb93414b5975ef7b643342e89ae119b47a86c6",
+  "primary_before_production_implementation": true,
+  "workers": 1,
+  "seed": 0,
+  "fingerprint": 0,
+  "lncheck": "final",
+  "source_and_tool_manifest_sha256": "dd6811cbf3eba6a7c5cb10d38e1a24a793af5f89eff82027c96c5fccce4151f0",
+  "observations": [
+    {
+      "label": "PermSeqsScope-0-Good",
+      "module": "PermSeqsScope",
+      "config": "PermSeqsScope-0-Good.cfg",
+      "size": 0,
+      "property": "Good",
+      "physical_exit": 0,
+      "error_codes": [],
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": null,
+      "stdout_sha256": "e72a06ca27ac66247276b2ed289cf9648335c9998634d2ac05d6994605754d54",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": null,
+      "counterexample": null
+    },
+    {
+      "label": "PermSeqsScope-0-Bad",
+      "module": "PermSeqsScope",
+      "config": "PermSeqsScope-0-Bad.cfg",
+      "size": 0,
+      "property": "Bad",
+      "physical_exit": 13,
+      "error_codes": [
+        2116,
+        2264
+      ],
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": "Bad",
+      "stdout_sha256": "a1654f946b56faf496afc1a95d634d048d86e934c32cd0846a58564b1efd6798",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": {
+        "path": "PermSeqsScope-0-Bad.trace.json",
+        "sha256": "856f707efc723547185c3358763ce3c9e2b56d129afcc7fb191d482eb4599b01"
+      },
+      "counterexample": {
+        "counterexample": {
+          "action": [
+            [
+              [
+                1,
+                {
+                  "pending": [],
+                  "done": false
+                }
+              ],
+              {
+                "name": "Schedule",
+                "location": {
+                  "beginLine": 14,
+                  "beginColumn": 13,
+                  "endLine": 17,
+                  "endColumn": 29,
+                  "module": "PermSeqsScope"
+                }
+              },
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ]
+            ],
+            [
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ],
+              {
+                "name": "Schedule",
+                "location": {
+                  "beginLine": 14,
+                  "beginColumn": 13,
+                  "endLine": 17,
+                  "endColumn": 29,
+                  "module": "PermSeqsScope"
+                }
+              },
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ]
+            ]
+          ],
+          "state": [
+            [
+              1,
+              {
+                "pending": [],
+                "done": false
+              }
+            ],
+            [
+              2,
+              {
+                "pending": [],
+                "done": true
+              }
+            ]
+          ]
+        },
+        "vars": [
+          "pending",
+          "done"
+        ]
+      }
+    },
+    {
+      "label": "PermSeqsScope-1-Good",
+      "module": "PermSeqsScope",
+      "config": "PermSeqsScope-1-Good.cfg",
+      "size": 1,
+      "property": "Good",
+      "physical_exit": 0,
+      "error_codes": [],
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": null,
+      "stdout_sha256": "93f2f7be26957feb56266f087a315bcd88f1a595ebc74e031ff3e5b72e5f0885",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": null,
+      "counterexample": null
+    },
+    {
+      "label": "PermSeqsScope-1-Bad",
+      "module": "PermSeqsScope",
+      "config": "PermSeqsScope-1-Bad.cfg",
+      "size": 1,
+      "property": "Bad",
+      "physical_exit": 13,
+      "error_codes": [
+        2116,
+        2264
+      ],
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": "Bad",
+      "stdout_sha256": "fa34bee19571accf5dd1d3155a3cc1dd4bc5e9c5bf40fc6623355a84643eae6f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": {
+        "path": "PermSeqsScope-1-Bad.trace.json",
+        "sha256": "b8c305566d0559885558acc65e986c8491b53f72278f9e6bda9856f9f9e1717c"
+      },
+      "counterexample": {
+        "counterexample": {
+          "action": [
+            [
+              [
+                1,
+                {
+                  "pending": [
+                    1
+                  ],
+                  "done": false
+                }
+              ],
+              {
+                "name": "Schedule",
+                "location": {
+                  "beginLine": 14,
+                  "beginColumn": 13,
+                  "endLine": 17,
+                  "endColumn": 29,
+                  "module": "PermSeqsScope"
+                }
+              },
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ]
+            ],
+            [
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ],
+              {
+                "name": "Schedule",
+                "location": {
+                  "beginLine": 14,
+                  "beginColumn": 13,
+                  "endLine": 17,
+                  "endColumn": 29,
+                  "module": "PermSeqsScope"
+                }
+              },
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ]
+            ]
+          ],
+          "state": [
+            [
+              1,
+              {
+                "pending": [
+                  1
+                ],
+                "done": false
+              }
+            ],
+            [
+              2,
+              {
+                "pending": [],
+                "done": true
+              }
+            ]
+          ]
+        },
+        "vars": [
+          "pending",
+          "done"
+        ]
+      }
+    },
+    {
+      "label": "PermSeqsScope-2-Good",
+      "module": "PermSeqsScope",
+      "config": "PermSeqsScope-2-Good.cfg",
+      "size": 2,
+      "property": "Good",
+      "physical_exit": 0,
+      "error_codes": [],
+      "generated": 4,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": null,
+      "stdout_sha256": "96a7e97380776195edd527e7dea7a9fb4b627d5c18040e924d744a86a1d6802b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": null,
+      "counterexample": null
+    },
+    {
+      "label": "PermSeqsScope-2-Bad",
+      "module": "PermSeqsScope",
+      "config": "PermSeqsScope-2-Bad.cfg",
+      "size": 2,
+      "property": "Bad",
+      "physical_exit": 13,
+      "error_codes": [
+        2116,
+        2264
+      ],
+      "generated": 4,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": "Bad",
+      "stdout_sha256": "a43ade32fd5dc621ada7cf08a9a31843af22ce9a056b1010a6c37972c0e21007",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": {
+        "path": "PermSeqsScope-2-Bad.trace.json",
+        "sha256": "5e39b9700d35520e45830b038a4c18393b18da6e72b88eef8179243699d8dbd5"
+      },
+      "counterexample": {
+        "counterexample": {
+          "action": [
+            [
+              [
+                1,
+                {
+                  "pending": [
+                    1,
+                    2
+                  ],
+                  "done": false
+                }
+              ],
+              {
+                "name": "Schedule",
+                "location": {
+                  "beginLine": 14,
+                  "beginColumn": 13,
+                  "endLine": 17,
+                  "endColumn": 29,
+                  "module": "PermSeqsScope"
+                }
+              },
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ]
+            ],
+            [
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ],
+              {
+                "name": "Schedule",
+                "location": {
+                  "beginLine": 14,
+                  "beginColumn": 13,
+                  "endLine": 17,
+                  "endColumn": 29,
+                  "module": "PermSeqsScope"
+                }
+              },
+              [
+                2,
+                {
+                  "pending": [],
+                  "done": true
+                }
+              ]
+            ]
+          ],
+          "state": [
+            [
+              1,
+              {
+                "pending": [
+                  1,
+                  2
+                ],
+                "done": false
+              }
+            ],
+            [
+              2,
+              {
+                "pending": [],
+                "done": true
+              }
+            ]
+          ]
+        },
+        "vars": [
+          "pending",
+          "done"
+        ]
+      }
+    },
+    {
+      "label": "DirectScope-2-Good",
+      "module": "DirectScope",
+      "config": "DirectScope.cfg",
+      "size": 2,
+      "property": "Good",
+      "physical_exit": 0,
+      "error_codes": [],
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "violated_property": null,
+      "stdout_sha256": "b0a5b16ece0e7322ca3087a1b03c721770985165066e9c81602b00b520468053",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace": null,
+      "counterexample": null
+    }
+  ]
+}

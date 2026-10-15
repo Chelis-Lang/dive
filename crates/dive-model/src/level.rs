@@ -256,7 +256,7 @@ impl<'a> LevelCx<'a> {
         match self.t.ev().scope_slot(scope, r) {
             SlotView::Lazy(expr, sc) => self.level(expr, &sc),
             SlotView::AnalysisBound => 1, // Pure unknowns are conservatively state level.
-            SlotView::Unset | SlotView::Value(_) | SlotView::Other => 0,
+            SlotView::Unset | SlotView::Value(_) | SlotView::Other | SlotView::Function(_) => 0,
         }
     }
 

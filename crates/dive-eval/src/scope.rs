@@ -23,6 +23,8 @@ use crate::Evaluator;
 use crate::env::{Dyn, Env, Ev, St, Sv, Thunk};
 use crate::error::{EvalError, Result};
 
+pub(crate) type BindingColumn = (Vec<usize>, bool, Arc<[Value]>);
+
 /// TLC's `Context` of a role (see the module documentation). Cheap to clone.
 #[derive(Clone, Debug)]
 pub struct Scope {
@@ -64,7 +66,10 @@ pub enum SlotView {
     /// A lazy argument (`LazyValue`): the expression and the scope it is
     /// evaluated in.
     Lazy(ExprId, Scope),
-    /// An operator argument or a lazy function: not an expression.
+    /// An actual recursive function. Callers must inspect its owned domains,
+    /// captured context and body; this does not establish purity or finiteness.
+    Function(Arc<crate::LazyFcn>),
+    /// An operator argument or another lazy function: not an expression.
     Other,
 }
 
@@ -929,6 +934,11 @@ impl Evaluator {
                     wrapper: scope.wrapper,
                 },
             ),
+            Some(Sv::Fcn(function))
+                if function.rec_slot.is_some() && function.excepts.is_empty() =>
+            {
+                SlotView::Function(function.clone())
+            }
             Some(_) => SlotView::Other,
         }
     }
@@ -1013,13 +1023,27 @@ impl Evaluator {
                 .ok_or_else(|| EvalError::resource_limit("quantifier domain entries"))?;
             let values = core.explore(&set)?;
             if b.tuple {
-                columns.push((b.vars.to_vec(), true, values));
+                columns.push((
+                    b.vars.iter().map(|slot| slot.index()).collect(),
+                    true,
+                    values,
+                ));
             } else {
                 for &v in &b.vars {
-                    columns.push((vec![v], false, values.clone()));
+                    columns.push((vec![v.index()], false, values.clone()));
                 }
             }
         }
+        self.bounded_body_contexts(scope, quant, &columns, limit)
+    }
+
+    pub(crate) fn bounded_body_contexts(
+        &self,
+        scope: &Scope,
+        quant: ExprId,
+        columns: &[BindingColumn],
+        limit: usize,
+    ) -> Result<Vec<Scope>> {
         let count = columns
             .iter()
             .try_fold(1_usize, |n, (_, _, ds)| n.checked_mul(ds.len()))
@@ -1029,11 +1053,11 @@ impl Evaluator {
         for i in 0..count {
             let mut scope = scope.clone();
             let mut quotient = i;
-            for (slots, tuple, values) in &columns {
+            for (slots, tuple, values) in columns {
                 let value = &values[quotient % values.len()];
                 quotient /= values.len();
-                let slots: Vec<_> = slots.iter().map(|s| s.index()).collect();
-                core.bind_one(&mut scope.env, &slots, *tuple, value, quant)?;
+                self.core
+                    .bind_one(&mut scope.env, slots, *tuple, value, quant)?;
             }
             result.push(scope);
         }
@@ -1055,11 +1079,15 @@ impl Evaluator {
         let bounds: &[dive_ir::Bound] = match self.core.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
-            | Expr::FcnCons { bounds, .. } => bounds,
+            | Expr::FcnCons { bounds, .. }
+            | Expr::RecFcn { bounds, .. } => bounds,
             Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
             _ => return Err(EvalError::bug("analysis scope requires a finite binder")),
         };
         let mut result = scope.clone();
+        if let Expr::RecFcn { name, .. } = self.core.ir.expr(expr) {
+            result.env.bind(name.index(), Sv::AnalysisBound);
+        }
         for bound in bounds {
             if bound.domain.is_none() {
                 return Err(EvalError::unsupported("unbounded analysis domain"));

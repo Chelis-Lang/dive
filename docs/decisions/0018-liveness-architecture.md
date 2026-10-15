@@ -513,3 +513,20 @@ inline capture at 1/4/8 and chaos in both profiles/stores; pinned final probes
 retain counts and independently validated short-word claims. This accepts
 neither phase-L timing nor exact TLC selection. VIEW, symmetry, randomness and
 stateful graph effects remain refused. See `docs/temporal-api.md` for the bound.
+
+## Finite local recursive-function scope extension
+
+Expose the interpreter's existing RecFcn/LazyFcn scopes instead of introducing
+a termination or purity certificate. Non-evaluating analysis binds self/formals
+to conservative state unknowns; runtime projection retains actual self, concrete
+formals, evaluated domains, lexical context, states/control and invocation budget.
+Empty domains retain source context for independent capture inspection.
+
+Finite preflight walks actual function instances under existing limits; recursive
+body inspection may avoid re-expanding that same Arc after ownership/context
+validation. Projection/domain enumeration currently repeats conservatively. The
+independent validator obtains no planner approval and retains its own temporal
+and complete-cover checks. Configured/higher-order/opaque functions and primed,
+action, temporal or effectful captures remain unsupported. Runtime recursion
+errors and all resource caps remain unchanged. Seven tiny primary cases precede
+implementation; no original allocator or corpus clearance follows.
