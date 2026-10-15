@@ -434,6 +434,16 @@ host. Native ordinary requests and excluded options retain their existing named
 refusals. See [the temporal guide](user/temporal.md#ordinary-checking-in-the-tlc-profile)
 for precise eligibility. This changes no resource bounds or periodic defaults.
 
+
+D-013 acceptance resource policy: file-based eligible ordinary/final checking
+uses compact acceptance-buffer bytes (8,000,000) and independent materialization
+work (32,000,000) in both profiles. Existing public custom-limit APIs retain
+legacy cells; additive APIs select the new policy explicitly. TLC has no fixed
+counterpart, so exhaustion is a resource refusal, never a verdict. Covered
+allocations and excluded owners are listed in [the temporal guide](temporal-api.md).
+This does not bound process memory or change vertex/edge/domain/transition limits.
+
+
 ### D-013 historical increment: ordered temporal execution
 
 The earlier staged source records this scope; the later explicit final CLI

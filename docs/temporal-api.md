@@ -89,24 +89,63 @@ width and the requested width. Explicit sequential mode retains its reason.
 Each fixed wave expands at most eight source states; fewer sources can use
 fewer concurrent units than the pool width.
 The limits bound formula entries, graph states/edges/generated work, labels and
-product construction; these are **entry/work counts**, not byte limits or a
-wall-clock deadline, and do not bound the preceding binding stage. Fingerprint mode retains the safety engine's collision
-qualifications; exact mode stores full states.
+product construction. Existing public `analyze_final*` and `check_final*` APIs
+retain their entry/work counts and custom logical `acceptance_cells` limits.
+They do not bound the preceding binding stage. Fingerprint mode retains the
+safety engine's collision qualifications; exact mode stores full states.
 
 The coordinator stores acceptance in private flat `u64` bit columns for promises
-and recurrence truth, with one shared product-edge offset vector when recurrences
-are present. Recurrent-edge truth is implicit. Recurrence truth is computed once
-from the existing atom labels during construction, using temporary Boolean scratch;
-search reads the stored bits. Public owned `Product`, `Labels`, `Acceptance` and
-lasso-search APIs retain their representations. Logical acceptance-cell limits
-still charge the same cells at the same construction points. Existing resource
-limits still apply; this is not a total-memory bound.
+and recurrence truth, with optional shared edge offsets. Recurrence truth is
+computed once from existing labels; search reads bits. Public owned `Product`,
+`Labels`, `Acceptance` and lasso-search representations remain unchanged.
+
+File-based ordinary eligible TLC requests and explicit final/short requests use
+**8,000,000 acceptance-buffer bytes** and **32,000,000 materialization work units**,
+in both semantic profiles. The byte default preserves the former nominal Boolean
+payload allowance. It replaces only the logical acceptance-cell check; vertex,
+edge and transition inspections retain their limits and ordering. JSON reports
+`acceptance_buffer_bytes`, `acceptance_materialization_work` and
+`total_memory_budget: false` under `options.temporal_bounds`.
+
+Covered allocations are outer column headers, packed words, optional edge offsets
+and maximum simultaneously live Boolean recurrence scratch. Layout arithmetic is
+checked before fallible exact reservations; actual Vec capacities are charged
+and no covered buffer subsequently grows. Allocator-provided excess capacity can
+exist transiently before refusal. Allocator metadata/rounding, runtime/stack,
+input labels/tableaux, graph capture, product construction/renumbering, search
+and witness allocations are excluded. **This is not a process-memory ceiling.**
+Materialization work counts metadata-node/column inspections, initialized
+headers/words/scratch, promise assignments, offsets, action rows, edge projections
+and bit writes, executed recurrence nodes and actually inspected child references. It does not count search work. Eager atom
+order remains unchanged. Header/scratch costs can refuse even a tiny product;
+exhaustion never means the temporal language is empty or a property holds.
+TLC has no equivalent fixed acceptance-buffer bound.
+
+Byte mode can store recurrence truth once per original behavior-source/edge
+position and condition, then project through existing product maps. Parallel edge
+positions and properties stay separate. It chooses the behavior domain only from
+checked layout and work metadata before evaluation; a product-domain fallback
+avoids expanding a sparse reachable product to a large behavior graph. It does
+not evaluate a candidate mode and retry another. Word/offset storage for the
+selected domain and all temporary Boolean scratch remain inside the same byte
+allowance. Search performs constant-time indexing without predicate recomputation.
+All state/action labels and their original admission/error checks are still
+computed before this representation choice.
+
+Rust callers opt into this policy through `temporal::check_final_with_policy`
+or `analyze::analyze_final_with_policy`, passing
+`product::AcceptancePolicy::Buffers { bytes, work }` or `compact_default()`.
+All existing public entrypoints retain legacy cells even with default-valued
+limits; no sentinel switches behavior. See [ADR 0098](decisions/0098-compact-acceptance-buffer-bounds.md)
+for default rationale and exclusions. The additive API example is compiled by
+rustdoc; the existing final/short CLI example below exercises the file default.
 
 This API uses final checking and deterministic short-lasso selection. Passing
 `CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
-It does not replace the strict TLC conformance path. Ordinary `dive check`
-retains its temporal refusal unless final/short checking is explicitly selected.
+It does not replace the strict TLC conformance path. Eligible ordinary TLC-profile
+`dive check` requests reuse this backend; the dive profile retains its ordinary
+temporal refusal unless final/short checking is explicitly selected.
 TLC's exact lasso is not reproduced in any mode (ADR 0082); `--lasso tlc` is a
 usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify`
 reproduces TLC's liveness formula refusals (errors 2213 and 2214) for a later

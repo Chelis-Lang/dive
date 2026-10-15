@@ -1,5 +1,14 @@
 # Changelog
 
+- File-based final temporal checking now bounds compact acceptance buffers by
+  8,000,000 requested bytes and independent 32,000,000 materialization work units.
+  Existing public owned/custom-limit APIs retain legacy logical cells; additive
+  policy APIs expose byte/work selection. This does not bound process memory or
+  search work, and leaves other graph/evaluator limits unchanged. Byte mode can
+  reuse original behavior-edge recurrence truth across product transitions, with
+  checked product-domain fallback and explicitly charged metadata, initialization,
+  projection/write and Boolean work; parallel edge positions remain distinct.
+
 - First-order temporal expression forwarding retains existing direct ENABLED
   queries; forwarded operator captures and query data remain refused.
 

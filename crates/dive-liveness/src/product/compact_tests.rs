@@ -5,7 +5,7 @@
     reason = "finite product assertions"
 )]
 
-use super::{CompactProduct, Labels, Limits, Product, ProductError};
+use super::{AcceptancePolicy, CompactProduct, Labels, Limits, Product, ProductError};
 use crate::Graph;
 use crate::formula::{self, Atom, AtomKind, Formula, Node, Recurrence, Tableau, TableauNode};
 use crate::search::{AcceptanceAccess, Lasso};
@@ -64,6 +64,29 @@ fn compare(
     assert_eq!(owned.as_ref().map(|_| ()), view.as_ref().map(|_| ()));
     let owned = owned?;
     let view = view?;
+    let buffered = CompactProduct::with_policy(
+        graph,
+        tableau,
+        labels,
+        conditions,
+        limits,
+        AcceptancePolicy::compact_default(),
+    )?;
+    assert_eq!(view.find_lasso(), buffered.find_lasso());
+    assert_eq!(
+        view.parts.acceptance.states,
+        buffered.parts.acceptance.states
+    );
+    for (v, row) in view.parts.graph.edges.iter().enumerate() {
+        for e in 0..row.len() {
+            for condition in 0..conditions.len() {
+                assert_eq!(
+                    view.action(condition, v, e),
+                    buffered.action(condition, v, e)
+                );
+            }
+        }
+    }
     assert_eq!(owned.graph, view.parts.graph);
     assert_eq!(owned.behavior_states, view.parts.behavior_states);
     assert_eq!(owned.original_edges, view.parts.original_edges);

@@ -1678,9 +1678,16 @@ projection as public owned products. Promise and recurrence truth are stored in
 flat `u64` columns; one offset vector preserves per-source product-edge positions.
 Recurrent-edge truth is implicit. Recurrences are evaluated once at construction
 from existing labels with temporary reusable Boolean scratch, not during search.
-No new TLC algorithm, predicate evaluation, budget policy or oracle observation
-is introduced. Owned/compact finite truth, witness and custom-limit controls
-retain the public owned implementation as a comparison route.
+This storage change ports no new TLC algorithm. Existing owned/legacy APIs keep
+those logical guards. The additive byte policy (ADR 0098) can instead retain
+recurrence truth by behavior-source/original-edge position, sharing immutable
+Boolean labels across tableau transitions. Existing product projection maps
+supply constant-time search lookup; equal-target parallel edges remain separate.
+Checked layout/work metadata selects once between behavior and product domains,
+with no speculative evaluation/retry or new predicate calls. Covered buffers and
+metadata/initialization/projection/Boolean work retain the 8 MB/32 million
+allowances. Finite truth, full-witness and legacy-limit controls retain the public
+owned implementation as a comparison route alongside independent language checks.
 
 ## Direct scalar simulation Init RandomElement
 

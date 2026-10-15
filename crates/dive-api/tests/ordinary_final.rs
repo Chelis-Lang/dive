@@ -256,3 +256,41 @@ fn ordinary_temporal_planning_errors_never_turn_into_holds() -> TestResult {
     assert!(value["counterexample"].is_null());
     Ok(())
 }
+
+#[test]
+fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
+    let spec = Spec::new(&format!("{COUNTER}P == []<>FALSE"), CONFIG)?;
+    for workers in [1, 4] {
+        for compat_tlc in [false, true] {
+            for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+                let mut request = spec.request(workers);
+                request.compat_tlc = compat_tlc;
+                request.temporal = mode;
+                let report = dive_api::check_file(&request)?;
+                if !compat_tlc && mode == TemporalMode::Ordinary {
+                    assert_eq!(report.verdict(), "unsupported");
+                    continue;
+                }
+                let json = report.to_json();
+                let bounds = &json["options"]["temporal_bounds"];
+                assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
+                assert_eq!(bounds["acceptance_materialization_work"], 32_000_000);
+                assert_eq!(bounds["total_memory_budget"], false);
+                assert!(bounds.get("acceptance_cells").is_none());
+                assert_eq!(report.verdict(), "liveness-violation");
+                let document = TraceDoc::from_json(&json["counterexample"]["trace"])?;
+                let model = SpecModel::load(
+                    &spec.0,
+                    &spec.0.with_extension("cfg"),
+                    &TraceOptions {
+                        compat_tlc,
+                        run: Some((7, 0)),
+                        ..TraceOptions::default()
+                    },
+                )?;
+                assert_eq!(model.read(&document).0.validation, Validation::Valid);
+            }
+        }
+    }
+    Ok(())
+}
