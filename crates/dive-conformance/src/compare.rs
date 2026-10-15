@@ -6,9 +6,13 @@
 //!   message);
 //! - the numeric process exit code, including an absent observed code;
 //! - the violated property, when the golden names one;
-//! - distinct, generated and queued state counts, and depth;
-//! - the counterexample's length and how it ends (finite, lasso,
-//!   stuttering).
+//! - distinct state counts and depth, and generated counts at one worker;
+//! - the finite counterexample's length and ending. Valid periodic liveness
+//!   words may choose different lassos (ADR 0086); independent replay remains
+//!   mandatory in the pipeline.
+//!
+//! Queue population is retained as raw data, not a parity criterion (ADR 0086).
+//! A final producer must still establish its own exhausted-capture consistency.
 //!
 //! The counterexample's content is never compared. Implementations other
 //! than TLC must instead report that their counterexample was validated
@@ -19,12 +23,14 @@
 //! search is only approximately breadth-first (ADR 0004). So for such runs:
 //! - counts are compared only if the oracle explored the whole state space
 //!   (`success`, `liveness-violation`);
-//! - depth, queue, counterexample and violated property are not compared.
+//! - depth, counterexample and violated property are not compared.
 //!
 //! With four workers TLC even named a different set of violated temporal
 //! properties (Examples `MCDistributedReplicatedLog`: `AllExtending and
 //! InSync` vs `InSync`). Implementations other than TLC get no leniency: they
-//! must match the single-worker golden at every worker count.
+//! must match the required observable fields of the single-worker golden at
+//! every worker count. Generated-count equality is required at one worker; the
+//! separate historical TLC self-check policy below remains unchanged.
 //!
 //! [`ComparePolicy::may_omit_property`] lets an oracle that does not name
 //! violated temporal properties (v1.7.4) omit the name without a diff.
@@ -203,38 +209,50 @@ pub fn diff_results_with(
             &golden.counts.distinct_states,
             &observed.counts.distinct_states,
         );
-        push(
-            &mut d,
-            "counts.states_generated",
-            &golden.counts.states_generated,
-            &observed.counts.states_generated,
-        );
+        // Native parity requires generated counts at one worker. Preserve the
+        // distinct TLC-oracle self-check policy rather than lending it to dive.
+        if ctx.workers == 1 || policy.oracle_leniency {
+            push(
+                &mut d,
+                "counts.states_generated",
+                &golden.counts.states_generated,
+                &observed.counts.states_generated,
+            );
+        }
     }
     if ctx.counts_comparable && !lenient {
-        push(
-            &mut d,
-            "counts.states_left_on_queue",
-            &golden.counts.states_left_on_queue,
-            &observed.counts.states_left_on_queue,
-        );
         push(
             &mut d,
             "counts.depth",
             &golden.counts.depth,
             &observed.counts.depth,
         );
-        push(
-            &mut d,
-            "trace.length",
-            &golden.trace.as_ref().map(|t| t.length),
-            &observed.trace.as_ref().map(|t| t.length),
-        );
-        push(
-            &mut d,
-            "trace.ending",
-            &ending_kind(golden),
-            &ending_kind(observed),
-        );
+        // Arbitrary periodic lasso choice is not a parity obligation. This
+        // does not waive counters, depth, class, exit or property, and the
+        // pipeline still requires every reported word to validate independently.
+        let periodic = |result: &OracleResult| {
+            result.verdict == Verdict::LivenessViolation
+                && result.trace.as_ref().is_some_and(|trace| {
+                    matches!(
+                        trace.ending,
+                        TraceEnding::Lasso { .. } | TraceEnding::Stuttering
+                    )
+                })
+        };
+        if !periodic(golden) || !periodic(observed) {
+            push(
+                &mut d,
+                "trace.length",
+                &golden.trace.as_ref().map(|t| t.length),
+                &observed.trace.as_ref().map(|t| t.length),
+            );
+            push(
+                &mut d,
+                "trace.ending",
+                &ending_kind(golden),
+                &ending_kind(observed),
+            );
+        }
     }
     d
 }
@@ -585,19 +603,15 @@ mod tests {
             diff_results_with(&a, &b, FOUR, lenient),
             Vec::<FieldDiff>::new()
         );
-        // The same run from an implementation that is not TLC: no leniency.
+        // Native width 4: distinct/depth/finite trace remain required; generated
+        // counts are a one-worker parity requirement.
         let fields: Vec<String> = diff_results(&a, &b, FOUR)
             .into_iter()
             .map(|d| d.field)
             .collect();
         assert_eq!(
             fields,
-            [
-                "counts.distinct_states",
-                "counts.states_generated",
-                "counts.depth",
-                "trace.length"
-            ]
+            ["counts.distinct_states", "counts.depth", "trace.length"]
         );
         // Complete search with 4 workers: counts compared, depth not.
         let a = result(Verdict::Success, 4, 5, 4, None);
@@ -653,18 +667,19 @@ mod tests {
     }
 
     #[test]
-    fn ending_and_queue_are_compared() {
+    fn finite_ending_is_compared_and_queue_population_is_not() {
         let a = result(Verdict::LivenessViolation, 3, 4, 3, Some(3));
         let mut b = a.clone();
+        b.counts.states_left_on_queue = Some(1);
+        assert_eq!(diff_results(&a, &b, ONE), Vec::<FieldDiff>::new());
         if let Some(t) = b.trace.as_mut() {
             t.ending = TraceEnding::Stuttering;
         }
-        b.counts.states_left_on_queue = Some(1);
         let fields: Vec<String> = diff_results(&a, &b, ONE)
             .into_iter()
             .map(|d| d.field)
             .collect();
-        assert_eq!(fields, ["counts.states_left_on_queue", "trace.ending"]);
+        assert_eq!(fields, ["trace.ending"]);
     }
 
     #[test]

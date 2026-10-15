@@ -7,7 +7,8 @@
 //! with its own report ([`AnalyzeReport::to_json`]); safety model checking
 //! ([`check_file`], [`CheckReport`]); and trace validation against a
 //! specification ([`trace`], ADR 0016); and bounded final temporal checking
-//! for Rust callers ([`temporal`]); and finite seeded safety simulation
+//! for Rust callers ([`temporal`]) and eligible ordinary TLC-profile checks;
+//! and finite seeded safety simulation
 //! ([`simulate_file`]). Everything else in the
 //! charter is still to come. Permitted internal dependencies are listed in
 //! `xtask/src/layering.rs`.

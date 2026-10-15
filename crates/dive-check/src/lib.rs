@@ -366,19 +366,23 @@ pub(crate) fn run_check_with_checkpoint(
             ir,
         );
     }
-    let notes = Vec::new();
     let bound = bind_for_run(ir, cfg, opts, checkpoint.as_ref().and_then(|s| s.names()));
     let (m, host) = match bound {
         Ok(bound) => bound,
-        Err(f) => {
-            let mut r = bare(model_error(&f.error), opts, ir);
-            r.binding_model_error = matches!(r.verdict, Verdict::ModelError { .. });
-            messages(&f.output, &mut r);
-            r.notes = notes;
-            return r;
-        }
+        Err(f) => return binding_failure(ir, opts, &f),
     };
     finish_bound_check(ir, cfg, opts, m, host, checkpoint)
+}
+
+fn binding_failure(
+    ir: &Arc<Ir>,
+    opts: &CheckOptions,
+    failure: &dive_model::Failure,
+) -> CheckResult {
+    let mut result = bare(model_error(&failure.error), opts, ir);
+    result.binding_model_error = matches!(result.verdict, Verdict::ModelError { .. });
+    messages(&failure.output, &mut result);
+    result
 }
 
 fn bind_for_run(

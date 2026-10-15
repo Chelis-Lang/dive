@@ -1,5 +1,16 @@
 # Changelog
 
+- Eligible ordinary TLC-profile checking now reuses bounded final temporal
+  analysis with deterministic short, independently validated periodic words.
+  Configured safety roles preserve their single startup binding and schema-1
+  results; actual temporal reports use schema 2 with complete capture counters.
+  The ordinary conformance adapter checks physical status and coherent metadata
+  and independently validates words. Distinct counts, depth, property and error class stay
+  strict; generated counts are required at one worker; valid periodic lasso choice and queue population may differ. Raw queue
+  data and final-capture exhaustion consistency are retained. Native ordinary temporal
+  checking, excluded options, unsupported features and resource limits retain
+  explicit refusals; periodic scheduling and full TLC parity remain incomplete.
+
 - Added checking-only `dive tlc`, installed `tlc`, and argv[0] `tlc` entrypoints
   with TLC evaluation, one worker by default, module/configuration basenames,
   common checking flags and independent validation before emitting a word.

@@ -1,6 +1,7 @@
 # Temporal checking
 
-The exposed checker is an explicit bounded final/short mode:
+The checker exposes bounded final/short analysis. Eligible ordinary TLC-profile
+requests select it automatically; explicit selection is also available:
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --lncheck final --lasso short --seed 7 --output json
@@ -13,9 +14,53 @@ condition in this model requiring the increment action to occur.
 This mode explores the supported graph, checks once at the end, chooses a
 deterministic short periodic witness and independently replays it in memory and
 as a lossless document. It checks the complete configured property claims,
-including the closing edge. The flags are explicit because this is not TLC's
-periodic schedule, exact selected lasso or all evaluation-error timing.
-A TLC value profile plus these flags is reported as `tlc+overrides`.
+including the closing edge. This does not implement periodic
+scheduling or all evaluation-error timing. Explicit requests retain their
+existing `tlc+overrides` label when combined with TLC value semantics.
+
+## Ordinary checking in the TLC profile
+
+```sh
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --compat=tlc --fp 0 --seed 7 --output json
+```
+
+This ordinary request uses the same bounded pure final analyzer and independent
+word validation. No lasso-policy flag is needed. It finishes graph exploration
+before checking temporal properties and chooses a deterministic short valid word;
+TLC's particular SCC, lasso, timing and queue order are not reproduced.
+The report records the actual `lncheck: final`, `lasso: short` and temporal
+bounds, with profile `tlc`. This is partial temporal support, not general TLC
+parity or an implementation of periodic checking.
+
+The route requires profile-default evaluation and fingerprint settings,
+fingerprint polynomial 0, resident fingerprint storage, and no storage
+budget/directory, deadlock, sequential or chaos overrides. Use `--fp 0`
+explicitly: the TLC profile otherwise selects a random polynomial. Seed and
+worker requests are retained. Checkpoint/recovery uses its existing separate
+safety path. Randomness combined with VIEW or SYMMETRY, excluded options and
+ordinary requests in the dive profile retain their existing routes and named
+refusals. Real unsupported language features and resource limits remain explicit;
+a refusal, bound or external timeout is never a holding result.
+
+Binding happens once under the ordinary startup host. If the configured roles
+are all safety obligations, their complete ordinary result stays on schema 1,
+including startup Print output, randomness and error ordering. Genuine temporal
+analysis uses schema 2. A completed holding result or violation reports actual
+generated/distinct/queue/depth counters and `execution.exhausted: true`, even
+though the legacy `reported_by_tlc` print marker is false. A violation names its
+property and carries a lossless periodic word independently replayed against a
+fresh model. TLC exit conventions give success 0, temporal violation 13,
+named unsupported/resource refusal 3, and classified evaluation errors their
+reported TLC status; inspect the verdict and execution stage as well as the exit.
+
+The ordinary conformance adapter retains those actual complete counters and
+requires coherent schema, class, physical status and word metadata. It still
+replays the word independently: a producer's `validation: valid` field is not
+proof. Periodic liveness words may differ in length or closing target while
+Distinct counts, depth, property, error class and physical exit remain
+strict; generated-count equality is required at one worker. Queue population is retained as raw data and as an internal final
+exhaustion consistency check, rather than compared with TLC's queue population. Finite
+counterexample checks retain their existing comparison rules.
 
 When the configuration has no `PROPERTY` entries, these flags leave ordinary
 safety checking in charge: invariants, initialization/successor errors,
@@ -31,9 +76,7 @@ storage, no storage budget/directory options, deadlock or sequential override, o
 chaos flag. Seed and worker requests are retained. Other options and randomness
 under VIEW or SYMMETRY keep the existing final-mode route and error priority.
 Real temporal property roles still require temporal analysis and independent
-periodic-word validation. This extension is experimental pending current-source
-qualification and independent review; no corpus agreement is credited here.
-A state-only `PROPERTY P` is checked in the initial state by the ordinary engine;
+periodic-word validation. A state-only `PROPERTY P` is checked in the initial state by the ordinary engine;
 `[]P` becomes an invariant. An evaluation resource limit in those safety roles
 stays a resource limit, including recursive calls. A genuinely temporal formula
 such as `[]<>P` still goes through temporal planning and retains its named
@@ -84,7 +127,8 @@ capability checks on manually prebound API scopes remain strict and can refuse
 such a stored input before any loop executes. These checks enforce capability and work limits, not
 predicate truth or a temporal verdict. Both value profiles use this same subset.
 
-Schema 2 distinguishes opt-in temporal checking from ordinary safety schema 1.
+Schema 2 reports explicit final requests and actual ordinary temporal analysis;
+ordinary safety results retain schema 1.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
