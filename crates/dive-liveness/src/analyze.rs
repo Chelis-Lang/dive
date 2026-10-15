@@ -13,7 +13,7 @@ use dive_model::Model;
 use crate::Graph;
 use crate::formula::{self, AtomKind, Recurrence, Tableau};
 use crate::plan::{self, Plan, PlanningError};
-use crate::product::{self, CompactProduct, Labels};
+use crate::product::{self, AcceptancePolicy, CompactProduct, Labels};
 
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
@@ -361,7 +361,7 @@ fn labels(
     limit: usize,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     action_error: &mut Option<Box<ActionEvaluation>>,
-) -> Result<Labels, AnalysisError> {
+) -> Result<(Labels, usize), AnalysisError> {
     let edges = graph
         .edges
         .iter()
@@ -431,7 +431,7 @@ fn labels(
         states.push(state_row);
         actions.push(action_rows);
     }
-    Ok(Labels { states, actions })
+    Ok((Labels { states, actions }, edges))
 }
 
 fn attribute(
@@ -539,6 +539,23 @@ pub fn analyze_final_with_action_errors(
     opts: &CheckOptions,
     limits: Limits,
 ) -> Result<Analysis, DetailedFailure> {
+    analyze_final_with_policy(model, opts, limits, AcceptancePolicy::Legacy)
+}
+
+/// Like [`analyze_final_with_action_errors`], with an explicit compact
+/// acceptance admission policy. All other supplied limit fields keep their
+/// units. [`AcceptancePolicy::Buffers`] replaces only `acceptance_cells` and
+/// adds an independent acceptance materialization work bound.
+///
+/// # Errors
+/// The same failures as [`analyze_final_with_action_errors`], plus named covered
+/// buffer-byte, allocation and materialization-work refusals in buffer mode.
+pub fn analyze_final_with_policy(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+) -> Result<Analysis, DetailedFailure> {
     let mut stage = Stage::Planning;
     let mut exploration = None;
     let mut action = None;
@@ -546,6 +563,7 @@ pub fn analyze_final_with_action_errors(
         model,
         opts,
         limits,
+        policy,
         &mut stage,
         &mut exploration,
         &mut action,
@@ -564,6 +582,7 @@ fn analyze_observed(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
+    policy: AcceptancePolicy,
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
@@ -603,10 +622,18 @@ fn analyze_observed(
             capture::Exploration::Complete(c) => *c,
             capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
         };
-    let word = analyze_captured(model, &plans, &captured, limits, stage, action_error)
-        .inspect_err(|_| {
-            *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
-        })?;
+    let word = analyze_captured(
+        model,
+        &plans,
+        &captured,
+        limits,
+        policy,
+        stage,
+        action_error,
+    )
+    .inspect_err(|_| {
+        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
+    })?;
     Ok(match word {
         Some(word) => Analysis::Candidate(Candidate {
             target_property: word.target_property,
@@ -633,6 +660,7 @@ fn analyze_captured(
     plans: &[(Plan, Tableau, Vec<Recurrence>)],
     captured: &capture::Complete,
     limits: Limits,
+    policy: AcceptancePolicy,
     stage: &mut Stage,
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
@@ -655,7 +683,7 @@ fn analyze_captured(
         } else {
             (std::collections::BTreeSet::new(), None)
         };
-        let labels = labels(
+        let (labels, behavior_edges) = labels(
             model,
             plan,
             &captured.graph,
@@ -665,9 +693,16 @@ fn analyze_captured(
             action_error,
         )?;
         *stage = Stage::Product;
-        let product =
-            CompactProduct::with_recurrences(&graph, tableau, &labels, conditions, limits.product)
-                .map_err(AnalysisError::Product)?;
+        let product = CompactProduct::with_policy_and_edges(
+            &graph,
+            tableau,
+            &labels,
+            conditions,
+            limits.product,
+            policy,
+            behavior_edges,
+        )
+        .map_err(AnalysisError::Product)?;
         if let Some(lasso) = product.find_lasso().map_err(AnalysisError::Product)? {
             let steps = lasso.prefix.iter().chain(&lasso.cycle);
             let states: Vec<StateVals> = steps

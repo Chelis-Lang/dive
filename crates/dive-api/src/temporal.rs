@@ -15,6 +15,7 @@ use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, Limits};
+use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
 use dive_trace::{Ending, Report as ValidationReport, Trace, TraceDoc, Validation};
 
@@ -305,6 +306,7 @@ fn run(
     config: &ModelConfig,
     options: &CheckOptions,
     limits: Limits,
+    policy: AcceptancePolicy,
 ) -> Result<Outcome, Failure> {
     let model = match dive_check::final_roles::dispatch(ir, config, options) {
         Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
@@ -316,7 +318,7 @@ fn run(
             bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?
         }
     };
-    run_bound(ir, config, options, limits, &model)
+    run_bound(ir, config, options, limits, &model, policy)
 }
 
 fn run_bound(
@@ -325,8 +327,9 @@ fn run_bound(
     options: &CheckOptions,
     limits: Limits,
     model: &Model,
+    policy: AcceptancePolicy,
 ) -> Result<Outcome, Failure> {
-    match dive_liveness::analyze::analyze_final_with_action_errors(model, options, limits) {
+    match dive_liveness::analyze::analyze_final_with_policy(model, options, limits, policy) {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
             // Rebind separately: validation cannot inspect the checker's graph
@@ -431,9 +434,14 @@ pub(crate) fn check_ordinary_final(
                         dive_check::final_roles::Dispatch::Safety(result) => {
                             Ok(Outcome::Safety(result))
                         }
-                        dive_check::final_roles::Dispatch::Temporal(model) => {
-                            run_bound(ir, config, options, Limits::default(), &model)
-                        }
+                        dive_check::final_roles::Dispatch::Temporal(model) => run_bound(
+                            ir,
+                            config,
+                            options,
+                            Limits::default(),
+                            &model,
+                            AcceptancePolicy::compact_default(),
+                        ),
                     }
                 })
             })
@@ -526,6 +534,33 @@ pub fn check_final_with_evidence(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Report, Failure> {
+    check_final_with_policy(ir, config, options, limits, AcceptancePolicy::Legacy)
+}
+
+/// Like [`check_final_with_evidence`], explicitly selecting compact acceptance
+/// byte/work admission. Existing `check_final*` entrypoints retain legacy logical
+/// cells, including caller-supplied custom limits. Buffer mode bounds only the
+/// named acceptance owners; it is not a process-memory or search-work limit.
+///
+/// ```no_run
+/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
+/// use dive_liveness::{analyze::Limits, product::AcceptancePolicy};
+/// let _report = dive_api::temporal::check_final_with_policy(
+///     ir, cfg, &dive_check::CheckOptions::tlc(7, 0), Limits::default(),
+///     AcceptancePolicy::compact_default());
+/// # }
+/// ```
+///
+/// # Errors
+/// The same failures as [`check_final_with_evidence`], plus named buffer byte,
+/// allocation and materialization-work refusals for the selected policy.
+pub fn check_final_with_policy(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+) -> Result<Report, Failure> {
     let started = Instant::now();
     if config.properties.is_empty() {
         // No temporal claim was requested. Enter the ordinary checker before
@@ -539,7 +574,7 @@ pub fn check_final_with_evidence(
     let outcome = std::thread::scope(|s| {
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(s, || run(ir, config, options, limits))
+            .spawn_scoped(s, || run(ir, config, options, limits, policy))
             .map_err(|e| Failure::before(Error::Thread(e.to_string()), Stage::Unknown))?
             .join()
             .map_err(|_| {
