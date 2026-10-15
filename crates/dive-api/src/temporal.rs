@@ -182,6 +182,7 @@ pub struct Failure {
     stage: Stage,
     exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
     elapsed: Duration,
+    action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
 }
 impl Failure {
     fn before(error: Error, stage: Stage) -> Self {
@@ -190,6 +191,7 @@ impl Failure {
             stage,
             exploration: None,
             elapsed: Duration::ZERO,
+            action_evaluation: None,
         }
     }
     fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
@@ -198,7 +200,14 @@ impl Failure {
             stage,
             exploration: Some(Box::new(capture.into())),
             elapsed: Duration::ZERO,
+            action_evaluation: None,
         }
+    }
+    /// The actual typed active action-label error, when one occurred.
+    /// This does not claim TLC's error ordering across multiple properties.
+    #[must_use]
+    pub fn action_evaluation(&self) -> Option<&dive_liveness::analyze::ActionEvaluation> {
+        self.action_evaluation.as_deref()
     }
     /// Original diagnostic, preserving its code and classification.
     #[must_use]
@@ -317,7 +326,7 @@ fn run_bound(
     limits: Limits,
     model: &Model,
 ) -> Result<Outcome, Failure> {
-    match dive_liveness::analyze::analyze_final_with_evidence(model, options, limits) {
+    match dive_liveness::analyze::analyze_final_with_action_errors(model, options, limits) {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
             // Rebind separately: validation cannot inspect the checker's graph
@@ -349,6 +358,7 @@ fn run_bound(
                     stage: Stage::Validation,
                     exploration,
                     elapsed: Duration::ZERO,
+                    action_evaluation: None,
                 });
             }
             let document = trace.to_doc(&validation_model).map_err(|error| {
@@ -374,6 +384,7 @@ fn run_bound(
                     stage: Stage::Validation,
                     exploration,
                     elapsed: Duration::ZERO,
+                    action_evaluation: None,
                 });
             }
             Ok(Outcome::Violation(Box::new(ValidatedCounterexample {
@@ -382,16 +393,20 @@ fn run_bound(
                 validation: report,
             })))
         }
-        Err(dive_liveness::analyze::Failure {
-            error: AnalysisError::Exploration(result),
-            ..
-        }) => Ok(Outcome::Safety(result)),
-        Err(failure) => Err(Failure {
-            error: Error::Analysis(failure.error),
-            stage: Stage::Analysis(failure.stage),
-            exploration: failure.exploration,
-            elapsed: Duration::ZERO,
-        }),
+        Err(detailed) => {
+            let (failure, action_evaluation) = detailed.into_parts();
+            if let AnalysisError::Exploration(result) = failure.error {
+                Ok(Outcome::Safety(result))
+            } else {
+                Err(Failure {
+                    error: Error::Analysis(failure.error),
+                    stage: Stage::Analysis(failure.stage),
+                    exploration: failure.exploration,
+                    elapsed: Duration::ZERO,
+                    action_evaluation,
+                })
+            }
+        }
     }
 }
 
