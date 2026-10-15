@@ -13,10 +13,11 @@ Use `--compat=tlc` for the implemented Java/TLC selection stream and `--aril N`
 for its supported seed adjustment. Record the seed and the complete options.
 The current mode supports one actual worker and finite safety models, including
 runtime `Print` and `PrintT` through captured operators. Their normal arguments,
-rendering and return values are evaluated. Reached random draws, registers and
-other unsupported host effects still refuse; untaken branches do not run them.
+rendering and return values are evaluated. One direct scalar Init
+`RandomElement` draw is supported as described below. Other reached random draws,
+registers and unsupported host effects refuse; untaken branches do not run them.
 VIEW, symmetry, temporal checking and unproved sampling interactions refuse. Returned violations require independent trace validation;
-unknown replay alignment remains pending/refused rather than certified.
+unknown replay alignment returns `unsupported`.
 
 Use `--stats basic --output json` to collect action flows, corresponding to TLC's
 `-simulate num=N,stats=basic`. The default is `--stats none`. Rust callers set
@@ -29,7 +30,7 @@ bound to a value retains its invocation name and source location, so two
 unused references to `Disabled == FALSE` form two groups. A definition override
 `Op <- Replacement` retains its target predicate instead. Configured operators
 are checked when actually evaluated, including Print/PrintT loggers. Reached
-random/register/I/O and other unsupported effects still refuse; an unexecuted
+random outside the supported Init call, register/I/O and other unsupported effects refuse; an unexecuted
 branch is not refused solely for its effect annotation.
 
 Counts record consecutive **chosen** actions: the first edge starts at the Init
@@ -41,7 +42,7 @@ accompany generated candidates or a valid violation. These are sample action
 statistics, not state-space or expression coverage. Collecting them does not
 change the seed, RNG draws, trace selection, property checks or validation.
 Full context statistics, probabilistic generation, alternative schedulers,
-additional workers, DFID completion and general coverage remain pending.
+additional workers, DFID completion and general coverage remain unsupported.
 
 ```sh
 dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --stats basic --output json
@@ -66,14 +67,13 @@ UTF-8 text by default. `dive_sim::Options` exposes `max_output_events` and
 `max_output_bytes`. Crossing either limit returns `resource-limit` with retained
 output and actual completed-prefix work, never `sampled`. The limits cover
 retained Print text/events, not temporary rendering allocations, existing warning
-records or total process memory. RandomElement execution, generation, alternative
+records or total process memory. General random execution, generation, alternative
 schedulers and further M/#239 work remain unfinished.
 
-The Print candidate preserves both `--stats none` and `--stats basic`; source
-controls compare output, seed/choices, outcomes and independently validated
-words with statistics toggled. Qualification on the latest main, the full gate,
-fresh review and publication remain pending. Historical Print oracle/scoped
-measurements retain their actual source revisions and do not certify this cut.
+Print preserves both `--stats none` and `--stats basic`; source controls compare
+output, seed/choices, outcomes and independently validated words with statistics
+toggled. Historical Print oracle/scoped measurements retain their actual source
+revisions.
 
 
 ## Shared evaluator simulation ownership
@@ -90,4 +90,43 @@ The run lease is operational ownership of the actual shared core. It releases
 after the original host is restored, including error, limit and unsupported
 returns. It introduces no TLS, callback admission or cache authority. The earlier
 external overlap diagnostic and each scoped qualification retain their original
-source bindings. Fresh review, latest-parent transfer and full gates remain pending.
+source bindings.
+
+## Direct scalar initial random choice
+
+A single-variable Init predicate `x = RandomElement(S)` can select from a nonempty
+finite interval or stored scalar set. The domain evaluates normally, including
+Print/PrintT and their errors. In TLC mode the draw uses the startup Java stream
+from `--seed`; worker selection still uses its separate seed/aril stream. Aril
+therefore changes later choices without changing the initial draw. The default
+profile uses its existing startup and per-trace streams. No new option is needed.
+
+```sh
+dive simulate crates/dive-sim/tests/fixtures/random-init/InitRandomInterval.tla --compat=tlc --traces 2 --depth 3 --seed 0 --output json
+```
+
+The initial choice is made once before the requested traces. An invalid or empty
+domain retains the original evaluation error. An initial invariant violation
+still requires independent validation. That validator checks membership in the
+Init relation; it does not certify that a word was drawn from the reported seed.
+
+The runtime host permits only one actual native invocation during Init and
+refuses reached Next/property draws. The file/API boundary independently validates
+the sampled words and refuses wrapped, captured, configured or correlated Init
+relations it cannot decide. Low-level `dive_sim::simulate` returns raw candidates;
+`Outcome::Sampled` can include a one-call captured Init expression with a deferred
+domain. An untaken random branch does not consume the allowance. Output reached
+before a refusal or error remains in `runtime_output`; validation output stays
+discarded.
+
+The file API refuses random startup definitions as before. Low-level
+`dive_sim::simulate` callers must supply a model with no prior startup random
+draws and no installed host for this Init subset. A retained caller host causes
+a reached Init-random refusal because its consumed startup stream cannot be
+continued. Ordinary Print remains supported with caller hosts, and every return
+restores the host before releasing simulation ownership. Removing a caller host
+does not reset model history or establish startup-stream continuity.
+
+Eleven tiny pinned primary observations cover seeds, aril, domains, output and
+errors; the reached Next-random observation remains a native refusal. These
+controls add no corpus agreement. Broader simulation support (M/#239) remains open.

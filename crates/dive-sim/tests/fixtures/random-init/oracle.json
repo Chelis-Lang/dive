@@ -1,0 +1,378 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "workers": 1,
+  "reason": "Initial primary controls for approved direct scalar Init RandomElement simulation subset; issue239 remains partial",
+  "primary_before_production_implementation": true,
+  "source_head": "81cb93414b5975ef7b643342e89ae119b47a86c6",
+  "primary_probes": [
+    {
+      "model": "InitRandomInterval",
+      "seed": 0,
+      "aril": 0,
+      "traces": [
+        [
+          730968,
+          730969,
+          0,
+          1
+        ],
+        [
+          730968,
+          730969,
+          730970,
+          730971
+        ]
+      ],
+      "depth": 3,
+      "native_scope": "supported",
+      "label": "00-InitRandomInterval-s0-a0",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 9,
+      "printed_states": [],
+      "printed": [],
+      "violated_property": null,
+      "stdout_sha256": "ad38400fa6073c7ceaeadf72b3ca271af47ffbc9ed1967131f927c0cf47291e4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "00-InitRandomInterval-s0-a0.trace0.tla",
+          "sha256": "412706fb43f91ce1f5c6df78a78ca519373e915c50ac48825dec62e2b9cb12e2"
+        },
+        {
+          "path": "00-InitRandomInterval-s0-a0.trace1.tla",
+          "sha256": "6f65bfe8a10ef50c69aa36e6813a512d6376e2b1c3e63c21e63d5364f563a4fd"
+        }
+      ],
+      "requested_traces": 2
+    },
+    {
+      "model": "InitRandomInterval",
+      "seed": 0,
+      "aril": 3,
+      "traces": [
+        [
+          730968,
+          730969,
+          730970,
+          730971
+        ],
+        [
+          730968,
+          730969,
+          730970,
+          0
+        ]
+      ],
+      "depth": 3,
+      "native_scope": "supported",
+      "label": "01-InitRandomInterval-s0-a3",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 9,
+      "printed_states": [],
+      "printed": [],
+      "violated_property": null,
+      "stdout_sha256": "effe8afa371348cac03ef8b478085aa4c852a2b311facf511bd79a99e6c3339d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "01-InitRandomInterval-s0-a3.trace0.tla",
+          "sha256": "4d254d508146a7ccd920056b2d16ed476fdbf67c465143c274f47133903cddb5"
+        },
+        {
+          "path": "01-InitRandomInterval-s0-a3.trace1.tla",
+          "sha256": "e8d22bb8ca2b948ed235a9e89e9458202a148e8751c3abf8c2cb2c05f200aba9"
+        }
+      ],
+      "requested_traces": 2
+    },
+    {
+      "model": "InitRandomInterval",
+      "seed": -1,
+      "aril": 0,
+      "traces": [
+        [
+          268943,
+          0,
+          1,
+          2
+        ],
+        [
+          268943,
+          268944,
+          2,
+          3
+        ]
+      ],
+      "depth": 3,
+      "native_scope": "supported",
+      "label": "02-InitRandomInterval-s-1-a0",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 11,
+      "printed_states": [],
+      "printed": [],
+      "violated_property": null,
+      "stdout_sha256": "35e7747543b746444118ec23c487ba5fe2f7310f154bd61b983c94326b7b7a65",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "02-InitRandomInterval-s-1-a0.trace0.tla",
+          "sha256": "84365ce85d15d5047da6746d35bb267e5a1099ccb1ab58414aa810f5d237a2db"
+        },
+        {
+          "path": "02-InitRandomInterval-s-1-a0.trace1.tla",
+          "sha256": "a2a95854a7254f1f8025f10c8e321561d971932d6fe4ccbfc314a2ad79598cc8"
+        }
+      ],
+      "requested_traces": 2
+    },
+    {
+      "model": "InitRandomInterval",
+      "seed": -1,
+      "aril": 3,
+      "traces": [
+        [
+          268943,
+          268944,
+          268945,
+          268946
+        ],
+        [
+          268943,
+          0,
+          1
+        ]
+      ],
+      "depth": 3,
+      "native_scope": "supported",
+      "label": "03-InitRandomInterval-s-1-a3",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 11,
+      "printed_states": [],
+      "printed": [],
+      "violated_property": null,
+      "stdout_sha256": "7c858e247715b73011babbf764bc39bcfb2addf7bee086876e1a3fec5c9dcc00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "03-InitRandomInterval-s-1-a3.trace0.tla",
+          "sha256": "abd9b280d38da51066774cc1571ebec1571ffb4e881c84904e54b2ef5e2090a0"
+        },
+        {
+          "path": "03-InitRandomInterval-s-1-a3.trace1.tla",
+          "sha256": "33a46f8acf9807be68333a4cb77183bcd820c1fd7e0b0d24933515a45a1cc964"
+        }
+      ],
+      "requested_traces": 2
+    },
+    {
+      "model": "InitRandomStoredPrint",
+      "seed": 0,
+      "aril": 0,
+      "traces": [
+        [
+          7,
+          1,
+          0,
+          1
+        ],
+        [
+          7,
+          1
+        ]
+      ],
+      "depth": 3,
+      "native_scope": "supported",
+      "label": "04-InitRandomStoredPrint-s0-a0",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 7,
+      "printed_states": [],
+      "printed": [
+        "\"init-domain\""
+      ],
+      "violated_property": null,
+      "stdout_sha256": "09363f935ad588f48e2c5c3146d10445ab283f2f556eed37f7401d5200577cb0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "04-InitRandomStoredPrint-s0-a0.trace0.tla",
+          "sha256": "0d2754b39142cad07ad709ff49daddcb2b61bebb42ee4cc398d6644dbf4fe130"
+        },
+        {
+          "path": "04-InitRandomStoredPrint-s0-a0.trace1.tla",
+          "sha256": "bc49a90f2e608e533b51154b76bcb3f60a5e7c979c1adfe5a0b6281d938804cb"
+        }
+      ],
+      "requested_traces": 2
+    },
+    {
+      "model": "InitRandomViolation",
+      "seed": 0,
+      "aril": 0,
+      "traces": [],
+      "depth": 2,
+      "native_scope": "supported",
+      "label": "05-InitRandomViolation-s0-a0",
+      "physical_exit": 12,
+      "codes": [
+        2107
+      ],
+      "generated": null,
+      "printed_states": [
+        730968
+      ],
+      "printed": [],
+      "violated_property": "Safe",
+      "stdout_sha256": "2eb3db0083e6b0192004e262c7431f09f8c5f6f0a195531a094e3089c60cfa0b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [],
+      "requested_traces": 1
+    },
+    {
+      "model": "InitRandomStoredPrint",
+      "seed": -1,
+      "aril": 0,
+      "traces": [
+        [
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          1,
+          0,
+          1
+        ]
+      ],
+      "depth": 3,
+      "native_scope": "supported",
+      "label": "06-InitRandomStoredPrint-s-1-a0",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 7,
+      "printed_states": [],
+      "printed": [
+        "\"init-domain\""
+      ],
+      "violated_property": null,
+      "stdout_sha256": "f0b190881a90f6e48910fbd665001457eb148a5ddb84d17188a9ae1d9c3e5367",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "06-InitRandomStoredPrint-s-1-a0.trace0.tla",
+          "sha256": "b53273c4c37786015fd3bb4e4931d7b1d2ebd32bd894773c15583ab6f192cfe0"
+        },
+        {
+          "path": "06-InitRandomStoredPrint-s-1-a0.trace1.tla",
+          "sha256": "14d186502308eba4118acb1a964f76d68bf272ed0dc314ceaa98f1d63331dab0"
+        }
+      ],
+      "requested_traces": 2
+    },
+    {
+      "model": "InitRandomViolation",
+      "seed": -1,
+      "aril": 0,
+      "traces": [],
+      "depth": 2,
+      "native_scope": "supported",
+      "label": "07-InitRandomViolation-s-1-a0",
+      "physical_exit": 12,
+      "codes": [
+        2107
+      ],
+      "generated": null,
+      "printed_states": [
+        268943
+      ],
+      "printed": [],
+      "violated_property": "Safe",
+      "stdout_sha256": "1009d535d2e80d9d8eb5ed3a3331f5760db19fecaf763f1a825d6cafcf8a67f1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [],
+      "requested_traces": 1
+    },
+    {
+      "model": "InitRandomNonSet",
+      "seed": 0,
+      "aril": 0,
+      "traces": [],
+      "depth": 2,
+      "native_scope": "original-error",
+      "label": "08-InitRandomNonSet-s0-a0",
+      "physical_exit": 255,
+      "codes": [
+        1000
+      ],
+      "generated": 0,
+      "printed_states": [],
+      "printed": [],
+      "violated_property": null,
+      "stdout_sha256": "24918819c96a3914d8155587421fbc794e1d863eb6c55e40a72d70c05c2d634a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [],
+      "requested_traces": 1
+    },
+    {
+      "model": "InitRandomEmpty",
+      "seed": 0,
+      "aril": 0,
+      "traces": [],
+      "depth": 2,
+      "native_scope": "original-error",
+      "label": "09-InitRandomEmpty-s0-a0",
+      "physical_exit": 255,
+      "codes": [
+        1000
+      ],
+      "generated": 0,
+      "printed_states": [],
+      "printed": [],
+      "violated_property": null,
+      "stdout_sha256": "c3b635ad4fb30d9aaa909235bf48c3091812f912958b60d45944dc14deb6fce7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [],
+      "requested_traces": 1
+    },
+    {
+      "model": "InitRandomNextBoundary",
+      "seed": 0,
+      "aril": 0,
+      "traces": [
+        [
+          7,
+          2
+        ]
+      ],
+      "depth": 2,
+      "native_scope": "unsupported",
+      "label": "10-InitRandomNextBoundary-s0-a0",
+      "physical_exit": 0,
+      "codes": [],
+      "generated": 3,
+      "printed_states": [],
+      "printed": [
+        "\"next-before-random\"",
+        "\"next-before-random\""
+      ],
+      "violated_property": null,
+      "stdout_sha256": "5d435e713bb121f0e32dcdb442d0b9e193da4c4f09ed30268a8a116418d35163",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "trace_files": [
+        {
+          "path": "10-InitRandomNextBoundary-s0-a0.trace0.tla",
+          "sha256": "bd3e49884ab88b83601b29de974743ec4305a8182cc02256081837993d063f6e"
+        }
+      ],
+      "requested_traces": 1
+    }
+  ]
+}

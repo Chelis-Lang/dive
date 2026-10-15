@@ -4,6 +4,8 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use dive_eval::{Host, HostError};
 use dive_ir::StdOp;
+use dive_stdlib::{host::RunHost, random::Streams};
+use dive_value::{Ctx, Value};
 
 use crate::Options;
 
@@ -13,6 +15,15 @@ pub(crate) struct SimulationHost {
     max_bytes: usize,
     output: Mutex<Output>,
     denied: Mutex<Option<String>>,
+    random: RunHost,
+    init_random: Mutex<InitRandom>,
+}
+
+#[derive(Debug, Default)]
+struct InitRandom {
+    active: bool,
+    calls: usize,
+    caller_host: bool,
 }
 
 #[derive(Debug, Default)]
@@ -29,7 +40,19 @@ impl SimulationHost {
             max_bytes: options.max_output_bytes,
             output: Mutex::new(Output::default()),
             denied: Mutex::new(None),
+            random: RunHost::new(Streams::new(options.seed, options.mode), None),
+            init_random: Mutex::new(InitRandom::default()),
         })
+    }
+
+    pub(crate) fn initial(&self) -> Initial<'_> {
+        let mut phase = self
+            .init_random
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        phase.active = true;
+        phase.calls = 0;
+        Initial { host: self }
     }
 
     pub(crate) fn denied(&self) -> Option<String> {
@@ -57,6 +80,23 @@ impl SimulationHost {
 
 impl Host for SimulationHost {
     fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
+        if op == StdOp::TlcRandomElement {
+            let phase = self
+                .init_random
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            if phase.active {
+                if phase.caller_host {
+                    return Err(self.refuse(
+                        "simulation Init RandomElement cannot preserve a caller-provided startup stream"
+                            .to_owned(),
+                    ));
+                }
+                // Arguments still run normally. Only the actual native invocation
+                // below consumes the allowance, including nested domain calls.
+                return Ok(());
+            }
+        }
         if op.impure() && !matches!(op, StdOp::TlcPrint | StdOp::TlcPrintT) {
             return Err(self.refuse(format!(
                 "{}: simulation runtime effect is unsupported",
@@ -64,6 +104,30 @@ impl Host for SimulationHost {
             )));
         }
         Ok(())
+    }
+
+    fn random(&self, op: StdOp, args: &[Value], ctx: Ctx) -> Option<Result<Value, HostError>> {
+        if op != StdOp::TlcRandomElement {
+            return None;
+        }
+        let mut phase = self
+            .init_random
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        if phase.caller_host {
+            return Some(Err(self.refuse(
+                "simulation Init RandomElement cannot preserve a caller-provided startup stream"
+                    .to_owned(),
+            )));
+        }
+        if !phase.active || phase.calls != 0 {
+            return Some(Err(self.refuse(
+                "simulation supports only one actual RandomElement call during Init".to_owned(),
+            )));
+        }
+        phase.calls += 1;
+        drop(phase);
+        self.random.random(op, args, ctx)
     }
 
     fn check_register_access(&self) -> Result<(), HostError> {
@@ -100,16 +164,35 @@ impl Host for SimulationHost {
     }
 }
 
+pub(crate) struct Initial<'a> {
+    host: &'a SimulationHost,
+}
+
+impl Drop for Initial<'_> {
+    fn drop(&mut self) {
+        self.host
+            .init_random
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .active = false;
+    }
+}
+
 pub(crate) struct HostRestore<'a> {
     evaluator: &'a dive_eval::Evaluator,
     previous: Option<Arc<dyn Host>>,
 }
 
 impl<'a> HostRestore<'a> {
-    pub(crate) fn install(evaluator: &'a dive_eval::Evaluator, host: Arc<dyn Host>) -> Self {
+    pub(crate) fn install(evaluator: &'a dive_eval::Evaluator, host: &Arc<SimulationHost>) -> Self {
+        let previous = evaluator.replace_host(Some(host.clone()));
+        host.init_random
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .caller_host = previous.is_some();
         Self {
             evaluator,
-            previous: evaluator.replace_host(Some(host)),
+            previous,
         }
     }
 }

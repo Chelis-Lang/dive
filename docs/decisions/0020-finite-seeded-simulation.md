@@ -60,7 +60,8 @@ evaluation and false assumptions.
 Fixtures retain raw transcripts and trace modules with jar/JRE provenance.
 
 This is a partial simulation implementation. Liveness/fairness, spec-level
-randomness and other runtime effects, compound initial deep normalization, implied-initial
+randomness outside the direct scalar Init subset and other runtime effects,
+compound initial deep normalization, implied-initial
 properties, action properties combined with state/action constraints, ALIAS/POSTCONDITION, generation, RL/probabilistic modes, continuation
 and parallel/distributed execution remain explicit refusals. See
 `crates/dive-sim/README.md` for the supported surface and reproduction.
@@ -80,7 +81,8 @@ semantics in direct, captured and configured calls. The producer retains actual
 binding output separately from runtime output. A fallible host policy bounds
 retained runtime Print events/text. Fresh independent validation evaluates the
 same operations but discards replay output before any sink callback; reached
-random/register/I/O refusals and the private Init register contract remain.
+random outside the supported Init subset, register/I/O refusals and the private
+Init register contract remain.
 No callback purity certificate, random replay proof or scheduler is added.
 Nine pinned tiny primary probes distinguish real startup, Init and step output;
 seven are admitted words and two remain named reached-effect refusals.
@@ -101,4 +103,23 @@ The run lease is operational ownership of the actual shared core. It releases
 after the original host is restored, including error, limit and unsupported
 returns. It introduces no TLS, callback admission or cache authority. The earlier
 external overlap diagnostic and each scoped qualification retain their original
-source bindings. Fresh review, latest-parent transfer and full gates remain pending.
+source bindings.
+
+## Direct scalar Init random extension
+
+Reuse the existing startup `RunHost`/`Streams` for one actual native invocation
+while enumerating Init; retain the existing worker-selection stream unchanged.
+The phase is an invocation-scoped runtime guard, not predicate identity or an
+effect certificate. Native arguments execute before consuming the allowance.
+The file/API boundary uses the existing independent direct scalar membership
+relation to decide words; it does not establish seed-stream provenance.
+Nested/correlated, wrapped, captured and configured Init relations remain
+refused at that boundary. Low-level sampling returns raw candidates, while
+reached Next/property random calls remain refused by the runtime host.
+
+Caller-host startup history cannot be recovered through `Host`. Low-level models
+with a retained host refuse a reached Init draw; absent-host callers must not
+have performed startup random draws. File loading retains startup-random
+refusals. Host restoration and shared-core lease ordering are unchanged. Eleven
+pinned primary observations precede implementation; see the simulation guide
+and compact random-init fixture. Full M/#239 remains open.

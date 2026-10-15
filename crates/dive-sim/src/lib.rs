@@ -147,6 +147,9 @@ pub struct Report {
 /// including clones, admits one simulation at a time. Overlap or reentry refuses
 /// before evaluation; separate bound cores may run concurrently. Callers must
 /// not mix foreign evaluator or host operations with an active simulation.
+/// Init `RandomElement` requires an absent caller host and no previous startup
+/// random draws. A retained caller host yields a reached-call refusal because
+/// its consumed startup stream cannot be continued by this simulation host.
 #[must_use]
 #[allow(
     clippy::too_many_lines,
@@ -156,7 +159,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
     // Preflight keeps its no-evaluation contract. Effects are checked only
     // when reached after it, including captured operator arguments.
     if preflight(model, opts).is_some() {
-        return simulate_inner(model, opts);
+        return simulate_inner(model, opts, None);
     }
     // Declared before HostRestore so reverse drop order restores the original
     // host before releasing shared-core simulation ownership, on every return.
@@ -176,9 +179,9 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
         };
     };
     let host = host::SimulationHost::new(opts);
-    let _restore = host::HostRestore::install(&model.evaluator, host.clone());
+    let _restore = host::HostRestore::install(&model.evaluator, &host);
     let capture = dive_eval::capture::PrintCapture::start();
-    let mut report = simulate_inner(model, opts);
+    let mut report = simulate_inner(model, opts, Some(&host));
     report.runtime_output = model.evaluator.filter_captured_warnings(capture.take());
     if let Some(reason) = host.limit() {
         report.outcome = Outcome::Limit(reason.to_owned());
@@ -192,7 +195,7 @@ pub fn simulate(model: &Model, opts: &Options) -> Report {
     clippy::too_many_lines,
     reason = "keep the pinned simulator selection and callback ordering together"
 )]
-fn simulate_inner(model: &Model, opts: &Options) -> Report {
+fn simulate_inner(model: &Model, opts: &Options, host: Option<&host::SimulationHost>) -> Report {
     let mut report = Report {
         stage: "preflight",
         outcome: Outcome::Sampled,
@@ -235,15 +238,19 @@ fn simulate_inner(model: &Model, opts: &Options) -> Report {
     report.stage = "initialization";
     let mut inits = Vec::new();
     let mut failure = None;
-    let enumeration = model.evaluator.init_states(&model.init_actions, &mut |s| {
-        if inits.len() >= opts.max_candidates || report.initial_candidates >= opts.max_generated {
-            failure = Some(Outcome::Limit("simulation initial-state bound".to_owned()));
-            return Flow::Stop;
-        }
-        report.initial_candidates += 1;
-        inits.push((StateVals::from(s.state), s.action.id()));
-        Flow::Continue
-    });
+    let enumeration = {
+        let _initial = host.map(host::SimulationHost::initial);
+        model.evaluator.init_states(&model.init_actions, &mut |s| {
+            if inits.len() >= opts.max_candidates || report.initial_candidates >= opts.max_generated
+            {
+                failure = Some(Outcome::Limit("simulation initial-state bound".to_owned()));
+                return Flow::Stop;
+            }
+            report.initial_candidates += 1;
+            inits.push((StateVals::from(s.state), s.action.id()));
+            Flow::Continue
+        })
+    };
     if let Err(e) = enumeration {
         // Simulator assigns numOfGenStates only after getInitStates completes.
         // A failure here has no current state and is reported as GENERAL.

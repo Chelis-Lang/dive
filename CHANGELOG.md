@@ -11,6 +11,12 @@
 - Temporal analysis stores acceptance in compact bit columns, reducing retained
   Boolean storage. Public owned APIs and logical resource limits are unchanged.
 
+- Finite one-worker simulation supports one direct scalar Init `RandomElement`
+  choice with separate startup and worker-selection streams. Normal domain
+  errors and Print output are retained; returned words require independent
+  membership validation. Other reached random calls and caller-host startup
+  continuity remain refused. Broader simulation support (M/#239) remains open.
+
 - Ordinary TLC-profile bounded final checking also accepts the existing
   `--action-composition=tlc` option with otherwise default resident settings.
   Original intermediate generated counts and independent composition refusals
@@ -103,16 +109,15 @@
 - Low-level simulation refuses overlapping/reentrant calls on a shared evaluator
   core before evaluation, preserving each run's output limits and caller host.
   Separate bound cores remain independent; cleanup restores the host before
-  releasing ownership. Qualification and publication remain pending.
+  releasing ownership.
 
 - Ordinary single-worker finite simulation evaluates runtime `Print`/`PrintT`,
   including captured operators (#239), with retained event/text limits. Binding
   and backend output remain separate; fresh independent validation preserves
   return/error semantics while discarding replay output before sink callbacks.
-  Reached random/register/other host effects remain refused. This does not
-  complete simulation, generation or schedulers. The accepted `none`/`basic`
-  action-statistics behavior is retained; qualification of this Print candidate
-  on the latest main, its full gate and publication remain pending.
+  Reached random outside the supported Init subset, registers and other host
+  effects remain refused. This does not complete simulation, generation or schedulers. The accepted `none`/`basic`
+  action-statistics behavior is retained.
 
 - Explicit final/short checking without configured `PROPERTY` entries now runs
   ordinary safety checking and returns its real result without duplicate startup
