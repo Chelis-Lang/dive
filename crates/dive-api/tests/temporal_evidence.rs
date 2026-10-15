@@ -128,3 +128,89 @@ fn legacy_error_interface_preserves_diagnostic_code() {
     assert!(matches!(error, Error::Analysis(AnalysisError::Product(_))));
     assert_eq!(error.code(), "DIVE-L0031");
 }
+
+#[test]
+fn additive_acceptance_policy_keeps_all_legacy_limit_entrypoints() {
+    use dive_liveness::product::{AcceptancePolicy, ProductError};
+    let (ir, config) = input(
+        "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = x\nP == []<>x\n====\n",
+        CONFIG,
+    );
+    for mut options in [CheckOptions::dive(7), CheckOptions::tlc(7, 0)] {
+        for workers in [1, 4] {
+            options.workers = workers;
+            let mut limits = Limits::default();
+            limits.product.acceptance_cells = 0;
+            let legacy = temporal::check_final_with_evidence(&ir, &config, &options, limits)
+                .expect_err("custom legacy cells");
+            assert!(matches!(
+                legacy.error(),
+                Error::Analysis(AnalysisError::Product(ProductError::Limit(
+                    "acceptance cells"
+                )))
+            ));
+            assert!(temporal::check_final(&ir, &config, &options, limits).is_err());
+            let model = dive_model::bind(
+                ir.clone(),
+                &config,
+                &dive_model::BindOptions {
+                    eval: options.eval,
+                    no_deadlock: options.no_deadlock,
+                    host: None,
+                },
+            )
+            .expect("model");
+            assert!(analyze::analyze_final(&model, &options, limits).is_err());
+            assert!(analyze::analyze_final_with_evidence(&model, &options, limits).is_err());
+            assert!(analyze::analyze_final_with_action_errors(&model, &options, limits).is_err());
+            for (policy, expected) in [
+                (
+                    AcceptancePolicy::Buffers {
+                        bytes: 0,
+                        work: 100,
+                    },
+                    "acceptance buffer bytes",
+                ),
+                (
+                    AcceptancePolicy::Buffers {
+                        bytes: 100,
+                        work: 0,
+                    },
+                    "acceptance materialization work",
+                ),
+            ] {
+                let failed =
+                    temporal::check_final_with_policy(&ir, &config, &options, limits, policy)
+                        .expect_err("explicit byte/work refusal");
+                assert_eq!(failed.capture_completed(), Some(true));
+                assert!(
+                    matches!(failed.error(),Error::Analysis(AnalysisError::Product(ProductError::Limit(actual))) if *actual==expected)
+                );
+            }
+            let report = temporal::check_final_with_policy(
+                &ir,
+                &config,
+                &options,
+                limits,
+                AcceptancePolicy::compact_default(),
+            )
+            .expect("explicit buffer policy");
+            let Outcome::Violation(word) = report.outcome() else {
+                panic!("validated violation")
+            };
+            assert_eq!(word.validation().validation, dive_trace::Validation::Valid);
+            assert_eq!(
+                dive_trace::validate_doc(&model, word.document(), &[])
+                    .0
+                    .validation,
+                dive_trace::Validation::Valid
+            );
+            let mut forged = word.document().clone();
+            forged.states[0].insert("x".into(), true.into());
+            assert!(matches!(
+                dive_trace::validate_doc(&model, &forged, &[]).0.validation,
+                dive_trace::Validation::Invalid(_)
+            ));
+        }
+    }
+}

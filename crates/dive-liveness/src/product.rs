@@ -11,6 +11,9 @@ use crate::search::{
 };
 use std::collections::{BTreeMap, BTreeSet};
 
+mod budget;
+pub use budget::AcceptancePolicy;
+
 /// Truth values of all supplied atomic predicates.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Labels {
@@ -91,6 +94,8 @@ struct Ordered<'a> {
     order: &'a [usize],
     edges: &'a [Vec<usize>],
     original_edges: &'a [Vec<usize>],
+    edge_count: usize,
+    scratch_len: usize,
 }
 
 struct Builder<'a> {
@@ -99,6 +104,9 @@ struct Builder<'a> {
     labels: &'a Labels,
     conditions: &'a [Recurrence],
     limits: Limits,
+    acceptance_policy: AcceptancePolicy,
+    behavior_edges: usize,
+    scratch_len: usize,
     pairs: Vec<(usize, usize)>,
     ids: BTreeMap<(usize, usize), usize>,
     edges: Vec<Vec<usize>>,
@@ -118,6 +126,17 @@ impl Builder<'_> {
     }
 
     fn acceptance_cells(&self, size: usize, edges: usize) -> Result<(), ProductError> {
+        if let AcceptancePolicy::Buffers { bytes, .. } = self.acceptance_policy {
+            return budget::fits_layout(
+                size,
+                edges,
+                self.tableau.promise_count,
+                self.conditions.len(),
+                self.scratch_len,
+                budget::ActionDomain::behavior(self.graph.edges.len(), self.behavior_edges),
+                bytes,
+            );
+        }
         size.checked_mul(self.tableau.promise_count)
             .and_then(|n| {
                 edges
@@ -191,7 +210,7 @@ impl Builder<'_> {
     fn finish<A>(
         self,
         roots: BTreeSet<usize>,
-        acceptance: impl FnOnce(Ordered<'_>) -> A,
+        acceptance: impl FnOnce(Ordered<'_>) -> Result<A, ProductError>,
     ) -> Result<Parts<A>, ProductError> {
         // Discovery order must never choose the witness. Renumber retained
         // pairs in the original Cartesian (behavior, tableau) order. Removing
@@ -222,7 +241,9 @@ impl Builder<'_> {
             order: &ordered,
             edges: &edges,
             original_edges: &original_edges,
-        });
+            edge_count: self.edge_count,
+            scratch_len: self.scratch_len,
+        })?;
         let roots = roots
             .into_iter()
             .map(|old| renumber[old])
@@ -312,49 +333,57 @@ impl Product {
         conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        let parts = build(graph, tableau, labels, conditions, limits, |input| {
-            let states = (0..tableau.promise_count)
-                .map(|p| {
-                    input
-                        .order
-                        .iter()
-                        .map(|&old| tableau.nodes[input.pairs[old].1].fulfilled[p])
-                        .collect()
-                })
-                .collect();
-            let recurrent = input
-                .edges
-                .iter()
-                .map(|row| vec![true; row.len()])
-                .collect();
-            let actions = conditions
-                .iter()
-                .map(|condition| {
-                    input
-                        .order
-                        .iter()
-                        .enumerate()
-                        .map(|(id, &old)| {
-                            let v = input.pairs[old].0;
-                            input.original_edges[id]
-                                .iter()
-                                .map(|&e| {
-                                    condition.evaluate(|atom| match atom.kind {
-                                        AtomKind::State => labels.states[atom.index][v],
-                                        AtomKind::Action => labels.actions[atom.index][v][e],
+        let parts = build(
+            graph,
+            tableau,
+            labels,
+            conditions,
+            limits,
+            (AcceptancePolicy::Legacy, 0),
+            |input| {
+                let states = (0..tableau.promise_count)
+                    .map(|p| {
+                        input
+                            .order
+                            .iter()
+                            .map(|&old| tableau.nodes[input.pairs[old].1].fulfilled[p])
+                            .collect()
+                    })
+                    .collect();
+                let recurrent = input
+                    .edges
+                    .iter()
+                    .map(|row| vec![true; row.len()])
+                    .collect();
+                let actions = conditions
+                    .iter()
+                    .map(|condition| {
+                        input
+                            .order
+                            .iter()
+                            .enumerate()
+                            .map(|(id, &old)| {
+                                let v = input.pairs[old].0;
+                                input.original_edges[id]
+                                    .iter()
+                                    .map(|&e| {
+                                        condition.evaluate(|atom| match atom.kind {
+                                            AtomKind::State => labels.states[atom.index][v],
+                                            AtomKind::Action => labels.actions[atom.index][v][e],
+                                        })
                                     })
-                                })
-                                .collect()
-                        })
-                        .collect()
+                                    .collect()
+                            })
+                            .collect()
+                    })
+                    .collect();
+                Ok(Acceptance {
+                    recurrent,
+                    states,
+                    actions,
                 })
-                .collect();
-            Acceptance {
-                recurrent,
-                states,
-                actions,
-            }
-        })?;
+            },
+        )?;
         Ok(Self {
             graph: parts.graph,
             acceptance: parts.acceptance,
@@ -391,7 +420,8 @@ fn build<A>(
     labels: &Labels,
     conditions: &[Recurrence],
     limits: Limits,
-    acceptance: impl FnOnce(Ordered<'_>) -> A,
+    acceptance_budget: (AcceptancePolicy, usize),
+    acceptance: impl FnOnce(Ordered<'_>) -> Result<A, ProductError>,
 ) -> Result<Parts<A>, ProductError> {
     validate(graph, tableau, labels)?;
     for atom in conditions.iter().flat_map(Recurrence::atoms) {
@@ -411,6 +441,13 @@ fn build<A>(
         labels,
         conditions,
         limits,
+        acceptance_policy: acceptance_budget.0,
+        behavior_edges: acceptance_budget.1,
+        scratch_len: conditions
+            .iter()
+            .map(Recurrence::scratch_len)
+            .max()
+            .unwrap_or(0),
         pairs: Vec::new(),
         ids: BTreeMap::new(),
         edges: Vec::new(),
@@ -441,6 +478,7 @@ struct CompactAcceptance {
     states: Vec<Vec<u64>>,
     actions: Vec<Vec<u64>>,
     edge_offsets: Vec<usize>,
+    behavior_actions: bool,
 }
 
 fn bit(words: &[u64], index: usize) -> bool {
@@ -509,6 +547,7 @@ impl CompactAcceptance {
             states,
             actions,
             edge_offsets,
+            behavior_actions: false,
         }
     }
 }
@@ -520,16 +559,69 @@ pub(crate) struct CompactProduct {
 }
 
 impl CompactProduct {
-    pub(crate) fn with_recurrences(
+    #[cfg(test)]
+    fn with_recurrences(
         graph: &Graph,
         tableau: &Tableau,
         labels: &Labels,
         conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        let parts = build(graph, tableau, labels, conditions, limits, |input| {
-            CompactAcceptance::new(&input, tableau, labels, conditions)
-        })?;
+        Self::with_policy(
+            graph,
+            tableau,
+            labels,
+            conditions,
+            limits,
+            AcceptancePolicy::Legacy,
+        )
+    }
+
+    #[cfg(test)]
+    fn with_policy(
+        graph: &Graph,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+        limits: Limits,
+        policy: AcceptancePolicy,
+    ) -> Result<Self, ProductError> {
+        // Production reuses the edge count already checked by atom admission.
+        let edges = graph.edges.iter().map(Vec::len).sum();
+        Self::with_policy_and_edges(graph, tableau, labels, conditions, limits, policy, edges)
+    }
+
+    pub(crate) fn with_policy_and_edges(
+        graph: &Graph,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+        limits: Limits,
+        policy: AcceptancePolicy,
+        behavior_edges: usize,
+    ) -> Result<Self, ProductError> {
+        let parts = build(
+            graph,
+            tableau,
+            labels,
+            conditions,
+            limits,
+            (policy, behavior_edges),
+            |input| match policy {
+                AcceptancePolicy::Legacy => {
+                    Ok(CompactAcceptance::new(&input, tableau, labels, conditions))
+                }
+                AcceptancePolicy::Buffers { bytes, work } => budget::materialize(
+                    &input,
+                    tableau,
+                    labels,
+                    conditions,
+                    bytes,
+                    work,
+                    (graph, behavior_edges),
+                ),
+            },
+        )?;
         Ok(Self { parts })
     }
 
@@ -564,6 +656,14 @@ impl AcceptanceAccess for CompactProduct {
 
     fn action(&self, condition: usize, source: usize, edge: usize) -> bool {
         let labels = &self.parts.acceptance;
+        let (source, edge) = if labels.behavior_actions {
+            (
+                self.parts.behavior_states[source],
+                self.parts.original_edges[source][edge],
+            )
+        } else {
+            (source, edge)
+        };
         bit(
             &labels.actions[condition],
             labels.edge_offsets[source] + edge,

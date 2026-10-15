@@ -468,11 +468,12 @@ fn check_backend(
         };
     }
     if temporal == TemporalMode::FinalShort {
-        return match crate::temporal::check_final_with_evidence(
+        return match crate::temporal::check_final_with_policy(
             ir,
             config,
             options,
             dive_liveness::analyze::Limits::default(),
+            dive_liveness::product::AcceptancePolicy::compact_default(),
         ) {
             Ok(r) => match r.outcome() {
                 crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),
@@ -1499,8 +1500,13 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
 
 fn temporal_limits_json() -> Value {
     let limits = dive_liveness::analyze::Limits::default();
+    let dive_liveness::product::AcceptancePolicy::Buffers { bytes, work } =
+        dive_liveness::product::AcceptancePolicy::compact_default()
+    else {
+        return Value::Null;
+    };
     json!({
-        "kind": "entry-counts", "states": limits.capture.states,
+        "kind": "entry-work-counts-and-acceptance-buffers", "states": limits.capture.states,
         "edges": limits.capture.edges, "generated": limits.capture.generated,
         "successors_per_unit": limits.capture.successors_per_unit,
         "max_expansion_units": dive_check::capture::MAX_EXPANSION_UNITS,
@@ -1510,7 +1516,9 @@ fn temporal_limits_json() -> Value {
         "formula_steps": limits.formula.expansion_steps,
         "product_vertices": limits.product.vertices,
         "product_edges": limits.product.edges,
-        "acceptance_cells": limits.product.acceptance_cells,
+        "acceptance_buffer_bytes": bytes,
+        "acceptance_materialization_work": work,
+        "total_memory_budget": false,
         "product_steps": limits.product.steps,
     })
 }

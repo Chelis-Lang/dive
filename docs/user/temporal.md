@@ -42,6 +42,17 @@ ordinary requests in the dive profile retain their existing routes and named
 refusals. Real unsupported language features and resource limits remain explicit;
 a refusal, bound or external timeout is never a holding result.
 
+File-based temporal checking uses 8,000,000 covered acceptance-buffer bytes and
+32,000,000 independent acceptance materialization work units, in both profiles.
+Packed words, column headers, optional edge offsets and Boolean scratch count;
+capture, labels, graph construction, search, runtime and allocator overhead do
+not. This is not a total memory or search-work limit. Other graph, evaluator and
+transition limits remain unchanged. JSON names the byte/work bounds under
+`options.temporal_bounds`; exhaustion is an explicit resource refusal. Existing
+Rust custom-limit APIs keep legacy logical acceptance cells; the additive
+`check_final_with_policy` API selects byte/work admission explicitly. See
+[covered allocations and exclusions](../temporal-api.md) and ADR 0098.
+
 Binding happens once under the ordinary startup host. If the configured roles
 are all safety obligations, their complete ordinary result stays on schema 1,
 including startup Print output, randomness and error ordering. Genuine temporal

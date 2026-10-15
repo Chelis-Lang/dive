@@ -1112,6 +1112,16 @@ lasso choice, temporal error classes, finite-prefix stopping or periodic checks.
 Ordinary strict checking remains a named temporal refusal. See
 [command-line access](temporal-api.md#command-line-access).
 
+
+D-013 acceptance resource policy: file-based eligible ordinary/final checking
+uses compact acceptance-buffer bytes (8,000,000) and independent materialization
+work (32,000,000) in both profiles. Existing public custom-limit APIs retain
+legacy cells; additive APIs select the new policy explicitly. TLC has no fixed
+counterpart, so exhaustion is a resource refusal, never a verdict. Covered
+allocations and excluded owners are listed in [the temporal guide](temporal-api.md).
+This does not bound process memory or change vertex/edge/domain/transition limits.
+
+
 **D-013 supported-language update:** pure constant-argument operators now work
 in final/short checking, including nested calls, tuple arguments and calls from
 finite temporal quantifiers. The five `temporal-calls` probes match the pinned
