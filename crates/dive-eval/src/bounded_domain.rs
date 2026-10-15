@@ -98,8 +98,9 @@ impl Budget {
             | dive_ir::Effects::TEMPORAL
             | dive_ir::Effects::USES_ENABLED
             | dive_ir::Effects::OPEN;
-        // Model redirects may replace a syntactically pure helper with effects.
-        // Until a scoped proof covers redirects, reject such targets conservatively.
+        // Preserve immediate definite-effect refusals before any charged OPEN
+        // inspection, regardless of redirect iteration order or remaining work.
+        // Only the separate walk below resolves scalar constant reads.
         if filter
             .core
             .ir
@@ -107,15 +108,28 @@ impl Budget {
             .effects
             .intersects(forbidden)
             || crate::env::filter_has_unproved_captures(&filter.core.ir, &filter.env, forbidden)
-            || filter
-                .core
-                .redirects
-                .values()
-                .any(|target| filter.core.ir.def(*target).effects.intersects(forbidden))
+            || filter.core.redirects.values().any(|target| {
+                filter
+                    .core
+                    .ir
+                    .def(*target)
+                    .effects
+                    .intersects(forbidden.without(dive_ir::Effects::OPEN))
+            })
         {
             return Err(EvalError::unsupported(
                 "effectful or unresolved deferred binder predicate",
             ));
+        }
+        for &target in filter.core.redirects.values() {
+            let effects = filter.core.ir.def(target).effects;
+            if effects.intersects(dive_ir::Effects::OPEN)
+                && !self.scalar_redirect(&filter.core, target, &mut Vec::new(), 0)?
+            {
+                return Err(EvalError::unsupported(
+                    "effectful or unresolved deferred binder predicate",
+                ));
+            }
         }
         // Structural input and the conservative output-vector upper bound are
         // charged before size/explore invokes the captured predicate. Do not
@@ -123,6 +137,165 @@ impl Budget {
         let count = self.component(&filter.in_val, depth)?;
         self.charge(count)?;
         Ok(count)
+    }
+
+    // Non-evaluating inspection of one OPEN redirect, not a predicate purity
+    // checker. No local definitions, substitutions, operator values or deferred
+    // constants qualify. Every inspected source item uses the existing budget.
+    fn scalar_redirect(
+        &mut self,
+        core: &crate::core::Core,
+        target: dive_ir::DefId,
+        active: &mut Vec<dive_ir::DefId>,
+        depth: u32,
+    ) -> Result<bool> {
+        self.charge(1)?;
+        let mut target = target;
+        for _ in 0..64 {
+            self.charge(1)?;
+            match core.redirects.get(&target) {
+                Some(&next) if next != target => target = next,
+                _ => break,
+            }
+        }
+        let definition = core.ir.def(target);
+        if depth >= self.depth {
+            return Err(EvalError::resource_limit(
+                "deferred binder redirect nesting",
+            ));
+        }
+        self.charge(definition.params.len())?;
+        if definition.scope != dive_ir::DefScope::TopLevel
+            || definition.recursive
+            || definition.std.is_some()
+            || definition.params.iter().any(|param| param.arity != 0)
+            || core.def_values.contains_key(&target)
+            || active.contains(&target)
+        {
+            return Ok(false);
+        }
+        active.push(target);
+        let result = self.scalar_source(core, definition.body, active, depth + 1);
+        active.pop();
+        result
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "explicit restricted source constructors; no evaluation or context projection"
+    )]
+    fn scalar_source(
+        &mut self,
+        core: &crate::core::Core,
+        expr: dive_ir::ExprId,
+        active: &mut Vec<dive_ir::DefId>,
+        depth: u32,
+    ) -> Result<bool> {
+        use dive_ir::{Arg, Effects, Expr, OpRef};
+        self.charge(1)?;
+        if depth >= self.depth {
+            return Err(EvalError::resource_limit(
+                "deferred binder redirect nesting",
+            ));
+        }
+        let node = core.ir.node(expr);
+        if node.effects.intersects(
+            Effects::IMPURE | Effects::LIVE_TLCGET | Effects::TEMPORAL | Effects::USES_ENABLED,
+        ) {
+            return Ok(false);
+        }
+        match &node.expr {
+            Expr::Const(constant) => {
+                return Ok(matches!(
+                    core.consts.get(constant.index()),
+                    Some(Some(crate::ConstBinding::Value(
+                        Value::Bool(_)
+                            | Value::Int(_)
+                            | Value::BigInt(_)
+                            | Value::Str(_)
+                            | Value::Model(_)
+                    )))
+                ));
+            }
+            Expr::Local(local) => return Ok(local.up == 0),
+            Expr::Def(target) => return self.scalar_redirect(core, *target, active, depth + 1),
+            Expr::Apply { callee, args } => {
+                self.charge(args.len())?;
+                if args.iter().any(|arg| matches!(arg, Arg::Op { .. })) {
+                    return Ok(false);
+                }
+                let target = match callee {
+                    OpRef::Def(target) => Some(*target),
+                    OpRef::Std(op) => core.std_redirects.get(op).copied(),
+                    OpRef::Builtin(_) => None,
+                    _ => return Ok(false),
+                };
+                if let Some(target) = target
+                    && !self.scalar_redirect(core, target, active, depth + 1)?
+                {
+                    return Ok(false);
+                }
+                for arg in args {
+                    if let Arg::Expr { expr, .. } = arg
+                        && !self.scalar_source(core, *expr, active, depth + 1)?
+                    {
+                        return Ok(false);
+                    }
+                }
+                return Ok(true);
+            }
+            Expr::Bool(_)
+            | Expr::Num(_)
+            | Expr::Decimal { .. }
+            | Expr::Str(_)
+            | Expr::Var { .. } => return Ok(true),
+            Expr::Builtin { args, .. }
+            | Expr::Junction { items: args, .. }
+            | Expr::SetEnum(args)
+            | Expr::Tuple(args)
+            | Expr::Cartesian(args) => {
+                for &child in args {
+                    if !self.scalar_source(core, child, active, depth + 1)? {
+                        return Ok(false);
+                    }
+                }
+            }
+            Expr::Not(child)
+            | Expr::Selected(child)
+            | Expr::Prime(child)
+            | Expr::Unchanged(child)
+            | Expr::Label { body: child, .. }
+            | Expr::RecordSelect { record: child, .. } => {
+                return self.scalar_source(core, *child, active, depth + 1);
+            }
+            Expr::FcnSet {
+                domain: a,
+                range: b,
+            }
+            | Expr::FcnApply { fcn: a, arg: b }
+            | Expr::Implies(a, b)
+            | Expr::Equiv(a, b) => {
+                return Ok(self.scalar_source(core, *a, active, depth + 1)?
+                    && self.scalar_source(core, *b, active, depth + 1)?);
+            }
+            Expr::FcnCons { bounds, body }
+            | Expr::SetMap { bounds, expr: body }
+            | Expr::Quant { bounds, body, .. } => {
+                for bound in bounds {
+                    self.charge(1)?;
+                    let Some(domain) = bound.domain else {
+                        return Ok(false);
+                    };
+                    if !self.scalar_source(core, domain, active, depth + 1)? {
+                        return Ok(false);
+                    }
+                }
+                return self.scalar_source(core, *body, active, depth + 1);
+            }
+            // More involved lexical/dynamic constructs retain the old refusal.
+            _ => return Ok(false),
+        }
+        Ok(true)
     }
 
     pub(crate) fn set(&mut self, set: &Set, depth: u32) -> Result<usize> {
@@ -234,5 +407,35 @@ mod tests {
         assert!(set.raw_elements().is_some());
         assert_eq!(Budget::new(3, 256, context).set(set, 0).ok(), Some(3));
         assert!(set.raw_elements().is_some());
+    }
+
+    #[test]
+    fn redirect_metadata_uses_the_original_budget_and_depth() {
+        let analysis = dive_sema::analyze_source(
+            "Budget.tla",
+            "---- MODULE Budget ----\nCONSTANT C\nP(unused) == C\n====\n",
+            &dive_sema::Options::default(),
+        );
+        assert!(analysis.accepted());
+        let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let target = ir.root_def("P").expect("P");
+        let mut model = crate::Model::new(ir);
+        model.constants[0] = Some(crate::ConstBinding::Value(Value::Int(1)));
+        let evaluator = crate::Evaluator::new(model, crate::Options::tlc()).expect("evaluator");
+        // One definition, one redirect lookup, one formal, one expression. The
+        // scalar value is inspected by tag, never evaluated or compared.
+        let mut exact = Budget::new(4, 256, Ctx::tlc());
+        assert!(
+            exact
+                .scalar_redirect(&evaluator.core, target, &mut Vec::new(), 0)
+                .expect("four metadata units")
+        );
+        assert_eq!(exact.remaining, 0);
+        for (limit, depth) in [(3, 256), (4, 1)] {
+            let error = Budget::new(limit, depth, Ctx::tlc())
+                .scalar_redirect(&evaluator.core, target, &mut Vec::new(), 0)
+                .expect_err("existing work or depth bound");
+            assert_eq!(error.class(), crate::ErrorClass::ResourceLimit);
+        }
     }
 }
