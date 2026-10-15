@@ -406,6 +406,45 @@ impl Ir {
         &self.defs[id.index()]
     }
 
+    /// Installs an explicitly verified local-class override on a definition.
+    ///
+    /// Returns false without mutation for a missing id, a non-native operator,
+    /// a mismatched defining module/name, or non-value/wrong-arity parameters.
+    /// Instantiated copies are checked against their source definition.
+    /// The caller must verify the class identity before calling this method.
+    pub fn set_native_override(&mut self, id: DefId, op: StdOp) -> bool {
+        if op.phase() != std_op::Phase::Native {
+            return false;
+        }
+        let Some(def) = self.defs.get(id.index()) else {
+            return false;
+        };
+        if i32::try_from(def.params.len()).ok() != Some(op.java_arity())
+            || def.params.iter().any(|p| p.arity != 0)
+        {
+            return false;
+        }
+        let mut source = id;
+        for _ in 0..=self.defs.len() {
+            let Some(def) = self.defs.get(source.index()) else {
+                return false;
+            };
+            if let Some(next) = def.source {
+                source = next;
+            } else {
+                let Some(module) = self.modules.get(def.module.index()) else {
+                    return false;
+                };
+                if module.name != op.module() || def.name != op.name() {
+                    return false;
+                }
+                self.defs[id.index()].std = Some(op);
+                return true;
+            }
+        }
+        false
+    }
+
     /// Every expression node.
     #[must_use]
     pub fn nodes(&self) -> &[Node] {

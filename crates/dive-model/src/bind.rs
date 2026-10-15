@@ -3,12 +3,15 @@
 //! start-up (`processConstantDefns`), in TLC's order.
 
 use std::collections::{HashMap, HashSet};
+use std::io::Read;
 use std::path::Path;
 use std::sync::Arc;
 
+use sha2::{Digest, Sha256};
+
 use dive_config::{ConfigValue, ConstantEntry, ModelConfig, Spanned};
 use dive_eval::{ConstBinding, ErrorClass, Evaluator, Options};
-use dive_ir::{DeclId, DefId, Ir, ModuleId, Symbol};
+use dive_ir::{DeclId, DefId, Ir, ModuleId, StdOp, Symbol};
 use dive_value::{Ctx, Interner, Value};
 
 use crate::error::{BindError, Ec, ErrorKind, Message};
@@ -315,7 +318,7 @@ impl<'a> Binder<'a> {
                 );
             }
         }
-        self.refuse_user_java_overrides();
+        self.install_user_java_overrides();
 
         // Overrides of root constants.
         let mut overridden: HashSet<String> = HashSet::new();
@@ -464,8 +467,8 @@ impl<'a> Binder<'a> {
     /// TLC loads a Java class named after a loaded module from the module's
     /// directory and uses its methods instead of the module's definitions
     /// (`TLAClass.loadClass`, the first phase of `processModuleOverrides`).
-    /// dive cannot run them, so such a model is refused.
-    fn refuse_user_java_overrides(&mut self) {
+    /// Only the pinned Hanoi Bits class has a native port; others are refused.
+    fn install_user_java_overrides(&mut self) {
         let ir = self.t.ir.clone();
         for m in file_modules(&ir) {
             let module = ir.module(m);
@@ -481,6 +484,42 @@ impl<'a> Binder<'a> {
             };
             let class = dir.join(format!("{}.class", module.name));
             if class.is_file() {
+                if module.name == "Bits" && known_bits_class(&class) {
+                    let defs: Vec<_> = ir
+                        .defs()
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(i, def)| {
+                            (def.module == m && def.name == "And" && def.source.is_none())
+                                .then_some(DefId(u32::try_from(i).unwrap_or(u32::MAX)))
+                        })
+                        .collect();
+                    for d in defs {
+                        let native = Arc::make_mut(&mut self.t.ir);
+                        if native.set_native_override(d, StdOp::BitsAnd) {
+                            // TLC installs the same body override on instantiated copies.
+                            for i in 0..native.defs().len() {
+                                let id = DefId(u32::try_from(i).unwrap_or(u32::MAX));
+                                let mut source = id;
+                                for _ in 0..=native.defs().len() {
+                                    if source == d {
+                                        native.set_native_override(id, StdOp::BitsAnd);
+                                        break;
+                                    }
+                                    let Some(next) = native.def(source).source else {
+                                        break;
+                                    };
+                                    source = next;
+                                }
+                            }
+                            self.defns
+                                .insert("And".into(), Look::Java(StdOp::BitsAnd, d));
+                        } else {
+                            self.unsupported.push("Bits!And (local class signature does not match four value parameters)".into());
+                        }
+                    }
+                    continue;
+                }
                 self.unsupported.push(format!(
                     "a Java class overriding module {} ({}.class)",
                     module.name, module.name
@@ -732,4 +771,69 @@ fn hashtable_order(keys: &[String]) -> Vec<String> {
         .into_iter()
         .filter_map(|i| keys.get(i).cloned())
         .collect()
+}
+
+/// SHA-256 of the supported local `Bits.class` from the pinned Examples Hanoi model.
+///
+/// Class presence and this exact digest establish the local input identity;
+/// installation separately validates `And`'s four value parameters.
+pub const HANOI_BITS_CLASS_SHA256: [u8; 32] = [
+    0x22, 0x5d, 0x2d, 0x3d, 0x16, 0x3b, 0x5a, 0x2c, 0x29, 0x23, 0x54, 0x4d, 0xe6, 0x19, 0xfb, 0x6f,
+    0x23, 0xcb, 0x86, 0x80, 0x4e, 0xd0, 0x6b, 0xd2, 0x84, 0x2c, 0xa2, 0x7a, 0x24, 0x2b, 0x84, 0x6b,
+];
+
+/// Hash local classes with bounded memory; unreadable bytes remain unsupported.
+fn known_bits_class(path: &Path) -> bool {
+    class_digest(path).is_ok_and(|digest| digest == HANOI_BITS_CLASS_SHA256)
+}
+
+fn class_digest(path: &Path) -> std::io::Result<[u8; 32]> {
+    let mut file = std::fs::File::open(path)?;
+    let mut hash = Sha256::new();
+    let mut buffer = [0; 8192];
+    loop {
+        let n = file.read(&mut buffer)?;
+        if n == 0 {
+            return Ok(hash.finalize().into());
+        }
+        hash.update(&buffer[..n]);
+    }
+}
+
+/// SHA-256 identities of adjacent local Java classes, sorted by module name.
+///
+/// Only file-level nonstandard modules participate. Class bytes are streamed
+/// through a fixed-size buffer; no Java code or TLA+ expression is evaluated.
+/// An empty result preserves the identity of sources with no local classes.
+///
+/// # Errors
+///
+/// Returns a named refusal if an existing class cannot be read completely.
+/// This does not establish whether a class has a supported native port.
+pub fn local_java_class_digests(ir: &Ir) -> Result<Vec<(String, [u8; 32])>, String> {
+    let mut digests = Vec::new();
+    for m in file_modules(ir) {
+        let module = ir.module(m);
+        if module.standard {
+            continue;
+        }
+        let Some(file) = module.file.and_then(|f| ir.files().get(f.index())) else {
+            continue;
+        };
+        let Some(dir) = Path::new(&file.display).parent() else {
+            continue;
+        };
+        let path = dir.join(format!("{}.class", module.name));
+        if path.is_file() {
+            let digest = class_digest(&path).map_err(|error| {
+                format!(
+                    "a Java class overriding module {} ({}.class): {error}",
+                    module.name, module.name
+                )
+            })?;
+            digests.push((module.name.clone(), digest));
+        }
+    }
+    digests.sort_unstable_by(|a, b| a.0.cmp(&b.0));
+    Ok(digests)
 }
