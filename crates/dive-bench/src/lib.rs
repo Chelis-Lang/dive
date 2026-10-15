@@ -8,12 +8,18 @@
 //! failure. It reports CPU time (user + system, which a busy machine
 //! disturbs far less than wall time), wall time, distinct states per CPU
 //! second and peak RSS, as medians over interleaved repetitions, and
-//! compares them with TLC's single-worker time:
+//! uses matched-worker pinned TLC runs for current paired wall ratios.
+//! Historical one-worker context is available from:
 //!
 //! - the golden's `elapsed_ms` (one TLC run while the goldens were made);
 //! - the survey's measured medians (`docs/survey/data/bench-summary.csv`);
-//! - with `--tlc`, TLC runs of the same configuration on this machine, timed
-//!   the same way.
+//!
+//! With `--tlc`, TLC runs at every requested worker count with the same cfg.
+//! Pair counts and incomplete arms remain visible; only complete populations
+//! receive an equal-model geometric mean. Scaling uses paired wall ratios and
+//! requires actual use of the requested workers. Historical timings are not
+//! performance denominators. `CoffeeCan1000BeansSafety` is explicitly scoped to
+//! the effective safety cfg, without credit for the original temporal properties.
 //!
 //! Speed-up claims use paired wall times from current successful runs with
 //! `--tlc`. Historical timings are context only. Failed runs are excluded
@@ -62,12 +68,14 @@ struct BenchFile {
 /// Parses `benchmarks.toml`.
 ///
 /// # Errors
-/// Fails on malformed TOML, an empty set or a duplicate name.
+/// Fails on malformed TOML, an empty set, duplicate names or models, or a
+/// replacement configuration without an explicit `Safety` variant name.
 pub fn load_benchmarks(text: &str) -> Result<Vec<Bench>, String> {
     let file: BenchFile = toml::from_str(text).map_err(|e| e.to_string())?;
     if file.bench.is_empty() {
         return Err("the benchmark set is empty".to_owned());
     }
+    let mut models = std::collections::BTreeSet::new();
     let mut names = std::collections::BTreeSet::new();
     for b in &file.bench {
         if std::path::Path::new(&b.model).components().any(|c| {
@@ -80,6 +88,15 @@ pub fn load_benchmarks(text: &str) -> Result<Vec<Bench>, String> {
         }) {
             return Err(format!(
                 "benchmark `{}`: model must stay within the corpus",
+                b.name
+            ));
+        }
+        if !models.insert(b.model.as_str()) {
+            return Err(format!("duplicate model `{}`", b.model));
+        }
+        if b.cfg.is_some() && !b.name.ends_with("Safety") {
+            return Err(format!(
+                "replacement config `{}` must be named as a Safety variant",
                 b.name
             ));
         }
@@ -302,9 +319,22 @@ mod tests {
     }
 
     #[test]
+    fn rejects_ambiguous_models_and_unlabelled_replacements() {
+        let t = "[[bench]]\nname = \"a\"\nmodel = \"m.cfg\"\nwhy = \"\"\n[[bench]]\nname = \"b\"\nmodel = \"m.cfg\"\nwhy = \"\"\n";
+        assert!(load_benchmarks(t).is_err());
+        let t = "[[bench]]\nname = \"a\"\nmodel = \"m.cfg\"\nwhy = \"\"\ncfg = \"SPECIFICATION Spec\"\n";
+        assert!(load_benchmarks(t).is_err());
+        assert!(load_benchmarks(&t.replace("name = \"a\"", "name = \"aSafety\"")).is_ok());
+    }
+
+    #[test]
     fn the_committed_set_parses() -> Result<(), String> {
         let set = load_benchmarks(include_str!("../benchmarks.toml"))?;
-        assert!(set.len() >= 6);
+        assert_eq!(set.len(), 10);
+        assert!(
+            set.iter()
+                .any(|b| b.name == "CoffeeCan1000BeansSafety" && b.cfg.is_some())
+        );
         Ok(())
     }
 }
