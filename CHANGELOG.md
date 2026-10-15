@@ -8,6 +8,9 @@
   stateful checking. Real effects, parallel capture exclusions, checkpoint/DFID
   restrictions and independent composed-word refusals remain in force.
 
+- Temporal analysis stores acceptance in compact bit columns, reducing retained
+  Boolean storage. Public owned APIs and logical resource limits are unchanged.
+
 - Ordinary TLC-profile bounded final checking also accepts the existing
   `--action-composition=tlc` option with otherwise default resident settings.
   Original intermediate generated counts and independent composition refusals

@@ -37,8 +37,17 @@ impl Recurrence {
     /// to that position's outgoing edge, including a lasso's closing edge.
     /// This reads supplied truth only; it evaluates no specification code.
     #[must_use]
-    pub fn evaluate(&self, mut atom: impl FnMut(Atom) -> bool) -> bool {
+    pub fn evaluate(&self, atom: impl FnMut(Atom) -> bool) -> bool {
         let mut values: Vec<bool> = Vec::with_capacity(self.nodes.len());
+        self.evaluate_with_scratch(atom, &mut values)
+    }
+
+    pub(crate) fn evaluate_with_scratch(
+        &self,
+        mut atom: impl FnMut(Atom) -> bool,
+        values: &mut Vec<bool>,
+    ) -> bool {
+        values.clear();
         for node in &self.nodes {
             let value = match node {
                 Boolean::Bool(b) => *b,
@@ -222,5 +231,70 @@ impl Formula {
             return Err(FormulaError::Limit("formula nodes"));
         }
         Ok((core, split.conditions))
+    }
+}
+
+#[cfg(test)]
+mod scratch_tests {
+    #![allow(clippy::expect_used, reason = "finite recurrence assertions")]
+    use super::{Atom, Formula, Node};
+    use crate::formula::AtomKind;
+
+    #[test]
+    fn reused_scratch_preserves_all_atom_reads_and_boolean_truth() {
+        let state = Atom {
+            kind: AtomKind::State,
+            index: 0,
+        };
+        let action = Atom {
+            kind: AtomKind::Action,
+            index: 0,
+        };
+        let formula = Formula::new(
+            vec![
+                Node::Atom(state),
+                Node::Atom(action),
+                Node::Not(1),
+                Node::Or(vec![0, 2]),
+                Node::Eventually(3),
+                Node::Always(4),
+            ],
+            5,
+        )
+        .expect("formula");
+        let (_, conditions) = formula.factor_recurrences(4096).expect("recurrence");
+        let condition = &conditions[0];
+        let mut scratch = Vec::new();
+        for value in 0..4 {
+            let mut reads = Vec::new();
+            let mut reused_reads = Vec::new();
+            let truth = |atom: Atom| {
+                if atom.kind == AtomKind::State {
+                    value & 1 != 0
+                } else {
+                    value & 2 != 0
+                }
+            };
+            let owned = condition.evaluate(|atom| {
+                reads.push(atom);
+                truth(atom)
+            });
+            let reused = condition.evaluate_with_scratch(
+                |atom| {
+                    reused_reads.push(atom);
+                    truth(atom)
+                },
+                &mut scratch,
+            );
+            assert_eq!(owned, value & 1 != 0 || value & 2 == 0);
+            assert_eq!(reused, owned);
+            assert_eq!(reads, [state, action]);
+            assert_eq!(reused_reads, reads);
+            let capacity = scratch.capacity();
+            for _ in 0..8 {
+                assert_eq!(condition.evaluate_with_scratch(truth, &mut scratch), owned);
+                assert_eq!(scratch.capacity(), capacity);
+            }
+        }
     }
 }
