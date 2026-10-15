@@ -611,6 +611,9 @@ impl Word<'_> {
             };
             self.check_scoped_context_mode(*actual, scope, depth + 1, steps, true)?;
         }
+        // Independently inspect the configured target before any domain evaluation;
+        // ordinary recursive-source analysis must not erase this call origin.
+        self.check_scoped_context_mode(target.body, &called, depth + 1, steps, true)?;
         Ok((def, called))
     }
 
@@ -1143,7 +1146,8 @@ impl Word<'_> {
             }
             Expr::SetMap { expr: body, .. }
             | Expr::SetFilter { pred: body, .. }
-            | Expr::FcnCons { body, .. } => {
+            | Expr::FcnCons { body, .. }
+            | Expr::RecFcn { body, .. } => {
                 let (scopes, domain_level) =
                     self.predicate_scopes(expr, scope, depth + 1, steps)?;
                 let mut level = node.level.max(domain_level);
@@ -1197,7 +1201,8 @@ impl Word<'_> {
         let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
-            | Expr::FcnCons { bounds, .. } => bounds,
+            | Expr::FcnCons { bounds, .. }
+            | Expr::RecFcn { bounds, .. } => bounds,
             Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
             _ => {
                 return Err(TemporalError::Unsupported(
@@ -1219,10 +1224,27 @@ impl Word<'_> {
             self.check_scoped_context(dom, scope, depth + 1, steps)?;
             domain_level = domain_level.max(level);
         }
-        if domain_level == Level::Constant {
+        if domain_level == Level::Constant
+            && !matches!(self.model.ir.expr(expr), Expr::RecFcn { .. })
+        {
             return self
                 .finite_scopes(expr, scope, depth + 1, steps)
                 .map(|sc| (sc, domain_level));
+        }
+        if matches!(self.model.ir.expr(expr), Expr::RecFcn { .. }) {
+            domain_level = domain_level.max(Level::State);
+        }
+        if let Expr::RecFcn { body, .. } = self.model.ir.expr(expr) {
+            let analysis = self
+                .model
+                .evaluator
+                .scope_binder_analysis(scope, expr)
+                .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            if self.scoped_level(*body, &analysis, depth + 1, steps)? > Level::State {
+                return Err(TemporalError::Unsupported(
+                    "action/temporal recursive function capture".into(),
+                ));
+            }
         }
         self.model
             .evaluator
@@ -1241,7 +1263,8 @@ impl Word<'_> {
         let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
-            | Expr::FcnCons { bounds, .. } => bounds,
+            | Expr::FcnCons { bounds, .. }
+            | Expr::RecFcn { bounds, .. } => bounds,
             Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
             _ => {
                 return Err(TemporalError::Unsupported(
@@ -1369,7 +1392,17 @@ impl Word<'_> {
                         "recursive function in configured temporal argument".into(),
                     ));
                 }
+                Expr::RecFcn { body, .. } => {
+                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
+                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    continue;
+                }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
+                    SlotView::Function(_) if inspect_only => {
+                        return Err(TemporalError::Unsupported(
+                            "recursive function in configured temporal context".into(),
+                        ));
+                    }
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(e, sc) => {
                         todo.push((e, sc, depth + 1));

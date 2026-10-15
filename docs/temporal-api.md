@@ -208,7 +208,9 @@ named refusals. Effects and checker reads are rejected before evaluation.
 
 Pure finite constant-domain set maps, filters and function constructors retain
 local bindings and captured state in temporal predicates. State-dependent
-domains and recursive constructors remain explicit refusals. See the `Bc*`
+domains outside the bounded state-dependent subset retain explicit refusals.
+The earlier blanket recursive-constructor refusal is superseded by the finite
+local recursive-function subset below. See the `Bc*`
 probes in `crates/dive-api/tests/fixtures/temporal-constructors/`.
 
 Independent ENABLED covers also preserve finite set-map, filter and nonrecursive
@@ -263,3 +265,25 @@ and reason are reported. Canonical default ordering remains parallel. This
 admission exception does not allow random operators, live counters or I/O.
 JSON `temporal_bounds` reports `successors_per_unit` and `max_expansion_units`
 separately from logical graph limits and the physical worker pool.
+
+## Finite recursive function contexts
+
+Pure local RecFcn state expressions retain their actual self, evaluated domain,
+formal bindings and lexical/state captures through bounded evaluator operations.
+Analysis binds self/formals to non-runtime state-level unknowns and inspects the
+whole body. Runtime scopes contain the actual owned LazyFcn and concrete formal
+values; a plain context bundle retains source scope even for empty domains.
+That bundle establishes no purity, termination, successor existence or truth.
+Foreign/stale function, state and invocation contexts refuse.
+
+The producer and independent temporal/EXISTS traversals inspect these separately.
+EXISTS scans domains and captures before concrete enumeration and retains the
+original necessary-cover rules. Primed/action/temporal captures, configured or
+higher-order recursive forwarding and opaque/native effects remain refused.
+Existing domain/depth/work caps and recursion errors remain in force. Body
+inspection avoids repeated recursion by actual object identity, but ownership
+checks and bounded body-context construction currently repeat at self references;
+construction and projection also repeat bounded domain enumeration. This is
+conservative extra work, not a one-materialization or performance claim.
+See [the user guide](user/temporal.md#finite-local-recursive-functions) for the
+checked tiny command and current qualification limits.

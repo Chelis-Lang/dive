@@ -1587,3 +1587,30 @@ use worker 1, fp 0, seed 0 and final checking. Fails carries the independently
 checkable 0-to-1 word stuttering at 1. These are new fixture observations; older
 real-corpus measurements keep their own source and binary identities. No
 memory-model, allocator or general temporal parity gain is claimed here.
+
+## Finite local recursive-function temporal scopes
+
+This extension exposes existing runtime RecFcn/LazyFcn captures; it does not port
+a new recursive evaluator. The existing MIT TLC `FcnLambdaValue` behavior at
+pinned tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` remains the execution
+reference. The tiny PermSeqs fixture preserves the recursive self/domain, nested
+LET constructor and Append map shape from the pinned Examples allocator.
+
+Seven actual primary captures precede implementation: empty/one/two-element
+weak-fairness holds/fails and a direct action control. The consumed compact
+fixture is generated from pinned TLC/JRE, complete configured classpath and real
+physical/trace receipts; raw outputs remain external. Two-element recursion
+generates duplicate successor work, retained in the one-worker count contract.
+Original allocator measurements retain their earlier producer identities; this
+transferred source has no new original-model or corpus qualification.
+
+Configured-call source inspection retains its direct declaration origin through
+the substituted target body, helpers and lazy slots in each of the four private
+walks. This independently preserves the existing configured-recursion refusal
+when an ordinary first-order target contains a local RecFcn; Def.recursive alone
+is not that shape. Actual Function slots refuse before body projection or memo
+reuse. Ordinary local recursive analysis keeps its prior behavior and caps.
+The existing FdRecursivePerm temporal-domain fixtures still refuse: self/formal
+analysis uses conservative state unknowns and does not establish a closed
+recursive result constant for temporal expansion. Typed planning/source/evidence
+controls retain this boundary; the changed diagnostic is not new parity.

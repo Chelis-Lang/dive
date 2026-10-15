@@ -495,6 +495,9 @@ impl Lower<'_> {
             // domain. Runtime preflight follows the actually used lazy slots.
             self.pure_scoped_mode(*actual, scope, depth + 1, true)?;
         }
+        // Configured origin must survive the body's ordinary helper/lazy bindings.
+        // This inspection never evaluates a binder domain or consults a checked atom.
+        self.pure_scoped_mode(target.body, &called, depth + 1, true)?;
         Ok((def, called))
     }
 
@@ -924,7 +927,8 @@ impl Lower<'_> {
             }
             Expr::SetMap { expr: body, .. }
             | Expr::SetFilter { pred: body, .. }
-            | Expr::FcnCons { body, .. } => {
+            | Expr::FcnCons { body, .. }
+            | Expr::RecFcn { body, .. } => {
                 let (scopes, domain_level) = self.predicate_scopes(expr, scope, depth + 1)?;
                 let mut level = node.level.max(domain_level);
                 for sc in scopes {
@@ -976,7 +980,8 @@ impl Lower<'_> {
         let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
-            | Expr::FcnCons { bounds, .. } => bounds,
+            | Expr::FcnCons { bounds, .. }
+            | Expr::RecFcn { bounds, .. } => bounds,
             Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
             _ => return Err(self.refused(expr, "predicate scopes require a binder")),
         };
@@ -992,10 +997,25 @@ impl Lower<'_> {
             self.pure_scoped(dom, scope, depth + 1)?;
             domain_level = domain_level.max(level);
         }
-        if domain_level == Level::Constant {
+        if domain_level == Level::Constant
+            && !matches!(self.model.ir.expr(expr), Expr::RecFcn { .. })
+        {
             return self
                 .finite_scopes(expr, scope, depth + 1)
                 .map(|sc| (sc, domain_level));
+        }
+        if matches!(self.model.ir.expr(expr), Expr::RecFcn { .. }) {
+            domain_level = domain_level.max(Level::State);
+        }
+        if let Expr::RecFcn { body, .. } = self.model.ir.expr(expr) {
+            let analysis = self
+                .model
+                .evaluator
+                .scope_binder_analysis(scope, expr)
+                .map_err(|e| self.refused(expr, e.to_string()))?;
+            if self.scoped_level(*body, &analysis, depth + 1)? > Level::State {
+                return Err(self.refused(expr, "action/temporal recursive function capture"));
+            }
         }
         self.model
             .evaluator
@@ -1014,7 +1034,8 @@ impl Lower<'_> {
         let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
-            | Expr::FcnCons { bounds, .. } => bounds,
+            | Expr::FcnCons { bounds, .. }
+            | Expr::RecFcn { bounds, .. } => bounds,
             Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
             _ => return Err(self.refused(expr, "finite scopes require a finite binder")),
         };
@@ -1132,7 +1153,17 @@ impl Lower<'_> {
                         self.refused(e, "recursive function in configured predicate argument")
                     );
                 }
+                Expr::RecFcn { body, .. } => {
+                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
+                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    continue;
+                }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
+                    SlotView::Function(_) if inspect_only => {
+                        return Err(
+                            self.refused(e, "recursive function in configured predicate context")
+                        );
+                    }
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(body, sc) => {
                         todo.push((body, sc, depth + 1));

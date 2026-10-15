@@ -428,3 +428,13 @@ violation, each with 2 distinct/3 generated states and depth 2. Captured,
 substituted, recursive and native configured targets retain refusals. This
 source increment adds no measured real-corpus agreement or phase completion;
 older census rows retain their original producer identities.
+
+## Finite recursive-function scope candidate
+
+Local pure state RecFcn contexts now retain real self/domain/formal, lexical and
+invocation/state bindings through temporal planning, finite execution and
+independent temporal/EXISTS inspection. Seven tiny primary cases precede source
+implementation; they do not add original allocator/corpus agreements. Configured,
+higher-order/opaque and primed/effectful recursive captures remain refused, with
+existing resource and termination limits. Current-source qualification, fresh
+review and full gates remain pending. See `docs/user/temporal.md`.

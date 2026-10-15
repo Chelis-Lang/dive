@@ -17,6 +17,15 @@
   refusals emit no model error or counterexample. This additional action-only
   normalization can itself exhaust the existing formula limits.
 
+- Bounded temporal predicates and fairness actions can retain pure finite local
+  recursive-function scopes, including actual self and lexical/state captures.
+  Independent enabledness keeps original complete-cover semantics and refuses
+  hidden primed reads even behind empty domains. Configured/higher-order and
+  effectful recursive contexts remain unsupported; existing limits stay in force.
+  Recursive results not established constant still refuse as temporal quantifier
+  domains, including closed calls; state-level analysis is conservative.
+  Original allocator/corpus qualification on this source and full gates remain pending.
+
 - TLC checking entrypoints now read and parse the configuration before the
   module, so missing or malformed configurations exit 151 even when the module
   is also missing. Native commands and existing file APIs retain their input order.
