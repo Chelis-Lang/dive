@@ -402,6 +402,15 @@ development-only reference evidence; runtime translation remains native.
 
 ## Conditional temporal planning conversion
 
+The ordinary-final composition eligibility extension is native option dispatch,
+not a Java algorithm port. Two tiny `CompositionFinal` controls were run before
+implementation against pinned TLC94d0c507 with its composition property, full
+pinned classpath, worker1/seed0/fp0 and final checking. Hold succeeded2193/0;
+Fail violated2116/13 with FALSE,TRUE,stuttering. Both produced5generated/2distinct/
+depth2. Compact consumed fixtures record identities; independent composed-Next
+replay remains an explicit native refusal. No original FiniteMonotonic gain is
+established by these controls.
+
 Deferred-filter redirect-source preflight in `dive-eval/src/bounded_domain.rs`
 is original bounded metadata inspection of actual value-bound scalar constants;
 it ports no Java purity mechanism. Filter enumeration still uses the existing

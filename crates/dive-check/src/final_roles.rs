@@ -24,10 +24,15 @@ pub enum Dispatch {
 }
 
 fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
-    let baseline = match opts.profile {
+    let mut baseline = match opts.profile {
         dive_eval::Profile::Dive => CheckOptions::dive(opts.seed),
         dive_eval::Profile::Tlc => CheckOptions::tlc(0, opts.seed),
     };
+    if opts.profile == dive_eval::Profile::Tlc
+        && opts.eval.action_composition == dive_eval::ActionComposition::Tlc
+    {
+        baseline.eval.action_composition = dive_eval::ActionComposition::Tlc;
+    }
     !cfg.properties.is_empty()
         && opts.seen_disk.is_none()
         && opts.frontier_memory_bytes.is_none()
@@ -49,7 +54,8 @@ fn eligible(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> bool {
 ///
 /// `None` means no host was created and no binding or source evaluation ran:
 /// the caller must retain its existing temporal route and error priority.
-/// Eligible requests use profile-default evaluation/fingerprints, polynomial 0,
+/// Eligible requests use profile-default evaluation/fingerprints, or TLC evaluation
+/// with only [`dive_eval::ActionComposition::Tlc`] selected, and polynomial 0,
 /// no storage/directory overrides, deadlock override, sequential flag or chaos,
 /// and no source/configured randomness under VIEW or SYMMETRY. Seed and worker
 /// requests are retained. Eligibility is not a purity or model-truth claim.
@@ -96,4 +102,81 @@ pub fn dispatch_ordinary(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -
         Ok(bound) => bound,
         Err(failure) => Dispatch::Safety(Box::new(crate::binding_failure(ir, opts, &failure))),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::expect_used, reason = "tiny eligibility assertions")]
+    use super::eligible;
+    use crate::CheckOptions;
+    use dive_eval::{ActionComposition, Comparisons, ExplorationOrder};
+    use std::sync::Arc;
+
+    fn input() -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
+        let source =
+            "---- MODULE Eligible ----\nVARIABLE x\nInit==x=0\nNext==x'=x\nP==<>(x=1)\n====\n";
+        let analysis =
+            dive_sema::analyze_source("Eligible.tla", source, &dive_sema::Options::default());
+        assert!(analysis.accepted());
+        (
+            Arc::new(dive_ir::lower(&analysis).expect("IR")),
+            dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+                .into_config()
+                .expect("configuration"),
+        )
+    }
+
+    #[test]
+    fn only_tlc_composition_adds_a_profile_match() {
+        let (ir, cfg) = input();
+        for (baseline, modes) in [
+            (CheckOptions::tlc(0, 7), [true, true, false]),
+            (CheckOptions::dive(7), [false, false, true]),
+        ] {
+            for (mode, expected) in [
+                ActionComposition::Off,
+                ActionComposition::Tlc,
+                ActionComposition::Tla,
+            ]
+            .into_iter()
+            .zip(modes)
+            {
+                let mut options = baseline.clone();
+                options.eval.action_composition = mode;
+                assert_eq!(eligible(&ir, &cfg, &options), expected, "{options:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn composition_preserves_other_evaluation_and_resident_guards() {
+        type Change = fn(&mut CheckOptions);
+        let changes: &[Change] = &[
+            |o| o.eval.ctx.int_mode = dive_value::IntMode::Big,
+            |o| o.eval.ctx.order = dive_value::ValueOrder::Canonical,
+            |o| o.eval.exploration = ExplorationOrder::Value,
+            |o| o.eval.comparisons = Comparisons::Tla,
+            |o| o.eval.max_depth = 1,
+            |o| o.eval.warnings = false,
+            |o| o.store = dive_store::StoreMode::Exact,
+            |o| o.fp_index = 1,
+            |o| o.tlc_fingerprints = false,
+            |o| o.frontier_memory_bytes = Some(0),
+            |o| o.frontier_directory = Some("unused".into()),
+            |o| o.predecessor_memory_bytes = Some(0),
+            |o| o.predecessor_directory = Some("unused".into()),
+            |o| o.no_deadlock = true,
+            |o| o.sequential = true,
+            |o| o.chaos = Some(0),
+        ];
+        let (ir, cfg) = input();
+        let mut baseline = CheckOptions::tlc(0, 7);
+        baseline.eval.action_composition = ActionComposition::Tlc;
+        assert!(eligible(&ir, &cfg, &baseline));
+        for change in changes {
+            let mut options = baseline.clone();
+            change(&mut options);
+            assert!(!eligible(&ir, &cfg, &options), "{options:?}");
+        }
+    }
 }
