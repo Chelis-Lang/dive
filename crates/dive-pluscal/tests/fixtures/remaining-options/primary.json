@@ -1,0 +1,355 @@
+{
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "scope": "Consumed primary translation bodies/CRCs and configuration requirements; no model checking claim",
+  "rows": [
+    {
+      "id": "baseline",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "f2b11a0b",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "termination",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "args": [
+        "-termination"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == /\\ Init /\\ [][Next]_vars\n        /\\ WF_vars(Next)\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "482e1300",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "termination_nof",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "args": [
+        "-termination",
+        "-nof"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "f2b11a0b",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "termination_sf",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "args": [
+        "-termination",
+        "-sf"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == /\\ Init /\\ [][Next]_vars\n        /\\ WF_vars(Next)\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "482e1300",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "termination_next",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "args": [
+        "-termination",
+        "-wfNext"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == /\\ Init /\\ [][Next]_vars\n        /\\ WF_vars(Next)\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "482e1300",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "termination_mp",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "args": [
+        "-termination"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nProcSet == ({1,2})\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = [self \\in ProcSet |-> \"A\"]\n\nA(self) == /\\ pc[self] = \"A\"\n           /\\ x' = x + 1\n           /\\ pc' = [pc EXCEPT ![self] = \"B\"]\n\nB(self) == /\\ pc[self] = \"B\"\n           /\\ TRUE\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ x' = x\n\nP(self) == A(self) \\/ B(self)\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == (\\E self \\in {1,2}: P(self))\n           \\/ Terminating\n\nSpec == /\\ Init /\\ [][Next]_vars\n        /\\ \\A self \\in {1,2} : WF_vars(P(self))\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+      "algorithm_crc": "f06f902",
+      "body_crc": "6cddb297",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "termination_source_nof",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\\* PlusCal options (nof)\n(* --algorithm A variables x=0; begin A: x:=1; B:skip; end algorithm; *)\n====\n",
+      "args": [
+        "-termination"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "f2b11a0b",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "termination_source",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\\* PlusCal options (termination)\n(* --algorithm A variables x=0; begin A: x:=1; B:skip; end algorithm; *)\n====\n",
+      "args": [
+        "-nof"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "f2b11a0b",
+      "termination_required": true,
+      "labels": []
+    },
+    {
+      "id": "done_baseline",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nProcSet == ({1,2})\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = [self \\in ProcSet |-> \"A\"]\n\nA(self) == /\\ pc[self] = \"A\"\n           /\\ x' = x + 1\n           /\\ pc' = [pc EXCEPT ![self] = \"B\"]\n\nB(self) == /\\ pc[self] = \"B\"\n           /\\ TRUE\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ x' = x\n\nP(self) == A(self) \\/ B(self)\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == (\\E self \\in {1,2}: P(self))\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+      "algorithm_crc": "3bf0c19c",
+      "body_crc": "683ac2e8",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "no_done",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "args": [
+        "-noDoneDisjunct"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nProcSet == ({1,2})\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = [self \\in ProcSet |-> \"A\"]\n\nA(self) == /\\ pc[self] = \"A\"\n           /\\ x' = x + 1\n           /\\ pc' = [pc EXCEPT ![self] = \"B\"]\n\nB(self) == /\\ pc[self] = \"B\"\n           /\\ TRUE\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ x' = x\n\nP(self) == A(self) \\/ B(self)\n\nNext == (\\E self \\in {1,2}: P(self))\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+      "algorithm_crc": "3bf0c19c",
+      "body_crc": "126d8f79",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "no_done_source",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\\* PlusCal options (noDoneDisjunct)\n(* --algorithm A variables x=0; begin A: x:=1; B:skip; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\nNext == A \\/ B\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "f23adfdf",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "width78",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables longVariableName0 = 0, longVariableName1 = 0, longVariableName2 = 0, longVariableName3 = 0, longVariableName4 = 0, longVariableName5 = 0, longVariableName6 = 0, longVariableName7 = 0, longVariableName8 = 0, longVariableName9 = 0, longVariableName10 = 0, longVariableName11 = 0; begin A: skip; B: skip; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLES pc, longVariableName0, longVariableName1, longVariableName2, \n          longVariableName3, longVariableName4, longVariableName5, \n          longVariableName6, longVariableName7, longVariableName8, \n          longVariableName9, longVariableName10, longVariableName11\n\nvars == << pc, longVariableName0, longVariableName1, longVariableName2, \n           longVariableName3, longVariableName4, longVariableName5, \n           longVariableName6, longVariableName7, longVariableName8, \n           longVariableName9, longVariableName10, longVariableName11 >>\n\nInit == (* Global variables *)\n        /\\ longVariableName0 = 0\n        /\\ longVariableName1 = 0\n        /\\ longVariableName2 = 0\n        /\\ longVariableName3 = 0\n        /\\ longVariableName4 = 0\n        /\\ longVariableName5 = 0\n        /\\ longVariableName6 = 0\n        /\\ longVariableName7 = 0\n        /\\ longVariableName8 = 0\n        /\\ longVariableName9 = 0\n        /\\ longVariableName10 = 0\n        /\\ longVariableName11 = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ TRUE\n     /\\ pc' = \"B\"\n     /\\ UNCHANGED << longVariableName0, longVariableName1, longVariableName2, \n                     longVariableName3, longVariableName4, longVariableName5, \n                     longVariableName6, longVariableName7, longVariableName8, \n                     longVariableName9, longVariableName10, longVariableName11 >>\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << longVariableName0, longVariableName1, longVariableName2, \n                     longVariableName3, longVariableName4, longVariableName5, \n                     longVariableName6, longVariableName7, longVariableName8, \n                     longVariableName9, longVariableName10, longVariableName11 >>\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "32aedfe9",
+      "body_crc": "f5ac3c12",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "width60",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables longVariableName0 = 0, longVariableName1 = 0, longVariableName2 = 0, longVariableName3 = 0, longVariableName4 = 0, longVariableName5 = 0, longVariableName6 = 0, longVariableName7 = 0, longVariableName8 = 0, longVariableName9 = 0, longVariableName10 = 0, longVariableName11 = 0; begin A: skip; B: skip; end algorithm; *)\n====\n",
+      "args": [
+        "-lineWidth",
+        "60"
+      ],
+      "body": "VARIABLES pc, longVariableName0, longVariableName1, \n          longVariableName2, longVariableName3, \n          longVariableName4, longVariableName5, \n          longVariableName6, longVariableName7, \n          longVariableName8, longVariableName9, \n          longVariableName10, longVariableName11\n\nvars == << pc, longVariableName0, longVariableName1, \n           longVariableName2, longVariableName3, \n           longVariableName4, longVariableName5, \n           longVariableName6, longVariableName7, \n           longVariableName8, longVariableName9, \n           longVariableName10, longVariableName11 >>\n\nInit == (* Global variables *)\n        /\\ longVariableName0 = 0\n        /\\ longVariableName1 = 0\n        /\\ longVariableName2 = 0\n        /\\ longVariableName3 = 0\n        /\\ longVariableName4 = 0\n        /\\ longVariableName5 = 0\n        /\\ longVariableName6 = 0\n        /\\ longVariableName7 = 0\n        /\\ longVariableName8 = 0\n        /\\ longVariableName9 = 0\n        /\\ longVariableName10 = 0\n        /\\ longVariableName11 = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ TRUE\n     /\\ pc' = \"B\"\n     /\\ UNCHANGED << longVariableName0, longVariableName1, \n                     longVariableName2, longVariableName3, \n                     longVariableName4, longVariableName5, \n                     longVariableName6, longVariableName7, \n                     longVariableName8, longVariableName9, \n                     longVariableName10, longVariableName11 >>\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << longVariableName0, longVariableName1, \n                     longVariableName2, longVariableName3, \n                     longVariableName4, longVariableName5, \n                     longVariableName6, longVariableName7, \n                     longVariableName8, longVariableName9, \n                     longVariableName10, longVariableName11 >>\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "32aedfe9",
+      "body_crc": "567cdd4c",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "width100",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables longVariableName0 = 0, longVariableName1 = 0, longVariableName2 = 0, longVariableName3 = 0, longVariableName4 = 0, longVariableName5 = 0, longVariableName6 = 0, longVariableName7 = 0, longVariableName8 = 0, longVariableName9 = 0, longVariableName10 = 0, longVariableName11 = 0; begin A: skip; B: skip; end algorithm; *)\n====\n",
+      "args": [
+        "-lineWidth",
+        "100"
+      ],
+      "body": "VARIABLES pc, longVariableName0, longVariableName1, longVariableName2, longVariableName3, \n          longVariableName4, longVariableName5, longVariableName6, longVariableName7, \n          longVariableName8, longVariableName9, longVariableName10, longVariableName11\n\nvars == << pc, longVariableName0, longVariableName1, longVariableName2, longVariableName3, \n           longVariableName4, longVariableName5, longVariableName6, longVariableName7, \n           longVariableName8, longVariableName9, longVariableName10, longVariableName11 >>\n\nInit == (* Global variables *)\n        /\\ longVariableName0 = 0\n        /\\ longVariableName1 = 0\n        /\\ longVariableName2 = 0\n        /\\ longVariableName3 = 0\n        /\\ longVariableName4 = 0\n        /\\ longVariableName5 = 0\n        /\\ longVariableName6 = 0\n        /\\ longVariableName7 = 0\n        /\\ longVariableName8 = 0\n        /\\ longVariableName9 = 0\n        /\\ longVariableName10 = 0\n        /\\ longVariableName11 = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ TRUE\n     /\\ pc' = \"B\"\n     /\\ UNCHANGED << longVariableName0, longVariableName1, longVariableName2, longVariableName3, \n                     longVariableName4, longVariableName5, longVariableName6, longVariableName7, \n                     longVariableName8, longVariableName9, longVariableName10, longVariableName11 >>\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << longVariableName0, longVariableName1, longVariableName2, longVariableName3, \n                     longVariableName4, longVariableName5, longVariableName6, longVariableName7, \n                     longVariableName8, longVariableName9, longVariableName10, longVariableName11 >>\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "32aedfe9",
+      "body_crc": "9747b769",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "width_source",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\\* PlusCal options (-lineWidth, 60)\n(* --algorithm A variables x=0; begin A: x:=1; B:skip; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "f2b11a0b",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "one_default",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin x := 1; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"Lbl_1\"\n\nLbl_1 == /\\ pc = \"Lbl_1\"\n         /\\ x' = 1\n         /\\ pc' = \"Done\"\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Lbl_1\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "2d0b7386",
+      "body_crc": "849ddc79",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "version14",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin x := 1; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.4"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"Lbl_1\"\n\nLbl_1 == /\\ pc = \"Lbl_1\"\n         /\\ x' = 1\n         /\\ pc' = \"Done\"\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Lbl_1\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "2d0b7386",
+      "body_crc": "849ddc79",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "version15",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin x := 1; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.5"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"Lbl_1\"\n\nLbl_1 == /\\ pc = \"Lbl_1\"\n         /\\ x' = 1\n         /\\ pc' = \"Done\"\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Lbl_1\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "2d0b7386",
+      "body_crc": "849ddc79",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "version19",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin x := 1; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.9"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"Lbl_1\"\n\nLbl_1 == /\\ pc = \"Lbl_1\"\n         /\\ x' = 1\n         /\\ pc' = \"Done\"\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == Lbl_1\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "2d0b7386",
+      "body_crc": "849ddc79",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "version15fair",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x=0; fair begin A:x:=1; B:skip; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.5"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"A\"\n\nA == /\\ pc = \"A\"\n     /\\ x' = 1\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == A \\/ B\n           \\/ Terminating\n\nSpec == /\\ Init /\\ [][Next]_vars\n        /\\ WF_vars(Next)\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "d1c14d58",
+      "body_crc": "482e1300",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "label_insert",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin x := x+1; x := x+1; end process; end algorithm; *)\n====\n",
+      "args": [
+        "-label"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nProcSet == ({1,2})\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = [self \\in ProcSet |-> \"Lbl_1\"]\n\nLbl_1(self) == /\\ pc[self] = \"Lbl_1\"\n               /\\ x' = x+1\n               /\\ pc' = [pc EXCEPT ![self] = \"Lbl_2\"]\n\nLbl_2(self) == /\\ pc[self] = \"Lbl_2\"\n               /\\ x' = x+1\n               /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n\nP(self) == Lbl_1(self) \\/ Lbl_2(self)\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == (\\E self \\in {1,2}: P(self))\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+      "algorithm_crc": "f68cb33a",
+      "body_crc": "10bd2cce",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "report_labels",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin x := x+1; x := x+1; end process; end algorithm; *)\n====\n",
+      "args": [
+        "-reportLabels",
+        "-labelRoot",
+        "Test_"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nProcSet == ({1,2})\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = [self \\in ProcSet |-> \"Test_1\"]\n\nTest_1(self) == /\\ pc[self] = \"Test_1\"\n                /\\ x' = x+1\n                /\\ pc' = [pc EXCEPT ![self] = \"Test_2\"]\n\nTest_2(self) == /\\ pc[self] = \"Test_2\"\n                /\\ x' = x+1\n                /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n\nP(self) == Test_1(self) \\/ Test_2(self)\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == (\\E self \\in {1,2}: P(self))\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+      "algorithm_crc": "b4207fcc",
+      "body_crc": "4ab1aaf5",
+      "termination_required": false,
+      "labels": [
+        {
+          "name": "Test_1",
+          "line": 4,
+          "column": 61
+        },
+        {
+          "name": "Test_2",
+          "line": 4,
+          "column": 71
+        }
+      ]
+    },
+    {
+      "id": "report_labels_explicit",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "args": [
+        "-reportLabels"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nProcSet == ({1,2})\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = [self \\in ProcSet |-> \"A\"]\n\nA(self) == /\\ pc[self] = \"A\"\n           /\\ x' = x + 1\n           /\\ pc' = [pc EXCEPT ![self] = \"B\"]\n\nB(self) == /\\ pc[self] = \"B\"\n           /\\ TRUE\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ x' = x\n\nP(self) == A(self) \\/ B(self)\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == (\\E self \\in {1,2}: P(self))\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+      "algorithm_crc": "3bf0c19c",
+      "body_crc": "683ac2e8",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "infinite_default",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin L: while TRUE do x := x + 1; end while; end algorithm; *)\n====\n",
+      "args": [],
+      "body": "VARIABLE x\n\nvars == << x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n\nNext == x' = x + 1\n\nSpec == Init /\\ [][Next]_vars\n",
+      "algorithm_crc": "4e3c0790",
+      "body_crc": "ce7e851a",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "infinite_1.4",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin L: while TRUE do x := x + 1; end while; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.4"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = x + 1\n     /\\ pc' = \"L\"\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "4e3c0790",
+      "body_crc": "d7635b2d",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "infinite_1.5",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin L: while TRUE do x := x + 1; end while; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.5"
+      ],
+      "body": "VARIABLE x\n\nvars == << x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n\nNext == x' = x + 1\n\nSpec == Init /\\ [][Next]_vars\n",
+      "algorithm_crc": "4e3c0790",
+      "body_crc": "ce7e851a",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "infinite_1.12",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin L: while TRUE do x := x + 1; end while; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.12"
+      ],
+      "body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = x + 1\n     /\\ pc' = \"L\"\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+      "algorithm_crc": "4e3c0790",
+      "body_crc": "d7635b2d",
+      "termination_required": false,
+      "labels": []
+    },
+    {
+      "id": "infinite_1.903",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; begin L: while TRUE do x := x + 1; end while; end algorithm; *)\n====\n",
+      "args": [
+        "-version",
+        "1.903"
+      ],
+      "body": "VARIABLE x\n\nvars == << x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n\nNext == x' = x + 1\n\nSpec == Init /\\ [][Next]_vars\n",
+      "algorithm_crc": "4e3c0790",
+      "body_crc": "ce7e851a",
+      "termination_required": false,
+      "labels": []
+    }
+  ]
+}

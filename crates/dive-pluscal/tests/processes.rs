@@ -12,6 +12,7 @@ fn retained_selection(
     directory: &str,
     selected: usize,
     expected_artifacts: usize,
+    expected_invalid: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/process")
@@ -21,6 +22,7 @@ fn retained_selection(
     let rows = manifest["rows"].as_array().ok_or("missing rows")?;
     assert_eq!(rows.len(), selected);
     let mut artifacts = 0;
+    let mut raw_invalid = 0;
     for row in rows {
         let id = row["id"].as_str().ok_or("missing id")?;
         let source = std::fs::read_to_string(
@@ -51,7 +53,6 @@ fn retained_selection(
         match translate_at(&source, start..end, &options) {
             Ok(artifact) => {
                 assert_eq!(row["primary"]["status"], "translated", "{id}");
-                assert_eq!(row["sany"]["status"], "accepted", "{id}");
                 let primary = std::fs::read_to_string(
                     base.join("fixtures")
                         .join(row["translated"]["path"].as_str().ok_or("artifact")?),
@@ -93,7 +94,12 @@ fn retained_selection(
                         .ok_or("default init")?,
                     "{id}"
                 );
-                artifacts += 1;
+                if row["sany"]["status"] == "accepted" {
+                    artifacts += 1;
+                } else {
+                    assert_eq!(row["sany"]["status"], "rejected", "{id}");
+                    raw_invalid += 1;
+                }
             }
             Err(e) if e.diagnostic.code == Code::Unsupported => {}
             Err(e) => {
@@ -106,14 +112,15 @@ fn retained_selection(
         }
     }
     assert_eq!(artifacts, expected_artifacts);
+    assert_eq!(raw_invalid, expected_invalid);
     Ok(())
 }
 #[test]
 fn retained_process_artifacts_and_errors() -> Result<(), Box<dyn std::error::Error>> {
-    retained_selection("", 208, 96)?;
-    retained_selection("interactions", 16, 10)?;
-    retained_selection("subscripts", 12, 8)?;
-    retained_selection("names", 6, 0)
+    retained_selection("", 208, 106, 12)?;
+    retained_selection("interactions", 16, 12, 0)?;
+    retained_selection("subscripts", 12, 12, 0)?;
+    retained_selection("names", 6, 0, 0)
 }
 #[test]
 fn process_labels_require_explicit_insertion_and_remain_source_mapped()
@@ -149,17 +156,21 @@ fn process_labels_require_explicit_insertion_and_remain_source_mapped()
     Ok(())
 }
 #[test]
-fn process_name_shadowing_and_unproved_bindings_refuse_without_artifacts() {
+fn process_names_and_symbolic_bindings_follow_the_primary() -> Result<(), Box<dyn std::error::Error>>
+{
+    let duplicate = "--algorithm A variable x=0; process P =1 variables x=1; begin L: x:=2; end process; end algorithm";
+    assert!(
+        matches!(translate(duplicate, &TranslationOptions::default()), Err(e) if e.diagnostic.code == Code::Syntax && e.diagnostic.message.contains('x'))
+    );
     for source in [
-        "--algorithm A variable x=0; process P =1 variables x=1; begin L: x:=2; end process; end algorithm",
         "--algorithm A process P \\inS begin L: skip; end process; end algorithm",
         "--algorithm A process P =1 variables x=self; begin L: skip; end process; end algorithm",
     ] {
-        assert!(
-            matches!(translate(source,&TranslationOptions::default()),Err(e) if e.diagnostic.code==Code::Unsupported),
-            "{source}"
-        );
+        let artifact = translate(source, &TranslationOptions::default())?;
+        assert_eq!(artifact.actions, ["L"]);
+        assert_eq!(artifact.processes.len(), 1);
     }
+    Ok(())
 }
 
 #[test]

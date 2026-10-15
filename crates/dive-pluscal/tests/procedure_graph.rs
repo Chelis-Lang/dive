@@ -8,6 +8,13 @@ fn words(source: &str) -> Vec<String> {
         .map(|t| source[usize::from(t.range.start())..usize::from(t.range.end())].into())
         .collect()
 }
+fn contains_words(source: &str, expression: &str) -> bool {
+    let expected = words(expression);
+    words(source)
+        .windows(expected.len())
+        .any(|window| window == expected)
+}
+
 fn retained(
     directory: &str,
     selected: usize,
@@ -101,7 +108,7 @@ fn retained(
 #[test]
 fn pinned_nonrecursive_graph_artifacts_and_invalid_output() -> Result<(), Box<dyn std::error::Error>>
 {
-    retained("", 120, 78, 4)
+    retained("", 120, 87, 4)
 }
 #[test]
 fn historical_cycles_now_match_the_retained_primary_artifacts()
@@ -124,7 +131,7 @@ fn historical_cycles_now_match_the_retained_primary_artifacts()
             assert_ne!(artifact.actions.len(), 0);
             // The complete retained test above compares every original action
             // and token against its unchanged capture-first primary artifact.
-            assert!(artifact.tla.contains("stack"));
+            assert!(contains_words(&artifact.tla, "stack"));
         }
     }
     Ok(())
@@ -138,7 +145,7 @@ fn graph_scope_actions_are_globally_bounded_and_source_is_unchanged()
     let before = serde_json::to_value(&parsed)?;
     let artifact = translate(source, &TranslationOptions::default())?;
     assert_eq!(artifact.actions, ["O", "R", "I", "S", "L", "E"]);
-    assert!(artifact.tla.contains("procedure |-> \"Inner\""));
+    assert!(contains_words(&artifact.tla, "procedure |-> \"Inner\""));
     let options = TranslationOptions {
         max_actions: 5,
         ..TranslationOptions::default()
@@ -155,8 +162,8 @@ fn cross_procedure_call_return_keeps_its_reference_frame_owner()
 -> Result<(), Box<dyn std::error::Error>> {
     let source = "--algorithm A variable x=0; procedure Outer(a=0) variable u=1; begin O: call Inner(a+u); return; end procedure; procedure Inner(b=0) variable v=2; begin I: x:=b+v; S: return; end procedure; begin L: call Outer(3); E: skip; end algorithm";
     let artifact = translate(source, &TranslationOptions::default())?;
-    assert!(artifact.tla.contains("Tail(stack)"));
-    assert!(artifact.tla.contains("u' = Head(stack).u"));
+    assert!(contains_words(&artifact.tla, "Tail(stack)"));
+    assert!(contains_words(&artifact.tla, "u' = Head(stack).u"));
     assert!(!artifact.tla.contains("a' = Head(stack).a /\\"));
     assert_eq!(artifact.actions, ["O", "I", "S", "L", "E"]);
     Ok(())

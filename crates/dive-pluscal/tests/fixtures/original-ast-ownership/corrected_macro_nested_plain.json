@@ -1,0 +1,9 @@
+{
+  "id": "corrected_macro_nested_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0;\nmacro Set(v,a) begin v:=a; end macro;\nmacro Twice(v,a) begin Set(v,a+1); Set(v,a+2); end macro;\nbegin L:Twice(x,3); B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": true,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"3\", \"+\", \"1\" >>]>>]>>], \n             [label |-> \"Lbl_1\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"3\", \"+\", \"2\" >>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

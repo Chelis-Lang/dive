@@ -1,0 +1,22 @@
+{
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "rows": [
+    {
+      "module": "Case",
+      "source": "Case.source.tla",
+      "exact_primary": "Case.exact-primary.tla",
+      "disabled_primary": "Case.disabled-primary.tla",
+      "primary_disabled_route": "actual pcal.trans on predeclared disabled-header INPUT, flags[]",
+      "procedure": false
+    },
+    {
+      "module": "Procedure_P_simple",
+      "source": "Procedure_P_simple.source.tla",
+      "exact_primary": "Procedure_P_simple.exact-primary.tla",
+      "disabled_primary": "Procedure_P_simple.disabled-primary.tla",
+      "primary_disabled_route": "actual pcal.trans on predeclared disabled-header INPUT, flags[]",
+      "procedure": true
+    }
+  ]
+}

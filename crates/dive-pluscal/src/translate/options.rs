@@ -1,4 +1,4 @@
-//! Bounded source option context matching pinned `trans`/`ParseAlgorithm`.
+//! Shared source option context matching pinned `trans`/`ParseAlgorithm`.
 use super::{FairnessOption, TranslationError, TranslationOptions, TranslationStage, error};
 use crate::{Code, ast::Span};
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,7 @@ pub struct SourceOptionDeclaration {
     /// Ordered original argument words (commas are separators).
     pub arguments: Vec<SourceOptionArgument>,
 }
-/// Requested settings and the effective, proved source-option context.
+/// Requested settings and the resolved source-option context.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TranslationContext {
     /// Explicit CLI/API settings before source processing.
@@ -91,7 +91,7 @@ fn refused(span: Span, message: &str) -> TranslationError {
         format!("unsupported PlusCal source options: {message}"),
     )
 }
-/// Resolves the bounded proved source fairness/label options before normalization.
+/// Resolves supported source translator options before normalization.
 /// First source fairness overrides explicit fairness. No malformed, unknown,
 /// conflicting or partially applied declaration produces effective settings.
 ///
@@ -142,6 +142,7 @@ pub fn resolve_translation_options(
         }
     }
     let mut context = TranslationContext::explicit(requested);
+    finish_options(&mut context.effective)?;
     let Some(header) = source_options_span(source) else {
         return Ok(context);
     };
@@ -199,6 +200,55 @@ pub fn resolve_translation_options(
                 context.effective.insert_missing_labels = true;
                 None
             }
+            "-termination" | "termination" => {
+                context.effective.check_termination = true;
+                None
+            }
+            "-noDoneDisjunct" | "noDoneDisjunct" => {
+                context.effective.no_done_disjunct = true;
+                None
+            }
+            "-noold" => {
+                context.effective.no_old = true;
+                None
+            }
+            "-nocfg" => {
+                context.effective.no_configuration = true;
+                None
+            }
+            "-lineWidth" => {
+                index += 1;
+                let width = arguments
+                    .get(index)
+                    .ok_or_else(|| refused(argument.span, "lineWidth argument missing"))?;
+                context.effective.line_width = width
+                    .text
+                    .parse::<i32>()
+                    .ok()
+                    .filter(|n| *n >= 60)
+                    .ok_or_else(|| {
+                        refused(width.span, "lineWidth expects an i32 value at least 60")
+                    })?;
+                None
+            }
+            "-version" | "version" => {
+                index += 1;
+                let version = arguments
+                    .get(index)
+                    .ok_or_else(|| refused(argument.span, "version argument missing"))?;
+                version_weight(Some(&version.text)).map_err(|mut e| {
+                    e.diagnostic.span = version.span;
+                    e
+                })?;
+                context.effective.version = Some(version.text.clone());
+                None
+            }
+            "-spec" | "spec" | "-myspec" | "myspec" => {
+                return Err(refused(
+                    argument.span,
+                    &format!("{} specification-backed translator backend", argument.text),
+                ));
+            }
             "-labelRoot" | "labelRoot" => {
                 index += 1;
                 let root = arguments
@@ -222,7 +272,7 @@ pub fn resolve_translation_options(
             _ => {
                 return Err(refused(
                     argument.span,
-                    "unknown or unproved option argument",
+                    &format!("unknown or unproved option argument {}", argument.text),
                 ));
             }
         };
@@ -237,6 +287,7 @@ pub fn resolve_translation_options(
         }
         index += 1;
     }
+    finish_options(&mut context.effective)?;
     context.source_declaration = Some(SourceOptionDeclaration {
         span: Span {
             start: header.start,
@@ -245,4 +296,94 @@ pub fn resolve_translation_options(
         arguments,
     });
     Ok(context)
+}
+
+/// Pinned `PcalParams.VersionToNumber`: decimal thousandths, not semver/f64.
+/// Java i32 arithmetic wraps; multiple dots merely set the decimal flag.
+pub(super) fn version_weight(version: Option<&str>) -> Result<i32, TranslationError> {
+    let Some(version) = version else {
+        return Ok(1903);
+    };
+    if version.len() > 256 {
+        return Err(error(
+            TranslationStage::Normalization,
+            Code::Resource,
+            Span::default(),
+            "PlusCal version argument exceeds 256 bytes",
+        ));
+    }
+    let mut value = 0_i32;
+    let mut decimal = false;
+    let mut digits = 0;
+    for byte in version.bytes() {
+        match byte {
+            b'0'..=b'9' => {
+                value = value.wrapping_mul(10).wrapping_add(i32::from(byte - b'0'));
+                if decimal {
+                    digits += 1;
+                }
+                if digits > 3 {
+                    return Err(refused(Span::default(), "illegal version number"));
+                }
+            }
+            b'.' => decimal = true,
+            _ => return Err(refused(Span::default(), "illegal version number")),
+        }
+    }
+    for _ in digits..3 {
+        value = value.wrapping_mul(10);
+    }
+    if !(0..=1903).contains(&value) {
+        return Err(refused(
+            Span::default(),
+            "illegal or later-than-current version number",
+        ));
+    }
+    Ok(value)
+}
+
+fn finish_options(options: &mut TranslationOptions) -> Result<(), TranslationError> {
+    if options.line_width < 60 {
+        return Err(refused(
+            Span::default(),
+            "lineWidth expects an i32 value at least 60",
+        ));
+    }
+    options.parser.input_version = version_weight(options.version.as_deref())?;
+    if let Some((mode, _)) = &options.specification_backend {
+        return Err(refused(
+            Span::default(),
+            &format!("{mode} specification-backed translator backend"),
+        ));
+    }
+    if options.write_ast {
+        return Err(refused(
+            Span::default(),
+            "writeAST filesystem operation; use --ast or original_ast_at for in-memory original bytes",
+        ));
+    }
+    if options.report_labels {
+        options.insert_missing_labels = true;
+    }
+    if options.check_termination && options.fairness == FairnessOption::Declared {
+        options.fairness = FairnessOption::Weak;
+    }
+    Ok(())
+}
+
+/// Older process/procedure AST fields have not been measured by this delta.
+pub(super) fn admit_version_shape(
+    parsed: &crate::Parsed,
+    weight: i32,
+) -> Result<(), TranslationError> {
+    if weight < 1500
+        && (!parsed.algorithm.procedures.is_empty()
+            || matches!(parsed.algorithm.body, crate::ast::Body::Processes(_)))
+    {
+        return Err(refused(
+            parsed.algorithm.span,
+            "pre-1.5 process/procedure AST and translation",
+        ));
+    }
+    Ok(())
 }

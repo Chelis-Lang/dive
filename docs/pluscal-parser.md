@@ -11,9 +11,11 @@ display positions. No Java runtime is used.
 delimiter/quantifier counting rules, without TLA syntax/semantic validation.
 Primary and secondary probes accept `(1]`, `[1)`, `<<1}` and `[1, end]` at this
 stage; those slices must be validated later. Macro expansion, labels/name checks,
-full translation/checksums, historical dialects and translator options remain
-pending. A separate [bounded sequential translation path](pluscal-translation.md)
-now admits a single algorithm in a module comment; source acceptance alone does
+full translation/checksums and translator options belong to the separate
+[translation path](pluscal-translation.md). `Options.input_version` defaults to
+1903; exactly 1500 permits sequential `fair`/`fair +` before `begin`, recording it
+separately from header fairness. Broader historical dialects remain pending.
+The translation path admits a single algorithm in a module comment; source acceptance alone does
 not imply translation acceptance.
 
 Default bounds: 1 MiB source, 100,000 significant tokens, 50,000 counted nodes

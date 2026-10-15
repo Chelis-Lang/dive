@@ -1,4 +1,4 @@
-//! Bounded pinned post-translation AST serialization (ADR 0047).
+//! Bounded pinned original and post-translation AST serialization (ADR 0047).
 use super::{
     FairnessOption, TranslationError, TranslationOptions, TranslationStage, error, labels, lower,
     macros,
@@ -6,7 +6,7 @@ use super::{
 use crate::{
     Code,
     ast::{
-        BindingKind, Block, Body, Branch, Decl, Expr, Fairness, Label, Procedure, Process, Span,
+        BindingKind, Block, Body, Branch, Decl, Expr, Fairness, Label, Process, Span,
         StatementKind, StmtId, WithBinding,
     },
 };
@@ -21,10 +21,6 @@ pub struct AlgorithmChecksum {
     pub serialized_ast: String,
     /// Pinned CRC, including the recorded `--fair` precedence limitation.
     pub checksum: String,
-    /// The reference hashes only `fair` for a `--fair algorithm` header.
-    pub fair_header_crc_only: bool,
-    /// Requested and effective settings used for exact AST serialization.
-    pub option_context: super::TranslationContext,
 }
 pub(super) fn unsupported(span: Span, detail: &str) -> TranslationError {
     error(
@@ -83,41 +79,22 @@ pub(super) fn groups(
     }
     Ok((unlabelled, groups))
 }
-fn procedure_checksum_admission(parsed: &macros::Expanded) -> Result<(), TranslationError> {
-    if parsed.algorithm.procedures.is_empty() {
-        return Ok(());
-    }
-    for procedure in &parsed.algorithm.procedures {
-        let (_, labelled) = groups(parsed, &procedure.body)?;
-        for (_, ids) in labelled {
-            if ids
-                .iter()
-                .filter(|id| {
-                    parsed
-                        .statement(**id)
-                        .is_some_and(|s| matches!(s.kind, StatementKind::Assign(_)))
-                })
-                .count()
-                > 1
-            {
-                return Err(unsupported(
-                    procedure.span,
-                    "multiple sequential procedure assignments within one source label",
-                ));
-            }
-        }
-    }
-    Ok(())
-}
 type TokenPositions = Vec<(usize, (usize, usize))>;
 pub(super) fn token_positions(
     parsed: &macros::Expanded,
 ) -> Result<TokenPositions, TranslationError> {
-    let mut positions = Vec::with_capacity(parsed.tokens.len());
-    let mut tokens = parsed.tokens.iter().peekable();
+    token_positions_parts(&parsed.source, &parsed.tokens, parsed.algorithm.span)
+}
+fn token_positions_parts(
+    source: &str,
+    tokens: &[crate::ast::Token],
+    span: Span,
+) -> Result<TokenPositions, TranslationError> {
+    let mut positions = Vec::with_capacity(tokens.len());
+    let mut tokens = tokens.iter().peekable();
     let mut line = 0;
     let mut column = 0;
-    for (offset, character) in parsed.source.char_indices() {
+    for (offset, character) in source.char_indices() {
         if tokens
             .peek()
             .is_some_and(|token| token.span.start == offset)
@@ -131,34 +108,65 @@ pub(super) fn token_positions(
                 column = 0;
             }
             '\t' => column += 8 - column % 8,
-            '\r' if parsed.source.as_bytes().get(offset + 1) == Some(&b'\n') => {}
+            '\r' if source.as_bytes().get(offset + 1) == Some(&b'\n') => {}
             '\r' => {
-                return Err(unsupported(
-                    parsed.algorithm.span,
-                    "bare carriage-return line semantics",
-                ));
+                return Err(unsupported(span, "bare carriage-return line semantics"));
             }
             _ => column += character.len_utf16(),
         }
     }
     if tokens.next().is_some() {
-        return Err(unsupported(
-            parsed.algorithm.span,
-            "unknown expression token location",
-        ));
+        return Err(unsupported(span, "unknown expression token location"));
     }
     Ok(positions)
 }
 struct Writer {
     positions: TokenPositions,
+    debug: bool,
     text: String,
     indents: Vec<usize>,
     limit: usize,
     span: Span,
-    procedure_owner: Option<String>,
-    header: super::checksum_transfers::Plan,
 }
 impl Writer {
+    fn location(&self, at: Option<usize>) -> Result<String, TranslationError> {
+        if !self.debug {
+            return Ok(String::new());
+        }
+        let (line, column) = if let Some(at) = at {
+            let index = self
+                .positions
+                .binary_search_by_key(&at, |(offset, _)| *offset)
+                .map_err(|_| unsupported(self.span, "debug source location"))?;
+            let (line, column) = self.positions[index].1;
+            (line + 1, column + 1)
+        } else {
+            (0, 0)
+        };
+        Ok(format!("(*{line}, {column}*)"))
+    }
+    fn located_indent(&mut self, at: Option<usize>) -> Result<(), TranslationError> {
+        let prefix = self.location(at)?;
+        self.indent(&prefix)
+    }
+    fn statement_at(parsed: &macros::Expanded, id: StmtId) -> Result<usize, TranslationError> {
+        let statement = parsed
+            .statement(id)
+            .ok_or_else(|| unsupported(parsed.algorithm.span, "invalid debug statement"))?;
+        let begin = statement
+            .label
+            .as_ref()
+            .map_or(statement.span.start, |label| label.span.end);
+        let index = parsed
+            .tokens
+            .partition_point(|token| token.span.start < begin);
+        parsed
+            .tokens
+            .get(index)
+            .filter(|token| token.span.start < statement.span.end)
+            .map(|token| token.span.start)
+            .ok_or_else(|| unsupported(statement.span, "debug statement token"))
+    }
     fn push(&mut self, text: &str) -> Result<(), TranslationError> {
         if self.text.len().saturating_add(text.len()) > self.limit {
             return Err(error(
@@ -216,6 +224,7 @@ impl Writer {
         declarations: &[Decl],
     ) -> Result<(), TranslationError> {
         self.sequence(declarations, |writer, v| {
+            writer.located_indent(Some(v.name.span.start))?;
             writer.push("[var |-> \"")?;
             writer.push(&v.name.text)?;
             writer.push("\", eqOrIn |-> ")?;
@@ -235,360 +244,17 @@ impl Writer {
             } else {
                 writer.push("<< \"defaultInitValue\" >>")?;
             }
-            writer.push("]")
+            writer.push("]")?;
+            writer.end();
+            Ok(())
         })
-    }
-    fn procedure(
-        &mut self,
-        parsed: &macros::Expanded,
-        procedure: &Procedure,
-    ) -> Result<(), TranslationError> {
-        self.indent("")?;
-        self.push("[name   |-> \"")?;
-        self.push(&procedure.name.text)?;
-        self.push("\", ")?;
-        self.newline()?;
-        self.push("minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |->")?;
-        // Each procedure retains its own distinct body targets in parse order.
-        // LAST additionally aliases main's subsequent calls. This serialization
-        // is separate from the typed source-owned graph used for cycle admission.
-        let owner = parsed
-            .algorithm
-            .procedures
-            .iter()
-            .position(|p| p.name.text == procedure.name.text)
-            .ok_or_else(|| unsupported(procedure.span, "missing called-vector source owner"))?;
-        let own_count = self.header.body_called.get(owner).map_or(0, Vec::len);
-        let last = matches!(parsed.algorithm.body, Body::Sequential(_))
-            && parsed
-                .algorithm
-                .procedures
-                .last()
-                .is_some_and(|p| p.name.text == procedure.name.text);
-        self.push("<<")?;
-        let mut first = true;
-        let count = own_count.saturating_add(if last {
-            self.header.main_called.len()
-        } else {
-            0
-        });
-        for index in 0..count {
-            let target = if index < own_count {
-                self.header.body_called[owner][index]
-            } else {
-                self.header.main_called[index - own_count]
-            };
-            if index >= own_count && self.header.body_called[owner].contains(&target) {
-                continue;
-            }
-            if !first {
-                self.push(", ")?;
-            }
-            first = false;
-            let called = parsed
-                .algorithm
-                .procedures
-                .get(target)
-                .ok_or_else(|| unsupported(procedure.span, "missing called-vector target"))?;
-            self.push("\"")?;
-            self.push(&called.name.text)?;
-            self.push("\"")?;
-        }
-        self.push(">>,")?;
-        self.newline()?;
-        self.indent(" params |-> ")?;
-        self.declarations(parsed, &procedure.parameters)?;
-        self.push(",")?;
-        self.end();
-        self.newline()?;
-        self.indent(" decls  |-> ")?;
-        self.declarations(parsed, &procedure.variables)?;
-        self.push(",")?;
-        self.end();
-        self.newline()?;
-        self.indent(" body   |-> ")?;
-        let (unlabelled, labelled) = groups(parsed, &procedure.body)?;
-        if !unlabelled.is_empty() {
-            return Err(unsupported(procedure.span, "unlabelled procedure entry"));
-        }
-        if labelled.iter().any(|(_, ids)| {
-            ids.iter()
-                .filter(|id| {
-                    parsed
-                        .statement(**id)
-                        .is_some_and(|s| matches!(s.kind, StatementKind::Assign(_)))
-                })
-                .count()
-                > 1
-        }) {
-            return Err(unsupported(
-                procedure.span,
-                "multiple sequential procedure assignments within one source label",
-            ));
-        }
-        self.procedure_owner = Some(procedure.name.text.clone());
-        self.labelled(parsed, &labelled)?;
-        self.procedure_owner = None;
-        self.push("]")?;
-        self.end();
-        self.end();
-        Ok(())
-    }
-    fn call(
-        &mut self,
-        parsed: &macros::Expanded,
-        name: &str,
-        arguments: &[Expr],
-        after: Option<&str>,
-    ) -> Result<(), TranslationError> {
-        self.indent("")?;
-        self.push(if after.is_some() {
-            "[type     |-> \"callGoto\","
-        } else {
-            "[type     |-> \"call\","
-        })?;
-        self.newline()?;
-        if let Some(after) = after {
-            self.push(" after    |-> \"")?;
-            self.push(after.trim_matches('"'))?;
-        } else {
-            self.push(" returnTo |-> \"")?;
-        }
-        self.push("\",")?;
-        self.newline()?;
-        self.push(" to       |-> \"")?;
-        self.push(name)?;
-        self.push("\",")?;
-        self.newline()?;
-        self.indent(if after.is_some() {
-            "args     |-> "
-        } else {
-            " args     |-> "
-        })?;
-        self.sequence(arguments, |w, arg| w.expression(parsed, Some(*arg)))?;
-        self.push("]")?;
-        if after.is_some() {
-            self.newline()?;
-        }
-        self.end();
-        self.end();
-        Ok(())
-    }
-    fn call_return(
-        &mut self,
-        parsed: &macros::Expanded,
-        name: &str,
-        arguments: &[Expr],
-    ) -> Result<(), TranslationError> {
-        let owner = self
-            .procedure_owner
-            .clone()
-            .ok_or_else(|| unsupported(self.span, "call-return without procedure owner"))?;
-        self.indent("")?;
-        self.push("[type     |-> \"callReturn\",")?;
-        self.newline()?;
-        self.push(" from     |-> \"")?;
-        self.push(&owner)?;
-        self.push("\",")?;
-        self.newline()?;
-        self.push(" to       |-> \"")?;
-        self.push(name)?;
-        self.push("\",")?;
-        self.newline()?;
-        self.indent("args     |-> ")?;
-        self.sequence(arguments, |w, arg| w.expression(parsed, Some(*arg)))?;
-        self.push("]")?;
-        self.newline()?;
-        self.end();
-        self.end();
-        Ok(())
     }
     fn statements(
         &mut self,
         parsed: &macros::Expanded,
         ids: &[StmtId],
     ) -> Result<(), TranslationError> {
-        self.indent("<<")?;
-        let mut i = 0;
-        while let Some(&id) = ids.get(i) {
-            if i > 0 {
-                self.push(", ")?;
-                self.newline()?;
-            }
-            let statement = parsed
-                .statement(id)
-                .ok_or_else(|| unsupported(self.span, "invalid statement reference"))?;
-            if let StatementKind::Call { name, arguments } = &statement.kind {
-                let next = ids.get(i + 1).and_then(|id| parsed.statement(*id));
-                if let Some(next) = next.filter(|s| s.label.is_none()) {
-                    if let StatementKind::Goto(after) = &next.kind {
-                        self.call(parsed, &name.text, arguments, Some(&after.text))?;
-                        i += 2;
-                        continue;
-                    }
-                    if matches!(next.kind, StatementKind::Return) {
-                        self.call_return(parsed, &name.text, arguments)?;
-                        i += 2;
-                        continue;
-                    }
-                }
-            }
-            self.statement(parsed, id)?;
-            i += 1;
-        }
-        self.push(">>")?;
-        self.end();
-        Ok(())
-    }
-    fn header_empty(
-        &mut self,
-        parsed: &macros::Expanded,
-        key: (usize, usize),
-    ) -> Result<(), TranslationError> {
-        if let Some(nodes) = self.header.blocks.remove(&key) {
-            let result = self.header_nodes(parsed, &nodes);
-            self.header.blocks.insert(key, nodes);
-            result
-        } else {
-            self.sequence::<StmtId>(&[], |_, _| Ok(()))
-        }
-    }
-    fn header_block(
-        &mut self,
-        parsed: &macros::Expanded,
-        block: &Block,
-        key: (usize, usize),
-    ) -> Result<(), TranslationError> {
-        let flat = flatten(parsed, &block.statements, block.span)?;
-        if flat
-            .iter()
-            .any(|id| parsed.statement(*id).is_none_or(|s| s.label.is_some()))
-        {
-            return Err(unsupported(block.span, "branch-internal labelled AST"));
-        }
-        if let Some(nodes) = self.header.blocks.remove(&key) {
-            let result = self.header_nodes(parsed, &nodes);
-            self.header.blocks.insert(key, nodes);
-            result
-        } else {
-            self.plain_block(parsed, block)
-        }
-    }
-    fn header_nodes(
-        &mut self,
-        parsed: &macros::Expanded,
-        nodes: &[super::checksum_transfers::Node],
-    ) -> Result<(), TranslationError> {
-        use super::checksum_transfers::Node;
-        self.sequence(nodes, |writer, node| match node {
-            Node::Source(id) => writer.statement(parsed, *id),
-            Node::IfBranch { id, index } => {
-                let statement = parsed.statement(*id).ok_or_else(|| {
-                    unsupported(writer.span, "invalid virtual conditional reference")
-                })?;
-                let StatementKind::If {
-                    branches,
-                    otherwise,
-                } = &statement.kind
-                else {
-                    return Err(unsupported(
-                        statement.span,
-                        "invalid virtual conditional owner",
-                    ));
-                };
-                writer.if_branches_from(parsed, *id, branches, otherwise.as_ref(), *index)
-            }
-            Node::Assign(assignments) => {
-                writer.push("[type |-> \"assignment\",")?;
-                writer.newline()?;
-                writer.indent(" ass  |-> ")?;
-                writer.sequence(assignments, |w, assignment| {
-                    w.push("[lhs |-> [var |-> \"")?;
-                    w.push(&assignment.variable)?;
-                    w.push("\", sub |-> <<  >>],")?;
-                    w.newline()?;
-                    w.push(" rhs |-> ")?;
-                    w.header_rhs(parsed, &assignment.rhs)?;
-                    w.push("]")
-                })?;
-                writer.push("]")?;
-                writer.end();
-                Ok(())
-            }
-        })
-    }
-    fn header_token(&mut self, token: &str, quoted: bool) -> Result<(), TranslationError> {
-        if quoted {
-            self.push("\"\\\"\", \"")?;
-            self.push(token)?;
-            self.push("\", \"\\\"\"")
-        } else {
-            self.push("\"")?;
-            if token.starts_with('\\') {
-                self.push("\\")?;
-            }
-            self.push(token)?;
-            self.push("\"")
-        }
-    }
-    fn header_rhs(
-        &mut self,
-        parsed: &macros::Expanded,
-        rhs: &super::checksum_transfers::Rhs,
-    ) -> Result<(), TranslationError> {
-        use super::checksum_transfers::Rhs;
-        match rhs {
-            Rhs::Source(Some(expression)) => self.expression(parsed, Some(*expression)),
-            Rhs::Source(None) => self.push("<< \"defaultInitValue\" >>"),
-            Rhs::Quoted(value) => {
-                self.push("<< ")?;
-                self.header_token(value, true)?;
-                self.push(" >>")
-            }
-            Rhs::Head(slot) => {
-                self.push("<< \"Head\", \"(\", \"stack\", \")\", \".\", ")?;
-                self.header_token(slot, false)?;
-                self.push(" >>")
-            }
-            Rhs::Tail => self.push("<< \"Tail\", \"(\", \"stack\", \")\" >>"),
-            Rhs::ReplacedFrame { owner } => {
-                let procedure = parsed
-                    .algorithm
-                    .procedures
-                    .get(*owner)
-                    .ok_or_else(|| unsupported(self.span, "missing replacement frame owner"))?;
-                self.push("<< \"<<\", \"[\", \"procedure\", \"|->\", ")?;
-                self.header_token(&procedure.name.text, true)?;
-                self.push(
-                    ", \",\"\n, \"pc\", \"|->\", \"Head\", \"(\", \"stack\", \")\", \".\", \"pc\"",
-                )?;
-                for slot in procedure.variables.iter().chain(&procedure.parameters) {
-                    self.push(", \",\"\n, ")?;
-                    self.header_token(&slot.name.text, false)?;
-                    self.push(", \"|->\", ")?;
-                    self.header_token(&slot.name.text, false)?;
-                }
-                self.push(", \"]\", \">>\"\n, \"\\\\o\", \"Tail\", \"(\", \"stack\", \")\" >>")
-            }
-            Rhs::Frame { owner, next } => {
-                let procedure = parsed
-                    .algorithm
-                    .procedures
-                    .get(*owner)
-                    .ok_or_else(|| unsupported(self.span, "missing frame owner"))?;
-                self.push("<< \"<<\", \"[\", \"procedure\", \"|->\", ")?;
-                self.header_token(&procedure.name.text, true)?;
-                self.push(", \",\"\n, \"pc\", \"|->\", ")?;
-                self.header_token(next, true)?;
-                for slot in procedure.variables.iter().chain(&procedure.parameters) {
-                    self.push(", \",\"\n, ")?;
-                    self.header_token(&slot.name.text, false)?;
-                    self.push(", \"|->\", ")?;
-                    self.header_token(&slot.name.text, false)?;
-                }
-                self.push(", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>")
-            }
-        }
+        self.sequence(ids, |writer, id| writer.statement(parsed, *id))
     }
     fn quoted_labels(&mut self, labels: &[&Label], modifier: char) -> Result<(), TranslationError> {
         self.indent("<<")?;
@@ -616,7 +282,16 @@ impl Writer {
         labels: &[&Label],
         options: &TranslationOptions,
     ) -> Result<(), TranslationError> {
-        self.indent("")?;
+        let process_at = parsed
+            .tokens
+            .iter()
+            .find(|token| {
+                token.span.start >= process.span.start
+                    && token.span.end <= process.name.span.start
+                    && token.text == "process"
+            })
+            .map_or(process.span.start, |token| token.span.start);
+        self.located_indent(Some(process_at))?;
         self.push("[name   |-> \"")?;
         self.push(&process.name.text)?;
         self.push("\",")?;
@@ -640,40 +315,6 @@ impl Writer {
         self.push(", plusLabels |->")?;
         self.quoted_labels(labels, '+')?;
         self.push(", proceduresCalled |-><<")?;
-        let owner = if self.header.process_called.is_empty() {
-            None
-        } else if let Body::Processes(processes) = &parsed.algorithm.body {
-            processes.iter().position(|p| p.span == process.span)
-        } else {
-            None
-        };
-        if let Some(owner) = owner {
-            let count = self.header.process_called[owner].len();
-            for index in 0..count {
-                if index != 0 {
-                    self.push(", ")?;
-                }
-                let target = self.header.process_called[owner][index];
-                let name = parsed
-                    .algorithm
-                    .procedures
-                    .get(target)
-                    .ok_or_else(|| {
-                        unsupported(process.span, "missing process called-vector target")
-                    })?
-                    .name
-                    .text
-                    .as_str();
-                self.push("\"")?;
-                self.push(name)?;
-                self.push("\"")?;
-            }
-        } else if !self.header.process_called.is_empty() {
-            return Err(unsupported(
-                process.span,
-                "missing process called-vector owner",
-            ));
-        }
         self.push(">>,")?;
         self.newline()?;
         self.push(" eqOrIn |-> ")?;
@@ -843,19 +484,28 @@ impl Writer {
         let statement = parsed
             .statement(id)
             .ok_or_else(|| unsupported(self.span, "invalid statement reference"))?;
-        match &statement.kind {
-            StatementKind::Call { name, arguments } => {
-                self.call(parsed, &name.text, arguments, None)
-            }
-            StatementKind::Return => {
-                let owner = self
-                    .procedure_owner
-                    .clone()
-                    .ok_or_else(|| unsupported(statement.span, "return outside procedure"))?;
-                self.push("[type |-> \"return\", from |-> \"")?;
-                self.push(&owner)?;
-                self.push("\"]")
-            }
+        let at = if self.debug {
+            Self::statement_at(parsed, id)?
+        } else {
+            0
+        };
+        let indented = matches!(
+            statement.kind,
+            StatementKind::Assign(_)
+                | StatementKind::Await { .. }
+                | StatementKind::Assert(_)
+                | StatementKind::Print(_)
+        );
+        if indented {
+            self.located_indent(Some(at))?;
+        } else if self.debug {
+            self.push(&self.location(Some(at))?)?;
+        }
+        let result = match &statement.kind {
+            StatementKind::Call { .. } | StatementKind::Return => Err(unsupported(
+                statement.span,
+                "procedure AST checksum is unavailable",
+            )),
             StatementKind::Skip => self.push("[type |-> \"skip\"]"),
             StatementKind::Goto(name) => {
                 self.push("[type |-> \"goto\",  to |-> \"")?;
@@ -881,7 +531,10 @@ impl Writer {
                 self.newline()?;
                 self.indent(" ass  |-> ")?;
                 self.sequence(assignments, |writer, a| {
-                    writer.push("[lhs |-> [var |-> \"")?;
+                    writer.located_indent(Some(a.variable.span.start))?;
+                    writer.push("[lhs |-> ")?;
+                    writer.push(&writer.location(Some(a.variable.span.start))?)?;
+                    writer.push("[var |-> \"")?;
                     writer.push(&a.variable.text)?;
                     writer.push("\", sub |-> ")?;
                     writer.expression(parsed, a.selectors)?;
@@ -889,7 +542,9 @@ impl Writer {
                     writer.newline()?;
                     writer.push(" rhs |-> ")?;
                     writer.expression(parsed, Some(a.value))?;
-                    writer.push("]")
+                    writer.push("]")?;
+                    writer.end();
+                    Ok(())
                 })?;
                 self.push("]")?;
                 self.end();
@@ -898,7 +553,7 @@ impl Writer {
             StatementKind::If {
                 branches,
                 otherwise,
-            } => self.if_branches(parsed, id, branches, otherwise.as_ref()),
+            } => self.if_branches(parsed, branches, otherwise.as_ref()),
             StatementKind::Either(blocks) => {
                 self.push("[type |-> \"either\", ")?;
                 self.newline()?;
@@ -909,7 +564,7 @@ impl Writer {
                         self.push(", ")?;
                         self.newline()?;
                     }
-                    self.header_block(parsed, block, (id.0, i))?;
+                    self.plain_block(parsed, block)?;
                 }
                 self.push(" >>")?;
                 self.end();
@@ -917,9 +572,7 @@ impl Writer {
                 self.end();
                 Ok(())
             }
-            StatementKind::With { bindings, body } => {
-                self.with_bindings(parsed, id, bindings, body)
-            }
+            StatementKind::With { bindings, body } => self.with_bindings(parsed, bindings, body),
             StatementKind::While { test, body } => {
                 let (unlabelled, labelled) = groups(parsed, body)?;
                 self.push("[type    |-> \"while\", ")?;
@@ -943,21 +596,23 @@ impl Writer {
                 statement.span,
                 "calls or nested statement blocks",
             )),
+        };
+        if indented {
+            self.end();
         }
+        result
     }
     fn if_branches(
         &mut self,
         parsed: &macros::Expanded,
-        id: StmtId,
         branches: &[Branch],
         otherwise: Option<&Block>,
     ) -> Result<(), TranslationError> {
-        self.if_branches_from(parsed, id, branches, otherwise, 0)
+        self.if_branches_from(parsed, branches, otherwise, 0)
     }
     fn if_branches_from(
         &mut self,
         parsed: &macros::Expanded,
-        id: StmtId,
         branches: &[Branch],
         otherwise: Option<&Block>,
         start: usize,
@@ -975,29 +630,17 @@ impl Writer {
             self.push(",")?;
             self.newline()?;
             self.indent(" then |-> ")?;
-            self.header_block(parsed, &branch.body, (id.0, index * 2))?;
+            self.plain_block(parsed, &branch.body)?;
             self.push(",")?;
             self.end();
             self.newline()?;
             self.indent(" else |-> ")?;
-            let else_key = (id.0, index * 2 + 1);
-            if self.header.blocks.contains_key(&else_key) {
-                if index + 1 == branches.len() {
-                    if let Some(block) = otherwise {
-                        self.header_block(parsed, block, else_key)?;
-                    } else {
-                        self.header_empty(parsed, else_key)?;
-                    }
-                } else {
-                    self.header_empty(parsed, else_key)?;
-                }
-                break;
-            } else if index + 1 < branches.len() {
+            if index + 1 < branches.len() {
                 self.indent("<<")?;
             } else if let Some(block) = otherwise {
-                self.header_block(parsed, block, else_key)?;
+                self.plain_block(parsed, block)?;
             } else {
-                self.header_empty(parsed, else_key)?;
+                self.sequence::<StmtId>(&[], |_, _| Ok(()))?;
             }
         }
         for index in (0..opened).rev() {
@@ -1013,7 +656,6 @@ impl Writer {
     fn with_bindings(
         &mut self,
         parsed: &macros::Expanded,
-        id: StmtId,
         bindings: &[WithBinding],
         body: &Block,
     ) -> Result<(), TranslationError> {
@@ -1043,7 +685,7 @@ impl Writer {
             if index + 1 < bindings.len() {
                 self.indent("<<")?;
             } else {
-                self.header_block(parsed, body, (id.0, 0))?;
+                self.plain_block(parsed, body)?;
             }
         }
         for index in (0..bindings.len()).rev() {
@@ -1076,6 +718,16 @@ impl Writer {
         groups: &Groups,
     ) -> Result<(), TranslationError> {
         self.sequence(groups, |writer, (label, ids)| {
+            let id = ids
+                .first()
+                .copied()
+                .ok_or_else(|| unsupported(writer.span, "empty labelled statement"))?;
+            let at = if writer.debug {
+                Some(Self::statement_at(parsed, id)?)
+            } else {
+                None
+            };
+            writer.located_indent(at)?;
             writer.push("[label |-> \"")?;
             writer.push(label)?;
             writer.push("\",")?;
@@ -1084,25 +736,17 @@ impl Writer {
             writer.statements(parsed, ids)?;
             writer.push("]")?;
             writer.end();
+            writer.end();
             Ok(())
         })
     }
 }
 
-/// Serialize proved bounded sequential and finite-process checksum shapes.
-/// Expression line grouping, normalized junction columns, `elsif` and nested
-/// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// process-owned procedures and branch-internal labels are refused.
-/// Explicitly labelled disjoint sequential procedures support main and source-finite recursive
-/// procedure-body calls, returns and adjacent call-goto, including proved nested
-/// If/With/Either and While shared
-/// vectors, with exact original/header AST ownership. Serialization does not
-/// unroll calls or establish execution termination.
-/// Pure bounded nonrecursive
-/// macros use single-line substitutions; multiline arguments and substituted
-/// junction columns remain refused. Admitted process
-/// fairness and automatic-label options retain the pinned parser precedence. Native generation/admission
-/// remains separate. A scoped worker provides a 16 MiB stack.
+/// Serialize exact procedure-free algorithm checksum shapes.
+/// Expression layout, macros, labels and supported debug locations follow the
+/// pinned serializer. Unsupported serialization returns a named diagnostic;
+/// translation and rewriting use an optional checksum and proceed without it.
+/// Procedure header transfer emulation is intentionally unavailable.
 ///
 /// # Errors
 /// Named source/normalization/unsupported/resource diagnostics; no partial CRC.
@@ -1119,7 +763,9 @@ pub fn algorithm_checksum_at(
         let worker = std::thread::Builder::new()
             .name("dive-pluscal-checksum".into())
             .stack_size(16 * 1024 * 1024)
-            .spawn_scoped(scope, || checksum_inline(source, region, options))
+            .spawn_scoped(scope, || {
+                serialize_inline(source, region, options, false).map(|(header, _, _)| header)
+            })
             .map_err(|failure| {
                 error(
                     TranslationStage::Generation,
@@ -1142,63 +788,51 @@ pub fn algorithm_checksum_at(
     clippy::too_many_lines,
     reason = "ordered bounded AST admission and top-level reference serialization remain together"
 )]
-fn checksum_inline(
+fn serialize_inline(
     source: &str,
     region: std::ops::Range<usize>,
     options: &TranslationOptions,
-) -> Result<AlgorithmChecksum, TranslationError> {
-    let parsed = crate::parse_at(source, region, &options.parser).map_err(|diagnostic| {
-        TranslationError {
-            stage: TranslationStage::Source,
-            diagnostic,
-        }
-    })?;
+    original_stage: bool,
+) -> Result<(AlgorithmChecksum, String, super::TranslationContext), TranslationError> {
     let context = super::resolve_translation_options(source, options)?;
     let options = &context.effective;
+    let mut parser = options.parser.clone();
+    parser.input_version = super::options::version_weight(options.version.as_deref())?;
+    let parsed =
+        crate::parse_at(source, region, &parser).map_err(|diagnostic| TranslationError {
+            stage: TranslationStage::Source,
+            diagnostic,
+        })?;
+    super::options::admit_version_shape(&parsed, parser.input_version)?;
     let algorithm = &parsed.algorithm;
+    if original_stage {
+        return serialize_original(
+            &parsed,
+            options,
+            context.clone(),
+            parser.input_version,
+            false,
+        );
+    }
     if !algorithm.procedures.is_empty() {
-        if algorithm.definitions.is_some()
-            || !algorithm.macros.is_empty()
-            || options.insert_missing_labels
-        {
-            return Err(unsupported(
-                algorithm.span,
-                "checksum requires explicitly labelled procedures without definitions/macros",
-            ));
-        }
-        if let Body::Processes(processes) = &algorithm.body {
-            if algorithm.procedures.len() != 1 || processes.len() != 1 {
-                return Err(unsupported(
-                    algorithm.span,
-                    "one process and one procedure checksum ownership",
-                ));
-            }
-            if algorithm.fairness != Fairness::Unfair
-                || processes[0].fairness != Fairness::Unfair
-                || !matches!(
-                    options.fairness,
-                    FairnessOption::Declared | FairnessOption::None
-                )
-            {
-                return Err(unsupported(
-                    algorithm.span,
-                    "process/procedure fairness checksum ownership",
-                ));
-            }
-        }
-        if parsed
-            .statements
-            .iter()
-            .any(|s| s.label.as_ref().is_some_and(|l| l.modifier.is_some()))
-        {
-            return Err(unsupported(
-                algorithm.span,
-                "procedure label fairness checksum",
-            ));
-        }
+        return Err(unsupported(
+            algorithm.span,
+            "procedure AST checksum is unavailable",
+        ));
+    }
+    if options.debug {
+        return serialize_original(
+            &parsed,
+            options,
+            context.clone(),
+            parser.input_version,
+            true,
+        );
     }
     for statement in &parsed.statements {
-        if let StatementKind::MacroCall { arguments, .. } = &statement.kind {
+        if !options.debug
+            && let StatementKind::MacroCall { arguments, .. } = &statement.kind
+        {
             for argument in arguments {
                 if parsed
                     .text(argument.span)
@@ -1214,21 +848,19 @@ fn checksum_inline(
     }
     let mut parsed = macros::expand(parsed, options)?;
     labels::normalize(&mut parsed, options)?;
-    // Admission precedes serialization, including fair-header cases whose CRC
-    // ignores the AST. The typed overlay alone owns proved shared-vector mutations.
-    procedure_checksum_admission(&parsed)?;
-    // The existing admission pass proves no identifier fixups are required.
+    // The exact CRC operation retains its serializer boundary. Generation and
+    // rewriting do not depend on this narrower operation succeeding.
     lower::normalize(&parsed, options)?;
     let sequential = matches!(parsed.algorithm.body, Body::Sequential(_));
     let mut w = Writer {
         positions: token_positions(&parsed)?,
+        debug: options.debug,
         text: String::new(),
         indents: vec![0],
         limit: options.max_output_bytes.min(4_194_304),
         span: parsed.algorithm.span,
-        procedure_owner: None,
-        header: super::checksum_transfers::build(&parsed, options)?,
     };
+    w.located_indent(None)?;
     w.push(if sequential {
         "[type     |-> \"uniprocess\", "
     } else {
@@ -1261,9 +893,7 @@ fn checksum_inline(
     } else {
         " prcds |-> "
     })?;
-    w.sequence(&parsed.algorithm.procedures, |w, procedure| {
-        w.procedure(&parsed, procedure)
-    })?;
+    w.sequence::<StmtId>(&[], |_, _| Ok(()))?;
     w.push(",")?;
     w.end();
     w.newline()?;
@@ -1283,6 +913,7 @@ fn checksum_inline(
     }
     w.push("]")?;
     w.end();
+    w.end();
     let fair = parsed.algorithm.fairness == Fairness::Weak;
     // AST CRC includes newline bytes, unlike the generated-body line CRC.
     let checksum = crate::rewrite::crc32(if fair {
@@ -1290,10 +921,155 @@ fn checksum_inline(
     } else {
         w.text.as_bytes()
     });
-    Ok(AlgorithmChecksum {
-        option_context: context,
-        serialized_ast: w.text,
-        checksum,
-        fair_header_crc_only: fair,
+    let original_fairness = if sequential && (fair || parsed.algorithm.legacy_fair) {
+        "wf"
+    } else {
+        super::fairness_name(options.fairness)
+    }
+    .to_owned();
+    Ok((
+        AlgorithmChecksum {
+            serialized_ast: w.text,
+            checksum,
+        },
+        original_fairness,
+        context,
+    ))
+}
+
+fn serialize_original(
+    parsed: &crate::Parsed,
+    options: &TranslationOptions,
+    context: super::TranslationContext,
+    input_version: i32,
+    header: bool,
+) -> Result<(AlgorithmChecksum, String, super::TranslationContext), TranslationError> {
+    if input_version < 1500
+        && (!parsed.algorithm.procedures.is_empty() || !parsed.algorithm.macros.is_empty())
+    {
+        return Err(unsupported(
+            parsed.algorithm.span,
+            "historical original procedure/macro AST fields",
+        ));
+    }
+    labels::validate_root(options, parsed.algorithm.span)?;
+    token_positions_parts(&parsed.source, &parsed.tokens, parsed.algorithm.span)?;
+    let mut settings = options.clone();
+    settings.parser.input_version = input_version;
+    let serialized_ast = if header {
+        super::pcal::serialize_debug_header(parsed, &settings)
+    } else {
+        super::pcal::serialize_original(parsed, &settings)
+    }
+    .map_err(|failure| {
+        let span = failure.at.map_or(parsed.algorithm.span, |at| {
+            parsed
+                .tokens
+                .iter()
+                .find(|token| token.span.start >= at)
+                .map_or(Span { start: at, end: at }, |token| token.span)
+        });
+        error(
+            if failure.in_generation {
+                TranslationStage::Generation
+            } else {
+                TranslationStage::Normalization
+            },
+            failure.code,
+            span,
+            failure.message,
+        )
+    })?;
+    let fair = parsed.algorithm.fairness == Fairness::Weak;
+    let checksum = crate::rewrite::crc32(if fair {
+        b"fair"
+    } else {
+        serialized_ast.as_bytes()
+    });
+    let fairness = if matches!(parsed.algorithm.body, Body::Sequential(_))
+        && (fair || parsed.algorithm.legacy_fair)
+    {
+        "wf"
+    } else {
+        super::fairness_name(options.fairness)
+    }
+    .to_owned();
+    Ok((
+        AlgorithmChecksum {
+            serialized_ast,
+            checksum,
+        },
+        fairness,
+        context,
+    ))
+}
+
+/// The pinned original-stage `AST.tla` contents returned in memory.
+/// This artifact precedes identifier fixing and generation; it does not certify
+/// an enclosing module, a model, a header CRC, or a filesystem write.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct OriginalAstArtifact {
+    /// Exact `AST.toString()` bytes before translation mutates shared nodes.
+    pub serialized_ast: String,
+    /// The reference `AST.tla` wrapper, with LF separators.
+    pub module_source: String,
+    /// Requested/effective option context.
+    pub option_context: super::TranslationContext,
+}
+
+/// Returns a bounded normalized original AST using the pinned semantic serializer.
+/// Modern procedure/macro ownership and compound locations follow the typed
+/// source stages. Historical fields and broader original-stage coverage remain
+/// unfinished; availability is not generated-module or model acceptance.
+/// No Java or filesystem write occurs, and no translation checksum is returned.
+///
+/// ```
+/// let source = "--algorithm A begin L:skip; end algorithm";
+/// let artifact = dive_pluscal::original_ast_at(source, 0..source.len(),
+///     &dive_pluscal::TranslationOptions::default())?;
+/// assert!(artifact.module_source.starts_with("------ MODULE AST -------\n"));
+/// # Ok::<(), dive_pluscal::TranslationError>(())
+/// ```
+///
+/// # Errors
+/// Named source, normalization, unsupported or resource diagnostics.
+pub fn original_ast_at(
+    source: &str,
+    region: std::ops::Range<usize>,
+    options: &TranslationOptions,
+) -> Result<OriginalAstArtifact, TranslationError> {
+    std::thread::scope(|scope| {
+        let worker = std::thread::Builder::new()
+            .name("dive-pluscal-original-ast".into())
+            .stack_size(16 * 1024 * 1024)
+            .spawn_scoped(scope, || {
+                let (original, fairness, context) = serialize_inline(source, region, options, true).map_err(|mut failure| {
+                    if let Some(detail) = failure.diagnostic.message.strip_prefix("unsupported post-translation AST checksum: ") {
+                        failure.diagnostic.message = format!("unsupported original-stage AST serialization: {detail}");
+                    }
+                    failure
+                })?;
+                let prefix = format!("------ MODULE AST -------\nEXTENDS TLC\nfairness == \"{fairness}\"\n \nast == \n");
+                let suffix = "\n==========================\n";
+                if prefix.len().saturating_add(original.serialized_ast.len()).saturating_add(suffix.len())
+                    > options.max_output_bytes.min(4_194_304) {
+                    return Err(error(TranslationStage::Generation, Code::Resource, Span::default(),
+                        "PlusCal AST artifact byte limit reached"));
+                }
+                Ok(OriginalAstArtifact {
+                    module_source: format!("{prefix}{}{suffix}", original.serialized_ast),
+                    serialized_ast: original.serialized_ast,
+                    option_context: context,
+                })
+            }).map_err(|failure| error(TranslationStage::Normalization, Code::Resource, Span::default(),
+                format!("cannot start PlusCal original AST worker: {failure}")))?;
+        worker.join().map_err(|_| {
+            error(
+                TranslationStage::Generation,
+                Code::Internal,
+                Span::default(),
+                "PlusCal original AST worker failed; report this input as a bug",
+            )
+        })?
     })
 }

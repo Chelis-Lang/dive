@@ -22,7 +22,6 @@ struct Expression {
 #[derive(Clone)]
 pub(super) struct Expanded {
     parsed: Parsed,
-    declared_macros: bool,
     expressions: BTreeMap<(usize, usize), Expression>,
     statement_origins: BTreeMap<usize, (Span, Span)>,
     calls: BTreeMap<(usize, usize), Span>,
@@ -39,9 +38,6 @@ impl DerefMut for Expanded {
     }
 }
 impl Expanded {
-    pub(super) const fn declared_macros(&self) -> bool {
-        self.declared_macros
-    }
     /// Whether tokens belong to a substituted expression rather than a source slice.
     /// Diagnostic token spans still identify their original argument/definition;
     /// they do not describe the pinned expression's logical serialization lines.
@@ -74,23 +70,6 @@ impl Expanded {
             self.position(start)?,
             self.position(call.start)?,
         ))
-    }
-    pub(super) fn assertion_location(&self, span: Span, expression: Expr) -> Option<String> {
-        self.statements
-            .iter()
-            .enumerate()
-            .find_map(|(index, statement)| {
-                if statement.span != span
-                    || !matches!(statement.kind, StatementKind::Assert(e) if e==expression)
-                {
-                    return None;
-                }
-                let (_, definition, call) = self.macro_origin(StmtId(index))?;
-                Some(format!(
-                    "line {}, column {} of macro called at line {}, column {}",
-                    definition.line, definition.column, call.line, call.column
-                ))
-            })
     }
     pub(super) fn tokens(&self, expression: Expr) -> &[Token] {
         if let Some(value) = self
@@ -726,7 +705,6 @@ pub(super) fn expand(
     if parsed.algorithm.macros.is_empty() {
         return Ok(Expanded {
             parsed,
-            declared_macros: false,
             expressions: BTreeMap::new(),
             statement_origins: BTreeMap::new(),
             calls: BTreeMap::new(),
@@ -745,7 +723,6 @@ pub(super) fn expand(
     let mut expander = Expander {
         expanded: Expanded {
             parsed,
-            declared_macros: true,
             expressions: BTreeMap::new(),
             statement_origins: BTreeMap::new(),
             calls,

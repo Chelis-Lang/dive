@@ -1,0 +1,9 @@
+{
+  "id": "macro_multiline_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0;\nmacro Set(v,a) begin v:=a; end macro;\nbegin L:Set(x,IF x=0\n                  THEN x+1\n                  ELSE x); B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"IF\", \"x\", \"=\", \"0\"\n, \"THEN\", \"x\", \"+\", \"1\"\n, \"ELSE\", \"x\" >>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

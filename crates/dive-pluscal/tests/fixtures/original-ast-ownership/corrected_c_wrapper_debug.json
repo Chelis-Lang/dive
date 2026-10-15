@@ -1,0 +1,9 @@
+{
+  "id": "corrected_c_wrapper_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A { variable x=0; {L:{ x:=1; skip; }; B:skip; }} *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n(*0, 0*)[type     |-> \"uniprocess\", \n         name  |-> \"A\", \n         decls  |-> <<(*3, 29*)[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n         defs   |-> <<  >>,\n         prcds  |-> <<>>,\n         body  |-> <<(*3, 39*)[label |-> \"L\",\n                               stmts |-> <<(*3, 39*)[type |-> \"assignment\",\n                                                     ass  |-> <<(*3, 39*)[lhs |-> (*3, 39*)[var |-> \"x\", sub |-> <<  >>],\n                                                                          rhs |-> << \"1\" >>]>>], \n                                           (*3, 45*)[type |-> \"skip\"]>>], \n                     (*3, 56*)[label |-> \"B\",\n                               stmts |-> <<(*3, 56*)[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

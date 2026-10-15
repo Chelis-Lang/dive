@@ -21,8 +21,8 @@ fn process_artifact_is_validated_nonproof_in_both_profiles() {
         );
         let doc = report.to_json();
         assert!(report.accepted(), "{doc}");
-        assert_eq!(doc["model_proved"], false);
-        assert_eq!(doc["exhaustive"], false);
+        assert!(doc.get("model_proved").is_none());
+        assert!(doc.get("exhaustive").is_none());
         assert_eq!(doc["analysis"]["accepted"], true);
         assert_eq!(
             doc["artifact"]["processes"][0]["local_variables"],
@@ -45,8 +45,8 @@ fn artifact_validation_and_source_map() {
     );
     assert!(report.accepted(), "{}", report.to_json());
     let json = report.to_json();
-    assert_eq!(json["model_proved"], false);
-    assert_eq!(json["exhaustive"], false);
+    assert!(json.get("model_proved").is_none());
+    assert!(json.get("exhaustive").is_none());
     assert_eq!(json["analysis"]["accepted"], true);
     assert_eq!(json["artifact"]["actions"], serde_json::json!(["L", "E"]));
     let request = TranslationRequest {
@@ -78,7 +78,7 @@ fn selection_refusals_remain_explicit() {
         "---- MODULE TranslationTest ----\n\\* BEGIN TRANSLATION\n====".into()] {
         let report=translate_source("TranslationTest.tla",&source,&TranslationRequest::default());
         assert_eq!(report.exit_code(),3,"{}",report.to_json());
-        assert!(!report.accepted()); assert_eq!(report.to_json()["model_proved"],false);
+        assert!(!report.accepted()); assert!(report.to_json().get("model_proved").is_none());
     }
 }
 
@@ -109,12 +109,8 @@ fn long_module_terminator_and_multiline_expression_boundaries() {
         &source,
         &TranslationRequest::default(),
     );
-    assert_eq!(report.exit_code(), 3);
-    assert!(
-        report.to_json()["diagnostic"]["message"]
-            .as_str()
-            .is_some_and(|text| text.contains("multiline"))
-    );
+    assert!(report.accepted(), "{}", report.to_json());
+    assert!(report.to_json().get("model_proved").is_none());
 }
 
 #[test]
@@ -135,7 +131,7 @@ fn default_model_value_binding_and_label_options_are_data() {
             doc["artifact"]["actions"],
             serde_json::json!(["Lbl_1", "Lbl_2"])
         );
-        assert_eq!(doc["model_proved"], false);
+        assert!(doc.get("model_proved").is_none());
     }
     let source = module("variable x=0; begin x:=1; E: skip; end algorithm;");
     let mut request = TranslationRequest::default();
@@ -193,14 +189,14 @@ fn process_fairness_options_remain_validated_nonproof_artifacts() {
             assert!(artifact.contains(present), "{artifact}");
             assert!(!artifact.contains(absent), "{artifact}");
             assert_eq!(doc["analysis"]["accepted"], true);
-            assert_eq!(doc["model_proved"], false);
-            assert_eq!(doc["exhaustive"], false);
+            assert!(doc.get("model_proved").is_none());
+            assert!(doc.get("exhaustive").is_none());
         }
     }
 }
 
 #[test]
-fn multiple_process_storage_and_refusals_remain_nonproof() {
+fn multiple_process_storage_and_domains_remain_nonproof() {
     let source = module(
         "variable g=0; process P=1 variable x=0; begin L: x:=1; E: g:=x; end process; fair process Q \\in{2,3} variable y=0; begin M: + y:=2; F: - g:=y; end process; end algorithm;",
     );
@@ -212,8 +208,8 @@ fn multiple_process_storage_and_refusals_remain_nonproof() {
         let doc = translate_source("TranslationTest.tla", &source, &request).to_json();
         assert_eq!(doc["accepted"], true, "{doc}");
         assert_eq!(doc["analysis"]["accepted"], true);
-        assert_eq!(doc["model_proved"], false);
-        assert_eq!(doc["exhaustive"], false);
+        assert!(doc.get("model_proved").is_none());
+        assert!(doc.get("exhaustive").is_none());
         assert_eq!(
             doc["artifact"]["processes"].as_array().map(Vec::len),
             Some(2)
@@ -222,10 +218,11 @@ fn multiple_process_storage_and_refusals_remain_nonproof() {
             source.replace("\\in{2,3}", "\\in{1,2}"),
             source.replace("y:=2", "y:=x"),
         ] {
-            let refusal = translate_source("TranslationTest.tla", &changed, &request).to_json();
-            assert_eq!(refusal["result"], "unsupported", "{refusal}");
-            assert_eq!(refusal["model_proved"], false);
-            assert!(refusal.get("artifact").is_none());
+            let translated = translate_source("TranslationTest.tla", &changed, &request).to_json();
+            assert_eq!(translated["accepted"], true, "{translated}");
+            assert_eq!(translated["analysis"]["accepted"], true);
+            assert!(translated.get("model_proved").is_none());
+            assert!(translated.get("exhaustive").is_none());
         }
     }
 }
@@ -262,8 +259,8 @@ fn invalid_primary_macro_generation_is_not_public_admission()
             let doc = report.to_json();
             assert!(!report.accepted(), "{}", doc);
             assert!(matches!(report.exit_code(), 1 | 3), "{}", doc);
-            assert_eq!(doc["model_proved"], false);
-            assert_eq!(doc["exhaustive"], false);
+            assert!(doc.get("model_proved").is_none());
+            assert!(doc.get("exhaustive").is_none());
             assert!(doc.get("artifact").is_none());
             assert!(doc.get("module_source").is_none());
             controls += 1;
@@ -322,8 +319,8 @@ fn invalid_primary_procedure_outputs_are_never_public_artifacts()
             assert!(!report.accepted());
             assert!(matches!(report.exit_code(), 1 | 3));
             let doc = report.to_json();
-            assert_eq!(doc["model_proved"], false);
-            assert_eq!(doc["exhaustive"], false);
+            assert!(doc.get("model_proved").is_none());
+            assert!(doc.get("exhaustive").is_none());
             assert!(doc.get("artifact").is_none());
             assert!(doc.get("module_source").is_none());
             controls += 1;
@@ -361,13 +358,110 @@ fn invalid_primary_graph_outputs_are_never_public_artifacts()
             assert!(!report.accepted());
             assert!(matches!(report.exit_code(), 1 | 3));
             let doc = report.to_json();
-            assert_eq!(doc["model_proved"], false);
-            assert_eq!(doc["exhaustive"], false);
+            assert!(doc.get("model_proved").is_none());
+            assert!(doc.get("exhaustive").is_none());
             assert!(doc.get("artifact").is_none());
             assert!(doc.get("module_source").is_none());
             controls += 1;
         }
     }
     assert_eq!(controls, 16);
+    Ok(())
+}
+
+#[test]
+fn existing_translation_uses_its_original_slot_before_analysis()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE TranslationTest ----\nEXTENDS Integers,TLC\n(* --algorithm A variable x=0; begin L:x:=Later; E:skip; end algorithm; *)\nLater == 1\n\\* BEGIN TRANSLATION\nold generated body\n\\* END TRANSLATION\nAfter == x\n====\n";
+    for compat_tlc in [false, true] {
+        let request = TranslationRequest {
+            compat_tlc,
+            ..TranslationRequest::default()
+        };
+        let translated = translate_source("TranslationTest.tla", source, &request);
+        let doc = translated.to_json();
+        assert!(translated.accepted(), "{doc}");
+        let module = doc["module_source"].as_str().ok_or("module")?;
+        assert!(
+            module.find("Later ==").ok_or("Later")?
+                < module.find("VARIABLES").ok_or("variables")?
+        );
+        assert!(
+            module.find("VARIABLES").ok_or("variables")?
+                < module.find("After ==").ok_or("After")?
+        );
+        assert!(!module.contains("old generated body"));
+        assert_eq!(module.matches("BEGIN TRANSLATION").count(), 1);
+        let rewritten = dive_api::rewrite_source(
+            "TranslationTest.tla",
+            source,
+            &dive_api::RewriteRequest {
+                translation: request,
+                editing: dive_api::RewriteOptions {
+                    checksums: dive_api::ChecksumPolicy::TranslationOnly,
+                    replace_modified: true,
+                    ..dive_api::RewriteOptions::default()
+                },
+            },
+        );
+        assert!(rewritten.accepted(), "{}", rewritten.to_json());
+        assert_eq!(rewritten.to_json()["analysis"]["accepted"], true);
+    }
+    Ok(())
+}
+
+#[test]
+fn pinned_controls_preserve_translation_and_analysis_stages()
+-> Result<(), Box<dyn std::error::Error>> {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/tests/fixtures/port-controls");
+    let manifest: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;
+    let mut selected = 0;
+    for row in manifest["rows"].as_array().ok_or("rows")? {
+        let id = row["id"].as_str().ok_or("id")?;
+        if ![
+            "ApiAwait",
+            "ApiOverlap",
+            "ApiForeignRead",
+            "PrintWithoutTLC",
+        ]
+        .contains(&id)
+        {
+            continue;
+        }
+        let input = row["input"].as_str().ok_or("input")?;
+        let source = std::fs::read_to_string(base.join("cases").join(input))?;
+        assert_eq!(row["primary"]["status"], "translated");
+        let accepted = row["sany"]["status"]
+            .as_str()
+            .ok_or("missing pinned SANY status")?
+            == "accepted";
+        for compat_tlc in [false, true] {
+            let report = translate_source(
+                input,
+                &source,
+                &TranslationRequest {
+                    compat_tlc,
+                    ..TranslationRequest::default()
+                },
+            );
+            let doc = report.to_json();
+            assert_eq!(report.accepted(), accepted, "{id}: {doc}");
+            assert_eq!(doc["stage"], "artifact-analysis");
+            assert!(doc.get("model_proved").is_none());
+            assert!(doc.get("exhaustive").is_none());
+            if !accepted {
+                assert_eq!(report.exit_code(), 1);
+                assert!(doc.get("artifact").is_none());
+                assert!(doc.get("module_source").is_none());
+                if id == "PrintWithoutTLC" {
+                    assert!(doc.to_string().contains("PrintT"));
+                }
+            }
+        }
+        selected += 1;
+    }
+    assert_eq!(selected, 4);
     Ok(())
 }

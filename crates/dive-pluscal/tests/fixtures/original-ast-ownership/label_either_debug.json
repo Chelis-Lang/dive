@@ -1,0 +1,9 @@
+{
+  "id": "label_either_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A begin L:either skip; T:skip; or E:skip; end either; B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n(*0, 0*)[type     |-> \"uniprocess\", \n         name  |-> \"A\", \n         decls  |-> <<>>,\n         defs   |-> <<  >>,\n         prcds  |-> <<>>,\n         body  |-> <<(*3, 26*)[label |-> \"L\",\n                               stmts |-> <<(*3, 26*)[type    |-> \"labelEither\",\n                                                     clauses |-> <<(*0, 0*)[unlabOr |-> <<(*3, 33*)[type |-> \"skip\"]>>,\n                                                                            labOr   |-> <<(*3, 41*)[label |-> \"T\",\n                                                                                                    stmts |-> <<(*3, 41*)[type |-> \"skip\"]>>]>>]\n                                                                           , \n                                                                   (*0, 0*)[unlabOr |-> <<>>,\n                                                                            labOr   |-> <<(*3, 52*)[label |-> \"E\",\n                                                                                                    stmts |-> <<(*3, 52*)[type |-> \"skip\"]>>]>>]\n                                                                           >>]\n                                                    >>], \n                     (*3, 72*)[label |-> \"B\",\n                               stmts |-> <<(*3, 72*)[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

@@ -635,7 +635,7 @@ fn charge_nodes(
             }
             lower::Kind::Either(choices) => pending.extend(choices.iter().flatten()),
             lower::Kind::With { body, .. } => pending.extend(body),
-            _ => {}
+            lower::Kind::Leaf => {}
         }
     }
     Ok(())

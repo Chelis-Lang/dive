@@ -111,10 +111,9 @@ fn empty_else_retains_true_before_branch_identity() -> Result<(), Box<dyn std::e
     let source =
         "--algorithm A variable x=0; begin L:if x=0 then else x:=1; end if; E:skip; end algorithm;";
     parse(source, &Options::default())?;
-    assert!(
-        dive_pluscal::translate(source, &TranslationOptions::default())
-            .is_err_and(|error| error.diagnostic.code == Code::Unsupported)
-    );
+    let artifact = dive_pluscal::translate(source, &TranslationOptions::default())?;
+    assert!(artifact.tla.contains("THEN /\\ x' = x"));
+    assert!(artifact.tla.contains("x' = x"));
     for source in [
         "--algorithm A variable x=0; begin L:if x=0 then else end if; E:skip; end algorithm;",
         "--algorithm A variable x=0; begin L:if x=0 then x:=1; elsif x=1 then else end if; E:skip; end algorithm;",

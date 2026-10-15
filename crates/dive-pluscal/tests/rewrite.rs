@@ -23,13 +23,13 @@ fn exact_line_checksum_and_prefix_suffix_replacement() -> Result<(), Box<dyn std
     );
     let source = source();
     let plan = rewrite_document(&source, "x == 1\n", &options()).map_err(|e| e.message)?;
-    assert!(!plan.algorithm_checksum_verified);
+    assert!(plan.algorithm_checksum.is_some());
     assert_eq!(
         &source[..plan.span.start],
         &plan.module_source[..plan.span.start]
     );
     assert!(plan.module_source.ends_with("\\* footer λ🙂\n====\n"));
-    assert!(plan.module_source.contains("chksum(pcal) \\in STRING"));
+    assert!(plan.module_source.contains("chksum(pcal) = "));
     let again =
         rewrite_document(&plan.module_source, "x == 2\n", &options()).map_err(|e| e.message)?;
     assert!(
@@ -37,7 +37,7 @@ fn exact_line_checksum_and_prefix_suffix_replacement() -> Result<(), Box<dyn std
             .selection
             .checksum
             .as_ref()
-            .is_some_and(|c| c.matched && c.algorithm_disabled)
+            .is_some_and(|c| c.matched && !c.algorithm_disabled)
     );
     Ok(())
 }
@@ -51,8 +51,18 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
     );
     let plan = rewrite_document(&supported, "x == 1", &RewriteOptions::default())
         .map_err(|error| error.message)?;
-    assert!(plan.algorithm_checksum_verified);
-    let checksum = plan.algorithm_checksum.as_ref().ok_or("missing AST CRC")?;
+    assert!(plan.algorithm_checksum.is_some());
+    let start = supported.find("--algorithm").ok_or("algorithm")?;
+    let end = supported.find("*)").ok_or("comment")?;
+    let checksum = dive_pluscal::algorithm_checksum_at(
+        &supported,
+        start..end,
+        &dive_pluscal::TranslationOptions::default(),
+    )?;
+    assert_eq!(
+        plan.algorithm_checksum.as_deref(),
+        Some(checksum.checksum.as_str())
+    );
     assert_eq!(
         checksum.serialized_ast,
         include_str!(
@@ -80,9 +90,16 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
     assert_eq!(structure(&native.syntax()), structure(&primary.syntax()));
     let unused_macro = source.replace("begin L:", "macro M() begin skip; end macro; begin L:");
     let macro_plan = rewrite_document(&unused_macro, "x == 1", &RewriteOptions::default())?;
-    let macro_checksum = macro_plan
-        .algorithm_checksum
-        .ok_or("missing macro checksum")?;
+    let selection = select_rewrite(&unused_macro, &RewriteOptions::default())?;
+    let macro_checksum = dive_pluscal::algorithm_checksum_at(
+        &unused_macro,
+        selection.algorithm.start..selection.algorithm.end,
+        &dive_pluscal::TranslationOptions::default(),
+    )?;
+    assert_eq!(
+        macro_plan.algorithm_checksum.as_deref(),
+        Some(macro_checksum.checksum.as_str())
+    );
     assert_eq!(macro_checksum.checksum, "dbedd2a2");
     assert_eq!(
         macro_checksum.serialized_ast,
@@ -172,9 +189,16 @@ fn verify_define_boundary(source: &str) -> Result<(), Box<dyn std::error::Error>
         include_str!("fixtures/define/promoted/cases/DefineBlockRewrite.tla")
     );
     let define_plan = rewrite_document(&supported_define, "x == 1", &RewriteOptions::default())?;
-    let define_checksum = define_plan
-        .algorithm_checksum
-        .ok_or("missing DEFINE checksum")?;
+    let selection = select_rewrite(&supported_define, &RewriteOptions::default())?;
+    let define_checksum = dive_pluscal::algorithm_checksum_at(
+        &supported_define,
+        selection.algorithm.start..selection.algorithm.end,
+        &dive_pluscal::TranslationOptions::default(),
+    )?;
+    assert_eq!(
+        define_plan.algorithm_checksum.as_deref(),
+        Some(define_checksum.checksum.as_str())
+    );
     assert_eq!(
         define_checksum.serialized_ast,
         include_str!("fixtures/define/promoted/primary/DefineBlockRewrite.translated.ast")
@@ -213,9 +237,53 @@ fn verify_define_boundary(source: &str) -> Result<(), Box<dyn std::error::Error>
         structure(&reference_define.syntax())
     );
     let unsupported = source.replace("begin L:", "define F == x' end define; begin L:");
+    let rewritten = rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())?;
+    assert!(rewritten.algorithm_checksum.is_none());
+    assert!(rewritten.module_source.contains("chksum(pcal) \\in STRING"));
     assert!(
-        rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())
-            .is_err_and(|error| error.code == Code::Unsupported)
+        rewritten
+            .warnings
+            .iter()
+            .any(|warning| warning.code == Code::Unsupported)
     );
+    Ok(())
+}
+
+#[test]
+fn resolved_legacy_grammar_bounds_the_rewrite_prefix_without_relaxing_standalone_eof()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE R ----\nEXTENDS Naturals,TLC\n\\* PlusCal options (version 1.5)\n(* --algorithm A variable x=0; fair begin L:x:=1; E:skip; end algorithm; --algorithm B begin L:skip; end algorithm; *)\n====\n";
+    let translation = dive_pluscal::TranslationOptions::default();
+    let context = dive_pluscal::resolve_translation_options(source, &translation)?;
+    let selection = dive_pluscal::rewrite::select_rewrite_with_parser(
+        source,
+        &RewriteOptions::default(),
+        &context.effective.parser,
+    )?;
+    assert!(source[selection.algorithm.start..selection.algorithm.end].ends_with("end algorithm;"));
+    assert!(!source[selection.algorithm.start..selection.algorithm.end].contains("--algorithm B"));
+    let full_candidate = dive_pluscal::rewrite::algorithm_comment_region(source, selection.comment)
+        .ok_or("missing comment region")?;
+    assert!(
+        dive_pluscal::parse_at(
+            source,
+            full_candidate.start..full_candidate.end,
+            &context.effective.parser
+        )
+        .is_err()
+    );
+    for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+        let plan = dive_pluscal::rewrite::rewrite_document_with_translation_options(
+            source,
+            "SuppliedBody == TRUE\n",
+            &RewriteOptions {
+                checksums,
+                ..RewriteOptions::default()
+            },
+            &translation,
+        )?;
+        assert_eq!(plan.selection.algorithm, selection.algorithm);
+        assert!(plan.module_source.contains("--algorithm B"));
+    }
     Ok(())
 }

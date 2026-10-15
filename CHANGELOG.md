@@ -72,12 +72,22 @@
   recovery, alongside the existing application and independent-witness controls.
   The storage guide documents structural format 2 and its separate trace contract.
 
+- PlusCal source mappings retain real statement and macro call-site byte spans
+  across CR/LF/CRLF and mixed source endings. Rewrite metadata reports the actual
+  emitted `cr`, `lf` or `crlf` separator without changing generated bodies or CRCs.
 - `dive check` now uses TLC physical process statuses independently of its
   evaluator profile. `--exit-codes native` retains the historical CLI statuses;
   existing Rust `CheckReport::exit_code()` callers are unchanged. New typed
   convention methods and JSON/human reports disclose the selected status and
   mixed compatibility. This is the new explicit ADR 0097 decision; earlier
   numeric-exit accounting measurements remain historical.
+- PlusCal TLC compatibility now returns replacements for modified or unverified
+  translation bodies like pinned pcal Noop; the default protects them unless
+  `--replace-modified` is selected. Reports expose requested/effective editing
+  settings and retain previous body checksum mismatches.
+- PlusCal generation recognizes bare CR and CRLF physical lines while preserving
+  original byte spans; an unavailable algorithm CRC does not gate valid output.
+
 - Final temporal predicates and independent trace replay support authoritative
   `Sequences!SelectSeq` with binder-free pure state user/LAMBDA callbacks and
   known forwarded lexical captures. Each real invocation checks actual elements
@@ -197,6 +207,43 @@ All notable changes to this project are documented here. The project will follow
   unused dependency permissions. Language-server and native-compilation work
   remain on the post-v1 roadmap (ADR 0095).
 
+- Make PlusCal algorithm CRCs best effort while always preserving the real body
+  checksum. Retire procedure header-transfer emulation and checksum prerequisites
+  for rewriting/debug generation. Changed algorithm text no longer needs an
+  overwrite grant; edited body protection remains explicit. Translation reports
+  use schema2 without proof fields, retaining actual analysis and option settings.
+
+- Preserve the resolved PlusCal input version when selecting the first algorithm
+  in a comment, including legacy `fair` followed by prose or another algorithm.
+
+
+- Add bounded PlusCal debug AST locations and exact Full-header CRCs for simple
+  procedure-free, macro-free shapes. `dive translate --ast` and public original
+  AST APIs return the earlier semantic serialization in memory, with artifact
+  availability separate from translated-module acceptance. Original procedure/macro
+  ownership and compound locations now consume genuine pre-generation WriteAST
+  controls. Eight debug compound/macro headers match pinned CRCs and preserve body
+  bytes. Procedure-free labelled If/Either/While headers retain their measured CRCs.
+  A separately measured procedural body remains exact; its algorithm CRC is
+  deliberately unavailable after header-transfer retirement. Compound/process-owned procedures,
+  renaming, simultaneous ordering, historical fields and actual `-writeAST` file
+  operations remain unfinished; SANY warnings grant no clean checksum validation.
+
+- Expose measured PlusCal `-termination`, `-noDoneDisjunct`, `-lineWidth`,
+  sequential version semantics and distinct `-reportLabels` through the CLI,
+  source-option resolver and public API. Generation and optional exact checksums share
+  effective settings. `-noold`/`-nocfg`/`-unixEOL` report honest in-memory artifact
+  preferences; no files are written. Broader debug/original-stage AST shapes,
+  historical process/procedure shapes and specification-backed translators remain named
+  unsupported. The corpus tool can transport actual `-label` to both translators.
+
+- Replace PlusCal translation admission by a port of pinned `pcal.trans`
+  semantics: scoped renaming, multiline macro substitution, branch labels,
+  symbolic process domains and shared procedure frames. Macro amplification is
+  bounded before token allocation; expanded depth and generated output are
+  bounded during construction. Existing translation blocks are replaced at
+  their original location; whole-module analysis and real generation limits remain
+  explicit. Native source maps and macro locations are preserved.
 - PlusCal corpus measurement verifies pinned inputs and compares complete native
   check reports for both translations without crediting refusals or malformed
   error classes. `--help` succeeds, and relative `--dive` paths are resolved

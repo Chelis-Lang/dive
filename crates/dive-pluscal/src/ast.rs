@@ -265,6 +265,10 @@ pub struct Algorithm {
     pub syntax: Syntax,
     /// Header fairness.
     pub fairness: Fairness,
+    /// Version 1.5 sequential `fair` before `begin`; unlike `--fair`, this
+    /// selects weak fairness without selecting the special fair-header CRC.
+    #[serde(default)]
+    pub legacy_fair: bool,
     /// Globals.
     pub variables: Vec<Decl>,
     /// Original define block.

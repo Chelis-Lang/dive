@@ -6,51 +6,24 @@ use super::{
 };
 use crate::{
     Code,
-    ast::{
-        Assignment, BindingKind, Block, Body, Decl, Expr, Fairness, Label, Span, StatementKind,
-        StmtId, WithBinding,
-    },
+    ast::{BindingKind, Block, Body, Decl, Expr, Fairness, Label, Span, StatementKind, StmtId},
 };
 use std::collections::BTreeSet;
 
 #[derive(Clone)]
 pub(super) struct Node {
-    pub span: Span,
     pub kind: Kind,
 }
+/// Only the admission tree's shape survives; checksum emission reads source AST.
 #[derive(Clone)]
 pub(super) enum Kind {
-    Assign(Vec<Assignment>),
-    Await(Expr),
-    Assert(Expr),
-    Print(Expr),
-    Skip,
-    Pc(String),
-    Call {
-        procedure: usize,
-        arguments: Vec<Expr>,
-        next: String,
-    },
-    Return(usize),
-    CallReturn {
-        from: usize,
-        to: usize,
-        arguments: Vec<Expr>,
-    },
-    If {
-        test: Expr,
-        yes: Vec<Node>,
-        no: Vec<Node>,
-    },
+    Leaf,
+    If { yes: Vec<Node>, no: Vec<Node> },
     Either(Vec<Vec<Node>>),
-    With {
-        bindings: Vec<WithBinding>,
-        body: Vec<Node>,
-    },
+    With { body: Vec<Node> },
 }
 pub(super) struct Action {
     pub name: String,
-    pub span: Span,
     pub body: Vec<Node>,
 }
 pub(super) struct Model {
@@ -370,12 +343,9 @@ impl Lower<'_> {
         }
         Ok(groups)
     }
-    fn pc(&mut self, target: &str, span: Span) -> Result<Node, TranslationError> {
+    fn pc(&mut self, _target: &str, span: Span) -> Result<Node, TranslationError> {
         self.charge(span)?;
-        Ok(Node {
-            span,
-            kind: Kind::Pc(target.into()),
-        })
+        Ok(Node { kind: Kind::Leaf })
     }
     fn compile_groups(&mut self, groups: &[Group], next: &str) -> Result<(), TranslationError> {
         for (index, group) in groups.iter().enumerate() {
@@ -397,7 +367,6 @@ impl Lower<'_> {
         let position = self.actions.len();
         self.actions.push(Action {
             name: group.label.name.text.clone(),
-            span: group.span,
             body: Vec::new(),
         });
         let first = &self.parsed.statements[group.ids[0].0];
@@ -431,8 +400,7 @@ impl Lower<'_> {
             } else {
                 self.charge(first.span)?;
                 vec![Node {
-                    span: first.span,
-                    kind: Kind::If { test, yes, no },
+                    kind: Kind::If { yes, no },
                 }]
             };
             self.compile_groups(&groups, &group.label.name.text)?;
@@ -500,12 +468,12 @@ impl Lower<'_> {
             }
             self.charge(statement.span)?;
             let kind = match &statement.kind {
-                StatementKind::Assign(assignments) => Kind::Assign(assignments.clone()),
-                StatementKind::Await { condition, .. } => Kind::Await(*condition),
-                StatementKind::Assert(expr) => Kind::Assert(*expr),
-                StatementKind::Print(expr) => Kind::Print(*expr),
-                StatementKind::Skip => Kind::Skip,
-                StatementKind::Goto(target) => {
+                StatementKind::Assign(_)
+                | StatementKind::Await { .. }
+                | StatementKind::Assert(_)
+                | StatementKind::Print(_)
+                | StatementKind::Skip => Kind::Leaf,
+                StatementKind::Goto(_) => {
                     if !last {
                         return Err(failure(
                             Code::Label,
@@ -514,16 +482,10 @@ impl Lower<'_> {
                         ));
                     }
                     needs_goto = false;
-                    // GetGoto explicitly treats quoted Done as the terminal
-                    // label; it is not a label containing quote characters.
-                    Kind::Pc(if target.text == "\"Done\"" {
-                        "Done".into()
-                    } else {
-                        target.text.clone()
-                    })
+                    Kind::Leaf
                 }
                 StatementKind::Call { name, arguments } => {
-                    let continuation = if last {
+                    let _continuation: String = if last {
                         next.into()
                     } else if index + 2 == ids.len() {
                         if let StatementKind::Goto(target) =
@@ -584,8 +546,7 @@ impl Lower<'_> {
                                 "return statement following call not in a procedure",
                             )
                         })?;
-                        let owner = self
-                            .parsed
+                        self.parsed
                             .algorithm
                             .procedures
                             .iter()
@@ -593,18 +554,8 @@ impl Lower<'_> {
                             .ok_or_else(|| {
                                 failure(Code::Internal, statement.span, "return owner missing")
                             })?;
-                        Kind::CallReturn {
-                            from: owner,
-                            to: target,
-                            arguments: arguments.clone(),
-                        }
-                    } else {
-                        Kind::Call {
-                            procedure: target,
-                            arguments: arguments.clone(),
-                            next: continuation,
-                        }
                     }
+                    Kind::Leaf
                 }
                 StatementKind::Return => {
                     if !last {
@@ -622,16 +573,15 @@ impl Lower<'_> {
                         )
                     })?;
                     needs_goto = false;
-                    Kind::Return(
-                        self.parsed
-                            .algorithm
-                            .procedures
-                            .iter()
-                            .position(|p| p.name.text == owner.name.text)
-                            .ok_or_else(|| {
-                                failure(Code::Internal, statement.span, "return owner missing")
-                            })?,
-                    )
+                    self.parsed
+                        .algorithm
+                        .procedures
+                        .iter()
+                        .position(|p| p.name.text == owner.name.text)
+                        .ok_or_else(|| {
+                            failure(Code::Internal, statement.span, "return owner missing")
+                        })?;
+                    Kind::Leaf
                 }
                 StatementKind::While { .. } => {
                     return Err(failure(
@@ -665,12 +615,7 @@ impl Lower<'_> {
                             }
                         }
                         no = vec![Node {
-                            span: statement.span,
-                            kind: Kind::If {
-                                test: branch.test,
-                                yes,
-                                no,
-                            },
+                            kind: Kind::If { yes, no },
                         }];
                         no_needs = both;
                     }
@@ -727,10 +672,7 @@ impl Lower<'_> {
                     if last {
                         needs_goto = needed;
                     }
-                    Kind::With {
-                        bindings: bindings.clone(),
-                        body,
-                    }
+                    Kind::With { body }
                 }
                 StatementKind::Block(_) => {
                     return Err(unsupported(
@@ -742,10 +684,7 @@ impl Lower<'_> {
                     return Err(unsupported(statement.span, "macro invocation"));
                 }
             };
-            result.push(Node {
-                span: statement.span,
-                kind,
-            });
+            result.push(Node { kind });
         }
         Ok((result, needs_goto))
     }

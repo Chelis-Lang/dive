@@ -114,8 +114,8 @@ fn retained_selection(
 }
 #[test]
 fn retained_multiple_process_artifacts_and_errors() -> Result<(), Box<dyn std::error::Error>> {
-    retained_selection("", 108, 92)?;
-    retained_selection("extra", 144, 106)
+    retained_selection("", 108, 106)?;
+    retained_selection("extra", 144, 128)
 }
 #[test]
 fn limits_charge_all_process_actions_and_bytes() -> Result<(), Box<dyn std::error::Error>> {
@@ -153,6 +153,6 @@ fn aggregate_budget_fails_before_combining_parts() {
     };
     let result = dive_pluscal::translate(source, &options);
     assert!(
-        matches!(result,Err(e) if e.stage==dive_pluscal::TranslationStage::Normalization && e.diagnostic.code==Code::Resource && e.diagnostic.message.contains("across all processes"))
+        matches!(result,Err(e) if e.stage==dive_pluscal::TranslationStage::Normalization && e.diagnostic.code==Code::Resource && e.diagnostic.message.contains("labelled-action limit reached"))
     );
 }

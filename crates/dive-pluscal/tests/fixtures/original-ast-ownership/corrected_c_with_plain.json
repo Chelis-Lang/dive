@@ -1,0 +1,9 @@
+{
+  "id": "corrected_c_with_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A { variable x=0; {L:with (a=1, b \\in {2,3}) { x:=a+b; }; B:skip; }} *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type   |-> \"with\", \n                           var    |-> \"a\",\n                           eqOrIn |-> \"=\",\n                           exp    |-> << \"1\" >>,\n                           do     |-> <<[type   |-> \"with\", \n                                         var    |-> \"b\",\n                                         eqOrIn |-> \"\\\\in\",\n                                         exp    |-> << \"{\", \"2\", \",\", \"3\", \"}\" >>,\n                                         do     |-> <<[type |-> \"assignment\",\n                                                       ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                                   rhs |-> << \"a\", \"+\", \"b\" >>]>>]>>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}
