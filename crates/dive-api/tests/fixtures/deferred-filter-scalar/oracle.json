@@ -1,0 +1,46 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_receipt_sha256": "e19e5038866cd775c0184fb880621762ade171241a0e04525df20f3cdd34dc89",
+  "source_sha256": "8d4309eab4e121bf0c9eae98c40ab65679b2b18a3b4ec341b52ad426fd712563",
+  "workers": 1,
+  "seed": 0,
+  "fp": 0,
+  "lncheck": "final",
+  "cases": [
+    {
+      "property": "Hold",
+      "cfg": "hold.cfg",
+      "physical_exit": 0,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "stdout_sha256": "d1e65080ef7450778d7545f1db6cbe8bbc918be8a8d4bf9178754c596dcea468",
+      "observation_sha256": "0bd04b6934324af5f522a8558d594e45d529f27448784eadae82210e33a7bc64"
+    },
+    {
+      "property": "Fail",
+      "cfg": "fail.cfg",
+      "physical_exit": 13,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "stdout_sha256": "03a4157b77705463968cf4f5d7e7508f3e7dd576af94a04dbd6eb5e0ea397ec3",
+      "observation_sha256": "c5d030ea89007c2ebdd5707f515082d6ad720a2b945d59e6104365f4064bd00f"
+    }
+  ],
+  "word": {
+    "states": [
+      {
+        "x": false
+      },
+      {
+        "x": true
+      }
+    ],
+    "ending": "stuttering",
+    "property": "Fail"
+  },
+  "qualification": "Two actual deciding primary runs, no dumpTrace; text word parsed from actual raw. Native independent validation is asserted by owning tests, not inferred from this receipt. Original Quicksort remains unmeasured."
+}

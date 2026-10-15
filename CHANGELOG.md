@@ -1,5 +1,15 @@
 # Changelog
 
+- Deferred finite-filter binding can resolve scalar value-bound constants in
+  otherwise pure configured redirect sources. This bounded, callback-free
+  metadata inspection uses the existing domain work/depth limits; predicate and
+  captured-context effects remain conservative. Definition/operator-bound or
+  deferred constants and recursive/higher-order/captured targets still refuse.
+  Definitely forbidden global effects refuse before charged inspection, even
+  with no remaining work, preserving their original error-class priority.
+  Two tiny filtered-WF references establish hold/fail controls; original
+  Quicksort sufficiency and broader corpus coverage remain unmeasured.
+
 - Pure temporal state/action predicates support direct configured first-order
   user operators with lazy scoped arguments. Native, captured, substituted,
   recursive and higher-order configured targets retain explicit refusals.
