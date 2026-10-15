@@ -546,7 +546,7 @@ mod fuzz {
     use std::sync::LazyLock;
 
     use dive_value::fp64::{Fingerprinter, TlcFingerprint};
-    use dive_value::{Ctx, Int, Interner, Value, json, ops, print, tlc};
+    use dive_value::{Ctx, ErrorKind, Int, Interner, SetKind, Value, json, ops, print, tlc};
     use num_bigint::BigInt;
     use proptest::prelude::*;
 
@@ -589,33 +589,576 @@ mod fuzz {
         ]
     }
 
+    // This property materializes/serializes its inputs. Recursive syntax size
+    // does not bound semantic expansion: three layers can describe 3^16 functions.
+    // This is a test-input feasibility bound, not a production resource guarantee.
+    const MAX_EXPANDED_CELLS: usize = 1024;
+    const OVER_BUDGET: usize = MAX_EXPANDED_CELLS + 1;
+
+    fn add(a: usize, b: usize) -> usize {
+        a.saturating_add(b).min(OVER_BUDGET)
+    }
+
+    fn mul(a: usize, b: usize) -> usize {
+        a.saturating_mul(b).min(OVER_BUDGET)
+    }
+
+    fn pow(mut base: usize, mut exponent: usize) -> usize {
+        let mut result = 1;
+        while exponent != 0 {
+            if exponent & 1 != 0 {
+                result = mul(result, base);
+            }
+            exponent >>= 1;
+            base = mul(base, base);
+        }
+        result
+    }
+
+    #[derive(Clone, Copy, Debug)]
+    struct Cost {
+        // Upper bound on enumerable set cardinality. None also retains infinite
+        // and invalid operands: their enumeration fails, rather than expands.
+        cardinality: Option<usize>,
+        // Recursive value cells visited by full expansion, including every
+        // component even behind an empty, infinite or invalid outer construct.
+        cells: usize,
+    }
+
+    impl Cost {
+        const SCALAR: Self = Self {
+            cardinality: None,
+            cells: 1,
+        };
+
+        fn container(children: &[Self], cardinality: Option<usize>) -> Self {
+            Self {
+                cardinality,
+                // Include a key/position cell as well, covering record fields
+                // and the implicit domains visited by function operations.
+                cells: children.iter().fold(1, |n, c| add(add(n, c.cells), 1)),
+            }
+        }
+
+        fn explicit(children: &[Self]) -> Self {
+            Self::container(children, Some(children.len()))
+        }
+
+        fn interval(lo: i64, hi: i64) -> Self {
+            let n = usize::try_from((i128::from(hi) - i128::from(lo) + 1).max(0))
+                .unwrap_or(OVER_BUDGET)
+                .min(OVER_BUDGET);
+            Self {
+                cardinality: Some(n),
+                cells: add(1, n),
+            }
+        }
+
+        fn subset(base: Self) -> Self {
+            let cardinality = base.cardinality.map(|n| pow(2, n));
+            Self {
+                cardinality,
+                cells: add(
+                    add(1, base.cells),
+                    mul(cardinality.unwrap_or(0), add(1, base.cells)),
+                ),
+            }
+        }
+
+        fn functions(domain: Self, range: Self) -> Self {
+            let cardinality = match (domain.cardinality, range.cardinality) {
+                (Some(0), _) => Some(1),
+                (_, Some(0)) => Some(0),
+                (Some(d), Some(r)) => Some(pow(r, d)),
+                _ => None,
+            };
+            let source = add(add(1, domain.cells), range.cells);
+            // Each emitted function retains its domain and one range element
+            // per key. Counting the entire range for each key overestimates it.
+            let element = add(
+                add(1, domain.cells),
+                mul(domain.cardinality.unwrap_or(0), range.cells),
+            );
+            Self {
+                cardinality,
+                cells: add(source, mul(cardinality.unwrap_or(0), element)),
+            }
+        }
+
+        fn product(children: &[Self]) -> Self {
+            let cardinality = if children.iter().any(|c| c.cardinality == Some(0)) {
+                Some(0)
+            } else {
+                children
+                    .iter()
+                    .try_fold(1, |n, c| c.cardinality.map(|m| mul(n, m)))
+            };
+            let source = Self::container(children, cardinality);
+            Self {
+                cardinality,
+                cells: add(source.cells, mul(cardinality.unwrap_or(0), source.cells)),
+            }
+        }
+
+        fn sequences(base: Self) -> Self {
+            let cardinality = (base.cardinality == Some(0)).then_some(1);
+            Self {
+                cardinality,
+                cells: add(add(1, base.cells), cardinality.unwrap_or(0)),
+            }
+        }
+    }
+
+    #[derive(Clone, Debug)]
+    struct Input {
+        value: Value,
+        cost: Cost,
+    }
+
+    impl Input {
+        // Check before invoking ANY constructor: even set/function/record
+        // normalization and eager hashing may expand a child's lazy values.
+        fn build(mut cost: Cost, construct: impl FnOnce() -> Value) -> Option<Self> {
+            if cost.cells > MAX_EXPANDED_CELLS {
+                return None;
+            }
+            let value = construct();
+            // Normalization failure can fall back to a tuple or scalar.
+            if !matches!(value, Value::Set(_)) {
+                cost.cardinality = None;
+            }
+            Some(Self { value, cost })
+        }
+
+        fn collection(
+            inputs: Vec<Self>,
+            estimate: impl FnOnce(&[Cost]) -> Cost,
+            construct: impl FnOnce(Vec<Value>) -> Value,
+        ) -> Option<Self> {
+            let cost = estimate(&inputs.iter().map(|x| x.cost).collect::<Vec<_>>());
+            Self::build(cost, || {
+                construct(inputs.into_iter().map(|x| x.value).collect())
+            })
+        }
+    }
+
     fn value() -> impl Strategy<Value = Value> {
-        leaf().prop_recursive(3, 20, 3, |inner| {
-            prop_oneof![
-                prop::collection::vec(inner.clone(), 0..4).prop_map(|v| Value::set_raw(v, CTX)),
-                prop::collection::vec(inner.clone(), 0..4)
-                    .prop_map(|v| Value::set(v.clone(), CTX).unwrap_or_else(|_| Value::tuple(v))),
-                prop::collection::vec(inner.clone(), 0..3).prop_map(Value::tuple),
-                (inner.clone(), inner.clone()).prop_map(|(x, y)| {
-                    Value::record(vec![(NAMES.intern("fx"), x), (NAMES.intern("fy"), y)], CTX)
-                        .unwrap_or(Value::FALSE)
-                }),
-                (inner.clone(), inner.clone(), inner.clone()).prop_map(|(d, x, y)| {
-                    Value::fcn(vec![(d, x), (Value::Int(2), y)], CTX).unwrap_or(Value::TRUE)
-                }),
-                (-2i64..2, -2i64..3).prop_map(|(a, b)| Value::interval(a.into(), b.into(), CTX)),
-                inner.clone().prop_map(|b| Value::subset(b, CTX)),
-                (inner.clone(), inner.clone()).prop_map(|(d, r)| Value::fcn_set(d, r, CTX)),
-                prop::collection::vec(inner.clone(), 0..3).prop_map(|v| Value::product(v, CTX)),
-                (inner.clone(), inner.clone()).prop_map(|(x, y)| {
-                    Value::record_set(vec![(NAMES.intern("fx"), x), (NAMES.intern("fy"), y)], CTX)
-                        .unwrap_or(Value::FALSE)
-                }),
-                inner.clone().prop_map(|r| Value::seq_set(r, CTX)),
-                Just(Value::nat(CTX)),
-                Just(Value::string_set(CTX)),
-            ]
+        leaf()
+            .prop_map(|value| Input {
+                value,
+                cost: Cost::SCALAR,
+            })
+            .prop_recursive(3, 20, 3, |inner| {
+                prop_oneof![
+                    prop::collection::vec(inner.clone(), 0..4).prop_filter_map(
+                        "raw set expansion",
+                        |v| Input::collection(v, Cost::explicit, |v| Value::set_raw(v, CTX))
+                    ),
+                    prop::collection::vec(inner.clone(), 0..4).prop_filter_map(
+                        "normalized set expansion",
+                        |v| Input::collection(v, Cost::explicit, |v| {
+                            Value::set(v.clone(), CTX).unwrap_or_else(|_| Value::tuple(v))
+                        })
+                    ),
+                    prop::collection::vec(inner.clone(), 0..3).prop_filter_map(
+                        "tuple expansion",
+                        |v| Input::collection(v, |c| Cost::container(c, None), Value::tuple)
+                    ),
+                    (inner.clone(), inner.clone()).prop_filter_map("record expansion", |(x, y)| {
+                        let cost =
+                            Cost::container(&[x.cost, y.cost, Cost::SCALAR, Cost::SCALAR], None);
+                        Input::build(cost, || {
+                            Value::record(
+                                vec![(NAMES.intern("fx"), x.value), (NAMES.intern("fy"), y.value)],
+                                CTX,
+                            )
+                            .unwrap_or(Value::FALSE)
+                        })
+                    }),
+                    (inner.clone(), inner.clone(), inner.clone()).prop_filter_map(
+                        "function expansion",
+                        |(d, x, y)| {
+                            let cost =
+                                Cost::container(&[d.cost, x.cost, Cost::SCALAR, y.cost], None);
+                            Input::build(cost, || {
+                                Value::fcn(vec![(d.value, x.value), (Value::Int(2), y.value)], CTX)
+                                    .unwrap_or(Value::TRUE)
+                            })
+                        }
+                    ),
+                    (-2i64..2, -2i64..3).prop_filter_map("interval expansion", |(a, b)| {
+                        Input::build(Cost::interval(a, b), || {
+                            Value::interval(a.into(), b.into(), CTX)
+                        })
+                    }),
+                    inner.clone().prop_filter_map("subset expansion", |b| {
+                        Input::build(Cost::subset(b.cost), || Value::subset(b.value, CTX))
+                    }),
+                    (inner.clone(), inner.clone()).prop_filter_map(
+                        "function set expansion",
+                        |(d, r)| {
+                            Input::build(Cost::functions(d.cost, r.cost), || {
+                                Value::fcn_set(d.value, r.value, CTX)
+                            })
+                        }
+                    ),
+                    prop::collection::vec(inner.clone(), 0..3).prop_filter_map(
+                        "product expansion",
+                        |v| Input::collection(v, Cost::product, |v| Value::product(v, CTX))
+                    ),
+                    (inner.clone(), inner.clone()).prop_filter_map(
+                        "record set expansion",
+                        |(x, y)| {
+                            Input::build(Cost::product(&[x.cost, y.cost]), || {
+                                Value::record_set(
+                                    vec![
+                                        (NAMES.intern("fx"), x.value),
+                                        (NAMES.intern("fy"), y.value),
+                                    ],
+                                    CTX,
+                                )
+                                .unwrap_or(Value::FALSE)
+                            })
+                        }
+                    ),
+                    inner
+                        .clone()
+                        .prop_filter_map("sequence set expansion", |r| {
+                            Input::build(Cost::sequences(r.cost), || Value::seq_set(r.value, CTX))
+                        }),
+                    Just(Input {
+                        value: Value::nat(CTX),
+                        cost: Cost::SCALAR
+                    }),
+                    Just(Input {
+                        value: Value::string_set(CTX),
+                        cost: Cost::SCALAR
+                    }),
+                ]
+            })
+            .prop_map(|input| input.value)
+    }
+
+    #[test]
+    fn expansion_budget_precedes_construction_and_saturates() {
+        let interval5 = Cost::interval(-2, 2);
+        let product25 = Cost::product(&[interval5, interval5]);
+        let subset33m = Cost::subset(product25);
+        let functions43m =
+            Cost::functions(Cost::subset(Cost::interval(-2, 1)), Cost::interval(-1, 1));
+        for cost in [
+            subset33m,
+            functions43m,
+            Cost::subset(Cost::subset(interval5)),
+        ] {
+            assert_eq!(cost.cells, OVER_BUDGET);
+            assert!(Input::build(cost, || panic!("oversized constructor must not run")).is_none());
+        }
+        assert_eq!(add(usize::MAX, 1), OVER_BUDGET);
+        assert_eq!(mul(usize::MAX, usize::MAX), OVER_BUDGET);
+        assert_eq!(pow(2, usize::MAX), OVER_BUDGET);
+        assert_eq!(pow(0, 0), 1);
+        assert_eq!(pow(0, usize::MAX), 0);
+        assert_eq!(pow(1, usize::MAX), 1);
+        assert_eq!(Cost::interval(i64::MIN, i64::MAX).cells, OVER_BUDGET);
+        assert_eq!(Cost::interval(1, 0).cardinality, Some(0));
+        assert!(
+            Input::build(
+                Cost {
+                    cardinality: None,
+                    cells: MAX_EXPANDED_CELLS
+                },
+                || Value::TRUE
+            )
+            .is_some()
+        );
+        assert!(
+            Input::build(
+                Cost {
+                    cardinality: None,
+                    cells: OVER_BUDGET
+                },
+                || panic!("boundary constructor")
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn expansion_budget_keeps_nested_values_infinite_and_invalid_operands() {
+        let interval2 = Cost::interval(0, 1);
+        let nested = Cost::functions(Cost::subset(interval2), interval2);
+        assert!(nested.cells < MAX_EXPANDED_CELLS);
+        assert!(
+            Input::build(nested, || Value::fcn_set(
+                Value::subset(Value::interval(0.into(), 1.into(), CTX), CTX),
+                Value::interval(0.into(), 1.into(), CTX),
+                CTX,
+            ))
+            .is_some()
+        );
+        let rich = Cost::product(&[Cost::subset(interval2), Cost::explicit(&[Cost::SCALAR])]);
+        let input = Input::build(rich, || {
+            Value::product(
+                vec![
+                    Value::subset(Value::interval(0.into(), 1.into(), CTX), CTX),
+                    Value::set_raw(vec![Value::TRUE], CTX),
+                ],
+                CTX,
+            )
         })
+        .expect("small nested product");
+        exercise(&input.value);
+        // A cheap empty/invalid outer operation must not hide an expensive child.
+        let too_big = Cost {
+            cardinality: Some(OVER_BUDGET),
+            cells: OVER_BUDGET,
+        };
+        assert!(
+            Input::build(Cost::functions(Cost::explicit(&[]), too_big), || panic!(
+                "hidden child"
+            ))
+            .is_none()
+        );
+        assert!(
+            Input::build(Cost::product(&[Cost::SCALAR, too_big]), || panic!(
+                "hidden child"
+            ))
+            .is_none()
+        );
+    }
+
+    fn check_set_input(
+        cost: Cost,
+        construct: impl FnOnce() -> Value,
+        kind: SetKind,
+        size: Result<u64, ErrorKind>,
+    ) -> Value {
+        let input = Input::build(cost, construct).expect("feasible representative");
+        let set = input.value.as_set().expect("set representation retained");
+        assert_eq!(set.kind(), kind);
+        assert_eq!(set.size(CTX).map_err(|e| e.kind()), size);
+        exercise(&input.value);
+        input.value
+    }
+
+    #[test]
+    fn feasibility_retains_real_invalid_and_infinite_inputs() {
+        type Invalid = (Cost, fn() -> Value, SetKind);
+        let invalid: [Invalid; 5] = [
+            (
+                Cost::subset(Cost::SCALAR),
+                || Value::subset(Value::FALSE, CTX),
+                SetKind::Subset,
+            ),
+            (
+                Cost::functions(Cost::SCALAR, Cost::explicit(&[])),
+                || Value::fcn_set(Value::FALSE, Value::empty_set(CTX), CTX),
+                SetKind::FcnSet,
+            ),
+            (
+                Cost::product(&[Cost::SCALAR, Cost::interval(0, 1)]),
+                || {
+                    Value::product(
+                        vec![Value::FALSE, Value::interval(0.into(), 1.into(), CTX)],
+                        CTX,
+                    )
+                },
+                SetKind::Product,
+            ),
+            (
+                Cost::product(&[Cost::SCALAR, Cost::interval(0, 1)]),
+                || {
+                    Value::record_set(
+                        vec![
+                            (NAMES.intern("fx"), Value::FALSE),
+                            (NAMES.intern("fy"), Value::interval(0.into(), 1.into(), CTX)),
+                        ],
+                        CTX,
+                    )
+                    .unwrap()
+                },
+                SetKind::RcdSet,
+            ),
+            (
+                Cost::sequences(Cost::SCALAR),
+                || Value::seq_set(Value::FALSE, CTX),
+                SetKind::Seq,
+            ),
+        ];
+        for (cost, construct, kind) in invalid {
+            let value = check_set_input(cost, construct, kind, Err(ErrorKind::Incomparable));
+            assert_eq!(
+                value.as_set().unwrap().elements(CTX).unwrap_err().kind(),
+                ErrorKind::Incomparable
+            );
+        }
+        let sequence = Cost::sequences(Cost::interval(0, 1));
+        for (cost, construct, kind) in [
+            (Cost::SCALAR, Value::nat as fn(Ctx) -> Value, SetKind::Nat),
+            (Cost::SCALAR, Value::string_set, SetKind::Strings),
+        ] {
+            let value =
+                check_set_input(cost, || construct(CTX), kind, Err(ErrorKind::NotEnumerable));
+            assert!(value.as_set().unwrap().is_infinite());
+        }
+        let value = check_set_input(
+            sequence,
+            || Value::seq_set(Value::interval(0.into(), 1.into(), CTX), CTX),
+            SetKind::Seq,
+            Err(ErrorKind::NotEnumerable),
+        );
+        assert!(value.as_set().unwrap().is_infinite());
+        let nested = Input::build(
+            Cost::container(&[Cost::SCALAR, Cost::SCALAR, sequence], None),
+            || Value::tuple(vec![Value::nat(CTX), Value::string_set(CTX), value]),
+        )
+        .unwrap();
+        assert!(has_unenumerable(&nested.value));
+        exercise(&nested.value);
+    }
+
+    #[test]
+    fn feasibility_retains_empty_singleton_duplicate_and_set_key_inputs() {
+        let empty = Cost::explicit(&[]);
+        let singleton = Cost::explicit(&[Cost::SCALAR]);
+        check_set_input(
+            Cost::sequences(empty),
+            || Value::seq_set(Value::empty_set(CTX), CTX),
+            SetKind::Seq,
+            Ok(1),
+        );
+        check_set_input(
+            Cost::functions(empty, Cost::SCALAR),
+            || Value::fcn_set(Value::empty_set(CTX), Value::nat(CTX), CTX),
+            SetKind::FcnSet,
+            Ok(1),
+        );
+        check_set_input(
+            Cost::functions(Cost::SCALAR, empty),
+            || Value::fcn_set(Value::nat(CTX), Value::empty_set(CTX), CTX),
+            SetKind::FcnSet,
+            Ok(0),
+        );
+        let symbolic = check_set_input(
+            Cost::functions(Cost::SCALAR, singleton),
+            || Value::fcn_set(Value::nat(CTX), Value::set_raw(vec![Value::TRUE], CTX), CTX),
+            SetKind::FcnSet,
+            Ok(1),
+        );
+        assert!(!symbolic.as_set().unwrap().is_infinite());
+        assert_eq!(
+            symbolic.as_set().unwrap().elements(CTX).unwrap_err().kind(),
+            ErrorKind::NotEnumerable
+        );
+        check_set_input(
+            Cost::functions(Cost::interval(0, 1), singleton),
+            || {
+                Value::fcn_set(
+                    Value::interval(0.into(), 1.into(), CTX),
+                    Value::set_raw(vec![Value::TRUE], CTX),
+                    CTX,
+                )
+            },
+            SetKind::FcnSet,
+            Ok(1),
+        );
+        check_set_input(
+            Cost::explicit(&[Cost::SCALAR, Cost::SCALAR]),
+            || Value::set_raw(vec![Value::Int(1), Value::Int(1)], CTX),
+            SetKind::Raw,
+            Ok(1),
+        );
+        let keys = Input::build(
+            Cost::container(&[singleton, singleton, Cost::SCALAR, Cost::SCALAR], None),
+            || {
+                Value::fcn(
+                    vec![
+                        (Value::set_raw(vec![Value::Int(1)], CTX), Value::TRUE),
+                        (Value::set_raw(vec![Value::Int(2)], CTX), Value::FALSE),
+                    ],
+                    CTX,
+                )
+                .unwrap()
+            },
+        )
+        .unwrap();
+        assert_eq!(keys.value.as_fcn().unwrap().len(), 2);
+        assert!(
+            keys.value
+                .as_fcn()
+                .unwrap()
+                .iter()
+                .all(|(key, _)| key.as_set().is_some())
+        );
+        exercise(&keys.value);
+    }
+
+    #[test]
+    fn empty_factors_in_either_order_keep_finite_outer_metadata() {
+        let empty = Cost::explicit(&[]);
+        for reversed in [false, true] {
+            let children = if reversed {
+                [empty, Cost::SCALAR]
+            } else {
+                [Cost::SCALAR, empty]
+            };
+            let cost = Cost::product(&children);
+            assert_eq!(cost.cardinality, Some(0));
+            for record in [false, true] {
+                let base = check_set_input(
+                    cost,
+                    || {
+                        let mut values = vec![Value::nat(CTX), Value::empty_set(CTX)];
+                        if reversed {
+                            values.reverse();
+                        }
+                        if record {
+                            Value::record_set(
+                                vec![
+                                    (NAMES.intern("fx"), values.remove(0)),
+                                    (NAMES.intern("fy"), values.remove(0)),
+                                ],
+                                CTX,
+                            )
+                            .unwrap()
+                        } else {
+                            Value::product(values, CTX)
+                        }
+                    },
+                    if record {
+                        SetKind::RcdSet
+                    } else {
+                        SetKind::Product
+                    },
+                    Ok(0),
+                );
+                let subset = Cost::subset(cost);
+                assert_eq!(subset.cardinality, Some(1));
+                let value = check_set_input(
+                    subset,
+                    || Value::subset(base.clone(), CTX),
+                    SetKind::Subset,
+                    Ok(1),
+                );
+                let functions = Cost::functions(subset, Cost::interval(0, 1));
+                assert_eq!(functions.cardinality, Some(2));
+                check_set_input(
+                    functions,
+                    || Value::fcn_set(value, Value::interval(0.into(), 1.into(), CTX), CTX),
+                    SetKind::FcnSet,
+                    Ok(2),
+                );
+                let domain = Cost::functions(cost, Cost::interval(0, 1));
+                assert_eq!(domain.cardinality, Some(1));
+                check_set_input(
+                    domain,
+                    || Value::fcn_set(base, Value::interval(0.into(), 1.into(), CTX), CTX),
+                    SetKind::FcnSet,
+                    Ok(1),
+                );
+            }
+        }
     }
 
     pub fn dump(v: &Value) -> String {
