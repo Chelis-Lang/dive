@@ -402,6 +402,21 @@ development-only reference evidence; runtime translation remains native.
 
 ## Conditional temporal planning conversion
 
+Original action-target selection in `dive-liveness::analyze` follows the
+first-equal-identity collection semantics of `tlc2/util/SetOfStates.java::put`
+and the original-target action evaluation in `tlc2/tool/liveness/LiveCheck.java`
+at pinned revision `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT).
+The implementation uses the already retained native concrete targets and
+destination identities; it does not reproduce Java table slots or iteration
+order. Action membership reuses the existing bounded `pushNeg` / `simplify`
+semantics without DNF distribution, only at graph labeling. Existing eager
+candidate attribution and independent validation can still refuse eliminated
+actions, without emitting a model error or counterexample after that refusal.
+The `ConstructorAlias` action, state,
+duplicate-successor and eliminated-action controls were checked against that
+pinned primary before implementation. Residual-tableau state error parity and
+general cross-atom error ordering remain outside this repair.
+
 `dive-liveness::plan` matches pinned `tlc2/tool/liveness/Liveness.java`
 `astToLive`/`astToLiveAppl`: conditional guard probes, ordered branch/boolean
 conversion and nonrecursive-call exception fallback (MIT, revision `94d0c50`).

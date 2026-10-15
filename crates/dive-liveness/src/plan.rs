@@ -50,6 +50,23 @@ pub struct PredicateAtom {
     pub binding_limit: usize,
 }
 
+pub(crate) enum AtomError {
+    Core(EvalError),
+    NonBoolean(EvalError),
+}
+impl AtomError {
+    pub(crate) fn into_error(self) -> EvalError {
+        match self {
+            Self::Core(error) | Self::NonBoolean(error) => error,
+        }
+    }
+}
+impl From<EvalError> for AtomError {
+    fn from(error: EvalError) -> Self {
+        Self::Core(error)
+    }
+}
+
 impl PredicateAtom {
     /// Evaluates an atom in the model's retained scope. ENABLED uses TLC's
     /// checker-side search, independently of the retained behavior graph.
@@ -57,42 +74,49 @@ impl PredicateAtom {
     /// # Errors
     /// Missing state, nonboolean predicate or a core evaluation error.
     pub fn evaluate(&self, model: &Model, st: &St) -> Result<bool, EvalError> {
+        self.evaluate_detailed(model, st)
+            .map_err(AtomError::into_error)
+    }
+
+    pub(crate) fn evaluate_detailed(&self, model: &Model, st: &St) -> Result<bool, AtomError> {
         let ev = &model.evaluator;
-        ev.validate_model_context(&model.ir, &model.names)?;
+        ev.validate_model_context(&model.ir, &model.names)
+            .map_err(EvalError::from)?;
         ev.validate_predicate(&self.pred.scope, self.pred.expr)?;
         let invocation = ev.begin_pure_predicate(&self.pred.scope, st, self.binding_limit)?;
         let st = &invocation;
         if let AtomTest::Enabled { sub } = self.test {
             ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
             let StateRef::Vals(_) = &st.s0 else {
-                return Err(EvalError::general("ENABLED atom requires a current state"));
+                return Err(EvalError::general("ENABLED atom requires a current state").into());
             };
-            return ev.enabled_scoped_pure(
-                &self.pred.scope,
-                self.pred.expr,
-                sub,
-                st,
-                self.binding_limit,
-            );
+            return ev
+                .enabled_scoped_pure(
+                    &self.pred.scope,
+                    self.pred.expr,
+                    sub,
+                    st,
+                    self.binding_limit,
+                )
+                .map_err(AtomError::from);
         }
         if let AtomTest::NegatedEnabled { action } = self.test {
             ev.validate_predicate(&self.pred.scope, action)?;
             ev.check_finite_bindings(&self.pred.scope, action, st, self.binding_limit)?;
             let StateRef::Vals(_) = &st.s0 else {
-                return Err(EvalError::general(
-                    "negated ENABLED atom requires a current state",
-                ));
+                return Err(
+                    EvalError::general("negated ENABLED atom requires a current state").into(),
+                );
             };
             return ev
                 .enabled_scoped_pure(&self.pred.scope, action, None, st, self.binding_limit)
-                .map(|b| !b);
+                .map(|b| !b)
+                .map_err(AtomError::from);
         }
         if let AtomTest::Nonstuttering { sub } = self.test {
             ev.validate_predicate(&self.pred.scope, sub)?;
             let (StateRef::Vals(before), StateRef::Vals(after)) = (&st.s0, &st.s1) else {
-                return Err(EvalError::general(
-                    "non-stuttering atom requires two states",
-                ));
+                return Err(EvalError::general("non-stuttering atom requires two states").into());
             };
             ev.check_finite_bindings(
                 &self.pred.scope,
@@ -127,10 +151,10 @@ impl PredicateAtom {
             match ev.eval_scoped_pure(&self.pred.scope, self.pred.expr, st, self.binding_limit)? {
                 Value::Bool(b) => b,
                 v => {
-                    return Err(EvalError::general(format!(
+                    return Err(AtomError::NonBoolean(EvalError::general(format!(
                         "temporal predicate is {}, not boolean",
                         v.kind_name()
-                    )));
+                    ))));
                 }
             };
 
@@ -1666,4 +1690,63 @@ pub fn lower_violation(
         formula,
         atoms: cx.atoms,
     })
+}
+
+#[cfg(test)]
+mod atom_error_tests {
+    use super::*;
+    use std::sync::Arc;
+
+    #[test]
+    #[allow(clippy::expect_used, reason = "actual evaluator regression assertions")]
+    fn detailed_evaluation_distinguishes_core_general_from_synthesized_nonboolean() {
+        let source = "---- MODULE AtomOrigin ----
+EXTENDS Naturals
+VARIABLE x
+Init == x = 0
+Next == x' = 1
+Value == x'
+Core == [a |-> 0] = <<0, 0>>
+====
+";
+        let analysis =
+            dive_sema::analyze_source("AtomOrigin.tla", source, &dive_sema::Options::default());
+        assert!(analysis.accepted(), "{analysis:?}");
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let config = dive_config::parse(
+            "INIT Init
+NEXT Next
+",
+        )
+        .into_config()
+        .expect("config");
+        let model = dive_model::bind(ir, &config, &dive_model::BindOptions::tlc()).expect("model");
+        let st = St::action(
+            Arc::from([Some(Value::Int(0))]),
+            Arc::from([Some(Value::Int(1))]),
+        );
+        for (name, is_core) in [("Value", false), ("Core", true)] {
+            let definition = model.ir.root_def(name).expect("definition");
+            let atom = PredicateAtom {
+                pred: Pred::new(
+                    model.ir.def(definition).body,
+                    model.evaluator.scope(definition).expect("scope"),
+                ),
+                kind: AtomKind::Action,
+                test: AtomTest::Predicate,
+                binding_limit: 4096,
+            };
+            let detailed = atom
+                .evaluate_detailed(&model, &st)
+                .expect_err("actual failure");
+            assert_eq!(matches!(&detailed, AtomError::Core(_)), is_core);
+            let error = detailed.into_error();
+            assert_eq!(error.class(), dive_eval::ErrorClass::Eval);
+            assert_eq!(error.ec(), dive_eval::Ec::General);
+            assert!(!error.is_eval_exception());
+            let legacy = atom.evaluate(&model, &st).expect_err("legacy failure");
+            assert_eq!(legacy.to_string(), error.to_string());
+            assert_eq!((legacy.class(), legacy.ec()), (error.class(), error.ec()));
+        }
+    }
 }

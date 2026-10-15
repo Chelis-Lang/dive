@@ -523,7 +523,7 @@ impl CheckReport {
                 crate::temporal::Outcome::Violation(_) => "liveness-violation",
                 crate::temporal::Outcome::Safety(_) => "internal-error",
             },
-            Phase::TemporalError(e) => temporal_failure_kind(e.error()),
+            Phase::TemporalError(e) => temporal_failure_kind(e),
         }
     }
 
@@ -575,7 +575,7 @@ impl CheckReport {
                 }
                 crate::temporal::Outcome::Safety(_) => exit::INTERNAL,
             },
-            Phase::TemporalError(e) => match temporal_failure_kind(e.error()) {
+            Phase::TemporalError(e) => match temporal_failure_kind(e) {
                 "internal-error" => exit::INTERNAL,
                 "model-error" => {
                     if tlc {
@@ -593,7 +593,7 @@ impl CheckReport {
                 }
                 "evaluation-error" => {
                     if tlc {
-                        temporal_planning_evaluation(e.error()).map_or(exit::INTERNAL, |error| {
+                        temporal_evaluation(e).map_or(exit::INTERNAL, |error| {
                             dive_check::tlc_exit_status(error.ec().code())
                         })
                     } else {
@@ -934,14 +934,19 @@ impl CheckReport {
                         "reported": class.reported,
                         "verified": class.verified,
                     });
-                } else if let Some(error) = temporal_planning_evaluation(e.error()) {
+                } else if let Some(error) = temporal_evaluation(e) {
                     let code = error.ec().code();
                     doc["tlc"] = json!({
                         "code": code,
                         "name": error.ec().name(),
                         "exit_status": dive_check::tlc_exit_status(code),
-                        "verified": error.ec() == dive_eval::Ec::ExpectedValue,
+                        "verified": if temporal_action_evaluation(e).is_some() {
+                            error.ec() == dive_eval::Ec::General && !error.is_eval_exception()
+                        } else { error.ec() == dive_eval::Ec::ExpectedValue },
                     });
+                }
+                if temporal_action_evaluation(e).is_some() {
+                    doc["error_site"] = json!("temporal-action");
                 }
                 if let Some(capture) = e.exploration() {
                     temporal_evidence_json(&mut doc, capture, self.opts.tlc_fingerprints);
@@ -1178,7 +1183,7 @@ impl CheckReport {
                 let _ = writeln!(
                     out,
                     "{}: {e}; no verdict produced",
-                    temporal_failure_kind(e.error())
+                    temporal_failure_kind(e)
                 );
                 let _ = writeln!(out, "Execution stage: {}", e.stage().name());
                 if let Some(capture) = e.exploration() {
@@ -1282,13 +1287,41 @@ fn temporal_planning_evaluation(error: &crate::temporal::Error) -> Option<&dive_
     }
 }
 
-fn temporal_failure_kind(error: &crate::temporal::Error) -> &'static str {
+fn temporal_action_evaluation(failure: &crate::temporal::Failure) -> Option<&dive_eval::EvalError> {
+    let action = failure.action_evaluation()?;
+    // TLC combines negated claims before simplification; this backend still
+    // analyzes them separately. Do not invent a verified error for an action
+    // that a different property could eliminate from the combined formula.
+    let cause = action.core_cause()?;
+    (action.properties() == 1
+        && action.direct_operand()
+        && cause.class() == dive_eval::ErrorClass::Eval
+        && cause.ec() == dive_eval::Ec::General
+        && !cause.is_eval_exception())
+    .then_some(cause)
+}
+
+fn temporal_evaluation(failure: &crate::temporal::Failure) -> Option<&dive_eval::EvalError> {
+    temporal_action_evaluation(failure).or_else(|| temporal_planning_evaluation(failure.error()))
+}
+
+fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
     use crate::temporal::Error;
     use dive_liveness::analyze::AnalysisError;
     use dive_liveness::formula::FormulaError;
     use dive_liveness::plan::PlanningError;
     use dive_liveness::product::ProductError;
-    match error {
+    if let Some(action) = failure.action_evaluation() {
+        return match action.cause().class() {
+            dive_eval::ErrorClass::Eval if temporal_action_evaluation(failure).is_some() => {
+                "evaluation-error"
+            }
+            dive_eval::ErrorClass::Eval | dive_eval::ErrorClass::Unsupported => "unsupported",
+            dive_eval::ErrorClass::ResourceLimit => "resource-limit",
+            dive_eval::ErrorClass::Bug => "internal-error",
+        };
+    }
+    match failure.error() {
         Error::Analysis(AnalysisError::Planning(PlanningError::Evaluation { .. })) => {
             "evaluation-error"
         }

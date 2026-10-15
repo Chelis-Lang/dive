@@ -224,6 +224,82 @@ impl std::error::Error for Failure {
     }
 }
 
+/// The actual typed cause of an active selected-target action evaluation failure.
+/// This is an error description, not a liveness verdict or admission receipt.
+#[derive(Clone, Debug)]
+pub struct ActionEvaluation {
+    cause: dive_eval::EvalError,
+    property: String,
+    source: Box<plan::Source>,
+    properties: usize,
+    core: bool,
+    direct: bool,
+}
+impl ActionEvaluation {
+    /// Original class, code, message and expression origin.
+    #[must_use]
+    pub fn cause(&self) -> &dive_eval::EvalError {
+        &self.cause
+    }
+    /// Actual core evaluation error, absent for a synthesized nonboolean result.
+    #[must_use]
+    pub fn core_cause(&self) -> Option<&dive_eval::EvalError> {
+        self.core.then_some(&self.cause)
+    }
+    /// Whether the normalized formula is one EA/AE opaque action operand.
+    /// This is syntax context, not a liveness verdict or evaluation-order claim.
+    #[must_use]
+    pub const fn direct_operand(&self) -> bool {
+        self.direct
+    }
+    /// Property whose action label was being evaluated.
+    #[must_use]
+    pub fn property(&self) -> &str {
+        &self.property
+    }
+    /// Bound predicate's source context.
+    #[must_use]
+    pub fn source(&self) -> &plan::Source {
+        &self.source
+    }
+    /// Number of configured temporal claims, before per-property analysis.
+    #[must_use]
+    pub const fn properties(&self) -> usize {
+        self.properties
+    }
+}
+
+/// A failure retaining the legacy error and an actual action cause, when present.
+/// Legacy entrypoints keep their existing error shapes; no diagnostic is parsed.
+#[derive(Clone, Debug)]
+pub struct DetailedFailure {
+    failure: Failure,
+    action: Option<Box<ActionEvaluation>>,
+}
+impl DetailedFailure {
+    /// Legacy failure and completed execution facts.
+    #[must_use]
+    pub fn failure(&self) -> &Failure {
+        &self.failure
+    }
+    /// Actual active action error, absent for state/attribution and other failures.
+    #[must_use]
+    pub fn action_evaluation(&self) -> Option<&ActionEvaluation> {
+        self.action.as_deref()
+    }
+    /// Consumes this description without changing the legacy public error shape.
+    #[must_use]
+    pub fn into_parts(self) -> (Failure, Option<Box<ActionEvaluation>>) {
+        (self.failure, self.action)
+    }
+}
+impl std::fmt::Display for DetailedFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.failure.fmt(f)
+    }
+}
+impl std::error::Error for DetailedFailure {}
+
 fn atom(
     model: &Model,
     plan: &Plan,
@@ -242,12 +318,49 @@ fn atom(
         .map_err(|e| failure(e.to_string()))
 }
 
+fn selected_targets(
+    graph: &capture::BehaviorGraph,
+    source: usize,
+) -> Result<std::collections::BTreeMap<usize, StateVals>, AnalysisError> {
+    let malformed = || AnalysisError::Inconsistent("original action target row shape");
+    let mut originals = graph.concrete.get(source).ok_or_else(malformed)?.iter();
+    let mut selected = std::collections::BTreeMap::new();
+    for edge in &graph.edges[source] {
+        if edge.to >= graph.states.len() {
+            return Err(malformed());
+        }
+        if let Some(ordinal) = edge.ordinal {
+            let original = originals.next().ok_or_else(malformed)?;
+            if original.ordinal != ordinal || edge.label.as_deref() != Some(original.label.as_str())
+            {
+                return Err(malformed());
+            }
+            selected
+                .entry(edge.to)
+                .or_insert_with(|| original.state.clone());
+        } else {
+            if edge.to != source {
+                return Err(malformed());
+            }
+            selected
+                .entry(source)
+                .or_insert_with(|| graph.states[source].clone());
+        }
+    }
+    if originals.next().is_some() {
+        return Err(malformed());
+    }
+    Ok(selected)
+}
+
 fn labels(
     model: &Model,
     plan: &Plan,
     graph: &capture::BehaviorGraph,
     property: &str,
     limit: usize,
+    active: &(std::collections::BTreeSet<usize>, Option<usize>),
+    action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Labels, AnalysisError> {
     let edges = graph
         .edges
@@ -273,18 +386,45 @@ fn labels(
                 false
             });
             let mut row = Vec::new();
+            let targets = if pred.kind == AtomKind::Action && active.0.contains(&index) {
+                selected_targets(graph, v)?
+            } else {
+                std::collections::BTreeMap::new()
+            };
+            let mut evaluated = std::collections::BTreeMap::new();
             for edge in &graph.edges[v] {
-                row.push(if pred.kind == AtomKind::Action {
-                    atom(
-                        model,
-                        plan,
-                        index,
-                        &St::action(vals.clone(), graph.states[edge.to].clone()),
-                        property,
-                    )?
+                let value = if let Some(target) = targets.get(&edge.to) {
+                    if let Some(value) = evaluated.get(&edge.to) {
+                        *value
+                    } else {
+                        let value = pred
+                            .evaluate_detailed(model, &St::action(vals.clone(), target.clone()))
+                            .map_err(|failure| {
+                                let core = matches!(&failure, plan::AtomError::Core(_));
+                                let cause = failure.into_error();
+                                let source = Box::new(plan::Source::new(model, pred.pred.location));
+                                let error = AnalysisError::Atom {
+                                    property: property.into(),
+                                    source: source.clone(),
+                                    detail: cause.to_string(),
+                                };
+                                *action_error = Some(Box::new(ActionEvaluation {
+                                    cause,
+                                    property: property.into(),
+                                    source,
+                                    properties: model.property_claims().len(),
+                                    core,
+                                    direct: active.1 == Some(index),
+                                }));
+                                error
+                            })?;
+                        evaluated.insert(edge.to, value);
+                        value
+                    }
                 } else {
                     false
-                });
+                };
+                row.push(value);
             }
             action_rows.push(row);
         }
@@ -372,12 +512,51 @@ pub fn analyze_final_with_evidence(
     opts: &CheckOptions,
     limits: Limits,
 ) -> Result<Analysis, Failure> {
+    analyze_final_with_action_errors(model, opts, limits).map_err(|failure| failure.into_parts().0)
+}
+
+/// Like [`analyze_final_with_evidence`], retaining actual selected action errors.
+/// The legacy public error constructors remain unchanged. State and attribution
+/// failures do not acquire an action cause. A typed cause alone does not establish
+/// TLC error-order parity, especially across multiple configured properties.
+///
+/// ```no_run
+/// # fn example(model: &dive_model::Model) {
+/// use dive_liveness::analyze::{analyze_final_with_action_errors, Limits};
+/// if let Err(failure) = analyze_final_with_action_errors(model, &dive_check::CheckOptions::tlc(0, 0), Limits::default()) {
+///     if let Some(action) = failure.action_evaluation() {
+///         let _original_class = action.cause().class();
+///     }
+/// }
+/// # }
+/// ```
+///
+/// # Errors
+/// The same failures as [`analyze_final_with_evidence`], with their original
+/// typed action cause when that evaluation actually failed.
+pub fn analyze_final_with_action_errors(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+) -> Result<Analysis, DetailedFailure> {
     let mut stage = Stage::Planning;
     let mut exploration = None;
-    analyze_observed(model, opts, limits, &mut stage, &mut exploration).map_err(|error| Failure {
-        error,
-        stage,
-        exploration,
+    let mut action = None;
+    analyze_observed(
+        model,
+        opts,
+        limits,
+        &mut stage,
+        &mut exploration,
+        &mut action,
+    )
+    .map_err(|error| DetailedFailure {
+        failure: Failure {
+            error,
+            stage,
+            exploration,
+        },
+        action,
     })
 }
 
@@ -387,6 +566,7 @@ fn analyze_observed(
     limits: Limits,
     stage: &mut Stage,
     exploration: &mut Option<Box<ExplorationEvidence>>,
+    action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
@@ -423,9 +603,10 @@ fn analyze_observed(
             capture::Exploration::Complete(c) => *c,
             capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
         };
-    let word = analyze_captured(model, &plans, &captured, limits, stage).inspect_err(|_| {
-        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
-    })?;
+    let word = analyze_captured(model, &plans, &captured, limits, stage, action_error)
+        .inspect_err(|_| {
+            *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
+        })?;
     Ok(match word {
         Some(word) => Analysis::Candidate(Candidate {
             target_property: word.target_property,
@@ -453,6 +634,7 @@ fn analyze_captured(
     captured: &capture::Complete,
     limits: Limits,
     stage: &mut Stage,
+    action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
     let graph = Graph::new(
@@ -467,7 +649,21 @@ fn analyze_captured(
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
     for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans) {
         *stage = Stage::Atoms;
-        let labels = labels(model, plan, &captured.graph, &p.name, limits.atom_cells)?;
+        let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
+            crate::tlc_plan::active_actions(&plan.formula, limits.formula)
+                .map_err(AnalysisError::Tableau)?
+        } else {
+            (std::collections::BTreeSet::new(), None)
+        };
+        let labels = labels(
+            model,
+            plan,
+            &captured.graph,
+            &p.name,
+            limits.atom_cells,
+            &active,
+            action_error,
+        )?;
         *stage = Stage::Product;
         let product =
             Product::with_recurrences(&graph, tableau, &labels, conditions, limits.product)

@@ -236,6 +236,11 @@ impl Build {
         }
     }
 
+    fn simplified(&mut self, root: usize) -> Result<usize, FormulaError> {
+        let pushed = self.negation(root, false, 0)?;
+        self.simplify(pushed, 0)
+    }
+
     fn ae_body(&self, i: usize) -> Option<usize> {
         if let Node::Always(c) = self.nodes[i]
             && let Node::Eventually(body) = self.nodes[c]
@@ -505,8 +510,137 @@ pub fn classify(
         _ if fairness.is_empty() => conjuncts[0],
         _ => b.junction(true, conjuncts)?,
     };
-    let pushed = b.negation(tagged, false, 0)?;
-    let simplified = b.simplify(pushed, 0)?;
+    let simplified = b.simplified(tagged)?;
     let dnf = b.dnf(simplified, 0)?;
     b.branches(dnf)
+}
+
+// Only membership after the existing semantic normalization. This neither
+// evaluates predicates nor supplies TLC grouping or error-order authority.
+pub(crate) fn active_actions(
+    formula: &Formula,
+    limits: Limits,
+) -> Result<(std::collections::BTreeSet<usize>, Option<usize>), FormulaError> {
+    if formula.terms() > limits.formula_nodes {
+        return Err(FormulaError::Limit("TLC planning input terms"));
+    }
+    let mut build = Build {
+        nodes: Vec::new(),
+        terms: 0,
+        steps: 0,
+        limits,
+    };
+    let imported = build.import(formula, formula.root(), 0)?;
+    // DNF distribution and AE regrouping do not remove surviving atom
+    // references; only constant simplification is needed for this subset.
+    let root = build.simplified(imported)?;
+    let direct = match build.nodes[root] {
+        Node::Always(child) if matches!(build.nodes[child], Node::Eventually(_)) => {
+            if let Node::Eventually(body) = build.nodes[child] {
+                Some(body)
+            } else {
+                None
+            }
+        }
+        Node::Eventually(child) if matches!(build.nodes[child], Node::Always(_)) => {
+            if let Node::Always(body) = build.nodes[child] {
+                Some(body)
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }
+    .and_then(|body| {
+        let leaf = if let Node::Not(child) = build.nodes[body] {
+            child
+        } else {
+            body
+        };
+        match build.nodes[leaf] {
+            Node::Atom(atom) if atom.kind == AtomKind::Action => Some(atom.index),
+            _ => None,
+        }
+    });
+    let mut pending = vec![root];
+    let mut seen = std::collections::BTreeSet::new();
+    let mut actions = std::collections::BTreeSet::new();
+    while let Some(index) = pending.pop() {
+        build.step(0)?;
+        if !seen.insert(index) {
+            continue;
+        }
+        match &build.nodes[index] {
+            Node::Atom(atom) if atom.kind == AtomKind::Action => {
+                actions.insert(atom.index);
+            }
+            Node::Not(child) | Node::Always(child) | Node::Eventually(child) => {
+                pending.push(*child);
+            }
+            Node::And(children) | Node::Or(children) => pending.extend(children),
+            Node::Bool(_) | Node::Atom(_) => {}
+        }
+    }
+    Ok((actions, direct))
+}
+
+#[cfg(test)]
+mod active_tests {
+    use super::*;
+    #[test]
+    fn eliminated_action_membership_uses_only_simplified_root_and_existing_bounds()
+    -> Result<(), FormulaError> {
+        let action = Node::Atom(crate::formula::Atom {
+            kind: AtomKind::Action,
+            index: 7,
+        });
+        let direct = Formula::new(
+            vec![action.clone(), Node::Always(0), Node::Eventually(1)],
+            2,
+        )?;
+        assert_eq!(
+            active_actions(&direct, Limits::default())?,
+            ([7].into(), Some(7))
+        );
+        let eliminated = Formula::new(
+            vec![
+                action.clone(),
+                Node::Always(0),
+                Node::Eventually(1),
+                Node::Bool(true),
+                Node::Or(vec![3, 2]),
+                Node::Not(4),
+            ],
+            5,
+        )?;
+        assert_eq!(
+            active_actions(&eliminated, Limits::default())?,
+            (std::collections::BTreeSet::new(), None)
+        );
+        let factored = Formula::new(
+            vec![
+                action,
+                Node::Bool(true),
+                Node::Or(vec![1, 0]),
+                Node::Eventually(2),
+                Node::Always(3),
+            ],
+            4,
+        )?;
+        assert_eq!(
+            active_actions(&factored, Limits::default())?,
+            (std::collections::BTreeSet::new(), None)
+        );
+        assert!(matches!(
+            active_actions(
+                &direct,
+                Limits {
+                    formula_nodes: 1,
+                    ..Limits::default()
+                }
+            ),
+            Err(FormulaError::Limit(_))
+        ));
+        Ok(())
+    }
 }
