@@ -11,7 +11,26 @@ safety result. Binding and symmetry-preparation model errors retain the reported
 `CheckResult::binding_model_error` records this actual origin without inferring it
 from an error class or statistics. It does not bind twice or issue a temporal holding/capture proof;
 temporal limits are unused on this route. All ordinary checker settings remain
-in force. Configured state/action properties retain the existing final-mode route.
+in force.
+
+Configured properties also use the ordinary engine when their actual bound roles
+contain no implied temporal obligations and the request uses the narrow default
+resident-memory route. This route binds once under the checker's startup host;
+it retains all configured initial predicates, invariants and implied actions.
+Behavior-specification fairness alone does not require temporal property checking.
+The source/configuration eligibility inspection evaluates no expressions and
+grants no purity or model-truth claim. The bound role split decides the route.
+
+This initial scope requires profile-default evaluator and fingerprint settings,
+fingerprint polynomial 0, resident fingerprint storage, no storage budgets or
+directory overrides, no deadlock/sequential override and no chaos flag. Seed and
+requested workers are retained. Randomness under VIEW or SYMMETRY stays on the
+existing temporal route, as does every excluded option. Those routes retain
+their original binding/evaluation error priority and named refusals. Genuine
+implied temporal properties always continue to the temporal analyzer unchanged.
+The independent temporal validator and the analyzer's no-temporal-properties
+guard remain intact. This source change is experimental pending scoped runtime
+qualification, independent review and full gates; it adds no corpus agreement.
 
 ```rust
 use std::sync::Arc;
@@ -93,8 +112,9 @@ The same backend is available explicitly:
 dive check Model.tla --lncheck final --lasso short --store exact --seed 17 --output json
 ```
 
-Both flags are required. The model must have a temporal property; ordinary
-safety checks use the existing command without these flags. Supported final
+Both flags are required. Ordinary safety checks can use the existing command
+without these flags. With these flags, an empty property list or the bounded
+configured-safety-role route above returns the ordinary safety result. Supported final
 checking returns success or independently validated periodic counterexamples;
 unsupported formulas, missing independent covers and limits return no verdict.
 Safety violations found during exploration retain their full original report.
