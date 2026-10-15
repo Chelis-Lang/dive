@@ -206,13 +206,18 @@ fn configured_temporal_properties_keep_real_verdict_and_resource_route() -> Test
 }
 
 #[test]
-fn nonempty_state_and_action_property_configs_do_not_take_empty_route() -> TestResult {
+fn nonempty_safety_roles_require_the_narrow_default_memory_route() -> TestResult {
     for property in ["P == x=0", "P == [][x'=x]_x"] {
         let (ir, cfg) = input(
             &format!("VARIABLE x\nInit == x=0\nNext == x'=x\n{property}"),
             "INIT Init\nNEXT Next\nPROPERTY P\n",
         )?;
-        let error = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+        let options = CheckOptions::dive(0);
+        let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
+        assert!(matches!(report.outcome(), Outcome::Safety(r) if r.verdict==Verdict::Success));
+        let mut outside_scope = options;
+        outside_scope.store = dive_store::StoreMode::Exact;
+        let error = temporal::check_final(&ir, &cfg, &outside_scope, Limits::default())
             .err()
             .ok_or("existing nonempty property route")?;
         assert!(matches!(

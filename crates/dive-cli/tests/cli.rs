@@ -705,10 +705,11 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         supported["counterexample"]["states"][0]["values"]["x"],
         false
     );
-    // A recursive operator actual remains unsupported before any evaluation.
+    // A genuinely temporal recursive operator actual stays a named planning
+    // refusal. A state-only PROPERTY follows the ordinary safety engine below.
     let higher = temp_file(
         "HigherTemporal.tla",
-        "---- MODULE HigherTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nRECURSIVE T(_)\nT(p) == IF p THEN p ELSE T(p)\nH(F(_),p) == F(p)\nP == H(T,x)\n====\n",
+        "---- MODULE HigherTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nRECURSIVE T(_)\nT(p) == IF p THEN p ELSE T(p)\nH(F(_),p) == F(p)\nP == []<>H(T,x)\n====\n",
     );
     assert!(
         std::fs::write(
@@ -720,6 +721,8 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     let rejected = dive(&[
         "check",
         &higher.to_string_lossy(),
+        "--seed=0",
+        "--workers=1",
         "--lncheck=final",
         "--lasso=short",
         "--output=json",
@@ -728,11 +731,14 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     let rejected: serde_json::Value = serde_json::from_slice(&rejected.stdout).unwrap_or_default();
     assert_eq!(rejected["verdict"], "unsupported");
     assert!(rejected["counterexample"].is_null());
-    assert!(
-        rejected["diagnostics"]
-            .as_array()
-            .is_some_and(|d| !d.is_empty())
-    );
+    assert!(rejected["statistics"].is_null());
+    assert_eq!(rejected["diagnostics"][0]["code"], "DIVE-L0020");
+    assert!(rejected["message"].as_str().is_some_and(|message| {
+        message.contains("opaque/recursive/higher-order operator capture")
+    }));
+    assert_eq!(rejected["execution"]["stage"], "planning");
+    assert_eq!(rejected["execution"]["capture_completed"], false);
+    assert_eq!(rejected["options"]["workers"]["used"], 0);
 }
 
 #[test]
@@ -1201,4 +1207,92 @@ fn simulation_basic_statistics_are_optional_and_replayable() {
         assert_eq!(output.status.code(), Some(code), "{output:?}");
         assert_eq!(output.stdout, [] as [u8; 0]);
     }
+}
+
+#[test]
+fn recursive_state_property_final_mode_matches_ordinary_evaluation()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE RecursiveState ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nRECURSIVE T(_)\nT(p) == IF p THEN p ELSE T(p)\nH(F(_),p) == F(p)\nP == H(T,x)\n====\n";
+    let spec = temp_file("RecursiveState.tla", source);
+    std::fs::write(
+        spec.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nPROPERTY P\n",
+    )?;
+    let path = spec.to_string_lossy();
+    for initial in [false, true] {
+        std::fs::write(
+            &spec,
+            source.replace(
+                "Init == x = FALSE",
+                if initial {
+                    "Init == x = TRUE"
+                } else {
+                    "Init == x = FALSE"
+                },
+            ),
+        )?;
+        for profile in ["--compat=dive", "--compat=tlc"] {
+            let base = [
+                "check",
+                &path,
+                profile,
+                "--seed=0",
+                "--workers=1",
+                "--output=json",
+            ];
+            let ordinary = dive(&base);
+            let mut args = base.to_vec();
+            args.extend(["--lncheck=final", "--lasso=short"]);
+            let final_mode = dive(&args);
+            let expected = if initial { 0 } else { 3 };
+            assert_eq!(ordinary.status.code(), Some(expected));
+            assert_eq!(final_mode.status.code(), Some(expected));
+            let a: serde_json::Value = serde_json::from_slice(&ordinary.stdout)?;
+            let b: serde_json::Value = serde_json::from_slice(&final_mode.stdout)?;
+            for key in [
+                "verdict",
+                "message",
+                "statistics",
+                "property",
+                "counterexample",
+                "diagnostics",
+                "output",
+                "tlc",
+                "warnings",
+            ] {
+                assert_eq!(a[key], b[key], "{initial}/{profile}/{key}");
+            }
+            assert_eq!(b["execution"]["stage"], "capture");
+            assert_eq!(b["execution"]["capture_completed"], false);
+            assert_eq!(b["options"]["workers"]["requested"], 1);
+            assert_eq!(b["options"]["seed"], 0);
+            assert_eq!(b["statistics"]["initial_generated"], 1);
+            assert!(b["property"].is_null());
+            assert_eq!(b["diagnostics"], serde_json::json!([]));
+            if initial {
+                assert_eq!(b["verdict"], "success");
+                assert!(b["message"].is_null());
+                assert!(b["counterexample"].is_null());
+                assert_eq!(b["statistics"]["generated"], 3);
+                assert_eq!(b["statistics"]["distinct"], 2);
+                assert_eq!(b["statistics"]["depth"], 2);
+                assert_eq!(b["statistics"]["left_on_queue"], 0);
+            } else {
+                assert_eq!(b["verdict"], "resource-limit");
+                assert_eq!(
+                    b["message"],
+                    "evaluation nested more than 400 levels deep (recursion at line 6, col 28 to line 6, col 28 of module RecursiveState)"
+                );
+                assert_eq!(b["statistics"]["generated"], 1);
+                assert_eq!(b["statistics"]["distinct"], 1);
+                assert_eq!(b["statistics"]["depth"], 1);
+                assert_eq!(b["statistics"]["left_on_queue"], 1);
+                assert_eq!(b["counterexample"]["ending"], "finite");
+                assert_eq!(b["counterexample"]["length"], 1);
+                assert_eq!(b["counterexample"]["states"][0]["values"]["x"], false);
+                assert!(b["tlc"].is_null());
+            }
+        }
+    }
+    Ok(())
 }

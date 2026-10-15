@@ -318,3 +318,26 @@ Current-parent finite scoped execution passed 76 tests with no failures, ignores
 | default | 4 | 154 | 91 | 59 | 4 | 0 | 0 |
 
 Historical compile/parser failures, invalid compound-initial fixture and review build attempts remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full SVG/C, layout, serialization, animation and general CommunityModules parity remain open; issue #272 remains open.
+
+## Current-parent configured safety-role checking acceptance
+
+The accepted scope is the narrow default-memory final/short safety-role route.
+Finite controls retain scopes/refinements, first errors, startup output/RNG,
+option exclusions, recursive state evaluation and genuine temporal validation.
+Current SVG/Print/API integration and independent good/forged words are retained.
+Earlier pending/historical notes keep their original measurement identities.
+
+Runtime source `f939f4bfdcf131b94a259bd445655e206d9a4c4f`, tree `a5235897aee36ddbfe8182d1acae528bfd256aec`, directly based on actual accepted SVG main `69cfb8b0d0bcd2721157331d792e58539cf52072`.
+
+Its actual full gate passed 1,767 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
+
+Current-parent finite execution passed 140 selected tests with no failures, ignores or unexecuted selections; 142 other tests are explicitly unselected. It recorded 38 expected-status Print CLI controls and 32 doctests. Fresh independent review passed the same selected population, 4 additional Rust probes and 24 supplemental CLI commands. Failed diagnostic/helper attempts remain their actual negatives.
+
+| Profile | Workers | Original IDs | Agree | Refused | Expected divergence | Disagree | Timeout |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| TLC | 1 | 154 | 95 | 59 | 0 | 0 | 0 |
+| TLC | 4 | 154 | 95 | 59 | 0 | 0 | 0 |
+| default | 1 | 154 | 91 | 59 | 4 | 0 | 0 |
+| default | 4 | 154 | 91 | 59 | 4 | 0 | 0 |
+
+Historical source/runtime failures, invalid external helpers and review experiments remain preserved and uncredited. This later two-Markdown transfer does not retag measurements; actual source/main CI is separately verified. General API, temporal and TLC parity, broad P/C/M completion and issue #272 remain open; no state-space gain or roadmap completion follows from this bounded change.

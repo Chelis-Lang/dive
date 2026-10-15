@@ -20,8 +20,25 @@ A TLC value profile plus these flags is reported as `tlc+overrides`.
 When the configuration has no `PROPERTY` entries, these flags leave ordinary
 safety checking in charge: invariants, initialization/successor errors,
 assumptions and other safety settings retain their usual behavior. No temporal
-claim or capture proof is issued. Configured state/action properties and real
-temporal properties retain the existing final-mode route and its bounds/refusals.
+claim or capture proof is issued.
+
+With default resident-memory settings, configured properties whose actual bound
+roles are entirely initial predicates, invariants and implied actions also use
+that ordinary engine. Each obligation retains its scope, order and name; the
+checker binds once and retains its startup output and random stream. This initial
+route requires profile-default evaluation/fingerprints, polynomial 0, fingerprint
+storage, no storage budget/directory options, deadlock or sequential override, or
+chaos flag. Seed and worker requests are retained. Other options and randomness
+under VIEW or SYMMETRY keep the existing final-mode route and error priority.
+Real temporal property roles still require temporal analysis and independent
+periodic-word validation. This extension is experimental pending current-source
+qualification and independent review; no corpus agreement is credited here.
+A state-only `PROPERTY P` is checked in the initial state by the ordinary engine;
+`[]P` becomes an invariant. An evaluation resource limit in those safety roles
+stays a resource limit, including recursive calls. A genuinely temporal formula
+such as `[]<>P` still goes through temporal planning and retains its named
+recursive/opaque-operator refusal. These are different requested obligations.
+
 
 Pure supported boolean/temporal operators, finite quantification and WF/SF
 predicates have scoped limits. Unknown ENABLED/fairness covers, runtime effects,

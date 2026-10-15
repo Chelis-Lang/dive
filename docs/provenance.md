@@ -1305,3 +1305,32 @@ Current-parent finite scoped execution passed 76 tests with no failures, ignores
 
 Historical compile/parser failures, invalid compound-initial fixture and review build attempts remain preserved and uncredited. The later two-Markdown publication transfer does not retag runtime measurements. Actual source/main CI is a separate obligation. Full SVG/C, layout, serialization, animation and general CommunityModules parity remain open; issue #272 remains open.
 See [the module contract](user/modules.md).
+
+The experimental configured-safety-role route reuses the ordinary checker
+binding and complete post-binding phases from ADR 0015. It inspects the real
+`dive-model` role split after one binding under the original checker host, and
+never strips configured PROPERTY obligations or resets startup effects. Its
+initial option/source scope is deliberately narrow so excluded temporal
+admission priorities remain unchanged. Historical PlusCal refinement refusals
+remain their original observations; scoped qualification, independent review and
+full gates for this source are pending. No temporal-class or corpus parity credit
+is inferred from the refactor.
+
+## Current-parent configured safety-role checking acceptance
+
+Explicit final/short checking can run configured properties that bind entirely
+to initial, invariant or action obligations on the narrow default-memory route.
+One checker-owned startup binding/host enters the complete original ordinary
+checker tail; no property obligation is erased or startup stream reset.
+Excluded options/transformed randomness and genuine temporal obligations retain
+their existing routes, limits and error/refusal priority. Accepted API binding
+origin, Print shared-Core ownership and bounded SVG numeric behavior remain.
+
+Runtime source `f939f4bfdcf131b94a259bd445655e206d9a4c4f`, tree `a5235897aee36ddbfe8182d1acae528bfd256aec`, directly based on actual accepted SVG main `69cfb8b0d0bcd2721157331d792e58539cf52072`.
+
+Its actual full gate passed 1,767 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
+
+Current-parent finite execution passed 140 selected tests with no failures, ignores or unexecuted selections; 142 other tests are explicitly unselected. It recorded 38 expected-status Print CLI controls and 32 doctests. Fresh independent review passed the same selected population, 4 additional Rust probes and 24 supplemental CLI commands. Failed diagnostic/helper attempts remain their actual negatives.
+
+Historical source/runtime failures, invalid external helpers and review experiments remain preserved and uncredited. This later two-Markdown transfer does not retag measurements; actual source/main CI is separately verified. General API, temporal and TLC parity, broad P/C/M completion and issue #272 remain open; no state-space gain or roadmap completion follows from this bounded change.
+See [the temporal API contract](temporal-api.md) and [final checking](user/temporal.md).

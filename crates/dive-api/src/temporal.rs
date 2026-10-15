@@ -26,8 +26,9 @@ pub enum Outcome {
     /// A concrete periodic word falsifies the named properties and passes
     /// the independent validator. TLC's exact lasso selection is not claimed.
     Violation(Box<ValidatedCounterexample>),
-    /// The ordinary safety result when no properties are configured, or a
-    /// safety stop before temporal checking could complete.
+    /// The ordinary safety result when no properties are configured, when
+    /// configured properties bind entirely to safety roles on the supported
+    /// default-memory route, or a safety stop before temporal checking completes.
     /// This preserves its verdict, statistics, output and counterexample;
     /// unsupported features and resource limits are never success.
     Safety(Box<CheckResult>),
@@ -295,8 +296,16 @@ fn run(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Outcome, Failure> {
-    let model =
-        bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?;
+    let model = match dive_check::final_roles::dispatch(ir, config, options) {
+        Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
+            return Ok(Outcome::Safety(result));
+        }
+        Some(Ok(dive_check::final_roles::Dispatch::Temporal(model))) => *model,
+        Some(Err(error)) => return Err(Failure::before(Error::Binding(error), Stage::Binding)),
+        None => {
+            bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?
+        }
+    };
     match dive_liveness::analyze::analyze_final_with_evidence(&model, options, limits) {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
@@ -407,6 +416,12 @@ fn run(
 /// With no configured `PROPERTY` entries, the ordinary safety checker runs
 /// directly and its complete result is returned as [`Outcome::Safety`]. Temporal
 /// analysis limits do not apply to that route; safety settings remain unchanged.
+/// Configured properties also return ordinary safety results when their actual
+/// bound roles contain no temporal obligations and the request meets
+/// [`dive_check::final_roles::dispatch`]'s default-memory scope. Binding runs once
+/// under the original startup host and retains every initial/invariant/action
+/// obligation. Excluded options and genuine temporal roles keep their existing
+/// analysis route; no ordinary result issues a temporal holding/capture claim.
 pub fn check_final(
     ir: &Arc<Ir>,
     config: &ModelConfig,
