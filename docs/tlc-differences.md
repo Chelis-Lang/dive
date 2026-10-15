@@ -450,6 +450,16 @@ See `docs/native-checkpoint.md` and the source/raw control study at
 
 **What TLC does.** Results come as human-oriented text, or as the `-tool` message stream meant for the Toolbox. Counterexamples are available as JSON only through `-dumpTrace json`. SANY's error messages give a location, but no stable error codes and no suggested fix. SANY's command line exits 0 on semantic errors unless you pass `-error-codes`.
 
+The checking-only `dive tlc`/`tlc` adapter selects TLC evaluation and one worker
+by default, normalizes module/configuration suffixes and emits existing human or
+JSON check reports. `-lncheck final` directly selects the bounded deterministic
+short-lasso backend (D-013), with its existing limits and independent word
+validation. Tool framing and other TLC mode protocols refuse by name. The
+adapter retains the file API's source-before-configuration checks, so it does
+not reproduce TLC's configuration-first priority when both inputs are invalid.
+See the [entrypoint guide](user/checking.md#tlc-checking-entrypoints) for exact supported
+flags, path resolution and statuses.
+
 **`dive check` exit codes.** TLC physical statuses are now the CLI default in
 both evaluator profiles (ADR 0097). `--exit-codes native` retains0 success,
 1 rejected input,10 property violation,11 deadlock,12 assumption and13 evaluation

@@ -1,5 +1,14 @@
 # Changelog
 
+- Added checking-only `dive tlc`, installed `tlc`, and argv[0] `tlc` entrypoints
+  with TLC evaluation, one worker by default, module/configuration basenames,
+  common checking flags and independent validation before emitting a word.
+  `-lncheck final` selects the existing bounded deterministic short-lasso backend
+  directly and reports its qualifications. Tool messages and TLC simulation,
+  DFID, storage and debugger protocols remain named refusals. Native command
+  and file API defaults remain unchanged. Full TLC argument and tool-output
+  compatibility remains open.
+
 - Add bounded `SVG!PointOnLine` with the installed override's signed32 wrapping,
   binary64 interpolation and truncating/saturating result in both profiles.
   Unimplemented argument representations remain named refusals; SVG layout,

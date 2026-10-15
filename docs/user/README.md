@@ -11,6 +11,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Parse, analyze and resolve modules | [Front end](front-end.md) | Source/config acceptance is not model checking |
 | Use modules and library operators | [Modules](modules.md) | Resolution and executable support are separate |
 | Explore safety properties | [Checking](checking.md) | Supported explicit BFS and pure safety symmetry |
+| Invoke TLC checking arguments | [TLC checking entrypoints](checking.md#tlc-checking-entrypoints) | Checking-only adapter; tool messages and other TLC mode protocols refuse |
 | Match TLC behavior | [Compatibility](compatibility.md) | Proven supported counterparts; explicit mixed modes |
 | Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
