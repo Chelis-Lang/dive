@@ -163,9 +163,29 @@ pub struct Model {
     /// under the selected value or exploration order. Remains true when other
     /// sequential effects are also reachable.
     pub runtime_name_order: bool,
+    pub(crate) stateful_checking: Option<String>,
 }
 
 impl Model {
+    /// A reachable stateful checking restriction, if any, from model binding.
+    ///
+    /// Runtime-name encounter order and TLC composition accounting are separate
+    /// sequential requirements. Their presence alone does not return a reason
+    /// here. This classification does not establish support: each backend must
+    /// still apply its remaining checks and evaluate the actual model.
+    ///
+    /// ```
+    /// # fn explain(model: &dive_model::Model) {
+    /// if let Some(reason) = model.stateful_checking() {
+    ///     eprintln!("stateful checking: {reason}");
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn stateful_checking(&self) -> Option<&str> {
+        self.stateful_checking.as_deref()
+    }
+
     /// Records every name interned so far as a start-up name
     /// ([`dive_eval::Evaluator::seal_startup_names`]). Call it only after
     /// interning names TLC interns before it evaluates any `ASSUME` or state.

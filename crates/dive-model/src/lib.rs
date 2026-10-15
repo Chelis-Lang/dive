@@ -366,12 +366,14 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
         sequential: Vec::new(),
         sequential_names_only: false,
         runtime_name_order: false,
+        stateful_checking: None,
     };
     model.unsupported = reach::unsupported(b, &model);
     let sequential = reach::sequential(b, &model);
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;
+    model.stateful_checking = sequential.stateful_checking;
     model.seal_startup_names();
     Ok(model)
 }
