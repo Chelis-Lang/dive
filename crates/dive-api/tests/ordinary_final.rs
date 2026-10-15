@@ -36,6 +36,12 @@ impl Spec {
         }
     }
 }
+/// Checks every grown completed level, so small graphs exercise prefixes.
+const EVERY_LEVEL: dive_api::PeriodicSchedule = dive_api::PeriodicSchedule {
+    min_states: 2,
+    growth_factor: 1,
+};
+
 impl Drop for Spec {
     fn drop(&mut self) {
         if let Some(parent) = self.0.parent() {
@@ -103,17 +109,34 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             assert_eq!(original["statistics"], value["statistics"]);
             let mut native = request;
             native.compat_tlc = false;
+            // Below the default schedule's minimum, the default profile checks
+            // once at exhaustion and reports the final truth and counts.
+            let default = dive_api::check_file(&native)?.to_json();
+            assert_eq!(default["options"]["profile"], "dive");
+            assert_eq!(default["options"]["lncheck"], "deterministic");
+            assert_eq!(default["periodic"]["min_states"], 65_536);
+            assert_eq!(default["periodic"]["growth_factor"], 2);
+            assert_eq!(default["periodic"]["prefix_checks"], 0);
+            assert_eq!(default["periodic"]["final_check"], true);
+            assert_eq!(default["execution"]["exhausted"], true);
+            assert_eq!(default["verdict"], value["verdict"]);
+            assert_eq!(default["statistics"], value["statistics"]);
+            native.periodic = EVERY_LEVEL;
             let native = dive_api::check_file(&native)?;
-            let native = native.to_json();
-            assert_eq!(native["schema_version"], 2);
-            assert_eq!(native["options"]["profile"], "dive");
-            assert_eq!(native["options"]["lncheck"], "final");
-            assert_eq!(native["verdict"], value["verdict"]);
-            assert_eq!(native["statistics"], value["statistics"]);
-            assert_eq!(native["execution"]["exhausted"], true);
+            let value = native.to_json();
+            assert_eq!(value["schema_version"], 2);
+            assert_eq!(value["options"]["lncheck"], "deterministic");
+            assert_eq!(value["periodic"]["exhausted"], !violation);
+            assert_eq!(value["execution"]["capture_completed"], !violation);
             if violation {
-                assert_eq!(native["property"], "P");
-                assert_eq!(native["counterexample"]["validation"], "valid");
+                assert_eq!(value["verdict"], "liveness-violation");
+                assert_eq!(value["counterexample"]["validation"], "valid");
+                assert_eq!(value["statistics"]["left_on_queue"], 1);
+                assert_eq!(value["execution"]["level"], 1);
+            } else {
+                assert_eq!(value["verdict"], "success");
+                assert_eq!(value["periodic"]["final_check"], true);
+                assert_eq!(value["statistics"]["left_on_queue"], 0);
             }
         }
     }
@@ -297,5 +320,100 @@ fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
             }
         }
     }
+    Ok(())
+}
+
+#[test]
+fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> TestResult {
+    let spec = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
+    for workers in [1, 4, 8] {
+        let mut request = spec.request(workers);
+        request.compat_tlc = false;
+        request.periodic = EVERY_LEVEL;
+        let report = dive_api::check_file(&request)?;
+        let value = report.to_json();
+        assert_eq!(value["verdict"], "liveness-violation");
+        assert_eq!(value["schema_version"], 2);
+        assert_eq!(value["options"]["lncheck"], "deterministic");
+        assert_eq!(value["options"]["seed"], 7);
+        assert_eq!(value["options"]["workers"]["used"], workers);
+        assert_eq!(value["statistics"]["generated"], 2);
+        assert_eq!(value["statistics"]["distinct"], 2);
+        assert_eq!(value["statistics"]["depth"], 2);
+        assert_eq!(value["statistics"]["left_on_queue"], 1);
+        assert_eq!(value["execution"]["capture_completed"], false);
+        assert_eq!(value["execution"]["exhausted"], false);
+        assert_eq!(value["execution"]["level"], 1);
+        assert_eq!(value["periodic"]["prefix_checks"], 1);
+        assert_eq!(value["periodic"]["min_states"], 2);
+        assert_eq!(value["periodic"]["growth_factor"], 1);
+        assert_eq!(value["periodic"]["last_level"], 1);
+        assert_eq!(value["periodic"]["last_size"], 2);
+        assert_eq!(value["periodic"]["final_check"], false);
+        let document = TraceDoc::from_json(&value["counterexample"]["trace"])?;
+        let model = SpecModel::load(
+            &spec.0,
+            &spec.0.with_extension("cfg"),
+            &TraceOptions {
+                run: Some((7, 0)),
+                ..TraceOptions::default()
+            },
+        )?;
+        assert_eq!(model.read(&document).0.validation, Validation::Valid);
+        let mut forged = document;
+        forged.states[0].insert("x".into(), 99.into());
+        assert!(matches!(
+            model.read(&forged).0.validation,
+            Validation::Invalid(_)
+        ));
+        request.temporal = TemporalMode::FinalShort;
+        let final_report = dive_api::check_file(&request)?.to_json();
+        assert_eq!(final_report["options"]["lncheck"], "final");
+        assert_eq!(final_report["execution"]["capture_completed"], true);
+        assert_eq!(final_report["statistics"]["generated"], 4);
+        assert_eq!(final_report["statistics"]["distinct"], 3);
+    }
+    Ok(())
+}
+
+#[test]
+fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestResult {
+    for property in ["x=0", "[](x<2)", "[][x'>=x]_x"] {
+        let spec = Spec::new(&format!("{COUNTER}P == {property}"), CONFIG)?;
+        for workers in [1, 4, 8] {
+            let mut request = spec.request(workers);
+            request.compat_tlc = false;
+            let report = dive_api::check_file(&request)?;
+            let source = dive_sema::analyze_file(&spec.0, &dive_sema::Options::default())?;
+            let ir = Arc::new(dive_ir::lower(&source)?);
+            let cfg = dive_config::parse(CONFIG).into_config().ok_or("config")?;
+            let options = dive_check::CheckOptions {
+                workers,
+                ..dive_check::CheckOptions::dive(7)
+            };
+            let expected = dive_check::check(&ir, &cfg, &options);
+            let actual = report.result().ok_or("ordinary safety route")?;
+            assert_eq!(actual.verdict, expected.verdict);
+            assert_eq!(actual.stats, expected.stats);
+            assert_eq!(actual.output, expected.output);
+            assert_eq!(actual.workers, expected.workers);
+            assert_eq!(report.to_json()["schema_version"], 1);
+        }
+    }
+    let spec = Spec::new(
+        "VARIABLE x\nBoot == Print(\"one-startup\",0)\nInit == x=Boot\nNext == x'=x+1\nSafe == x<0\nP == <>(x=3)",
+        "INIT Init\nNEXT Next\nINVARIANT Safe\nPROPERTY P\n",
+    )?;
+    let mut request = spec.request(4);
+    request.compat_tlc = false;
+    let report = dive_api::check_file(&request)?;
+    let actual = report.result().ok_or("initial safety stop")?;
+    assert!(matches!(
+        actual.verdict,
+        dive_check::Verdict::InvariantViolated { initial: true, .. }
+    ));
+    assert_eq!(actual.output.len(), 1);
+    assert_eq!(report.to_json()["schema_version"], 1);
+    assert!(report.temporal_result().is_none());
     Ok(())
 }

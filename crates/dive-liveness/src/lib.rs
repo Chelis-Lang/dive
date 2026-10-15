@@ -8,8 +8,8 @@
 //! and scopes and expands WF/SF with checker-side enabledness. The bounded
 //! final-only [`analyze::analyze_final`] coordinator captures model graphs and
 //! finds candidates with their complete attributed property set. Independent
-//! validation is required. Periodic checking at deterministic level boundaries
-//! ([`periodic_backend`]) is pending. [`tlc_plan::classify`] reproduces TLC's
+//! validation is required. [`analyze::periodic`] checks committed level boundaries
+//! using the deterministic [`periodic_backend`] growth trigger. [`tlc_plan::classify`] reproduces TLC's
 //! liveness formula refusals for `--compat=tlc`; dive does not emulate TLC's
 //! tableau numbering or SCC and lasso choice.
 #![forbid(unsafe_code)]

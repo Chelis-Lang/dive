@@ -10,8 +10,9 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > The protected conformance gate compares safety results with pinned TLC
 > goldens. Rust callers can use bounded final temporal checking with
 > independently validated counterexamples. Pure safety symmetry now retains
-> concrete validated traces. Eligible ordinary requests in either profile use
-> bounded final temporal checking; other ordinary temporal routes and unsupported
+> concrete validated traces. Eligible ordinary dive-profile requests check
+> temporal properties at deterministic completed-level boundaries; ordinary
+> TLC-profile requests use bounded final analysis. Unsupported combinations and
 > symmetry interactions retain named refusals. Configured native random replacements refuse
 > before startup until their stream authority is proved. See `docs/scoreboard.md`
 > for measured coverage and `docs/ROADMAP.md` for the remaining roadmap.
@@ -65,7 +66,9 @@ For the supported bounded temporal subset, ordinary checking uses final analysis
 with an independently validated short lasso, both in the default profile
 (`dive check Model.tla --output json`) and with
 `dive check Model.tla --compat=tlc --fp 0 --seed 7 --output json`.
-Explicit selection is also available with
+Eligible ordinary native-profile requests use deterministic completed-level
+checks with independently validated prefix violations. Holding requires actual
+exhaustion. Explicit final selection remains available in either profile with
 `dive check Model.tla --lncheck final --lasso short --output json`.
 See [temporal checking](docs/temporal-api.md#command-line-access) for scope,
 lossless traces and compatibility limits.

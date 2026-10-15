@@ -1,5 +1,8 @@
-//! Structural transport for ordinary completed final reports in either profile.
+//! Structural transport for ordinary final reports in either profile and dive
+//! deterministic completed-level reports.
 //! Independent model replay remains the pipeline's authority, never these fields.
+
+mod periodic;
 
 use serde_json::Value;
 
@@ -16,6 +19,9 @@ pub(super) fn read(
     physical_exit: Option<i32>,
 ) -> Result<Fields, String> {
     let options = &value["options"];
+    if !tlc_profile && options["profile"] == "dive" && options["lncheck"] == "deterministic" {
+        return periodic::read(value, physical_exit);
+    }
     let profile = if tlc_profile { "tlc" } else { "dive" };
     if options["profile"] != profile
         || options["lncheck"] != "final"
