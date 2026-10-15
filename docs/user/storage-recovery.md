@@ -56,7 +56,14 @@ correctness.
 
 ## Native checkpoints
 
-Checkpoints are a separate, bounded, safety-only feature:
+Checkpoints are a separate, bounded, safety-only feature. Archive source identity
+includes the module name and exact bytes of adjacent local Java override classes.
+The supported Hanoi `Bits.class` can pause and recover with unchanged class
+bytes under the native worker/reference contract. Worker choices do not alter
+checkpoint semantic identity. Recovery first-error order and corrupt-bootstrap
+diagnostics remain unchanged.
+No-class TLA+ fallback keeps the existing recovery worker policy. Removing or modifying a class rejects recovery before using saved
+states. Unknown local classes remain unsupported at binding.
 
 ```sh
 dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.cp --checkpoint-after-levels 2 --output json

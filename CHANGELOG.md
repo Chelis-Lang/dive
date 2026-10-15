@@ -4,6 +4,15 @@
   module, so missing or malformed configurations exit 151 even when the module
   is also missing. Native commands and existing file APIs retain their input order.
 
+- Recognize the exact pinned Hanoi signed-AND class by SHA-256 with checked
+  four-IntValue admission, configuration priority and checkpoint class identity.
+  Unknown local classes refuse before startup evaluation can execute their TLA
+  fallbacks; configuration substitution and arity errors retain their priority.
+  The revised checker candidate uses the maintained one-worker reference at
+  each supported native width. DirectTLC4 differences remain historical; fresh
+  source qualification and complete gates are required before acceptance.
+  No comparator, golden or ExpectedDivergence exemption changes.
+
 - Reject benchmark goldens whose semantic oracle, ordered classpath or module-
   library pins differ from the configured inputs, before launching a timed child.
   Historical Java/platform details and physical paths remain allowed metadata.

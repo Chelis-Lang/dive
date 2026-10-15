@@ -641,3 +641,68 @@ fn recovery_can_change_pool_width_and_resume_an_actual_later_level() {
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
+
+#[test]
+fn local_class_identity_preserves_resume_and_rejects_removed_or_mutated_bytes() {
+    const CLASS: &[u8] = include_bytes!("../../dive-model/tests/fixtures/bits/Bits.class");
+    let dir = directory();
+    std::fs::write(
+        dir.join("Bits.tla"),
+        "---- MODULE Bits ----\nAnd(x,y,n,m) == 99\n====\n",
+    )
+    .expect("Bits");
+    std::fs::write(dir.join("M.tla"), "---- MODULE M ----\nEXTENDS Bits, Naturals\nVARIABLE x\nInit == x = 0\nNext == x < 3 /\\ x' = x + 1\nInv == x = x /\\ And(7,3,0,7) = 3\n====\n").expect("M");
+    let analysis =
+        dive_sema::analyze_file(&dir.join("M.tla"), &dive_sema::Options::default()).expect("read");
+    assert!(analysis.accepted());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n")
+        .into_config()
+        .expect("cfg");
+    for opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+        std::fs::write(dir.join("Bits.class"), CLASS).expect("class");
+        let request = checkpoint::Request {
+            path: dir.join("snapshot.cp"),
+            action: checkpoint::Action::PauseAfterLevels(0),
+            counters: checkpoint::Counters::Retain,
+            config_source_sha256: None,
+        };
+        let paused = checkpoint::check(&ir, &cfg, &opts, &request);
+        assert!(paused.receipt.is_some(), "{:?}", paused.check);
+        let recover = checkpoint::Request {
+            action: checkpoint::Action::Recover,
+            ..request.clone()
+        };
+        assert_eq!(
+            checkpoint::check(&ir, &cfg, &opts, &recover).check.verdict,
+            Verdict::Success
+        );
+        let original = std::fs::read(&request.path).expect("snapshot");
+        std::fs::remove_file(dir.join("Bits.class")).expect("remove class");
+        let removed = checkpoint::check(&ir, &cfg, &opts, &recover);
+        assert!(
+            matches!(removed.check.verdict, Verdict::ResourceLimit { ref message } if message.contains("identity mismatch")),
+            "{:?}",
+            removed.check
+        );
+        assert!(removed.receipt.is_none());
+        let mut changed = CLASS.to_vec();
+        changed[0] ^= 1;
+        std::fs::write(dir.join("Bits.class"), changed).expect("mutated class");
+        let mutated = checkpoint::check(&ir, &cfg, &opts, &recover);
+        assert!(
+            matches!(mutated.check.verdict, Verdict::ResourceLimit { ref message } if message.contains("identity mismatch")),
+            "{:?}",
+            mutated.check
+        );
+        assert!(mutated.receipt.is_none());
+        assert_eq!(std::fs::read(&request.path).expect("unchanged"), original);
+        std::fs::write(dir.join("Bits.class"), CLASS).expect("restore class");
+        assert_eq!(
+            checkpoint::check(&ir, &cfg, &opts, &recover).check.verdict,
+            Verdict::Success
+        );
+        std::fs::remove_file(&request.path).expect("remove snapshot");
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}

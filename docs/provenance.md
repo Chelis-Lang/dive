@@ -1494,3 +1494,60 @@ ordinary Noop behavior is the counterpart: default native protection is retained
 explicit native overwrite remains available, and the global TLC profile resolves
 that overwrite automatically. The newly captured exact modified-body pcal/SANY
 control regenerates the original complete primary module with physical exit0.
+
+## Verified local-class overrides
+
+`dive-model` explicitly recognizes the Hanoi `Bits.class` from
+`tlaplus/Examples` commit `6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f`, path
+`specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/Bits.class`. SHA-256:
+`225d2d3d163b5a2c2923544de619fb6f23cb86804ed06bd2842ca27a242b846b`.
+The project license is MIT, copyright 2016 The TLA+ project and other contributors.
+The primary source `specifications/tower_of_hanoi/Bits.java` declares four
+`IntValue` arguments and returns `IntValue.gen(x.val & y.val)`. Its historical
+import names `tlc2.value.IntValue`; the compiled class uses `tlc2.value.impl.IntValue`.
+`javap -c -s` confirms that descriptor and the entire method body: load the first
+argument's `val:I`, load the second's, `iand`, invoke `IntValue.gen:(I)`, return.
+There are no other static methods or class initializer. `dive-eval` ports only
+this signed 32-bit AND; all four arguments must be TLC integers, even though
+`n` and `m` do not affect the result. No Java execution is involved. The 472-byte
+test fixture is the pinned class itself and is read by the activation tests.
+[ADR 0087](decisions/0087-known-local-class-overrides.md) records hash activation
+and unknown-class refusal.
+
+Three retained directTLC4 Hanoi runs report243distinct/907generated/depth33;
+historical native4 and the primary/golden1 report233/768/depth32, with the same
+NotSolved/2110/physical12 and valid32state native words. All raw observations and
+negative comparisons remain historical and are not regraded. The former local-
+class one-worker restriction fenced that stopping-prefix discrepancy. The
+existing comparator uses the one-worker reference for native implementations
+at every width; only TLC oracle self-checks have multiworker leniency.
+
+The proposed revised checker follows the maintained native contract: every
+supported native width compares to the pinned one-worker reference. Required
+verdict/property/class/physicalexit, counts/depth and independent validation of
+the actual concrete native word remain unchanged. This removes only the local
+class width guard; exact class admission and checkpoint class-source identity
+stay binding. General store/effect/capture, simulation and DFID scopes retain
+existing restrictions. No comparator, golden, ExpectedDivergence, queue-order or
+timing exemption changes.
+
+Acceptance requires latest-parent original-MC1 qualification, a separate
+complete-search primary/native1 diagnostic, supported native4 pinned-reference
+and independently validated actual-word controls, fresh review/fullgate/all4/CI.
+Issue #272 remains open; this source proposal is not runtime acceptance.
+
+Earlier e5ca/876/cbb/d1 receipts retain their recorded source identities. New
+API+Print-parent transfer measurements remain pending and are not retagged.
+
+The startup-refusal regression uses `Bits!And(x,y,n,m) == 99` with a constant
+invariant `And(7,3,0,7) = 3`, an initial state `x=0`, and transitions incrementing
+`x` through3. Pinned TLC94d0c507 accepts both the exact472-byte class and a
+JVM-valid variant changing its final SourceFile metadata index from13 to12;
+each reports success2193/physical0,4distinct/4generated/depth4. The variant's
+SHA-256 is `9fd6119264baeef76354cc4b70d365788edd2edbd9e6aa2a1a646e3d7bf2c070`.
+It deliberately remains outside native hash admission. Previously the native
+binder evaluated the unlike TLA fallback and reported2230 instead of refusing.
+Binding now preserves configuration substitution and constant-operator arity
+errors, then refuses unknown local classes before startup evaluation. Constant-role, assumption and typed
+fallback-error controls exercise both public checking loaders in both profiles;
+the exact class still executes and no-class modules retain TLA semantics.

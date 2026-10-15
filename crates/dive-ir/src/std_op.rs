@@ -50,11 +50,13 @@ pub enum StdKind {
     Callable,
 }
 
-/// Which of TLC's two installation phases installs an override.
+/// How an override is installed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Phase {
     /// A module class's unannotated public static method.
     ModuleClass,
+    /// A verified local class installed explicitly by model binding, never by name alone.
+    Native,
     /// An annotated method of an override index class.
     Annotated,
 }
@@ -104,7 +106,7 @@ macro_rules! std_ops {
         }
 
         impl StdOp {
-            /// Every override, in the order of the extracted table.
+            /// Every override, in registry order.
             pub const ALL: &'static [StdOp] = &[$(StdOp::$variant,)*];
 
             /// The module whose context TLC looks the definition up in.
@@ -260,6 +262,7 @@ std_ops! {
     TlcTraceTLCTraceDeserialize = ("_TLCTrace", "_TLCTraceDeserialize", 1, Value, Annotated, Io, true, "tlc2.module._TLCTrace.ioDeserialize");
     TlcTraceTLCState = ("_TLCTrace", "_TLCState", -1, Evaluating, Annotated, Introspection, true, "tlc2.module._TLCTrace.tlcState");
     BagsExtFoldBag = ("BagsExt", "FoldBag", 3, Value, Annotated, Core, false, "tlc2.overrides.BagsExt.foldBag");
+    BitsAnd = ("Bits", "And", 4, Value, Native, Core, false, "Bits.And (pinned Hanoi class)");
     BitwiseAnd = ("Bitwise", "And", 4, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.And");
     BitwiseOr = ("Bitwise", "Or", 4, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.Or");
     BitwiseXor = ("Bitwise", "Xor", 4, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.Xor");

@@ -259,6 +259,7 @@ dependencies = [
  "dive-sema",
  "dive-value",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

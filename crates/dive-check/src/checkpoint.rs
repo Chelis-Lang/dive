@@ -259,6 +259,7 @@ struct Snapshot {
 pub(crate) struct Session {
     request: Request,
     identity: Identity,
+    local_classes: Vec<(String, [u8; 32])>,
     imported: Option<Snapshot>,
     discoveries: Vec<Discovery>,
     encoded_bytes: usize,
@@ -463,7 +464,13 @@ impl Session {
             ));
         }
         admit_source(ir, cfg)?;
-        let ir_bytes = serde_json::to_vec(ir).map_err(|e| failure(e.to_string()))?;
+        let mut ir_bytes = serde_json::to_vec(ir).map_err(|e| failure(e.to_string()))?;
+        let local_classes = dive_model::local_java_class_digests(ir).map_err(unsupported)?;
+        if !local_classes.is_empty() {
+            ir_bytes.extend_from_slice(b"\0dive-local-java-classes-v1\0");
+            ir_bytes
+                .extend(serde_json::to_vec(&local_classes).map_err(|e| failure(e.to_string()))?);
+        }
         let identity = Identity {
             schema: SCHEMA,
             semantics: SEMANTICS.into(),
@@ -491,6 +498,7 @@ impl Session {
         let mut session = Self {
             request: request.clone(),
             identity,
+            local_classes,
             imported: None,
             discoveries: Vec::new(),
             encoded_bytes: 0,
@@ -536,6 +544,11 @@ impl Session {
         self.imported.as_ref().map(|s| s.names.as_slice())
     }
     pub(crate) fn admit_model(&mut self, m: &Model) -> std::result::Result<(), Verdict> {
+        if dive_model::local_java_class_digests(&m.ir).map_err(unsupported)? != self.local_classes {
+            return Err(failure(
+                "local Java override inputs changed during model binding",
+            ));
+        }
         if (!m.sequential.is_empty() || m.runtime_name_order) && !m.sequential_names_only
             || !m.temporals.is_empty()
             || !m.implied_temporals.is_empty()
@@ -1169,6 +1182,62 @@ mod tests {
         ));
         fs::create_dir(&p).expect("dir");
         p
+    }
+    #[test]
+    fn class_appearing_after_preflight_refuses_bound_model() {
+        let dir = dir();
+        fs::write(
+            dir.join("Bits.tla"),
+            "---- MODULE Bits ----\nAnd(x,y,n,m) == 99\n====\n",
+        )
+        .expect("Bits");
+        fs::write(
+            dir.join("M.tla"),
+            "---- MODULE M ----\nEXTENDS Bits\nVARIABLE x\nInit == x = 0\nNext == x' = x\n====\n",
+        )
+        .expect("M");
+        let analysis = dive_sema::analyze_file(&dir.join("M.tla"), &dive_sema::Options::default())
+            .expect("analysis");
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+            .into_config()
+            .expect("cfg");
+        let request = Request {
+            path: dir.join("snapshot.cp"),
+            action: Action::PauseAfterLevels(0),
+            counters: Counters::Retain,
+            config_source_sha256: None,
+        };
+        for opts in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+            let mut session =
+                Session::prepare(&ir, &cfg, &opts, &request).expect("preflight without class");
+            assert_eq!(
+                session.identity.ir_sha256,
+                hash(&serde_json::to_vec(&*ir).expect("IR bytes"))
+            );
+            fs::write(
+                dir.join("Bits.class"),
+                include_bytes!("../../dive-model/tests/fixtures/bits/Bits.class"),
+            )
+            .expect("class");
+            let model = dive_model::bind(
+                ir.clone(),
+                &cfg,
+                &dive_model::BindOptions {
+                    eval: opts.eval,
+                    no_deadlock: false,
+                    host: None,
+                },
+            )
+            .expect("native binding");
+            assert!(
+                matches!(session.admit_model(&model), Err(Verdict::ResourceLimit { message }) if message.contains("inputs changed"))
+            );
+            assert!(!request.path.exists());
+            fs::remove_file(dir.join("Bits.class")).expect("remove class");
+        }
+        fs::remove_dir_all(dir).expect("cleanup");
     }
     #[test]
     fn malformed_encoded_counts_depth_and_tokens_refuse_before_decoding() {
