@@ -118,13 +118,13 @@ impl PredicateAtom {
             let (StateRef::Vals(before), StateRef::Vals(after)) = (&st.s0, &st.s1) else {
                 return Err(EvalError::general("non-stuttering atom requires two states").into());
             };
-            ev.check_finite_bindings(
+            ev.check_finite_data_bindings(
                 &self.pred.scope,
                 sub,
                 &st.at_state(before.clone()),
                 self.binding_limit,
             )?;
-            ev.check_finite_bindings(
+            ev.check_finite_data_bindings(
                 &self.pred.scope,
                 sub,
                 &st.at_state(after.clone()),
@@ -417,7 +417,7 @@ impl Lower<'_> {
                 if scope.has_substitutions() {
                     return Err(self.refused(*arg, "temporal argument inside INSTANCE context"));
                 }
-                self.forwarded_context(*arg, scope, depth + 1)?;
+                self.forwarded_context_mode(*arg, scope, depth + 1, true)?;
             } else {
                 if level > maximum {
                     return Err(self.refused(*arg, "action/temporal operator argument"));
@@ -475,6 +475,15 @@ impl Lower<'_> {
         };
         let def = self.checked_definition(expr, def)?;
         let target = self.model.ir.def(def);
+        if self
+            .model
+            .ir
+            .node(target.body)
+            .effects
+            .contains(Effects::USES_ENABLED)
+        {
+            return Err(self.refused(expr, "configured ENABLED target"));
+        }
         if target.scope != DefScope::TopLevel
             || target.recursive
             || target.std.is_some()
@@ -493,11 +502,11 @@ impl Lower<'_> {
             };
             // Inspect unused actuals too, without forcing a value or binder
             // domain. Runtime preflight follows the actually used lazy slots.
-            self.pure_scoped_mode(*actual, scope, depth + 1, true)?;
+            self.pure_scoped_mode(*actual, scope, depth + 1, true, false)?;
         }
         // Configured origin must survive the body's ordinary helper/lazy bindings.
         // This inspection never evaluates a binder domain or consults a checked atom.
-        self.pure_scoped_mode(target.body, &called, depth + 1, true)?;
+        self.pure_scoped_mode(target.body, &called, depth + 1, true, false)?;
         Ok((def, called))
     }
 
@@ -610,6 +619,18 @@ impl Lower<'_> {
             .map_err(|e| self.refused(expr, e.to_string()))
     }
 
+    fn forwarded_context(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<(), PlanningError> {
+        self.forwarded_context_mode(expr, scope, depth, false)
+    }
+
+    // Only a first-order temporal expression actual retains direct queries for
+    // ordinary formula lowering. Operator captures and native/provider actuals
+    // stay query-free; leaf admission still applies the scoped query/data guards.
     // Admission proof for a temporal expression argument. Keep its lexical
     // scope; do not force it as a constant or trust a formal's static level.
     // This walk does not interpret temporal truth or materialize binders.
@@ -617,11 +638,12 @@ impl Lower<'_> {
         clippy::too_many_lines,
         reason = "explicit retained temporal context admission and refusal paths"
     )]
-    fn forwarded_context(
+    fn forwarded_context_mode(
         &mut self,
         expr: ExprId,
         scope: &Scope,
         depth: usize,
+        temporal_actual: bool,
     ) -> Result<(), PlanningError> {
         let mut todo = vec![(expr, scope.clone(), depth)];
         while let Some((e, sc, depth)) = todo.pop() {
@@ -642,6 +664,9 @@ impl Lower<'_> {
                 || ev.scope_shares_side_effects(&sc)
             {
                 return Err(self.refused(e, "effectful forwarded temporal context"));
+            }
+            if !temporal_actual && n.effects.contains(Effects::USES_ENABLED) {
+                return Err(self.refused(e, "ENABLED in forwarded operator capture"));
             }
             match &n.expr {
                 Expr::Unbound(_) | Expr::Unevaluable(_) => {
@@ -791,15 +816,25 @@ impl Lower<'_> {
 
     // SANY's levels on a formal parameter assume a constant. Follow its actual
     // context before deciding whether an atom is constant, state or action.
-    #[allow(
-        clippy::too_many_lines,
-        reason = "scoped actual levels require explicit structural and ownership refusal cases"
-    )]
     fn scoped_level(
         &mut self,
         expr: ExprId,
         scope: &Scope,
         depth: usize,
+    ) -> Result<Level, PlanningError> {
+        self.scoped_level_mode(expr, scope, depth, false)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "scoped actual levels require explicit structural and ownership refusal cases"
+    )]
+    fn scoped_level_mode(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        query_state: bool,
     ) -> Result<Level, PlanningError> {
         self.step()?;
         if depth > 256 {
@@ -815,10 +850,17 @@ impl Lower<'_> {
             .nodes()
             .get(expr.index())
             .ok_or_else(|| self.refused(expr, "missing scoped expression"))?;
+        // Routing only: the query operand is an inner successor namespace.
+        // Existing level callers keep their original conservative traversal.
+        if query_state && matches!(node.expr, Expr::Enabled(_)) {
+            return Ok(Level::State);
+        }
         match &node.expr {
             Expr::Prime(body) => {
                 return Ok(
-                    if self.scoped_level(*body, scope, depth + 1)? == Level::Constant {
+                    if self.scoped_level_mode(*body, scope, depth + 1, query_state)?
+                        == Level::Constant
+                    {
                         Level::Constant
                     } else {
                         Level::Action
@@ -855,7 +897,7 @@ impl Lower<'_> {
             } => {
                 let (def, called) =
                     self.configured_call(expr, scope, *constant, args, depth + 1)?;
-                return self.scoped_level(ir.def(def).body, &called, depth + 1);
+                return self.scoped_level_mode(ir.def(def).body, &called, depth + 1, query_state);
             }
             Expr::Apply {
                 callee: OpRef::Param(local),
@@ -865,19 +907,21 @@ impl Lower<'_> {
                     return Ok(level);
                 }
                 let (def, called) = self.parameter_call(expr, scope, *local, args, depth + 1)?;
-                return self.scoped_level(ir.def(def).body, &called, depth + 1);
+                return self.scoped_level_mode(ir.def(def).body, &called, depth + 1, query_state);
             }
             Expr::Subst { body, .. } => {
                 let sc = ev
                     .scope_subst(scope, expr)
                     .map_err(|e| self.refused(expr, e.to_string()))?;
-                return self.scoped_level(*body, &sc, depth + 1);
+                return self.scoped_level_mode(*body, &sc, depth + 1, query_state);
             }
             Expr::SubstRef { decl, primed } => {
                 let level = match ev.scope_subst_slot(scope, *decl) {
                     SlotView::Value(_) => Level::Constant,
                     SlotView::AnalysisBound => Level::State,
-                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1)?,
+                    SlotView::Lazy(e, sc) => {
+                        self.scoped_level_mode(e, &sc, depth + 1, query_state)?
+                    }
                     _ => return Err(self.refused(expr, "opaque substituted level")),
                 };
                 return Ok(if *primed && level != Level::Constant {
@@ -890,13 +934,13 @@ impl Lower<'_> {
                 let sc = ev
                     .scope_let(scope, expr)
                     .map_err(|e| self.refused(expr, e.to_string()))?;
-                return self.scoped_level(*body, &sc, depth + 1);
+                return self.scoped_level_mode(*body, &sc, depth + 1, query_state);
             }
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
                     SlotView::Value(_) => Ok(Level::Constant),
                     SlotView::AnalysisBound => Ok(Level::State),
-                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1),
+                    SlotView::Lazy(e, sc) => self.scoped_level_mode(e, &sc, depth + 1, query_state),
                     _ => Err(self.refused(expr, "opaque scoped level")),
                 };
             }
@@ -907,21 +951,22 @@ impl Lower<'_> {
                 let d = self.checked_definition(expr, *d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
-                    return self.scoped_level(ir.def(d).body, &sc, depth + 1);
+                    return self.scoped_level_mode(ir.def(d).body, &sc, depth + 1, query_state);
                 }
             }
             Expr::Def(d) => {
                 let d = self.checked_definition(expr, *d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(expr, scope, d, &[], depth + 1)?;
-                    return self.scoped_level(ir.def(d).body, &sc, depth + 1);
+                    return self.scoped_level_mode(ir.def(d).body, &sc, depth + 1, query_state);
                 }
             }
             Expr::Quant { body, .. } if node.level != Level::Temporal => {
                 let (scopes, domain_level) = self.predicate_scopes(expr, scope, depth + 1)?;
                 let mut level = node.level.max(domain_level);
                 for sc in scopes {
-                    level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
+                    level =
+                        level.max(self.scoped_level_mode(*body, &sc, depth + 1, query_state)?);
                 }
                 return Ok(level);
             }
@@ -932,7 +977,8 @@ impl Lower<'_> {
                 let (scopes, domain_level) = self.predicate_scopes(expr, scope, depth + 1)?;
                 let mut level = node.level.max(domain_level);
                 for sc in scopes {
-                    level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
+                    level =
+                        level.max(self.scoped_level_mode(*body, &sc, depth + 1, query_state)?);
                 }
                 return Ok(level);
             }
@@ -948,11 +994,15 @@ impl Lower<'_> {
                 .map_err(|error| self.refused(expr, error.to_string()))?
             {
                 self.steps = self.limits.expansion_steps - work;
-                let mut level = node
-                    .level
-                    .max(self.scoped_level(sequence, scope, depth + 1)?);
+                let mut level = node.level.max(self.scoped_level_mode(
+                    sequence,
+                    scope,
+                    depth + 1,
+                    query_state,
+                )?);
                 for (body, captured) in bodies {
-                    let callback_level = self.scoped_level(body, &captured, depth + 1)?;
+                    let callback_level =
+                        self.scoped_level_mode(body, &captured, depth + 1, query_state)?;
                     if callback_level > Level::State {
                         return Err(self.refused(expr, "SelectSeq action/temporal callback"));
                     }
@@ -963,7 +1013,7 @@ impl Lower<'_> {
         }
         let mut level = node.level;
         for child in node.expr.children() {
-            level = level.max(self.scoped_level(child, scope, depth + 1)?);
+            level = level.max(self.scoped_level_mode(child, scope, depth + 1, query_state)?);
         }
         Ok(level)
     }
@@ -1074,7 +1124,7 @@ impl Lower<'_> {
         scope: &Scope,
         depth: usize,
     ) -> Result<(), PlanningError> {
-        self.pure_scoped_mode(expr, scope, depth, false)
+        self.pure_scoped_mode(expr, scope, depth, false, true)
     }
 
     #[allow(
@@ -1087,11 +1137,12 @@ impl Lower<'_> {
         scope: &Scope,
         depth: usize,
         inspect_only: bool,
+        allow_queries: bool,
     ) -> Result<(), PlanningError> {
         // The same expression may occur under distinct parameter values. Do not
         // deduplicate by expression ID: every context must be checked.
-        let mut todo = vec![(expr, scope.clone(), depth)];
-        while let Some((e, scope, depth)) = todo.pop() {
+        let mut todo = vec![(expr, scope.clone(), depth, allow_queries, false)];
+        while let Some((e, scope, depth, query_allowed, inside_query)) = todo.pop() {
             self.step()?;
             if depth > 256 {
                 return Err(PlanningError::formula(
@@ -1106,8 +1157,7 @@ impl Lower<'_> {
                 .nodes()
                 .get(e.index())
                 .ok_or_else(|| self.refused(e, "missing scoped expression"))?;
-            if n.effects
-                .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+            if n.effects.intersects(Effects::IMPURE | Effects::TEMPORAL)
                 || ev.scope_shares_side_effects(&scope)
             {
                 return Err(self.refused(
@@ -1115,12 +1165,68 @@ impl Lower<'_> {
                     "effectful, temporal or ENABLED operand in a pure predicate atom",
                 ));
             }
+            if n.effects.contains(Effects::USES_ENABLED)
+                && (!query_allowed
+                    || !matches!(
+                        n.expr,
+                        Expr::StepBox { .. }
+                            | Expr::StepAngle { .. }
+                            | Expr::Enabled(_)
+                            | Expr::Not(_)
+                            | Expr::Junction { .. }
+                            | Expr::Def(_)
+                            | Expr::Apply {
+                                callee: OpRef::Def(_),
+                                ..
+                            }
+                            | Expr::Let { .. }
+                            | Expr::Local(_)
+                            | Expr::Quant {
+                                kind: QuantKind::Forall | QuantKind::Exists,
+                                ..
+                            }
+                            | Expr::Label { .. }
+                            | Expr::Selected(_)
+                    ))
+            {
+                return Err(self.refused(e, "ENABLED outside the Boolean spine or under priming"));
+            }
             match &n.expr {
+                Expr::StepBox { action, sub } | Expr::StepAngle { action, sub } => {
+                    todo.push((
+                        *action,
+                        scope.clone(),
+                        depth + 1,
+                        query_allowed,
+                        inside_query,
+                    ));
+                    todo.push((*sub, scope.clone(), depth + 1, false, inside_query));
+                    continue;
+                }
+                Expr::Enabled(action) => {
+                    if !query_allowed || inspect_only || scope.has_substitutions() {
+                        return Err(
+                            self.refused(e, "ENABLED outside the Boolean spine or under priming")
+                        );
+                    }
+                    todo.push((*action, scope.clone(), depth + 1, true, true));
+                    continue;
+                }
+                Expr::Not(body) | Expr::Selected(body) | Expr::Label { body, .. } => {
+                    todo.push((*body, scope.clone(), depth + 1, query_allowed, inside_query));
+                    continue;
+                }
+                Expr::Junction { items, .. } => {
+                    todo.extend(items.iter().map(|item| {
+                        (*item, scope.clone(), depth + 1, query_allowed, inside_query)
+                    }));
+                    continue;
+                }
                 Expr::Let { body, .. } => {
                     let sc = ev
                         .scope_let(&scope, e)
                         .map_err(|error| self.refused(e, error.to_string()))?;
-                    todo.push((*body, sc, depth + 1));
+                    todo.push((*body, sc, depth + 1, query_allowed, inside_query));
                     continue;
                 }
                 Expr::Quant { body, .. }
@@ -1140,11 +1246,17 @@ impl Lower<'_> {
                                     scope.clone()
                                 },
                                 depth + 1,
+                                if child == *body { query_allowed } else { false },
+                                inside_query,
                             )
                         }));
                     } else {
                         let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
-                        todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                        todo.extend(
+                            scopes
+                                .into_iter()
+                                .map(|sc| (*body, sc, depth + 1, query_allowed, inside_query)),
+                        );
                     }
                     continue;
                 }
@@ -1155,7 +1267,11 @@ impl Lower<'_> {
                 }
                 Expr::RecFcn { body, .. } => {
                     let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
-                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    todo.extend(
+                        scopes
+                            .into_iter()
+                            .map(|sc| (*body, sc, depth + 1, false, inside_query)),
+                    );
                     continue;
                 }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
@@ -1165,8 +1281,13 @@ impl Lower<'_> {
                         );
                     }
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
+                    SlotView::Lazy(body, _)
+                        if inside_query && ir.node(body).level > Level::State =>
+                    {
+                        return Err(self.refused(e, "captured primed ENABLED source"));
+                    }
                     SlotView::Lazy(body, sc) => {
-                        todo.push((body, sc, depth + 1));
+                        todo.push((body, sc, depth + 1, query_allowed, inside_query));
                         continue;
                     }
                     _ => return Err(self.refused(e, "opaque scoped predicate atom")),
@@ -1190,13 +1311,13 @@ impl Lower<'_> {
                     let sc = ev
                         .scope_subst(&scope, e)
                         .map_err(|error| self.refused(e, error.to_string()))?;
-                    todo.push((*body, sc, depth + 1));
+                    todo.push((*body, sc, depth + 1, false, inside_query));
                     continue;
                 }
                 Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(body, sc) => {
-                        todo.push((body, sc, depth + 1));
+                        todo.push((body, sc, depth + 1, false, inside_query));
                         continue;
                     }
                     _ => return Err(self.refused(e, "opaque substituted predicate atom")),
@@ -1215,7 +1336,7 @@ impl Lower<'_> {
                         let sc = ev
                             .scope_enter(&scope, d)
                             .map_err(|err| self.refused(e, err.to_string()))?;
-                        todo.push((def.body, sc, depth + 1));
+                        todo.push((def.body, sc, depth + 1, query_allowed, inside_query));
                     }
                     None => return Err(self.refused(e, "unbound predicate constant")),
                 },
@@ -1242,7 +1363,7 @@ impl Lower<'_> {
                                 }
                                 todo.extend(args.iter().filter_map(|arg| match arg {
                                     Arg::Expr { expr, .. } => {
-                                        Some((*expr, scope.clone(), depth + 1))
+                                        Some((*expr, scope.clone(), depth + 1, false, inside_query))
                                     }
                                     Arg::Op { .. } => None,
                                 }));
@@ -1251,7 +1372,7 @@ impl Lower<'_> {
                             } else {
                                 self.scoped_call(e, &scope, d, args, depth + 1)?
                             };
-                            todo.push((def.body, sc, depth + 1));
+                            todo.push((def.body, sc, depth + 1, query_allowed, inside_query));
                             continue;
                         }
                         def.std
@@ -1271,13 +1392,19 @@ impl Lower<'_> {
                         }
                         let (def, called) =
                             self.parameter_call(e, &scope, local, args, depth + 1)?;
-                        todo.push((ir.def(def).body, called, depth + 1));
+                        todo.push((
+                            ir.def(def).body,
+                            called,
+                            depth + 1,
+                            query_allowed,
+                            inside_query,
+                        ));
                         continue;
                     }
                     OpRef::Const(constant) => {
                         let (def, called) =
                             self.configured_call(e, &scope, constant, args, depth + 1)?;
-                        todo.push((ir.def(def).body, called, depth + 1));
+                        todo.push((ir.def(def).body, called, depth + 1, false, inside_query));
                         continue;
                     }
                     OpRef::Subst(_) => {
@@ -1303,9 +1430,9 @@ impl Lower<'_> {
                         if self.scoped_level(body, &captured, depth + 1)? > Level::State {
                             return Err(self.refused(e, "SelectSeq callback context/level"));
                         }
-                        todo.push((body, captured, depth + 1));
+                        todo.push((body, captured, depth + 1, false, inside_query));
                     }
-                    todo.push((sequence, scope.clone(), depth + 1));
+                    todo.push((sequence, scope.clone(), depth + 1, false, inside_query));
                     continue;
                 }
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
@@ -1316,7 +1443,7 @@ impl Lower<'_> {
                 n.expr
                     .children()
                     .into_iter()
-                    .map(|c| (c, scope.clone(), depth + 1)),
+                    .map(|c| (c, scope.clone(), depth + 1, false, inside_query)),
             );
         }
         Ok(())
@@ -1479,10 +1606,13 @@ impl Lower<'_> {
                 self.atoms.truncate(saved.1);
             }
         }
+        // Keep established state-level temporal lowering (including direct
+        // queries through INSTANCE scopes). Only action-level Boolean bodies
+        // need one atom to preserve reached nested-query error ordering.
         if level <= Level::Action
-            && !node
-                .effects
-                .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
+            && !node.effects.intersects(Effects::TEMPORAL)
+            && (!node.effects.contains(Effects::USES_ENABLED)
+                || self.scoped_level_mode(expr, scope, depth, true)? == Level::Action)
         {
             self.pure_atom(expr, scope)?;
             if level == Level::Constant {
@@ -1611,7 +1741,7 @@ impl Lower<'_> {
                     return Err(self.refused(*sub, "action-level fairness subscript"));
                 }
                 self.pure_atom(*action, scope)?;
-                self.pure_atom(*sub, scope)?;
+                self.pure_scoped_mode(*sub, scope, depth, false, false)?;
                 let en = self.special_atom(
                     *action,
                     scope,

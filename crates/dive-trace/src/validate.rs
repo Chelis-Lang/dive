@@ -771,6 +771,19 @@ impl<'a> Run<'a> {
             ));
             return Ok(());
         }
+        if self.periodic
+            && ev
+                .scope(d)
+                .and_then(|scope| {
+                    ev.check_finite_data_bindings(&scope, m.ir.def(d).body, step, 4096)
+                })
+                .is_err()
+        {
+            self.notes.insert(format!(
+                "label `{name}` could not be evaluated on its own; not checked"
+            ));
+            return Ok(());
+        }
         let r = ev.eval_def(d, step);
         match r {
             Ok(Value::Bool(true)) => {
@@ -850,9 +863,24 @@ impl<'a> Run<'a> {
         self.host
             .level
             .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
+        if self.periodic
+            && m.ir
+                .node(pred.expr)
+                .effects
+                .contains(dive_ir::Effects::USES_ENABLED)
+        {
+            return crate::exists::boolean_pure(
+                m,
+                pred,
+                st,
+                crate::exists::Limits::default(),
+                4096,
+            )
+            .map_err(|e| Stop::Unsupported(e.to_string()));
+        }
         if self.periodic {
             m.evaluator
-                .check_finite_bindings(&pred.scope, pred.expr, st, 4096)
+                .check_finite_data_bindings(&pred.scope, pred.expr, st, 4096)
                 .map_err(|e| Stop::Unsupported(e.to_string()))?;
         }
         match m.eval(pred, st) {

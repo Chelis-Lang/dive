@@ -1,5 +1,8 @@
 # Changelog
 
+- First-order temporal expression forwarding retains existing direct ENABLED
+  queries; forwarded operator captures and query data remain refused.
+
 - Sequential graph capture now combines runtime-name encounter order with TLC
   action-composition accounting without misclassifying those ordering needs as
   stateful checking. Real effects, parallel capture exclusions, checkpoint/DFID
@@ -252,6 +255,13 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+
+- Bounded final temporal analysis supports nested pure ENABLED queries in
+  Boolean action guards and fairness, with independent finite-cover validation
+  of original Next and closing edges. Existing limits and explicit refusals for
+  data/provider/higher-order/substituted/primed query placements remain in force.
+  Original-model qualification and full gates remain pending.
+
 
 - Finite simulation accepts `--stats basic` and
   `SimulateRequest::action_stats`, returning sparse counts of consecutive chosen

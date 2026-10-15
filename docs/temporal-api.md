@@ -181,8 +181,11 @@ including nested forwarding, tuple arguments and state guards. State bindings
 remain lazy and retain their caller context; priming inside the callee reads
 the successor value. Planning checks instantiated levels before classifying
 an atom or folding a constant. The independent word evaluator resolves those
-contexts separately. Action/temporal arguments and higher-order operators outside
-the [SelectSeq subset](user/temporal.md) remain named refusals.
+contexts separately. Pure first-order temporal expression actuals also retain
+that lazy formula route, including `Identity([](ENABLED A))`; direct queries
+still require independent enabledness proofs. Query-bearing operator captures,
+unsupported action contexts and higher-order operators outside the
+[SelectSeq subset](user/temporal.md) remain named refusals.
 
 Finite constant-domain quantifiers inside state/action predicates now retain
 all instantiated body scopes during planning and independent word validation.
@@ -287,3 +290,52 @@ construction and projection also repeat bounded domain enumeration. This is
 conservative extra work, not a one-materialization or performance claim.
 See [the user guide](user/temporal.md#finite-local-recursive-functions) for the
 checked tiny command and current qualification limits.
+
+## Nested Boolean enabledness
+
+The bounded subset includes nested `ENABLED` in ordered Boolean guards of
+ordinary first-order definitions, lexical LET bodies and finite quantifiers.
+Native atoms keep the original checker search. Independent temporal atoms,
+nonstuttering action bodies and periodic `Next`/closing edges use a private
+Boolean-spine coordinator with separate existential successor namespaces.
+It derives complete inner finite covers, rechecks original correlations, and
+shares expression/assignment/depth counters and the original pure invocation
+across outer candidates and inner decisions. Inner primes never supply outer
+covers. The action subscript and body use one invocation, with the existing
+subscript-first stutter shortcircuit. Prebound non-stuttering atoms inspect the
+actual subscript in both source states with `Evaluator::check_finite_data_bindings`
+before evaluating either value. This source check follows lazy lexical bindings
+and refuses queries in the data position without invoking a query or provider.
+
+Only a query-free state prefix can decide false before candidate construction;
+later query guards remain neutral during cover derivation. Missing/infinite
+covers, exhausted bounds and empty nested covers requiring source-order evidence
+refuse rather than certifying Disabled. Data/provider/higher-order, configured,
+substituted and primed query placements remain refused. No planner certificate,
+checker enumerator dependency or new public result type is involved. The existing
+trace caller-stack contract and all numeric caps remain unchanged. Two primary
+references and their native/primary words are covered by the tests under
+`fixtures/nested-enabled`; original Elevator sufficiency remains unmeasured.
+
+State-level Boolean mixtures of direct queries retain their established temporal
+lowering routes, including native query atoms under constant INSTANCE bindings.
+The private Boolean coordinator retains whole action-level guards. This does not
+expand independent INSTANCE query-word support: its existing opaque-substitution
+refusal remains in force.
+
+Every independent core fallback is checked in its actual scope with the existing
+finite data-position guard. Raw effects do not authorize a hidden query. This
+conservatively refuses queries hidden behind state-valued helper formals, such
+as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, before core evaluation. Native
+exhaustive checking can still establish Holds for these formulas. Supported
+action-valued lazy formal guards retain their independent Boolean paths. Periodic optional labels
+use the same check; refusal skips only that metadata evaluation and adds its
+existing note. Original Next and property checks remain required.
+
+Finite preflight keeps binder domains, instantiated function/set construction
+bodies, filter predicates and UNCHANGED operands in data-only mode, following
+actual lazy bindings before reading domains. As in existing concrete-binding
+checks, a body with zero bindings may be left unvisited without evaluating its
+queries. Other effect and purity guards still apply; this is not a global
+syntactic query scan.
+Boolean existential and universal bodies retain their bounded query support.

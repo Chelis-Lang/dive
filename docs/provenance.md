@@ -1648,3 +1648,23 @@ an encounter-order prediction. An earlier one-character fixture is also retained
 as a regression for its existing liveness-atom error; its `a`/`b` names were
 already interned at binding, so that fixture does not demonstrate name growth. Independent composed-word replay remains refused;
 this is no new purity or replay admission proof (#241).
+
+## Nested Boolean ENABLED guards
+
+The native execution remains the existing MIT TLC `Tool.enabled` / `Enab`
+semantics at pinned tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b`:
+queries branch the lexical environment and start a fresh inner successor from
+actual s0. No new native successor search algorithm is ported. The independent
+validator extends its necessary-cover procedure with a private ordered Boolean
+spine and its own nested existential decisions; it consumes no producer approval.
+
+Two primary-first references in
+`crates/dive-liveness/tests/fixtures/nested-enabled/` were executed with pinned
+TLC/JRE, worker1, final checking, fp0 and seed0 before implementation. Hold has
+physical0/code2193; Fail has13/code2116/propertyFail. Both have generated3,
+distinct2, depth2; the actual failure word is x0,x1 with lasso back0. Tests consume
+the compact generated observations and independently validate both native and
+primary words plus corruptions. Raw physical/tool/input receipts remain external.
+No new original-model/corpus agreement, general error parity or universal native
+assignment-work guarantee follows. Existing original-model measurements retain
+their own source and binary identities; current-source qualification is pending.

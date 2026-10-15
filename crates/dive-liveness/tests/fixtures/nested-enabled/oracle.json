@@ -1,0 +1,30 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "workers": 1,
+  "seed": 0,
+  "fingerprint": 0,
+  "lncheck": "final",
+  "primary_before_implementation": true,
+  "generated": 3,
+  "distinct": 2,
+  "depth": 2,
+  "hold": {
+    "physical_exit": 0,
+    "verdict_code": 2193
+  },
+  "fail": {
+    "physical_exit": 13,
+    "verdict_code": 2116,
+    "property": "Fail",
+    "states": [
+      {
+        "x": 0
+      },
+      {
+        "x": 1
+      }
+    ],
+    "back_to": 0
+  }
+}

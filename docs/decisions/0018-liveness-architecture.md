@@ -530,3 +530,19 @@ and complete-cover checks. Configured/higher-order/opaque functions and primed,
 action, temporal or effectful captures remain unsupported. Runtime recursion
 errors and all resource caps remain unchanged. Seven tiny primary cases precede
 implementation; no original allocator or corpus clearance follows.
+
+## Nested Boolean enabledness extension
+
+Keep native Enab execution and all original caps. Extend only the independent
+necessary-cover coordinator with source-ordered Not/And/Or, actual first-order
+and LET/lazy scopes and bounded quantifiers. Each reached query starts an inner
+successor namespace from query-current s0; it contributes no outer primed cover.
+All nested candidates share source/assignment/depth accounting and one pure
+invocation, including action subscript work. The original relation checks every
+candidate; unsupported/error/exhaustion never means Disabled. Only an original
+query-free state prefix may prune before candidate evaluation. Empty nested
+covers needing source-order evidence retain refusal. Data/provider/higher-order,
+configured/substituted and primed contexts remain outside this extension. This
+adds no callback framework, admission certificate or dependency edge. Two tiny
+primary references precede the implementation; original model qualification and
+full gates remain separate obligations.
