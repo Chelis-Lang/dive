@@ -1,5 +1,5 @@
-# The G1 benchmark set (docs/design/m5-plan.md, ADR 0006): Examples models
-# timed with `dive check` at one worker, in both profiles, against TLC.
+# The ten-model benchmark set (ADR 0006, issue #241): Examples models
+# timed with `dive check` at selected matched workers, in both profiles, against TLC.
 # Run by hand, never in CI: `cargo run --release -p dive-bench -- --help`.
 #
 # Each entry names an Examples model by its corpus-relative `.cfg` (the
@@ -7,10 +7,9 @@
 # docs/survey/data/bench-summary.csv with TLC's and tla-mc's measured
 # single-worker times, where the survey ran the model.
 #
-# `cfg` replaces the model's configuration. It is used only to drop
-# temporal properties, which dive refuses in M5 (liveness): the bench then
-# runs dive and TLC on the same safety-only configuration, and checks the
-# golden's counts, which a safety-only run of a successful model reproduces.
+# `cfg` explicitly names a safety-only variant. Both tools run the identical
+# effective cfg; the original counted golden supplies search expectations but
+# earns no parity credit for properties removed by the replacement.
 
 [[bench]]
 name = "GameOfLife"
@@ -53,7 +52,7 @@ survey = "MCbtree"
 why = "set- and function-heavy (ADR 0006 set)"
 
 [[bench]]
-name = "CoffeeCan1000Beans"
+name = "CoffeeCan1000BeansSafety"
 model = "specifications/CoffeeCan/CoffeeCan1000Beans.cfg"
 survey = "CoffeeCan1000Beans"
 why = "a state-space hog with simple arithmetic actions (ADR 0006 set)"
@@ -69,3 +68,13 @@ SPECIFICATION
 INVARIANTS
     TypeInvariant
 """
+
+[[bench]]
+name = "MCDisruptor_MPMC"
+model = "specifications/Disruptor/MCDisruptor_MPMC.cfg"
+why = "bounded producer/consumer ringbuffer interleavings, depth 81"
+
+[[bench]]
+name = "BufferedRandomAccessFile"
+model = "specifications/braf/BufferedRandomAccessFile.cfg"
+why = "bounded buffers and offsets; symmetry, ENABLED and action/refinement checks"

@@ -1,5 +1,15 @@
 # Changelog
 
+- Reject benchmark goldens whose semantic oracle, ordered classpath or module-
+  library pins differ from the configured inputs, before launching a timed child.
+  Historical Java/platform details and physical paths remain allowed metadata.
+
+- Repair manual ten-model benchmarking with matched TLC worker counts, paired
+  per-repetition wall ratios and scaling, explicit incomplete-pair counts, and
+  effective configuration and executable provenance. CoffeeCan safety-only
+  work is named separately. Benchmark timing and performance targets remain
+  unmeasured by this runner repair.
+
 - Eligible ordinary TLC-profile checking now reuses bounded final temporal
   analysis with deterministic short, independently validated periodic words.
   Configured safety roles preserve their single startup binding and schema-1
