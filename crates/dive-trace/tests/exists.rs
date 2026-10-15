@@ -787,3 +787,235 @@ fn selectseq_independent_synthetic_warm_cache_isolation_enforces_fresh_search_bu
             .ptr_eq(after.as_fcn().expect("tuple"))
     );
 }
+
+fn configured_model(target: &str) -> Model {
+    let source = "---- MODULE ConfiguredCover ----\nEXTENDS Naturals, Sequences\nCONSTANT Op(_,_)\nVARIABLES x,y\nInit==x=0 /\\ y=0\nNext==UNCHANGED <<x,y>>\nCorrelated(a,b)==a \\in 0..2 /\\ b \\in 0..2 /\\ a+b=x+y\nIncomplete(a,b)==a>0 /\\ b=0\nUnbounded(a,b)==a \\in Nat /\\ b=0\nIgnore(a,unused)==a=1\nScoped(a,b)==a=b+1\nNative(a,b)==a=Len(b)\nStateRhs==Op(x',y)\nOtherRhs==Op(x',x)\nPrimedRhs==Op(x',y')\nNativeCall==Op(x',<<0>>)\nA==Op(x',y')\nUnused==Op(x',\\A i \\in (1 \\div 0):i=0)\n====\n";
+    let analysis = dive_sema::analyze_source(
+        "ConfiguredCover.tla",
+        source,
+        &dive_sema::Options::default(),
+    );
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let config = dive_config::parse(&format!("INIT Init\nNEXT Next\nCONSTANT Op <- {target}\n"))
+        .into_config()
+        .expect("config");
+    dive_model::bind(
+        Arc::new(dive_ir::lower(&analysis).expect("IR")),
+        &config,
+        &dive_model::BindOptions::tlc(),
+    )
+    .expect("configured model")
+}
+
+#[test]
+fn configured_lazy_covers_match_original_relation_and_keep_incomplete_refusals() {
+    let m = configured_model("Correlated");
+    let p = pred(&m, "A");
+    for x in 0..=3 {
+        for y in 0..=3 {
+            let before = state(x, y);
+            let expected = (0..=2).any(|a| {
+                (0..=2).any(|b| {
+                    m.eval(&p, &St::action(before.clone(), state(a, b)))
+                        .expect("original relation")
+                        == Value::Bool(true)
+                })
+            });
+            let result = dive_trace::exists::exists_successor_pure(
+                &m,
+                &p,
+                &before,
+                None,
+                Limits::default(),
+                4096,
+            )
+            .expect("complete configured cover");
+            assert_eq!(enabled(&result), expected, "{x},{y}");
+            if let Decision::Enabled { witness } = result {
+                assert_eq!(
+                    m.eval(&p, &St::action(before, witness))
+                        .expect("original witness"),
+                    Value::Bool(true)
+                );
+            }
+        }
+    }
+    for target in ["Incomplete", "Unbounded"] {
+        let m = configured_model(target);
+        assert!(
+            matches!(
+                dive_trace::exists::exists_successor_pure(
+                    &m,
+                    &pred(&m, "A"),
+                    &state(0, 0),
+                    None,
+                    Limits::default(),
+                    4096
+                ),
+                Err(ExistsError::Unsupported(_))
+            ),
+            "{target}"
+        );
+    }
+    let m = configured_model("Ignore");
+    assert!(enabled(
+        &dive_trace::exists::exists_successor_pure(
+            &m,
+            &pred(&m, "Unused"),
+            &state(0, 0),
+            None,
+            Limits::default(),
+            4096
+        )
+        .expect("unused argument domain is not forced")
+    ));
+    assert!(matches!(
+        dive_trace::exists::exists_successor_pure(
+            &m,
+            &pred(&m, "A"),
+            &state(0, 0),
+            None,
+            Limits {
+                expressions: 0,
+                ..Limits::default()
+            },
+            4096
+        ),
+        Err(ExistsError::Limit(_))
+    ));
+    let mut foreign = pred(&m, "A");
+    foreign.scope = pred(&configured_model("Ignore"), "A").scope;
+    assert!(matches!(
+        dive_trace::exists::exists_successor_pure(
+            &m,
+            &foreign,
+            &state(0, 0),
+            None,
+            Limits::default(),
+            4096
+        ),
+        Err(ExistsError::Unsupported(_))
+    ));
+}
+
+#[test]
+fn configured_cover_rhs_retains_each_actual_scope_and_refuses_primed_correlations() {
+    let m = configured_model("Scoped");
+    for (name, expected) in [("StateRhs", state(5, 4)), ("OtherRhs", state(2, 4))] {
+        let action = pred(&m, name);
+        let result = dive_trace::exists::exists_successor_pure(
+            &m,
+            &action,
+            &state(1, 4),
+            None,
+            Limits::default(),
+            4096,
+        )
+        .expect("current-state RHS cover");
+        let Decision::Enabled { witness } = result else {
+            panic!("known real successor")
+        };
+        assert_eq!(witness, expected);
+        assert_eq!(
+            m.eval(&action, &St::action(state(1, 4), witness))
+                .expect("original scoped relation"),
+            Value::Bool(true)
+        );
+    }
+    assert!(matches!(
+        dive_trace::exists::exists_successor_pure(
+            &m,
+            &pred(&m, "PrimedRhs"),
+            &state(1, 4),
+            None,
+            Limits::default(),
+            4096
+        ),
+        Err(ExistsError::Unsupported(_))
+    ));
+}
+
+#[test]
+fn configured_public_exists_context_validation_precedes_original_native_hooks() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    #[derive(Debug)]
+    struct Hooks(AtomicUsize);
+    impl dive_eval::Host for Hooks {
+        fn check_native_access(&self, _: dive_ir::StdOp) -> Result<(), dive_eval::HostError> {
+            self.0.fetch_add(1, Ordering::SeqCst);
+            Err(dive_eval::HostError {
+                code: 1000,
+                message: "configured-original-native-hook-error".into(),
+            })
+        }
+    }
+    for mutation in ["names", "ir", "scope"] {
+        let mut m = configured_model("Native");
+        let host = Arc::new(Hooks(AtomicUsize::new(0)));
+        m.evaluator.set_host(host.clone());
+        let mut action = pred(&m, "NativeCall");
+        match mutation {
+            "names" => m.names = Arc::new(dive_value::Interner::new()),
+            "ir" => m.ir = configured_model("Native").ir,
+            "scope" => action.scope = pred(&configured_model("Native"), "NativeCall").scope,
+            _ => unreachable!(),
+        }
+        assert!(matches!(
+            dive_trace::exists::exists_successor_pure(
+                &m,
+                &action,
+                &state(0, 0),
+                None,
+                Limits::default(),
+                4096
+            ),
+            Err(ExistsError::Unsupported(_))
+        ));
+        assert_eq!(host.0.load(Ordering::SeqCst), 0, "{mutation}");
+    }
+    let m = configured_model("Native");
+    let host = Arc::new(Hooks(AtomicUsize::new(0)));
+    m.evaluator.set_host(host.clone());
+    let failure = dive_trace::exists::exists_successor_pure(
+        &m,
+        &pred(&m, "NativeCall"),
+        &state(0, 0),
+        None,
+        Limits::default(),
+        4096,
+    )
+    .expect_err("original native error");
+    assert!(
+        failure
+            .to_string()
+            .contains("configured-original-native-hook-error"),
+        "{failure}"
+    );
+    assert_eq!(host.0.load(Ordering::SeqCst), 1);
+}
+
+#[test]
+fn ordinary_binding_covers_preserve_the_expression_budget_boundary() {
+    let m = model("A == x' = 1\n");
+    let p = pred(&m, "A");
+    for expressions in 0..=6 {
+        let result = exists_successor(
+            &m,
+            &p,
+            &state(0, 0),
+            None,
+            Limits {
+                expressions,
+                ..Limits::default()
+            },
+        );
+        if expressions < 4 {
+            assert!(matches!(result, Err(ExistsError::Limit(_))));
+        } else {
+            let Decision::Enabled { witness } = result.expect("original four-step cover") else {
+                panic!("ordinary assignment must be enabled");
+            };
+            assert_eq!(witness[0], Some(Value::from(1)));
+        }
+    }
+}

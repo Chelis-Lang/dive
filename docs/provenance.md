@@ -1551,3 +1551,24 @@ Binding now preserves configuration substitution and constant-operator arity
 errors, then refuses unknown local classes before startup evaluation. Constant-role, assumption and typed
 fallback-error controls exercise both public checking loaders in both profiles;
 the exact class still executes and no-class modules retain TLA semantics.
+
+### Direct configured operators in temporal atoms
+
+The direct `ConstBinding::Def` call projection in temporal planning, finite
+preflight and independent word validation reuses the evaluator's checked lazy
+`scope_apply` contexts. Reference semantics are `Liveness.astToLiveAppl`
+(`lookup`, lazy `getVal` formals and retained state/action call),
+`Tool.getOpContext` and `Tool.lookup` at pinned tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT). The structural checks and
+independent word algorithm are original Rust implementations. Configured origin
+is taken from the direct constant declaration; captured operator analysis keeps
+its separate configured-origin refusal. No native evaluator algorithm changes.
+
+The dedicated `configured-temporal-operators` corpus contains two small original
+Reply models, with harness-generated goldens from `tlc-2026.10.06.014338`:
+Holds is success/2193/exit 0; Fails is temporal violation/2116/exit 13 naming
+`Live`. Both have 2 distinct, 3 generated states and depth 2. The primary runs
+use worker 1, fp 0, seed 0 and final checking. Fails carries the independently
+checkable 0-to-1 word stuttering at 1. These are new fixture observations; older
+real-corpus measurements keep their own source and binary identities. No
+memory-model, allocator or general temporal parity gain is claimed here.

@@ -113,7 +113,11 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - A job copies only the files of the module's own directory into its scratch directory, since SANY never looks into subdirectories. An Examples job copies the whole spec directory.
 - `tbd`: not yet enumerated.
 
-**In-repository corpora** (ADR 0005, amendment 1) give `path = "conformance/..."` instead of `repo` and `commit`. Their identity is the SHA-256 of their files (`sha256:<hex>`, recorded in goldens as the corpus commit), so changing any file makes `run` refuse the goldens until they are regenerated. `corpus fetch` skips them. Today there is one:
+**In-repository corpora** (ADR 0005, amendment 1) give `path = "conformance/..."` instead of `repo` and `commit`. Their identity is the SHA-256 of their files (`sha256:<hex>`, recorded in goldens as the corpus commit), so changing any file makes `run` refuse the goldens until they are regenerated. `corpus fetch` skips them. These include:
+- `configured-temporal-operators` (`conformance/corpus/configured-temporal-operators/`):
+  two direct configured Reply temporal controls, holding and violated, with
+  generated TLC/SANY goldens. This separate corpus preserves the existing
+  `probes` input identity. Run it with `--corpus configured-temporal-operators`.
 - `probes` (`conformance/corpus/probes/`, `examples-manifest` layout): the honesty and determinism probes of `docs/survey/competitive.md` (P1–P9, M1–M2), 12 modules and 14 models with goldens from the gating oracle. Run it with `--corpus probes`.
 
 ## Commands

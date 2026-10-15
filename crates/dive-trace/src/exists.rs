@@ -5,8 +5,8 @@
 use crate::State;
 use dive_eval::{ConstBinding, Scope, SlotView, St};
 use dive_ir::{
-    Arg, BuiltinOp, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind, StdOp,
-    VarId,
+    Arg, BuiltinOp, ConstId, DefId, DefScope, Effects, Expr, ExprId, JunctionKind, Level, OpRef,
+    QuantKind, StdOp, VarId,
 };
 use dive_model::{Model, Pred};
 use dive_value::{SetKind, Value};
@@ -89,6 +89,8 @@ struct Search<'a> {
     steps: usize,
     invocation: Option<St>,
     state_source: bool,
+    inspect_only: bool,
+    configured_cover: bool,
 }
 impl Search<'_> {
     fn step(&mut self, depth: usize) -> Result<(), ExistsError> {
@@ -99,6 +101,66 @@ impl Search<'_> {
             Ok(())
         }
     }
+    // Direct configured declarations retain their origin. Captured/formal
+    // operators keep their existing refusal. These are actual lazy contexts,
+    // never a finite-cover or successor-existence certificate.
+    fn configured_call(
+        &mut self,
+        scope: &Scope,
+        constant: ConstId,
+        args: &[Arg],
+        depth: usize,
+    ) -> Result<(DefId, Scope), ExistsError> {
+        self.step(depth)?;
+        let ev = &self.model.evaluator;
+        if self.invocation.is_none() {
+            return Err(ExistsError::Unsupported(
+                "configured operator outside pure existence".into(),
+            ));
+        }
+        let Some(ConstBinding::Def(def)) = ev.constant_binding(constant) else {
+            return Err(ExistsError::Unsupported(
+                "unbound/value-bound configured action operator".into(),
+            ));
+        };
+        let def = ev.redirected(def);
+        let target = self.model.ir.defs().get(def.index()).ok_or_else(|| {
+            ExistsError::Unsupported("missing configured action definition".into())
+        })?;
+        if target.scope != DefScope::TopLevel
+            || target.recursive
+            || target.std.is_some()
+            || ev.is_value_override(def)
+            || target.level > Level::Action
+            || target.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(ExistsError::Unsupported(
+                "configured action operator target".into(),
+            ));
+        }
+        if args.len() > self.limits.expressions {
+            return Err(ExistsError::Limit("configured argument bindings"));
+        }
+        let called = ev
+            .scope_apply(scope, def, args)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+        let saved = self.inspect_only;
+        self.inspect_only = true;
+        let result = (|| {
+            for arg in args {
+                let Arg::Expr { expr, .. } = arg else {
+                    return Err(ExistsError::Unsupported(
+                        "higher-order configured action argument".into(),
+                    ));
+                };
+                self.scan(*expr, scope, false, &mut BTreeSet::new(), depth + 1)?;
+            }
+            Ok((def, called))
+        })();
+        self.inspect_only = saved;
+        result
+    }
+
     fn check_native(op: Option<StdOp>) -> Result<(), ExistsError> {
         if op == Some(StdOp::TlcTLCGet) {
             return Err(ExistsError::Unsupported("checker introspection".into()));
@@ -212,6 +274,32 @@ impl Search<'_> {
                 "action/primed state helper source".into(),
             ));
         }
+        if self.inspect_only {
+            let body = match &node.expr {
+                Expr::Quant { body, .. }
+                | Expr::FcnCons { body, .. }
+                | Expr::SetMap { expr: body, .. }
+                | Expr::SetFilter { pred: body, .. } => Some(*body),
+                _ => None,
+            };
+            if let Some(body) = body {
+                let sc = self
+                    .model
+                    .evaluator
+                    .scope_binder_analysis(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                for child in node.expr.children() {
+                    self.scan(
+                        child,
+                        if child == body { &sc } else { scope },
+                        prime,
+                        needed,
+                        depth + 1,
+                    )?;
+                }
+                return Ok(());
+            }
+        }
         match &node.expr {
             Expr::Cdot(..) => {
                 return Err(ExistsError::Unsupported(
@@ -258,7 +346,7 @@ impl Search<'_> {
             }
             Expr::Apply { callee, args } => {
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
-                    if self.invocation.is_some() {
+                    if self.invocation.is_some() && !self.inspect_only {
                         let mut remaining = self.limits.expressions.saturating_sub(self.steps);
                         let projection = self
                             .model
@@ -289,14 +377,47 @@ impl Search<'_> {
                         let d = self.model.evaluator.redirected(*d);
                         let def = self.model.ir.def(d);
                         if !self.model.evaluator.is_value_override(d) && def.std.is_none() {
-                            let sc = self.scoped_call(scope, d, args, prime, needed, depth + 1)?;
+                            let sc = if self.inspect_only {
+                                if def.recursive || def.params.iter().any(|p| p.arity != 0) {
+                                    return Err(ExistsError::Unsupported(
+                                        "recursive/higher-order configured argument".into(),
+                                    ));
+                                }
+                                let sc = self
+                                    .model
+                                    .evaluator
+                                    .scope_apply(scope, d, args)
+                                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                                for arg in args {
+                                    let Arg::Expr { expr, .. } = arg else {
+                                        return Err(ExistsError::Unsupported(
+                                            "higher-order configured argument".into(),
+                                        ));
+                                    };
+                                    self.scan(*expr, scope, prime, needed, depth + 1)?;
+                                }
+                                sc
+                            } else {
+                                self.scoped_call(scope, d, args, prime, needed, depth + 1)?
+                            };
                             return self.scan(def.body, &sc, prime, needed, depth + 1);
                         }
                         if !self.model.evaluator.is_value_override(d) {
                             Self::check_native(def.std)?;
                         }
                     }
-                    OpRef::Param(_) | OpRef::Const(_) | OpRef::Subst(_) => {
+                    OpRef::Const(constant) => {
+                        let (def, called) =
+                            self.configured_call(scope, *constant, args, depth + 1)?;
+                        return self.scan(
+                            self.model.ir.def(def).body,
+                            &called,
+                            prime,
+                            needed,
+                            depth + 1,
+                        );
+                    }
+                    OpRef::Param(_) | OpRef::Subst(_) => {
                         return Err(ExistsError::Unsupported("dynamic action operator".into()));
                     }
                     _ => {}
@@ -352,7 +473,7 @@ impl Search<'_> {
             Expr::Local(r) => match self.model.evaluator.scope_slot(scope, *r) {
                 SlotView::Value(_) => {}
                 SlotView::Lazy(body, sc) => self.scan(body, &sc, prime, needed, depth + 1)?,
-                SlotView::AnalysisBound if self.state_source => {}
+                SlotView::AnalysisBound if self.state_source || self.inspect_only => {}
                 _ => {
                     return Err(ExistsError::Unsupported(
                         "opaque local action context".into(),
@@ -687,19 +808,83 @@ impl Search<'_> {
             domains: Domains::new(),
         }))
     }
-    fn binding(&self, op: BuiltinOp, args: &[ExprId], scope: &Scope) -> Result<Cover, ExistsError> {
-        let mut a = args[0];
-        let mut b = args[1];
-        if op == BuiltinOp::Eq && matches!(self.model.ir.expr(b), Expr::Var { primed: true, .. }) {
+    // Resolve only original lexical lazy expressions. A bound variable is
+    // recognized from the resulting IR Var node, never from a numeric slot ID.
+    fn operand(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<(ExprId, Scope), ExistsError> {
+        self.step(depth)?;
+        self.model
+            .evaluator
+            .validate_predicate(scope, expr)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+        match self.model.ir.expr(expr) {
+            Expr::Local(local) => match self.model.evaluator.scope_slot(scope, *local) {
+                SlotView::Lazy(body, captured) => self.operand(body, &captured, depth + 1),
+                _ => Ok((expr, scope.clone())),
+            },
+            Expr::Label { body, .. } | Expr::Selected(body) => {
+                self.operand(*body, scope, depth + 1)
+            }
+            Expr::Let { body, .. } => {
+                let entered = self
+                    .model
+                    .evaluator
+                    .scope_let(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.operand(*body, &entered, depth + 1)
+            }
+            _ => Ok((expr, scope.clone())),
+        }
+    }
+
+    fn binding(
+        &mut self,
+        op: BuiltinOp,
+        args: &[ExprId],
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<Cover, ExistsError> {
+        // Lazy operand resolution is needed only inside configured calls.
+        // Ordinary covers retain their original work charges and callback order.
+        let (mut a, mut b) = if self.configured_cover {
+            (
+                self.operand(args[0], scope, depth + 1)?,
+                self.operand(args[1], scope, depth + 1)?,
+            )
+        } else {
+            ((args[0], scope.clone()), (args[1], scope.clone()))
+        };
+        if op == BuiltinOp::Eq && matches!(self.model.ir.expr(b.0), Expr::Var { primed: true, .. })
+        {
             std::mem::swap(&mut a, &mut b);
         }
+        let (a, _) = a;
+        let (b, scope) = b;
         let Expr::Var { var, primed: true } = self.model.ir.expr(a) else {
             return Ok(Cover::default());
         };
         if self.model.ir.node(b).level > Level::State {
             return Ok(Cover::default());
         }
-        let value = self.read(b, scope, &self.current_state())?;
+        if self.configured_cover {
+            // A formal's constant metadata is insufficient for a RHS read.
+            // Refuse a successor-dependent source rather than evaluate it as
+            // current-state data or invent a cover from one guessed successor.
+            let mut primed = BTreeSet::new();
+            let saved = self.inspect_only;
+            self.inspect_only = true;
+            let result = self.scan(b, &scope, false, &mut primed, depth + 1);
+            self.inspect_only = saved;
+            result?;
+            if !primed.is_empty() {
+                return Ok(Cover::default());
+            }
+        }
+        let value = self.read(b, &scope, &self.current_state())?;
         let ds = if op == BuiltinOp::Eq {
             vec![value]
         } else {
@@ -747,13 +932,36 @@ impl Search<'_> {
                     return self.cover(body, &sc, depth + 1);
                 }
             }
+            Expr::Apply {
+                callee: OpRef::Const(constant),
+                args,
+            } => {
+                let (def, called) = self.configured_call(scope, *constant, args, depth + 1)?;
+                let saved = self.configured_cover;
+                self.configured_cover = true;
+                let result = self.cover(self.model.ir.def(def).body, &called, depth + 1);
+                self.configured_cover = saved;
+                return result;
+            }
             _ => {}
         }
         if node.level <= Level::State {
-            return Ok(Cover {
-                impossible: !self.boolean(expr, scope, &self.current_state())?,
-                domains: Domains::new(),
-            });
+            let mut primed = BTreeSet::new();
+            if self.configured_cover {
+                // Only lazy configured formals need this extra level check.
+                // Preserve the ordinary cover path's work and callback order.
+                let saved = self.inspect_only;
+                self.inspect_only = true;
+                let result = self.scan(expr, scope, false, &mut primed, depth + 1);
+                self.inspect_only = saved;
+                result?;
+            }
+            if primed.is_empty() {
+                return Ok(Cover {
+                    impossible: !self.boolean(expr, scope, &self.current_state())?,
+                    domains: Domains::new(),
+                });
+            }
         }
         match &node.expr {
             Expr::Def(d)
@@ -798,7 +1006,7 @@ impl Search<'_> {
             Expr::Builtin { op, args }
                 if matches!(op, BuiltinOp::Eq | BuiltinOp::In) && args.len() == 2 =>
             {
-                self.binding(*op, args, scope)
+                self.binding(*op, args, scope, depth + 1)
             }
             _ => Ok(Cover::default()),
         }
@@ -915,6 +1123,8 @@ fn decide(
             .transpose()
             .map_err(|e| ExistsError::Unsupported(e.to_string()))?,
         state_source: false,
+        inspect_only: false,
+        configured_cover: false,
     };
     let mut needed = BTreeSet::new();
     cx.scan(action.expr, &action.scope, false, &mut needed, 0)?;
