@@ -402,6 +402,18 @@ development-only reference evidence; runtime translation remains native.
 
 ## Conditional temporal planning conversion
 
+Deferred-filter redirect-source preflight in `dive-eval/src/bounded_domain.rs`
+is original bounded metadata inspection of actual value-bound scalar constants;
+it ports no Java purity mechanism. Filter enumeration still uses the existing
+evaluator. The tiny `FilterWF` hold/fail controls were run before implementation
+against pinned TLC `94d0c5070852b37b801bb8998c436383ab7ee37b` with worker 1,
+seed 0, fingerprint 0 and final checking, full pinned classpath and no
+`dumpTrace` flag. Both produced 3 generated / 2 distinct / depth 2; Hold
+succeeded (2193/0), Fail violated (2116/13) with FALSE, TRUE, then stuttering.
+Compact input/raw identities and consumed expectations accompany the API fixture.
+Independent replay of that word is a native test obligation, not inferred from
+the primary receipt. No original Quicksort measurement is claimed.
+
 Original action-target selection in `dive-liveness::analyze` follows the
 first-equal-identity collection semantics of `tlc2/util/SetOfStates.java::put`
 and the original-target action evaluation in `tlc2/tool/liveness/LiveCheck.java`

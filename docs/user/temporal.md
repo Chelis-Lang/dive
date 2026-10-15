@@ -199,6 +199,23 @@ still refuses by name until hook execution is implemented.
 
 ## Rust APIs
 
+Finite predicate binders support structurally bounded deferred filters. Their
+global configured-redirect preflight can resolve scalar constants supplied with
+`=`, such as a bounded `LimitedSeq` helper reading `Max=1`, without calling the
+helper or forcing unused arguments. Each inspected definition, redirect lookup,
+formal/actual/binder metadata item and expression consumes the existing domain work budget; depth and materialized
+component/output limits still apply, even with warm evaluator caches. This is
+metadata inspection, not predicate evaluation or a liveness verdict.
+
+Predicate and captured-context effect checks retain their existing refusals.
+Definitely forbidden global redirect effects refuse before charged source
+inspection, including at zero work, independently of redirect iteration order.
+Constants supplied with `<-`, operator constants, deferred/non-scalar values,
+recursive or higher-order redirects and unsupported lexical contexts do not
+qualify for this extension. Two tiny filtered-WF models exercise success and a
+genuine independently replayed violation. Coverage of original Quicksort and
+other corpus models is not established by these controls.
+
 `dive_api::temporal` is the Rust entry point (see
 [the temporal API contract](../temporal-api.md)). `dive-liveness` exposes the
 kernel it uses: planning (`plan`), the tableau (`formula`), the product and
