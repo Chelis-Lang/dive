@@ -4,8 +4,9 @@
 //! every periodic counterexample before returning it as a violation. It binds a
 //! fresh model for each run and for validation. It selects a deterministic short
 //! lasso, including with TLC value semantics; TLC-exact selection and periodic
-//! checking are not implemented here. Ordinary [`crate::check_file`] retains the strict temporal refusal; its
-//! explicit final/short option exposes this backend and labels TLC overrides.
+//! checking are not implemented here. Ordinary [`crate::check_file`] also uses
+//! this backend for eligible TLC-profile requests; the dive profile retains its
+//! ordinary temporal refusal. Explicit final/short selection remains available.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -306,7 +307,17 @@ fn run(
             bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?
         }
     };
-    match dive_liveness::analyze::analyze_final_with_evidence(&model, options, limits) {
+    run_bound(ir, config, options, limits, &model)
+}
+
+fn run_bound(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    limits: Limits,
+    model: &Model,
+) -> Result<Outcome, Failure> {
+    match dive_liveness::analyze::analyze_final_with_evidence(model, options, limits) {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
             // Rebind separately: validation cannot inspect the checker's graph
@@ -381,6 +392,63 @@ fn run(
             exploration: failure.exploration,
             elapsed: Duration::ZERO,
         }),
+    }
+}
+
+// Ordinary requests use only the accepted default-memory role dispatch. Keep
+// its original model/host through analysis, and its complete safety results.
+// This is private source/configuration dispatch, never a prebound caller API.
+pub(crate) fn check_ordinary_final(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+) -> Option<Result<Report, Failure>> {
+    if config.properties.is_empty() {
+        return None;
+    }
+    let started = Instant::now();
+    let outcome = std::thread::scope(|scope| {
+        std::thread::Builder::new()
+            .stack_size(dive_eval::RECOMMENDED_STACK)
+            .spawn_scoped(scope, || {
+                dive_check::final_roles::dispatch_ordinary(ir, config, options).map(|bound| {
+                    match bound {
+                        dive_check::final_roles::Dispatch::Safety(result) => {
+                            Ok(Outcome::Safety(result))
+                        }
+                        dive_check::final_roles::Dispatch::Temporal(model) => {
+                            run_bound(ir, config, options, Limits::default(), &model)
+                        }
+                    }
+                })
+            })
+            .map_err(|error| Failure::before(Error::Thread(error.to_string()), Stage::Unknown))?
+            .join()
+            .map_err(|_| {
+                Failure::before(
+                    Error::Thread("the evaluation thread panicked".into()),
+                    Stage::Unknown,
+                )
+            })
+    });
+    match outcome {
+        Ok(None) => None,
+        Ok(Some(result)) => Some(
+            result
+                .map(|outcome| Report {
+                    outcome,
+                    options: options.clone(),
+                    elapsed: started.elapsed(),
+                })
+                .map_err(|mut failure| {
+                    failure.elapsed = started.elapsed();
+                    failure
+                }),
+        ),
+        Err(mut failure) => {
+            failure.elapsed = started.elapsed();
+            Some(Err(failure))
+        }
     }
 }
 

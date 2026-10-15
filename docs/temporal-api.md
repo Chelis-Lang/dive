@@ -1,5 +1,15 @@
 # Final temporal checking from Rust
 
+Ordinary `dive_api::check_file` requests with `compat_tlc: true`, `fp: Some(0)`
+and otherwise eligible default resident-memory settings also select the existing
+final analyzer. `TemporalMode::Ordinary` remains the request default. The actual
+bound role split retains an ordinary safety result on schema 1 or performs final
+temporal analysis on schema 2, with one startup binding and separate independent
+validation. Ordinary dive-profile requests keep their temporal refusal.
+See [ordinary TLC-profile checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
+for options, physical exits, reports and limits. Explicit `FinalShort` behavior
+and its mixed-profile label are unchanged; this adds no periodic scheduler.
+
 `dive_api::temporal::check_final` checks the supported pure temporal subset
 once the safety graph is completely explored. It returns either a holding
 result, an independently validated periodic counterexample, or the safety
@@ -29,8 +39,7 @@ existing temporal route, as does every excluded option. Those routes retain
 their original binding/evaluation error priority and named refusals. Genuine
 implied temporal properties always continue to the temporal analyzer unchanged.
 The independent temporal validator and the analyzer's no-temporal-properties
-guard remain intact. This source change is experimental pending scoped runtime
-qualification, independent review and full gates; it adds no corpus agreement.
+guard remain intact. The same role dispatch is used for eligible ordinary TLC-profile requests.
 
 ```rust
 use std::sync::Arc;
@@ -112,14 +121,16 @@ The same backend is available explicitly:
 dive check Model.tla --lncheck final --lasso short --store exact --seed 17 --output json
 ```
 
-Both flags are required. Ordinary safety checks can use the existing command
-without these flags. With these flags, an empty property list or the bounded
+Both flags are required for explicit selection. Eligible ordinary TLC-profile
+requests select bounded final analysis without these flags; ordinary safety
+checks also retain their existing command. With these flags, an empty property list or the bounded
 configured-safety-role route above returns the ordinary safety result. Supported final
 checking returns success or independently validated periodic counterexamples;
 unsupported formulas, missing independent covers and limits return no verdict.
 Safety violations found during exploration retain their full original report.
 
-Opt-in requests use JSON schema 2. Ordinary checks retain schema 1. A temporal
+Explicit final requests and actual ordinary temporal analysis use JSON schema 2.
+Ordinary safety results retain schema 1. A temporal
 violation includes `properties`, an independently admitted tagged `counterexample.trace`, a 1-based
 `counterexample.back_to`, and `counterexample.validation: "valid"`. The trace
 document itself retains its own schema and 0-based back edge. Save the trace
@@ -129,8 +140,11 @@ field and replay it with `dive validate-trace` against the same spec/config.
 selects TLC's values and reports temporal violations with exit 13, but does
 not claim TLC-exact lasso selection, finite-prefix stopping, temporal error
 classes or periodic scheduling. The `tlc` class field stays null for temporal
-holds/violations. Default-profile violations exit 10. The ordinary strict
-conformance path retains its temporal refusal until those counterparts land.
+holds/violations for explicit requests. With TLC exit conventions, temporal
+violations exit 13 in either evaluator profile; the native exit convention uses
+10. Actual ordinary TLC-profile final holds/violations carry verified TLC
+success/temporal classes and complete capture counters through the ordinary
+conformance adapter. Unsupported combinations retain named refusals.
 
 Capture honors the requested worker pool for supported pure models, while
 fixed eight-source waves bound scratch retention. Bounds are counts of retained entries,

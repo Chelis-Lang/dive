@@ -8,7 +8,8 @@
 //! - models are checked with `dive check --output json`, and its report is
 //!   mapped to the oracle vocabulary ([`check_result`]): the deciding TLC
 //!   message code dive reports gives the verdict and error class, the
-//!   statistics are taken only where TLC prints them, and the
+//!   complete temporal capture statistics remain observable even where TLC's
+//!   print marker is false; ordinary safety statistics follow that marker. The
 //!   counterexample's length and printed states are kept. A refusal, a
 //!   resource limit, or an error whose TLC class dive does not claim yet is
 //!   `unsupported`, naming it. dive's counterexample document
@@ -60,6 +61,8 @@ use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
+
+mod ordinary_final;
 
 /// The `dive analyze` / `dive parse` JSON schema version the harness reads.
 pub const DIVE_JSON_SCHEMA: u64 = 1;
@@ -573,14 +576,25 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
             );
         }
     };
-    if v.get("schema_version").and_then(Value::as_u64) != Some(DIVE_JSON_SCHEMA)
-        || v.get("command").and_then(Value::as_str) != Some("check")
-    {
+    if v.get("command").and_then(Value::as_str) != Some("check") {
         return unclassified(
             outcome.exit_code,
             "dive check's report has an unknown schema".to_owned(),
         );
     }
+    let temporal = match v.get("schema_version").and_then(Value::as_u64) {
+        Some(DIVE_JSON_SCHEMA) => None,
+        Some(2) => match ordinary_final::read(&v, tlc_profile, outcome.exit_code) {
+            Ok(fields) => Some(fields),
+            Err(error) => return unclassified(outcome.exit_code, error),
+        },
+        _ => {
+            return unclassified(
+                outcome.exit_code,
+                "dive check's report has an unknown schema".into(),
+            );
+        }
+    };
     let s = |k: &str| v.get(k).and_then(Value::as_str).map(str::to_owned);
     let verdict = s("verdict").unwrap_or_default();
     let message = s("message").unwrap_or_default();
@@ -674,7 +688,9 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
         );
     };
     let stats = &v["statistics"];
-    let counts = if stats.get("reported_by_tlc").and_then(Value::as_bool) == Some(true) {
+    let counts = if let Some(counts) = temporal.as_ref().and_then(|fields| fields.counts.as_ref()) {
+        counts.clone()
+    } else if stats.get("reported_by_tlc").and_then(Value::as_bool) == Some(true) {
         let n = |k: &str| stats.get(k).and_then(Value::as_u64);
         Counts {
             distinct_states: n("distinct"),
@@ -685,38 +701,42 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
     } else {
         Counts::default()
     };
-    let trace = v["counterexample"]
-        .get("states")
-        .and_then(Value::as_array)
-        .map(|states| {
-            let text = |st: &Value, k: &str| {
-                st.get(k)
-                    .and_then(Value::as_str)
-                    .unwrap_or_default()
-                    .trim_end()
-                    .to_owned()
-            };
-            let steps: Vec<TraceStep> = states
-                .iter()
-                .map(|st| TraceStep {
-                    label: text(st, "label"),
-                    state: text(st, "text"),
-                })
-                .collect();
-            Trace {
-                length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
-                ending: TraceEnding::Finite,
-                // dive's own document (`counterexample.trace`, dive-trace's
-                // format), which the harness validates itself (ADR 0016 §3).
-                json: v["counterexample"]
-                    .get("trace")
-                    .filter(|t| !t.is_null())
-                    .cloned(),
-                steps: Some(steps),
-                omitted: None,
-                json_unavailable: None,
-            }
-        });
+    let trace = if let Some(fields) = &temporal {
+        fields.trace.clone()
+    } else {
+        v["counterexample"]
+            .get("states")
+            .and_then(Value::as_array)
+            .map(|states| {
+                let text = |st: &Value, k: &str| {
+                    st.get(k)
+                        .and_then(Value::as_str)
+                        .unwrap_or_default()
+                        .trim_end()
+                        .to_owned()
+                };
+                let steps: Vec<TraceStep> = states
+                    .iter()
+                    .map(|st| TraceStep {
+                        label: text(st, "label"),
+                        state: text(st, "text"),
+                    })
+                    .collect();
+                Trace {
+                    length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
+                    ending: TraceEnding::Finite,
+                    // dive's own document (`counterexample.trace`, dive-trace's
+                    // format), which the harness validates itself (ADR 0016 §3).
+                    json: v["counterexample"]
+                        .get("trace")
+                        .filter(|t| !t.is_null())
+                        .cloned(),
+                    steps: Some(steps),
+                    omitted: None,
+                    json_unavailable: None,
+                }
+            })
+    };
     let collision = v["collision"].as_object().map(|c| CollisionProbability {
         optimistic: c
             .get("optimistic")

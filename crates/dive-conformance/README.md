@@ -83,17 +83,21 @@ The registry never applies to `dive` or to external adapters, and it never turns
 
 The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/`Json`, `ALIAS`, and depth 1 for constant-only models. Two differences there are not attributed to a commit and stay `disagree`; the file's header lists them.
 
-**Comparison rules** (ADR 0004 and its amendment):
+**Comparison rules** (ADR 0004 and its amendment, with ADR 0086's observable contract):
 - Every implementation is compared with the single-worker golden on:
   - the verdict class and the error class (the `EC` name of the deciding message);
   - the physical numeric process exit, including an absent code;
   - the violated property, when the golden names one;
-  - distinct, generated and queued counts, and depth;
-  - the counterexample's length and how it ends (finite, lasso, stuttering).
+  - distinct counts and depth at every worker width, and generated counts at one worker;
+  - finite counterexample length and ending, retaining the one-worker shortest-BFS contract.
+  Queue population and arbitrary periodic lasso choice/length/ending are not
+  parity criteria. Raw queue values remain recorded; a final temporal producer
+  must still establish its own exhausted-capture queue consistency. Every
+  periodic word still requires independent validation.
 - The counterexample's content is never compared with TLC's. Instead, for an implementation that is not TLC, the harness validates the counterexample itself (`Implementation::trace_validated`, `src/trace_check.rs`; ADR 0016 §3). `dive`'s counterexample document (in `OracleResult.trace.json`, dive's trace format) is read and checked in-process by `dive-trace`'s independent validator, with the model bound from the same spec, cfg, profile and module path; `dive`'s own `validation` field is ignored. A deadlock, which the validator refuses by name (ADR 0016, amendment 1), counts as validated only when every other check passed and its last state equals the last state of the golden's own counterexample. A safety, action-property, liveness or deadlock violation cannot agree without a whole counterexample. A selected golden carrying an error witness also requires a whole word when verdicts match, even if its payload is unavailable. An approved semantic Success divergence such as P2Choose_str carries no counterexample merely because TLC's differing verdict has one; it never counts as Agree. Absent or metadata-only traces are unconfirmed without invoking a claimed-valid callback; present JSON or text-step payloads still require independent validation against the same selected primary or worker-specific golden as comparison. Ordinary success, assumption, frontend or evaluation outcomes whose contract carries no witness remain legitimate without one. A violation whose counterexample does not validate cannot agree. When the validator refuses part of the claim by name, or no document is available, and nothing else differs, the outcome is `agree-pending-trace-validation`; when the counterexample is invalid, it is a `disagree` on `trace.invalid`. The validator's reason is in the detail.
-- Only a TLC oracle gets multi-worker leniency. With more than one worker, its counts are compared only after a complete search, and depth, queue, counterexample and property are not compared.
+- Only a TLC oracle gets the separate historical multi-worker self-check policy. With more than one worker, its counts are compared only after a complete search, and depth, counterexample and property are not compared. This oracle policy is not lent to native implementations.
 - For TLC, a model's outcome is its single-worker run. Multi-worker runs appear only in the worker-invariance section.
-- For anything else, every worker count must match, and any variance is `disagree`.
+- For anything else, the required verdict, class, physical exit, named property, distinct counts and depth remain strict at every worker count; generated-count parity is required at one worker. A difference in a required field is `disagree`. Missing or invalid counterexamples cannot agree.
 - v1.7.4 may omit violated temporal-property names, because its capability probe shows it never prints them.
 - Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`. Under `--impl-profile tlc` (or `tlc+overrides`), dive reports the physical worker count as TLC does (D-011), so such a model's run at N > 1 workers is compared with the worker-specific golden at N, if there is one, on verdict, error class and physical numeric exit, and is left out of the worker-invariance judgement (ADR 0004, amendment of 2026-10-09). Without one, the single-worker golden applies on every field. The default profile reports the logical count, 1, and always uses the single-worker golden.
 - Simulation models compare verdict-level fields only.

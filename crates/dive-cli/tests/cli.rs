@@ -396,9 +396,17 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
     let cfg = spec.with_extension("cfg");
     assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY P Q\n").is_ok());
     let path = spec.to_string_lossy();
-    // Ordinary checking keeps its explicit refusal until full temporal
-    // compatibility is implemented.
-    let ordinary = dive(&["check", &path, "--compat=tlc", "--output", "json"]);
+    // Polynomial 1 remains outside the narrow ordinary TLC final route.
+    // Pin it explicitly: a random polynomial 0 would select that supported route.
+    let ordinary = dive(&[
+        "check",
+        &path,
+        "--compat=tlc",
+        "--fp=1",
+        "--seed=17",
+        "--output",
+        "json",
+    ]);
     assert_eq!(ordinary.status.code(), Some(3));
     for (profile, code) in [("tlc", 13), ("dive", 13)] {
         let run = |store: &str, workers: &str| {
