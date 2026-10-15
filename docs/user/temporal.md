@@ -127,8 +127,8 @@ action, and checks that `x` eventually becomes 1. The paired
 Both value profiles use the same scoped structural checks and existing limits.
 Configured native, recursive, higher-order, value-overridden and temporal
 targets, captured configured operators and substituted operator calls retain
-named refusals. Effects, temporal operands and ENABLED inside a pure atom,
-including unused actual arguments, remain refused. Independent trace replay
+named refusals. Within configured calls, effects, temporal operands and
+ENABLED inside a pure atom, including unused actual arguments, remain refused. Independent trace replay
 checks the original configured calls separately.
 
 Pure state predicates can call authoritative `Sequences!SelectSeq` with a unary
@@ -308,3 +308,72 @@ speculative parallel capture remains excluded. Independent validation can still
 refuse a counterexample that requires composition or newly created runtime names;
 complete graph capture alone does not establish a validated violation. This
 change does not extend checkpoint or DFID admission.
+
+## Nested enabledness in Boolean guards
+
+Bounded final analysis accepts pure `ENABLED` queries in ordered Boolean
+`~`, `/\` and `\/` guards, including ordinary first-order definition bodies,
+local LET expressions and bounded Boolean quantifiers. Queries can appear in
+`Next`, temporal action predicates, and actions used by weak or strong fairness.
+Each query quantifies a fresh successor from its actual current state; its inner
+primed variables do not refer to the outer transition's target.
+
+```sh
+dive check crates/dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla --config crates/dive-liveness/tests/fixtures/nested-enabled/hold.cfg --compat=tlc --workers 1 --fp 0 --seed 0 --lncheck final --lasso short --output json
+```
+
+The tiny model alternates `x=0` and `x=1`. `hold.cfg` returns success;
+`fail.cfg` reports property `Fail`, a liveness violation with a validated periodic
+word. Both explore 3 generated states, 2 distinct states and depth 2. The failure
+word closes from `x=1` to `x=0` even though a reached inner query needs `x'=1`.
+These two pinned primary references qualify this tiny subset, not the original
+Elevator model or a corpus gain.
+
+The independent validator evaluates the original `Next` and closing edge with
+its own finite-cover query procedure. It never calls the checker successor
+enumerator. Inner and outer candidates share expression, assignment and depth
+bounds and one pure invocation; subscript evaluation also shares that invocation.
+A query supplies no outer successor cover. Missing or infinite covers, exhausted
+bounds, and empty nested covers needing further source-order evidence refuse
+explicitly. A later false guard cannot erase an earlier reached query error;
+ordinary Boolean shortcircuit preserves unreached pure errors.
+
+Query placements inside data/native arguments, provider callbacks, higher-order
+operator forwarding, configuration substitutions, INSTANCE substitutions,
+explicit or hidden primes, and captured primed action values remain unsupported.
+Pure lexical state captures remain available. Existing effect, ownership and
+resource checks remain in force. Native enabledness still uses the original
+checker search; its existing finite-domain and core-depth checks do not imply a
+universal budget on every native assignment visit or a termination guarantee.
+No option, default, schema or numeric cap changes. Use the existing dedicated
+`RECOMMENDED_STACK` thread contract when calling trace validation directly from
+Rust. Current-source original-model qualification, fresh review and full gates
+remain pending.
+
+First-order temporal expression arguments retain their existing formula route:
+`Identity(p) == p; Identity([](ENABLED A))` forwards a temporal expression,
+including its caller scope, rather than capturing an operator. Direct queries
+still undergo the usual planning and independent enabledness checks. This does
+not admit query-bearing operator captures, native/provider arguments or hidden
+state-helper query words.
+
+State-level mixtures of direct queries keep their existing temporal conversion
+and native INSTANCE support. This extension does not add independent validation
+of query words under INSTANCE substitutions; those words retain their named
+refusal.
+
+Independent word validation may refuse a query hidden behind a state-valued
+helper formal, such as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, even when
+native exhaustive checking can establish Holds. Supported action-valued lazy
+formal guards retain their independent query support. Predicate and data reads
+inspect actual lexical thunks before evaluation. A periodic query-bearing action label is optional metadata:
+its source is refused without evaluation and recorded as a note; the original
+Next edge, closing edge and property claims are still required independently.
+
+Finite preflight keeps binder domains, instantiated function/set construction
+bodies, filter predicates and UNCHANGED operands in data-only mode, following
+actual lazy bindings before reading domains. As in existing concrete-binding
+checks, a body with zero bindings may be left unvisited without evaluating its
+queries. Other effect and purity guards still apply; this is not a global
+syntactic query scan.
+Boolean existential and universal bodies retain their bounded query support.
