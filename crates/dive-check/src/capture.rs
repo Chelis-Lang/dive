@@ -752,12 +752,7 @@ fn explore_inner(
     if engine::uses_random(&model.ir) {
         return refuse("graph capture with random operators".into());
     }
-    if !model.sequential_names_only
-        && let Some(s) = model
-            .sequential
-            .iter()
-            .find(|reason| reason.as_str() != dive_model::TLC_CDOT)
-    {
+    if let Some(s) = model.stateful_checking() {
         return refuse(format!("graph capture with stateful checking: {s}"));
     }
     if let Some(u) = model

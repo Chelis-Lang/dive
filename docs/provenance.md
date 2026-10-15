@@ -1635,3 +1635,16 @@ The existing FdRecursivePerm temporal-domain fixtures still refuse: self/formal
 analysis uses conservative state unknowns and does not establish a closed
 recursive result constant for temporal expansion. Typed planning/source/evidence
 controls retain this boundary; the changed diagnostic is not new parity.
+
+The sequential capture classifier retains separate real-effect, runtime-name and
+TLC composition-accounting categories during the existing bound checking-path
+walk. The ordinary sequential reason list and checkpoint/DFID decisions are
+unchanged; capture reads the real-effect category without parsing diagnostic
+text. The consumed `name-cdot` fixture records two genuine pinned TLC
+`tlc-2026.10.06.014338` runs with state-dependent `SubSeq` operands and composition:
+holding success and a failing `baba` to `ba` stuttering behavior, both 5 generated,
+2 distinct and depth 2. The emitted string is measured rather than inferred from
+an encounter-order prediction. An earlier one-character fixture is also retained
+as a regression for its existing liveness-atom error; its `a`/`b` names were
+already interned at binding, so that fixture does not demonstrate name growth. Independent composed-word replay remains refused;
+this is no new purity or replay admission proof (#241).

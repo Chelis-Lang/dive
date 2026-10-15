@@ -1,5 +1,10 @@
 # Changelog
 
+- Sequential graph capture now combines runtime-name encounter order with TLC
+  action-composition accounting without misclassifying those ordering needs as
+  stateful checking. Real effects, parallel capture exclusions, checkpoint/DFID
+  restrictions and independent composed-word refusals remain in force.
+
 - Ordinary TLC-profile bounded final checking also accepts the existing
   `--action-composition=tlc` option with otherwise default resident settings.
   Original intermediate generated counts and independent composition refusals

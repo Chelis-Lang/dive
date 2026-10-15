@@ -297,3 +297,14 @@ recursive-function slots. Each temporal/finite/independent enabledness walk
 inspects that configured source before evaluating domains or using cached values;
 an empty recursive domain cannot hide a captured primed read or effect. Pure
 unconfigured local recursive functions retain the scoped support described above.
+
+Sequential graph capture distinguishes stateful checking from ordering needs.
+Runtime string/name constructors and TLC action composition may appear together:
+`--compat=tlc --action-composition=tlc --lncheck=final --lasso=short` retains their
+single-worker encounter order and intermediate-state counts. A larger worker
+request still reports the sequential fallback. Register/live-counter access,
+randomness, I/O and cached lazy effects retain their existing refusals, and
+speculative parallel capture remains excluded. Independent validation can still
+refuse a counterexample that requires composition or newly created runtime names;
+complete graph capture alone does not establish a validated violation. This
+change does not extend checkpoint or DFID admission.

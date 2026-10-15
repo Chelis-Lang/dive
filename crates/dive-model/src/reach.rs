@@ -173,6 +173,7 @@ pub(crate) struct Sequential {
     pub reasons: Vec<String>,
     pub names_only: bool,
     pub runtime_names: bool,
+    pub stateful_checking: Option<String>,
 }
 
 fn native_op(ir: &dive_ir::Ir, op: &OpRef) -> Option<StdOp> {
@@ -248,6 +249,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
         || b.opts.eval.exploration == dive_eval::ExplorationOrder::Tlc;
     let mut names: BTreeSet<String> = BTreeSet::new();
     let mut out: BTreeSet<String> = BTreeSet::new();
+    let mut composition = false;
     for (i, d) in ir.defs().iter().enumerate() {
         if reach.get(i).copied().unwrap_or(false) {
             if let Some(op) = d.std {
@@ -307,7 +309,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
                 }
             }
             Expr::Cdot(..) if tlc_cdot => {
-                out.insert(TLC_CDOT.to_owned());
+                composition = true;
             }
             Expr::SetFilter { pred, .. } if impure(*pred) => {
                 out.insert("side effects inside a set filter TLC evaluates lazily".to_owned());
@@ -335,6 +337,18 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
             "side effects inside a lazily evaluated value bound with the model, which TLC caches (a LET or an operator argument)".to_owned(),
         );
     }
+    classify_sequential(out, names, composition)
+}
+
+fn classify_sequential(
+    mut out: BTreeSet<String>,
+    names: BTreeSet<String>,
+    composition: bool,
+) -> Sequential {
+    let stateful_checking = out.first().cloned();
+    if composition {
+        out.insert(TLC_CDOT.to_owned());
+    }
     let runtime_names = !names.is_empty();
     let names_only = out.is_empty() && runtime_names;
     out.extend(names);
@@ -342,6 +356,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
         reasons: out.into_iter().collect(),
         names_only,
         runtime_names,
+        stateful_checking,
     }
 }
 

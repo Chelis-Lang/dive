@@ -1,0 +1,36 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "workers": 1,
+  "seed": 0,
+  "fp": 0,
+  "action_composition": "tlc",
+  "cases": [
+    {
+      "case": "hold",
+      "physical_exit": 0,
+      "code": 2193,
+      "generated": 5,
+      "distinct": 2,
+      "depth": 2,
+      "stdout_sha256": "6e30ae98bed250c6e97c7d691a76a50958e5715ee71948c9bced6ea6b9469caa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "fail",
+      "physical_exit": 13,
+      "code": 2116,
+      "generated": 5,
+      "distinct": 2,
+      "depth": 2,
+      "stdout_sha256": "320e598e23d4f3afefa0286d0ac3b2b4e5aa0b6c7882ea89ac7fc75d67de1801",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "word": [
+    "baba",
+    "ba"
+  ],
+  "ending": "stuttering",
+  "qualification": "Actual pinned primary raw word, not independently certified. Composed replay remains Unsupported; a lexical/encounter-order prediction is not substituted for this measured value."
+}
