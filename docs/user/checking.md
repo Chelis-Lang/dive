@@ -5,6 +5,60 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
+## TLC checking entrypoints
+
+The checking-only adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the
+installed `tlc [OPTIONS] SPEC[.tla]`. An executable whose basename is `tlc` or
+`tlc.exe`, including a renamed binary or symlink to `dive`, selects the same
+adapter. `cargo run -p dive-cli` still selects `dive`; both binaries share one
+command implementation.
+
+```sh
+dive tlc docs/user/examples/Counter -seed 7 -fp 0 --output json
+tlc docs/user/examples/Counter.tla -seed 7 -fp 0 -workers 1
+```
+
+The adapter selects TLC evaluation and TLC verdict statuses without requiring
+`--compat=tlc`, and requests one worker unless `-workers N|auto` changes it.
+`DIVE_COMPAT` and the native hidden chaos environment option do not change these
+defaults. It accepts `-modelcheck`, `-config FILE[.cfg]`, `-seed N`, `-fp N`,
+`-workers N|auto`, `-deadlock`, and `-h`/`-help`. Double-dash checking aliases and
+`--output human|json` also work, including inline double-dash values.
+
+Missing `.tla` and `.cfg` suffixes are appended. With an absolute module path,
+an explicit relative `-config` is resolved from that module's directory. With a
+relative module path, an explicit relative `-config` is resolved from the current
+directory. The default configuration is always the module's sibling `.cfg`.
+Absolute configuration paths remain absolute. There is no existence-based
+fallback between these directories. Native file APIs keep their explicit path
+semantics. Configurations embedded in `.tla` files retain their named refusal.
+
+`-lncheck final` directly selects the existing bounded final checker and its
+deterministic short lasso. It does not require a second policy flag. Reports
+retain `tlc+overrides`, actual bounds, startup and planning errors, incomplete
+capture and independent periodic-word validation. This selection need not match
+TLC's arbitrary lasso choice. `-lncheck default` retains ordinary checking and
+its current temporal refusals. Other strategies refuse by name. Native
+`dive check --lncheck final --lasso short` keeps its existing explicit contract.
+
+Every counterexample emitted by this adapter is independently replayed from
+fresh source/configuration inputs. JSON records `counterexample.validation` as
+`valid` only after replay succeeds. Unsupported replay returns status 3 and
+invalid replay returns 4; both suppress the word and its violation claim.
+Startup output and observed statistics may remain in the JSON failure report,
+and are not proof of a completed check. Existing validator limits remain active.
+
+Human output and versioned JSON use the existing check report. `-tool` message
+framing is not implemented here. TLC simulation/generation, DFID, checkpoint,
+storage, debugger, coverage and dump flags refuse by name rather than selecting
+native modes with different contracts. Unknown or malformed arguments exit 1;
+recognized unsupported options exit 3 before input access. Input I/O errors go
+to stderr and use 150 for the module and 151 for the configuration. The adapter
+retains the file API's source-before-configuration input checks; it does not yet
+reproduce TLC's configuration-first priority when both inputs are invalid.
+Native commands retain their existing statuses and input ordering. These
+entrypoints implement a checking subset; full TLC toolchain parity remains open.
+
 ## Process statuses
 
 `dive check` uses TLC process statuses by default, with native semantic choices
