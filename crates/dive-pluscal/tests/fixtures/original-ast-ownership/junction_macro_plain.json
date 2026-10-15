@@ -1,0 +1,9 @@
+{
+  "id": "junction_macro_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; macro Test(a) begin assert a; end macro;\nbegin L:Test(/\\ x=0\n             /\\ x<2); B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type |-> \"assert\", \n                           exp |-> << \"(col0) /\\\\\", \"x\", \"=\", \"0\"\n, \"(col0) /\\\\\", \"x\", \"<\", \"2\" >>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

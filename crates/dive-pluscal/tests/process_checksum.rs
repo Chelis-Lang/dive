@@ -37,7 +37,7 @@ fn retained_process_serialization_matches_each_primary_stage()
                         "{folder}/{id}"
                     );
                     assert_eq!(actual.checksum, row["primary_crc"], "{folder}/{id}");
-                    assert_eq!(actual.fair_header_crc_only, id.contains("_fair_"));
+
                     outcomes[0] += 1;
                 }
                 Err(error) if error.diagnostic.code == Code::Unsupported => outcomes[1] += 1,
@@ -109,7 +109,7 @@ fn process_option_checksum_captures_match_bytes_and_declared_precedence()
                         "{folder}/{id}"
                     );
                     assert_eq!(actual.checksum, row["primary_crc"], "{folder}/{id}");
-                    assert_eq!(actual.fair_header_crc_only, id.contains("_fair_"));
+
                     outcomes[0] += 1;
                 }
                 Err(error) if error.diagnostic.code == Code::Unsupported => outcomes[1] += 1,
@@ -188,7 +188,9 @@ fn source_option_comments_have_proved_artifact_and_full_crc()
         assert!(artifact.option_context.source_declaration.is_some());
         assert_eq!(
             artifact.option_context.effective.fairness,
-            checksum.option_context.effective.fairness
+            dive_pluscal::resolve_translation_options(&source, &options)?
+                .effective
+                .fairness
         );
     }
     Ok(())

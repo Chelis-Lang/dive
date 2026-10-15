@@ -1,0 +1,16 @@
+{
+  "id": "while_translation_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; begin L:while x<2 do x:=x+1; I:skip; end while; B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "post-generation header",
+  "primary_exit": 0,
+  "sany_exit": 0,
+  "sany_semantic_accepted": true,
+  "sany_warning_count": 1,
+  "sany_embedded_validator_error": false,
+  "sany_original_checksum_validated": false,
+  "algorithm_crc": "5df9de",
+  "body_crc": "d97a07ec",
+  "generated_body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ IF x<2\n           THEN /\\ x' = x+1\n                /\\ pc' = \"I\"\n           ELSE /\\ pc' = \"B\"\n                /\\ x' = x\n\nI == /\\ pc = \"I\"\n     /\\ TRUE\n     /\\ pc' = \"L\"\n     /\\ x' = x\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ I \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\n"
+}

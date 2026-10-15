@@ -1,0 +1,9 @@
+{
+  "id": "c_wrapper_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A { variable x=0; L:{ x:=1; skip; }; B:skip; } *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "source-error",
+  "primary_exit": 255,
+  "artifact_exists": false
+}

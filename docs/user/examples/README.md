@@ -53,3 +53,8 @@ procedure guides. They exercise recursive/per-ID/shared stacks and generated
 fairness, separately from finite safety and liveness proof. Current root
 verification must use its own built executable and preserve the ancestor
 campaigns separately.
+
+
+`AstExample.tla` is the simple finite-process input for the original AST and
+bounded debug-header commands in [the PlusCal guide](../../pluscal-translation.md).
+AST export and translation are artifact operations and do not establish a model proof.

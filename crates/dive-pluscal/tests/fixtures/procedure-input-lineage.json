@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "retained_primary_manifest_rows": 740,
+  "genuine_input_row_instances": 688,
+  "historical_instances_without_input": 52,
+  "unique_ids_without_input": 26,
+  "successful_primary_facts_without_input": 14,
+  "unavailable_ids": [
+    "MultipleHeader_C_local_from_parameter_outside_body",
+    "MultipleHeader_C_locals_outside_body",
+    "MultipleOwner_C_duplicate_labels",
+    "MultipleOwner_C_duplicate_procedure",
+    "MultipleOwner_C_duplicate_slots",
+    "MultipleOwner_C_fair_flag",
+    "MultipleOwner_C_global_slot",
+    "MultipleOwner_C_label_minus",
+    "MultipleOwner_C_label_plus",
+    "MultipleOwner_C_missing_entry_label",
+    "MultipleOwner_C_sf_flag",
+    "MultipleOwner_C_unknown_target",
+    "MultipleOwner_C_wf_flag",
+    "MultipleOwner_C_wrong_arity",
+    "MultipleOwner_P_duplicate_labels",
+    "MultipleOwner_P_duplicate_procedure",
+    "MultipleOwner_P_duplicate_slots",
+    "MultipleOwner_P_fair_flag",
+    "MultipleOwner_P_global_slot",
+    "MultipleOwner_P_label_minus",
+    "MultipleOwner_P_label_plus",
+    "MultipleOwner_P_missing_entry_label",
+    "MultipleOwner_P_sf_flag",
+    "MultipleOwner_P_unknown_target",
+    "MultipleOwner_P_wf_flag",
+    "MultipleOwner_P_wrong_arity"
+  ],
+  "successful_primary_ids_without_input": [
+    "MultipleHeader_C_locals_outside_body",
+    "MultipleHeader_C_local_from_parameter_outside_body",
+    "MultipleOwner_C_duplicate_slots",
+    "MultipleOwner_C_duplicate_labels",
+    "MultipleOwner_C_label_plus",
+    "MultipleOwner_C_label_minus",
+    "MultipleOwner_C_wf_flag",
+    "MultipleOwner_C_sf_flag",
+    "MultipleOwner_P_duplicate_slots",
+    "MultipleOwner_P_duplicate_labels",
+    "MultipleOwner_P_label_plus",
+    "MultipleOwner_P_label_minus",
+    "MultipleOwner_P_wf_flag",
+    "MultipleOwner_P_sf_flag"
+  ],
+  "families": {
+    "recursive-procedure-checksum": {
+      "input_folders": [
+        "recursive-procedure-checksum",
+        "acyclic-procedure-checksum",
+        "multiple-procedure-checksum"
+      ],
+      "available": 136,
+      "unexercised": 26
+    },
+    "acyclic-procedure-checksum": {
+      "input_folders": [
+        "acyclic-procedure-checksum",
+        "multiple-procedure-checksum"
+      ],
+      "available": 104,
+      "unexercised": 26
+    }
+  },
+  "qualification": "Inherited historical primary facts retain absent original inputs after the evidence cleanup. They are not native refusals, passes or coverage. Explicit sibling source routes are pinned by the current source tree; all original primary manifests remain unchanged."
+}

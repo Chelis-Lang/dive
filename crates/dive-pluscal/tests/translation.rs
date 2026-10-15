@@ -27,6 +27,10 @@ fn structure(node: &dive_syntax::SyntaxNode) -> serde_json::Value {
     serde_json::json!([format!("{:?}", node.kind()), children])
 }
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "keeps the complete pinned selection and source/token/CST checks together"
+)]
 fn retained_primary_token_streams() -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/translation");
     let manifest: serde_json::Value =
@@ -37,6 +41,7 @@ fn retained_primary_token_streams() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(rows.len(), 160);
     let mut artifacts = 0;
     let mut c_artifacts = 0;
+    let mut raw_invalid = 0;
     for row in rows {
         let id = row["id"].as_str().ok_or("missing case id")?;
         let source = std::fs::read_to_string(
@@ -60,7 +65,6 @@ fn retained_primary_token_streams() -> Result<(), Box<dyn std::error::Error>> {
             }
             Ok(artifact) => {
                 assert_eq!(row["primary"]["status"], "translated", "{id}");
-                assert_eq!(row["sany"]["status"], "accepted", "{id}");
                 let primary = std::fs::read_to_string(
                     base.join("fixtures").join(
                         row["translated"]["path"]
@@ -106,13 +110,23 @@ fn retained_primary_token_streams() -> Result<(), Box<dyn std::error::Error>> {
                         "{id}"
                     );
                 }
-                artifacts += 1;
-                if id.contains("c_current_") || id.contains("c_complete_") {
-                    c_artifacts += 1;
+                if row["sany"]["status"] == "accepted" {
+                    artifacts += 1;
+                    if id.contains("c_current_") || id.contains("c_complete_") {
+                        c_artifacts += 1;
+                    }
+                } else {
+                    assert_eq!(row["sany"]["status"], "rejected", "{id}");
+                    raw_invalid += 1;
                 }
             }
         }
     }
+    assert_eq!(
+        raw_invalid, 3,
+        "primary translations rejected by SANY earn no credit"
+    );
+    assert_eq!(artifacts, 92);
     assert!(
         artifacts >= 40,
         "both surface syntaxes need positive retained controls"
@@ -156,18 +170,22 @@ fn resource_failures_return_no_artifact() {
     }
 }
 #[test]
-fn opaque_and_unproved_normalizations_refuse() {
+fn reserved_names_and_bound_expressions_follow_the_primary()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "--algorithm A variable Next=0; begin L: Next:=1; end algorithm";
+    assert!(
+        matches!(translate(source, &TranslationOptions::default()),Err(error) if error.diagnostic.code == Code::Unsupported)
+    );
     for source in [
-        "--algorithm A variable Next=0; begin L: Next:=1; end algorithm",
         "--algorithm A variable x=0; begin L: with pc=1 do skip; end with; end algorithm",
         "--algorithm A variable x=0; begin L: print CHOOSE k \\in {1}: TRUE; end algorithm",
     ] {
-        assert!(
-            matches!(translate(source,&TranslationOptions::default()),Err(error) if error.diagnostic.code==Code::Unsupported),
-            "{source}"
-        );
+        let artifact = translate(source, &TranslationOptions::default())?;
+        assert_eq!(artifact.actions, ["L"]);
     }
+    Ok(())
 }
+
 #[test]
 fn source_stack_and_invalid_ranges_are_bounded() -> Result<(), Box<dyn std::error::Error>> {
     let source = "--algorithm A variable x=0; begin L: x:=1; E: skip; end algorithm".to_owned();
@@ -202,14 +220,17 @@ fn labelled_assertion_uses_keyword_location() -> Result<(), Box<dyn std::error::
     Ok(())
 }
 #[test]
-fn unicode_binders_are_named_refusals() {
+fn unicode_binders_preserve_bound_names_and_prime_state() -> Result<(), Box<dyn std::error::Error>>
+{
     for expression in ["∀ k ∈ {1}: k=x", "∃ k ∈ {1}: k=x", "[k ∈ {1} ↦ k+x]"] {
         let source =
             format!("--algorithm A variable x=0; begin L: x:=1; print {expression}; end algorithm");
-        assert!(
-            matches!(translate(&source,&TranslationOptions::default()),Err(error) if error.diagnostic.code==Code::Unsupported)
-        );
+        let artifact = translate(&source, &TranslationOptions::default())?;
+        let tokens = words(&artifact.tla);
+        assert!(tokens.windows(2).any(|w| w == ["x", "'"]));
+        assert!(!tokens.windows(2).any(|w| w == ["k", "'"]));
     }
+    Ok(())
 }
 
 #[test]

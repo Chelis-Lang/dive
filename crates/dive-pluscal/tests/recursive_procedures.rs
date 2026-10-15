@@ -8,6 +8,13 @@ fn words(source: &str) -> Vec<String> {
         .map(|t| source[usize::from(t.range.start())..usize::from(t.range.end())].into())
         .collect()
 }
+fn contains_words(source: &str, expression: &str) -> bool {
+    let expected = words(expression);
+    words(source)
+        .windows(expected.len())
+        .any(|window| window == expected)
+}
+
 fn retained(
     directory: &str,
     selected: usize,
@@ -101,7 +108,7 @@ fn retained(
 #[test]
 fn all_recursive_source_artifacts_match_the_pin_without_crediting_invalid_output()
 -> Result<(), Box<dyn std::error::Error>> {
-    retained("", 116, 86, 4)
+    retained("", 116, 91, 4)
 }
 #[test]
 fn recursive_translation_is_source_bounded_and_keeps_runtime_frames()
@@ -143,10 +150,10 @@ fn self_tail_call_keeps_frame_and_uses_simultaneous_parameter_values()
         .split("Recur ==")
         .next()
         .ok_or("wrapper")?;
-    assert!(action.contains("a' = a - 1"));
-    assert!(action.contains("c' = a"));
-    assert!(action.contains("u' = a' + c'"));
-    assert!(action.contains("UNCHANGED << x, stack >>"));
+    assert!(contains_words(action, "a' = a - 1"));
+    assert!(contains_words(action, "c' = a"));
+    assert!(contains_words(action, "u' = a' + c'"));
+    assert!(contains_words(action, "UNCHANGED << x, stack >>"));
     assert!(!action.contains("Head(stack)"));
     assert!(!action.contains("Tail(stack)"));
     Ok(())

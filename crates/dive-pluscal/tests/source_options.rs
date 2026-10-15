@@ -101,8 +101,17 @@ fn generation_and_checksum_use_identical_context() {
     let checksum =
         dive_pluscal::algorithm_checksum_at(&source, start..source.len(), &request).unwrap();
     assert_eq!(
-        checksum.option_context.effective.fairness,
-        FairnessOption::Weak
+        checksum.checksum,
+        dive_pluscal::algorithm_checksum_at(
+            &source,
+            start..source.len(),
+            &TranslationOptions {
+                fairness: FairnessOption::Weak,
+                ..TranslationOptions::default()
+            }
+        )
+        .unwrap()
+        .checksum
     );
     assert_eq!(
         translation.option_context.effective.fairness,

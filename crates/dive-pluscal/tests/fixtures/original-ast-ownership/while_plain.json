@@ -1,0 +1,9 @@
+{
+  "id": "while_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; begin L:while x<2 do x:=x+1; I:skip; end while; B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type    |-> \"while\", \n                           test    |-> << \"x\", \"<\", \"2\" >>,\n                           labDo   |-> <<[label |-> \"I\",\n                                          stmts |-> <<[type |-> \"skip\"]>>]>>,\n                           unlabDo |-> <<[type |-> \"assignment\",\n                                          ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                      rhs |-> << \"x\", \"+\", \"1\" >>]>>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

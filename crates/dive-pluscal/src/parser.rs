@@ -10,9 +10,13 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-/// Resource settings. Hard byte/depth ceilings also prevent unbounded allocation.
+/// Source language and resource settings. Hard byte/depth ceilings bound allocation.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Options {
+    /// Input language weight in decimal thousandths (default 1903).
+    /// Exactly 1500 enables the historical sequential `fair` spelling.
+    #[serde(default = "current_version")]
+    pub input_version: i32,
     /// Maximum complete source bytes (hard ceiling: 4 MiB).
     pub max_bytes: usize,
     /// Maximum significant tokens (also bounded by bytes).
@@ -22,9 +26,13 @@ pub struct Options {
     /// Maximum grammar and expression nesting (hard ceiling: 256).
     pub max_depth: usize,
 }
+const fn current_version() -> i32 {
+    1903
+}
 impl Default for Options {
     fn default() -> Self {
         Self {
+            input_version: current_version(),
             max_bytes: 1_048_576,
             max_tokens: 100_000,
             max_nodes: 50_000,
@@ -408,6 +416,20 @@ impl Parser<'_> {
         while self.peek() == "procedure" {
             procedures.push(self.procedure()?);
         }
+        let legacy_fair = self.opts.input_version == 1500
+            && self.peek() == "fair"
+            && self.tokens.get(self.pos + 1).is_some_and(|t| {
+                matches!(t.text.as_str(), "begin" | "{")
+                    || (t.text == "+"
+                        && self
+                            .tokens
+                            .get(self.pos + 2)
+                            .is_some_and(|next| matches!(next.text.as_str(), "begin" | "{")))
+            });
+        if legacy_fair {
+            self.eat("fair");
+            self.eat("+");
+        }
         let body = if matches!(self.peek(), "process" | "fair") {
             let mut processes = Vec::new();
             while matches!(self.peek(), "process" | "fair") {
@@ -432,6 +454,7 @@ impl Parser<'_> {
             } else {
                 Fairness::Unfair
             },
+            legacy_fair,
             variables,
             definitions,
             macros,

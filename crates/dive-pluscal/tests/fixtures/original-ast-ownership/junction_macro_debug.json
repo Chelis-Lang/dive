@@ -1,0 +1,9 @@
+{
+  "id": "junction_macro_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; macro Test(a) begin assert a; end macro;\nbegin L:Test(/\\ x=0\n             /\\ x<2); B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n(*0, 0*)[type     |-> \"uniprocess\", \n         name  |-> \"A\", \n         decls  |-> <<(*3, 28*)[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n         defs   |-> <<  >>,\n         prcds  |-> <<>>,\n         body  |-> <<(*3, 53*)[label |-> \"L\",\n                               stmts |-> <<(*3, 53*)[type |-> \"assert\", \n                                                     exp |-> << \"(col0) /\\\\\", \"x\", \"=\", \"0\"\n, \"(col0) /\\\\\", \"x\", \"<\", \"2\" >>]>>], \n                     (*5, 25*)[label |-> \"B\",\n                               stmts |-> <<(*5, 25*)[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

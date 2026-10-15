@@ -1,0 +1,16 @@
+{
+  "id": "corrected_c_wrapper_translation_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A { variable x=0; {L:{ x:=1; skip; }; B:skip; }} *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "post-generation header",
+  "primary_exit": 0,
+  "sany_exit": 0,
+  "algorithm_crc": "f90c66b7",
+  "body_crc": "88509748",
+  "generated_body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = 1\n     /\\ TRUE\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\n",
+  "sany_semantic_accepted": true,
+  "sany_warning_count": 1,
+  "sany_embedded_validator_error": false,
+  "sany_original_checksum_validated": false
+}

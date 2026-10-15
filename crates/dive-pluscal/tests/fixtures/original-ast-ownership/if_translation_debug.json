@@ -1,0 +1,16 @@
+{
+  "id": "if_translation_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; begin L:if x=0 then x:=1; elsif x=1 then skip; else x:=2; end if; B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "post-generation header",
+  "primary_exit": 0,
+  "sany_exit": 0,
+  "algorithm_crc": "24eb2b6b",
+  "body_crc": "d560a31a",
+  "generated_body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ IF x=0\n           THEN /\\ x' = 1\n           ELSE /\\ IF x=1\n                      THEN /\\ TRUE\n                           /\\ x' = x\n                      ELSE /\\ x' = 2\n     /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\n",
+  "sany_semantic_accepted": true,
+  "sany_warning_count": 1,
+  "sany_embedded_validator_error": false,
+  "sany_original_checksum_validated": false
+}

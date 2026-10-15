@@ -1,12 +1,12 @@
 //! Native source-mapped PlusCal grammar parsing (ADR 0022).
 //!
 //! [`parse`] produces a source AST, not a translated TLA+ specification.
-//! [`translate`] supports bounded sequential and disjoint finite-process paths, including reference labels;
-//! disjoint sequential procedures (including recursion), disjoint finite process-owned
-//! shared procedures and bounded macros are admitted. Unproved process/procedure scopes,
-//! scoped names, sequential procedure modifiers and branch-internal labels
-//! remain separate pending stages. Expression slices retain counted nesting and are
-//! neither syntax-checked as TLA+ expressions nor evaluated.
+//! [`translate`] follows the pinned translator's normalization, scoped renaming,
+//! expression substitution, process/fairness and procedure semantics. Calls use
+//! runtime stack frames, including recursion. Resource limits and generated-name
+//! collisions remain explicit refusals. Expression slices retain counted nesting;
+//! generation checks TLA+ syntax, and the whole-module API separately checks names
+//! and levels. The original source AST is preserved.
 //! No Java runtime is used by this crate.
 //!
 //! ```
@@ -28,11 +28,11 @@ mod translation;
 pub use parser::{Options, parse, parse_at};
 use serde::{Deserialize, Serialize};
 pub use translation::{
-    AlgorithmChecksum, FairnessOption, InsertedLabel, ProcessTranslation, SourceOptionArgument,
-    SourceOptionDeclaration, Translation, TranslationContext, TranslationError, TranslationMap,
-    TranslationOptions, TranslationStage, TranslationWarning, algorithm_checksum_at,
-    resolve_translation_options, source_option_declaration_span, source_options_span, translate,
-    translate_at,
+    AlgorithmChecksum, FairnessOption, InsertedLabel, OriginalAstArtifact, ProcessTranslation,
+    SourceOptionArgument, SourceOptionDeclaration, Translation, TranslationContext,
+    TranslationError, TranslationMap, TranslationOptions, TranslationStage, TranslationWarning,
+    algorithm_checksum_at, original_ast_at, resolve_translation_options,
+    source_option_declaration_span, source_options_span, translate, translate_at,
 };
 
 /// Stable native PlusCal diagnostic categories.

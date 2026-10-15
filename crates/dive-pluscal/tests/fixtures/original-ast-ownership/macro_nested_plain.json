@@ -1,0 +1,9 @@
+{
+  "id": "macro_nested_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0;\nmacro Set(v,a) begin v:=a; end macro;\nmacro Twice(v,a) begin Set(v,a+1); Set(v,a+2); end macro;\nbegin L:Twice(x,3); B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "source-error",
+  "primary_exit": 255,
+  "artifact_exists": false
+}

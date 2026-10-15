@@ -1,0 +1,73 @@
+---- MODULE MultiExtra_C_sets_record_field ----
+EXTENDS Naturals,TLC
+(* --algorithm A { variable g=0;  process (P \in{1,2}) variable x=0; { L: x:=[x |-> 1,y |-> 2,z |-> 3].x; LE: g:=x; }  process (Q \in{3,4}) variable y=0; { M: y:=[x |-> 1,y |-> 2,z |-> 3].x; ME: g:=y; }  process (R \in{5}) variable z=0; { N: z:=[x |-> 1,y |-> 2,z |-> 3].x; NE: g:=z; } } *)
+\* BEGIN TRANSLATION (chksum(pcal) = "db3d0b74" /\ chksum(tla) = "c02fea3f")
+VARIABLES pc, g, x, y, z
+
+vars == << pc, g, x, y, z >>
+
+ProcSet == ({1,2}) \cup ({3,4}) \cup ({5})
+
+Init == (* Global variables *)
+        /\ g = 0
+        (* Process P *)
+        /\ x = [self \in {1,2} |-> 0]
+        (* Process Q *)
+        /\ y = [self \in {3,4} |-> 0]
+        (* Process R *)
+        /\ z = [self \in {5} |-> 0]
+        /\ pc = [self \in ProcSet |-> CASE self \in {1,2} -> "L"
+                                        [] self \in {3,4} -> "M"
+                                        [] self \in {5} -> "N"]
+
+L(self) == /\ pc[self] = "L"
+           /\ x' = [x EXCEPT ![self] = [x |-> 1,y |-> 2,z |-> 3].x]
+           /\ pc' = [pc EXCEPT ![self] = "LE"]
+           /\ UNCHANGED << g, y, z >>
+
+LE(self) == /\ pc[self] = "LE"
+            /\ g' = x[self]
+            /\ pc' = [pc EXCEPT ![self] = "Done"]
+            /\ UNCHANGED << x, y, z >>
+
+P(self) == L(self) \/ LE(self)
+
+M(self) == /\ pc[self] = "M"
+           /\ y' = [y EXCEPT ![self] = [x |-> 1,y |-> 2,z |-> 3].x]
+           /\ pc' = [pc EXCEPT ![self] = "ME"]
+           /\ UNCHANGED << g, x, z >>
+
+ME(self) == /\ pc[self] = "ME"
+            /\ g' = y[self]
+            /\ pc' = [pc EXCEPT ![self] = "Done"]
+            /\ UNCHANGED << x, y, z >>
+
+Q(self) == M(self) \/ ME(self)
+
+N(self) == /\ pc[self] = "N"
+           /\ z' = [z EXCEPT ![self] = [x |-> 1,y |-> 2,z |-> 3].x]
+           /\ pc' = [pc EXCEPT ![self] = "NE"]
+           /\ UNCHANGED << g, x, y >>
+
+NE(self) == /\ pc[self] = "NE"
+            /\ g' = z[self]
+            /\ pc' = [pc EXCEPT ![self] = "Done"]
+            /\ UNCHANGED << x, y, z >>
+
+R(self) == N(self) \/ NE(self)
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
+               /\ UNCHANGED vars
+
+Next == (\E self \in {1,2}: P(self))
+           \/ (\E self \in {3,4}: Q(self))
+           \/ (\E self \in {5}: R(self))
+           \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(\A self \in ProcSet: pc[self] = "Done")
+
+\* END TRANSLATION 
+====

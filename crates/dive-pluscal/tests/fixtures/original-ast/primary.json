@@ -1,0 +1,65 @@
+{
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "controls": [
+    {
+      "id": "write_ast",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "debug": false,
+      "primary_reference": "cases/write_ast",
+      "input_sha256": "5cfde57722648cd638c322420b345b1bbf82f6d328e2cf3884eac8c88a774a17",
+      "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type    |-> \"multiprocess\", \n name  |-> \"A\", \n decls |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs  |-> <<  >>,\n prcds |-> <<>>,\n procs |-> <<[name   |-> \"P\",\n              fairness |-> \"unfair\", minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<>>,\n              eqOrIn |-> \"\\\\in\",\n              id     |-> << \"{\", \"1\", \",\", \"2\", \"}\" >>,\n              decls  |-> <<>>,\n              body   |-> <<[label |-> \"A\",\n                            stmts |-> <<[type |-> \"assignment\",\n                                         ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                     rhs |-> << \"x\", \"+\", \"1\" >>]>>]>>], \n                           [label |-> \"B\",\n                            stmts |-> <<[type |-> \"skip\"]>>]>>]>>]\n==========================\n",
+      "primary_exit": 255
+    },
+    {
+      "id": "debug_write_ast",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "debug": true,
+      "primary_reference": "cases/debug_write_ast",
+      "input_sha256": "5cfde57722648cd638c322420b345b1bbf82f6d328e2cf3884eac8c88a774a17",
+      "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n(*0, 0*)[type    |-> \"multiprocess\", \n         name  |-> \"A\", \n         decls |-> <<(*4, 28*)[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n         defs  |-> <<  >>,\n         prcds |-> <<>>,\n         procs |-> <<(*4, 35*)[name   |-> \"P\",\n                               fairness |-> \"unfair\", minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<>>,\n                               eqOrIn |-> \"\\\\in\",\n                               id     |-> << \"{\", \"1\", \",\", \"2\", \"}\" >>,\n                               decls  |-> <<>>,\n                               body   |-> <<(*4, 64*)[label |-> \"A\",\n                                                      stmts |-> <<(*4, 64*)[type |-> \"assignment\",\n                                                                            ass  |-> <<(*4, 64*)[lhs |-> (*4, 64*)[var |-> \"x\", sub |-> <<  >>],\n                                                                                                 rhs |-> << \"x\", \"+\", \"1\" >>]>>]>>], \n                                            (*4, 79*)[label |-> \"B\",\n                                                      stmts |-> <<(*4, 79*)[type |-> \"skip\"]>>]>>]>>]\n==========================\n",
+      "primary_exit": 255
+    },
+    {
+      "id": "debug",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; process P \\in {1,2} begin A: x := x + 1; B: skip; end process; end algorithm; *)\n====\n",
+      "debug": true,
+      "primary_reference": "cases/debug",
+      "input_sha256": "5cfde57722648cd638c322420b345b1bbf82f6d328e2cf3884eac8c88a774a17",
+      "algorithm_crc": "d5d91e86",
+      "body_crc": "683ac2e8"
+    },
+    {
+      "id": "define_state",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; define H == x + 1 end define; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "debug": false,
+      "original_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> << \"H\", \"==\", \"x\", \"+\", \"1\" >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"A\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"1\" >>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]",
+      "primary_reference": "supplemental-primary/define_state/ast.txt",
+      "input_sha256": "170fd20cc379c48ecad06c59428b8517b8e46df7238d02fbeaaae0cbf63a55ac"
+    },
+    {
+      "id": "define_action",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; define H == x' = x end define; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "debug": false,
+      "original_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> << \"H\", \"==\", \"x\", \"'\", \"=\", \"x\" >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"A\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"1\" >>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]",
+      "primary_reference": "supplemental-primary/define_action/ast.txt",
+      "input_sha256": "68374d8bd3aea8a23dc3d1108b37c5024dfc0cdec4aa2812af9472c7f2b0c9be"
+    },
+    {
+      "id": "define_temporal",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; define H == [] (x = x) end define; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "debug": false,
+      "original_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> << \"H\", \"==\", \"[]\", \"(\", \"x\", \"=\", \"x\", \")\" >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"A\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"1\" >>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]",
+      "primary_reference": "supplemental-primary/define_temporal/ast.txt",
+      "input_sha256": "7ca79f3a29aed58ff3a3d479e35f8e3c00460a0363aa4fe6ecabfd0800e7a350"
+    },
+    {
+      "id": "define_multiline",
+      "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n\n(* --algorithm A variables x = 0; define H == IF x = 0\n THEN x + 1\n ELSE x end define; begin A: x := 1; B: skip; end algorithm; *)\n====\n",
+      "debug": false,
+      "original_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> << \"H\", \"==\", \"IF\", \"x\", \"=\", \"0\"\n, \"THEN\", \"x\", \"+\", \"1\"\n, \"ELSE\", \"x\" >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"A\",\n              stmts |-> <<[type |-> \"assignment\",\n                           ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                       rhs |-> << \"1\" >>]>>]>>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]",
+      "primary_reference": "supplemental-primary/define_multiline/ast.txt",
+      "input_sha256": "0f79b81c62d1c938be8930a352432a850d2e0f17cde7013c6edab27ec82dedc6"
+    }
+  ]
+}

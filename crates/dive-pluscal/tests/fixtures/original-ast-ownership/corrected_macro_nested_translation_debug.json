@@ -1,0 +1,16 @@
+{
+  "id": "corrected_macro_nested_translation_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0;\nmacro Set(v,a) begin v:=a; end macro;\nmacro Twice(v,a) begin Set(v,a+1); Set(v,a+2); end macro;\nbegin L:Twice(x,3); B:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": true,
+  "stage": "post-generation header",
+  "primary_exit": 0,
+  "sany_exit": 0,
+  "algorithm_crc": "9271264e",
+  "body_crc": "cfd3b51",
+  "generated_body": "VARIABLES pc, x\n\nvars == << pc, x >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ x' = 3+1\n     /\\ pc' = \"Lbl_1\"\n\nLbl_1 == /\\ pc = \"Lbl_1\"\n         /\\ x' = 3+2\n         /\\ pc' = \"B\"\n\nB == /\\ pc = \"B\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ x' = x\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ Lbl_1 \\/ B\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\n",
+  "sany_semantic_accepted": true,
+  "sany_warning_count": 1,
+  "sany_embedded_validator_error": true,
+  "sany_original_checksum_validated": false
+}

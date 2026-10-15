@@ -8,6 +8,13 @@ fn words(source: &str) -> Vec<String> {
         .map(|t| source[usize::from(t.range.start())..usize::from(t.range.end())].into())
         .collect()
 }
+fn contains_words(source: &str, expression: &str) -> bool {
+    let expected = words(expression);
+    words(source)
+        .windows(expected.len())
+        .any(|window| window == expected)
+}
+
 fn retained(
     directory: &str,
     selected: usize,
@@ -114,7 +121,7 @@ fn retained(
 }
 #[test]
 fn retained_multiple_process_procedure_artifacts_match() -> Result<(), Box<dyn std::error::Error>> {
-    retained("", 166, 106, 6)
+    retained("", 166, 130, 6)
 }
 #[test]
 fn shared_actions_and_storage_are_not_multiplied_by_process_count()
@@ -122,12 +129,19 @@ fn shared_actions_and_storage_are_not_multiplied_by_process_count()
     let source = "--algorithm A variable x=0; procedure P(a=0) begin F:x:=a; R:return; end procedure; process One \\in {2} begin L:call P(1); E:skip; end process; process Two=1 begin M:call P(2); N:skip; end process; end algorithm";
     let artifact = translate(source, &TranslationOptions::default())?;
     assert_eq!(artifact.actions, ["F", "R", "L", "E", "M", "N"]);
-    assert_eq!(artifact.tla.matches("a = [self").count(), 1);
+    assert_eq!(
+        words(&artifact.tla)
+            .windows(4)
+            .filter(|w| *w == ["a", "=", "[", "self"])
+            .count(),
+        1
+    );
     assert_eq!(artifact.tla.matches("P(self) ==").count(), 1);
-    assert!(artifact.tla.contains(
+    assert!(contains_words(
+        &artifact.tla,
         "Next == Two \\/ (\\E self \\in ProcSet: P(self)) \\/ (\\E self \\in { 2 }: One(self))"
     ));
-    assert!(artifact.tla.contains("a' = [a EXCEPT ![1] = 2]"));
+    assert!(contains_words(&artifact.tla, "a' = [a EXCEPT ![1] = 2]"));
     let options = TranslationOptions {
         max_actions: 5,
         ..TranslationOptions::default()
@@ -148,15 +162,11 @@ fn scopes_and_overlapping_domains_remain_explicit() -> Result<(), Box<dyn std::e
         "--algorithm A variable x=0; procedure P(a=0) begin F:x:=a; R:return; end procedure; process One=1 begin L:call P(1); E:skip; end process; process Two=1 begin M:call P(2); N:skip; end process; end algorithm",
         "--algorithm A variable x=0; procedure P(a=0) begin F:x:=y; R:return; end procedure; process One=1 variable y=0; begin L:call P(1); E:skip; end process; process Two=2 begin M:call P(2); N:skip; end process; end algorithm",
     ] {
-        let error = translate(source, &TranslationOptions::default())
-            .err()
-            .ok_or("refusal")?;
-        assert_eq!(error.diagnostic.code, Code::Unsupported);
-        assert!(
-            source
-                .get(error.diagnostic.span.start..error.diagnostic.span.end)
-                .is_some()
-        );
+        // Symbolic/overlapping domains are emitted exactly as the primary;
+        // translation does not prove that the domains are disjoint or executable.
+        let artifact = translate(source, &TranslationOptions::default())?;
+        assert_eq!(artifact.processes.len(), 2);
+        assert_eq!(artifact.actions, ["F", "R", "L", "E", "M", "N"]);
     }
     Ok(())
 }

@@ -1,0 +1,9 @@
+{
+  "id": "label_if_plain",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC\n(* --algorithm A variables x=0; begin L:if x=0 then skip; T:x:=1; else E:x:=2; end if; B:skip; end algorithm *)\n====\n",
+  "debug": false,
+  "insert_labels": false,
+  "stage": "pre-generation WriteAST",
+  "primary_exit": 255,
+  "original_module": "------ MODULE AST -------\nEXTENDS TLC\nfairness == \"\"\n \nast == \n[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type      |-> \"labelIf\",\n                           test      |-> << \"x\", \"=\", \"0\" >>,\n                           unlabThen |-> <<[type |-> \"skip\"]>>,\n                           labThen   |-> <<[label |-> \"T\",\n                                            stmts |-> <<[type |-> \"assignment\",\n                                                         ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                                     rhs |-> << \"1\" >>]>>]>>]>>,\n                           unlabElse |-> <<>>,\n                           labElse   |-> <<[label |-> \"E\",\n                                            stmts |-> <<[type |-> \"assignment\",\n                                                         ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                                     rhs |-> << \"2\" >>]>>]>>]>>]\n                          >>], \n             [label |-> \"B\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]\n==========================\n"
+}

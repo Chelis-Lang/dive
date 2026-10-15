@@ -352,3 +352,17 @@ options and unsupported language combinations retain named refusals. Periodic
 scheduling and general temporal parity remain incomplete. This source boundary
 adds no measured corpus count; existing measurements retain their producer
 identities. See [the temporal guide](user/temporal.md#ordinary-checking-in-the-tlc-profile).
+
+PlusCal option coverage includes measured termination/fairness defaults,
+noDoneDisjunct, widths, label reporting and sequential version behavior with
+shared effective generation options. Backup/cfg/EOL flags expose in-memory
+preferences. Original-stage bytes have bounded native operations with measured
+original procedure/macro and compound ownership. Specification-backed translators,
+pre-1.5 process/procedure shapes and filesystem writes remain unfinished; full P
+and its primary TLC-versus-native model-checking milestone are still partial.
+
+PlusCal checksum retirement keeps real generated-body CRCs and uses optional exact
+procedure-free algorithm CRCs. Unavailable procedure/header CRCs never gate actual
+translation, rewriting or debug generation. Schema2 removes proof-only reporting;
+current full149/native-versus-primary model checking remains unmeasured and P
+remains partial. Unlike headers do not receive exact-byte agreement credit.

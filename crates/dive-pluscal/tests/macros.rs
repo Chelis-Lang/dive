@@ -101,9 +101,9 @@ fn retained(
 #[test]
 fn pinned_macro_artifacts_rejections_and_uncredited_invalid_output()
 -> Result<(), Box<dyn std::error::Error>> {
-    retained("", 92, 51, 2)?;
-    retained("extra", 48, 27, 2)?;
-    retained("process", 32, 24, 0)?;
+    retained("", 92, 57, 2)?;
+    retained("extra", 48, 30, 3)?;
+    retained("process", 32, 26, 6)?;
     retained("scope", 16, 8, 2)?;
     retained("lexical", 26, 16, 0)?;
     retained("origins", 8, 8, 0)
@@ -148,11 +148,16 @@ fn original_ast_and_all_error_spans_remain_source_owned() -> Result<(), Box<dyn 
     Ok(())
 }
 #[test]
-fn unchanged_scopes_do_not_hide_macro_free_process_names() {
+fn unchanged_scopes_do_not_hide_macro_free_process_names() -> Result<(), Box<dyn std::error::Error>>
+{
     let source = "--algorithm A variable x=0; macro M(v) begin v:=w; end macro; process P=1 variable z=0; begin L: M(z); end process; process Q=2 variable w=0; begin K: skip; end process; end algorithm";
+    let artifact = translate(source, &TranslationOptions::default())?;
     assert!(
-        matches!(translate(source,&TranslationOptions::default()),Err(e) if e.diagnostic.code==Code::Unsupported)
+        words(&artifact.tla)
+            .windows(4)
+            .any(|w| w == ["z", "'", "=", "w"])
     );
+    Ok(())
 }
 
 #[test]

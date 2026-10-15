@@ -1,0 +1,16 @@
+{
+  "id": "owners_sequences_translation_debug",
+  "source": "---- MODULE Case ----\nEXTENDS Naturals, TLC, Sequences\n(* --algorithm A variables x=0;\nprocedure First(a=1) variable local=2; begin F:call Last(a); return; end procedure;\nprocedure Last(b=0) begin T:return; end procedure;\nbegin E:call First(3); B:call Last(4); C:skip; end algorithm *)\n====\n",
+  "debug": true,
+  "insert_labels": false,
+  "stage": "post-generation header",
+  "primary_exit": 0,
+  "sany_exit": 0,
+  "sany_semantic_accepted": true,
+  "sany_warning_count": 1,
+  "sany_embedded_validator_error": false,
+  "sany_original_checksum_validated": false,
+  "algorithm_crc": "b8cfe3ef",
+  "body_crc": "5cd8f98a",
+  "generated_body": "VARIABLES pc, x, stack, a, local, b\n\nvars == << pc, x, stack, a, local, b >>\n\nInit == (* Global variables *)\n        /\\ x = 0\n        (* Procedure First *)\n        /\\ a = 1\n        /\\ local = 2\n        (* Procedure Last *)\n        /\\ b = 0\n        /\\ stack = << >>\n        /\\ pc = \"E\"\n\nF == /\\ pc = \"F\"\n     /\\ /\\ b' = a\n        /\\ local' = Head(stack).local\n        /\\ stack' = << [ procedure |->  \"Last\",\n                         pc        |->  Head(stack).pc,\n                         b         |->  b ] >>\n                     \\o Tail(stack)\n     /\\ pc' = \"T\"\n     /\\ UNCHANGED << x, a >>\n\nFirst == F\n\nT == /\\ pc = \"T\"\n     /\\ pc' = Head(stack).pc\n     /\\ b' = Head(stack).b\n     /\\ stack' = Tail(stack)\n     /\\ UNCHANGED << x, a, local >>\n\nLast == T\n\nE == /\\ pc = \"E\"\n     /\\ /\\ a' = 3\n        /\\ stack' = << [ procedure |->  \"First\",\n                         pc        |->  \"B\",\n                         local     |->  local,\n                         a         |->  a ] >>\n                     \\o stack\n     /\\ local' = 2\n     /\\ pc' = \"F\"\n     /\\ UNCHANGED << x, b >>\n\nB == /\\ pc = \"B\"\n     /\\ /\\ b' = 4\n        /\\ stack' = << [ procedure |->  \"Last\",\n                         pc        |->  \"C\",\n                         b         |->  b ] >>\n                     \\o stack\n     /\\ pc' = \"T\"\n     /\\ UNCHANGED << x, a, local >>\n\nC == /\\ pc = \"C\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, stack, a, local, b >>\n\n(* Allow infinite stuttering to prevent deadlock on termination. *)\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == First \\/ Last \\/ E \\/ B \\/ C\n           \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\n"
+}
