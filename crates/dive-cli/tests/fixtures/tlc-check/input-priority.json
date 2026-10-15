@@ -1,0 +1,76 @@
+{
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "workers": 1,
+  "seed": 7,
+  "fp": 0,
+  "cases": [
+    {
+      "case": "both-missing",
+      "args": [
+        "Missing"
+      ],
+      "exit": 151,
+      "error_code": 5001
+    },
+    {
+      "case": "missing-module",
+      "args": [
+        "Missing",
+        "-config",
+        "Probe"
+      ],
+      "exit": 150,
+      "error_code": 3002
+    },
+    {
+      "case": "missing-config",
+      "args": [
+        "Probe",
+        "-config",
+        "Missing"
+      ],
+      "exit": 151,
+      "error_code": 5001
+    },
+    {
+      "case": "malformed-config",
+      "args": [
+        "Probe",
+        "-config",
+        "Bad"
+      ],
+      "exit": 151,
+      "error_code": 5003
+    },
+    {
+      "case": "missing-module-malformed-config",
+      "args": [
+        "Missing",
+        "-config",
+        "Bad"
+      ],
+      "exit": 151,
+      "error_code": 5003
+    },
+    {
+      "case": "valid",
+      "args": [
+        "Probe"
+      ],
+      "exit": 0,
+      "error_code": null
+    },
+    {
+      "case": "explicit-both-missing",
+      "args": [
+        "Missing.tla",
+        "-config",
+        "Missing.cfg"
+      ],
+      "exit": 151,
+      "error_code": 5001
+    }
+  ]
+}

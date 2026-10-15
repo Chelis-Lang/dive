@@ -229,7 +229,31 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
 /// # Errors
 /// [`crate::ApiError`] if the root file or the configuration cannot be read.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None)
+    check_file_in(req, None, false)
+}
+
+/// Loads and checks files with TLC's configuration-first input error priority.
+///
+/// Used by the `dive tlc` and `tlc` checking entrypoints after resolving their
+/// filenames. Unlike [`check_file`], this reads and parses the configuration
+/// before analyzing the module: an unreadable or malformed configuration wins
+/// when both inputs are invalid. Request defaults and path spellings are unchanged.
+///
+/// ```no_run
+/// use dive_api::{CheckRequest, check_file_tlc_inputs};
+/// let request = CheckRequest {
+///     file: "Counter.tla".into(),
+///     compat_tlc: true,
+///     ..CheckRequest::default()
+/// };
+/// let report = check_file_tlc_inputs(&request)?;
+/// # Ok::<(), dive_api::ApiError>(())
+/// ```
+///
+/// # Errors
+/// [`crate::ApiError`] if the configuration or root file cannot be read.
+pub fn check_file_tlc_inputs(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
+    check_file_in(req, None, true)
 }
 
 /// Runs the first native pure-safety checkpoint/recovery slice. It refuses
@@ -270,7 +294,7 @@ pub fn check_file_checkpoint(
             feature: "native checkpoint with temporal checking is not implemented".into(),
         });
     }
-    check_file_in(req, Some(checkpoint))
+    check_file_in(req, Some(checkpoint), false)
 }
 
 #[allow(
@@ -280,6 +304,7 @@ pub fn check_file_checkpoint(
 fn check_file_in(
     req: &CheckRequest,
     checkpoint: Option<&dive_check::checkpoint::Request>,
+    config_first: bool,
 ) -> Result<CheckReport, crate::ApiError> {
     admit_storage_request(req)?;
     let profile = if req.compat_tlc {
@@ -364,6 +389,18 @@ fn check_file_in(
         temporal: req.temporal,
         phase: Phase::Unlowered(String::new()),
     };
+    // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
+    // (tlaplus 94d0c50). Keep the file API's existing module-first order.
+    let config = if config_first {
+        let cfg = crate::parse_config_file(&cfg_path)?;
+        if !cfg.accepted() {
+            report.phase = Phase::ConfigRejected(Box::new(cfg));
+            return Ok(report);
+        }
+        Some(cfg)
+    } else {
+        None
+    };
     let search = Options {
         search: SearchPath {
             library_paths: req.library_paths.clone(),
@@ -383,7 +420,10 @@ fn check_file_in(
         )));
         return Ok(report);
     }
-    let cfg = crate::parse_config_file(&cfg_path)?;
+    let cfg = match config {
+        Some(cfg) => cfg,
+        None => crate::parse_config_file(&cfg_path)?,
+    };
     let Some(model) = cfg.config().cloned() else {
         report.phase = Phase::ConfigRejected(Box::new(cfg));
         return Ok(report);

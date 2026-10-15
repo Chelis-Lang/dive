@@ -138,8 +138,8 @@ The checking-only TLC adapter uses D-008's existing human/JSON
 reports and D-013's bounded short-lasso selection: `dive tlc -lncheck final`
 selects that backend directly. Tool framing and other TLC mode protocols remain
 named refusals. Filename normalization belongs to the adapter; native file APIs
-are unchanged. Configuration-first input-error priority is not implemented on
-this route. See the
+are unchanged. The adapter reads and parses the configuration first, matching TLC's
+input-error priority. See the
 [checking guide](user/checking.md#tlc-checking-entrypoints).
 
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |

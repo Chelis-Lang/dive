@@ -298,7 +298,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         let _ = write!(out, "{HELP}");
         return ExitCode::SUCCESS;
     }
-    let report = match dive_api::check_file(&parsed.request) {
+    let report = match dive_api::check_file_tlc_inputs(&parsed.request) {
         Ok(report) => report,
         Err(dive_api::ApiError::Unsupported { feature }) => {
             return Failure::Unsupported(feature).emit(err);
