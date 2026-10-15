@@ -56,6 +56,7 @@ mod lazy;
 pub mod next;
 mod options;
 mod random_relation;
+mod recursive;
 mod scope;
 mod std;
 mod svg;
@@ -121,6 +122,7 @@ pub use crate::options::{
     ActionComposition, Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile,
     RECOMMENDED_STACK,
 };
+pub use crate::recursive::RecursiveScopes;
 pub use crate::scope::{Scope, SlotView};
 
 use crate::core::Core;

@@ -206,3 +206,54 @@ lasso search (`product`, `search`), the coordinator (`analyze`), TLC's liveness
 formula classifier for `--compat=tlc` (`tlc_plan::classify`, TLC errors 2213
 and 2214) and the growth trigger for future periodic checks
 (`periodic_backend::Growth`).
+
+## Finite local recursive functions
+
+Pure state predicates and fairness actions can use a finite local recursive
+function, such as allocator-style `PermSeqs(S)`. The recursive self, finite
+domain, formal values and enclosing state/LET captures retain their actual
+interpreter scopes. Planning inspects these without evaluating state-dependent
+domains; execution obtains the concrete bounded contexts in each invocation.
+
+```sh
+dive check crates/dive-liveness/tests/fixtures/recursive-function/PermSeqsScope.tla --config crates/dive-liveness/tests/fixtures/recursive-function/PermSeqsScope-2-Good.cfg --compat=tlc --fp 0 --seed 0 --workers 1 --lncheck final --lasso short --output json
+```
+
+This tiny model requires a Schedule action under weak fairness and checks
+`<>done`. Its two initial elements generate two permutation alternatives,
+including duplicate successor work. Changing the configuration to
+`PermSeqsScope-2-Bad.cfg` checks `[]<>(~done)` and returns a named temporal
+violation with an independently validated periodic word.
+
+The supported recursive body and its domains must be pure state expressions.
+Primed/action/temporal captures, configured recursive actuals, higher-order or
+opaque function forwarding, unsupported native effects, infinite/opaque domains
+and exhausted bounds remain named refusals. Finite domains do not prove
+termination: the interpreter retains its existing recursion errors and limits.
+Unused LET definitions stay lazy.
+
+Recursive source analysis conservatively treats self and formals as state-level
+unknowns, even for a closed constant call. A recursive result therefore cannot
+yet supply a temporal quantifier domain that planning must establish constant.
+This is an analysis limitation, not evidence of an actual state dependency.
+
+Independent fairness enabledness still needs complete finite successor covers
+and checks the original relation. A recursive function supplies no cover by
+itself. Empty domains cannot hide captured or outer primed reads, and missing
+covers cannot become a Disabled result. No planner approval is passed to the
+validator. Both value profiles share this bounded subset; existing defaults,
+options, schemas and resource caps are unchanged.
+
+Seven tiny pinned primary cases cover empty/one/two-element domains, holds,
+fails and a direct control. Original allocator observations retain their earlier
+producer identities and do not qualify this transferred source. No corpus gain
+or roadmap completion is claimed. Fresh review, current-main qualification and
+the full gate remain pending.
+
+A configured first-order target whose body constructs a local recursive function
+also refuses, including through ordinary helpers or lazy bindings. The same
+restriction applies to used or unused recursive actual arguments and actual
+recursive-function slots. Each temporal/finite/independent enabledness walk
+inspects that configured source before evaluating domains or using cached values;
+an empty recursive domain cannot hide a captured primed read or effect. Pure
+unconfigured local recursive functions retain the scoped support described above.

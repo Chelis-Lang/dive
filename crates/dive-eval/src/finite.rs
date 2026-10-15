@@ -33,8 +33,32 @@ impl Evaluator {
             visits: 0,
             analysis: false,
             selectseq: false,
+            recursive_state: false,
+            configured_depth: 0,
 
+            functions: Vec::new(),
             current_sequence: None,
+        }
+        .walk(scope, expr, st, 0)
+    }
+
+    pub(crate) fn check_recursive_analysis(
+        &self,
+        scope: &Scope,
+        expr: ExprId,
+        st: &St,
+        limit: usize,
+    ) -> crate::Result<()> {
+        Guard {
+            evaluator: self,
+            limit,
+            visits: 0,
+            analysis: true,
+            selectseq: false,
+            recursive_state: false,
+            configured_depth: 0,
+            current_sequence: None,
+            functions: Vec::new(),
         }
         .walk(scope, expr, st, 0)
     }
@@ -130,7 +154,10 @@ impl Evaluator {
             visits: 0,
             analysis: true,
             selectseq: true,
+            recursive_state: false,
+            configured_depth: 0,
 
+            functions: Vec::new(),
             current_sequence: current_sequence.cloned(),
         };
         let result: crate::Result<()> = (|| {
@@ -170,7 +197,10 @@ impl Evaluator {
             visits: 0,
             analysis: true,
             selectseq: true,
+            recursive_state: false,
+            configured_depth: 0,
 
+            functions: Vec::new(),
             current_sequence: None,
         };
         let result = guard.native_storage(None, &St::constant(), Some(value));
@@ -252,9 +282,41 @@ struct Guard<'a> {
     visits: usize,
     analysis: bool,
     selectseq: bool,
+    recursive_state: bool,
+    configured_depth: usize,
     current_sequence: Option<dive_value::Fcn>,
+    functions: Vec<std::sync::Arc<crate::LazyFcn>>,
 }
 impl Guard<'_> {
+    fn recursive_function(
+        &mut self,
+        scope: &Scope,
+        function: &std::sync::Arc<crate::LazyFcn>,
+        st: &St,
+        depth: usize,
+    ) -> crate::Result<()> {
+        if self.configured_depth != 0 {
+            return Err(EvalError::unsupported(
+                "recursive function in configured finite context",
+            ));
+        }
+        let bodies = self
+            .evaluator
+            .recursive_function_body_scopes_bounded(scope, function, st, self.limit)?;
+        if self
+            .functions
+            .iter()
+            .any(|old| std::sync::Arc::ptr_eq(old, function))
+        {
+            return Ok(());
+        }
+        self.functions.push(function.clone());
+        for scope in bodies.bindings {
+            self.walk(&scope, bodies.body, &bodies.state, depth + 1)?;
+        }
+        Ok(())
+    }
+
     fn shifted(st: &St) -> St {
         let mut shifted = match &st.s1 {
             StateRef::Vals(after) => St::state(after.clone()),
@@ -303,8 +365,9 @@ impl Guard<'_> {
             ));
         }
         let called = ev.scope_apply(scope, def, args)?;
-        let saved = self.analysis;
+        let saved = (self.analysis, self.configured_depth);
         self.analysis = true;
+        self.configured_depth += 1;
         let result = (|| {
             for arg in args {
                 let Arg::Expr { expr, .. } = arg else {
@@ -314,9 +377,11 @@ impl Guard<'_> {
                 };
                 self.walk(scope, *expr, st, depth + 1)?;
             }
+            // Source-only configured inspection includes the target, not just its actuals.
+            self.walk(&called, target.body, st, depth + 1)?;
             Ok((def, called))
         })();
-        self.analysis = saved;
+        (self.analysis, self.configured_depth) = saved;
         result
     }
 
@@ -610,6 +675,32 @@ impl Guard<'_> {
         let ev = self.evaluator;
         ev.admit_expr(expr)?;
         let node = ev.ir().node(expr);
+        if self.recursive_state
+            && (node.level > dive_ir::Level::State
+                || matches!(
+                    node.expr,
+                    Expr::Prime(_)
+                        | Expr::Unchanged(_)
+                        | Expr::Var { primed: true, .. }
+                        | Expr::StepBox { .. }
+                        | Expr::StepAngle { .. }
+                        | Expr::Cdot(..)
+                        | Expr::Builtin {
+                            op: BuiltinOp::Prime | BuiltinOp::Unchanged | BuiltinOp::Cdot,
+                            ..
+                        }
+                        | Expr::Apply {
+                            callee: OpRef::Builtin(
+                                BuiltinOp::Prime | BuiltinOp::Unchanged | BuiltinOp::Cdot
+                            ),
+                            ..
+                        }
+                ))
+        {
+            return Err(EvalError::unsupported(
+                "action/primed recursive function capture",
+            ));
+        }
         if node
             .effects
             .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
@@ -733,6 +824,12 @@ impl Guard<'_> {
             Expr::Local(local) => {
                 return match ev.scope_slot(scope, *local) {
                     SlotView::Value(_) => Ok(()),
+                    SlotView::Function(_) if self.configured_depth != 0 => Err(
+                        EvalError::unsupported("recursive function in configured finite context"),
+                    ),
+                    SlotView::Function(function) if !self.analysis => {
+                        self.recursive_function(scope, &function, st, depth + 1)
+                    }
                     SlotView::Lazy(body, sc) => self.walk(&sc, body, st, depth + 1),
                     SlotView::AnalysisBound if self.analysis => Ok(()),
                     SlotView::AnalysisBound => Err(EvalError::unsupported(
@@ -772,6 +869,35 @@ impl Guard<'_> {
                     }
                     None => Err(EvalError::unsupported("unbound finite binding constant")),
                 };
+            }
+            Expr::RecFcn { bounds, body, .. } => {
+                if self.configured_depth != 0 {
+                    return Err(EvalError::unsupported(
+                        "recursive function in configured finite context",
+                    ));
+                }
+                if self.analysis {
+                    let saved = self.recursive_state;
+                    self.recursive_state = true;
+                    let result = (|| {
+                        for bound in bounds {
+                            let domain = bound.domain.ok_or_else(|| {
+                                EvalError::unsupported("unbounded recursive domain")
+                            })?;
+                            self.walk(scope, domain, st, depth + 1)?;
+                        }
+                        self.walk(
+                            &ev.scope_binder_analysis(scope, expr)?,
+                            *body,
+                            st,
+                            depth + 1,
+                        )
+                    })();
+                    self.recursive_state = saved;
+                    return result;
+                }
+                let function = ev.scope_recursive_function_bounded(scope, expr, st, self.limit)?;
+                return self.recursive_function(scope, &function, st, depth + 1);
             }
             Expr::Quant { bounds, body, .. }
             | Expr::FcnCons { bounds, body, .. }
@@ -857,7 +983,16 @@ impl Guard<'_> {
                     }
                     if !ev.is_value_override(d) && def.std.is_none() {
                         for arg in args {
-                            if let Arg::Op { op, .. } = arg {
+                            if self.configured_depth != 0 {
+                                let Arg::Expr { expr, .. } = arg else {
+                                    return Err(EvalError::unsupported(
+                                        "higher-order configured finite argument",
+                                    ));
+                                };
+                                // Unused helper actuals retain configured origin too.
+                                // Inspect their caller scope before entering the body.
+                                self.walk(scope, *expr, st, depth + 1)?;
+                            } else if let Arg::Op { op, .. } = arg {
                                 self.operator_context(scope, op, st, depth + 1)?;
                             }
                         }
@@ -1792,6 +1927,71 @@ mod selectseq_tests {
                 .expect_err("foreign explicitly bounded state")
                 .to_string()
                 .contains("foreign")
+        );
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "actual function memo boundary"
+)]
+mod configured_recursive_tests {
+    use super::*;
+    use std::sync::Arc;
+
+    #[test]
+    fn configured_origin_refuses_before_reusing_an_ordinary_function_visit() {
+        let source = "---- MODULE RecursiveMemo ----\nEXTENDS Integers\nR==LET f[t \\in {0}]==IF t=0 THEN TRUE ELSE f[t-1] IN f[0]\n====\n";
+        let analysis =
+            dive_sema::analyze_source("RecursiveMemo.tla", source, &dive_sema::Options::default());
+        assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+        let evaluator = Evaluator::new(
+            crate::Model::new(Arc::new(dive_ir::lower(&analysis).expect("IR"))),
+            crate::Options::tlc(),
+        )
+        .expect("evaluator");
+        let def = evaluator.ir().root_def("R").expect("R");
+        let outer = evaluator.ir().def(def).body;
+        let Expr::Let { defs, .. } = evaluator.ir().expr(outer) else {
+            panic!("LET")
+        };
+        let rec = evaluator.ir().def(defs[0]).body;
+        let scope = evaluator
+            .scope_let(&evaluator.scope(def).expect("scope"), outer)
+            .expect("LET scope");
+        let state = St::constant();
+        let function = evaluator
+            .scope_recursive_function_bounded(&scope, rec, &state, 4096)
+            .expect("actual function");
+        let mut guard = Guard {
+            evaluator: &evaluator,
+            limit: 4096,
+            visits: 0,
+            analysis: false,
+            selectseq: false,
+            recursive_state: false,
+            configured_depth: 0,
+            current_sequence: None,
+            functions: Vec::new(),
+        };
+        guard
+            .recursive_function(&scope, &function, &state, 0)
+            .expect("ordinary inspected function");
+        assert!(
+            guard
+                .functions
+                .iter()
+                .any(|seen| Arc::ptr_eq(seen, &function))
+        );
+        guard.configured_depth = 1;
+        let error = guard
+            .recursive_function(&scope, &function, &state, 0)
+            .expect_err("configured origin precedes memo hit");
+        assert!(
+            error.to_string().contains("configured finite context"),
+            "{error}"
         );
     }
 }
