@@ -89,6 +89,25 @@ dynamic/exported scopes and other unproved constructs refuse. Ordinary strict
 `dive check` retains its temporal refusal. A diagnostic planning/tableau/product
 API that completes has not issued a temporal verdict.
 
+Direct configured operator constants can call nonrecursive top-level user
+operators with ordinary value parameters inside pure state/action predicates.
+The original call and its lazy arguments are retained, including primed
+arguments in fairness actions. For example:
+
+```sh
+dive check conformance/corpus/configured-temporal-operators/specifications/ConfiguredReplyHolds/ConfiguredReplyHolds.tla --compat=tlc --fp 0 --seed 0 --output json
+```
+
+This model configures `Reply <- MCReply`, uses `Reply(0,1,x,x')` as its fair
+action, and checks that `x` eventually becomes 1. The paired
+`ConfiguredReplyFails` model checks `[]<>(x=0)` and has a temporal violation.
+Both value profiles use the same scoped structural checks and existing limits.
+Configured native, recursive, higher-order, value-overridden and temporal
+targets, captured configured operators and substituted operator calls retain
+named refusals. Effects, temporal operands and ENABLED inside a pure atom,
+including unused actual arguments, remain refused. Independent trace replay
+checks the original configured calls separately.
+
 Pure state predicates can call authoritative `Sequences!SelectSeq` with a unary
 user definition or `LAMBDA`, including a known forwarded operator and lexical
 captures. For example, `SelectSeq(<<0,1,0>>, LAMBDA y: y=x)` returns `<<0,0>>`

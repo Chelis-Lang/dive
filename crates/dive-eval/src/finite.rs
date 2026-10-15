@@ -1,7 +1,7 @@
 //! Concrete finite-binding guards for already proved pure predicates.
 
 use crate::{ConstBinding, EvalError, Evaluator, Scope, SlotView, St, StateRef};
-use dive_ir::{Arg, BuiltinOp, Effects, Expr, ExprId, OpRef, StdOp};
+use dive_ir::{Arg, BuiltinOp, ConstId, DefScope, Effects, Expr, ExprId, Level, OpRef, StdOp};
 
 impl Evaluator {
     /// Checks finite constructor/quantifier bindings in the actual state or
@@ -267,6 +267,57 @@ impl Guard<'_> {
         shifted.selectseq.clone_from(&st.selectseq);
         shifted.selectseq_callback = st.selectseq_callback;
         shifted
+    }
+
+    // Direct configured origin is still available here; captured operator
+    // resolution deliberately does not acquire this route. Projection and
+    // unused-actual inspection do not evaluate values or binder domains.
+    fn configured_call(
+        &mut self,
+        scope: &Scope,
+        constant: ConstId,
+        args: &[Arg],
+        st: &St,
+        depth: usize,
+    ) -> crate::Result<(dive_ir::DefId, Scope)> {
+        let ev = self.evaluator;
+        let Some(ConstBinding::Def(def)) = ev.constant_binding(constant) else {
+            return Err(EvalError::unsupported(
+                "unbound/value-bound finite operator",
+            ));
+        };
+        let def = ev.redirected(def);
+        let target = ev.admit_def(def)?;
+        if target.scope != DefScope::TopLevel
+            || target.recursive
+            || target.std.is_some()
+            || ev.is_value_override(def)
+            || target.level > Level::Action
+            || target.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(EvalError::unsupported("configured finite operator target"));
+        }
+        if args.len() > self.limit {
+            return Err(EvalError::resource_limit(
+                "configured finite operator arguments",
+            ));
+        }
+        let called = ev.scope_apply(scope, def, args)?;
+        let saved = self.analysis;
+        self.analysis = true;
+        let result = (|| {
+            for arg in args {
+                let Arg::Expr { expr, .. } = arg else {
+                    return Err(EvalError::unsupported(
+                        "higher-order configured finite argument",
+                    ));
+                };
+                self.walk(scope, *expr, st, depth + 1)?;
+            }
+            Ok((def, called))
+        })();
+        self.analysis = saved;
+        result
     }
 
     fn operator_context(
@@ -661,7 +712,22 @@ impl Guard<'_> {
             Expr::Let { body, .. } => {
                 return self.walk(&ev.scope_let(scope, expr)?, *body, st, depth + 1);
             }
-            Expr::Subst { body, .. } => {
+            Expr::Subst { body, bindings } => {
+                if self.analysis
+                    && bindings.iter().any(|binding| {
+                        matches!(
+                            binding.value,
+                            Arg::Expr {
+                                pass: dive_ir::Pass::Strict,
+                                ..
+                            }
+                        )
+                    })
+                {
+                    return Err(EvalError::unsupported(
+                        "eager substitution in finite analysis",
+                    ));
+                }
                 return self.walk(&ev.scope_subst(scope, expr)?, *body, st, depth + 1);
             }
             Expr::Local(local) => {
@@ -843,7 +909,12 @@ impl Guard<'_> {
                         })??;
                     return self.walk(&called, ev.ir().def(def).body, st, depth + 1);
                 }
-                OpRef::Const(_) | OpRef::Subst(_) => {
+                OpRef::Const(constant) => {
+                    let (def, called) =
+                        self.configured_call(scope, constant, args, st, depth + 1)?;
+                    return self.walk(&called, ev.ir().def(def).body, st, depth + 1);
+                }
+                OpRef::Subst(_) => {
                     return Err(EvalError::unsupported("dynamic finite binding operator"));
                 }
                 _ => None,

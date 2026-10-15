@@ -1,5 +1,10 @@
 # Changelog
 
+- Pure temporal state/action predicates support direct configured first-order
+  user operators with lazy scoped arguments. Native, captured, substituted,
+  recursive and higher-order configured targets retain explicit refusals.
+  Independent trace replay and finite-binding checks inspect the actual body.
+
 - TLC checking entrypoints now read and parse the configuration before the
   module, so missing or malformed configurations exit 151 even when the module
   is also missing. Native commands and existing file APIs retain their input order.
