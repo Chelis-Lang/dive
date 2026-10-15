@@ -1,4 +1,4 @@
-//! Narrow single-binding dispatch for explicitly selected final checking.
+//! Narrow single-binding dispatch for bounded final checking.
 //!
 //! This accepts source/configuration, never a caller-prebound model. The temporal
 //! API calls it on its fresh thread with [`dive_eval::RECOMMENDED_STACK`]. Other
@@ -83,4 +83,17 @@ pub fn dispatch(
             }
         }),
     )
+}
+
+/// Like [`dispatch`], retaining ordinary binding failures as ordinary results.
+///
+/// This uses the same eligibility, startup host and single binding. It must run
+/// on the dedicated evaluation stack described by this module. `None` retains
+/// the caller's original ordinary route without binding or running effects.
+#[must_use]
+pub fn dispatch_ordinary(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> Option<Dispatch> {
+    dispatch(ir, cfg, opts).map(|result| match result {
+        Ok(bound) => bound,
+        Err(failure) => Dispatch::Safety(Box::new(crate::binding_failure(ir, opts, &failure))),
+    })
 }

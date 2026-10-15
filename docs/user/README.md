@@ -2,7 +2,7 @@
 
 Dive currently provides parsing, semantic analysis, bounded native PlusCal
 translation, explicit safety checking, finite simulation, DFID, independent
-trace validation and opt-in final/short temporal checking. Full TLC parity is
+trace validation and bounded final/short temporal checking. Full TLC parity is
 still in progress. A named refusal or resource stop does not establish safety.
 
 | Task | Guide | Current boundary |
@@ -17,7 +17,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
-| Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
+| Check temporal properties | [Temporal checking](temporal.md) | Bounded pure final subset; eligible ordinary TLC profile and explicit final/short |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
 | Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; the separate opt-in safety route is available |
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |

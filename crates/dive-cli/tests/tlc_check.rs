@@ -168,7 +168,8 @@ fn final_spelling_uses_existing_qualified_backend_without_extra_policy_flag() ->
     }
     let output = adapter(
         &words(&[
-            "Temporal", "-config", "FailLive", "-lncheck", "default", "--output", "json",
+            "Temporal", "-config", "FailLive", "-lncheck", "default", "-seed", "0", "-fp", "1",
+            "--output", "json",
         ]),
         &fixtures(),
     )?;
@@ -176,6 +177,48 @@ fn final_spelling_uses_existing_qualified_backend_without_extra_policy_flag() ->
     let doc: Value = serde_json::from_slice(&output.stdout)?;
     assert_eq!(doc["verdict"], "unsupported");
     assert!(doc["counterexample"].is_null());
+    assert_eq!(doc["options"]["fingerprint"]["polynomial_index"], 1);
+    Ok(())
+}
+
+#[test]
+fn ordinary_tlc_profile_uses_validated_final_analysis() -> TestResult {
+    let ordinary = adapter(
+        &words(&[
+            "Temporal", "-config", "FailLive", "-lncheck", "default", "-seed", "0", "-fp", "0",
+            "--output", "json",
+        ]),
+        &fixtures(),
+    )?;
+    assert_eq!(ordinary.status.code(), Some(13));
+    let doc: Value = serde_json::from_slice(&ordinary.stdout)?;
+    assert_eq!(doc["schema_version"], 2);
+    assert_eq!(doc["verdict"], "liveness-violation");
+    assert_eq!(doc["options"]["profile"], "tlc");
+    assert_eq!(doc["options"]["lncheck"], "final");
+    assert_eq!(doc["options"]["lasso"], "short");
+    assert_eq!(doc["options"]["fingerprint"]["polynomial_index"], 0);
+    assert_eq!(doc["execution"]["exhausted"], true);
+    assert_eq!(doc["counterexample"]["validation"], "valid");
+    assert_eq!(doc["property"], "P");
+    assert_eq!(doc["tlc"]["code"], 2116);
+    assert_eq!(doc["tlc"]["name"], "TLC_TEMPORAL_PROPERTY_VIOLATED");
+    assert_eq!(doc["tlc"]["verified"], true);
+    assert_eq!(doc["tlc"]["exit_status"], 13);
+    let model = dive_api::trace::SpecModel::load(
+        &fixtures().join("Temporal.tla"),
+        &fixtures().join("FailLive.cfg"),
+        &dive_api::trace::TraceOptions {
+            compat_tlc: true,
+            run: Some((0, 0)),
+            ..dive_api::trace::TraceOptions::default()
+        },
+    )?;
+    let document = dive_api::trace::TraceDoc::from_json(&doc["counterexample"]["trace"])?;
+    assert_eq!(
+        model.read(&document).0.validation,
+        dive_api::trace::Validation::Valid
+    );
     Ok(())
 }
 

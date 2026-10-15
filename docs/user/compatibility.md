@@ -50,4 +50,9 @@ not every historical TLC release.
 with TLC's value semantics and a short, independently validated lasso. TLC's
 exact lasso choice is not a parity obligation (ADR 0082), so the former
 `--lasso tlc` mode and its `dive-final-tlc` harness mode were removed on
-2026-10-12. Ordinary `--compat=tlc` temporal scheduling remains refused.
+2026-10-12. Eligible ordinary TLC-profile requests select the same bounded final
+analyzer without extra policy flags; the report records the actual final/short
+mode and retains profile `tlc`. See [temporal checking](temporal.md#ordinary-checking-in-the-tlc-profile)
+for fp0/default resident-memory eligibility and explicit limits. Ordinary native
+and excluded temporal routes retain named refusals; periodic scheduling remains
+unimplemented.

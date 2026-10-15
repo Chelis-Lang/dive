@@ -15,7 +15,7 @@ use crate::{AnalyzeReport, ConfigReport};
 /// Version of the JSON document produced by [`CheckReport::to_json`].
 pub const CHECK_SCHEMA_VERSION: u32 = 1;
 
-/// Version of the opt-in final-only temporal JSON document. Ordinary checks
+/// Version of the final-only temporal JSON document. Ordinary safety checks
 /// retain schema 1; version 2 adds periodic endings, claims and mode metadata.
 pub const TEMPORAL_CHECK_SCHEMA_VERSION: u32 = 2;
 
@@ -92,7 +92,8 @@ pub enum Store {
 /// Temporal checking selected explicitly by a caller.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum TemporalMode {
-    /// Ordinary checking, retaining current strict temporal refusals.
+    /// Ordinary checking. Eligible TLC-profile temporal requests use bounded
+    /// final analysis; the dive profile retains its temporal refusals.
     #[default]
     Ordinary,
     /// Bounded final analysis with independently validated short lassos.
@@ -152,7 +153,8 @@ pub struct CheckRequest {
     pub chaos: Option<u64>,
     /// Explicit bounded final-only temporal checking. `FinalShort` changes TLC's
     /// witness selection and labels TLC profiles `tlc+overrides`.
-    /// `Ordinary` retains unimplemented temporal scheduling refusals.
+    /// `Ordinary` also selects final analysis for eligible TLC-profile temporal
+    /// roles, without changing the dive profile's ordinary refusals.
     pub temporal: TemporalMode,
 }
 
@@ -413,6 +415,18 @@ fn check_backend(
     options: &CheckOptions,
     temporal: TemporalMode,
 ) -> Phase {
+    if temporal == TemporalMode::Ordinary
+        && options.profile == Profile::Tlc
+        && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options)
+    {
+        return match result {
+            Ok(report) => match report.outcome() {
+                crate::temporal::Outcome::Safety(result) => Phase::Checked(result.clone()),
+                _ => Phase::Temporal(Box::new(report)),
+            },
+            Err(failure) => Phase::TemporalError(Box::new(failure)),
+        };
+    }
     if temporal == TemporalMode::FinalShort {
         return match crate::temporal::check_final_with_evidence(
             ir,
@@ -431,6 +445,11 @@ fn check_backend(
 }
 
 impl CheckReport {
+    fn temporal_schema(&self) -> bool {
+        self.temporal == TemporalMode::FinalShort
+            || matches!(&self.phase, Phase::Temporal(_) | Phase::TemporalError(_))
+    }
+
     /// The safety checker's result, including a safety stop in final/short
     /// checking. Temporal holds/violations use [`Self::temporal_result`].
     #[must_use]
@@ -683,7 +702,7 @@ impl CheckReport {
         if let Some(disk) = &o.seen_disk {
             options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
         }
-        if self.temporal == TemporalMode::FinalShort {
+        if self.temporal_schema() {
             options["lncheck"] = json!("final");
             options["lasso"] = json!("short");
             options["temporal_bounds"] = temporal_limits_json();
@@ -764,8 +783,8 @@ impl CheckReport {
         }
     }
 
-    /// The JSON document (schema [`CHECK_SCHEMA_VERSION`] for ordinary checks;
-    /// [`TEMPORAL_CHECK_SCHEMA_VERSION`] for explicit final-only requests):
+    /// The JSON document (schema [`CHECK_SCHEMA_VERSION`] for ordinary safety;
+    /// [`TEMPORAL_CHECK_SCHEMA_VERSION`] for final temporal analysis):
     ///
     /// ```text
     /// { "schema_version": 1, "command": "check", "file", "config",
@@ -809,7 +828,7 @@ impl CheckReport {
     #[allow(clippy::too_many_lines, reason = "one document")]
     pub fn to_json(&self) -> Value {
         let mut doc = json!({
-            "schema_version": if self.temporal == TemporalMode::Ordinary { CHECK_SCHEMA_VERSION } else { TEMPORAL_CHECK_SCHEMA_VERSION },
+            "schema_version": if self.temporal_schema() { TEMPORAL_CHECK_SCHEMA_VERSION } else { CHECK_SCHEMA_VERSION },
             "command": "check",
             "file": self.file,
             "config": self.config,
@@ -846,7 +865,18 @@ impl CheckReport {
                 doc["diagnostics"] = c.to_json()["diagnostics"].clone();
             }
             Phase::Unlowered(why) => doc["message"] = Value::from(why.as_str()),
-            Phase::Temporal(r) => temporal_json(&mut doc, r, self.opts.tlc_fingerprints),
+            Phase::Temporal(r) => {
+                temporal_json(&mut doc, r, self.opts.tlc_fingerprints);
+                if self.temporal == TemporalMode::Ordinary {
+                    let violation = matches!(r.outcome(), crate::temporal::Outcome::Violation(_));
+                    doc["execution"]["exhausted"] = json!(true);
+                    doc["tlc"] = if violation {
+                        json!({"code":2116,"name":"TLC_TEMPORAL_PROPERTY_VIOLATED","exit_status":13,"verified":true})
+                    } else {
+                        json!({"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true})
+                    };
+                }
+            }
             Phase::TemporalError(e) => {
                 doc["message"] = json!(e.to_string());
                 doc["diagnostics"] = json!([{"code": e.error().code(), "message": e.to_string()}]);

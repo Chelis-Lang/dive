@@ -37,8 +37,13 @@ semantics. Configurations embedded in `.tla` files retain their named refusal.
 deterministic short lasso. It does not require a second policy flag. Reports
 retain `tlc+overrides`, actual bounds, startup and planning errors, incomplete
 capture and independent periodic-word validation. This selection need not match
-TLC's arbitrary lasso choice. `-lncheck default` retains ordinary checking and
-its current temporal refusals. Other strategies refuse by name. Native
+TLC's arbitrary lasso choice. `-lncheck default` retains ordinary checking.
+With profile-default resident-memory settings and `-fp 0`, eligible pure temporal
+obligations use the same bounded final analyzer, reported as profile `tlc` with
+actual final/short metadata and independent word validation. Other ordinary
+temporal combinations retain named refusals; see [ordinary TLC-profile temporal
+checking](temporal.md#ordinary-checking-in-the-tlc-profile) for exact eligibility.
+Other strategies refuse by name. Native
 `dive check --lncheck final --lasso short` keeps its existing explicit contract.
 
 Every counterexample emitted by this adapter is independently replayed from
@@ -193,8 +198,10 @@ changed-Init controls. The remaining refusals cover two draws, a discarded rando
 branch and conditional random Init. These counts belong to the corrected
 producer; the original failed campaign's 48 refusals remain historical evidence.
 
-Ordinary strict temporal model checking remains unsupported; use the explicit
-[final/short mode](temporal.md) for its supported subset. Refused library
+Eligible ordinary TLC-profile requests use the bounded pure final analyzer;
+other ordinary temporal routes retain named refusals. See [temporal checking](temporal.md#ordinary-checking-in-the-tlc-profile)
+for exact eligibility, actual schemas and limits. The explicit final/short mode
+remains available in either evaluator profile. Refused library
 operators, unknown finite deadlock covers, resource stops and internal failures
 must never be treated as `success`.
 

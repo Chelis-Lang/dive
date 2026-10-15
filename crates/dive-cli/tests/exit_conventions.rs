@@ -8,12 +8,14 @@ impl Drop for Scratch {
     }
 }
 fn scratch() -> Result<Scratch, Box<dyn std::error::Error>> {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     let p = std::env::temp_dir().join(format!(
-        "dive-cli-exits-{}-{}",
+        "dive-cli-exits-{}-{}-{}",
         std::process::id(),
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)?
-            .as_nanos()
+            .as_nanos(),
+        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     ));
     std::fs::create_dir(&p)?;
     Ok(Scratch(p))

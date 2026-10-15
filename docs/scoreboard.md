@@ -341,3 +341,14 @@ Current-parent finite execution passed 140 selected tests with no failures, igno
 | default | 4 | 154 | 91 | 59 | 4 | 0 | 0 |
 
 Historical source/runtime failures, invalid external helpers and review experiments remain preserved and uncredited. This later two-Markdown transfer does not retag measurements; actual source/main CI is separately verified. General API, temporal and TLC parity, broad P/C/M completion and issue #272 remain open; no state-space gain or roadmap completion follows from this bounded change.
+
+### Ordinary TLC-profile temporal boundary
+
+Eligible ordinary TLC-profile requests use the existing bounded pure final
+backend and independently validated short periodic words. Safety-only bound
+roles retain ordinary schema-1 results; actual temporal analysis uses schema 2
+with complete capture counts. Native ordinary temporal checking, excluded
+options and unsupported language combinations retain named refusals. Periodic
+scheduling and general temporal parity remain incomplete. This source boundary
+adds no measured corpus count; existing measurements retain their producer
+identities. See [the temporal guide](user/temporal.md#ordinary-checking-in-the-tlc-profile).
