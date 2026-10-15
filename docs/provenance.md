@@ -1681,3 +1681,17 @@ from existing labels with temporary reusable Boolean scratch, not during search.
 No new TLC algorithm, predicate evaluation, budget policy or oracle observation
 is introduced. Owned/compact finite truth, witness and custom-limit controls
 retain the public owned implementation as a comparison route.
+
+## Direct scalar simulation Init RandomElement
+
+Startup/worker separation follows MIT tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`: `Simulator` constructor/`simulate`,
+`SimulationWorker` seed setup, `RandomEnumerableValues` and `TLC.RandomElement`.
+The implementation reuses existing `dive-stdlib` startup streams and native
+domain behavior, with no algorithm port or independent-validator change.
+Eleven tiny primary observations were captured before production implementation
+from pinned `tlc-2026.10.06.014338` and the configured JRE. Their consumed compact
+fixture records real words, counts, physical exits, errors and Print events;
+raw commands and outputs remain external. The reached Next-random row is a
+refusal boundary, not an agreement. The observations retain their original source
+and binary identities; this adds no corpus or complete-mode claim.
