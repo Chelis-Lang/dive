@@ -384,6 +384,19 @@ impl Core {
                 }
 
                 // --------------------------------------------------------- Bitwise
+                StdOp::BitsAnd => {
+                    // The pinned method's signature requires all four IntValues,
+                    // even though its body only reads the first two.
+                    for i in 0..4 {
+                        if !matches!(v(i)?, Value::Int(_)) {
+                            return Err(refuse_case(op, "an argument that is not a TLC IntValue"));
+                        }
+                        self.java_int(op, v(i)?)?;
+                    }
+                    let x = self.java_int(op, v(0)?)?;
+                    let y = self.java_int(op, v(1)?)?;
+                    Ok(Value::Int(i64::from(x & y)))
+                }
                 StdOp::BitwiseAnd | StdOp::BitwiseOr | StdOp::BitwiseXor => {
                     let x = self.java_int(op, v(0)?)?;
                     let y = self.java_int(op, v(1)?)?;
@@ -1643,6 +1656,7 @@ fn implemented(op: StdOp) -> bool {
             | StdOp::FunctionsFoldFunctionOnSet
             | StdOp::FiniteSetsExtFoldSet
             | StdOp::FiniteSetsExtQuantify
+            | StdOp::BitsAnd
             | StdOp::BitwiseAnd
             | StdOp::BitwiseOr
             | StdOp::BitwiseXor
@@ -1771,6 +1785,9 @@ pub(crate) fn java_signature(op: StdOp) -> Option<&'static str> {
         }
         StdOp::FiniteSetsExtQuantify => {
             "public static tlc2.value.impl.Value tlc2.overrides.FiniteSetsExt.quantify(tlc2.value.impl.Value,tlc2.value.impl.OpValue)"
+        }
+        StdOp::BitsAnd => {
+            "public static tlc2.value.impl.IntValue Bits.And(tlc2.value.impl.IntValue,tlc2.value.impl.IntValue,tlc2.value.impl.IntValue,tlc2.value.impl.IntValue)"
         }
         StdOp::BitwiseAnd => {
             "public static tlc2.value.impl.IntValue tlc2.overrides.Bitwise.And(tlc2.value.impl.IntValue,tlc2.value.impl.IntValue,tlc2.value.impl.IntValue,tlc2.value.impl.IntValue)"

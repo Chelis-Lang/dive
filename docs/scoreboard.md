@@ -366,3 +366,30 @@ procedure-free algorithm CRCs. Unavailable procedure/header CRCs never gate actu
 translation, rewriting or debug generation. Schema2 removes proof-only reporting;
 current full149/native-versus-primary model checking remains unmeasured and P
 remains partial. Unlike headers do not receive exact-byte agreement credit.
+
+## Pinned local Bits native reference candidate
+
+Three retained directTLC4 Hanoi runs report243distinct/907generated/depth33;
+historical native4 and the primary/golden1 report233/768/depth32, with the same
+NotSolved/2110/physical12 and valid32state native words. All raw observations and
+negative comparisons remain historical and are not regraded. The former local-
+class one-worker restriction fenced that stopping-prefix discrepancy. The
+existing comparator uses the one-worker reference for native implementations
+at every width; only TLC oracle self-checks have multiworker leniency.
+
+The proposed revised checker follows the maintained native contract: every
+supported native width compares to the pinned one-worker reference. Required
+verdict/property/class/physicalexit, counts/depth and independent validation of
+the actual concrete native word remain unchanged. This removes only the local
+class width guard; exact class admission and checkpoint class-source identity
+stay binding. General store/effect/capture, simulation and DFID scopes retain
+existing restrictions. No comparator, golden, ExpectedDivergence, queue-order or
+timing exemption changes.
+
+Acceptance requires latest-parent original-MC1 qualification, a separate
+complete-search primary/native1 diagnostic, supported native4 pinned-reference
+and independently validated actual-word controls, fresh review/fullgate/all4/CI.
+Issue #272 remains open; this source proposal is not runtime acceptance.
+
+No existing corpus totals/floors change. General Java support and full Bits/C
+parity remain incomplete. Original negative/invalid attempts remain retained.

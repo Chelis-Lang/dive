@@ -10,6 +10,7 @@ repository.workspace = true
 
 [dependencies]
 dive-ir.workspace = true
+sha2.workspace = true
 dive-value.workspace = true
 dive-config.workspace = true
 # The successor enumerator stays off: the trace validator depends on this

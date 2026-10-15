@@ -90,7 +90,7 @@ use std::sync::Arc;
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 
-pub use bind::BindOptions;
+pub use bind::{BindOptions, HANOI_BITS_CLASS_SHA256, local_java_class_digests};
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
 pub use randomness::transformed_randomness;
@@ -300,6 +300,12 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
         .as_ref()
         .and_then(|n| b.defns.get(&n.text).cloned());
     b.build_evaluator()?;
+    // Evaluator construction completes configuration-arity validation without
+    // executing predicates. Refuse unknown classes before constant definitions,
+    // ASSUMEs or configured roles can run their unlike TLA fallback.
+    if let Some(feature) = b.unsupported.first() {
+        return Err(BindError::unsupported(feature.clone()));
+    }
     b.process_constant_defns()?;
     b.process_config()?;
     if let Some(name) = &b.cfg.periodic {

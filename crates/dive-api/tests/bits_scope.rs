@@ -1,0 +1,437 @@
+//! Pinned local-class checking preserves the one-worker reference across worker widths.
+#![allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "functional file and report assertions"
+)]
+
+use dive_api::{
+    CheckReport, CheckRequest, SimulateRequest, Store, check_file, check_file_checkpoint,
+    check_file_tlc_inputs, checkpoint, simulate_file,
+};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+const CLASS: &[u8] = include_bytes!("../../dive-model/tests/fixtures/bits/Bits.class");
+
+struct Files(PathBuf);
+impl Drop for Files {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+fn setup(class: bool) -> Files {
+    static NEXT: AtomicUsize = AtomicUsize::new(0);
+    let files = loop {
+        let path = std::env::temp_dir().join(format!(
+            "dive-api-bits-scope-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        match std::fs::create_dir(&path) {
+            Ok(()) => break Files(path),
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            other => other.expect("private directory"),
+        }
+    };
+    std::fs::write(
+        files.0.join("Bits.tla"),
+        "---- MODULE Bits ----\nAnd(x,y,n,m) == 99\n====\n",
+    )
+    .expect("TLA fallback");
+    if class {
+        std::fs::write(files.0.join("Bits.class"), CLASS).expect("exact class");
+    }
+    let answer = if class { 3 } else { 99 };
+    std::fs::write(
+        files.0.join("Scope.tla"),
+        format!(
+            "---- MODULE Scope ----\nEXTENDS Naturals, Bits\nVARIABLE x\nInit == x = 0\nNext == x < 3 /\\ x' = x + 1\nInv == And(7,3,0,7) = {answer}\n====\n"
+        ),
+    )
+    .expect("root");
+    std::fs::write(
+        files.0.join("Scope.cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+    )
+    .expect("config");
+    files
+}
+
+fn request(files: &Files, compat_tlc: bool, workers: usize, store: Store) -> CheckRequest {
+    CheckRequest {
+        file: files.0.join("Scope.tla"),
+        compat_tlc,
+        workers: Some(workers),
+        store,
+        seed: Some(7),
+        fp: Some(0),
+        ..CheckRequest::default()
+    }
+}
+
+fn reference(report: &CheckReport, workers: usize, baseline: &serde_json::Value) {
+    assert_eq!(report.verdict(), "success");
+    assert_eq!(report.exit_code(), 0);
+    let json = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
+    assert_eq!(json["exit_code"], 0);
+    assert_eq!(json["options"]["workers"]["requested"], workers);
+    assert_eq!(json["statistics"], baseline["statistics"]);
+    assert!(json["counterexample"].is_null());
+}
+
+fn capture_scope(
+    files: &Files,
+    profile: bool,
+    workers: usize,
+    store: Store,
+    sequential: bool,
+    parallel: bool,
+) {
+    let analysis =
+        dive_sema::analyze_file(&files.0.join("Scope.tla"), &dive_sema::Options::default())
+            .expect("source");
+    let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg =
+        dive_config::parse(&std::fs::read_to_string(files.0.join("Scope.cfg")).expect("config"))
+            .into_config()
+            .expect("configuration");
+    let mut opts = if profile {
+        dive_check::CheckOptions::tlc(0, 7)
+    } else {
+        dive_check::CheckOptions::dive(7)
+    };
+    opts.workers = workers;
+    opts.sequential = sequential;
+    opts.store = match store {
+        Store::Fingerprint => dive_store::StoreMode::Fingerprint,
+        Store::Exact => dive_store::StoreMode::Exact,
+    };
+    let model = dive_model::bind(
+        ir,
+        &cfg,
+        &dive_model::BindOptions {
+            eval: opts.eval,
+            ..dive_model::BindOptions::default()
+        },
+    )
+    .expect("bound local class");
+    let exploration = if parallel {
+        dive_check::capture::explore_concrete_parallel_with_evidence(
+            &model,
+            &opts,
+            dive_check::capture::Limits::default(),
+        )
+        .expect("capture thread")
+    } else {
+        dive_check::capture::explore(&model, &opts, dive_check::capture::Limits::default())
+    };
+    match exploration {
+        dive_check::capture::Exploration::Complete(complete) => {
+            assert_eq!(complete.stats.distinct, 4);
+            assert_eq!(complete.stats.generated, 4);
+            assert_eq!(complete.stats.depth, 4);
+            assert_eq!(complete.stats.left_on_queue, 0);
+        }
+        dive_check::capture::Exploration::Stopped(stop) => {
+            panic!("pure Bits capture must complete: {:?}", stop.verdict);
+        }
+    }
+}
+
+#[test]
+fn pinned_local_class_matches_reference_at_supported_worker_widths() {
+    let files = setup(true);
+    for profile in [false, true] {
+        for store in [Store::Fingerprint, Store::Exact] {
+            let mut req = request(&files, profile, 1, store);
+            let completed = check_file(&req).expect("one worker");
+            assert_eq!(completed.verdict(), "success", "{}", completed.to_json());
+            assert_eq!(completed.exit_code(), 0);
+            assert_eq!(completed.to_json()["statistics"]["distinct"], 4);
+            let baseline = completed.to_json();
+            for workers in [1, 4, 8] {
+                req.workers = Some(workers);
+                for sequential in [false, true] {
+                    req.sequential = sequential;
+                    reference(
+                        &check_file(&req).expect("supported width"),
+                        workers,
+                        &baseline,
+                    );
+                    for parallel in [false, true] {
+                        capture_scope(&files, profile, workers, store, sequential, parallel);
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn unknown_class_refuses_before_constant_roles_assumptions_or_fallback_errors() {
+    let files = setup(true);
+    let mut altered = CLASS.to_vec();
+    let last = altered.len() - 1;
+    altered[last] ^= 1;
+    std::fs::write(files.0.join("Bits.class"), altered).expect("unknown class");
+    for (fallback, assumption) in [
+        ("99", ""),
+        ("99", "ASSUME And(7,3,0,7) = 3\n"),
+        ("1 \\div 0", ""),
+    ] {
+        std::fs::write(
+            files.0.join("Bits.tla"),
+            format!("---- MODULE Bits ----\nEXTENDS Naturals\nAnd(x,y,n,m) == {fallback}\n====\n"),
+        )
+        .expect("unlike fallback");
+        std::fs::write(
+            files.0.join("Scope.tla"),
+            format!("---- MODULE Scope ----\nEXTENDS Naturals, Bits\nVARIABLE x\n{assumption}Init == x=0\nNext == x<3 /\\ x'=x+1\nInv == And(7,3,0,7)=3\n====\n"),
+        )
+        .expect("constant invariant");
+        for profile in [false, true] {
+            let req = request(&files, profile, 4, Store::Fingerprint);
+            for check in [check_file, check_file_tlc_inputs] {
+                let report = check(&req).expect("named refusal");
+                let json = report.to_json();
+                assert_eq!(report.verdict(), "unsupported", "{json}");
+                assert!(
+                    json["message"]
+                        .as_str()
+                        .expect("feature")
+                        .contains("Bits.class")
+                );
+                assert_eq!(json["options"]["workers"]["used"], 0);
+                assert!(json["statistics"].is_null());
+                assert!(json["counterexample"].is_null());
+                assert_eq!(json["output"], serde_json::json!([]));
+            }
+        }
+    }
+}
+
+#[test]
+fn class_refusal_preserves_configuration_binding_priority_and_known_class_execution() {
+    let files = setup(true);
+    std::fs::write(
+        files.0.join("Scope.tla"),
+        "---- MODULE Scope ----\nEXTENDS Naturals, Bits\nVARIABLE x\nInit == x=0\nNext == x<3 /\\ x'=x+1\nInv == And(7,3,0,7)=3\n====\n",
+    )
+    .expect("constant invariant");
+    for profile in [false, true] {
+        let req = request(&files, profile, 1, Store::Fingerprint);
+        for check in [check_file, check_file_tlc_inputs] {
+            let json = check(&req).expect("known class").to_json();
+            assert_eq!(json["verdict"], "success", "{json}");
+            assert_eq!(json["statistics"]["distinct"], 4);
+            assert_eq!(json["statistics"]["generated"], 4);
+            assert_eq!(json["statistics"]["depth"], 4);
+        }
+    }
+    let mut altered = CLASS.to_vec();
+    let last = altered.len() - 1;
+    altered[last] ^= 1;
+    std::fs::write(files.0.join("Bits.class"), altered).expect("unknown class");
+    std::fs::write(
+        files.0.join("Scope.cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nCONSTANT Missing <- Init\nCHECK_DEADLOCK FALSE\n",
+    )
+    .expect("invalid configuration binding");
+    for profile in [false, true] {
+        let req = request(&files, profile, 1, Store::Fingerprint);
+        for check in [check_file, check_file_tlc_inputs] {
+            let json = check(&req).expect("config error").to_json();
+            assert_eq!(json["verdict"], "model-error", "{json}");
+            assert_eq!(json["tlc"]["code"], 2226);
+            assert!(json["statistics"].is_null());
+            assert!(json["counterexample"].is_null());
+        }
+    }
+}
+
+#[test]
+fn class_refusal_preserves_configured_constant_operator_arity_errors() {
+    let files = setup(true);
+    std::fs::write(
+        files.0.join("Scope.tla"),
+        "---- MODULE Scope ----\nEXTENDS Naturals, Bits\nCONSTANT C(_)\nVARIABLE x\nF == TRUE\nInit == x=0\nNext == x'=x\nInv == And(7,3,0,7)=3\n====\n",
+    )
+    .expect("operator constant");
+    std::fs::write(
+        files.0.join("Scope.cfg"),
+        "CONSTANT C <- F\nINIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
+    )
+    .expect("wrong replacement arity");
+    let mut altered = CLASS.to_vec();
+    let last = altered.len() - 1;
+    altered[last] ^= 1;
+    for class in [None, Some(CLASS), Some(altered.as_slice())] {
+        if let Some(class) = class {
+            std::fs::write(files.0.join("Bits.class"), class).expect("class");
+        } else {
+            std::fs::remove_file(files.0.join("Bits.class")).expect("no class");
+        }
+        for profile in [false, true] {
+            let req = request(&files, profile, 1, Store::Fingerprint);
+            for check in [check_file, check_file_tlc_inputs] {
+                let json = check(&req).expect("configuration error").to_json();
+                assert_eq!(json["verdict"], "model-error", "{json}");
+                assert_eq!(json["tlc"]["code"], 2225);
+                assert!(json["statistics"].is_null());
+                assert!(json["counterexample"].is_null());
+            }
+        }
+    }
+}
+
+#[test]
+fn plain_tla_bits_preserves_parallel_checking_and_checkpoint_recovery() {
+    let files = setup(false);
+    for profile in [false, true] {
+        for store in [Store::Fingerprint, Store::Exact] {
+            let req = request(&files, profile, 1, store);
+            let baseline = check_file(&req).expect("TLA fallback").to_json();
+            let path = files.0.join(format!("fallback-{profile}-{store:?}.cp"));
+            let pause = checkpoint::Request {
+                path,
+                action: checkpoint::Action::PauseAfterLevels(1),
+                counters: checkpoint::Counters::Retain,
+                config_source_sha256: None,
+            };
+            assert_eq!(
+                check_file_checkpoint(&req, &pause)
+                    .expect("fallback pause")
+                    .verdict(),
+                "resource-limit"
+            );
+            for workers in [1, 4, 8] {
+                let req = request(&files, profile, workers, store);
+                let complete = check_file(&req).expect("fallback width").to_json();
+                assert_eq!(complete["verdict"], "success");
+                assert_eq!(complete["statistics"], baseline["statistics"]);
+                let resume = checkpoint::Request {
+                    action: checkpoint::Action::Recover,
+                    ..pause.clone()
+                };
+                let resumed = check_file_checkpoint(&req, &resume).expect("fallback recovery");
+                assert_eq!(resumed.verdict(), "success", "{}", resumed.to_json());
+                assert_eq!(resumed.to_json()["statistics"], baseline["statistics"]);
+            }
+        }
+    }
+}
+
+#[test]
+fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_priority() {
+    let files = setup(true);
+    for profile in [false, true] {
+        for store in [Store::Fingerprint, Store::Exact] {
+            let req = request(&files, profile, 1, store);
+            let pause = checkpoint::Request {
+                path: files.0.join(format!("class-{profile}-{store:?}.cp")),
+                action: checkpoint::Action::PauseAfterLevels(1),
+                counters: checkpoint::Counters::Retain,
+                config_source_sha256: None,
+            };
+            let baseline = check_file(&req).expect("reference check").to_json();
+            let paused = check_file_checkpoint(&req, &pause).expect("one-worker pause");
+            assert_eq!(paused.verdict(), "resource-limit");
+            let bytes = std::fs::read(&pause.path).expect("archive");
+            let resume = checkpoint::Request {
+                action: checkpoint::Action::Recover,
+                ..pause.clone()
+            };
+            assert_eq!(
+                check_file_checkpoint(&req, &resume)
+                    .expect("one-worker resume")
+                    .verdict(),
+                "success"
+            );
+            let corrupt_path = files.0.join(format!("corrupt-{profile}-{store:?}.cp"));
+            std::fs::write(&corrupt_path, b"not a checkpoint").expect("corrupt control");
+            for workers in [4, 8] {
+                let req = request(&files, profile, workers, store);
+                let mut width_pause = pause.clone();
+                width_pause.path = files
+                    .0
+                    .join(format!("supported-{profile}-{store:?}-{workers}.cp"));
+                let paused_at_width =
+                    check_file_checkpoint(&req, &width_pause).expect("pause width");
+                assert_eq!(paused_at_width.verdict(), "resource-limit");
+                assert!(width_pause.path.exists());
+                reference(
+                    &check_file_checkpoint(&req, &resume).expect("recovery width"),
+                    workers,
+                    &baseline,
+                );
+                // Direct checker options avoid the API's earlier recovery-default read.
+                let analysis = dive_sema::analyze_file(&req.file, &dive_sema::Options::default())
+                    .expect("source");
+                let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
+                let cfg = dive_config::parse(
+                    &std::fs::read_to_string(req.file.with_extension("cfg")).expect("config"),
+                )
+                .into_config()
+                .expect("configuration");
+                let mut opts = if profile {
+                    dive_check::CheckOptions::tlc(0, 7)
+                } else {
+                    dive_check::CheckOptions::dive(7)
+                };
+                opts.workers = workers;
+                opts.store = match store {
+                    Store::Fingerprint => dive_store::StoreMode::Fingerprint,
+                    Store::Exact => dive_store::StoreMode::Exact,
+                };
+                let corrupt_resume = checkpoint::Request {
+                    path: corrupt_path.clone(),
+                    ..resume.clone()
+                };
+                let corrupt = checkpoint::check(&ir, &cfg, &opts, &corrupt_resume);
+                assert!(matches!(corrupt.check.verdict,
+                    dive_check::Verdict::ResourceLimit { ref message }
+                    if message.contains("DIVE-S0400")));
+                assert_eq!(corrupt.check.workers.used, 0);
+                assert!(corrupt.check.stats.is_none());
+                assert!(corrupt.check.counterexample.is_none());
+                assert!(corrupt.receipt.is_none());
+                assert_eq!(std::fs::read(&pause.path).expect("untouched"), bytes);
+            }
+        }
+    }
+}
+
+#[test]
+fn finite_simulation_keeps_its_separate_worker_contract() {
+    let files = setup(true);
+    for compat_tlc in [false, true] {
+        let mut req = SimulateRequest {
+            file: files.0.join("Scope.tla"),
+            compat_tlc,
+            seed: Some(7),
+            depth: Some(2),
+            traces: 1,
+            workers: Some(1),
+            ..SimulateRequest::default()
+        };
+        let sampled = simulate_file(&req).expect("sample").to_json();
+        assert_eq!(sampled["result"], "sampled");
+        assert_eq!(sampled["model_proved"], false);
+        assert_eq!(sampled["traces"][0]["validation"]["result"], "valid");
+        req.workers = Some(4);
+        let refused = simulate_file(&req)
+            .expect("existing worker boundary")
+            .to_json();
+        assert_eq!(refused["result"], "unsupported");
+        assert_eq!(refused["exit_code"], 3);
+        assert_eq!(refused["options"]["workers_used"], 0);
+        assert!(
+            !refused["message"]
+                .as_str()
+                .expect("reason")
+                .contains("local Bits.class")
+        );
+    }
+}

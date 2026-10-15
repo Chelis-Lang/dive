@@ -1045,7 +1045,10 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 - **Binding refusals** (`dive-model`). Binding a specification to its configuration refuses, naming the feature:
   - a constant operator given values in the `.cfg` (`F(1) = 2`), which TLC holds as a table of values (`OpRcdValue`);
-  - a Java class next to a module (`Bits.class` next to `Bits.tla`): TLC loads it and uses its methods instead of the module's definitions, and dive cannot run Java;
+  - unknown or changed Java classes next to a module: TLC loads them as module
+    overrides, while dive cannot run arbitrary Java. The exact pinned Hanoi
+    `Bits.class` has a native signed-AND port under the native one-worker-reference
+    contract ([D-024](#d-024-pinned-local-bits-checking-requires-one-worker));
   - TLC's undocumented `_PERIODIC`, `_RL_REWARD` and `_POSSIBLE` sections. A `_PERIODIC` entry is bound first, with TLC's errors for an undefined name (2229) or an operator with parameters (2228), and then refused: dive does not run the hook on TLC's wall-clock timer (D-014);
   - a definition TLC evaluates at start-up that dive's evaluator refuses, when the result decides how the model is bound (it is named in the configuration, it is a conjunct of the behavior specification, or it prints or draws), or when the refused construct splits the next-state relation;
   - the few messages whose text depends on Java objects dive does not have (a Java override used as a configuration name, a state variable used as a conjunct of `SPECIFICATION`).
@@ -2797,3 +2800,30 @@ procedure-header alias serialization has been removed. Procedure-free exact CRC
 and original-AST operations remain real features. See the current
 [PlusCal contract](pluscal-translation.md); historical input gaps and model-parity
 obligations remain open.
+
+## D-024: Pinned local Bits checking requires one worker
+
+Historical guard; stable ID/link retained, not reused or converted to an
+ExpectedDivergence entry.
+
+Three retained directTLC4 Hanoi runs report243distinct/907generated/depth33;
+historical native4 and the primary/golden1 report233/768/depth32, with the same
+NotSolved/2110/physical12 and valid32state native words. All raw observations and
+negative comparisons remain historical and are not regraded. The former local-
+class one-worker restriction fenced that stopping-prefix discrepancy. The
+existing comparator uses the one-worker reference for native implementations
+at every width; only TLC oracle self-checks have multiworker leniency.
+
+The proposed revised checker follows the maintained native contract: every
+supported native width compares to the pinned one-worker reference. Required
+verdict/property/class/physicalexit, counts/depth and independent validation of
+the actual concrete native word remain unchanged. This removes only the local
+class width guard; exact class admission and checkpoint class-source identity
+stay binding. General store/effect/capture, simulation and DFID scopes retain
+existing restrictions. No comparator, golden, ExpectedDivergence, queue-order or
+timing exemption changes.
+
+Acceptance requires latest-parent original-MC1 qualification, a separate
+complete-search primary/native1 diagnostic, supported native4 pinned-reference
+and independently validated actual-word controls, fresh review/fullgate/all4/CI.
+Issue #272 remains open; this source proposal is not runtime acceptance.

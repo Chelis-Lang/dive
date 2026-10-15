@@ -27,6 +27,31 @@ a standard module have the same name. Pinned module libraries in the conformance
 harness support oracle studies; they do not turn every library override into
 native functionality.
 
+The exact pinned Examples Hanoi `Bits.class` has a native override for
+exhaustive checking under the native worker/reference contract. Binding
+checks the exact SHA-256 recorded in [provenance](../provenance.md#verified-local-class-overrides)
+before replacing `Bits!And(x,y,n,m)` with signed 32-bit AND of `x` and `y`.
+All four arguments must be TLC 32-bit integers, in both profiles. The class must
+sit beside the resolved `Bits.tla`; without it, the TLA+ body applies. A changed,
+unreadable or unknown class produces a named `unsupported` result. Configuration
+substitution and arity errors retain precedence. The refusal occurs before evaluating constant
+definitions, assumptions or configured predicates, so an unlike TLA+ fallback
+cannot produce a verdict or error for an unimplemented class. Supported-class
+configuration substitutions retain precedence. Native checkpoint/recovery records the exact
+class identity; removing or changing the class rejects recovery. See [storage and recovery](storage-recovery.md).
+Each supported native worker width compares to the pinned one-worker reference,
+with exact required counts/depth, property, class, numeric exit and independent
+validation of its actual concrete word. No-class fallback and general parallel
+restrictions keep their existing behavior. Simulation and DFID retain their own
+contracts; the historical guard is recorded in
+[D-024](../tlc-differences.md#d-024-pinned-local-bits-checking-requires-one-worker).
+This feature does not execute Java plugins.
+From the pinned Examples checkout, the affected model can be checked with:
+
+```sh
+dive check specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.tla --compat=tlc --seed 7 --fp 0 --workers 1 --output json
+```
+
 `RandomElement` and admitted `Randomization` operations use the run's recorded
 seed and mode-specific replay contract. Checker-register operations such as
 `TLCGet` and `TLCSet` need runtime context and can change parallel eligibility.
