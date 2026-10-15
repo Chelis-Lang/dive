@@ -93,6 +93,15 @@ product construction; these are **entry/work counts**, not byte limits or a
 wall-clock deadline, and do not bound the preceding binding stage. Fingerprint mode retains the safety engine's collision
 qualifications; exact mode stores full states.
 
+The coordinator stores acceptance in private flat `u64` bit columns for promises
+and recurrence truth, with one shared product-edge offset vector when recurrences
+are present. Recurrent-edge truth is implicit. Recurrence truth is computed once
+from the existing atom labels during construction, using temporary Boolean scratch;
+search reads the stored bits. Public owned `Product`, `Labels`, `Acceptance` and
+lasso-search APIs retain their representations. Logical acceptance-cell limits
+still charge the same cells at the same construction points. Existing resource
+limits still apply; this is not a total-memory bound.
+
 This API uses final checking and deterministic short-lasso selection. Passing
 `CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.

@@ -525,3 +525,95 @@ fn configured_known_hidden_and_unused_query_actuals_refuse_in_all_four_routes() 
         }
     }
 }
+
+#[test]
+fn forwarded_nested_queries_keep_recurrence_candidates_and_logical_limits() {
+    // Current-parent interaction: nested action queries, fairness recurrences and
+    // first-order temporal forwarding all reach the private compact coordinator.
+    let source = SOURCE
+        .replace(
+            "Hold == []<>(x = 1)",
+            "Relay(p) == p\nHold == Relay([]<>(x = 1))",
+        )
+        .replace("Fail == []<>(x = 2)", "Fail == Relay([]<>(x = 2))");
+    for tlc in [true, false] {
+        for workers in [1, 4] {
+            let options = CheckOptions {
+                workers,
+                ..if tlc {
+                    CheckOptions::tlc(0, 0)
+                } else {
+                    CheckOptions::dive(0)
+                }
+            };
+            for (cfg, fail) in [
+                (include_str!("fixtures/nested-enabled/hold.cfg"), false),
+                (include_str!("fixtures/nested-enabled/fail.cfg"), true),
+            ] {
+                let fresh = || {
+                    let a = dive_sema::analyze_source(
+                        "NestedEnabled.tla",
+                        &source,
+                        &dive_sema::Options::default(),
+                    );
+                    assert!(a.accepted(), "{:?}", a.diagnostics());
+                    dive_model::bind(
+                        Arc::new(dive_ir::lower(&a).expect("IR")),
+                        &dive_config::parse(cfg).into_config().expect("cfg"),
+                        &dive_model::BindOptions {
+                            eval: options.eval,
+                            ..dive_model::BindOptions::tlc()
+                        },
+                    )
+                    .expect("fresh model")
+                };
+                let model = fresh();
+                let result = analyze_final(&model, &options, Limits::default())
+                    .expect("forwarded nested analysis");
+                match result {
+                    Analysis::Holds(c) => {
+                        assert!(!fail);
+                        assert_eq!(
+                            (c.stats.generated, c.stats.distinct, c.stats.depth),
+                            (3, 2, 2)
+                        );
+                    }
+                    Analysis::Candidate(c) => {
+                        assert!(fail);
+                        assert_eq!(c.target_property, "Fail");
+                        let states = c
+                            .states
+                            .iter()
+                            .map(|s| {
+                                let Some(dive_value::Value::Int(x)) = &s[0] else {
+                                    panic!("integer state");
+                                };
+                                json!({"x": x})
+                            })
+                            .collect();
+                        let doc = TraceDoc::behavior(states)
+                            .expect("word")
+                            .with_ending(Ending::Lasso { back_to: c.back_to })
+                            .with_properties(c.properties);
+                        let serialized =
+                            serde_json::to_string(&doc.to_json()).expect("serialize word");
+                        let word = TraceDoc::parse(&serialized).expect("read serialized word");
+                        assert_eq!(
+                            dive_trace::validate_doc(&fresh(), &word, &[]).0.validation,
+                            Validation::Valid
+                        );
+                    }
+                }
+                let mut limits = Limits::default();
+                limits.product.acceptance_cells = 0;
+                assert!(
+                    matches!(
+                        analyze_final(&fresh(), &options, limits),
+                        Err(dive_liveness::analyze::AnalysisError::Product(_))
+                    ),
+                    "packed storage cannot admit a logically refused product"
+                );
+            }
+        }
+    }
+}

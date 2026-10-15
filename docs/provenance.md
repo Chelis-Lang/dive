@@ -1668,3 +1668,16 @@ primary words plus corruptions. Raw physical/tool/input receipts remain external
 No new original-model/corpus agreement, general error parity or universal native
 assignment-work guarantee follows. Existing original-model measurements retain
 their own source and binary identities; current-source qualification is pending.
+
+## Compact internal product acceptance
+
+The coordinator's flat acceptance representation is an original Rust storage
+change over the existing product and deterministic search. It reuses the same
+reachable-pair builder, legacy logical guards, renumbering and original-edge
+projection as public owned products. Promise and recurrence truth are stored in
+flat `u64` columns; one offset vector preserves per-source product-edge positions.
+Recurrent-edge truth is implicit. Recurrences are evaluated once at construction
+from existing labels with temporary reusable Boolean scratch, not during search.
+No new TLC algorithm, predicate evaluation, budget policy or oracle observation
+is introduced. Owned/compact finite truth, witness and custom-limit controls
+retain the public owned implementation as a comparison route.

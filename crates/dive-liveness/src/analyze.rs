@@ -13,7 +13,7 @@ use dive_model::Model;
 use crate::Graph;
 use crate::formula::{self, AtomKind, Recurrence, Tableau};
 use crate::plan::{self, Plan, PlanningError};
-use crate::product::{self, Labels, Product};
+use crate::product::{self, CompactProduct, Labels};
 
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
@@ -666,7 +666,7 @@ fn analyze_captured(
         )?;
         *stage = Stage::Product;
         let product =
-            Product::with_recurrences(&graph, tableau, &labels, conditions, limits.product)
+            CompactProduct::with_recurrences(&graph, tableau, &labels, conditions, limits.product)
                 .map_err(AnalysisError::Product)?;
         if let Some(lasso) = product.find_lasso().map_err(AnalysisError::Product)? {
             let steps = lasso.prefix.iter().chain(&lasso.cycle);

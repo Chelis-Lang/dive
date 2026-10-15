@@ -98,19 +98,48 @@ impl Acceptance {
         }
         Ok(())
     }
+}
+
+/// Internal truth access for owned labels and the coordinator's compact view.
+/// Inputs have already passed their representation's shape validation.
+pub(crate) trait AcceptanceAccess {
+    fn state_count(&self) -> usize;
+    fn action_count(&self) -> usize;
+    fn recurrent(&self, source: usize, edge: usize) -> bool;
+    fn state(&self, condition: usize, vertex: usize) -> bool;
+    fn action(&self, condition: usize, source: usize, edge: usize) -> bool;
 
     fn accepts(&self, graph: &Graph, component: &[usize], members: &[usize], stamp: usize) -> bool {
-        self.states
-            .iter()
-            .all(|row| component.iter().any(|v| row[*v]))
-            && self.actions.iter().all(|rows| {
+        (0..self.state_count()).all(|condition| component.iter().any(|&v| self.state(condition, v)))
+            && (0..self.action_count()).all(|condition| {
                 component.iter().any(|&v| {
-                    graph.edges[v]
-                        .iter()
-                        .enumerate()
-                        .any(|(e, t)| members[*t] == stamp && self.recurrent[v][e] && rows[v][e])
+                    graph.edges[v].iter().enumerate().any(|(e, t)| {
+                        members[*t] == stamp && self.recurrent(v, e) && self.action(condition, v, e)
+                    })
                 })
             })
+    }
+}
+
+impl AcceptanceAccess for Acceptance {
+    fn state_count(&self) -> usize {
+        self.states.len()
+    }
+
+    fn action_count(&self) -> usize {
+        self.actions.len()
+    }
+
+    fn recurrent(&self, source: usize, edge: usize) -> bool {
+        self.recurrent[source][edge]
+    }
+
+    fn state(&self, condition: usize, vertex: usize) -> bool {
+        self.states[condition][vertex]
+    }
+
+    fn action(&self, condition: usize, source: usize, edge: usize) -> bool {
+        self.actions[condition][source][edge]
     }
 }
 
@@ -141,6 +170,13 @@ impl Acceptance {
 /// Malformed label dimensions or an internal witness-construction bug.
 pub fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, SearchError> {
     labels.validate(graph)?;
+    find_lasso_view(graph, labels)
+}
+
+pub(crate) fn find_lasso_view(
+    graph: &Graph,
+    labels: &impl AcceptanceAccess,
+) -> Result<Option<Lasso>, SearchError> {
     let prefix = Paths::new(graph, &graph.roots, |_, _, _| true);
     let restricted = Graph {
         edges: graph
@@ -151,7 +187,7 @@ pub fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, S
                 targets
                     .iter()
                     .enumerate()
-                    .filter_map(|(e, t)| labels.recurrent[v][e].then_some(*t))
+                    .filter_map(|(e, t)| labels.recurrent(v, e).then_some(*t))
                     .collect()
             })
             .collect(),
@@ -262,24 +298,23 @@ impl Paths {
     }
 }
 
-struct Outstanding<'a> {
-    labels: &'a Acceptance,
+struct Outstanding {
     states: Vec<bool>,
     actions: Vec<bool>,
 }
 
-impl Outstanding<'_> {
-    fn visit(&mut self, v: usize) {
-        for (missing, row) in self.states.iter_mut().zip(&self.labels.states) {
-            *missing &= !row[v];
+impl Outstanding {
+    fn visit(&mut self, labels: &impl AcceptanceAccess, v: usize) {
+        for (condition, missing) in self.states.iter_mut().enumerate() {
+            *missing &= !labels.state(condition, v);
         }
     }
 
-    fn traverse(&mut self, steps: &[Step]) {
+    fn traverse(&mut self, labels: &impl AcceptanceAccess, steps: &[Step]) {
         for s in steps {
-            self.visit(s.to);
-            for (missing, rows) in self.actions.iter_mut().zip(&self.labels.actions) {
-                *missing &= !rows[s.from][s.edge];
+            self.visit(labels, s.to);
+            for (condition, missing) in self.actions.iter_mut().enumerate() {
+                *missing &= !labels.action(condition, s.from, s.edge);
             }
         }
     }
@@ -295,7 +330,7 @@ impl Outstanding<'_> {
 )]
 fn covering_cycle(
     graph: &Graph,
-    labels: &Acceptance,
+    labels: &impl AcceptanceAccess,
     inside: &[bool],
     entry: usize,
 ) -> Result<Vec<Step>, SearchError> {
@@ -303,9 +338,9 @@ fn covering_cycle(
     // The caller decides whether it projects to physical stuttering.
     for (edge, &to) in graph.edges[entry].iter().enumerate() {
         if to == entry
-            && labels.recurrent[entry][edge]
-            && labels.states.iter().all(|row| row[entry])
-            && labels.actions.iter().all(|rows| rows[entry][edge])
+            && labels.recurrent(entry, edge)
+            && (0..labels.state_count()).all(|condition| labels.state(condition, entry))
+            && (0..labels.action_count()).all(|condition| labels.action(condition, entry, edge))
         {
             return Ok(vec![Step {
                 from: entry,
@@ -315,14 +350,13 @@ fn covering_cycle(
         }
     }
     let mut missing = Outstanding {
-        labels,
-        states: vec![true; labels.states.len()],
-        actions: vec![true; labels.actions.len()],
+        states: vec![true; labels.state_count()],
+        actions: vec![true; labels.action_count()],
     };
-    missing.visit(entry);
+    missing.visit(labels, entry);
     let mut current = entry;
     let mut cycle = Vec::new();
-    let keep = |v: usize, edge: usize, to: usize| inside[to] && labels.recurrent[v][edge];
+    let keep = |v: usize, edge: usize, to: usize| inside[to] && labels.recurrent(v, edge);
     while !missing.done() {
         let paths = Paths::new(graph, &[current], keep);
         // (distance to discharge, source/node id, optional edge position).
@@ -334,8 +368,8 @@ fn covering_cycle(
             if missing
                 .states
                 .iter()
-                .zip(&labels.states)
-                .any(|(m, row)| *m && row[v])
+                .enumerate()
+                .any(|(condition, m)| *m && labels.state(condition, v))
             {
                 let candidate = (*distance, v, None);
                 if best.is_none_or(|b| candidate < b) {
@@ -347,8 +381,8 @@ fn covering_cycle(
                     && missing
                         .actions
                         .iter()
-                        .zip(&labels.actions)
-                        .any(|(m, rows)| *m && rows[v][edge])
+                        .enumerate()
+                        .any(|(condition, m)| *m && labels.action(condition, v, edge))
                 {
                     let candidate = (*distance + 1, v, Some(edge));
                     if best.is_none_or(|b| candidate < b) {
@@ -371,7 +405,7 @@ fn covering_cycle(
             });
         }
         current = steps.last().map_or(v, |s| s.to);
-        missing.traverse(&steps);
+        missing.traverse(labels, &steps);
         cycle.extend(steps);
     }
     if cycle.is_empty() {
