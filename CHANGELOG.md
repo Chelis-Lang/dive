@@ -1,5 +1,9 @@
 # Changelog
 
+- TLC checking entrypoints now read and parse the configuration before the
+  module, so missing or malformed configurations exit 151 even when the module
+  is also missing. Native commands and existing file APIs retain their input order.
+
 - Reject benchmark goldens whose semantic oracle, ordered classpath or module-
   library pins differ from the configured inputs, before launching a timed child.
   Historical Java/platform details and physical paths remain allowed metadata.

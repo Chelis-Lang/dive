@@ -478,8 +478,8 @@ by default, normalizes module/configuration suffixes and emits existing human or
 JSON check reports. `-lncheck final` directly selects the bounded deterministic
 short-lasso backend (D-013), with its existing limits and independent word
 validation. Tool framing and other TLC mode protocols refuse by name. The
-adapter retains the file API's source-before-configuration checks, so it does
-not reproduce TLC's configuration-first priority when both inputs are invalid.
+adapter reads and parses the configuration before the module, matching TLC's
+input-error priority when both files are invalid.
 See the [entrypoint guide](user/checking.md#tlc-checking-entrypoints) for exact supported
 flags, path resolution and statuses.
 

@@ -117,6 +117,83 @@ fn absolute_root_relative_config_and_existing_aliases_transport_options() -> Tes
 }
 
 #[test]
+fn configuration_errors_precede_module_errors_on_each_tlc_entrypoint() -> TestResult {
+    let primary: Value =
+        serde_json::from_str(include_str!("fixtures/tlc-check/input-priority.json"))?;
+    for case in primary["cases"].as_array().ok_or("primary input cases")? {
+        let mut args = words(&["-seed", "7", "-fp", "0", "--output", "json"]);
+        for arg in case["args"].as_array().ok_or("argv")? {
+            args.push(arg.as_str().ok_or("argument")?.into());
+        }
+        let mut outputs = vec![
+            adapter(&args, &fixtures())?,
+            run(env!("CARGO_BIN_EXE_tlc"), &args, &fixtures())?,
+        ];
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::CommandExt as _;
+            outputs.push(
+                Command::new(env!("CARGO_BIN_EXE_dive"))
+                    .arg0("/renamed/location/tlc")
+                    .args(&args)
+                    .current_dir(fixtures())
+                    .output()?,
+            );
+        }
+        for output in outputs {
+            assert_eq!(output.status.code().map(i64::from), case["exit"].as_i64());
+            match case["error_code"].as_u64() {
+                Some(5001 | 3002) => {
+                    assert_eq!(output.stdout, [] as [u8; 0]);
+                    let error = String::from_utf8(output.stderr)?;
+                    let path = if case["error_code"] == 5001 {
+                        "Missing.cfg"
+                    } else {
+                        "Missing.tla"
+                    };
+                    assert!(error.starts_with("DIVE-X0004: cannot read "));
+                    assert!(error.contains(path), "{error}");
+                }
+                Some(5003) => {
+                    assert_eq!(output.stderr, [] as [u8; 0]);
+                    let doc: Value = serde_json::from_slice(&output.stdout)?;
+                    assert_eq!(doc["verdict"], "rejected");
+                    assert_eq!(doc["diagnostics"][0]["tlc"]["code"], 5003);
+                    assert_eq!(doc["config"], "Bad.cfg");
+                    assert!(doc["statistics"].is_null());
+                }
+                None => {
+                    assert_eq!(output.stderr, [] as [u8; 0]);
+                    let doc: Value = serde_json::from_slice(&output.stdout)?;
+                    assert_eq!(doc["verdict"], "success");
+                    assert_eq!(doc["tlc"]["code"], 2193);
+                    assert_eq!(doc["statistics"]["generated"], 3);
+                    assert_eq!(doc["statistics"]["distinct"], 3);
+                    assert_eq!(doc["statistics"]["depth"], 3);
+                }
+                code => return Err(format!("unexpected primary error {code:?}").into()),
+            }
+        }
+    }
+    // Direct file callers, including TLC evaluation, retain module-first errors.
+    for compat_tlc in [false, true] {
+        for config in ["Missing.cfg", "Bad.cfg"] {
+            let request = dive_api::CheckRequest {
+                file: fixtures().join("Missing.tla"),
+                config: Some(fixtures().join(config)),
+                compat_tlc,
+                ..Default::default()
+            };
+            let Err(dive_api::ApiError::Io { path, .. }) = dive_api::check_file(&request) else {
+                return Err("file API must read the module first".into());
+            };
+            assert_eq!(path, request.file.display().to_string());
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn final_spelling_uses_existing_qualified_backend_without_extra_policy_flag() -> TestResult {
     for (config, exit, verdict) in [
         ("FailLive", 13, "liveness-violation"),
