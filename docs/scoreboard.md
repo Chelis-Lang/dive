@@ -241,10 +241,10 @@ DFID stay partial; schedulers and general coverage remain open.
 
 Ordinary finite one-worker simulation supports direct, captured and configured
 Print/PrintT with separate startup/runtime output and quiet independent word
-validation. Reached random/register/I/O effects remain named refusals; M/#239,
-generation and schedulers remain partial. Print qualification on the latest main,
-fresh review, full gate and publication are pending; the accepted statistics
-measurements above are not retagged onto this candidate. See `docs/user/simulation.md`.
+validation. Reached random outside the supported Init subset, register and I/O
+effects remain named refusals; M/#239, generation and schedulers remain partial.
+The statistics measurements above retain their original source identities. See
+`docs/user/simulation.md`.
 
 ## Checker exit-convention candidate
 
@@ -473,3 +473,14 @@ strong fairness, namespace separation, lexical contexts, source order, corrupted
 words and unsupported placements. These finite fixtures add no measured original
 Elevator or corpus agreement; broader measured coverage remains open. See
 `docs/user/temporal.md`.
+
+## Direct scalar simulation Init random choice
+
+One direct scalar Init RandomElement choice reuses the existing startup stream,
+separately from worker selection. Eleven tiny primary captures precede the
+implementation; supported words/errors/output and explicit Next-random refusal
+are consumed by focused API controls. Nested/correlated, captured/configured,
+wrapped, property and general Next randomness remain unsupported. Low-level
+caller-host startup continuity is refused. This adds no corpus agreement and
+does not close M/#239. Broader simulation support remains open. See
+`docs/user/simulation.md`.

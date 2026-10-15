@@ -83,8 +83,8 @@ it is not substituted for the concrete validation input. All reports contain
 `exhaustive: false` and `model_proved: false`, even when sampling exits zero.
 `sampled` means the requested finite sample completed without finding a bug.
 
-Temporal/fairness simulation, unsupported runtime effects and random operators in the
-specification, unresolved constant-operator effects, compound initial-state
+Temporal/fairness simulation, unsupported runtime effects and random operators outside
+the direct scalar Init subset, unresolved constant-operator effects, compound initial-state
 deep normalization, implied-initial properties, action properties combined with state/action constraints, ALIAS, POSTCONDITION,
 probabilistic/RL simulation, generation, distributed execution, continuation
 after violations, and additional workers remain named refusals. The core
@@ -137,8 +137,9 @@ contract boundary. F-024 and F-035 remain partial and audit-required.
 Actual native calls are checked during evaluation, including captured operator
 arguments and configured logger definitions. Print/PrintT retain their normal
 argument evaluation, rendering and return values. A temporary simulation host
-refuses reached random/register/other host effects before access and restores
-the caller host on return. This uses no callback purity certificate or random
+refuses reached random outside the Init phase or beyond its one-call allowance,
+register access and other host effects before access, then restores the caller
+host on return. This uses no callback purity certificate or random
 replay proof. Existing unsupported model options and startup binding failures
 remain named refusals.
 
@@ -158,9 +159,8 @@ controls are separate from the primary simulation rows. This does not complete
 M/#239, generation, schedulers, DFID or general coverage.
 
 Combined source controls exercise Print with both none/basic action statistics,
-preserving the accepted inventory and chosen-edge contracts. Latest-main native
-qualification, fresh review, full gate and Print publication remain pending.
-Historical scoped/oracle results retain their original source bindings.
+preserving the accepted inventory and chosen-edge contracts. Historical
+scoped/oracle results retain their original source bindings.
 
 
 ## Shared evaluator simulation ownership
@@ -177,4 +177,37 @@ The run lease is operational ownership of the actual shared core. It releases
 after the original host is restored, including error, limit and unsupported
 returns. It introduces no TLS, callback admission or cache authority. The earlier
 external overlap diagnostic and each scoped qualification retain their original
-source bindings. Fresh review, latest-parent transfer and full gates remain pending.
+source bindings.
+
+## Direct scalar Init RandomElement
+
+The producer temporarily enables one actual native RandomElement invocation only
+around `init_states`. It reuses `RunHost` with `Streams::startup`, separately from
+the unchanged worker selection stream. Arguments evaluate before the native
+invocation consumes its allowance, so nested domain errors and reached Print
+output retain evaluation order. A second actual call refuses. The phase closes
+on every return before initial invariants, constraints or sampling.
+
+Low-level `simulate` returns raw candidates: `Outcome::Sampled` can include a
+one-call captured Init expression with a deferred domain. The file/API boundary
+independently validates each word and refuses opaque Init relations. Its supported
+direct single-variable `x = RandomElement(S)` relation checks membership in a
+finite interval or stored scalar set. Captured, configured, wrapped and correlated
+relations remain refused at that boundary. Reached Next/property random calls
+refuse in the runtime host. Independent membership does not certify a particular
+seed draw. No evaluator or validator production changes, new options, dependency
+edges or proof/admission records are introduced.
+
+Low-level models with an installed caller host refuse reached Init randomness:
+its prior startup stream cannot be recovered through the generic host interface.
+An absent host requires the caller to have performed no prior startup random
+draws; removing a host cannot erase that history. The file API retains its
+startup-random refusal. Print-only models keep caller-host support and cleanup.
+
+`tests/fixtures/random-init/oracle.json` contains eleven actual primary captures
+made before implementation with the pinned TLC/JRE: two seeds, aril controls,
+stored-set normalization/Print, initial violation, non-set/empty errors and a
+Next-random boundary. The latter remains an explicit native refusal. The API
+test consumes every row; genuine words and corrupt Init/Next/ending controls use
+fresh independent validation. No old corpus measurement is changed or retagged.
+See [the user guide](../../docs/user/simulation.md) for invocation and limits.
