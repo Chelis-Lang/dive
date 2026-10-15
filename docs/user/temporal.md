@@ -167,6 +167,28 @@ Malformed numeric temporal operands, such as `Bad == <>1`, report
 The process exits 255 in both semantic profiles; `--exit-codes native` selects 13. Effects
 and unsupported scopes still refuse before planning executes them.
 
+Action predicates use the first generated concrete successor for each
+destination identity at a source. Later constructor aliases and the implicit
+stutter do not replace that selected target; exploration still counts every
+generated successor. This matters when TLC distinguishes a function constructor
+from a record during comparison. A single direct `<>[]A` or `[]<>A` action
+operand preserves an actual evaluator `GENERAL` error as `evaluation-error`,
+TLC code 1000 and process exit 255 (`--exit-codes native`: 13). The report names
+the `temporal-action` error site and retains completed capture counts.
+
+This error routing does not establish general temporal error ordering. Synthetic
+nonboolean results and uncertain compound or multiple-property action errors
+remain unsupported. State predicates continue to use canonical captured states;
+some residual-tableau constructor errors still refuse during independent
+validation rather than reproduce TLC's model error. No counterexample is
+published after that refusal. Action-only constant simplification excludes
+eliminated temporal operands only at graph labeling. Existing eager candidate
+attribution and independent validation can still refuse eliminated-action
+candidates; those refusals emit no model error or counterexample. The additional
+bounded normalization uses the existing formula-node and work limits and can
+itself refuse when they are exhausted. Predicate-local lazy Boolean guards
+retain their existing evaluation.
+
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
 151 in both semantic profiles; `--exit-codes native` selects 1. Binding and

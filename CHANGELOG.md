@@ -5,6 +5,18 @@
   recursive and higher-order configured targets retain explicit refusals.
   Independent trace replay and finite-binding checks inspect the actual body.
 
+- Final temporal action labeling uses the first original successor for each
+  destination identity at each source, preserving constructor-sensitive errors
+  and all generated counts. A single direct EA/AE action operand can report its
+  actual evaluator `GENERAL` error as TLC code 1000 / exit 255. Synthetic
+  nonboolean errors and uncertain compound or multiple-property error ordering
+  remain unsupported. Canonical state labeling and residual-tableau validation
+  refusals are unchanged. Bounded constant simplification excludes eliminated
+  action operands only at graph labeling. Existing eager attribution and
+  independent validation can still refuse eliminated-action candidates; those
+  refusals emit no model error or counterexample. This additional action-only
+  normalization can itself exhaust the existing formula limits.
+
 - TLC checking entrypoints now read and parse the configuration before the
   module, so missing or malformed configurations exit 151 even when the module
   is also missing. Native commands and existing file APIs retain their input order.

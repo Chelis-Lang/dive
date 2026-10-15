@@ -1,0 +1,245 @@
+{
+  "issue": 287,
+  "oracle_source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "parameters": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "lncheck": "final"
+  },
+  "scope": "Actual primary observations before implementation; no regenerated goldens. Residual remains unsupported in this repair.",
+  "regression_fixture_sha256": "4e2256cf3ef3beac2197c91d29f325d1528e124c8f3252651cf0bf059265f11d",
+  "series": [
+    {
+      "receipt_sha256": "75f5534f8b9f708a40b62bcdee8c49e01adb1f5803430e297463a09a8ebdb3b6",
+      "inputs": {
+        "ConstructorAlias.tla": "819df9b1c1dfdf91a7accbaabbe98e23f8b68936e4900300ba609f0ef8f11c4b",
+        "action.cfg": "c3d8a1413a5fa3753c2c894f0df4909cbba0b3a258ac28088ebe5d20c37eb4a0",
+        "state.cfg": "d5b91dbc5aa646e51a6f7ab8b1e6b9acc630bb90ad2f2951b04abe43b53603b1"
+      },
+      "primary": [
+        {
+          "label": "primary-action",
+          "physical_exit": 255,
+          "stdout_sha256": "18fce1624f3dd194794564852574741df4dcc9fe328b93fe1181ffb618deae07",
+          "observation_sha256": "94a65573604782f33ad1a9f3e82706a516707176bf4768be28924a10646c52b1",
+          "generated_distinct_queue": [
+            "2",
+            "1",
+            "0"
+          ],
+          "depth": "1",
+          "codes": [
+            2262,
+            2187,
+            2220,
+            2219,
+            2185,
+            2212,
+            2189,
+            2190,
+            2103,
+            1000,
+            2121,
+            2217,
+            2200,
+            2199,
+            2194,
+            2268,
+            2186
+          ]
+        },
+        {
+          "label": "primary-state",
+          "physical_exit": 0,
+          "stdout_sha256": "776709e7a4c191c014cf2cd567821d511291e16e7612dca64d50e11c531e5116",
+          "observation_sha256": "cc173b14e6601da90c1919d345fc14b40f331128148c0f5a7656e006842394b5",
+          "generated_distinct_queue": [
+            "2",
+            "1",
+            "0"
+          ],
+          "depth": "1",
+          "codes": [
+            2262,
+            2187,
+            2220,
+            2219,
+            2185,
+            2212,
+            2189,
+            2190,
+            2200,
+            2192,
+            2267,
+            2193,
+            2200,
+            2199,
+            2194,
+            2268,
+            2186
+          ]
+        }
+      ]
+    },
+    {
+      "receipt_sha256": "9f74145664d47e7544c9ab88f1fe2fd4367079706390305d9821e4e75c28d651",
+      "inputs": {
+        "ConstructorAlias.tla": "fa0960fb566f9e5eaaee0927d975a3dc0c5599cfafdce3fb4af10eb06b912561",
+        "residual.cfg": "06a9484f0ae5c58d91b06f21c64437baa25774c2d817970563c89ca26c839126",
+        "function-first.cfg": "01fba40e9ebc6cc62e6116108974e407c61ec8b65dc3ff50d4d4fd63a772d30b",
+        "record-first.cfg": "10e5e37598f826fab6cdb99dae00929aec46d3c58f416c200f57ca5ea539dbe9"
+      },
+      "primary": [
+        {
+          "label": "primary-function-first",
+          "physical_exit": 0,
+          "stdout_sha256": "5b4bbc1f81236fe1e280c17f8116c422abe6572bc82cd7e05f07c7e96577d408",
+          "observation_sha256": "7260d2acbbe87708d35389ca8d4596cb61676cd26b68e25115d837f4d03334bd",
+          "generated_distinct_queue": [
+            "3",
+            "1",
+            "0"
+          ],
+          "depth": "1",
+          "codes": [
+            2262,
+            2187,
+            2220,
+            2219,
+            2185,
+            2212,
+            2189,
+            2190,
+            2200,
+            2192,
+            2267,
+            2193,
+            2200,
+            2199,
+            2194,
+            2268,
+            2186
+          ]
+        },
+        {
+          "label": "primary-record-first",
+          "physical_exit": 255,
+          "stdout_sha256": "7cffbdf15554ab0b0a6cd5214794a2d5139a1003f9a7b8588a17c06c3cf645ba",
+          "observation_sha256": "f7bc942da52d437edbaebc17945fe012046ac0a484c3ced8bf6b0e97610245dc",
+          "generated_distinct_queue": [
+            "3",
+            "1",
+            "0"
+          ],
+          "depth": "1",
+          "codes": [
+            2262,
+            2187,
+            2220,
+            2219,
+            2185,
+            2212,
+            2189,
+            2190,
+            2103,
+            1000,
+            2121,
+            2217,
+            2200,
+            2199,
+            2194,
+            2268,
+            2186
+          ]
+        },
+        {
+          "label": "primary-residual",
+          "physical_exit": 255,
+          "stdout_sha256": "34eef9893511e701c0d5458f0d5ae159b3d8cbd07153ab5d670d770f85d10185",
+          "observation_sha256": "ba941ca44abf651d543151bfff18bb848f29dd222cc29c6fdf9444269688a40f",
+          "generated_distinct_queue": [
+            "2",
+            "1",
+            "0"
+          ],
+          "depth": "1",
+          "codes": [
+            2262,
+            2187,
+            2220,
+            2219,
+            2185,
+            2212,
+            2189,
+            2190,
+            2103,
+            1000,
+            2121,
+            2217,
+            2200,
+            2199,
+            2194,
+            2268,
+            2186
+          ]
+        }
+      ]
+    },
+    {
+      "label": "corrected-eliminated-action",
+      "receipt_sha256": "3ecb206cf078109ae891a085ca67399d1f3c91ce77b555e4b83bba485c42631f",
+      "module_sha256": "4e2256cf3ef3beac2197c91d29f325d1528e124c8f3252651cf0bf059265f11d",
+      "cfg_sha256": "dd908af4ff004f401819bf3ffe8cb228cf53c7279f315a1f2cea52b98f77aec5",
+      "stdout_sha256": "a948fac0599dabe414d383856881a4eb4976a9e385490c3749cfc0e538bb0c56",
+      "physical_primary_exit": 0,
+      "success2193": true,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1
+    }
+  ],
+  "invalid_preliminary_control": "The unspaced prime/equality form was rejected by the primary parser (physical150, code3002); preserved separately and never credited as an eliminated-action result.",
+  "expected_cases": [
+    {
+      "next": "Next",
+      "property": "ActionCheck",
+      "physical_exit": 255,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1
+    },
+    {
+      "next": "NextRecordFirst",
+      "property": "ActionCheck",
+      "physical_exit": 255,
+      "generated": 3,
+      "distinct": 1,
+      "depth": 1
+    },
+    {
+      "next": "NextFunctionFirst",
+      "property": "ActionCheck",
+      "physical_exit": 0,
+      "generated": 3,
+      "distinct": 1,
+      "depth": 1
+    },
+    {
+      "next": "Next",
+      "property": "StateControl",
+      "physical_exit": 0,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1
+    },
+    {
+      "next": "Next",
+      "property": "EliminatedAction",
+      "physical_exit": 0,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1
+    }
+  ]
+}
