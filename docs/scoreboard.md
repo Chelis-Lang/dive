@@ -15,9 +15,33 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-### Accepted Bits baseline
+### Merged PR #293 baseline
 
-The current accepted Bits tree is `f5c999ff7b91689658eb6c9e55488300386d7598`,
+The merged main is `ade554100631f3f0d380e984d7cb55b3d16f79f4`, from
+source `f0fa88899afc18ee2dae6ba782fe39647d94c12a` with unchanged tree
+`0e3a49b5801881d951ba5a66fcf2787502305778`, merged in
+[PR #293](https://github.com/Chelis-Lang/dive/pull/293). The complete four
+native campaigns retain all 156 IDs, pins, goldens and existing bounds:
+
+| Date | Profile | Workers | Entries | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
+|------|---------|--------:|--------:|------:|------------:|--------------------:|-------------------------------------------:|
+| 2026-10-15 | TLC | 1 | 156 | 134 | 22 | 0 | 0 |
+| 2026-10-15 | TLC | 4 | 156 | 134 | 22 | 0 | 0 |
+| 2026-10-15 | default | 1 | 156 | 92 | 60 | 4 | 0 |
+| 2026-10-15 | default | 4 | 156 | 93 | 60 | 3 | 0 |
+
+The legacy 154-ID subset retains 132 TLC agreements at both widths, and both
+Reply IDs agree, giving the complete 156-ID totals above. All per-ID outcomes
+are preserved. PRs #291–#293 add no original-model agreement. Both native widths use the maintained
+one-worker-reference comparator; this gives no exact TLC4 Hanoi-count credit.
+
+The source full local gate passed 1,941 Rust tests with no skips, 93 doctests,
+456 SANY comparisons, and CM1/validation-smoke at 1/4/8 workers. These
+measurements do not establish full temporal parity or the at-least-95% goal.
+
+### Historical accepted Bits baseline
+
+The historical accepted Bits tree is `f5c999ff7b91689658eb6c9e55488300386d7598`,
 measured at producer `5f9e11505eda76020b9cbd03f2f4ceae6262a937` and merged unchanged
 as `bd8804e8681a1d2c60a62abd58d32ac692512c77` in
 [PR #286](https://github.com/Chelis-Lang/dive/pull/286). The four actual native
@@ -438,3 +462,14 @@ implementation; they do not add original allocator/corpus agreements. Configured
 higher-order/opaque and primed/effectful recursive captures remain refused, with
 existing resource and termination limits. Current-source qualification, fresh
 review and full gates remain pending. See `docs/user/temporal.md`.
+
+## Nested Boolean enabledness candidate
+
+Two primary-first tiny references cover positive/negated inner queries, weak
+fairness, Hold/Fail, generated3/distinct2/depth2 and the actual x0,x1/back0 word.
+The finite subset retains independent complete-cover enabledness and original
+Next/closing-edge validation, with shared nested bounds. Tests also exercise
+strong fairness, namespace separation, lexical contexts, source order, corrupted
+words and unsupported placements. These finite fixtures add no measured original
+Elevator or corpus agreement; broader measured coverage remains open. See
+`docs/user/temporal.md`.

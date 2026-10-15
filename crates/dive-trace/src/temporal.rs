@@ -63,7 +63,7 @@ impl std::error::Error for TemporalError {}
 /// lacks a complete finite cover, side effects,
 /// unbounded/dynamic temporal quantification, opaque scoped atoms, checker introspection or
 /// resource bounds. Direct `ENABLED` uses independent finite covers; opaque
-/// embedded enabledness or missing covers remain explicit refusals. A
+/// embedded enabledness outside ordered Boolean guards or missing covers remain explicit refusals. A
 /// string or model value created after binding under encounter order
 /// refuses ([`crate::RUNTIME_NAMES_UNSUPPORTED`]), whatever the truth.
 pub fn evaluate_lasso(
@@ -128,9 +128,7 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
     let node = model.ir.nodes().get(pred.expr.index()).ok_or_else(|| {
         TemporalError::Unsupported("missing periodic predicate expression".into())
     })?;
-    if node
-        .effects
-        .intersects(Effects::IMPURE | Effects::USES_ENABLED)
+    if node.effects.intersects(Effects::IMPURE)
         || model.evaluator.scope_shares_side_effects(&pred.scope)
     {
         return Err(TemporalError::Unsupported(
@@ -275,10 +273,14 @@ impl Word<'_> {
                 matches!(node.expr, Expr::StepBox { .. }),
             );
         }
-        if self.scoped_level(expr, scope, depth, &mut 0)? <= Level::Action
-            && !node
-                .effects
-                .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
+        let level = self.scoped_level(expr, scope, depth, &mut 0)?;
+        // Keep established state-level temporal lowering (including direct
+        // queries through INSTANCE scopes). Only action-level Boolean bodies
+        // need one atom to preserve reached nested-query error ordering.
+        if level <= Level::Action
+            && !node.effects.intersects(Effects::TEMPORAL)
+            && (!node.effects.contains(Effects::USES_ENABLED)
+                || self.scoped_level_mode(expr, scope, depth, &mut 0, true)? == Level::Action)
         {
             return self.atom(expr, scope);
         }
@@ -444,7 +446,7 @@ impl Word<'_> {
         boxed: bool,
     ) -> Result<Vec<bool>, TemporalError> {
         self.check_atom_context(action, scope)?;
-        self.check_atom_context(sub, scope)?;
+        self.check_scoped_context_mode(sub, scope, 0, &mut 0, false, false)?;
         if self.scoped_level(sub, scope, 0, &mut 0)? > Level::State {
             return Err(TemporalError::Unsupported(
                 "action-level temporal subscript".into(),
@@ -458,6 +460,27 @@ impl Word<'_> {
             } else {
                 i + 1
             };
+            if self
+                .model
+                .ir
+                .node(action)
+                .effects
+                .contains(Effects::USES_ENABLED)
+            {
+                out.push(
+                    crate::exists::action_pure(
+                        self.model,
+                        &Pred::new(action, scope.clone()),
+                        &Pred::new(sub, scope.clone()),
+                        &St::action(state.clone(), self.states[next].clone()),
+                        boxed,
+                    )
+                    .map_err(|e| {
+                        TemporalError::Unsupported(format!("temporal action at position {i}: {e}"))
+                    })?,
+                );
+                continue;
+            }
             let invocation = ev
                 .begin_pure_predicate(
                     scope,
@@ -469,7 +492,7 @@ impl Word<'_> {
                 })?;
             let read = |at: usize| {
                 let st = invocation.at_state(self.states[at].clone());
-                ev.check_finite_bindings(scope, sub, &st, 4096)?;
+                ev.check_finite_data_bindings(scope, sub, &st, 4096)?;
                 ev.eval_scoped_pure(scope, sub, &st, 4096)
             };
             let same = (|| {
@@ -485,7 +508,7 @@ impl Word<'_> {
                 continue;
             }
             let st = invocation;
-            ev.check_finite_bindings(scope, action, &st, 4096)
+            ev.check_finite_data_bindings(scope, action, &st, 4096)
                 .map_err(|e| {
                     TemporalError::Unsupported(format!("temporal action at position {i}: {e}"))
                 })?;
@@ -517,9 +540,30 @@ impl Word<'_> {
                 i + 1
             };
             let st = St::action(state.clone(), self.states[next].clone());
+            if self
+                .model
+                .ir
+                .node(expr)
+                .effects
+                .contains(Effects::USES_ENABLED)
+            {
+                out.push(
+                    crate::exists::boolean_pure(
+                        self.model,
+                        &Pred::new(expr, scope.clone()),
+                        &st,
+                        Limits::default(),
+                        4096,
+                    )
+                    .map_err(|e| {
+                        TemporalError::Unsupported(format!("temporal atom at position {i}: {e}"))
+                    })?,
+                );
+                continue;
+            }
             self.model
                 .evaluator
-                .check_finite_bindings(scope, expr, &st, 4096)
+                .check_finite_data_bindings(scope, expr, &st, 4096)
                 .map_err(|e| {
                     TemporalError::Unsupported(format!("temporal atom at position {i}: {e}"))
                 })?;
@@ -589,6 +633,17 @@ impl Word<'_> {
         };
         let def = self.checked_definition(def)?;
         let target = self.model.ir.def(def);
+        if self
+            .model
+            .ir
+            .node(target.body)
+            .effects
+            .contains(Effects::USES_ENABLED)
+        {
+            return Err(TemporalError::Unsupported(
+                "configured ENABLED target".into(),
+            ));
+        }
         if target.scope != DefScope::TopLevel
             || target.recursive
             || target.std.is_some()
@@ -609,11 +664,11 @@ impl Word<'_> {
                     "higher-order configured temporal argument".into(),
                 ));
             };
-            self.check_scoped_context_mode(*actual, scope, depth + 1, steps, true)?;
+            self.check_scoped_context_mode(*actual, scope, depth + 1, steps, true, false)?;
         }
         // Independently inspect the configured target before any domain evaluation;
         // ordinary recursive-source analysis must not erase this call origin.
-        self.check_scoped_context_mode(target.body, &called, depth + 1, steps, true)?;
+        self.check_scoped_context_mode(target.body, &called, depth + 1, steps, true, false)?;
         Ok((def, called))
     }
 
@@ -659,7 +714,7 @@ impl Word<'_> {
                         "temporal argument inside INSTANCE context".into(),
                     ));
                 }
-                self.forwarded_context(*expr, scope, depth + 1, steps)?;
+                self.forwarded_context_mode(*expr, scope, depth + 1, steps, true)?;
             } else {
                 if level > maximum {
                     return Err(TemporalError::Unsupported(
@@ -675,7 +730,8 @@ impl Word<'_> {
                 .iter()
                 .map(|arg| match arg {
                     Arg::Expr { expr, .. } => ev
-                        .eval_scoped_pure(scope, *expr, &St::constant(), 4096)
+                        .check_finite_data_bindings(scope, *expr, &St::constant(), 4096)
+                        .and_then(|()| ev.eval_scoped_pure(scope, *expr, &St::constant(), 4096))
                         .map_err(|e| {
                             TemporalError::Unsupported(format!("constant temporal argument: {e}"))
                         }),
@@ -811,6 +867,19 @@ impl Word<'_> {
             .map_err(|e| TemporalError::Unsupported(e.to_string()))
     }
 
+    fn forwarded_context(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(), TemporalError> {
+        self.forwarded_context_mode(expr, scope, depth, steps, false)
+    }
+
+    // Independently retain queries only in a first-order temporal expression
+    // actual. Captures/native/provider paths keep query-free inspection, and
+    // actual query or data leaves still pass their original independent guards.
     // Admission proof for a temporal expression argument. Keep its lexical
     // scope; do not force it as a constant or trust a formal's static level.
     // This walk does not interpret temporal truth or materialize binders.
@@ -818,12 +887,13 @@ impl Word<'_> {
         clippy::too_many_lines,
         reason = "explicit retained temporal context admission and refusal paths"
     )]
-    fn forwarded_context(
+    fn forwarded_context_mode(
         &self,
         expr: ExprId,
         scope: &Scope,
         depth: usize,
         steps: &mut usize,
+        temporal_actual: bool,
     ) -> Result<(), TemporalError> {
         let mut todo = vec![(expr, scope.clone(), depth)];
         while let Some((e, sc, depth)) = todo.pop() {
@@ -843,6 +913,11 @@ impl Word<'_> {
             {
                 return Err(TemporalError::Unsupported(
                     "effectful forwarded temporal context".into(),
+                ));
+            }
+            if !temporal_actual && n.effects.contains(Effects::USES_ENABLED) {
+                return Err(TemporalError::Unsupported(
+                    "ENABLED in forwarded operator capture".into(),
                 ));
             }
             match &n.expr {
@@ -1004,16 +1079,27 @@ impl Word<'_> {
     }
 
     // Check actual argument contexts independently of planner annotations.
-    #[allow(
-        clippy::too_many_lines,
-        reason = "independent scoped level resolution and explicit refusal paths"
-    )]
     fn scoped_level(
         &self,
         expr: ExprId,
         scope: &Scope,
         depth: usize,
         steps: &mut usize,
+    ) -> Result<Level, TemporalError> {
+        self.scoped_level_mode(expr, scope, depth, steps, false)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "independent scoped level resolution and explicit refusal paths"
+    )]
+    fn scoped_level_mode(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+        query_state: bool,
     ) -> Result<Level, TemporalError> {
         *steps = steps.saturating_add(1);
         if depth > 256 || *steps > 100_000 {
@@ -1026,10 +1112,17 @@ impl Word<'_> {
         let node = ir.nodes().get(expr.index()).ok_or_else(|| {
             TemporalError::Unsupported("missing scoped temporal expression".into())
         })?;
+        // Routing only: the query operand is an inner successor namespace.
+        // Existing level callers keep their original conservative traversal.
+        if query_state && matches!(node.expr, Expr::Enabled(_)) {
+            return Ok(Level::State);
+        }
         match &node.expr {
             Expr::Prime(body) => {
                 return Ok(
-                    if self.scoped_level(*body, scope, depth + 1, steps)? == Level::Constant {
+                    if self.scoped_level_mode(*body, scope, depth + 1, steps, query_state)?
+                        == Level::Constant
+                    {
                         Level::Constant
                     } else {
                         Level::Action
@@ -1066,7 +1159,13 @@ impl Word<'_> {
             } => {
                 let (def, called) =
                     self.configured_call(expr, scope, *constant, args, depth + 1, steps)?;
-                return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
+                return self.scoped_level_mode(
+                    ir.def(def).body,
+                    &called,
+                    depth + 1,
+                    steps,
+                    query_state,
+                );
             }
             Expr::Apply {
                 callee: OpRef::Param(local),
@@ -1076,20 +1175,28 @@ impl Word<'_> {
                     return Ok(level);
                 }
                 let (def, called) = self.parameter_call(scope, *local, args, depth + 1, steps)?;
-                return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
+                return self.scoped_level_mode(
+                    ir.def(def).body,
+                    &called,
+                    depth + 1,
+                    steps,
+                    query_state,
+                );
             }
             Expr::Subst { body, bindings } => {
                 substitution_is_pure(self.model, scope, bindings)?;
                 let sc = ev
                     .scope_subst(scope, expr)
                     .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
-                return self.scoped_level(*body, &sc, depth + 1, steps);
+                return self.scoped_level_mode(*body, &sc, depth + 1, steps, query_state);
             }
             Expr::SubstRef { decl, primed } => {
                 let level = match ev.scope_subst_slot(scope, *decl) {
                     SlotView::Value(_) => Level::Constant,
                     SlotView::AnalysisBound => Level::State,
-                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1, steps)?,
+                    SlotView::Lazy(e, sc) => {
+                        self.scoped_level_mode(e, &sc, depth + 1, steps, query_state)?
+                    }
                     _ => {
                         return Err(TemporalError::Unsupported(
                             "opaque substituted level".into(),
@@ -1106,13 +1213,15 @@ impl Word<'_> {
                 let sc = ev
                     .scope_let(scope, expr)
                     .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
-                return self.scoped_level(*body, &sc, depth + 1, steps);
+                return self.scoped_level_mode(*body, &sc, depth + 1, steps, query_state);
             }
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
                     SlotView::Value(_) => Ok(Level::Constant),
                     SlotView::AnalysisBound => Ok(Level::State),
-                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1, steps),
+                    SlotView::Lazy(e, sc) => {
+                        self.scoped_level_mode(e, &sc, depth + 1, steps, query_state)
+                    }
                     _ => Err(TemporalError::Unsupported(
                         "opaque scoped temporal level".into(),
                     )),
@@ -1125,14 +1234,26 @@ impl Word<'_> {
                 let d = self.checked_definition(*d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(scope, d, args, depth + 1, steps)?;
-                    return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
+                    return self.scoped_level_mode(
+                        ir.def(d).body,
+                        &sc,
+                        depth + 1,
+                        steps,
+                        query_state,
+                    );
                 }
             }
             Expr::Def(d) => {
                 let d = self.checked_definition(*d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(scope, d, &[], depth + 1, steps)?;
-                    return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
+                    return self.scoped_level_mode(
+                        ir.def(d).body,
+                        &sc,
+                        depth + 1,
+                        steps,
+                        query_state,
+                    );
                 }
             }
             Expr::Quant { body, .. } if node.level != Level::Temporal => {
@@ -1140,7 +1261,13 @@ impl Word<'_> {
                     self.predicate_scopes(expr, scope, depth + 1, steps)?;
                 let mut level = node.level.max(domain_level);
                 for sc in scopes {
-                    level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
+                    level = level.max(self.scoped_level_mode(
+                        *body,
+                        &sc,
+                        depth + 1,
+                        steps,
+                        query_state,
+                    )?);
                 }
                 return Ok(level);
             }
@@ -1152,7 +1279,13 @@ impl Word<'_> {
                     self.predicate_scopes(expr, scope, depth + 1, steps)?;
                 let mut level = node.level.max(domain_level);
                 for sc in scopes {
-                    level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
+                    level = level.max(self.scoped_level_mode(
+                        *body,
+                        &sc,
+                        depth + 1,
+                        steps,
+                        query_state,
+                    )?);
                 }
                 return Ok(level);
             }
@@ -1168,11 +1301,16 @@ impl Word<'_> {
                 .map_err(|error| TemporalError::Unsupported(error.to_string()))?
             {
                 *steps = 100_000 - work;
-                let mut level =
-                    node.level
-                        .max(self.scoped_level(sequence, scope, depth + 1, steps)?);
+                let mut level = node.level.max(self.scoped_level_mode(
+                    sequence,
+                    scope,
+                    depth + 1,
+                    steps,
+                    query_state,
+                )?);
                 for (body, captured) in bodies {
-                    let callback_level = self.scoped_level(body, &captured, depth + 1, steps)?;
+                    let callback_level =
+                        self.scoped_level_mode(body, &captured, depth + 1, steps, query_state)?;
                     if callback_level > Level::State {
                         return Err(TemporalError::Unsupported(
                             "SelectSeq action/temporal callback".into(),
@@ -1185,7 +1323,8 @@ impl Word<'_> {
         }
         let mut level = node.level;
         for child in node.expr.children() {
-            level = level.max(self.scoped_level(child, scope, depth + 1, steps)?);
+            level =
+                level.max(self.scoped_level_mode(child, scope, depth + 1, steps, query_state)?);
         }
         Ok(level)
     }
@@ -1301,7 +1440,20 @@ impl Word<'_> {
     }
 
     fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
-        self.check_scoped_context(expr, scope, 0, &mut 0)
+        if self
+            .model
+            .ir
+            .node(expr)
+            .effects
+            .contains(Effects::USES_ENABLED)
+        {
+            return crate::exists::check_boolean_context(
+                self.model,
+                &Pred::new(expr, scope.clone()),
+            )
+            .map_err(|e| TemporalError::Unsupported(e.to_string()));
+        }
+        self.check_scoped_context_mode(expr, scope, 0, &mut 0, false, false)
     }
 
     fn check_scoped_context(
@@ -1311,7 +1463,7 @@ impl Word<'_> {
         depth: usize,
         steps: &mut usize,
     ) -> Result<(), TemporalError> {
-        self.check_scoped_context_mode(expr, scope, depth, steps, false)
+        self.check_scoped_context_mode(expr, scope, depth, steps, false, true)
     }
 
     #[allow(
@@ -1325,10 +1477,11 @@ impl Word<'_> {
         depth: usize,
         steps: &mut usize,
         inspect_only: bool,
+        allow_queries: bool,
     ) -> Result<(), TemporalError> {
         // ExprId alone is not a context: inspect each distinct application.
-        let mut todo = vec![(expr, scope.clone(), depth)];
-        while let Some((e, scope, depth)) = todo.pop() {
+        let mut todo = vec![(expr, scope.clone(), depth, allow_queries, false)];
+        while let Some((e, scope, depth, query_allowed, inside_query)) = todo.pop() {
             *steps = steps.saturating_add(1);
             if depth > 256 || *steps > 100_000 {
                 return Err(TemporalError::Unsupported(
@@ -1340,16 +1493,72 @@ impl Word<'_> {
             let meta = ir.nodes().get(e.index()).ok_or_else(|| {
                 TemporalError::Unsupported("missing scoped periodic expression".into())
             })?;
-            if meta
-                .effects
-                .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+            if meta.effects.intersects(Effects::IMPURE | Effects::TEMPORAL)
                 || ev.scope_shares_side_effects(&scope)
             {
                 return Err(TemporalError::Unsupported(
                     "effectful/temporal operand in periodic predicate".into(),
                 ));
             }
+            if meta.effects.contains(Effects::USES_ENABLED)
+                && (!query_allowed
+                    || !matches!(
+                        meta.expr,
+                        Expr::StepBox { .. }
+                            | Expr::StepAngle { .. }
+                            | Expr::Enabled(_)
+                            | Expr::Not(_)
+                            | Expr::Junction { .. }
+                            | Expr::Def(_)
+                            | Expr::Apply {
+                                callee: OpRef::Def(_),
+                                ..
+                            }
+                            | Expr::Let { .. }
+                            | Expr::Local(_)
+                            | Expr::Quant {
+                                kind: QuantKind::Forall | QuantKind::Exists,
+                                ..
+                            }
+                            | Expr::Label { .. }
+                            | Expr::Selected(_)
+                    ))
+            {
+                return Err(TemporalError::Unsupported(
+                    "ENABLED outside the Boolean spine or under priming".into(),
+                ));
+            }
             match &meta.expr {
+                Expr::StepBox { action, sub } | Expr::StepAngle { action, sub } => {
+                    todo.push((
+                        *action,
+                        scope.clone(),
+                        depth + 1,
+                        query_allowed,
+                        inside_query,
+                    ));
+                    todo.push((*sub, scope.clone(), depth + 1, false, inside_query));
+                    continue;
+                }
+                Expr::Enabled(action) => {
+                    if !query_allowed || inspect_only || scope.has_substitutions() {
+                        return Err(TemporalError::Unsupported(
+                            "ENABLED outside the Boolean spine or under priming".into(),
+                        ));
+                    }
+                    todo.push((*action, scope.clone(), depth + 1, true, true));
+                    continue;
+                }
+                Expr::Not(body) | Expr::Selected(body) | Expr::Label { body, .. } => {
+                    todo.push((*body, scope.clone(), depth + 1, query_allowed, inside_query));
+                    continue;
+                }
+                Expr::Junction { items, .. } => {
+                    todo.extend(items.iter().map(|item| {
+                        (*item, scope.clone(), depth + 1, query_allowed, inside_query)
+                    }));
+                    continue;
+                }
                 Expr::Cdot(..) => {
                     return Err(TemporalError::Unsupported(
                         crate::COMPOSITION_UNSUPPORTED.to_owned(),
@@ -1359,7 +1568,7 @@ impl Word<'_> {
                     let sc = ev
                         .scope_let(&scope, e)
                         .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
-                    todo.push((*body, sc, depth + 1));
+                    todo.push((*body, sc, depth + 1, query_allowed, inside_query));
                     continue;
                 }
                 Expr::Quant { body, .. }
@@ -1379,11 +1588,17 @@ impl Word<'_> {
                                     scope.clone()
                                 },
                                 depth + 1,
+                                if child == *body { query_allowed } else { false },
+                                inside_query,
                             )
                         }));
                     } else {
                         let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
-                        todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                        todo.extend(
+                            scopes
+                                .into_iter()
+                                .map(|sc| (*body, sc, depth + 1, query_allowed, inside_query)),
+                        );
                     }
                     continue;
                 }
@@ -1394,7 +1609,11 @@ impl Word<'_> {
                 }
                 Expr::RecFcn { body, .. } => {
                     let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
-                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    todo.extend(
+                        scopes
+                            .into_iter()
+                            .map(|sc| (*body, sc, depth + 1, false, inside_query)),
+                    );
                     continue;
                 }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
@@ -1404,8 +1623,15 @@ impl Word<'_> {
                         ));
                     }
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
+                    SlotView::Lazy(body, _)
+                        if inside_query && ir.node(body).level > Level::State =>
+                    {
+                        return Err(TemporalError::Unsupported(
+                            "captured primed ENABLED source".into(),
+                        ));
+                    }
                     SlotView::Lazy(e, sc) => {
-                        todo.push((e, sc, depth + 1));
+                        todo.push((e, sc, depth + 1, query_allowed, inside_query));
                         continue;
                     }
                     _ => {
@@ -1434,13 +1660,20 @@ impl Word<'_> {
                     let sc = ev
                         .scope_subst(&scope, e)
                         .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
-                    todo.push((*body, sc, depth + 1));
+                    todo.push((*body, sc, depth + 1, false, inside_query));
                     continue;
                 }
                 Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
                     SlotView::Value(_) | SlotView::AnalysisBound => {}
+                    SlotView::Lazy(body, _)
+                        if inside_query && ir.node(body).level > Level::State =>
+                    {
+                        return Err(TemporalError::Unsupported(
+                            "captured primed ENABLED source".into(),
+                        ));
+                    }
                     SlotView::Lazy(body, sc) => {
-                        todo.push((body, sc, depth + 1));
+                        todo.push((body, sc, depth + 1, false, inside_query));
                         continue;
                     }
                     _ => {
@@ -1465,7 +1698,7 @@ impl Word<'_> {
                         let sc = ev
                             .scope_enter(&scope, d)
                             .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
-                        todo.push((def.body, sc, depth + 1));
+                        todo.push((def.body, sc, depth + 1, query_allowed, inside_query));
                     }
                     None => {
                         return Err(TemporalError::Unsupported(
@@ -1497,7 +1730,7 @@ impl Word<'_> {
                                 }
                                 todo.extend(args.iter().filter_map(|arg| match arg {
                                     Arg::Expr { expr, .. } => {
-                                        Some((*expr, scope.clone(), depth + 1))
+                                        Some((*expr, scope.clone(), depth + 1, false, inside_query))
                                     }
                                     Arg::Op { .. } => None,
                                 }));
@@ -1507,7 +1740,7 @@ impl Word<'_> {
                             } else {
                                 self.scoped_call(&scope, d, args, depth + 1, steps)?
                             };
-                            todo.push((def.body, sc, depth + 1));
+                            todo.push((def.body, sc, depth + 1, query_allowed, inside_query));
                             continue;
                         }
                         if ev.is_value_override(d) {
@@ -1530,13 +1763,19 @@ impl Word<'_> {
                         }
                         let (def, called) =
                             self.parameter_call(&scope, local, args, depth + 1, steps)?;
-                        todo.push((ir.def(def).body, called, depth + 1));
+                        todo.push((
+                            ir.def(def).body,
+                            called,
+                            depth + 1,
+                            query_allowed,
+                            inside_query,
+                        ));
                         continue;
                     }
                     OpRef::Const(constant) => {
                         let (def, called) =
                             self.configured_call(e, &scope, constant, args, depth + 1, steps)?;
-                        todo.push((ir.def(def).body, called, depth + 1));
+                        todo.push((ir.def(def).body, called, depth + 1, false, inside_query));
                         continue;
                     }
                     OpRef::Subst(_) => {
@@ -1568,9 +1807,9 @@ impl Word<'_> {
                                 "SelectSeq callback context/level".into(),
                             ));
                         }
-                        todo.push((body, captured, depth + 1));
+                        todo.push((body, captured, depth + 1, false, inside_query));
                     }
-                    todo.push((sequence, scope.clone(), depth + 1));
+                    todo.push((sequence, scope.clone(), depth + 1, false, inside_query));
                     continue;
                 }
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
@@ -1583,7 +1822,7 @@ impl Word<'_> {
                 meta.expr
                     .children()
                     .into_iter()
-                    .map(|c| (c, scope.clone(), depth + 1)),
+                    .map(|c| (c, scope.clone(), depth + 1, false, inside_query)),
             );
         }
         Ok(())

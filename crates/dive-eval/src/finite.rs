@@ -25,6 +25,44 @@ impl Evaluator {
         st: &St,
         limit: usize,
     ) -> crate::Result<()> {
+        self.finite_bindings(scope, expr, st, limit, true)
+    }
+
+    /// Checks a data position with the same bounds as [`Self::check_finite_bindings`].
+    /// Traversed expressions refuse `ENABLED`, including queries behind lexical
+    /// helpers or lazy slots. This walk follows concrete instantiated bindings
+    /// and may leave bodies with no bindings unvisited, as in the existing check.
+    /// An unvisited body does not itself cause refusal; other effect and purity
+    /// guards still apply. This source inspection
+    /// does not establish whole-source purity, truth or successor covers. The
+    /// caller must separately establish scoped purity and valid levels.
+    ///
+    /// ```
+    /// # fn check(ev: &dive_eval::Evaluator, scope: &dive_eval::Scope, expr: dive_ir::ExprId, st: &dive_eval::St) -> dive_eval::Result<()> {
+    /// ev.check_finite_data_bindings(scope, expr, st, 4096)
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    /// As [`Self::check_finite_bindings`], and queries in traversed data positions.
+    pub fn check_finite_data_bindings(
+        &self,
+        scope: &Scope,
+        expr: ExprId,
+        st: &St,
+        limit: usize,
+    ) -> crate::Result<()> {
+        self.finite_bindings(scope, expr, st, limit, false)
+    }
+
+    fn finite_bindings(
+        &self,
+        scope: &Scope,
+        expr: ExprId,
+        st: &St,
+        limit: usize,
+        query_allowed: bool,
+    ) -> crate::Result<()> {
         self.validate_scope(scope)?;
         self.admit_scoped_expr(scope, expr)?;
         Guard {
@@ -38,6 +76,8 @@ impl Evaluator {
 
             functions: Vec::new(),
             current_sequence: None,
+            query_allowed,
+            query_depth: 0,
         }
         .walk(scope, expr, st, 0)
     }
@@ -59,6 +99,8 @@ impl Evaluator {
             configured_depth: 0,
             current_sequence: None,
             functions: Vec::new(),
+            query_allowed: false,
+            query_depth: 0,
         }
         .walk(scope, expr, st, 0)
     }
@@ -159,6 +201,8 @@ impl Evaluator {
 
             functions: Vec::new(),
             current_sequence: current_sequence.cloned(),
+            query_allowed: true,
+            query_depth: 0,
         };
         let result: crate::Result<()> = (|| {
             // Actual stored slots, including unused captures, are inspected.
@@ -202,6 +246,8 @@ impl Evaluator {
 
             functions: Vec::new(),
             current_sequence: None,
+            query_allowed: true,
+            query_depth: 0,
         };
         let result = guard.native_storage(None, &St::constant(), Some(value));
         *remaining = initial.saturating_sub(guard.visits);
@@ -276,6 +322,10 @@ impl Evaluator {
     }
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent lexical traversal modes are saved and restored"
+)]
 struct Guard<'a> {
     evaluator: &'a Evaluator,
     limit: usize,
@@ -286,6 +336,8 @@ struct Guard<'a> {
     configured_depth: usize,
     current_sequence: Option<dive_value::Fcn>,
     functions: Vec<std::sync::Arc<crate::LazyFcn>>,
+    query_allowed: bool,
+    query_depth: usize,
 }
 impl Guard<'_> {
     fn recursive_function(
@@ -311,10 +363,16 @@ impl Guard<'_> {
             return Ok(());
         }
         self.functions.push(function.clone());
-        for scope in bodies.bindings {
-            self.walk(&scope, bodies.body, &bodies.state, depth + 1)?;
-        }
-        Ok(())
+        let saved = self.query_allowed;
+        self.query_allowed = false;
+        let result = (|| {
+            for scope in bodies.bindings {
+                self.walk(&scope, bodies.body, &bodies.state, depth + 1)?;
+            }
+            Ok(())
+        })();
+        self.query_allowed = saved;
+        result
     }
 
     fn shifted(st: &St) -> St {
@@ -350,6 +408,14 @@ impl Guard<'_> {
         };
         let def = ev.redirected(def);
         let target = ev.admit_def(def)?;
+        if ev
+            .ir()
+            .node(target.body)
+            .effects
+            .contains(Effects::USES_ENABLED)
+        {
+            return Err(EvalError::unsupported("configured ENABLED target"));
+        }
         if target.scope != DefScope::TopLevel
             || target.recursive
             || target.std.is_some()
@@ -365,9 +431,10 @@ impl Guard<'_> {
             ));
         }
         let called = ev.scope_apply(scope, def, args)?;
-        let saved = (self.analysis, self.configured_depth);
+        let saved = (self.analysis, self.configured_depth, self.query_allowed);
         self.analysis = true;
         self.configured_depth += 1;
+        self.query_allowed = false;
         let result = (|| {
             for arg in args {
                 let Arg::Expr { expr, .. } = arg else {
@@ -381,7 +448,7 @@ impl Guard<'_> {
             self.walk(&called, target.body, st, depth + 1)?;
             Ok((def, called))
         })();
-        (self.analysis, self.configured_depth) = saved;
+        (self.analysis, self.configured_depth, self.query_allowed) = saved;
         result
     }
 
@@ -421,8 +488,9 @@ impl Guard<'_> {
                 (Some(def), analysis)
             }
         };
-        let saved = self.analysis;
+        let saved = (self.analysis, self.query_allowed);
         self.analysis = true;
+        self.query_allowed = false;
         let result: crate::Result<()> = (|| {
             let ceiling = self.limit.saturating_mul(64).min(100_000);
             let mut remaining = ceiling.saturating_sub(self.visits);
@@ -440,7 +508,7 @@ impl Guard<'_> {
             }
             Ok(())
         })();
-        self.analysis = saved;
+        (self.analysis, self.query_allowed) = saved;
         result
     }
 
@@ -663,6 +731,20 @@ impl Guard<'_> {
         Ok(())
     }
 
+    fn walk_data(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        st: &St,
+        depth: usize,
+    ) -> crate::Result<()> {
+        let saved = self.query_allowed;
+        self.query_allowed = false;
+        let result = self.walk(scope, expr, st, depth);
+        self.query_allowed = saved;
+        result
+    }
+
     #[allow(
         clippy::too_many_lines,
         reason = "explicit lexical binding and priming rules"
@@ -701,13 +783,40 @@ impl Guard<'_> {
                 "action/primed recursive function capture",
             ));
         }
-        if node
-            .effects
-            .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+        if node.effects.intersects(Effects::IMPURE | Effects::TEMPORAL)
+            || (self.recursive_state && node.effects.contains(Effects::USES_ENABLED))
             || ev.scope_shares_side_effects(scope)
         {
             return Err(EvalError::unsupported(
                 "effects in finite binding preflight",
+            ));
+        }
+        if node.effects.contains(Effects::USES_ENABLED)
+            && (!self.query_allowed
+                || !matches!(
+                    node.expr,
+                    Expr::StepBox { .. }
+                        | Expr::StepAngle { .. }
+                        | Expr::Enabled(_)
+                        | Expr::Not(_)
+                        | Expr::Junction { .. }
+                        | Expr::Def(_)
+                        | Expr::Apply {
+                            callee: OpRef::Def(_),
+                            ..
+                        }
+                        | Expr::Let { .. }
+                        | Expr::Local(_)
+                        | Expr::Quant {
+                            kind: dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists,
+                            ..
+                        }
+                        | Expr::Label { .. }
+                        | Expr::Selected(_)
+                ))
+        {
+            return Err(EvalError::unsupported(
+                "ENABLED outside the Boolean spine or under priming",
             ));
         }
         if self.selectseq
@@ -772,15 +881,39 @@ impl Guard<'_> {
             ));
         }
         match &node.expr {
-            Expr::Prime(body) => return self.walk(scope, *body, &Self::shifted(st), depth + 1),
+            Expr::Enabled(action) => {
+                if !self.query_allowed || self.selectseq || scope.has_substitutions() {
+                    return Err(EvalError::unsupported("captured/provider ENABLED"));
+                }
+                let inner = match &st.s0 {
+                    StateRef::Vals(state) => st.at_state(state.clone()),
+                    _ => st.at_constant(),
+                };
+                self.query_depth += 1;
+                let result = self.walk(scope, *action, &inner, depth + 1);
+                self.query_depth -= 1;
+                return result;
+            }
+            Expr::Not(body) | Expr::Selected(body) | Expr::Label { body, .. } => {
+                return self.walk(scope, *body, st, depth + 1);
+            }
+            Expr::Junction { items, .. } => {
+                for item in items {
+                    self.walk(scope, *item, st, depth + 1)?;
+                }
+                return Ok(());
+            }
+            Expr::Prime(body) => {
+                return self.walk_data(scope, *body, &Self::shifted(st), depth + 1);
+            }
             Expr::Unchanged(body) => {
-                self.walk(scope, *body, st, depth + 1)?;
-                return self.walk(scope, *body, &Self::shifted(st), depth + 1);
+                self.walk_data(scope, *body, st, depth + 1)?;
+                return self.walk_data(scope, *body, &Self::shifted(st), depth + 1);
             }
             Expr::StepBox { action, sub } | Expr::StepAngle { action, sub } => {
                 self.walk(scope, *action, st, depth + 1)?;
-                self.walk(scope, *sub, st, depth + 1)?;
-                return self.walk(scope, *sub, &Self::shifted(st), depth + 1);
+                self.walk_data(scope, *sub, st, depth + 1)?;
+                return self.walk_data(scope, *sub, &Self::shifted(st), depth + 1);
             }
             Expr::Builtin {
                 op: BuiltinOp::Prime | BuiltinOp::Unchanged,
@@ -794,9 +927,9 @@ impl Guard<'_> {
                             ..
                         }
                     ) {
-                        self.walk(scope, *body, st, depth + 1)?;
+                        self.walk_data(scope, *body, st, depth + 1)?;
                     }
-                    self.walk(scope, *body, &Self::shifted(st), depth + 1)?;
+                    self.walk_data(scope, *body, &Self::shifted(st), depth + 1)?;
                 }
                 return Ok(());
             }
@@ -819,7 +952,7 @@ impl Guard<'_> {
                         "eager substitution in finite analysis",
                     ));
                 }
-                return self.walk(&ev.scope_subst(scope, expr)?, *body, st, depth + 1);
+                return self.walk_data(&ev.scope_subst(scope, expr)?, *body, st, depth + 1);
             }
             Expr::Local(local) => {
                 return match ev.scope_slot(scope, *local) {
@@ -829,6 +962,12 @@ impl Guard<'_> {
                     ),
                     SlotView::Function(function) if !self.analysis => {
                         self.recursive_function(scope, &function, st, depth + 1)
+                    }
+                    SlotView::Lazy(body, _)
+                        if self.query_depth != 0
+                            && ev.ir().node(body).level > dive_ir::Level::State =>
+                    {
+                        Err(EvalError::unsupported("captured primed ENABLED source"))
                     }
                     SlotView::Lazy(body, sc) => self.walk(&sc, body, st, depth + 1),
                     SlotView::AnalysisBound if self.analysis => Ok(()),
@@ -846,7 +985,7 @@ impl Guard<'_> {
                 };
                 return match ev.scope_subst_slot(scope, *decl) {
                     SlotView::Value(_) => Ok(()),
-                    SlotView::Lazy(body, sc) => self.walk(&sc, body, &context, depth + 1),
+                    SlotView::Lazy(body, sc) => self.walk_data(&sc, body, &context, depth + 1),
                     _ => Err(EvalError::unsupported("opaque substituted finite binding")),
                 };
             }
@@ -860,7 +999,7 @@ impl Guard<'_> {
                     }
                     Some(ConstBinding::Def(d)) => {
                         let d = ev.redirected(d);
-                        self.walk(
+                        self.walk_data(
                             &ev.scope_enter(scope, d)?,
                             ev.ir().def(d).body,
                             st,
@@ -884,9 +1023,9 @@ impl Guard<'_> {
                             let domain = bound.domain.ok_or_else(|| {
                                 EvalError::unsupported("unbounded recursive domain")
                             })?;
-                            self.walk(scope, domain, st, depth + 1)?;
+                            self.walk_data(scope, domain, st, depth + 1)?;
                         }
-                        self.walk(
+                        self.walk_data(
                             &ev.scope_binder_analysis(scope, expr)?,
                             *body,
                             st,
@@ -902,22 +1041,29 @@ impl Guard<'_> {
             Expr::Quant { bounds, body, .. }
             | Expr::FcnCons { bounds, body, .. }
             | Expr::SetMap { bounds, expr: body } => {
+                let boolean_body = matches!(
+                    node.expr,
+                    Expr::Quant {
+                        kind: dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists,
+                        ..
+                    }
+                );
                 for bound in bounds {
                     let dom = bound
                         .domain
                         .ok_or_else(|| EvalError::unsupported("unbounded predicate domain"))?;
-                    self.walk(scope, dom, st, depth + 1)?;
+                    self.walk_data(scope, dom, st, depth + 1)?;
                 }
-                if self.analysis {
-                    self.walk(
-                        &ev.scope_binder_analysis(scope, expr)?,
-                        *body,
-                        st,
-                        depth + 1,
-                    )?;
+                let scopes = if self.analysis {
+                    vec![ev.scope_binder_analysis(scope, expr)?]
                 } else {
-                    for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
+                    ev.scope_bindings_bounded(scope, expr, st, self.limit)?
+                };
+                for sc in scopes {
+                    if boolean_body {
                         self.walk(&sc, *body, st, depth + 1)?;
+                    } else {
+                        self.walk_data(&sc, *body, st, depth + 1)?;
                     }
                 }
                 return Ok(());
@@ -926,9 +1072,9 @@ impl Guard<'_> {
                 let dom = bound
                     .domain
                     .ok_or_else(|| EvalError::unsupported("unbounded predicate domain"))?;
-                self.walk(scope, dom, st, depth + 1)?;
+                self.walk_data(scope, dom, st, depth + 1)?;
                 if self.analysis {
-                    self.walk(
+                    self.walk_data(
                         &ev.scope_binder_analysis(scope, expr)?,
                         *pred,
                         st,
@@ -936,7 +1082,7 @@ impl Guard<'_> {
                     )?;
                 } else {
                     for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
-                        self.walk(&sc, *pred, st, depth + 1)?;
+                        self.walk_data(&sc, *pred, st, depth + 1)?;
                     }
                 }
                 return Ok(());
@@ -958,9 +1104,9 @@ impl Guard<'_> {
                             ..
                         }
                     ) {
-                        self.walk(scope, *body, st, depth + 1)?;
+                        self.walk_data(scope, *body, st, depth + 1)?;
                     }
-                    self.walk(scope, *body, &Self::shifted(st), depth + 1)?;
+                    self.walk_data(scope, *body, &Self::shifted(st), depth + 1)?;
                 }
                 return Ok(());
             }
@@ -1030,7 +1176,7 @@ impl Guard<'_> {
                                 "higher-order finite binding actual",
                             ));
                         };
-                        self.walk(scope, *expr, st, depth + 1)?;
+                        self.walk_data(scope, *expr, st, depth + 1)?;
                     }
                     if native.is_some() {
                         if !self.analysis {
@@ -1042,12 +1188,12 @@ impl Guard<'_> {
                         ev.scope_apply_param(scope, local, args).ok_or_else(|| {
                             EvalError::unsupported("opaque finite binding operator")
                         })??;
-                    return self.walk(&called, ev.ir().def(def).body, st, depth + 1);
+                    return self.walk_data(&called, ev.ir().def(def).body, st, depth + 1);
                 }
                 OpRef::Const(constant) => {
                     let (def, called) =
                         self.configured_call(scope, constant, args, st, depth + 1)?;
-                    return self.walk(&called, ev.ir().def(def).body, st, depth + 1);
+                    return self.walk_data(&called, ev.ir().def(def).body, st, depth + 1);
                 }
                 OpRef::Subst(_) => {
                     return Err(EvalError::unsupported("dynamic finite binding operator"));
@@ -1085,7 +1231,7 @@ impl Guard<'_> {
                 self.visits = ceiling - remaining;
                 let (sequence, _) =
                     result?.ok_or_else(|| EvalError::unsupported("SelectSeq callback shape"))?;
-                return self.walk(scope, sequence, st, depth + 1);
+                return self.walk_data(scope, sequence, st, depth + 1);
             }
             if standard.is_some() && args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                 return Err(EvalError::unsupported(
@@ -1099,7 +1245,7 @@ impl Guard<'_> {
             }
         }
         for child in node.expr.children() {
-            self.walk(scope, child, st, depth + 1)?;
+            self.walk_data(scope, child, st, depth + 1)?;
         }
         Ok(())
     }
@@ -1975,6 +2121,8 @@ mod configured_recursive_tests {
             configured_depth: 0,
             current_sequence: None,
             functions: Vec::new(),
+            query_allowed: false,
+            query_depth: 0,
         };
         guard
             .recursive_function(&scope, &function, &state, 0)
