@@ -21,8 +21,14 @@
 
 - Explicit final/short checking without configured `PROPERTY` entries now runs
   ordinary safety checking and returns its real result without duplicate startup
-  evaluation or a temporal holding/capture claim. Configured properties retain
-  their existing analysis route and bounds. Pre-search binding/preparation model
+  evaluation or a temporal holding/capture claim. An experimental narrow
+  default-memory route also checks configured properties that bind entirely to
+  safety roles using one checker-owned binding and its original startup host.
+  Other options, transformed randomness and real temporal obligations retain
+  their existing analysis route and bounds. Safety-only recursive property
+  evaluation retains the ordinary resource limit; genuinely temporal recursive
+  operator captures retain their named planning refusal. Current-source qualification and
+  independent review remain pending; no corpus agreement is added. Pre-search binding/preparation model
   errors retain the binding stage; engine errors retain the capture stage.
 
 - Added bounded pure `Json!ToJson` conversion with Gson string escaping and the

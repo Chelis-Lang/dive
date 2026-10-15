@@ -68,6 +68,7 @@ pub mod checkpoint;
 mod class;
 pub mod dfid;
 pub mod engine;
+pub mod final_roles;
 mod frontier;
 pub use frontier::FrontierUsage;
 mod host;
@@ -344,7 +345,7 @@ pub(crate) fn run_check_with_checkpoint(
     ir: &Arc<Ir>,
     cfg: &ModelConfig,
     opts: &CheckOptions,
-    mut checkpoint: Option<&mut checkpoint::Session>,
+    checkpoint: Option<&mut checkpoint::Session>,
 ) -> CheckResult {
     if let Some(disk) = &opts.seen_disk {
         if let Err(error) = disk.limits.validate() {
@@ -365,20 +366,10 @@ pub(crate) fn run_check_with_checkpoint(
             ir,
         );
     }
-    let mut notes = Vec::new();
-    let host = Arc::new(engine::run_host(opts));
-    let bind_opts = BindOptions {
-        eval: opts.eval,
-        no_deadlock: opts.no_deadlock,
-        host: Some(Arc::new(host::EngineHost::new(host.clone()))),
-    };
-    let bound = if let Some(names) = checkpoint.as_ref().and_then(|s| s.names()) {
-        dive_model::bind_with_names(ir.clone(), cfg, &bind_opts, names)
-    } else {
-        dive_model::bind(ir.clone(), cfg, &bind_opts)
-    };
-    let mut m = match bound {
-        Ok(m) => m,
+    let notes = Vec::new();
+    let bound = bind_for_run(ir, cfg, opts, checkpoint.as_ref().and_then(|s| s.names()));
+    let (m, host) = match bound {
+        Ok(bound) => bound,
         Err(f) => {
             let mut r = bare(model_error(&f.error), opts, ir);
             r.binding_model_error = matches!(r.verdict, Verdict::ModelError { .. });
@@ -387,6 +378,46 @@ pub(crate) fn run_check_with_checkpoint(
             return r;
         }
     };
+    finish_bound_check(ir, cfg, opts, m, host, checkpoint)
+}
+
+fn bind_for_run(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    restored_names: Option<&[String]>,
+) -> Result<(dive_model::Model, Arc<dive_stdlib::host::RunHost>), Box<dive_model::Failure>> {
+    let host = Arc::new(engine::run_host(opts));
+    let bind_opts = BindOptions {
+        eval: opts.eval,
+        no_deadlock: opts.no_deadlock,
+        host: Some(Arc::new(host::EngineHost::new(host.clone()))),
+    };
+    let bound = if let Some(names) = restored_names {
+        dive_model::bind_with_names(ir.clone(), cfg, &bind_opts, names)
+    } else {
+        dive_model::bind(ir.clone(), cfg, &bind_opts)
+    };
+    bound.map(|model| (model, host))
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "the unchanged post-binding phases in TLC order"
+)]
+#[allow(
+    clippy::needless_pass_by_value,
+    reason = "owns the original startup host through every post-binding return"
+)]
+fn finish_bound_check(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    mut m: dive_model::Model,
+    host: Arc<dive_stdlib::host::RunHost>,
+    mut checkpoint: Option<&mut checkpoint::Session>,
+) -> CheckResult {
+    let mut notes = Vec::new();
     let mut r = bare(Verdict::Success, opts, ir);
     messages(&m.output, &mut r);
     if m.symmetry.is_some() && m.implied_temporals.is_empty() {
