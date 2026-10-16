@@ -72,3 +72,11 @@ id = "configured-temporal-operators"
 path = "conformance/corpus/configured-temporal-operators"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first lexical INSTANCE / ENABLED namespace controls. Measured runtimes
+# determine their tier; they are always reported as a separate explicit corpus.
+[[corpus]]
+id = "instance-temporal"
+path = "conformance/corpus/instance-temporal"
+license = "MIT"
+layout = "examples-manifest"

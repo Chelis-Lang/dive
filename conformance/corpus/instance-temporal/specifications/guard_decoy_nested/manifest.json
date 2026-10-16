@@ -1,0 +1,37 @@
+{
+  "sources": [
+    "docs/user/temporal.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "instance",
+    "enabled"
+  ],
+  "modules": [
+    {
+      "path": "specifications/guard_decoy_nested/Guard.tla",
+      "features": [],
+      "models": []
+    },
+    {
+      "path": "specifications/guard_decoy_nested/GuardMiddle.tla",
+      "features": [],
+      "models": []
+    },
+    {
+      "path": "specifications/guard_decoy_nested/Probe.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/guard_decoy_nested/Probe.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    }
+  ]
+}
