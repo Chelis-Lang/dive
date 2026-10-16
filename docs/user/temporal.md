@@ -350,7 +350,7 @@ explicitly. A later false guard cannot erase an earlier reached query error;
 ordinary Boolean shortcircuit preserves unreached pure errors.
 
 Query placements inside data/native arguments, provider callbacks, higher-order
-operator forwarding, configuration substitutions, INSTANCE substitutions,
+operator forwarding, configuration substitutions,
 explicit or hidden primes, and captured primed action values remain unsupported.
 Pure lexical state captures remain available. Existing effect, ownership and
 resource checks remain in force. Native enabledness still uses the original
@@ -369,11 +369,13 @@ not admit query-bearing operator captures, native/provider arguments or hidden
 state-helper query words.
 
 State-level mixtures of direct queries keep their existing temporal conversion
-and native INSTANCE support. This extension does not add independent validation
-of query words under INSTANCE substitutions; those words retain their named
-refusal.
+and native INSTANCE support. Independent finite-cover queries now retain hidden
+successor names and actual INSTANCE/lazy scopes, including enabled and disabled
+correlated assignments. Direct and instantiated WF/SF words cover continuous
+and intermittent starvation, disabled stutter and recurrent closing occurrences.
+General callable and planner integration remains unfinished.
 
-Independent word validation may refuse a query hidden behind a state-valued
+Periodic word validation may refuse a query hidden behind a state-valued
 helper formal, such as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, even when
 native exhaustive checking can establish Holds. Supported action-valued lazy
 formal guards retain their independent query support. Predicate and data reads
