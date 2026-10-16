@@ -525,6 +525,15 @@ pub fn golden_generate(
                     ));
                     return;
                 }
+                if !result.verdict.is_oracle_fact() {
+                    fail(format!(
+                        "[{n}/{total}] {} {}: {}; no golden written (not an oracle fact)",
+                        result.verdict.as_str(),
+                        m.id,
+                        result.note.as_deref().unwrap_or("")
+                    ));
+                    return;
+                }
                 let verdict = result.verdict;
                 let mut result = result;
                 let mut prov = provenance(
@@ -617,6 +626,16 @@ pub fn golden_generate(
                     if result.verdict == SanyVerdict::Timeout {
                         fail(format!(
                             "[{n}/{total}] TIMEOUT SANY {module}; no golden written"
+                        ));
+                        return;
+                    }
+                    if !matches!(
+                        result.verdict,
+                        SanyVerdict::Accept | SanyVerdict::ParseError | SanyVerdict::SemanticError
+                    ) {
+                        fail(format!(
+                            "[{n}/{total}] UNCLASSIFIED SANY {module}: {}; no golden written (not an oracle fact)",
+                            result.note.as_deref().unwrap_or("")
                         ));
                         return;
                     }

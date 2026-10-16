@@ -42,6 +42,11 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
   the temporal verdict and actual exit 12; cyclic cases still require exit 13.
 - An unknown exit code or message code, or a malformed stream, is `unclassified`, with the raw data kept.
 - JVM resource exhaustion (out of memory, stack overflow) is `resource-limit`: never an oracle fact, never a golden.
+- Golden generation refuses oracle errors, unclassified outputs, timeouts and
+  resource exhaustion before creating or replacing a model golden. SANY writes
+  only classified acceptance, parse rejection or semantic rejection. A refused
+  result counts as a failed generation even with `--reason`; existing files stay
+  intact. Classified specification errors remain valid oracle facts.
 - Unexpected stderr, or a success without statistics, is `oracle-error`.
 - An implementation that cannot do something must answer `unsupported`.
 
