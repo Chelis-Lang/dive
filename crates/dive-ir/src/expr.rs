@@ -641,14 +641,46 @@ impl Expr {
     #[must_use]
     pub fn children(&self) -> Vec<ExprId> {
         let mut out = Vec::new();
-        let arg = |out: &mut Vec<ExprId>, a: &Arg| {
-            if let Arg::Expr { expr, .. } = a {
-                out.push(*expr);
-            }
-        };
-        let bounds = |out: &mut Vec<ExprId>, bs: &[Bound]| {
-            out.extend(bs.iter().filter_map(|b| b.domain));
-        };
+        self.for_each_child(|child| out.push(child));
+        out
+    }
+
+    /// Visits direct expression children in the same order as [`Self::children`],
+    /// without allocating a child list. Referenced definitions are not visited.
+    pub fn for_each_child(&self, mut visit: impl FnMut(ExprId)) {
+        self.try_for_each_child(|child| {
+            visit(child);
+            Ok::<(), std::convert::Infallible>(())
+        })
+        .unwrap_or_else(|never| match never {});
+    }
+
+    /// Visits direct expression children without allocating a child list,
+    /// stopping at the first callback error. Ordering and exclusions are the
+    /// same as [`Self::children`].
+    ///
+    /// # Errors
+    /// Returns the first callback error; no later child is visited.
+    ///
+    /// ```
+    /// use dive_ir::{Expr, ExprId};
+    /// let expr = Expr::Implies(ExprId(3), ExprId(8));
+    /// let mut seen = Vec::new();
+    /// let result = expr.try_for_each_child(|child| {
+    ///     seen.push(child);
+    ///     Err("stop")
+    /// });
+    /// assert_eq!(result, Err("stop"));
+    /// assert_eq!(seen, [ExprId(3)]);
+    /// ```
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one ordered arm per expression variant"
+    )]
+    pub fn try_for_each_child<E>(
+        &self,
+        mut visit: impl FnMut(ExprId) -> Result<(), E>,
+    ) -> Result<(), E> {
         match self {
             Self::Bool(_)
             | Self::Num(_)
@@ -664,32 +696,48 @@ impl Expr {
             | Self::Unevaluable(_) => {}
             Self::Apply { args, .. } => {
                 for a in args {
-                    arg(&mut out, a);
+                    if let Arg::Expr { expr, .. } = a {
+                        visit(*expr)?;
+                    }
                 }
             }
             Self::Builtin { args: items, .. }
             | Self::Junction { items, .. }
             | Self::SetEnum(items)
             | Self::Tuple(items)
-            | Self::Cartesian(items) => out.extend(items.iter().copied()),
+            | Self::Cartesian(items) => {
+                for &item in items {
+                    visit(item)?;
+                }
+            }
             Self::Not(a)
             | Self::Selected(a)
             | Self::Prime(a)
             | Self::Unchanged(a)
             | Self::Enabled(a)
             | Self::Always(a)
-            | Self::Eventually(a) => out.push(*a),
+            | Self::Eventually(a) => visit(*a)?,
             Self::Implies(a, b)
             | Self::Equiv(a, b)
             | Self::Cdot(a, b)
             | Self::LeadsTo(a, b)
-            | Self::WhilePlus(a, b) => out.extend([*a, *b]),
-            Self::If { cond, then, other } => out.extend([*cond, *then, *other]),
+            | Self::WhilePlus(a, b) => {
+                visit(*a)?;
+                visit(*b)?;
+            }
+            Self::If { cond, then, other } => {
+                visit(*cond)?;
+                visit(*then)?;
+                visit(*other)?;
+            }
             Self::Case { arms, other } => {
                 for a in arms {
-                    out.extend([a.guard, a.value]);
+                    visit(a.guard)?;
+                    visit(a.value)?;
                 }
-                out.extend(*other);
+                if let Some(other) = other {
+                    visit(*other)?;
+                }
             }
             Self::Quant {
                 bounds: bs, body, ..
@@ -698,45 +746,73 @@ impl Expr {
             | Self::RecFcn {
                 bounds: bs, body, ..
             } => {
-                bounds(&mut out, bs);
-                out.push(*body);
+                for b in bs {
+                    if let Some(domain) = b.domain {
+                        visit(domain)?;
+                    }
+                }
+                visit(*body)?;
             }
             Self::SetFilter { bound, pred } => {
-                bounds(&mut out, std::slice::from_ref(bound));
-                out.push(*pred);
+                if let Some(domain) = bound.domain {
+                    visit(domain)?;
+                }
+                visit(*pred)?;
             }
             Self::SetMap { expr, bounds: bs } => {
-                bounds(&mut out, bs);
-                out.push(*expr);
+                for b in bs {
+                    if let Some(domain) = b.domain {
+                        visit(domain)?;
+                    }
+                }
+                visit(*expr)?;
             }
-            Self::Record(fs) | Self::RecordSet(fs) => out.extend(fs.iter().map(|f| f.value)),
-            Self::FcnSet { domain, range } => out.extend([*domain, *range]),
-            Self::FcnApply { fcn, arg } => out.extend([*fcn, *arg]),
-            Self::RecordSelect { record, .. } => out.push(*record),
+            Self::Record(fs) | Self::RecordSet(fs) => {
+                for f in fs {
+                    visit(f.value)?;
+                }
+            }
+            Self::FcnSet { domain, range } => {
+                visit(*domain)?;
+                visit(*range)?;
+            }
+            Self::FcnApply { fcn, arg } => {
+                visit(*fcn)?;
+                visit(*arg)?;
+            }
+            Self::RecordSelect { record, .. } => visit(*record)?,
             Self::Except { base, updates } => {
-                out.push(*base);
+                visit(*base)?;
                 for u in updates {
-                    out.extend(u.path.iter().copied());
-                    out.push(u.value);
+                    for &step in &u.path {
+                        visit(step)?;
+                    }
+                    visit(u.value)?;
                 }
             }
             Self::Let { body, .. }
             | Self::Label { body, .. }
             | Self::TemporalQuant { body, .. } => {
-                out.push(*body);
+                visit(*body)?;
             }
             Self::Subst { bindings, body } => {
                 for b in bindings {
-                    arg(&mut out, &b.value);
+                    if let Arg::Expr { expr, .. } = &b.value {
+                        visit(*expr)?;
+                    }
                 }
-                out.push(*body);
+                visit(*body)?;
             }
             Self::StepBox { action, sub } | Self::StepAngle { action, sub } => {
-                out.extend([*action, *sub]);
+                visit(*action)?;
+                visit(*sub)?;
             }
-            Self::Wf { sub, action } | Self::Sf { sub, action } => out.extend([*sub, *action]),
+            Self::Wf { sub, action } | Self::Sf { sub, action } => {
+                visit(*sub)?;
+                visit(*action)?;
+            }
         }
-        out
+        Ok(())
     }
 
     /// The operator references this node makes directly (callees, operator

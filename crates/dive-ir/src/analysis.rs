@@ -82,9 +82,8 @@ fn walk(ir: &Ir, e: ExprId, stack: &mut Vec<DefId>, visit: &mut impl FnMut(ExprI
                     items.push(Item::Expr(def.body, depth + 1));
                     items.push(Item::Pop);
                 }
-                for c in node.expr.children() {
-                    items.push(Item::Expr(c, depth));
-                }
+                node.expr
+                    .for_each_child(|c| items.push(Item::Expr(c, depth)));
                 work.extend(items.into_iter().rev());
             }
         }
@@ -264,12 +263,12 @@ fn node_effects(
         return Effects::MAY_FAIL;
     };
     let mut e = Effects::NONE;
-    for c in node.expr.children() {
+    node.expr.for_each_child(|c| {
         e |= node_eff
             .get(c.index())
             .copied()
             .unwrap_or(Effects::MAY_FAIL);
-    }
+    });
     let own = match &node.expr {
         Expr::Bool(_) | Expr::Num(_) | Expr::Str(_) | Expr::Tuple(_) | Expr::Record(_) => {
             Effects::NONE
