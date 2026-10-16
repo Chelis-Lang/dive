@@ -1,0 +1,255 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "scope": "Compact test expectations from sixteen actual primary executions; original source bytes, no generated golden or native acceptance credit.",
+  "cases": [
+    {
+      "id": "fairness_direct_continuous_starvation_wf",
+      "route": "direct",
+      "scenario": "continuous_starvation",
+      "strength": "wf",
+      "holds": false,
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "files": {
+        "Fairness.tla": "22ba7d2ff12bb632b1a86ddeb6b201de9352916e260841c0d1b8377db30fffff",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "58c8f5d3cf99bb48623e63c57be343fd0d842fac33df189238c8a483e2d7ee73",
+      "sany_stdout_sha256": "bdbaebefae0629acd767b509b50890228d2fc0f75f5f53e8bf9788c76ce43cf7"
+    },
+    {
+      "id": "fairness_direct_continuous_starvation_sf",
+      "route": "direct",
+      "scenario": "continuous_starvation",
+      "strength": "sf",
+      "holds": false,
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "files": {
+        "Fairness.tla": "df176d23d6eb211b56d25d105c844ac7e14e8f1e271dda9344f6fbd6c51d788d",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "ea7a7d0515a4610c06672e6772b3819b491b1a75f24c41391389ce02e4420216",
+      "sany_stdout_sha256": "eaec167169378b6b6ad67386f4367ecd08785e04cb00b95ed3273966ba5d327f"
+    },
+    {
+      "id": "fairness_direct_intermittent_starvation_wf",
+      "route": "direct",
+      "scenario": "intermittent_starvation",
+      "strength": "wf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "d8361ab1bbc9a573c7b5f96cad9d4f1a8826a9a1aefb9504816c18bf81aa77aa",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "f4b1aecd55300246fe569cd86f1c9d1d74bb9ccd5a5213920543412587b76324",
+      "sany_stdout_sha256": "505162011a198c5dc68e86c7d9cfb44736fbea05b119c1fd4c9104f2ae7a9df1"
+    },
+    {
+      "id": "fairness_direct_intermittent_starvation_sf",
+      "route": "direct",
+      "scenario": "intermittent_starvation",
+      "strength": "sf",
+      "holds": false,
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "files": {
+        "Fairness.tla": "a8861aeb7e47d49b18af21d21fb8a5138f5f3701dc97e2b20885faa201d55e24",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "afcc8580e7b5c0db512b127d6b4b36a1241a42b4b90d9afb50147dd0f25aa4b6",
+      "sany_stdout_sha256": "b1394eae9fb7db89831552444ebdb5a757ddfeb05be5552cbcc5880609a3cb5a"
+    },
+    {
+      "id": "fairness_direct_disabled_stutter_wf",
+      "route": "direct",
+      "scenario": "disabled_stutter",
+      "strength": "wf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "51d0ddacb784283fd35b80f7fcd3fd971968ec5966ac96f063d8a635af631032",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "2c9f353237df753818e62187d6dba6d021e149451a9048db4c77e2655f571866",
+      "sany_stdout_sha256": "b27c0c1a89ba64c376726fb0075bfa337f9d9658d918487cbb096c7a0c07ef1a"
+    },
+    {
+      "id": "fairness_direct_disabled_stutter_sf",
+      "route": "direct",
+      "scenario": "disabled_stutter",
+      "strength": "sf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "42d7ab5a0b47213b28c718f3a1ee1599e9f6d08f8426049cbe8e5bd0dcc1bc9f",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "64a0380c1d7de2b45afcd0e624929834d3cc9d61d328b8b8ae29370f702005f4",
+      "sany_stdout_sha256": "099f1ae381a183bffff8e370977c988f040b8ec4717ab157a71a1ca3403e4a35"
+    },
+    {
+      "id": "fairness_direct_recurrent_closing_wf",
+      "route": "direct",
+      "scenario": "recurrent_closing",
+      "strength": "wf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "c7a763732556d3e64ab307b3b80ae5e2c5ff05674b5b824f00e5647fd6ffedfd",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "52679a5c02ec51d14ed173aec7755038aee34f346fe7e55e6b7fe70900bb6078",
+      "sany_stdout_sha256": "85d11eb75f704e1be007cc2ff93f1287f6a2aba2b1322b6841c3a55bec95e274"
+    },
+    {
+      "id": "fairness_direct_recurrent_closing_sf",
+      "route": "direct",
+      "scenario": "recurrent_closing",
+      "strength": "sf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "f14a294d79171fcf9c2f704784dc9445ce906c7d901586475cc9a58f06c33815",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "70864d1debba62e74945b258b41743bf94017ae29a8ccac853a9fe99b62eb64f",
+      "sany_stdout_sha256": "441d0fbde0c1d8ecd30e1785d78e71a1864d82502cf16b04c82e2ae0cb6a3bf1"
+    },
+    {
+      "id": "fairness_instance_continuous_starvation_wf",
+      "route": "instance",
+      "scenario": "continuous_starvation",
+      "strength": "wf",
+      "holds": false,
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "files": {
+        "Fairness.tla": "31e5768719d1670f46d133aaeacaf740da5665e1c7aaa9719b225489264cd95e",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "331bdc2797bee19031875522d915a0ae71bbe779ccc735b0e51b7c6639faafc7",
+      "sany_stdout_sha256": "2e3a0c8a92fa9eb97cfbc3c5ae2044271ab50dcdd199acf6235ed364e389bf2f"
+    },
+    {
+      "id": "fairness_instance_continuous_starvation_sf",
+      "route": "instance",
+      "scenario": "continuous_starvation",
+      "strength": "sf",
+      "holds": false,
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "files": {
+        "Fairness.tla": "317836c659bbaf92f26492b5e00a53e7b84696a7c19e46033841251028e31c01",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "0a2b5107157b4bf648645394d392ec0271021dbeb8d8c28ed3d8148a3fca3542",
+      "sany_stdout_sha256": "89bf63c98648fcb6e23bf9588c96bc9b5de35e1ea94c68cf5730ca88638e6384"
+    },
+    {
+      "id": "fairness_instance_intermittent_starvation_wf",
+      "route": "instance",
+      "scenario": "intermittent_starvation",
+      "strength": "wf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "7624c2e9bc37536d7e5f1ac0715e6d3569b327b1947d900425103bda4e35b31b",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "d4ce70d8a1340213e747de4b26161104398cf46cdca51223031a022f7d423cba",
+      "sany_stdout_sha256": "9fdff8bd28a48338db3b66dc67ae6a5c3726a7a15a755584941efdd925ecf1ff"
+    },
+    {
+      "id": "fairness_instance_intermittent_starvation_sf",
+      "route": "instance",
+      "scenario": "intermittent_starvation",
+      "strength": "sf",
+      "holds": false,
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "files": {
+        "Fairness.tla": "906cd4984dfd5ca9cab078fd063e3c2d7e8cdf5a7eb3e423654930477b75f68f",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "410d179823e9fbcc70c85d7b7e3e8960ef96ce1eb35c6909cb2eee5efd7ca513",
+      "sany_stdout_sha256": "401aecfd923cb2bbf45a99c85454d265a36ef023ed0c8b9e6ead58501614a42c"
+    },
+    {
+      "id": "fairness_instance_disabled_stutter_wf",
+      "route": "instance",
+      "scenario": "disabled_stutter",
+      "strength": "wf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "2f5fb85422d8bb69ae13fe5850f070ff58c10fe7ba121be068d9b7559379999a",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "1559ee54d3e59620a980e24ed722613cbee2bf89889451fd3a028e9ec1cdae0b",
+      "sany_stdout_sha256": "6bde88fd47b29c65549c8be889ea93e90feb1f5067cfaf8203d20078fb48aaa9"
+    },
+    {
+      "id": "fairness_instance_disabled_stutter_sf",
+      "route": "instance",
+      "scenario": "disabled_stutter",
+      "strength": "sf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "937e5ddebb06442048cab5c3893f58dbcfc0283640250183bc5262b98d3f397a",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "205503c4a7a7ba6d11d4f08b26f45bf4b6f2384c005c62697640c44a7567c027",
+      "sany_stdout_sha256": "f17b12685f1ee8e18c1915d40e05fce0c5649f77ae9ea514aafc1b3e051a7380"
+    },
+    {
+      "id": "fairness_instance_recurrent_closing_wf",
+      "route": "instance",
+      "scenario": "recurrent_closing",
+      "strength": "wf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "b02b1bf1d000b3569feb999c6a3565b887375afabb3718a27f28aaee3864a338",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "9fc740d4d9468abcd9f68f5fcbc31c540514b68b25a4952bc9bc471ab08dfc68",
+      "sany_stdout_sha256": "ebb2f268c05401bee353fc420660ba0dcb384e1b98cab13e48cca74413c0289d"
+    },
+    {
+      "id": "fairness_instance_recurrent_closing_sf",
+      "route": "instance",
+      "scenario": "recurrent_closing",
+      "strength": "sf",
+      "holds": true,
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "files": {
+        "Fairness.tla": "fe3340c477fb7d8fb7412ca879437fb54767e8bc15c879fefc274ac95d6ecb3a",
+        "FairInner.tla": "c0c278c0135f7527ca6aace499430aaec4cfd6ae63ef7f1377d103ad3215d898",
+        "Fairness.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98"
+      },
+      "stdout_sha256": "a4f45d658cf78b2406442f1ee54ec96a6ca44a18edefb8fca2950e00ddbe7f5a",
+      "sany_stdout_sha256": "e7b9a771b636c477deb5fad304c3d4c93ec7a2892500f2306a53f35e4af1ed8a"
+    }
+  ]
+}
