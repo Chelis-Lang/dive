@@ -52,6 +52,7 @@ mod finite;
 mod host;
 mod json;
 mod lazy;
+mod named_state;
 #[cfg(feature = "enumerate")]
 pub mod next;
 mod options;
@@ -118,6 +119,7 @@ pub use crate::env::{St, StateRef};
 pub use crate::error::{Ec, ErrorClass, EvalError, Result};
 pub use crate::host::{Counter, Host, HostError, RunConfig, TLCGET_NAMES};
 pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
+pub use crate::named_state::NamedState;
 pub use crate::options::{
     ActionComposition, Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile,
     RECOMMENDED_STACK,
@@ -525,6 +527,7 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_def(&self, def: DefId, st: &St) -> Result<Value> {
+        self.validate_state_context(st)?;
         let d = self.admit_def(def)?;
         if !d.params.is_empty() {
             return Err(EvalError::bug(format!(
@@ -544,6 +547,7 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_in(&self, def: DefId, expr: ExprId, st: &St) -> Result<Value> {
+        self.validate_state_context(st)?;
         let scope = self.scope(def)?;
         self.admit_scoped_expr(&scope, expr)?;
         let d = self.admit_def(def)?;

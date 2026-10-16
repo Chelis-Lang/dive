@@ -1726,8 +1726,23 @@ This explains why nested aliases can remain correlated while exported `y`/`z`
 choices separate. It is a source interpretation constrained by the measured
 controls, not a claim that every INSTANCE case is implemented.
 
-No algorithm or runtime change accompanies this corpus import. Existing harness
+No algorithm or runtime change accompanied the separate #300 corpus import. Existing harness
 generation supplies SANY/model goldens and clean-versus-trace consistency fields;
 a TLC self-check gives no independent trace-validation or original-model gain
 credit. General instantiated temporal planning, successor namespace execution,
 callable origin and independent full-word validation remain open.
+
+
+The following evaluator/checker implementation uses those observed semantics:
+`dive-eval::NamedState` owns query-local canonical-name assignments;
+`Core::state_variable` reads either indexed root state or that named state;
+`Enab` retains its original source-ordered continuation search but binds
+canonical names. This is an idiomatic Rust implementation of the behavior,
+not a structural Java port. Prime/UNCHANGED retain complete named candidates,
+cached lazy values require compatible assignments and actual evaluator context,
+and dynamic branch projection preserves captured versus newly entered links.
+Indexed graph states and existing root-only Init/Next generation are unchanged.
+Action composition refuses assigned hidden-name projections instead of losing
+them. No independent trace-search implementation is borrowed from `Enab`;
+name-aware independent covers, membership, word validation and callable/temporal
+traversal remain follow-up work. See ADR 0099.

@@ -1043,3 +1043,13 @@ Acceptance requires latest-parent original-MC1 qualification, a separate
 complete-search primary/native1 diagnostic, supported native4 pinned-reference
 and independently validated actual-word controls, fresh review/fullgate/all4/CI.
 Issue #272 remains open; this source proposal is not runtime acceptance.
+
+
+D-013 query-language continuation: evaluator ENABLED uses canonical-name partial
+successors for root and hidden INSTANCE variables in both profiles, retaining
+actual lazy branch cutoffs. This is TLC language behavior, not a new divergence.
+Independent INSTANCE query/word and general callable/temporal integration remain
+unfinished. D-022 composition still uses root-only intermediates; assigned hidden
+query names refuse explicitly rather than being projected away. See
+[query execution and boundaries](user/temporal.md#instance-query-namespace-controls)
+and ADR 0099.

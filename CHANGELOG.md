@@ -1,5 +1,12 @@
 # Changelog
 
+- Evaluator ENABLED searches retain hidden successor assignments by canonical
+  variable name, preserving exported/nested INSTANCE cutoff and lazy-scope
+  distinctions in both profiles. Named-state reads, cache compatibility and
+  priming retain actual assignments; ordinary graph states remain root-only.
+  Independent INSTANCE query-word validation and general callable/temporal
+  integration remain unfinished, so this adds no corpus agreement claim.
+
 - Benchmarks retain multi-worker TLC's reported depth as a diagnostic under
   ADR 0004, while keeping exact depth for single-worker TLC and every native
   arm. Missing/zero depth and all other required observables still fail validation;

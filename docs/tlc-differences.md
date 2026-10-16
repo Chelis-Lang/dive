@@ -2843,3 +2843,13 @@ Acceptance requires latest-parent original-MC1 qualification, a separate
 complete-search primary/native1 diagnostic, supported native4 pinned-reference
 and independently validated actual-word controls, fresh review/fullgate/all4/CI.
 Issue #272 remains open; this source proposal is not runtime acceptance.
+
+
+D-013 query-language continuation: exported INSTANCE ENABLED searches now retain
+partial successors by canonical variable name, including hidden names. Both
+profiles follow the measured cutoff/captured-context distinctions documented in
+[temporal checking](user/temporal.md#instance-query-namespace-controls).
+Independent INSTANCE query-word validation and general callable/temporal
+integration remain unfinished. Under D-022, composition still requires root-only
+intermediates; assigned hidden query names refuse instead of being silently
+dropped. This changes no comparison, model limit or approved default.

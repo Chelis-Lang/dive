@@ -43,6 +43,7 @@ impl Evaluator {
     ) -> Result<Arc<LazyFcn>> {
         self.admit_scoped_expr(scope, constructor)?;
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         if st.selectseq.as_ref().is_some_and(|policy| {
             !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
         }) {
@@ -81,6 +82,7 @@ impl Evaluator {
         limit: usize,
     ) -> Result<RecursiveScopes> {
         self.validate_scope(origin)?;
+        self.validate_state_context(invocation)?;
         if !Arc::ptr_eq(&function.core, &self.core)
             || !same_state(&function.st.s0, &invocation.s0)
             || !same_state(&function.st.s1, &invocation.s1)
@@ -175,6 +177,7 @@ fn same_state(a: &StateRef, b: &StateRef) -> bool {
     match (a, b) {
         (StateRef::Null, StateRef::Null) | (StateRef::Empty, StateRef::Empty) => true,
         (StateRef::Vals(a), StateRef::Vals(b)) => Arc::ptr_eq(a, b),
+        (StateRef::Named(a), StateRef::Named(b)) => Arc::ptr_eq(a, b),
         _ => false,
     }
 }

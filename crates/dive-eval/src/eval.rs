@@ -254,11 +254,11 @@ impl Core {
             }
             Expr::Var { var, primed } => {
                 let (s, msg_node) = if *primed { (&st.s1, e) } else { (&st.s0, e) };
-                if let Some(v) = s.get(var.index()) {
+                let name = &ir.decl(ir.vars()[var.index()]).name;
+                if let Some(v) = self.state_variable(s, name, Some(var.index()))? {
                     Ok(Ev::V(v.clone()))
                 } else {
-                    let name = ir.decl(ir.vars()[var.index()]).name.clone();
-                    Err(self.undefined(&name, msg_node))
+                    Err(self.undefined(name, msg_node))
                 }
             }
             Expr::Const(c) => self.eval_const(env, st, *c, e),
@@ -701,7 +701,7 @@ impl Core {
             // The lookup falls back to the declaration itself, and TLC reads
             // the state by the variable's name.
             let s = if primed { &st.s1 } else { &st.s0 };
-            return match self.root_var_named(&d.name).and_then(|i| s.get(i)) {
+            return match self.state_variable(s, &d.name, self.root_var_named(&d.name))? {
                 Some(v) => Ok(Ev::V(v.clone())),
                 None => Err(self.undefined(&d.name, e)),
             };
@@ -723,7 +723,7 @@ impl Core {
         }
         if let Some(var) = d.var {
             let s = if primed { &st.s1 } else { &st.s0 };
-            return match s.get(var.index()) {
+            return match self.state_variable(s, &d.name, Some(var.index()))? {
                 Some(v) => Ok(Ev::V(v.clone())),
                 None => Err(self.undefined(&d.name, e)),
             };

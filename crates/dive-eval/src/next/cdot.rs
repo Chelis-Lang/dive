@@ -34,7 +34,7 @@ use dive_ir::ExprId;
 use dive_ir::actions::ActionName;
 use dive_value::Value;
 
-use super::{Action, Acts, Enab, Flow, Gen, StateVals, Successor};
+use super::{Action, Acts, Enab, EnabledState, Flow, Gen, StateVals, Successor};
 use crate::core::Core;
 use crate::env::{Env, Ev, St, StateRef};
 use crate::error::{EvalError, Result};
@@ -73,17 +73,47 @@ fn copy_with(s0: &StateRef, s1: &StateVals) -> StateVals {
 }
 
 impl Core {
+    fn composition_named(self: &Arc<Self>, state: &crate::NamedState) -> Result<StateVals> {
+        if !std::ptr::eq(state.context.as_ptr(), Arc::as_ptr(self)) {
+            return Err(EvalError::unsupported(
+                "foreign named action-composition state",
+            ));
+        }
+        if state
+            .assignments()
+            .any(|(name, _)| self.root_var_named(name).is_none())
+        {
+            return Err(EvalError::unsupported(
+                "action composition with assigned hidden ENABLED variables",
+            ));
+        }
+        Ok(self
+            .ir
+            .vars()
+            .iter()
+            .map(|decl| state.get(&self.ir.decl(*decl).name).cloned())
+            .collect())
+    }
+
+    fn composition_current(self: &Arc<Self>, state: &StateRef) -> Result<StateRef> {
+        match state {
+            StateRef::Named(state) => Ok(StateRef::Vals(self.composition_named(state)?)),
+            _ => Ok(state.clone()),
+        }
+    }
+
     /// The states `A` leads to from `s0`, with `t` as the partial successor
     /// and no continuation (`getNextStates(Action.UNKNOWN, A,
     /// ActionItemList.Empty, c, s0, t, iss)`), duplicates included.
     fn cdot_steps(
         self: &Arc<Self>,
         env: &Env,
-        s0: StateRef,
+        s0: &StateRef,
         t: StateVals,
         a: ExprId,
     ) -> Result<Vec<StateVals>> {
         self.check_action_composition()?;
+        let s0 = self.composition_current(s0)?;
         let action = Action {
             owner: self.ir.clone(),
             names: self.names.clone(),
@@ -128,7 +158,7 @@ impl Core {
             return Err(off_error(self, e));
         }
         let empty: StateVals = vec![None; self.ir.vars().len()].into();
-        for t in self.cdot_steps(env, st.s0.clone(), empty, a)? {
+        for t in self.cdot_steps(env, &st.s0, empty, a)? {
             let st2 = St {
                 s0: StateRef::Vals(t),
                 s1: st.s1.clone(),
@@ -183,7 +213,7 @@ impl Gen<'_, '_> {
                 core,
                 init: false,
                 s0: self.s0.clone(),
-                s1: copy_with(&self.s0, &self.s1),
+                s1: copy_with(&core.composition_current(&self.s0)?, &self.s1),
                 action: self.action,
                 ordinal: 0,
                 emitted: 0,
@@ -229,24 +259,25 @@ impl Enab {
         b: ExprId,
         acts: &Acts,
         env: &Env,
-        s1: &StateVals,
+        s1: &EnabledState,
         e: ExprId,
-    ) -> Result<Option<StateVals>> {
+    ) -> Result<Option<EnabledState>> {
         let core = &self.core;
         if self.selectseq.is_some() {
             return Err(EvalError::unsupported(
                 "bounded pure predicate ENABLED action composition",
             ));
         }
+        let root_s1 = core.composition_named(s1)?;
         match core.opts.action_composition {
             ActionComposition::Off => return Err(off_error(core, e)),
-            ActionComposition::Tla if acts.is_some() || s1.iter().any(Option::is_some) => {
+            ActionComposition::Tla if acts.is_some() || !s1.is_empty() => {
                 return Err(distorted(core, e));
             }
             _ => {}
         }
-        let t0 = copy_with(&self.s0, s1);
-        for t in core.cdot_steps(env, self.s0.clone(), t0, a)? {
+        let t0 = copy_with(&core.composition_current(&self.s0)?, &root_s1);
+        for t in core.cdot_steps(env, &self.s0, t0, a)? {
             let en = Enab {
                 core: core.clone(),
                 s0: StateRef::Vals(t),
