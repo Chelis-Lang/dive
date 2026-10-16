@@ -186,6 +186,27 @@ impl Search<'_> {
                 .root_variable(*var)
                 .map(|var| Some((var, prime || *primed)));
         }
+        if !matches!(
+            self.model.ir.expr(expr),
+            Expr::Prime(_)
+                | Expr::Builtin {
+                    op: BuiltinOp::Prime,
+                    ..
+                }
+                | Expr::SubstRef { .. }
+                | Expr::Subst { .. }
+                | Expr::Local(_)
+                | Expr::Let { .. }
+                | Expr::Label { .. }
+                | Expr::Selected(_)
+                | Expr::Def(_)
+                | Expr::Apply {
+                    callee: OpRef::Def(_),
+                    ..
+                }
+        ) {
+            return Ok(None);
+        }
         self.step(depth)?;
         match self.model.ir.expr(expr) {
             Expr::Prime(body) => self.target(*body, scope, true, depth + 1),
@@ -422,6 +443,34 @@ impl Search<'_> {
         }
     }
 
+    fn query_at(
+        &mut self,
+        action: ExprId,
+        scope: &Scope,
+        st: &St,
+        depth: usize,
+    ) -> Result<bool, ExistsError> {
+        if !matches!(
+            &st.s0,
+            dive_eval::StateRef::Vals(_) | dive_eval::StateRef::Named(_)
+        ) {
+            return Err(ExistsError::Unsupported(
+                "ENABLED needs a current state".into(),
+            ));
+        }
+        let saved_current = std::mem::replace(&mut self.current, st.enabled_current());
+        let saved = self.state.clone();
+        if let dive_eval::StateRef::Vals(state) = &st.s0 {
+            self.state = state.clone();
+        }
+        self.query_depth += 1;
+        let result = self.decide_action(&Pred::new(action, scope.clone()), None, depth + 1);
+        self.query_depth -= 1;
+        self.state = saved;
+        self.current = saved_current;
+        result.map(|d| matches!(d, Decision::Enabled { .. }))
+    }
+
     // Only Boolean spines are interpreted here. Data/native leaves remain in
     // the core evaluator; ENABLED is never delegated to its optional enumerator.
     fn boolean_at(
@@ -434,28 +483,7 @@ impl Search<'_> {
         self.step(depth)?;
         let ev = &self.model.evaluator;
         match self.model.ir.expr(expr) {
-            Expr::Enabled(action) => {
-                if !matches!(
-                    &st.s0,
-                    dive_eval::StateRef::Vals(_) | dive_eval::StateRef::Named(_)
-                ) {
-                    return Err(ExistsError::Unsupported(
-                        "ENABLED needs a current state".into(),
-                    ));
-                }
-                let saved_current = std::mem::replace(&mut self.current, st.enabled_current());
-                let saved = self.state.clone();
-                if let dive_eval::StateRef::Vals(state) = &st.s0 {
-                    self.state = state.clone();
-                }
-                self.query_depth += 1;
-                let result =
-                    self.decide_action(&Pred::new(*action, scope.clone()), None, depth + 1);
-                self.query_depth -= 1;
-                self.state = saved;
-                self.current = saved_current;
-                return result.map(|d| matches!(d, Decision::Enabled { .. }));
-            }
+            Expr::Enabled(action) => return self.query_at(*action, scope, st, depth),
             Expr::Not(body) => return self.boolean_at(*body, scope, st, depth + 1).map(|b| !b),
             Expr::Junction { kind, items, .. } => {
                 let conjunction = *kind == JunctionKind::And;
@@ -945,7 +973,7 @@ impl Search<'_> {
                 {
                     Some(SlotView::Value(_)) => {}
                     Some(SlotView::Lazy(body, captured)) => {
-                        self.scan(body, &captured, prime, needed, depth + 1)?
+                        self.scan(body, &captured, prime, needed, depth + 1)?;
                     }
                     Some(SlotView::AnalysisBound)
                         if self.state_source || self.inspect_only || self.source_only => {}
@@ -1535,10 +1563,14 @@ impl Search<'_> {
             // Refuse a successor-dependent source rather than evaluate it as
             // current-state data or invent a cover from one guessed successor.
             let mut primed = BTreeSet::new();
-            let saved = self.inspect_only;
-            self.inspect_only = true;
-            let result = self.scan(b, &scope, false, &mut primed, depth + 1);
-            self.inspect_only = saved;
+            let saved = (self.inspect_only, self.source_only);
+            if self.configured_cover {
+                self.inspect_only = true;
+            } else {
+                self.source_only = true;
+            }
+            let result = self.scan_data(b, &scope, false, &mut primed, depth + 1);
+            (self.inspect_only, self.source_only) = saved;
             result?;
             if !primed.is_empty() {
                 return Ok(Cover::default());
@@ -1911,7 +1943,7 @@ impl Search<'_> {
         let ev = &self.model.evaluator;
         let node = self.model.ir.node(expr);
         match &node.expr {
-            Expr::Enabled(_) => return Ok(None),
+            Expr::Enabled(_) | Expr::Quant { .. } => return Ok(None),
             Expr::Def(def)
                 if !ev.is_value_override(ev.redirected(*def))
                     && self.model.ir.def(ev.redirected(*def)).std.is_none() =>
@@ -1977,7 +2009,6 @@ impl Search<'_> {
                 }
                 return Ok(Some(conjunction));
             }
-            Expr::Quant { .. } => return Ok(None),
             _ => {}
         }
         if node.level <= Level::State && !node.effects.contains(Effects::USES_ENABLED) {
