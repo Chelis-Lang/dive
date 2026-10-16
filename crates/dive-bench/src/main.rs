@@ -150,9 +150,16 @@ fn parse_args() -> Result<Opts, String> {
     Ok(o)
 }
 
+#[derive(Clone, Copy)]
+enum Producer {
+    Dive,
+    Tlc,
+}
+
 /// What one timed run measured.
 #[derive(Clone)]
 struct Run {
+    producer: Producer,
     bench: String,
     implementation: String,
     rep: usize,
@@ -582,19 +589,25 @@ fn read_usage(path: &Path) -> Option<Usage> {
     u
 }
 
+// ADR 0004: primary parallel BFS depth varies; native BFS remains deterministic.
+fn depth_parity_required(run: &Run) -> bool {
+    matches!(run.producer, Producer::Dive) || run.workers == 1
+}
+
 fn check(p: &Prepared, r: &Run) -> (bool, String) {
     let e = &p.expected;
     let mut bad = Vec::new();
     if r.verdict != e.verdict {
         bad.push(format!("verdict {} (golden {})", r.verdict, e.verdict));
     }
-    for (name, actual, expected) in [
-        ("distinct", r.distinct, e.distinct),
-        ("depth", r.depth, e.depth),
-    ] {
-        if actual != expected {
-            bad.push(format!("{name} {actual:?} (golden {expected:?})"));
-        }
+    if r.distinct != e.distinct {
+        bad.push(format!(
+            "distinct {:?} (golden {:?})",
+            r.distinct, e.distinct
+        ));
+    }
+    if (depth_parity_required(r) && r.depth != e.depth) || r.depth.is_none_or(|depth| depth == 0) {
+        bad.push(format!("depth {:?} (golden {:?})", r.depth, e.depth));
     }
     if r.workers == 1 && r.generated != e.generated {
         bad.push(format!(
@@ -677,6 +690,7 @@ fn run_dive(
     let distinct = v["statistics"]["distinct"].as_u64();
     let generated = v["statistics"]["generated"].as_u64();
     let mut r = Run {
+        producer: Producer::Dive,
         bench: p.bench.name.clone(),
         implementation: imp.to_owned(),
         rep,
@@ -751,6 +765,7 @@ fn run_tlc(
         },
     );
     let mut r = Run {
+        producer: Producer::Tlc,
         bench: p.bench.name.clone(),
         implementation: imp.to_owned(),
         rep,
@@ -808,6 +823,7 @@ fn append_json(path: &Path, r: &Run, provenance: &Value) -> Result<(), String> {
         "distinct": r.distinct,
         "generated": r.generated,
         "generated_parity_required": r.workers == 1,
+        "depth_parity_required": depth_parity_required(r),
         "correct": r.correct,
         "note": r.note,
         "workers_requested": r.workers, "workers_used": r.used_workers,
@@ -1189,6 +1205,11 @@ mod tests {
     fn sample(implementation: &str, rep: usize, wall_s: f64) -> Run {
         let (_, workers) = parse_impl(implementation);
         Run {
+            producer: if implementation.starts_with("tlc-w") {
+                Producer::Tlc
+            } else {
+                Producer::Dive
+            },
             bench: "model".to_owned(),
             implementation: implementation.to_owned(),
             rep,
@@ -1371,6 +1392,81 @@ mod tests {
         r.error_class = Some("TLC_SUCCESS".to_owned());
         r.exit_code = Some(3);
         assert!(!check(&p, &r).0);
+    }
+
+    #[test]
+    fn parallel_primary_depth_is_reported_but_other_observables_remain_strict() {
+        let p = prepared();
+        let mut r = sample("tlc-w8", 0, 1.0);
+        r.depth = Some(41);
+        assert!(check(&p, &r).0);
+        assert!(!depth_parity_required(&r));
+        for change in 0..7 {
+            let mut bad = r.clone();
+            match change {
+                0 => bad.depth = None,
+                1 => bad.distinct = Some(2),
+                2 => bad.verdict = "unsupported".to_owned(),
+                3 => bad.error_class = None,
+                4 => bad.exit_code = Some(3),
+                5 => bad.depth = Some(0),
+                _ => bad.property = Some("unexpected".to_owned()),
+            }
+            assert!(!check(&p, &bad).0, "changed observable {change}");
+        }
+        r.workers = 1;
+        assert!(depth_parity_required(&r));
+        assert!(!check(&p, &r).0);
+    }
+
+    #[test]
+    fn every_native_arm_keeps_exact_depth_even_with_an_oracle_label() {
+        let p = prepared();
+        for label in [
+            "dive-tlc-w1",
+            "dive-tlc-w8",
+            "dive-default-w1",
+            "dive-default-w8",
+            "baseline-tlc-w1",
+            "baseline-tlc-w8",
+            "baseline-default-w1",
+            "baseline-default-w8",
+        ] {
+            let mut r = sample(label, 0, 1.0);
+            assert!(matches!(r.producer, Producer::Dive));
+            assert!(depth_parity_required(&r));
+            r.depth = Some(41);
+            assert!(!check(&p, &r).0, "{label}");
+            r.implementation = "tlc-w8".to_owned();
+            assert!(
+                depth_parity_required(&r),
+                "a display label cannot change producer authority"
+            );
+            assert!(!check(&p, &r).0);
+        }
+    }
+
+    #[test]
+    fn json_rows_keep_actual_depth_and_explicit_comparison_policy() -> Result<(), String> {
+        let dir = TempDir::new_in(&std::env::temp_dir(), "bench-depth-policy").map_err(err)?;
+        let path = dir.path().join("runs.jsonl");
+        for label in ["tlc-w8", "tlc-w1", "dive-tlc-w8", "baseline-default-w8"] {
+            let mut run = sample(label, 0, 1.0);
+            run.depth = Some(41);
+            append_json(&path, &run, &json!({}))?;
+        }
+        let text = std::fs::read_to_string(&path).map_err(err)?;
+        let rows: Vec<Value> = text
+            .lines()
+            .map(serde_json::from_str)
+            .collect::<Result<_, _>>()
+            .map_err(err)?;
+        assert_eq!(rows.len(), 4);
+        for (i, row) in rows.iter().enumerate() {
+            assert_eq!(row["depth"], 41);
+            assert_eq!(row["depth_parity_required"], i != 0);
+        }
+        Ok(())
     }
 
     #[test]

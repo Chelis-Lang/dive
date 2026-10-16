@@ -46,8 +46,12 @@ Reserve the same physical cores and resource limits for all arms, record their
 SMT/affinity and memory limits, and rerun a declared block after interference
 rather than selecting favorable samples.
 
-Every run must match the successful golden on verdict, distinct states, depth,
-error class, exit and property. Generated counts must match at one worker;
+Every run must match the successful golden on verdict, distinct states,
+error class, exit and property. Depth must match for every native run and
+single-worker TLC. Multi-worker TLC retains its actual reported depth as a
+diagnostic: its approximate BFS can differ from the single-worker golden
+(ADR 0004). Missing or zero depth still fails, and `depth_parity_required` records the
+comparison in each JSONL row. Generated counts must match at one worker;
 at multiple workers they remain diagnostics (ADR 0086). Dive additionally
 must report verified TLC success. Corpus integrity and typed golden pin
 provenance are checked before executing. Oracle id, upstream commit and jar SHA,
