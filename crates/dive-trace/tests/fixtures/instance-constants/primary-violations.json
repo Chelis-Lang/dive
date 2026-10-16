@@ -1,0 +1,55 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "scope": "Two actual primary liveness violations; original four holding inputs remain unchanged; test fixtures only, no corpus/golden/native credit",
+  "cases": [
+    {
+      "id": "constant_absent_violation",
+      "property": "Bad",
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "SANY_physical_exit": 0,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "word": [
+        false,
+        true
+      ],
+      "back_to": 0,
+      "files": {
+        "Constant.tla": "f246bf42700f77734a3d5096ea652fb945f2f1ba41f90fee48ce7565cd2de6a4",
+        "Shared.tla": "b1ae366f2dbc7a4087a72c5952bec2c82c3a969ea9f7ab67b6acdc05c08c316c",
+        "ConstInner.tla": "2a8e1f00053fe6769e3aa73a2a8bc18885b62be6efb58df63f45737aca275414",
+        "Constant.cfg": "16fda0a947dff14b9e729d452ac28a695f49248d5abdf5e906d2c969e86ec51a"
+      },
+      "tlc_stdout_sha256": "4918071caad348638b74017685ca554b4f7a147c6784a00a9ee23b0bcdbdf5df",
+      "sany_stdout_sha256": "c8b4b5d92ef8c715886c80de4b54ea88779c29a81568cb4e227c008ab20060db",
+      "trace_sha256": "c4c72427036dfd1b405510be720bc39aa6a9884d2073448b3e1c129178bfb5a2"
+    },
+    {
+      "id": "constant_redirect_violation",
+      "property": "Bad",
+      "verdict_code": 2116,
+      "physical_exit": 13,
+      "SANY_physical_exit": 0,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "word": [
+        false,
+        true
+      ],
+      "back_to": 0,
+      "files": {
+        "Constant.tla": "031158cf3821535745937a17b68f648cc5a24114d1763537337122eafcd4327a",
+        "Shared.tla": "b1ae366f2dbc7a4087a72c5952bec2c82c3a969ea9f7ab67b6acdc05c08c316c",
+        "ConstInner.tla": "2a8e1f00053fe6769e3aa73a2a8bc18885b62be6efb58df63f45737aca275414",
+        "Constant.cfg": "1a878e48bdc9d54aca3ede9e5ff6a7b511a502f9178ab8369ff1d39c3ff73fcd"
+      },
+      "tlc_stdout_sha256": "335baada296459e40130871043fbe5eebeaf3a0800c68a69da1ee538c638a7bb",
+      "sany_stdout_sha256": "c8b4b5d92ef8c715886c80de4b54ea88779c29a81568cb4e227c008ab20060db",
+      "trace_sha256": "c4c72427036dfd1b405510be720bc39aa6a9884d2073448b3e1c129178bfb5a2"
+    }
+  ]
+}
