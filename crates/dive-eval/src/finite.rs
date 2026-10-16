@@ -66,6 +66,10 @@ impl Evaluator {
         self.validate_scope(scope)?;
         self.admit_scoped_expr(scope, expr)?;
         Guard {
+            #[cfg(test)]
+            eager_quantifiers: false,
+            #[cfg(test)]
+            visit_trace: None,
             evaluator: self,
             limit,
             visits: 0,
@@ -90,6 +94,10 @@ impl Evaluator {
         limit: usize,
     ) -> crate::Result<()> {
         Guard {
+            #[cfg(test)]
+            eager_quantifiers: false,
+            #[cfg(test)]
+            visit_trace: None,
             evaluator: self,
             limit,
             visits: 0,
@@ -191,6 +199,10 @@ impl Evaluator {
         bodies.push((self.ir().def(def).body, called.clone()));
         let initial = *work;
         let mut guard = Guard {
+            #[cfg(test)]
+            eager_quantifiers: false,
+            #[cfg(test)]
+            visit_trace: None,
             evaluator: self,
             limit: initial.div_ceil(64),
             visits: 0,
@@ -236,6 +248,10 @@ impl Evaluator {
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         let initial = *remaining;
         let mut guard = Guard {
+            #[cfg(test)]
+            eager_quantifiers: false,
+            #[cfg(test)]
+            visit_trace: None,
             evaluator: self,
             limit: policy.limit,
             visits: 0,
@@ -327,6 +343,10 @@ impl Evaluator {
     reason = "independent lexical traversal modes are saved and restored"
 )]
 struct Guard<'a> {
+    #[cfg(test)]
+    eager_quantifiers: bool,
+    #[cfg(test)]
+    visit_trace: Option<Vec<ExprId>>,
     evaluator: &'a Evaluator,
     limit: usize,
     visits: usize,
@@ -751,6 +771,10 @@ impl Guard<'_> {
     )]
     fn walk(&mut self, scope: &Scope, expr: ExprId, st: &St, depth: usize) -> crate::Result<()> {
         self.visits = self.visits.saturating_add(1);
+        #[cfg(test)]
+        if let Some(trace) = &mut self.visit_trace {
+            trace.push(expr);
+        }
         if depth > 256 || self.visits > self.limit.saturating_mul(64).min(100_000) {
             return Err(EvalError::resource_limit("finite binding traversal"));
         }
@@ -1053,6 +1077,30 @@ impl Guard<'_> {
                         .domain
                         .ok_or_else(|| EvalError::unsupported("unbounded predicate domain"))?;
                     self.walk_data(scope, dom, st, depth + 1)?;
+                }
+                // Tests retain the old eager route as an independent reference.
+                #[cfg(test)]
+                let scalar_cursor = !self.eager_quantifiers;
+                #[cfg(not(test))]
+                let scalar_cursor = true;
+                if !self.analysis
+                    && scalar_cursor
+                    && matches!(node.expr, Expr::Quant { .. })
+                    && bounds.iter().all(|bound| !bound.tuple)
+                {
+                    return ev.for_each_scalar_quantifier_scope(
+                        scope,
+                        expr,
+                        st,
+                        self.limit,
+                        |sc| {
+                            if boolean_body {
+                                self.walk(sc, *body, st, depth + 1)
+                            } else {
+                                self.walk_data(sc, *body, st, depth + 1)
+                            }
+                        },
+                    );
                 }
                 let scopes = if self.analysis {
                     vec![ev.scope_binder_analysis(scope, expr)?]
@@ -2112,6 +2160,10 @@ mod configured_recursive_tests {
             .scope_recursive_function_bounded(&scope, rec, &state, 4096)
             .expect("actual function");
         let mut guard = Guard {
+            #[cfg(test)]
+            eager_quantifiers: false,
+            #[cfg(test)]
+            visit_trace: None,
             evaluator: &evaluator,
             limit: 4096,
             visits: 0,
@@ -2143,3 +2195,7 @@ mod configured_recursive_tests {
         );
     }
 }
+
+#[cfg(test)]
+#[path = "finite/scalar_cursor_tests.rs"]
+mod scalar_cursor_tests;

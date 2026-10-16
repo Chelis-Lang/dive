@@ -390,6 +390,17 @@ pub(crate) struct Env {
     pub(crate) dynamic: Dyn,
 }
 
+#[cfg(test)]
+std::thread_local! {
+    // Arc::make_mut clones Frame exactly when another strong owner exists.
+    static FRAME_COW_COPIES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+#[cfg(test)]
+pub(crate) fn take_frame_copies() -> usize {
+    FRAME_COW_COPIES.with(|count| count.replace(0))
+}
+
 impl Env {
     /// A fresh frame for definition `def` with `slots` slots.
     pub(crate) fn new(
@@ -412,6 +423,10 @@ impl Env {
 
     /// Binds a slot of the current frame (copy-on-write).
     pub(crate) fn bind(&mut self, slot: usize, v: Sv) {
+        #[cfg(test)]
+        if Arc::strong_count(&self.frame) > 1 {
+            FRAME_COW_COPIES.with(|count| count.set(count.get().saturating_add(1)));
+        }
         let frame = Arc::make_mut(&mut self.frame);
         if slot >= frame.slots.len() {
             frame.slots.resize(slot + 1, Sv::Unset);
