@@ -389,6 +389,13 @@ queries. Other effect and purity guards still apply; this is not a global
 syntactic query scan.
 Boolean existential and universal bodies retain their bounded query support.
 
+Finite preflight prepares all bounded domains and checks the complete binding
+count before visiting a quantifier body. Concrete non-tuple quantifiers can
+reuse one copy-on-write working context; every original body and guard still
+runs. Captured contexts retain their old bindings. Tuple patterns and analysis
+contexts keep eager construction and its original first-error order. These
+entry/work bounds do not provide a runtime or process-memory guarantee.
+
 ## INSTANCE query namespace controls
 
 The separate `instance-temporal` corpus records ten tiny Boolean controls from

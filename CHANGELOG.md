@@ -282,6 +282,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Finite predicate preflight streams non-tuple quantifier bindings through one
+  copy-on-write context, while retaining all domain, visit and error checks.
+  Tuple patterns, analysis scopes and public eager binding APIs are unchanged.
+  Runtime benefit and original-model sufficiency are not yet measured.
+
 - Bounded final temporal analysis supports nested pure ENABLED queries in
   Boolean action guards and fairness, with independent finite-cover validation
   of original Next and closing edges. Existing limits and explicit refusals for
