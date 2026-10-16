@@ -62,7 +62,7 @@ fn finite_relations_match_exhaustive_assignments_and_return_real_witnesses() {
                 // D's unchanged values may be outside the finite brute-force box.
                 let expected = if name == "D" { true } else { brute };
                 assert_eq!(enabled(&result), expected, "{name}, {x}, {y}");
-                if let Decision::Enabled { witness } = result {
+                if let Decision::Enabled { witness, .. } = result {
                     assert_eq!(
                         m.eval(&p, &St::action(before.clone(), witness))
                             .expect("witness"),
@@ -227,7 +227,7 @@ fn constant_action_calls_preserve_contexts_and_return_real_witnesses() {
                     (min..=max).contains(&(x + y)),
                     "{name} {x} {y}"
                 );
-                if let Decision::Enabled { witness } = result {
+                if let Decision::Enabled { witness, .. } = result {
                     assert_eq!(
                         m.eval(&p, &St::action(before.clone(), witness))
                             .expect("witness"),
@@ -366,7 +366,7 @@ fn finite_quantified_actions_match_every_small_assignment() {
                 let result =
                     exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
                 assert_eq!(enabled(&result), brute, "{name} {x} {y}");
-                if let Decision::Enabled { witness } = result {
+                if let Decision::Enabled { witness, .. } = result {
                     assert_eq!(
                         m.eval(&p, &St::action(before.clone(), witness))
                             .expect("witness"),
@@ -455,7 +455,7 @@ fn quantified_missing_domains_correlations_and_limits_never_guess_disabled() {
         Limits::default(),
     )
     .expect("correlated");
-    let Decision::Enabled { witness } = result else {
+    let Decision::Enabled { witness, .. } = result else {
         panic!("i=j=2 satisfies relation");
     };
     assert_eq!(witness, state(2, 2));
@@ -523,7 +523,7 @@ fn let_bound_necessary_covers_preserve_outer_values_and_real_witnesses() {
                 let result =
                     exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
                 assert_eq!(enabled(&result), brute, "{name} {x} {y}");
-                if let Decision::Enabled { witness } = result {
+                if let Decision::Enabled { witness, .. } = result {
                     assert_eq!(
                         m.eval(&p, &St::action(before.clone(), witness))
                             .expect("original relation"),
@@ -592,7 +592,7 @@ fn selectseq_independent_lazy_helper_subscript_requires_sequence_and_callback_st
             4096,
         )
         .expect("complete cover includes sequence and captured callback state dependencies");
-        let Decision::Enabled { witness } = d else {
+        let Decision::Enabled { witness, .. } = d else {
             panic!("concrete changed witness")
         };
         assert_eq!(witness, state(1, 1));
@@ -831,7 +831,7 @@ fn configured_lazy_covers_match_original_relation_and_keep_incomplete_refusals()
             )
             .expect("complete configured cover");
             assert_eq!(enabled(&result), expected, "{x},{y}");
-            if let Decision::Enabled { witness } = result {
+            if let Decision::Enabled { witness, .. } = result {
                 assert_eq!(
                     m.eval(&p, &St::action(before, witness))
                         .expect("original witness"),
@@ -912,7 +912,7 @@ fn configured_cover_rhs_retains_each_actual_scope_and_refuses_primed_correlation
             4096,
         )
         .expect("current-state RHS cover");
-        let Decision::Enabled { witness } = result else {
+        let Decision::Enabled { witness, .. } = result else {
             panic!("known real successor")
         };
         assert_eq!(witness, expected);
@@ -1012,7 +1012,8 @@ fn ordinary_binding_covers_preserve_the_expression_budget_boundary() {
         if expressions < 4 {
             assert!(matches!(result, Err(ExistsError::Limit(_))));
         } else {
-            let Decision::Enabled { witness } = result.expect("original four-step cover") else {
+            let Decision::Enabled { witness, .. } = result.expect("original four-step cover")
+            else {
                 panic!("ordinary assignment must be enabled");
             };
             assert_eq!(witness[0], Some(Value::from(1)));

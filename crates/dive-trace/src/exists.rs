@@ -5,8 +5,8 @@
 use crate::State;
 use dive_eval::{ConstBinding, Scope, SlotView, St};
 use dive_ir::{
-    Arg, BuiltinOp, ConstId, DefId, DefScope, Effects, Expr, ExprId, JunctionKind, Level, OpRef,
-    QuantKind, StdOp, VarId,
+    Arg, BuiltinOp, ConstId, DeclId, DefId, DefScope, Effects, Expr, ExprId, JunctionKind, Level,
+    OpRef, QuantKind, StdOp,
 };
 use dive_model::{Model, Pred};
 use dive_value::{SetKind, Value};
@@ -37,8 +37,13 @@ impl Default for Limits {
 pub enum Decision {
     /// A concrete assignment satisfies the requested relation.
     Enabled {
-        /// Successor in IR variable order.
+        /// Root projection in IR variable order. Hidden query assignments are
+        /// retained separately; this projection need not satisfy ordinary Next.
         witness: State,
+        /// Actual partial existential assignment, keyed by canonical variable
+        /// name. Evaluate the original relation with ENABLED control and its
+        /// branched lexical scope, rather than as an ordinary graph edge.
+        assignment: Arc<dive_eval::NamedState>,
     },
     /// Every assignment in a proved finite cover fails the relation.
     Disabled,
@@ -76,7 +81,32 @@ impl std::fmt::Display for ExistsError {
 }
 impl std::error::Error for ExistsError {}
 
-type Domains = BTreeMap<VarId, Vec<Value>>;
+// TLC's existential state compares variable names even when distinct module
+// declarations supplied them. Retain a real declaration for checked construction,
+// but use only the canonical name as the independent cover/search key.
+#[derive(Clone, Debug)]
+struct Variable {
+    declaration: DeclId,
+    name: Arc<str>,
+}
+impl PartialEq for Variable {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+impl Eq for Variable {}
+impl PartialOrd for Variable {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Variable {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.name.cmp(&other.name)
+    }
+}
+type Needed = BTreeSet<Variable>;
+type Domains = BTreeMap<Variable, Vec<Value>>;
 #[derive(Default)]
 struct Cover {
     impossible: bool,
@@ -89,6 +119,7 @@ struct Cover {
 struct Search<'a> {
     model: &'a Model,
     state: State,
+    current: St,
     limits: Limits,
     steps: usize,
     invocation: Option<St>,
@@ -101,10 +132,152 @@ struct Search<'a> {
     query_allowed: bool,
     query_cover: bool,
     query_depth: usize,
+    saw_query: bool,
     binding_limit: Option<usize>,
     assignments: usize,
 }
 impl Search<'_> {
+    fn variable(&self, declaration: DeclId) -> Result<Variable, ExistsError> {
+        let decl = self
+            .model
+            .ir
+            .decls()
+            .get(declaration.index())
+            .ok_or_else(|| {
+                ExistsError::Invalid("unknown existential variable declaration".into())
+            })?;
+        if !decl.variable {
+            return Err(ExistsError::Invalid(
+                "nonvariable existential target".into(),
+            ));
+        }
+        Ok(Variable {
+            declaration,
+            name: Arc::from(decl.name.as_str()),
+        })
+    }
+
+    fn root_variable(&self, var: dive_ir::VarId) -> Result<Variable, ExistsError> {
+        let decl = self
+            .model
+            .ir
+            .vars()
+            .get(var.index())
+            .ok_or_else(|| ExistsError::Invalid("unknown existential root variable".into()))?;
+        self.variable(*decl)
+    }
+
+    // Independent structural lvalue resolution. Only canonical variable names
+    // come from the evaluator; no checker target/cover/search decision is used.
+    fn target(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        prime: bool,
+        depth: usize,
+    ) -> Result<Option<(Variable, bool)>, ExistsError> {
+        let ev = &self.model.evaluator;
+        ev.validate_predicate(scope, expr)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+        // Preserve the original direct-variable cover's work charge. Additional
+        // lexical wrappers each consume a visit before their projection.
+        if let Expr::Var { var, primed } = self.model.ir.expr(expr) {
+            return self
+                .root_variable(*var)
+                .map(|var| Some((var, prime || *primed)));
+        }
+        if !matches!(
+            self.model.ir.expr(expr),
+            Expr::Prime(_)
+                | Expr::Builtin {
+                    op: BuiltinOp::Prime,
+                    ..
+                }
+                | Expr::SubstRef { .. }
+                | Expr::Subst { .. }
+                | Expr::Local(_)
+                | Expr::Let { .. }
+                | Expr::Label { .. }
+                | Expr::Selected(_)
+                | Expr::Def(_)
+                | Expr::Apply {
+                    callee: OpRef::Def(_),
+                    ..
+                }
+        ) {
+            return Ok(None);
+        }
+        self.step(depth)?;
+        match self.model.ir.expr(expr) {
+            Expr::Prime(body) => self.target(*body, scope, true, depth + 1),
+            Expr::Builtin {
+                op: BuiltinOp::Prime,
+                args,
+            } if args.len() == 1 => self.target(args[0], scope, true, depth + 1),
+            Expr::SubstRef { decl, primed } => {
+                let prime = prime || *primed;
+                match ev
+                    .scope_substitution(scope, *decl, &self.current_state(), prime)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+                {
+                    Some(SlotView::Lazy(body, captured)) => {
+                        self.target(body, &captured, prime, depth + 1)
+                    }
+                    Some(SlotView::Unset) => Err(ExistsError::Unsupported(
+                        "unbound substitution target".into(),
+                    )),
+                    None if self.model.ir.decl(*decl).variable => {
+                        self.variable(*decl).map(|v| Some((v, prime)))
+                    }
+                    _ => Ok(None),
+                }
+            }
+            Expr::Subst { body, .. } => {
+                let entered = ev
+                    .scope_subst(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.target(*body, &entered, prime, depth + 1)
+            }
+            Expr::Local(local) => match ev.scope_slot(scope, *local) {
+                SlotView::Lazy(body, captured) => self.target(body, &captured, prime, depth + 1),
+                _ => Ok(None),
+            },
+            Expr::Let { body, .. } => {
+                let entered = ev
+                    .scope_let(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.target(*body, &entered, prime, depth + 1)
+            }
+            Expr::Label { body, .. } | Expr::Selected(body) => {
+                self.target(*body, scope, prime, depth + 1)
+            }
+            Expr::Def(def) => {
+                let def = ev.redirected(*def);
+                let definition = self.model.ir.def(def);
+                if definition.recursive || definition.std.is_some() || ev.is_value_override(def) {
+                    return Ok(None);
+                }
+                let (body, entered) = self.enter(scope, def)?;
+                self.target(body, &entered, prime, depth + 1)
+            }
+            Expr::Apply {
+                callee: OpRef::Def(def),
+                args,
+            } => {
+                let def = ev.redirected(*def);
+                let definition = self.model.ir.def(def);
+                if definition.recursive || definition.std.is_some() || ev.is_value_override(def) {
+                    return Ok(None);
+                }
+                let entered = ev
+                    .scope_apply(scope, def, args)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.target(definition.body, &entered, prime, depth + 1)
+            }
+            _ => Ok(None),
+        }
+    }
+
     fn step(&mut self, depth: usize) -> Result<(), ExistsError> {
         self.steps = self.steps.saturating_add(1);
         if depth > 256 || self.steps > self.limits.expressions {
@@ -235,20 +408,8 @@ impl Search<'_> {
             .map_or_else(St::constant, St::at_constant)
     }
     fn current_state(&self) -> St {
-        self.at_state(&self.state)
+        self.current.clone()
     }
-    fn at_state(&self, state: &State) -> St {
-        self.invocation
-            .as_ref()
-            .map_or_else(|| St::state(state.clone()), |st| st.at_state(state.clone()))
-    }
-    fn at_action(&self, before: &State, after: &State) -> St {
-        self.invocation.as_ref().map_or_else(
-            || St::action(before.clone(), after.clone()),
-            |st| st.at_action(before.clone(), after.clone()),
-        )
-    }
-
     fn boolean(&mut self, expr: ExprId, scope: &Scope, st: &St) -> Result<bool, ExistsError> {
         if self
             .model
@@ -256,6 +417,20 @@ impl Search<'_> {
             .node(expr)
             .effects
             .contains(Effects::USES_ENABLED)
+            || matches!(
+                self.model.ir.expr(expr),
+                Expr::Def(_)
+                    | Expr::Apply { .. }
+                    | Expr::Local(_)
+                    | Expr::Let { .. }
+                    | Expr::Subst { .. }
+                    | Expr::SubstRef { .. }
+                    | Expr::Label { .. }
+                    | Expr::Selected(_)
+                    | Expr::Junction { .. }
+                    | Expr::Not(_)
+                    | Expr::Quant { .. }
+            )
         {
             return self.boolean_at(expr, scope, st, 0);
         }
@@ -266,6 +441,34 @@ impl Search<'_> {
                 v.kind_name()
             ))),
         }
+    }
+
+    fn query_at(
+        &mut self,
+        action: ExprId,
+        scope: &Scope,
+        st: &St,
+        depth: usize,
+    ) -> Result<bool, ExistsError> {
+        if !matches!(
+            &st.s0,
+            dive_eval::StateRef::Vals(_) | dive_eval::StateRef::Named(_)
+        ) {
+            return Err(ExistsError::Unsupported(
+                "ENABLED needs a current state".into(),
+            ));
+        }
+        let saved_current = std::mem::replace(&mut self.current, st.enabled_current());
+        let saved = self.state.clone();
+        if let dive_eval::StateRef::Vals(state) = &st.s0 {
+            self.state = state.clone();
+        }
+        self.query_depth += 1;
+        let result = self.decide_action(&Pred::new(action, scope.clone()), None, depth + 1);
+        self.query_depth -= 1;
+        self.state = saved;
+        self.current = saved_current;
+        result.map(|d| matches!(d, Decision::Enabled { .. }))
     }
 
     // Only Boolean spines are interpreted here. Data/native leaves remain in
@@ -280,20 +483,7 @@ impl Search<'_> {
         self.step(depth)?;
         let ev = &self.model.evaluator;
         match self.model.ir.expr(expr) {
-            Expr::Enabled(action) => {
-                let dive_eval::StateRef::Vals(state) = &st.s0 else {
-                    return Err(ExistsError::Unsupported(
-                        "ENABLED needs a current state".into(),
-                    ));
-                };
-                let saved = std::mem::replace(&mut self.state, state.clone());
-                self.query_depth += 1;
-                let result =
-                    self.decide_action(&Pred::new(*action, scope.clone()), None, depth + 1);
-                self.query_depth -= 1;
-                self.state = saved;
-                return result.map(|d| matches!(d, Decision::Enabled { .. }));
-            }
+            Expr::Enabled(action) => return self.query_at(*action, scope, st, depth),
             Expr::Not(body) => return self.boolean_at(*body, scope, st, depth + 1).map(|b| !b),
             Expr::Junction { kind, items, .. } => {
                 let conjunction = *kind == JunctionKind::And;
@@ -332,6 +522,25 @@ impl Search<'_> {
                     .scope_let(scope, expr)
                     .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
                 return self.boolean_at(*body, &called, st, depth + 1);
+            }
+            Expr::Subst { body, .. } => {
+                let called = ev
+                    .scope_subst(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                return self.boolean_at(*body, &called, st, depth + 1);
+            }
+            Expr::SubstRef { decl, primed } => {
+                if let Some(SlotView::Lazy(body, captured)) = ev
+                    .scope_substitution(scope, *decl, st, *primed)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+                {
+                    let context = if *primed {
+                        st.primed_successor()
+                    } else {
+                        st.clone()
+                    };
+                    return self.boolean_at(body, &captured, &context, depth + 1);
+                }
             }
             Expr::Local(local) => {
                 if let SlotView::Lazy(body, captured) = ev.scope_slot(scope, *local) {
@@ -378,7 +587,7 @@ impl Search<'_> {
         expr: ExprId,
         scope: &Scope,
         prime: bool,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         let saved = self.query_allowed;
@@ -397,7 +606,7 @@ impl Search<'_> {
         expr: ExprId,
         scope: &Scope,
         prime: bool,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         self.step(depth)?;
@@ -428,6 +637,8 @@ impl Search<'_> {
                         }
                         | Expr::Let { .. }
                         | Expr::Local(_)
+                        | Expr::Subst { .. }
+                        | Expr::SubstRef { .. }
                         | Expr::Quant {
                             kind: QuantKind::Forall | QuantKind::Exists,
                             ..
@@ -494,18 +705,27 @@ impl Search<'_> {
         }
         match &node.expr {
             Expr::Enabled(action) => {
-                if !self.query_allowed || prime || self.inspect_only || scope.has_substitutions() {
+                if !self.query_allowed || prime || self.inspect_only {
                     return Err(ExistsError::Unsupported(
                         "primed/configured/captured ENABLED".into(),
                     ));
                 }
+                self.saw_query = true;
                 // Inner primes belong only to the inner existential namespace.
                 // Source inspection never evaluates its domains or runs a query.
                 let saved = (self.source_only, self.state_source);
                 self.source_only = true;
                 self.state_source = false;
                 self.query_depth += 1;
-                let result = self.scan(*action, scope, false, &mut BTreeSet::new(), depth + 1);
+                let entered = self
+                    .model
+                    .evaluator
+                    .scope_enabled(scope)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                let old_current = self.current.clone();
+                self.current = self.current.enabled_current();
+                let result = self.scan(*action, &entered, false, &mut BTreeSet::new(), depth + 1);
+                self.current = old_current;
                 self.query_depth -= 1;
                 (self.source_only, self.state_source) = saved;
                 result?;
@@ -534,7 +754,7 @@ impl Search<'_> {
             }
             Expr::Var { var, primed } => {
                 if prime || *primed {
-                    needed.insert(*var);
+                    needed.insert(self.root_variable(*var)?);
                 }
             }
             Expr::Prime(e) | Expr::Unchanged(e) => {
@@ -698,28 +918,7 @@ impl Search<'_> {
                     self.scan(*body, &sc, prime, needed, depth + 1)?;
                 }
             }
-            Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
-                Some(ConstBinding::Value(_)) => {}
-                Some(ConstBinding::Def(d)) => {
-                    let d = self.model.evaluator.redirected(d);
-                    let def = self.model.ir.def(d);
-                    if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
-                        return Err(ExistsError::Unsupported(
-                            "nonconstant/recursive/parameterized constant override".into(),
-                        ));
-                    }
-                    if !self.model.evaluator.is_value_override(d) {
-                        Self::check_native(def.std)?;
-                    }
-                    let sc = self
-                        .model
-                        .evaluator
-                        .scope_enter(scope, d)
-                        .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
-                    self.scan(def.body, &sc, prime, needed, depth + 1)?;
-                }
-                None => return Err(ExistsError::Unsupported("unbound action constant".into())),
-            },
+            Expr::Const(c) => self.scan_constant(*c, scope, prime, needed, depth)?,
             Expr::Let { body, .. } => {
                 let sc = self
                     .model
@@ -756,10 +955,47 @@ impl Search<'_> {
                     ));
                 }
             },
-            Expr::SubstRef { .. } | Expr::Subst { .. } => {
-                return Err(ExistsError::Unsupported(
-                    "opaque substitution action context".into(),
-                ));
+            Expr::Subst { body, .. } => {
+                let entered = self
+                    .model
+                    .evaluator
+                    .scope_subst(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.scan(*body, &entered, prime, needed, depth + 1)?;
+            }
+            Expr::SubstRef { decl, primed } => {
+                let prime = prime || *primed;
+                match self
+                    .model
+                    .evaluator
+                    .scope_substitution(scope, *decl, &self.current_state(), prime)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+                {
+                    Some(SlotView::Value(_)) => {}
+                    Some(SlotView::Lazy(body, captured)) => {
+                        self.scan(body, &captured, prime, needed, depth + 1)?;
+                    }
+                    Some(SlotView::AnalysisBound)
+                        if self.state_source || self.inspect_only || self.source_only => {}
+                    None if self.model.ir.decl(*decl).variable => {
+                        if prime {
+                            needed.insert(self.variable(*decl)?);
+                        }
+                    }
+                    None => {
+                        let Some(constant) = self.model.ir.decl(*decl).constant else {
+                            return Err(ExistsError::Unsupported(
+                                "unbound substituted declaration".into(),
+                            ));
+                        };
+                        self.scan_constant(constant, scope, prime, needed, depth)?;
+                    }
+                    _ => {
+                        return Err(ExistsError::Unsupported(
+                            "opaque substituted action binding".into(),
+                        ));
+                    }
+                }
             }
             _ => {
                 for e in node.expr.children() {
@@ -769,11 +1005,43 @@ impl Search<'_> {
         }
         Ok(())
     }
+    fn scan_constant(
+        &mut self,
+        constant: ConstId,
+        scope: &Scope,
+        prime: bool,
+        needed: &mut Needed,
+        depth: usize,
+    ) -> Result<(), ExistsError> {
+        match self.model.evaluator.constant_binding(constant) {
+            Some(ConstBinding::Value(_)) => {}
+            Some(ConstBinding::Def(d)) => {
+                let d = self.model.evaluator.redirected(d);
+                let def = self.model.ir.def(d);
+                if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
+                    return Err(ExistsError::Unsupported(
+                        "nonconstant/recursive/parameterized constant override".into(),
+                    ));
+                }
+                if !self.model.evaluator.is_value_override(d) {
+                    Self::check_native(def.std)?;
+                }
+                let sc = self
+                    .model
+                    .evaluator
+                    .scope_enter(scope, d)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.scan(def.body, &sc, prime, needed, depth + 1)?;
+            }
+            None => return Err(ExistsError::Unsupported("unbound action constant".into())),
+        }
+        Ok(())
+    }
     fn scan_recursive_source(
         &mut self,
         expr: ExprId,
         scope: &Scope,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         let saved = (self.recursive_analysis_depth, self.query_allowed);
@@ -807,7 +1075,7 @@ impl Search<'_> {
         &mut self,
         scope: &Scope,
         function: &Arc<dive_eval::LazyFcn>,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         let captured = self.recursive_contexts(scope, function)?;
@@ -823,7 +1091,7 @@ impl Search<'_> {
         &mut self,
         scope: &Scope,
         function: &Arc<dive_eval::LazyFcn>,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         let captured = self.recursive_contexts(scope, function)?;
@@ -838,7 +1106,7 @@ impl Search<'_> {
         expr: ExprId,
         scope: &Scope,
         prime: bool,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         let saved = self.query_allowed;
@@ -853,7 +1121,7 @@ impl Search<'_> {
         expr: ExprId,
         scope: &Scope,
         prime: bool,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<(), ExistsError> {
         let saved = self.state_source;
@@ -869,7 +1137,7 @@ impl Search<'_> {
         def: DefId,
         args: &[Arg],
         prime: bool,
-        needed: &mut BTreeSet<VarId>,
+        needed: &mut Needed,
         depth: usize,
     ) -> Result<Scope, ExistsError> {
         let ev = &self.model.evaluator;
@@ -1067,6 +1335,13 @@ impl Search<'_> {
         depth: usize,
     ) -> Result<Cover, ExistsError> {
         self.step(depth)?;
+        if let Some((variable, _)) = self.target(expr, scope, true, depth)? {
+            let value = self.read(expr, scope, &self.current_state())?;
+            return Ok(Cover {
+                impossible: false,
+                domains: Domains::from([(variable, vec![value])]),
+            });
+        }
         match self.model.ir.expr(expr) {
             Expr::Let { body, .. } => {
                 let sc = self
@@ -1081,17 +1356,27 @@ impl Search<'_> {
                 _ => Ok(Cover::default()),
             },
 
-            Expr::Var { var, primed: false } => Ok(Cover {
-                impossible: false,
-                domains: Domains::from([(
-                    *var,
-                    vec![
-                        self.state[var.index()]
-                            .clone()
-                            .ok_or_else(|| ExistsError::Invalid("unassigned variable".into()))?,
-                    ],
-                )]),
-            }),
+            Expr::Subst { body, .. } => {
+                let entered = self
+                    .model
+                    .evaluator
+                    .scope_subst(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.unchanged(*body, &entered, depth + 1)
+            }
+            Expr::SubstRef { decl, .. } => {
+                match self
+                    .model
+                    .evaluator
+                    .scope_substitution(scope, *decl, &self.current_state(), true)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+                {
+                    Some(SlotView::Lazy(body, captured)) => {
+                        self.unchanged(body, &captured, depth + 1)
+                    }
+                    _ => Ok(Cover::default()),
+                }
+            }
             Expr::Tuple(es) => {
                 let mut c = Cover::default();
                 for e in es {
@@ -1247,27 +1532,45 @@ impl Search<'_> {
         } else {
             ((args[0], scope.clone()), (args[1], scope.clone()))
         };
-        if op == BuiltinOp::Eq && matches!(self.model.ir.expr(b.0), Expr::Var { primed: true, .. })
+        if op == BuiltinOp::Eq
+            && self
+                .target(b.0, &b.1, false, depth + 1)?
+                .is_some_and(|(_, primed)| primed)
         {
             std::mem::swap(&mut a, &mut b);
         }
-        let (a, _) = a;
+        let (a, target_scope) = a;
         let (b, scope) = b;
-        let Expr::Var { var, primed: true } = self.model.ir.expr(a) else {
+        let Some((var, true)) = self.target(a, &target_scope, false, depth + 1)? else {
             return Ok(Cover::default());
         };
         if self.model.ir.node(b).level > Level::State {
             return Ok(Cover::default());
         }
-        if self.configured_cover {
+        if self.configured_cover
+            || scope.has_substitutions()
+            || matches!(
+                self.model.ir.expr(b),
+                Expr::Local(_)
+                    | Expr::Def(_)
+                    | Expr::Apply { .. }
+                    | Expr::Subst { .. }
+                    | Expr::SubstRef { .. }
+                    | Expr::Let { .. }
+            )
+        {
             // A formal's constant metadata is insufficient for a RHS read.
             // Refuse a successor-dependent source rather than evaluate it as
             // current-state data or invent a cover from one guessed successor.
             let mut primed = BTreeSet::new();
-            let saved = self.inspect_only;
-            self.inspect_only = true;
-            let result = self.scan(b, &scope, false, &mut primed, depth + 1);
-            self.inspect_only = saved;
+            let saved = (self.inspect_only, self.source_only);
+            if self.configured_cover {
+                self.inspect_only = true;
+            } else {
+                self.source_only = true;
+            }
+            let result = self.scan_data(b, &scope, false, &mut primed, depth + 1);
+            (self.inspect_only, self.source_only) = saved;
             result?;
             if !primed.is_empty() {
                 return Ok(Cover::default());
@@ -1301,7 +1604,7 @@ impl Search<'_> {
         }
         Ok(Cover {
             impossible: ds.is_empty(),
-            domains: Domains::from([(*var, ds)]),
+            domains: Domains::from([(var, ds)]),
         })
     }
     #[allow(
@@ -1312,6 +1615,64 @@ impl Search<'_> {
         self.step(depth)?;
         let node = self.model.ir.node(expr);
         match &node.expr {
+            Expr::Subst { body, .. } => {
+                let entered = self
+                    .model
+                    .evaluator
+                    .scope_subst(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                return self.cover(*body, &entered, depth + 1);
+            }
+            Expr::SubstRef { decl, primed } => {
+                if *primed {
+                    // The original relation still checks this primed value.
+                    // Its captured body cannot be evaluated as a current-state
+                    // guard or supply an inverse cover for a state expression.
+                    return Ok(Cover::default());
+                }
+                if let Some(SlotView::Lazy(body, captured)) = self
+                    .model
+                    .evaluator
+                    .scope_substitution(scope, *decl, &self.current_state(), *primed)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+                {
+                    return self.cover(body, &captured, depth + 1);
+                }
+            }
+            Expr::Def(def)
+                if !self
+                    .model
+                    .evaluator
+                    .is_value_override(self.model.evaluator.redirected(*def))
+                    && self
+                        .model
+                        .ir
+                        .def(self.model.evaluator.redirected(*def))
+                        .std
+                        .is_none() =>
+            {
+                let (body, entered) = self.enter(scope, *def)?;
+                return self.cover(body, &entered, depth + 1);
+            }
+            Expr::Apply {
+                callee: OpRef::Def(def),
+                args,
+            } if !self
+                .model
+                .evaluator
+                .is_value_override(self.model.evaluator.redirected(*def))
+                && self
+                    .model
+                    .ir
+                    .def(self.model.evaluator.redirected(*def))
+                    .std
+                    .is_none() =>
+            {
+                let def = self.model.evaluator.redirected(*def);
+                let entered =
+                    self.scoped_call(scope, def, args, false, &mut Needed::new(), depth + 1)?;
+                return self.cover(self.model.ir.def(def).body, &entered, depth + 1);
+            }
             Expr::Let { body, .. } => {
                 let sc = self
                     .model
@@ -1443,7 +1804,8 @@ impl Search<'_> {
 /// semantics independently of the checker generator. Model constraints and
 /// the reachable graph do not restrict `ENABLED`. A supplied subscript must
 /// change (`<<A>>_v`). Every primed read must have a complete finite cover.
-/// Variables never read primed may retain their current values.
+/// The root witness projection retains current values for unassigned roots.
+/// The actual named assignment contains only the existential candidate's keys.
 ///
 /// # Errors
 /// Unsupported contexts/unbounded reads, malformed states, evaluation or
@@ -1536,6 +1898,7 @@ fn decide(
     let mut cx = Search {
         model,
         state: state.clone(),
+        current: St::state(state.clone()),
         limits,
         steps: 0,
         assignments: 0,
@@ -1543,6 +1906,7 @@ fn decide(
         query_allowed: true,
         query_cover: false,
         query_depth: 0,
+        saw_query: false,
         recursive_analysis_depth: 0,
         binding_limit,
         invocation: binding_limit
@@ -1559,6 +1923,9 @@ fn decide(
         inspect_only: false,
         configured_cover: false,
     };
+    if let Some(invocation) = &cx.invocation {
+        cx.current = invocation.clone();
+    }
     cx.decide_action(action, nonstuttering, 0)
 }
 
@@ -1573,37 +1940,81 @@ impl Search<'_> {
         depth: usize,
     ) -> Result<Option<bool>, ExistsError> {
         self.step(depth)?;
+        let ev = &self.model.evaluator;
         let node = self.model.ir.node(expr);
-        if node.level <= Level::State && !node.effects.contains(Effects::USES_ENABLED) {
-            return self.boolean(expr, scope, &self.current_state()).map(Some);
-        }
         match &node.expr {
-            Expr::Def(d) => {
-                let (body, called) = self.enter(scope, *d)?;
-                self.leading_guard(body, &called, depth + 1)
+            Expr::Enabled(_) | Expr::Quant { .. } => return Ok(None),
+            Expr::Def(def)
+                if !ev.is_value_override(ev.redirected(*def))
+                    && self.model.ir.def(ev.redirected(*def)).std.is_none() =>
+            {
+                let (body, entered) = self.enter(scope, *def)?;
+                return self.leading_guard(body, &entered, depth + 1);
+            }
+            Expr::Apply {
+                callee: OpRef::Def(def),
+                args,
+            } if !ev.is_value_override(ev.redirected(*def))
+                && self.model.ir.def(ev.redirected(*def)).std.is_none() =>
+            {
+                let def = ev.redirected(*def);
+                let entered = ev
+                    .scope_apply(scope, def, args)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                return self.leading_guard(self.model.ir.def(def).body, &entered, depth + 1);
             }
             Expr::Let { body, .. } => {
-                let called = self
-                    .model
-                    .evaluator
+                let entered = ev
                     .scope_let(scope, expr)
                     .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
-                self.leading_guard(*body, &called, depth + 1)
+                return self.leading_guard(*body, &entered, depth + 1);
             }
-            Expr::Junction {
-                kind: JunctionKind::And,
-                items,
-                ..
-            } => {
+            Expr::Subst { body, .. } => {
+                let entered = ev
+                    .scope_subst(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                return self.leading_guard(*body, &entered, depth + 1);
+            }
+            Expr::SubstRef { decl, primed } => {
+                if *primed {
+                    return Ok(None);
+                }
+                if let Some(SlotView::Lazy(body, captured)) = ev
+                    .scope_substitution(scope, *decl, &self.current_state(), false)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?
+                {
+                    return self.leading_guard(body, &captured, depth + 1);
+                }
+            }
+            Expr::Local(local) => {
+                if let SlotView::Lazy(body, captured) = ev.scope_slot(scope, *local) {
+                    return self.leading_guard(body, &captured, depth + 1);
+                }
+            }
+            Expr::Label { body, .. } | Expr::Selected(body) => {
+                return self.leading_guard(*body, scope, depth + 1);
+            }
+            Expr::Not(body) => {
+                return self
+                    .leading_guard(*body, scope, depth + 1)
+                    .map(|b| b.map(|b| !b));
+            }
+            Expr::Junction { kind, items, .. } => {
+                let conjunction = *kind == JunctionKind::And;
                 for item in items {
                     match self.leading_guard(*item, scope, depth + 1)? {
-                        Some(true) => {}
+                        Some(value) if value == conjunction => {}
                         other => return Ok(other),
                     }
                 }
-                Ok(Some(true))
+                return Ok(Some(conjunction));
             }
-            _ => Ok(None),
+            _ => {}
+        }
+        if node.level <= Level::State && !node.effects.contains(Effects::USES_ENABLED) {
+            self.boolean(expr, scope, &self.current_state()).map(Some)
+        } else {
+            Ok(None)
         }
     }
 
@@ -1626,29 +2037,47 @@ impl Search<'_> {
         let model = self.model;
         let state = self.state.clone();
         let limits = self.limits;
+        let mut action = action.clone();
+        action.scope = model
+            .evaluator
+            .scope_enabled(&action.scope)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+        let nonstuttering = nonstuttering
+            .map(|sub| {
+                let mut sub = sub.clone();
+                sub.scope = model
+                    .evaluator
+                    .scope_enabled(&sub.scope)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                Ok::<_, ExistsError>(sub)
+            })
+            .transpose()?;
+        self.current = self.current.enabled_current();
         let mut needed = BTreeSet::new();
-        self.scan(action.expr, &action.scope, false, &mut needed, child)?;
-        if let Some(sub) = nonstuttering {
-            if model
-                .ir
-                .nodes()
-                .get(sub.expr.index())
-                .ok_or_else(|| ExistsError::Unsupported("missing change subscript".into()))?
-                .level
-                > Level::State
-            {
-                return Err(ExistsError::Unsupported(
-                    "action-level change subscript".into(),
-                ));
+        let saved_query = std::mem::replace(&mut self.saw_query, false);
+        let scan: Result<(), ExistsError> = (|| {
+            self.scan(action.expr, &action.scope, false, &mut needed, child)?;
+            if let Some(sub) = &nonstuttering {
+                if model
+                    .ir
+                    .nodes()
+                    .get(sub.expr.index())
+                    .ok_or_else(|| ExistsError::Unsupported("missing change subscript".into()))?
+                    .level
+                    > Level::State
+                {
+                    return Err(ExistsError::Unsupported(
+                        "action-level change subscript".into(),
+                    ));
+                }
+                self.scan(sub.expr, &sub.scope, true, &mut needed, child)?;
             }
-            self.scan(sub.expr, &sub.scope, true, &mut needed, child)?;
-        }
-        let nested = self.query_depth != 0
-            || model
-                .ir
-                .node(action.expr)
-                .effects
-                .contains(Effects::USES_ENABLED);
+            Ok(())
+        })();
+        let saw_query = self.saw_query;
+        self.saw_query |= saved_query;
+        scan?;
+        let nested = self.query_depth != 0 || saw_query;
         if nested && self.leading_guard(action.expr, &action.scope, depth + 1)? == Some(false) {
             return Ok(Decision::Disabled);
         }
@@ -1665,23 +2094,43 @@ impl Search<'_> {
         if cover.impossible {
             return Ok(Decision::Disabled);
         }
-        let domains: Vec<_> = needed
+        let mut domains: Vec<_> = needed
             .iter()
             .map(|v| {
-                cover.domains.get(v).map(|d| (*v, d)).ok_or_else(|| {
+                cover.domains.get(v).map(|d| (v, d)).ok_or_else(|| {
                     ExistsError::Unsupported(format!(
                         "no finite cover for primed variable {}",
-                        v.index()
+                        v.name
                     ))
                 })
             })
             .collect::<Result<_, _>>()?;
+        // Retain the existing first-witness order for ordinary roots. Hidden
+        // names come after them, while aliases of a root share its position.
+        let root_order: BTreeMap<_, _> = model
+            .ir
+            .vars()
+            .iter()
+            .enumerate()
+            .map(|(index, decl)| (model.ir.decl(*decl).name.as_str(), index))
+            .collect();
+        domains.sort_by(|(a, _), (b, _)| {
+            let a_root = root_order.get(a.name.as_ref());
+            let b_root = root_order.get(b.name.as_ref());
+            match (a_root, b_root) {
+                (Some(a), Some(b)) => a.cmp(b),
+                (Some(_), None) => std::cmp::Ordering::Less,
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (None, None) => a.name.cmp(&b.name),
+            }
+        });
         let count = domains
             .iter()
             .try_fold(1_usize, |n, (_, d)| n.checked_mul(d.len()))
             .filter(|n| *n <= limits.assignments.saturating_sub(self.assignments))
             .ok_or(ExistsError::Limit("assignments"))?;
         let before = nonstuttering
+            .as_ref()
             .map(|p| self.read(p.expr, &p.scope, &self.current_state()))
             .transpose()?;
         for i in 0..count {
@@ -1690,13 +2139,16 @@ impl Search<'_> {
             }
             self.assignments += 1;
             let mut quotient = i;
-            let mut values = state.to_vec();
+            let mut values = Vec::with_capacity(domains.len());
             for (v, ds) in &domains {
-                values[v.index()] = Some(ds[quotient % ds.len()].clone());
+                values.push((v.declaration, ds[quotient % ds.len()].clone()));
                 quotient /= ds.len();
             }
-            let witness: State = Arc::from(values);
-            let action_state = self.at_action(&state, &witness);
+            let assignment = model
+                .evaluator
+                .named_state(values)
+                .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+            let action_state = self.current_state().enabled_candidate(assignment.clone());
             let holds = if nested {
                 self.boolean_at(action.expr, &action.scope, &action_state, depth + 1)?
             } else {
@@ -1705,8 +2157,8 @@ impl Search<'_> {
             if !holds {
                 continue;
             }
-            if let (Some(sub), Some(before)) = (nonstuttering, &before) {
-                let after = self.read(sub.expr, &sub.scope, &self.at_state(&witness))?;
+            if let (Some(sub), Some(before)) = (&nonstuttering, &before) {
+                let after = self.read(sub.expr, &sub.scope, &action_state.primed_successor())?;
                 if model
                     .evaluator
                     .equal_values(before, &after)
@@ -1715,7 +2167,16 @@ impl Search<'_> {
                     continue;
                 }
             }
-            return Ok(Decision::Enabled { witness });
+            let mut projection = state.to_vec();
+            for (index, declaration) in model.ir.vars().iter().enumerate() {
+                if let Some(value) = assignment.get(&model.ir.decl(*declaration).name) {
+                    projection[index] = Some(value.clone());
+                }
+            }
+            return Ok(Decision::Enabled {
+                witness: Arc::from(projection),
+                assignment,
+            });
         }
         Ok(Decision::Disabled)
     }
@@ -1756,6 +2217,7 @@ fn pure_search<'a>(
     let cx = Search {
         model,
         state: state.clone(),
+        current: invocation.clone(),
         limits,
         steps: 0,
         assignments: 0,
@@ -1767,10 +2229,40 @@ fn pure_search<'a>(
         query_allowed: true,
         query_cover: false,
         query_depth: 0,
+        saw_query: false,
         recursive_analysis_depth: 0,
         binding_limit: Some(binding_limit),
     };
     Ok((cx, invocation))
+}
+
+// Runtime entry from an ordinary interpreter occurrence. The source scope is
+// unbranched; decide_action owns the one query branch. Counters are carried
+// across sibling occurrences, and nested occurrences use this same Search.
+pub(crate) fn reached_query(
+    model: &Model,
+    action: &Pred,
+    st: &St,
+    limits: Limits,
+    expressions: &mut usize,
+    assignments: &mut usize,
+) -> Result<bool, ExistsError> {
+    let (mut cx, _) = pure_search(model, action, st, limits, 4096)?;
+    cx.invocation = Some(st.clone());
+    cx.current = st.clone();
+    cx.steps = *expressions;
+    cx.assignments = *assignments;
+    cx.source_only = false;
+    cx.query_depth = 1;
+    let result = cx.decide_action(action, None, 0);
+    *expressions = cx.steps;
+    *assignments = cx.assignments;
+    if model.has_runtime_names() {
+        return Err(ExistsError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.into(),
+        ));
+    }
+    result.map(|decision| matches!(decision, Decision::Enabled { .. }))
 }
 
 pub(crate) fn boolean_pure(
@@ -1859,6 +2351,7 @@ pub(crate) fn check_boolean_context(model: &Model, pred: &Pred) -> Result<(), Ex
     let mut cx = Search {
         model,
         state: Arc::from([]),
+        current: St::constant(),
         limits: Limits::default(),
         steps: 0,
         assignments: 0,
@@ -1870,6 +2363,7 @@ pub(crate) fn check_boolean_context(model: &Model, pred: &Pred) -> Result<(), Ex
         query_allowed: true,
         query_cover: false,
         query_depth: 0,
+        saw_query: false,
         recursive_analysis_depth: 0,
         binding_limit: None,
     };

@@ -1360,15 +1360,14 @@ RP == R!Claim
     }
 }
 
-#[test]
-fn unsupported_substitution_bindings_and_disabledness_never_claim_truth() {
-    let (ir, cfg) = input(
-        r"---- MODULE InstanceLimits ----
+const SUBSTITUTION_LIMITS_SOURCE: &str = r"---- MODULE InstanceLimits ----
 ---- MODULE Inner ----
 CONSTANT F(_)
 VARIABLE v
 OpClaim == []<>F(v)
 Disabled == []~ENABLED (v'=~v)
+Never == []~ENABLED (v'=~v /\ FALSE)
+Uncovered == []~ENABLED (v'#v)
 ValueClaim == []<>v
 ====
 VARIABLE x
@@ -1378,42 +1377,60 @@ Init == x=TRUE
 Next == x'=~x
 OP == I!OpClaim
 EN == I!Disabled
+DN == I!Never
+UC == I!Uncovered
 P == I!ValueClaim
 ====
-",
-        "INIT Init\nNEXT Next\n",
-    );
-    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
-    let states = [Arc::from([Some(true.into())])];
-    let op = ir.root_def("OP").expect("OP");
-    let op = dive_model::Pred::new(
-        ir.def(op).body,
-        model.evaluator.scope(op).expect("valid scope"),
-    );
-    assert!(dive_liveness::plan::lower(&model, &op, Limits::default().formula).is_err());
-    assert!(dive_trace::temporal::evaluate_lasso(&model, &op, &states, 0).is_err());
-    let en = ir.root_def("EN").expect("EN");
-    let en = dive_model::Pred::new(
-        ir.def(en).body,
-        model.evaluator.scope(en).expect("valid scope"),
-    );
-    assert!(
-        dive_trace::temporal::evaluate_lasso(&model, &en, &states, 0).is_err(),
-        "substituted disabledness needs a separate finite cover proof"
-    );
-    let p = ir.root_def("P").expect("P");
-    let p = dive_model::Pred::new(
-        ir.def(p).body,
-        model.evaluator.scope(p).expect("valid scope"),
-    );
-    let mut limit = Limits::default().formula;
-    limit.expansion_steps = 3;
-    assert_eq!(
-        dive_liveness::plan::lower(&model, &p, limit)
-            .expect_err("budget")
-            .code(),
-        "DIVE-L0021"
-    );
+";
+
+#[test]
+fn substituted_disabledness_keeps_finite_proofs_and_other_scope_limits() {
+    let (ir, cfg) = input(SUBSTITUTION_LIMITS_SOURCE, "INIT Init\nNEXT Next\n");
+    for options in [
+        dive_model::BindOptions::tlc(),
+        dive_model::BindOptions::dive(),
+    ] {
+        let model = dive_model::bind(ir.clone(), &cfg, &options).expect("bind");
+        let role = |name| {
+            let def = ir.root_def(name).expect(name);
+            dive_model::Pred::new(
+                ir.def(def).body,
+                model.evaluator.scope(def).expect("valid scope"),
+            )
+        };
+        let states = [Arc::from([Some(true.into())])];
+        let op = role("OP");
+        assert!(dive_liveness::plan::lower(&model, &op, Limits::default().formula).is_err());
+        assert!(dive_trace::temporal::evaluate_lasso(&model, &op, &states, 0).is_err());
+        for value in [true, false] {
+            let states = [Arc::from([Some(value.into())])];
+            for _ in 0..2 {
+                for (name, truth) in [("EN", false), ("DN", true)] {
+                    assert_eq!(
+                        dive_trace::temporal::evaluate_lasso(&model, &role(name), &states, 0)
+                            .expect("complete original INSTANCE finite cover"),
+                        vec![truth],
+                        "{name}/{value}"
+                    );
+                }
+                assert!(
+                    matches!(
+                        dive_trace::temporal::evaluate_lasso(&model, &role("UC"), &states, 0),
+                        Err(dive_trace::temporal::TemporalError::Unsupported(_))
+                    ),
+                    "missing finite cover never establishes disabledness"
+                );
+            }
+        }
+        let mut limit = Limits::default().formula;
+        limit.expansion_steps = 3;
+        assert_eq!(
+            dive_liveness::plan::lower(&model, &role("P"), limit)
+                .expect_err("budget")
+                .code(),
+            "DIVE-L0021"
+        );
+    }
 }
 
 #[test]

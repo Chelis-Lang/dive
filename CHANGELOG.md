@@ -1,5 +1,12 @@
 # Changelog
 
+- Independent finite-cover queries retain hidden assignments by canonical name
+  and follow actual INSTANCE/lazy scopes. Ordinary counterexample predicates
+  dispatch reached ENABLED queries to this search, including queries inside
+  data-valued lazy arguments, while preserving ordinary host and error order.
+  Query decisions from another evaluator invocation cannot satisfy replay through
+  a thunk cache. General callable/temporal INSTANCE integration remains open.
+
 - Evaluator ENABLED searches retain hidden successor assignments by canonical
   variable name, preserving exported/nested INSTANCE cutoff and lazy-scope
   distinctions in both profiles. Named-state reads, cache compatibility and

@@ -657,6 +657,7 @@ impl Gen<'_, '_> {
                 control: control::INIT,
                 selectseq: None,
                 selectseq_callback: false,
+                enabled: None,
             }
         } else {
             St {
@@ -665,6 +666,7 @@ impl Gen<'_, '_> {
                 control: control::CLEAR,
                 selectseq: None,
                 selectseq_callback: false,
+                enabled: None,
             }
         }
     }
@@ -679,6 +681,7 @@ impl Gen<'_, '_> {
                 control: control::CLEAR,
                 selectseq: None,
                 selectseq_callback: false,
+                enabled: None,
             }
         } else {
             self.st()
@@ -765,6 +768,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         };
         let s1 = St {
             s0: StateRef::Vals(self.s1.clone()),
@@ -772,6 +776,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         };
         let v1 = self.core.eval_v(&mut item.env.clone(), &s0, item.expr)?;
         let v2 = self.core.eval_v(&mut item.env.clone(), &s1, item.expr)?;
@@ -1218,6 +1223,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         };
         let st1 = St {
             s0: StateRef::Vals(self.s1.clone()),
@@ -1225,6 +1231,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         };
         let v0 = self.core.eval_v(&mut env.clone(), &st0, e)?;
         let v1 = self.core.eval_v(&mut env.clone(), &st1, e)?;
@@ -1845,6 +1852,7 @@ impl Expander<'_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         };
         match t {
             ActionTree::Leaf { expr, name } => {
@@ -1983,6 +1991,7 @@ impl Expander<'_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         };
         let attempt = (|| -> std::result::Result<(), Split1> {
             let d = core.ir.def(def);
@@ -2136,6 +2145,7 @@ impl Evaluator {
             s0: state,
             selectseq: invocation.and_then(|st| st.selectseq.clone()),
             selectseq_callback: invocation.is_some_and(|st| st.selectseq_callback),
+            enabled: invocation.and_then(|st| st.enabled.clone()),
         };
         let successor = crate::NamedState::empty(&self.core);
         Ok(en.enabled(action, &acts, &env, successor)?.is_some())
@@ -2145,7 +2155,7 @@ impl Evaluator {
 impl Core {
     /// `OPCODE_enabled`: whether the action has a successor from the current
     /// state, searched as TLC's `enabled` searches, in a branched context.
-    pub(crate) fn eval_enabled(
+    pub(crate) fn eval_enabled_native(
         self: &Arc<Self>,
         env: &mut Env,
         st: &St,
@@ -2160,6 +2170,7 @@ impl Core {
             s0: st.s0.clone(),
             selectseq: st.selectseq.clone(),
             selectseq_callback: st.selectseq_callback,
+            enabled: st.enabled.clone(),
         };
         let found = en.enabled(a, &None, &env1, s1)?;
         Ok(Ev::V(Value::Bool(found.is_some())))
@@ -2188,6 +2199,7 @@ struct Enab {
     s0: StateRef,
     selectseq: Option<Arc<crate::env::SelectSeqBudget>>,
     selectseq_callback: bool,
+    enabled: Option<crate::enabled::EnabledInvocation>,
 }
 
 impl Enab {
@@ -2198,6 +2210,7 @@ impl Enab {
             control: control::ENABLED,
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
+            enabled: self.enabled.clone(),
         }
     }
 
@@ -2228,6 +2241,7 @@ impl Enab {
                     control: control::ENABLED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    enabled: self.enabled.clone(),
                 };
                 let st1 = St {
                     s0: StateRef::Named(s1.clone()),
@@ -2235,6 +2249,7 @@ impl Enab {
                     control: control::PRIMED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    enabled: self.enabled.clone(),
                 };
                 let v1 = self.core.eval_v(&mut item.env.clone(), &st0, item.expr)?;
                 let v2 = self.core.eval_v(&mut item.env.clone(), &st1, item.expr)?;
@@ -2663,6 +2678,7 @@ impl Enab {
                     control: control::ENABLED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    enabled: self.enabled.clone(),
                 };
                 let st1 = St {
                     s0: StateRef::Named(s1.clone()),
@@ -2670,6 +2686,7 @@ impl Enab {
                     control: control::PRIMED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    enabled: self.enabled.clone(),
                 };
                 let v0 = core.eval_v(&mut env.clone(), &st0, e)?;
                 let v1 = core.eval_v(&mut env.clone(), &st1, e)?;

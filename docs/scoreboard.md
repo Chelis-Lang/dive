@@ -15,6 +15,41 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
+### Accepted PR #305 baseline
+
+Main `e136107b96f0a95ea054ef3f6d1ece51dc1fe1db` includes name-addressed
+INSTANCE successor queries from [PR #305](https://github.com/Chelis-Lang/dive/pull/305).
+The reviewed producer `9dd3eddf7d2dcec709230b5f9ee0ad86aedeb6e8` has the same
+tree as the squash, whose sole parent is accepted main `d4006851`.
+
+| Profile | Workers | Entries | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
+|---------|--------:|--------:|------:|------------:|--------------------:|-------------------------------------------:|
+| TLC | 1 | 156 | 139 | 17 | 0 | 0 |
+| TLC | 4 | 156 | 139 | 17 | 0 | 0 |
+| default | 1 | 156 | 92 | 60 | 4 | 0 |
+| default | 4 | 156 | 93 | 60 | 3 | 0 |
+
+All four unchanged campaigns exited 0. Of their 624 complete model records,
+622 match the accepted parent except elapsed time. EWD840 alone moves from
+Unsupported to Agree in both TLC campaigns: success 2193/0, 302 distinct states,
+2,001 generated states, depth 9. Independent native and pinned-TLC reruns
+reproduce those one-worker observables. Its default temporal refusal remains.
+Pins, goldens, comparison fields, populations and original 600-second caps are
+unchanged. Both native widths use the maintained one-worker reference.
+
+The original subset now has 137/154 TLC agreements. The two Reply fixtures give
+139/156 (89.1%); ten more agreements are needed for the 149/156 small-tier
+threshold. Independent namespace-aware EXISTS, ordinary query counterexamples,
+temporal words and general callable INSTANCE support remain unfinished. This
+runtime gain does not establish those features, full-tier parity or a speedup.
+
+The full local gate passed 2,018 Rust tests with zero skips, 96 doctests,
+456 SANY comparisons and CM1/validation-smoke at 1/4/8 workers. Independent
+runtime and publication reviews approved. [Source CI](https://github.com/Chelis-Lang/dive/actions/runs/38880788479)
+and [merged-main CI](https://github.com/Chelis-Lang/dive/actions/runs/38882929684)
+passed all three jobs, each with 1,479 CI-profile Rust tests, 33 existing skips
+and 96 doctests. Merged-main cargo-deny substantively passed.
+
 The separate `instance-temporal` corpus adds ten primary-first language controls.
 Its measured small-tier runtimes do not change the established 156-ID selection
 or any historical totals below. Oracle self-checks are not native agreement or
