@@ -98,6 +98,17 @@ evaluated eagerly, the validator refuses a binding from another model's
 context or one whose effects annotation is not pure. It trusts the IR's
 effects annotations; it does not re-prove them.
 
+Ordinary counterexample predicates evaluate reached `ENABLED` occurrences with
+the independent bounded finite-cover search. The normal interpreter preserves
+argument laziness, data expressions, short circuit, host operations and error
+order around the query. The search follows the actual INSTANCE substitution
+scope and retains hidden successor variables by their canonical names, rather
+than replacing them with root aliases. Sibling and nested queries share work
+bounds. Missing finite covers remain unsupported. Temporal words and general
+operator substitutions retain their separately documented support boundaries;
+an independently replayed initial invariant violation does not establish
+general fairness support. See [ADR 0100](../decisions/0100-reached-independent-query-dispatch.md).
+
 
 ### Initial-predicate level
 

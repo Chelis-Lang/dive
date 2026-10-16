@@ -165,6 +165,7 @@ impl Core {
                 control: st.control,
                 selectseq: st.selectseq.clone(),
                 selectseq_callback: st.selectseq_callback,
+                enabled: st.enabled.clone(),
             };
             match self.eval(&mut env.clone(), &st2, b)? {
                 Ev::V(Value::Bool(true)) => return Ok(Ev::V(Value::Bool(true))),
@@ -283,6 +284,7 @@ impl Enab {
                 s0: StateRef::Vals(t),
                 selectseq: self.selectseq.clone(),
                 selectseq_callback: self.selectseq_callback,
+                enabled: self.enabled.clone(),
             };
             if let Some(s2) = en.enabled(b, acts, env, s1.clone())? {
                 return Ok(Some(s2));

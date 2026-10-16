@@ -66,6 +66,15 @@ impl NamedState {
 
 impl Evaluator {
     pub(crate) fn validate_state_context(&self, st: &crate::St) -> crate::Result<()> {
+        if st
+            .enabled
+            .as_ref()
+            .is_some_and(|i| !std::sync::Weak::ptr_eq(&i.context, &Arc::downgrade(&self.core)))
+        {
+            return Err(crate::EvalError::unsupported(
+                "foreign ENABLED invocation context",
+            ));
+        }
         for state in [&st.s0, &st.s1] {
             if let StateRef::Named(state) = state
                 && !std::ptr::eq(state.context.as_ptr(), Arc::as_ptr(&self.core))

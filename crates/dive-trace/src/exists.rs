@@ -2236,6 +2236,35 @@ fn pure_search<'a>(
     Ok((cx, invocation))
 }
 
+// Runtime entry from an ordinary interpreter occurrence. The source scope is
+// unbranched; decide_action owns the one query branch. Counters are carried
+// across sibling occurrences, and nested occurrences use this same Search.
+pub(crate) fn reached_query(
+    model: &Model,
+    action: &Pred,
+    st: &St,
+    limits: Limits,
+    expressions: &mut usize,
+    assignments: &mut usize,
+) -> Result<bool, ExistsError> {
+    let (mut cx, _) = pure_search(model, action, st, limits, 4096)?;
+    cx.invocation = Some(st.clone());
+    cx.current = st.clone();
+    cx.steps = *expressions;
+    cx.assignments = *assignments;
+    cx.source_only = false;
+    cx.query_depth = 1;
+    let result = cx.decide_action(action, None, 0);
+    *expressions = cx.steps;
+    *assignments = cx.assignments;
+    if model.has_runtime_names() {
+        return Err(ExistsError::Unsupported(
+            crate::RUNTIME_NAMES_UNSUPPORTED.into(),
+        ));
+    }
+    result.map(|decision| matches!(decision, Decision::Enabled { .. }))
+}
+
 pub(crate) fn boolean_pure(
     model: &Model,
     pred: &Pred,

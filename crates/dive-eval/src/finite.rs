@@ -273,6 +273,27 @@ impl Evaluator {
         }
         result
     }
+    /// Reuses only the resource budget of an existing pure predicate invocation
+    /// in another actual state/control context. This does not prove purity or
+    /// supply a value; the independent consumer still checks the original body.
+    ///
+    /// # Errors
+    /// Missing or foreign invocation budget, or foreign state context.
+    pub fn share_pure_predicate_budget(&self, st: &St, invocation: &St) -> crate::Result<St> {
+        self.validate_state_context(st)?;
+        self.validate_state_context(invocation)?;
+        let Some(budget) = &invocation.selectseq else {
+            return Err(EvalError::unsupported("missing pure predicate work budget"));
+        };
+        if !std::sync::Weak::ptr_eq(&budget.context, &std::sync::Arc::downgrade(&self.core)) {
+            return Err(EvalError::unsupported(
+                "foreign pure predicate invocation context",
+            ));
+        }
+        let mut result = st.clone();
+        result.selectseq = Some(budget.clone());
+        Ok(result)
+    }
 
     /// Starts one pure predicate replay with fresh invocation-local work.
     /// Cloning or shifting the returned state shares these counters across
@@ -408,6 +429,7 @@ impl Guard<'_> {
         };
         shifted.selectseq.clone_from(&st.selectseq);
         shifted.selectseq_callback = st.selectseq_callback;
+        shifted.enabled.clone_from(&st.enabled);
         shifted
     }
 

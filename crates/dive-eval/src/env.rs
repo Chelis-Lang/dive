@@ -126,6 +126,7 @@ pub struct St {
     pub(crate) control: u8,
     pub(crate) selectseq: Option<Arc<SelectSeqBudget>>,
     pub(crate) selectseq_callback: bool,
+    pub(crate) enabled: Option<crate::enabled::EnabledInvocation>,
 }
 
 #[derive(Debug)]
@@ -147,6 +148,7 @@ impl St {
             control: control::CONST,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         }
     }
 
@@ -161,6 +163,7 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         }
     }
 
@@ -173,6 +176,7 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         }
     }
 
@@ -203,6 +207,7 @@ impl St {
         Self {
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
+            enabled: self.enabled.clone(),
             ..Self::constant()
         }
     }
@@ -214,6 +219,7 @@ impl St {
         Self {
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
+            enabled: self.enabled.clone(),
             ..Self::action(s0, s1)
         }
     }
@@ -246,6 +252,7 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            enabled: None,
         }
     }
 
@@ -524,6 +531,7 @@ pub(crate) struct Cached {
     pub(crate) s0: StateRef,
     pub(crate) s1: StateRef,
     pub(crate) control: u8,
+    pub(crate) enabled: Option<std::sync::Weak<dyn crate::EnabledResolver>>,
 }
 
 /// TLC's `LazyValue`: an expression with its environment, forced at most once
@@ -555,7 +563,12 @@ impl Thunk {
         let c = cache.as_ref()?;
         (st.s0.includes(&c.s0)
             && st.s1.includes(&c.s1)
-            && control::equivalent(st.control, c.control))
+            && control::equivalent(st.control, c.control)
+            && match (&st.enabled, &c.enabled) {
+                (None, None) => true,
+                (Some(a), Some(b)) => std::sync::Weak::ptr_eq(&Arc::downgrade(&a.resolver), b),
+                _ => false,
+            })
         .then(|| c.val.clone())
     }
 
@@ -570,6 +583,7 @@ impl Thunk {
             s0: st.s0.clone(),
             s1: st.s1.clone(),
             control: st.control,
+            enabled: st.enabled.as_ref().map(|i| Arc::downgrade(&i.resolver)),
         });
     }
 }
