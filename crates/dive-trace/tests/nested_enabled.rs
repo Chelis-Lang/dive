@@ -361,7 +361,7 @@ fn nested_queries_refuse_rust_providers_and_existing_depth_exhaustion_without_ca
 }
 
 #[test]
-fn direct_state_query_wrappers_preserve_plain_words_and_old_instance_refusal() {
+fn direct_state_query_wrappers_preserve_plain_and_instance_words() {
     let instance =
         include_str!("../../dive-liveness/tests/fixtures/nested-enabled/InstanceEnabled.tla");
     let plain = instance
@@ -371,8 +371,13 @@ fn direct_state_query_wrappers_preserve_plain_words_and_old_instance_refusal() {
         .replace("Alias==I!Alias", "Alias==F")
         .replace("Neg==I!Neg", "Neg==~(D /\\ FALSE)")
         .replace("Or==I!Or", "Or==FALSE \\/ D");
+    let disabled = instance.replace("A==x'=C", "A==x'=C /\\ FALSE");
     for options in [Options::tlc(), Options::dive()] {
-        for (source, plain_scope) in [(instance, false), (plain.as_str(), true)] {
+        for (source, enabled) in [
+            (instance, true),
+            (plain.as_str(), true),
+            (disabled.as_str(), false),
+        ] {
             let a = dive_sema::analyze_source(
                 "InstanceEnabled.tla",
                 source,
@@ -392,23 +397,11 @@ fn direct_state_query_wrappers_preserve_plain_words_and_old_instance_refusal() {
             .expect("model");
             for name in ["D", "F", "L", "Alias", "Neg", "Or"] {
                 let result = evaluate_lasso(&m, &pred(&m, name), &[state(0), state(1)], 0);
-                if plain_scope {
-                    assert_eq!(
-                        result.expect("original root-scoped query word"),
-                        vec![true, true],
-                        "{name}"
-                    );
-                } else {
-                    let error = result.expect_err(
-                        "INSTANCE query words remain outside original independent subset",
-                    );
-                    assert!(
-                        error
-                            .to_string()
-                            .contains("opaque substitution action context"),
-                        "{name}: {error}"
-                    );
-                }
+                assert_eq!(
+                    result.expect("actual root or INSTANCE query word"),
+                    vec![enabled || name == "Neg"; 2],
+                    "{name}: enabled={enabled}"
+                );
             }
         }
     }
@@ -454,7 +447,7 @@ fn actual_lazy_action_formals_use_independent_nested_queries_in_source_order() {
 }
 
 #[test]
-fn hidden_state_query_actuals_refuse_before_independent_core_reads_in_all_builds() {
+fn hidden_state_query_actuals_use_independent_exists_and_keep_word_boundary() {
     use dive_ir::{Arg, Effects, Pass};
     let source =
         include_str!("../../dive-liveness/tests/fixtures/nested-enabled/StateFormalEnabled.tla");
@@ -494,10 +487,30 @@ fn hidden_state_query_actuals_refuse_before_independent_core_reads_in_all_builds
             evaluate_lasso(&m, &thunk, &[state(0), state(1)], 0),
             Err(dive_trace::temporal::TemporalError::Unsupported(_))
         ));
-        assert!(matches!(
-            exists_successor_pure(&m, &thunk, &state(0), None, Limits::default(), 4096),
-            Err(dive_trace::exists::ExistsError::Unsupported(_))
-        ));
+        let Decision::Enabled {
+            witness,
+            assignment,
+        } = exists_successor_pure(&m, &thunk, &state(0), None, Limits::default(), 4096)
+            .expect("actual lazy state query uses independent inner cover")
+        else {
+            panic!("the reached query has a successor")
+        };
+        assert_eq!(witness, state(0));
+        assert!(
+            assignment.is_empty(),
+            "inner primes cannot populate an outer candidate"
+        );
+        let limited = Limits {
+            assignments: 1,
+            ..Limits::default()
+        };
+        assert!(
+            matches!(
+                exists_successor_pure(&m, &thunk, &state(0), None, limited, 4096),
+                Err(dive_trace::exists::ExistsError::Limit("assignments"))
+            ),
+            "the outer candidate and reached inner query share work"
+        );
         assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
         m.next = Some(thunk);
         let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])

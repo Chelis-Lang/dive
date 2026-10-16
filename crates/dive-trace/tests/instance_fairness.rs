@@ -46,23 +46,7 @@ fn direct_and_instantiated_fairness_words_match_primary_observations() {
                 &options,
             )
             .expect("model");
-            let states: Vec<_> = values
-                .iter()
-                .map(|(x, g)| {
-                    Arc::from(
-                        dive_trace::variables(&model)
-                            .iter()
-                            .map(|name| {
-                                Some(match name.as_str() {
-                                    "x" => (*x).into(),
-                                    "g" => (*g).into(),
-                                    other => panic_variable(other),
-                                })
-                            })
-                            .collect::<Vec<_>>(),
-                    )
-                })
-                .collect();
+            let states = word_states(&model, &values);
             let def = model.ir.root_def("P").expect("P");
             let predicate = Pred::new(
                 model.ir.def(def).body,
@@ -122,4 +106,24 @@ fn unreachable_case(name: &str) -> Vec<(bool, bool)> {
 #[allow(clippy::panic, reason = "fixture variable invariant")]
 fn panic_variable(name: &str) -> dive_value::Value {
     panic!("unknown variable {name}")
+}
+
+fn word_states(model: &dive_model::Model, values: &[(bool, bool)]) -> Vec<dive_trace::State> {
+    values
+        .iter()
+        .map(|(x, g)| {
+            Arc::from(
+                dive_trace::variables(model)
+                    .iter()
+                    .map(|name| {
+                        Some(match name.as_str() {
+                            "x" => (*x).into(),
+                            "g" => (*g).into(),
+                            other => panic_variable(other),
+                        })
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        })
+        .collect()
 }
