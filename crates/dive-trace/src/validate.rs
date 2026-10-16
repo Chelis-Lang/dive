@@ -196,6 +196,7 @@ enum Goal {
 /// TLC reader uses it to compare interpretations of a lossy document.
 pub(crate) struct Run<'a> {
     model: &'a Model,
+    queries: crate::ordinary_queries::OrdinaryQueries,
     host: Arc<TraceHost>,
     /// The host installed before the run, restored after it.
     inner: Option<Arc<dyn Host>>,
@@ -226,6 +227,7 @@ impl<'a> Run<'a> {
         model.evaluator.set_host(host.clone());
         Self {
             model,
+            queries: crate::ordinary_queries::OrdinaryQueries::new(model),
             host,
             inner,
             passed: 0,
@@ -240,6 +242,7 @@ impl<'a> Run<'a> {
         let inner = model.evaluator.replace_host(Some(host.clone()));
         Self {
             model,
+            queries: crate::ordinary_queries::OrdinaryQueries::new(model),
             host,
             inner,
             passed: 0,
@@ -883,7 +886,12 @@ impl<'a> Run<'a> {
                 .check_finite_data_bindings(&pred.scope, pred.expr, st, 4096)
                 .map_err(|e| Stop::Unsupported(e.to_string()))?;
         }
-        match m.eval(pred, st) {
+        let evaluated = if self.periodic {
+            m.eval(pred, st)
+        } else {
+            self.queries.eval(pred, st)
+        };
+        match evaluated {
             Ok(Value::Bool(b)) => Ok(b),
             Ok(v) => Err(invalid(
                 k,

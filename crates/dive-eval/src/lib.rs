@@ -35,8 +35,9 @@
 //! included, evaluating the non-action parts of an action through this
 //! interpreter against the partial successor it is building, and uses
 //! [`EvalError`] for the error classes. `ENABLED` goes through it too, so a
-//! core build without the feature refuses `ENABLED`; the independent trace
-//! validator uses its separate bounded finite-cover procedure.
+//! core build without the feature refuses `ENABLED` unless the invocation
+//! supplies an [`EnabledResolver`]. The independent trace validator installs
+//! its own separate bounded finite-cover procedure for ordinary predicates.
 #![forbid(unsafe_code)]
 
 mod bounded_domain;
@@ -45,7 +46,9 @@ mod community;
 mod context;
 mod core;
 pub use context::{ContextError, ContextErrorKind, validate_ir};
+mod enabled;
 mod env;
+pub use enabled::EnabledResolver;
 mod error;
 mod eval;
 mod finite;
@@ -68,7 +71,7 @@ mod tlc_enum;
 /// successor with TLC's `enabled`) is refused.
 #[cfg(not(feature = "enumerate"))]
 impl Core {
-    pub(crate) fn eval_enabled(
+    pub(crate) fn eval_enabled_native(
         self: &Arc<Self>,
         _env: &mut Env,
         _st: &St,

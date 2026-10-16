@@ -82,7 +82,7 @@ fn finite_constructor_decisions_match_every_concrete_boolean_assignment() {
                     exists::exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
                 match result {
                     Decision::Disabled => assert!(!expected, "{name}/{mask}/{t}: lost witness"),
-                    Decision::Enabled { witness } => {
+                    Decision::Enabled { witness, .. } => {
                         assert!(expected, "{name}/{mask}/{t}");
                         assert_eq!(
                             m.eval(&p, &St::action(before, witness)).expect("witness"),
@@ -254,7 +254,7 @@ fn pinned_enabled_constructor_identities_cover_every_initial_state() {
                     name != "Current" || mask & 2 != 0,
                     "{name}/{mask}/{t}"
                 );
-                if let Decision::Enabled { witness } = result {
+                if let Decision::Enabled { witness, .. } = result {
                     assert_eq!(
                         m.eval(&p, &St::action(before.clone(), witness))
                             .expect("original witness"),

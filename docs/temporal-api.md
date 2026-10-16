@@ -253,9 +253,10 @@ budgets still refuse. Six pinned `Lt*` models match final truth/counts in both
 profiles/stores, with every returned periodic claim independently validated.
 
 Pure INSTANCE value/variable bindings retain captured caller scopes in temporal
-predicates, including nested substitutions, quantifiers and priming. Operator
-substitutions and independently proving disabledness through an INSTANCE remain
-named refusals. Effects and checker reads are rejected before evaluation.
+predicates, including nested substitutions, quantifiers and priming. General operator
+substitutions retain named refusals. Independent finite-cover decisions follow
+actual variable/constant substitutions and can prove disabledness when every
+required successor name has a complete finite cover. Effects and checker reads are rejected before evaluation.
 
 Pure finite constant-domain set maps, filters and function constructors retain
 local bindings and captured state in temporal predicates. State-dependent
@@ -358,8 +359,9 @@ and refuses queries in the data position without invoking a query or provider.
 Only a query-free state prefix can decide false before candidate construction;
 later query guards remain neutral during cover derivation. Missing/infinite
 covers, exhausted bounds and empty nested covers requiring source-order evidence
-refuse rather than certifying Disabled. Data/provider/higher-order, configured,
-substituted and primed query placements remain refused. No planner certificate,
+refuse rather than certifying Disabled. Data/provider/higher-order, configured
+and primed query placements retain their narrower support boundaries. Actual
+INSTANCE/lazy scopes are traversed by the independent name-addressed search. No planner certificate,
 checker enumerator dependency or new public result type is involved. The existing
 trace caller-stack contract and all numeric caps remain unchanged. Two primary
 references and their native/primary words are covered by the tests under
@@ -367,13 +369,17 @@ references and their native/primary words are covered by the tests under
 
 State-level Boolean mixtures of direct queries retain their established temporal
 lowering routes, including native query atoms under constant INSTANCE bindings.
-The private Boolean coordinator retains whole action-level guards. This does not
-expand independent INSTANCE query-word support: its existing opaque-substitution
-refusal remains in force.
+The private Boolean coordinator retains whole action-level guards. Independent
+queries retain hidden successor names and the original lazy/cutoff scope; a
+root witness projection is not an ordinary Next edge. Sixteen pinned direct and
+instantiated WF/SF cases cover continuous/intermittent starvation, disabled
+stutter and recurrent closing occurrences, with genuine typed/serialized
+violations and forged initial-state controls. This does not establish general
+callable INSTANCE or planner integration.
 
 Every independent core fallback is checked in its actual scope with the existing
-finite data-position guard. Raw effects do not authorize a hidden query. This
-conservatively refuses queries hidden behind state-valued helper formals, such
+finite data-position guard. Raw effects do not authorize a hidden query. The periodic Word interpreter
+still conservatively refuses queries hidden behind state-valued helper formals, such
 as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, before core evaluation. Native
 exhaustive checking can still establish Holds for these formulas. Supported
 action-valued lazy formal guards retain their independent Boolean paths. Periodic optional labels

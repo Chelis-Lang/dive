@@ -192,7 +192,7 @@ fn plain_configured_and_unconfigured_recursive_calls_keep_real_enabled_witnesses
                     .expect("word positive"),
                 vec![true]
             );
-            let Decision::Enabled { witness } = exists::exists_successor_pure(
+            let Decision::Enabled { witness, .. } = exists::exists_successor_pure(
                 &model,
                 &action,
                 &before,
@@ -447,7 +447,7 @@ fn nested_helper_plain_configured_and_ordinary_recursive_positives_keep_witnesse
                     .expect("word positive"),
                 vec![true]
             );
-            let Decision::Enabled { witness } = exists::exists_successor_pure(
+            let Decision::Enabled { witness, .. } = exists::exists_successor_pure(
                 &model,
                 &action,
                 &before,

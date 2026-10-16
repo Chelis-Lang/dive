@@ -481,6 +481,7 @@ impl Core {
                     control: St::primed_if_enabled(st.control),
                     selectseq: st.selectseq.clone(),
                     selectseq_callback: st.selectseq_callback,
+                    enabled: st.enabled.clone(),
                 };
                 self.eval(env, &st1, *a)
             }
@@ -494,6 +495,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     *a,
                 )?;
@@ -505,6 +507,7 @@ impl Core {
                         control: St::primed_if_enabled(st.control),
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     *a,
                 )?;
@@ -533,6 +536,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     *sub,
                 )?;
@@ -544,6 +548,7 @@ impl Core {
                         control: St::primed_if_enabled(st.control),
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     *sub,
                 )?;
@@ -635,6 +640,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     };
                     return self.eval(&mut t.env.clone(), &st1, t.expr);
                 }
@@ -716,6 +722,7 @@ impl Core {
                     control: St::primed_if_enabled(st.control),
                     selectseq: st.selectseq.clone(),
                     selectseq_callback: st.selectseq_callback,
+                    enabled: st.enabled.clone(),
                 };
                 return self.force(env, &sv, &st1, e);
             }
@@ -738,6 +745,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     c,
                     e,
@@ -817,6 +825,7 @@ impl Core {
             let mut constant = St::constant();
             constant.selectseq.clone_from(&st.selectseq);
             constant.selectseq_callback = st.selectseq_callback;
+            constant.enabled.clone_from(&st.enabled);
             let v = self.eval(&mut fresh, &constant, def.body)?;
             if st.selectseq.is_none()
                 && let Ev::V(v) = &v
@@ -2266,6 +2275,7 @@ impl Core {
                     control: St::primed_if_enabled(st.control),
                     selectseq: st.selectseq.clone(),
                     selectseq_callback: st.selectseq_callback,
+                    enabled: st.enabled.clone(),
                 };
                 return self.eval(env, &st1, arg(0)?);
             }
@@ -2279,6 +2289,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     a,
                 )?;
@@ -2290,6 +2301,7 @@ impl Core {
                         control: St::primed_if_enabled(st.control),
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        enabled: st.enabled.clone(),
                     },
                     a,
                 )?;
