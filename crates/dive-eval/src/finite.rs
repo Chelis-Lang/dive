@@ -820,6 +820,8 @@ impl Guard<'_> {
                         }
                         | Expr::Let { .. }
                         | Expr::Local(_)
+                        | Expr::Subst { .. }
+                        | Expr::SubstRef { .. }
                         | Expr::Quant {
                             kind: dive_ir::QuantKind::Forall | dive_ir::QuantKind::Exists,
                             ..
@@ -895,7 +897,7 @@ impl Guard<'_> {
         }
         match &node.expr {
             Expr::Enabled(action) => {
-                if !self.query_allowed || self.selectseq || scope.has_substitutions() {
+                if !self.query_allowed || self.selectseq {
                     return Err(EvalError::unsupported("captured/provider ENABLED"));
                 }
                 let inner = match &st.s0 {
@@ -903,7 +905,8 @@ impl Guard<'_> {
                     _ => st.at_constant(),
                 };
                 self.query_depth += 1;
-                let result = self.walk(scope, *action, &inner, depth + 1);
+                let entered = ev.scope_enabled(scope)?;
+                let result = self.walk(&entered, *action, &inner, depth + 1);
                 self.query_depth -= 1;
                 return result;
             }
@@ -965,7 +968,7 @@ impl Guard<'_> {
                         "eager substitution in finite analysis",
                     ));
                 }
-                return self.walk_data(&ev.scope_subst(scope, expr)?, *body, st, depth + 1);
+                return self.walk(&ev.scope_subst(scope, expr)?, *body, st, depth + 1);
             }
             Expr::Local(local) => {
                 return match ev.scope_slot(scope, *local) {
@@ -996,9 +999,41 @@ impl Guard<'_> {
                 } else {
                     st.clone()
                 };
-                return match ev.scope_subst_slot(scope, *decl) {
-                    SlotView::Value(_) => Ok(()),
-                    SlotView::Lazy(body, sc) => self.walk_data(&sc, body, &context, depth + 1),
+                return match ev.scope_substitution(scope, *decl, st, *primed)? {
+                    Some(SlotView::Value(value)) => {
+                        if self.selectseq {
+                            self.native_storage(None, &St::constant(), Some(&value))?;
+                        }
+                        Ok(())
+                    }
+                    Some(SlotView::Lazy(body, sc)) => self.walk(&sc, body, &context, depth + 1),
+                    Some(SlotView::AnalysisBound) if self.analysis => Ok(()),
+                    None if ev.ir().decl(*decl).variable => Ok(()),
+                    None => match ev
+                        .ir()
+                        .decl(*decl)
+                        .constant
+                        .and_then(|c| ev.constant_binding(c))
+                    {
+                        Some(ConstBinding::Value(value)) => {
+                            if self.selectseq {
+                                self.native_storage(None, &St::constant(), Some(&value))?;
+                            }
+                            Ok(())
+                        }
+                        Some(ConstBinding::Def(def)) => {
+                            let def = ev.redirected(def);
+                            self.walk(
+                                &ev.scope_enter(scope, def)?,
+                                ev.ir().def(def).body,
+                                &context,
+                                depth + 1,
+                            )
+                        }
+                        None => Err(EvalError::unsupported(
+                            "unbound substituted finite declaration",
+                        )),
+                    },
                     _ => Err(EvalError::unsupported("opaque substituted finite binding")),
                 };
             }

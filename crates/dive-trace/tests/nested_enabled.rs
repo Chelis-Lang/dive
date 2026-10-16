@@ -64,7 +64,7 @@ fn nested_queries_keep_inner_witness_namespaces_and_independent_constraints() {
         );
         for _ in 0..2 {
             for name in ["A", "B", "C", "D"] {
-                let Decision::Enabled { witness } =
+                let Decision::Enabled { witness, .. } =
                     query(&m, name, 0, Limits::default()).expect(name)
                 else {
                     panic!("{name}: actual inner99/outer1 witness")
@@ -583,7 +583,7 @@ fn nested_queries_retain_actual_recursive_domains_and_original_schedule_witnesse
                     matches!(result, Decision::Enabled { .. }),
                     !(values.is_empty() && done)
                 );
-                if let Decision::Enabled { witness } = result {
+                if let Decision::Enabled { witness, .. } = result {
                     assert_eq!(
                         m.eval(
                             &pred(&m, "Schedule"),

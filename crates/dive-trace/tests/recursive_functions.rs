@@ -57,7 +57,7 @@ fn actual_permutation_domain_enabledness_uses_original_relation_and_complete_cov
             .expect("finite decision");
             let expected = !(elements.is_empty() && done);
             assert_eq!(matches!(result, Decision::Enabled { .. }), expected);
-            if let Decision::Enabled { witness } = result {
+            if let Decision::Enabled { witness, .. } = result {
                 assert_eq!(
                     model
                         .eval(&action, &dive_eval::St::action(state, witness))
