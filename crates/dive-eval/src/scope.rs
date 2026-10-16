@@ -887,6 +887,68 @@ impl Evaluator {
         vec![None; n]
     }
 
+    /// Branches at the current dynamic depth for one ENABLED query.
+    /// Captured older scopes and bindings entered later retain their own cutoffs.
+    ///
+    /// # Errors
+    /// A foreign scope.
+    pub fn scope_enabled(&self, scope: &Scope) -> Result<Scope> {
+        self.validate_scope(scope)?;
+        let mut result = scope.clone();
+        result.env.dynamic.branch();
+        Ok(result)
+    }
+
+    /// Looks up an actual substitution under the supplied evaluation control.
+    /// `None` means absent; `Some(SlotView::Unset)` means explicitly unbound.
+    /// Variable cutoff applies to primed reads inside ENABLED and all reads in
+    /// its primed successor; constants are never hidden by that cutoff.
+    ///
+    /// # Errors
+    /// A foreign scope/state or an unknown declaration.
+    pub fn scope_substitution(
+        &self,
+        scope: &Scope,
+        decl: dive_ir::DeclId,
+        st: &St,
+        primed: bool,
+    ) -> Result<Option<SlotView>> {
+        self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
+        let declaration = self.core.ir.decls().get(decl.index()).ok_or_else(|| {
+            crate::ContextError::new(
+                crate::ContextErrorKind::UnknownId,
+                "substitution declaration",
+            )
+        })?;
+        let cutoff = declaration.variable
+            && (st.is(crate::env::control::PRIMED)
+                || (primed && st.is(crate::env::control::ENABLED)));
+        Ok(scope
+            .env
+            .dynamic
+            .lookup_cut(decl, cutoff)
+            .map(|slot| match slot {
+                Sv::Unset => SlotView::Unset,
+                Sv::Val(value) => SlotView::Value(value.clone()),
+                Sv::AnalysisBound => SlotView::AnalysisBound,
+                Sv::Thunk(thunk) => SlotView::Lazy(
+                    thunk.expr,
+                    Scope {
+                        owner: self.core.ir.clone(),
+                        names: self.core.names.clone(),
+                        context: Arc::downgrade(&self.core),
+                        env: thunk.env.clone(),
+                        wrapper: scope.wrapper,
+                    },
+                ),
+                Sv::Fcn(function) if function.rec_slot.is_some() && function.excepts.is_empty() => {
+                    SlotView::Function(function.clone())
+                }
+                Sv::Fcn(_) | Sv::Op(_) => SlotView::Other,
+            }))
+    }
+
     /// What the innermost substitution of `decl` in `scope` holds, if any.
     #[must_use]
     pub fn scope_subst_slot(&self, scope: &Scope, decl: dive_ir::DeclId) -> SlotView {
@@ -953,6 +1015,7 @@ impl Evaluator {
     pub fn scope_bindings(&self, scope: &Scope, quant: ExprId, st: &St) -> Result<Vec<Scope>> {
         self.admit_scoped_expr(scope, quant)?;
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         let core = &self.core;
         let Expr::Quant { bounds, .. } = core.ir.expr(quant) else {
             return Err(EvalError::bug(
@@ -1009,6 +1072,7 @@ impl Evaluator {
     ) -> Result<Vec<BindingColumn>> {
         self.admit_scoped_expr(scope, quant)?;
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         let core = &self.core;
         let bounds: &[dive_ir::Bound] = match core.ir.expr(quant) {
             Expr::Quant { bounds, .. }
@@ -1159,6 +1223,7 @@ impl Evaluator {
     pub fn eval_scoped(&self, scope: &Scope, expr: ExprId, st: &St) -> Result<Value> {
         self.admit_scoped_expr(scope, expr)?;
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         if st.selectseq.as_ref().is_some_and(|policy| {
             !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
         }) {
@@ -1179,6 +1244,7 @@ impl Evaluator {
     /// Any evaluation error; an operator argument is not a value.
     pub fn eval_arg(&self, scope: &Scope, arg: &Arg, st: &St) -> Result<Value> {
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         match arg {
             Arg::Expr { expr, .. } => self.eval_scoped(scope, *expr, st),
             Arg::Op { .. } => Err(EvalError::unsupported(

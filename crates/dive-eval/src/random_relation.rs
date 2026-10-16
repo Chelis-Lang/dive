@@ -59,6 +59,7 @@ impl Evaluator {
     ) -> Result<Option<bool>> {
         self.validate_scope(scope)?;
         self.admit_scoped_expr(scope, expr)?;
+        self.validate_state_context(st)?;
         self.random_relation_state(st)?;
         let Expr::Apply { callee, args } = self.core.ir.expr(expr) else {
             return Ok(None);
