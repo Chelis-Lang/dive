@@ -994,6 +994,19 @@ impl Evaluator {
         st: &St,
         limit: usize,
     ) -> Result<Vec<Scope>> {
+        let columns = self.bounded_binding_columns(scope, quant, st, limit)?;
+        self.bounded_body_contexts(scope, quant, &columns, limit)
+    }
+
+    // All domain evaluation, bounded-domain inspection and enumeration remains
+    // before any body. The public eager API and private cursor share this order.
+    fn bounded_binding_columns(
+        &self,
+        scope: &Scope,
+        quant: ExprId,
+        st: &St,
+        limit: usize,
+    ) -> Result<Vec<BindingColumn>> {
         self.admit_scoped_expr(scope, quant)?;
         self.validate_scope(scope)?;
         let core = &self.core;
@@ -1034,7 +1047,51 @@ impl Evaluator {
                 }
             }
         }
-        self.bounded_body_contexts(scope, quant, &columns, limit)
+        Ok(columns)
+    }
+
+    // Only non-analysis scalar Quant walks select this private route. Defensive
+    // eager fallback keeps tuple errors ahead of any body error, as before.
+    pub(crate) fn for_each_scalar_quantifier_scope(
+        &self,
+        scope: &Scope,
+        quant: ExprId,
+        st: &St,
+        limit: usize,
+        mut body: impl FnMut(&Scope) -> Result<()>,
+    ) -> Result<()> {
+        let columns = self.bounded_binding_columns(scope, quant, st, limit)?;
+        if !matches!(self.core.ir.expr(quant), Expr::Quant { .. })
+            || columns.iter().any(|(_, tuple, _)| *tuple)
+        {
+            for bound in self.bounded_body_contexts(scope, quant, &columns, limit)? {
+                body(&bound)?;
+            }
+            return Ok(());
+        }
+        let count = Self::bounded_binding_count(&columns, limit)?;
+        let mut bound = scope.clone();
+        for i in 0..count {
+            let mut quotient = i;
+            for (slots, _, values) in &columns {
+                let value = &values[quotient % values.len()];
+                quotient /= values.len();
+                // Each prior body borrow ended. Any retained snapshot forces
+                // ordinary Env::bind COW; no caller/capture can be overwritten.
+                self.core
+                    .bind_one(&mut bound.env, slots, false, value, quant)?;
+            }
+            body(&bound)?;
+        }
+        Ok(())
+    }
+
+    fn bounded_binding_count(columns: &[BindingColumn], limit: usize) -> Result<usize> {
+        columns
+            .iter()
+            .try_fold(1_usize, |n, (_, _, ds)| n.checked_mul(ds.len()))
+            .filter(|n| *n <= limit)
+            .ok_or_else(|| EvalError::resource_limit("quantifier bindings"))
     }
 
     pub(crate) fn bounded_body_contexts(
@@ -1044,11 +1101,7 @@ impl Evaluator {
         columns: &[BindingColumn],
         limit: usize,
     ) -> Result<Vec<Scope>> {
-        let count = columns
-            .iter()
-            .try_fold(1_usize, |n, (_, _, ds)| n.checked_mul(ds.len()))
-            .filter(|n| *n <= limit)
-            .ok_or_else(|| EvalError::resource_limit("quantifier bindings"))?;
+        let count = Self::bounded_binding_count(columns, limit)?;
         let mut result = Vec::with_capacity(count);
         for i in 0..count {
             let mut scope = scope.clone();
@@ -1285,5 +1338,21 @@ mod operator_capture_tests {
                 .is_none()
         );
         assert_eq!(ev.take_output(), Vec::<String>::new());
+    }
+}
+
+#[cfg(test)]
+mod bounded_count_tests {
+    use super::*;
+
+    #[test]
+    fn no_columns_is_one_binding_but_empty_domain_is_zero_even_at_zero_limit() {
+        assert_eq!(Evaluator::bounded_binding_count(&[], 1), Ok(1));
+        assert_eq!(
+            Evaluator::bounded_binding_count(&[], 0),
+            Err(EvalError::resource_limit("quantifier bindings"))
+        );
+        let columns = vec![(vec![0], false, Arc::<[Value]>::from([]))];
+        assert_eq!(Evaluator::bounded_binding_count(&columns, 0), Ok(0));
     }
 }
