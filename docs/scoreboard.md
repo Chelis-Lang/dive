@@ -15,9 +15,44 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-### Merged PR #293 baseline
+The separate `instance-temporal` corpus adds ten primary-first language controls.
+Its measured small-tier runtimes do not change the established 156-ID selection
+or any historical totals below. Oracle self-checks are not native agreement or
+independent word-validation credit. See [the corpus guide](conformance-corpora.md#instance-query-namespace-controls).
 
-The merged main is `ade554100631f3f0d380e984d7cb55b3d16f79f4`, from
+### Merged PR #299 baseline
+
+Main `b3ec555729c47dfb2a1c0f2da6ba0e331a5339fd` includes the test-generator
+repair in [PR #299](https://github.com/Chelis-Lang/dive/pull/299). Measured
+source `fcaa91324d859d2b267526a641f44da8cfa8821b` and the squash have identical
+tree `25f6ca973bcd6014d91f0cf1c0dd7af2f67f5008`. All four complete native
+campaigns exited 0 and preserve every previously accepted model record except
+elapsed time:
+
+| Date | Profile | Workers | Entries | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
+|------|---------|--------:|--------:|------:|------------:|--------------------:|-------------------------------------------:|
+| 2026-10-16 | TLC | 1 | 156 | 138 | 18 | 0 | 0 |
+| 2026-10-16 | TLC | 4 | 156 | 138 | 18 | 0 | 0 |
+| 2026-10-16 | default | 1 | 156 | 92 | 60 | 4 | 0 |
+| 2026-10-16 | default | 4 | 156 | 93 | 60 | 3 | 0 |
+
+The original 154-ID subset has 136 TLC agreements. Two separate configured
+Reply fixtures bring the established total to 138/156 (88.5%); the new ten-model
+INSTANCE corpus above remains separate. The small-tier 95% threshold is 149/156,
+requiring eleven more TLC agreements. Both native widths use maintained
+one-worker TLC goldens; this is no exact TLC four-worker count claim.
+
+The source full local gate passed 1,997 Rust tests with zero skips, 95 doctests,
+456 SANY comparisons, and CM1/validation-smoke at 1/4/8 workers. PR #299 changes
+only test input generation and dedicated symbolic-size controls; it adds no
+production support or corpus agreement. The four additional original agreements
+were delivered in [PR #297](https://github.com/Chelis-Lang/dive/pull/297):
+Disruptor SPMC, ReplicatedLog, ReadersWriters and SimpleAllocator. Full-tier
+qualification, default-profile completion and performance targets remain open.
+
+### Historical merged PR #293 baseline
+
+That merged main was `ade554100631f3f0d380e984d7cb55b3d16f79f4`, from
 source `f0fa88899afc18ee2dae6ba782fe39647d94c12a` with unchanged tree
 `0e3a49b5801881d951ba5a66fcf2787502305778`, merged in
 [PR #293](https://github.com/Chelis-Lang/dive/pull/293). The complete four

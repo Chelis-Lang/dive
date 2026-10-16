@@ -1,0 +1,37 @@
+{
+  "sources": [
+    "docs/user/temporal.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "instance",
+    "enabled"
+  ],
+  "modules": [
+    {
+      "path": "specifications/rebind_no_root_fresh/Pair.tla",
+      "features": [],
+      "models": []
+    },
+    {
+      "path": "specifications/rebind_no_root_fresh/Probe.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/rebind_no_root_fresh/Probe.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "specifications/rebind_no_root_fresh/Rebind.tla",
+      "features": [],
+      "models": []
+    }
+  ]
+}

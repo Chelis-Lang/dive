@@ -80,3 +80,59 @@ and copyright are preserved in the corpus's `LICENSE.md` and `NOTICE`; the
 adapter is original repository code. Coverage beyond this bounded selection,
 symmetry/anomalous cases and the JUnit-driven TLC model corpus remain open in
 issue #2. This import does not close that issue.
+
+## INSTANCE query namespace controls
+
+`instance-temporal` is a separate local corpus of ten finite Boolean models and
+23 modules. It preserves primary-first observations of lexical INSTANCE and
+`ENABLED` successor namespaces before runtime changes. Every source input is
+bound by SHA-256 in
+[`selection.json`](../conformance/corpus/instance-temporal/selection.json),
+along with pinned TLC/JRE identities, the original clean primary outcome and
+stream hashes. Original raw observations remain external.
+
+| Models | Clean primary outcome |
+| --- | --- |
+| `guard_decoy_exported`, `guard_decoy_nested` | Success; generated 3, distinct 2, depth 2 |
+| `conflict_same_direct`, `conflict_same_outside`, `conflict_no_root_nested`, `rebind_no_root_fresh` | Success; generated 2, distinct 1, depth 1 |
+| `conflict_same_exported`, `conflict_decoy_exported`, `conflict_no_root_exported`, `rebind_no_root_old` | Initial invariant `P` failure; code 2107, physical exit 12; counts and depth absent |
+
+All selected modules were accepted by SANY. The exported conflict results are
+surprising: substitutions captured before the query do not identify its two
+successor names. By contrast, the nested case shares the hidden name `q` and
+remains unsatisfiable. The guard cases retain the actual current-state value; a
+same-spelled caller variable does not replace it. The old/fresh pair distinguishes
+bindings established before and after the query branch. These distinctions
+prevent a blanket flattening of substitutions into caller root-variable IDs.
+The pinned source explanation is recorded in [provenance](provenance.md#instance-query-namespace-controls).
+
+Manifest runtimes are the original measured clean TLC process times rounded up
+to whole seconds: all ten are `00:00:01`. These models therefore enter the small
+tier normally. They are nevertheless reported as an explicit separate corpus;
+the established 156-ID selection (examples, probes, validation-smoke and the two
+configured-temporal-operators models) remains unchanged and separately reported.
+Adding these controls does not increase its denominator or demonstrate a gain.
+Gate lists and the original corpora and goldens are unchanged.
+
+Set `DIVE_RUN_OUTPUT` to an external output directory. Generate only this corpus through the ordinary pinned harness, then self-check
+the generated goldens with TLC:
+
+```sh
+dive-conformance golden generate --corpus instance-temporal --tier all \
+  --workers 1 --jobs 1 --xmx 512m --timeout 30 --timeout-cap 30 \
+  --reason 'Record lexical INSTANCE ENABLED namespaces before runtime implementation'
+dive-conformance run --impl tlc --corpus instance-temporal --tier all \
+  --workers 1 --jobs 1 --xmx 512m --timeout 30 --timeout-cap 30 \
+  --no-summary --report-dir "$DIVE_RUN_OUTPUT/instance-temporal-selfcheck"
+```
+
+The harness supplies pinned Java and libraries, seed 0, fingerprint 0 and final
+liveness checking. Its SANY process uses the existing fixed 1 GB heap; the TLC
+heap above is 512 MB. Goldens preserve the harness's separate clean-result and
+trace-pass consistency provenance. Internal transient Java streams are not
+exported by this workflow; preserve the harness streams and physical status,
+generated provenance, and already captured primary input/stream bindings.
+A TLC self-check establishes oracle reproducibility, not native conformance or
+independent validation of a counterexample. General fairness and closing-edge
+word controls, callable substitutions, and uncovered derived-query errors remain
+required beyond this initial selection.

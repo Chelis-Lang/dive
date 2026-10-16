@@ -1702,3 +1702,32 @@ fixture records real words, counts, physical exits, errors and Print events;
 raw commands and outputs remain external. The reached Next-random row is a
 refusal boundary, not an agreement. The observations retain their original source
 and binary identities; this adds no corpus or complete-mode claim.
+
+## INSTANCE query namespace controls
+
+The `instance-temporal` corpus records pinned MIT tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`, oracle
+`tlc-2026.10.06.014338`, before changing runtime semantics. Ten exact finite
+Boolean inputs retain their original primary bindings in
+`conformance/corpus/instance-temporal/selection.json`. Their exported conflict
+and old-binding cases fail the initial invariant (2107/12); direct, outside,
+nested shared-name and fresh-binding controls distinguish the cutoff.
+
+The source explanation uses `tlc2.util.Context.branch`/`lookup`,
+`tlc2.tool.impl.Spec.getPrimedVar`,
+`tlc2.tool.impl.SymbolNodeValueLookupProvider.getVar`,
+`tlc2.tool.TLCStateFun.bind`/`lookup`, and
+`tlc2.tool.impl.Tool.enabled` in that upstream tree. Cut lookup follows a lazy
+binding's captured context. Unprimed reads retain actual current-state lookup;
+the query's fresh successor can contain names absent from root state variables.
+`TLCStateFun` keys by `UniqueString` name, so two hidden references named `q`
+share a successor slot rather than acquiring distinct declaration-ID slots.
+This explains why nested aliases can remain correlated while exported `y`/`z`
+choices separate. It is a source interpretation constrained by the measured
+controls, not a claim that every INSTANCE case is implemented.
+
+No algorithm or runtime change accompanies this corpus import. Existing harness
+generation supplies SANY/model goldens and clean-versus-trace consistency fields;
+a TLC self-check gives no independent trace-validation or original-model gain
+credit. General instantiated temporal planning, successor namespace execution,
+callable origin and independent full-word validation remain open.
