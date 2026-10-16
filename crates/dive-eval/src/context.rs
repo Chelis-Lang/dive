@@ -219,7 +219,11 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
                 ));
             }
         }
-        if node.expr.children().into_iter().any(|e| e.index() >= i) {
+        if node
+            .expr
+            .try_for_each_child(|e| if e.index() >= i { Err(()) } else { Ok(()) })
+            .is_err()
+        {
             return Err(ContextError::new(
                 ContextErrorKind::Structure,
                 "expression child is not older than its parent",
@@ -229,12 +233,7 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
     // Duplicate child references can turn a finite arena into an exponential
     // walk. Admit tree ownership before walking any lexical frame expansion.
     let mut parents = vec![false; ir.nodes().len()];
-    for expr in ir
-        .defs()
-        .iter()
-        .map(|d| d.body)
-        .chain(ir.nodes().iter().flat_map(|n| n.expr.children()))
-    {
+    let mut claim = |expr: ExprId| -> CResult<()> {
         let parent = parents
             .get_mut(expr.index())
             .ok_or_else(|| unknown("expression body or child"))?;
@@ -244,6 +243,13 @@ pub(crate) fn validate(model: &mut Model) -> CResult<()> {
                 "expression has multiple parents",
             ));
         }
+        Ok(())
+    };
+    for def in ir.defs() {
+        claim(def.body)?;
+    }
+    for node in ir.nodes() {
+        node.expr.try_for_each_child(&mut claim)?;
     }
     frame_expansion(ir)?;
     let (owners, _) = frame_metadata(ir);
@@ -547,7 +553,7 @@ fn frame_expansion(ir: &dive_ir::Ir) -> CResult<()> {
                     add(*d)?;
                 }
             }
-            work.extend(node.expr.children());
+            node.expr.for_each_child(|child| work.push(child));
         }
     }
     let mut ready: Vec<_> = incoming
@@ -590,7 +596,7 @@ pub(crate) fn frame_metadata(ir: &dive_ir::Ir) -> (Vec<DefId>, Vec<bool>) {
                 *o = owner;
             }
             if let Some(node) = ir.nodes().get(e.index()) {
-                work.extend(node.expr.children());
+                node.expr.for_each_child(|child| work.push(child));
             }
         }
     }
@@ -618,9 +624,14 @@ pub(crate) fn frame_metadata(ir: &dive_ir::Ir) -> (Vec<DefId>, Vec<bool>) {
         required[i] = local
             || node
                 .expr
-                .children()
-                .iter()
-                .any(|e| required.get(e.index()).copied().unwrap_or(true));
+                .try_for_each_child(|e| {
+                    if required.get(e.index()).copied().unwrap_or(true) {
+                        Err(())
+                    } else {
+                        Ok(())
+                    }
+                })
+                .is_err();
     }
     (owners, required)
 }

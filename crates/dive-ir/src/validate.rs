@@ -67,11 +67,11 @@ fn ids_in_range(ir: &Ir, v: &mut Vec<String>) {
         _ => {}
     };
     for (i, n) in ir.exprs.iter().enumerate() {
-        for c in n.expr.children() {
+        n.expr.for_each_child(|c| {
             if c.index() >= ne {
                 v.push(format!("#{i}: child #{} out of range", c.0));
             }
-        }
+        });
         for r in n.expr.op_refs() {
             check_ref(r, v, i);
         }
@@ -146,7 +146,7 @@ fn trees(ir: &Ir, v: &mut Vec<String>) {
         }
     }
     for (i, n) in ir.exprs.iter().enumerate() {
-        for c in n.expr.children() {
+        n.expr.for_each_child(|c| {
             if c.index() >= i {
                 v.push(format!("#{i}: child #{} is not older", c.0));
             }
@@ -156,7 +156,7 @@ fn trees(ir: &Ir, v: &mut Vec<String>) {
                 }
                 *p = true;
             }
-        }
+        });
     }
     for (i, p) in parent.iter().enumerate() {
         if !p {
@@ -386,7 +386,7 @@ fn recursion(ir: &Ir, v: &mut Vec<String>) {
             {
                 *o = Some(i);
                 if let Some(node) = ir.exprs.get(e.index()) {
-                    work.extend(node.expr.children());
+                    node.expr.for_each_child(|child| work.push(child));
                 }
             }
         }

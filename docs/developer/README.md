@@ -20,3 +20,9 @@ Parity means observable results (ADR 0086). Committed evidence is compact JSON o
 Markdown of at most 100 KB per item; bulky evidence is regenerated from pinned
 inputs. Never rewrite generated goldens, omitted cases or failures to promote
 coverage. ADR acceptance does not imply implementation completion.
+
+IR traversal can use `Expr::for_each_child` to visit direct expression children
+without building a temporary list. `Expr::try_for_each_child` stops at the first
+callback error. Both preserve the source order and definition-reference exclusions
+of `Expr::children`; the owned-list API remains available. Structural admission
+and frame/effects analysis use these visitors without omitting validation checks.

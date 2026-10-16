@@ -656,7 +656,7 @@ impl Ir {
                         work.push(*x);
                     }
                 }
-                exprs.extend(node.expr.children());
+                node.expr.for_each_child(|child| exprs.push(child));
             }
         }
         seen
