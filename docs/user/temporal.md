@@ -419,8 +419,30 @@ inside the query differ from captured bindings established before it. See
 [the corpus guide](../conformance-corpora.md#instance-query-namespace-controls)
 for the exact selection and generated oracle route.
 
-This corpus records required language behavior, not new execution support. The
-existing native checker refuses some nested and hidden-name cases; independent
-INSTANCE query-word validation, general instantiated temporal actions and
-refinement, callable substitution, and fairness word replay remain required
-scope. No new native agreement or independent full-word validation is claimed.
+The evaluator's ENABLED search represents its partial successor by canonical
+variable name, including hidden names. It preserves the captured contexts and
+branch cutoffs above. Ordinary graph states, fingerprints and trace variable
+lists still contain only the root variables. Both semantic profiles use the
+same query-name rules; no new flag or default divergence is introduced.
+
+Rust callers can construct an actual partial query assignment with
+`Evaluator::named_state`, using checked IR variable declaration IDs and values.
+`StateRef::Named` retains it for scoped reads; `St::enabled_candidate`,
+`enabled_current` and `primed_successor` preserve the complete state and shared
+invocation counters. An absent name is unassigned and does not fall back to the
+old current state. Public evaluation and context operations check both current
+and successor named-state ownership before effects or retained captures, including
+when a pure invocation already has a work budget. Named assignments from another
+evaluator are refused. A root
+projection of a query candidate is not an ordinary Next transition. See the
+constructor's runnable rustdoc example and [ADR 0099](../decisions/0099-enabled-variable-name-states.md).
+
+This is evaluator/checker query execution, not complete file-based INSTANCE
+support. Independent INSTANCE query-word validation, general instantiated
+temporal actions and refinement, callable substitution, and fairness word replay
+remain required scope. Existing high-level planning/data guards and independent
+replay refusals remain; the ten oracle cases do not themselves add native corpus
+agreements. Composition with assigned hidden query names explicitly refuses
+until its intermediate-state generator can retain them; existing root-only
+composition keeps its original behavior. No new native agreement or independent
+full-word validation is claimed.

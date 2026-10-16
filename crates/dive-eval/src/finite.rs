@@ -64,6 +64,7 @@ impl Evaluator {
         query_allowed: bool,
     ) -> crate::Result<()> {
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         self.admit_scoped_expr(scope, expr)?;
         Guard {
             #[cfg(test)]
@@ -289,6 +290,7 @@ impl Evaluator {
     /// # Errors
     /// A scope or existing invocation context belonging to another evaluator.
     pub fn begin_pure_predicate(&self, scope: &Scope, st: &St, limit: usize) -> crate::Result<St> {
+        self.validate_state_context(st)?;
         self.validate_scope(scope)?;
         if st.selectseq.as_ref().is_some_and(|policy| {
             !std::sync::Weak::ptr_eq(&policy.context, &std::sync::Arc::downgrade(&self.core))
@@ -397,7 +399,7 @@ impl Guard<'_> {
 
     fn shifted(st: &St) -> St {
         let mut shifted = match &st.s1 {
-            StateRef::Vals(after) => St::state(after.clone()),
+            StateRef::Vals(_) | StateRef::Named(_) => st.primed_successor(),
             StateRef::Empty if matches!(st.s0, StateRef::Empty) => St::constant(),
             // An absent successor may still be harmless (e.g. UNCHANGED x
             // while checking ENABLED). Any domain that actually reads it must
@@ -571,12 +573,10 @@ impl Guard<'_> {
             work.push(Work::Value(value.clone(), 0));
         }
         for state in [&st.s0, &st.s1] {
-            if let StateRef::Vals(values) = state {
-                if work.len().saturating_add(values.len()) > cap.saturating_sub(self.visits) {
-                    return Err(EvalError::resource_limit("native stored input work"));
-                }
-                work.extend(values.iter().flatten().cloned().map(|v| Work::Value(v, 0)));
+            if work.len().saturating_add(state.slots_len()) > cap.saturating_sub(self.visits) {
+                return Err(EvalError::resource_limit("native stored input work"));
             }
+            work.extend(state.values().cloned().map(|v| Work::Value(v, 0)));
         }
         while let Some(item) = work.pop() {
             self.visits = self.visits.saturating_add(1);
@@ -653,23 +653,12 @@ impl Guard<'_> {
                         };
                         let count = [&cached.s0, &cached.s1]
                             .iter()
-                            .map(|s| match s {
-                                StateRef::Vals(v) => v.len(),
-                                _ => 0,
-                            })
+                            .map(|s| s.slots_len())
                             .fold(1_usize, usize::saturating_add);
                         room(work.len(), count)?;
                         work.push(Work::Value(v.clone(), depth + 1));
                         for state in [&cached.s0, &cached.s1] {
-                            if let StateRef::Vals(values) = state {
-                                work.extend(
-                                    values
-                                        .iter()
-                                        .flatten()
-                                        .cloned()
-                                        .map(|v| Work::Value(v, depth + 1)),
-                                );
-                            }
+                            work.extend(state.values().cloned().map(|v| Work::Value(v, depth + 1)));
                         }
                     }
                 }
@@ -910,7 +899,7 @@ impl Guard<'_> {
                     return Err(EvalError::unsupported("captured/provider ENABLED"));
                 }
                 let inner = match &st.s0 {
-                    StateRef::Vals(state) => st.at_state(state.clone()),
+                    StateRef::Vals(_) | StateRef::Named(_) => st.enabled_current(),
                     _ => st.at_constant(),
                 };
                 self.query_depth += 1;

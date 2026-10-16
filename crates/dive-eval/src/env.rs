@@ -45,6 +45,7 @@ pub(crate) mod control {
 /// A state as the evaluator sees it: TLC's `TLCState.Null` (no state),
 /// `TLCState.Empty` (a state with no variable assigned), or the values of the
 /// root module's variables by [`dive_ir::VarId`], `None` where unassigned.
+/// Existential queries can instead retain hidden assignments by canonical name.
 #[derive(Clone, Debug, Default)]
 pub enum StateRef {
     /// `TLCState.Null`.
@@ -54,32 +55,62 @@ pub enum StateRef {
     Empty,
     /// A (possibly partial) state.
     Vals(Arc<[Option<Value>]>),
+    /// A query-local partial assignment indexed by canonical variable name.
+    Named(Arc<crate::NamedState>),
 }
 
 impl StateRef {
-    /// The value of a variable, if assigned.
-    pub(crate) fn get(&self, var: usize) -> Option<&Value> {
+    /// Stored slots, including unassigned indexed slots, for bounded traversal.
+    pub(crate) fn slots_len(&self) -> usize {
         match self {
-            Self::Vals(v) => v.get(var).and_then(Option::as_ref),
-            _ => None,
+            Self::Vals(values) => values.len(),
+            Self::Named(state) => state.len(),
+            Self::Null | Self::Empty => 0,
         }
     }
 
-    /// `TLCState.isSubset(self, cached)`: every variable assigned in `cached`
-    /// has the same value in `self`.
+    /// Stored assigned values without evaluating deferred representations.
+    pub(crate) fn values(&self) -> impl Iterator<Item = &Value> {
+        let indexed = match self {
+            Self::Vals(values) => Some(values.as_ref()),
+            _ => None,
+        };
+        let named = match self {
+            Self::Named(state) => Some(&state.values),
+            _ => None,
+        };
+        indexed
+            .into_iter()
+            .flatten()
+            .filter_map(Option::as_ref)
+            .chain(
+                named
+                    .into_iter()
+                    .flat_map(std::collections::BTreeMap::values),
+            )
+    }
+
+    /// Every variable assigned in the cached state has the same value here.
+    /// Mixed indexed/named representations never establish cache inclusion.
     pub(crate) fn includes(&self, cached: &Self) -> bool {
-        match cached {
-            Self::Null | Self::Empty => true,
-            Self::Vals(c) => {
-                if let Self::Vals(s) = self
-                    && Arc::ptr_eq(s, c)
-                {
-                    return true;
-                }
-                c.iter()
-                    .enumerate()
-                    .all(|(i, cv)| cv.as_ref().is_none_or(|cv| self.get(i) == Some(cv)))
+        match (self, cached) {
+            (_, Self::Null | Self::Empty) => true,
+            (Self::Vals(s), Self::Vals(c)) => {
+                Arc::ptr_eq(s, c)
+                    || c.iter().enumerate().all(|(i, cv)| {
+                        cv.as_ref()
+                            .is_none_or(|cv| s.get(i).and_then(Option::as_ref) == Some(cv))
+                    })
             }
+            (Self::Named(s), Self::Named(c)) => {
+                std::sync::Weak::ptr_eq(&s.context, &c.context)
+                    && (Arc::ptr_eq(s, c)
+                        || c.values
+                            .iter()
+                            .all(|(name, value)| s.values.get(name) == Some(value)))
+            }
+            (Self::Null | Self::Empty, Self::Vals(c)) => c.iter().all(Option::is_none),
+            _ => false,
         }
     }
 }
@@ -215,6 +246,40 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+        }
+    }
+
+    /// Evaluates a query relation in the supplied partial named successor while
+    /// retaining the current state and shared invocation-local resource counters.
+    #[must_use]
+    pub fn enabled_candidate(&self, successor: Arc<crate::NamedState>) -> Self {
+        Self {
+            s1: StateRef::Named(successor),
+            control: control::ENABLED,
+            ..self.clone()
+        }
+    }
+
+    /// Reads the current side of an ENABLED query, preserving its cutoff control
+    /// and invocation-local counters.
+    #[must_use]
+    pub fn enabled_current(&self) -> Self {
+        Self {
+            s1: StateRef::Empty,
+            control: control::ENABLED,
+            ..self.clone()
+        }
+    }
+
+    /// Moves the whole successor into the current position for primed evaluation.
+    /// Hidden named assignments and invocation-local counters are retained.
+    #[must_use]
+    pub fn primed_successor(&self) -> Self {
+        Self {
+            s0: self.s1.clone(),
+            s1: StateRef::Null,
+            control: Self::primed_if_enabled(self.control),
+            ..self.clone()
         }
     }
 
@@ -377,7 +442,6 @@ impl Dyn {
     }
 
     /// `Context.branch`: marks the current depth.
-    #[cfg(feature = "enumerate")]
     pub(crate) fn branch(&mut self) {
         self.cut = Some(self.subst.as_ref().map_or(0, |l| l.depth));
     }

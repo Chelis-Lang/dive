@@ -416,6 +416,7 @@ impl Evaluator {
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_action(&self, action: &Action, st: &St) -> Result<Value> {
         self.validate_scope(&action.scope())?;
+        self.validate_state_context(st)?;
         let ev = self.core.eval(&mut action.env.clone(), st, action.expr)?;
         self.core.force_fcn(ev)
     }
@@ -1168,7 +1169,8 @@ impl Gen<'_, '_> {
         let core = self.core;
         let _g = core.enter(e)?;
         if let Some(var) = core.var_of(env, e, false)? {
-            let Some(val0) = self.s0.get(var).cloned() else {
+            let name = &core.ir.decl(core.ir.vars()[var]).name;
+            let Some(val0) = core.state_variable(&self.s0, name, Some(var))?.cloned() else {
                 return Err(EvalError::bug(
                     "UNCHANGED of a variable the current state lacks",
                 ));
@@ -1538,7 +1540,10 @@ impl Core {
         e: ExprId,
         cutoff: bool,
     ) -> Result<Option<usize>> {
-        self.var_lookup(env, e, cutoff, false, 0)
+        Ok(self
+            .var_lookup(env, e, VariableLookup::Root(cutoff), false, 0)?
+            .and_then(|decl| self.ir.decl(decl).var)
+            .map(dive_ir::VarId::index))
     }
 
     /// `getPrimedVar`: the root variable `e` is the primed form of.
@@ -1548,17 +1553,20 @@ impl Core {
         e: ExprId,
         cutoff: bool,
     ) -> Result<Option<usize>> {
-        self.var_lookup(env, e, cutoff, true, 0)
+        Ok(self
+            .var_lookup(env, e, VariableLookup::Root(cutoff), true, 0)?
+            .and_then(|decl| self.ir.decl(decl).var)
+            .map(dive_ir::VarId::index))
     }
 
     fn var_lookup(
         self: &Arc<Self>,
         env: &Env,
         e: ExprId,
-        cutoff: bool,
+        mode: VariableLookup,
         primed: bool,
         depth: u32,
-    ) -> Result<Option<usize>> {
+    ) -> Result<Option<dive_ir::DeclId>> {
         if depth > 256 {
             return Err(EvalError::resource_limit(format!(
                 "following definitions to a variable more than 256 levels deep ({})",
@@ -1566,7 +1574,7 @@ impl Core {
             )));
         }
         let next = |core: &Arc<Self>, env: &Env, e: ExprId| {
-            core.var_lookup(env, e, cutoff, primed, depth + 1)
+            core.var_lookup(env, e, mode, primed, depth + 1)
         };
         match &self.ir.node(e).expr {
             Expr::Subst { bindings, body } => {
@@ -1578,8 +1586,10 @@ impl Core {
                 next(self, &env1, *body)
             }
             Expr::Label { body, .. } => next(self, env, *body),
-            Expr::Var { var, primed: p } => Ok((*p == primed).then_some(var.index())),
-            Expr::Prime(a) if primed => self.var_lookup(env, *a, cutoff, false, depth + 1),
+            Expr::Var { var, primed: p } => {
+                Ok((*p == primed).then_some(self.ir.vars()[var.index()]))
+            }
+            Expr::Prime(a) if primed => self.var_lookup(env, *a, mode, false, depth + 1),
             Expr::SubstRef { decl, primed: p } => {
                 if *p && !primed {
                     return Ok(None);
@@ -1587,18 +1597,18 @@ impl Core {
                 // `x'` with `x` substituted is `getVar(x)`.
                 let as_primed = primed && !*p;
                 let d = self.ir.decl(*decl);
-                let cut = cutoff && d.variable;
+                let cut = mode.cutoff() && d.variable;
                 match env.dynamic.lookup_cut(*decl, cut) {
                     Some(Sv::Thunk(t)) => {
-                        self.var_lookup(&t.env, t.expr, cutoff, as_primed, depth + 1)
+                        self.var_lookup(&t.env, t.expr, mode, as_primed, depth + 1)
                     }
                     Some(_) => Ok(None),
                     None if d.variable && !as_primed => {
-                        if let Some(v) = d.var {
-                            return Ok(Some(v.index()));
+                        if d.var.is_some() || matches!(mode, VariableLookup::Enabled) {
+                            return Ok(Some(*decl));
                         }
                         match self.root_var_named(&d.name) {
-                            Some(v) => Ok(Some(v)),
+                            Some(v) => Ok(Some(self.ir.vars()[v])),
                             None => Err(EvalError::unsupported(format!(
                                 "a variable of an instantiated module, hidden by ENABLED, with no root variable of its name ({})",
                                 self.loc(e)
@@ -1609,7 +1619,7 @@ impl Core {
                         Some(c) => match self.consts.get(c.index()).and_then(Option::as_ref) {
                             Some(ConstBinding::Def(t)) => match self.def_follow(env, *t) {
                                 Some((env1, body)) => {
-                                    self.var_lookup(&env1, body, cutoff, as_primed, depth + 1)
+                                    self.var_lookup(&env1, body, mode, as_primed, depth + 1)
                                 }
                                 None => Ok(None),
                             },
@@ -1624,7 +1634,7 @@ impl Core {
                 None => Ok(None),
             },
             Expr::Local(lr) => match self.slot(env, *lr)? {
-                Sv::Thunk(t) => self.var_lookup(&t.env, t.expr, cutoff, primed, depth + 1),
+                Sv::Thunk(t) => self.var_lookup(&t.env, t.expr, mode, primed, depth + 1),
                 _ => Ok(None),
             },
             Expr::Const(c) => match self.consts.get(c.index()).and_then(Option::as_ref) {
@@ -1750,6 +1760,10 @@ impl Core {
             .vars()
             .get(var)
             .map_or("?", |&d| self.ir.decl(d).name.as_str());
+        self.unchanged_named_warning(name, e);
+    }
+
+    fn unchanged_named_warning(&self, name: &str, e: ExprId) {
         self.warn(
             2143,
             &format!(
@@ -2050,7 +2064,7 @@ impl Evaluator {
         sub: Option<ExprId>,
         state: StateVals,
     ) -> Result<bool> {
-        self.enabled_scoped_context(scope, action, sub, state, None)
+        self.enabled_scoped_context(scope, action, sub, StateRef::Vals(state), None)
     }
 
     /// Evaluates the original ENABLED search sharing an existing pure predicate
@@ -2068,6 +2082,7 @@ impl Evaluator {
         limit: usize,
     ) -> Result<bool> {
         self.validate_scope(scope)?;
+        self.validate_state_context(st)?;
         if let Some(policy) = &st.selectseq
             && !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
         {
@@ -2080,12 +2095,7 @@ impl Evaluator {
         } else {
             self.begin_pure_predicate(scope, st, limit)?
         };
-        let StateRef::Vals(state) = &bounded.s0 else {
-            return Err(EvalError::general(
-                "ENABLED requires a complete current state",
-            ));
-        };
-        self.enabled_scoped_context(scope, action, sub, state.clone(), Some(&bounded))
+        self.enabled_scoped_context(scope, action, sub, bounded.s0.clone(), Some(&bounded))
     }
 
     fn enabled_scoped_context(
@@ -2093,7 +2103,7 @@ impl Evaluator {
         scope: &Scope,
         action: ExprId,
         sub: Option<ExprId>,
-        state: StateVals,
+        state: StateRef,
         invocation: Option<&St>,
     ) -> Result<bool> {
         self.validate_scope(scope)?;
@@ -2101,7 +2111,19 @@ impl Evaluator {
         if let Some(sub) = sub {
             self.admit_scoped_expr(scope, sub)?;
         }
-        if state.len() != self.core.ir.vars().len() || state.iter().any(Option::is_none) {
+        if match &state {
+            StateRef::Vals(values) => {
+                values.len() != self.core.ir.vars().len() || values.iter().any(Option::is_none)
+            }
+            StateRef::Named(named) => {
+                self.validate_state_context(&St {
+                    s0: StateRef::Named(named.clone()),
+                    ..St::empty()
+                })?;
+                false
+            }
+            StateRef::Null | StateRef::Empty => true,
+        } {
             return Err(EvalError::general(
                 "ENABLED requires a complete current state",
             ));
@@ -2111,11 +2133,11 @@ impl Evaluator {
         let acts = sub.and_then(|sub| cons(&None, Kind::Changed, sub, &env));
         let en = Enab {
             core: self.core.clone(),
-            s0: StateRef::Vals(state),
+            s0: state,
             selectseq: invocation.and_then(|st| st.selectseq.clone()),
             selectseq_callback: invocation.is_some_and(|st| st.selectseq_callback),
         };
-        let successor = vec![None; self.core.ir.vars().len()].into();
+        let successor = crate::NamedState::empty(&self.core);
         Ok(en.enabled(action, &acts, &env, successor)?.is_some())
     }
 }
@@ -2132,7 +2154,7 @@ impl Core {
     ) -> Result<Ev> {
         let mut env1 = env.clone();
         env1.dynamic.branch();
-        let s1: StateVals = vec![None; self.ir.vars().len()].into();
+        let s1 = crate::NamedState::empty(self);
         let en = Enab {
             core: self.clone(),
             s0: st.s0.clone(),
@@ -2144,6 +2166,23 @@ impl Core {
     }
 }
 
+#[derive(Clone, Copy)]
+enum VariableLookup {
+    Root(bool),
+    Enabled,
+}
+
+impl VariableLookup {
+    fn cutoff(self) -> bool {
+        match self {
+            Self::Root(cutoff) => cutoff,
+            Self::Enabled => true,
+        }
+    }
+}
+
+type EnabledState = Arc<crate::NamedState>;
+
 struct Enab {
     core: Arc<Core>,
     s0: StateRef,
@@ -2152,26 +2191,22 @@ struct Enab {
 }
 
 impl Enab {
-    fn st(&self, s1: &StateVals) -> St {
+    fn st(&self, s1: &EnabledState) -> St {
         St {
             s0: self.s0.clone(),
-            s1: StateRef::Vals(s1.clone()),
+            s1: StateRef::Named(s1.clone()),
             control: control::ENABLED,
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
         }
     }
 
-    fn eval(&self, env: &Env, s1: &StateVals, e: ExprId) -> Result<Ev> {
+    fn eval(&self, env: &Env, s1: &EnabledState, e: ExprId) -> Result<Ev> {
         self.core.eval(&mut env.clone(), &self.st(s1), e)
     }
 
-    fn with(s1: &StateVals, var: usize, v: Value) -> StateVals {
-        let mut s = s1.to_vec();
-        if let Some(slot) = s.get_mut(var) {
-            *slot = Some(v);
-        }
-        s.into()
+    fn with(&self, s1: &EnabledState, var: dive_ir::DeclId, v: Value) -> EnabledState {
+        s1.with(&self.core.ir.decl(var).name, v)
     }
 
     fn loc(&self, e: ExprId) -> String {
@@ -2179,7 +2214,7 @@ impl Enab {
     }
 
     /// `enabled(acts, s0, s1)`.
-    fn cont(&self, acts: &Acts, s1: StateVals) -> Result<Option<StateVals>> {
+    fn cont(&self, acts: &Acts, s1: EnabledState) -> Result<Option<EnabledState>> {
         let Some(item) = acts else {
             return Ok(Some(s1));
         };
@@ -2195,7 +2230,7 @@ impl Enab {
                     selectseq_callback: self.selectseq_callback,
                 };
                 let st1 = St {
-                    s0: StateRef::Vals(s1.clone()),
+                    s0: StateRef::Named(s1.clone()),
                     s1: StateRef::Null,
                     control: control::PRIMED,
                     selectseq: self.selectseq.clone(),
@@ -2215,9 +2250,9 @@ impl Enab {
         &self,
         v: &Ev,
         acts: &Acts,
-        s1: StateVals,
+        s1: EnabledState,
         e: ExprId,
-    ) -> Result<Option<StateVals>> {
+    ) -> Result<Option<EnabledState>> {
         match v {
             Ev::V(Value::Bool(true)) => self.cont(acts, s1),
             Ev::V(Value::Bool(false)) => Ok(None),
@@ -2248,8 +2283,8 @@ impl Enab {
         e: ExprId,
         acts: &Acts,
         env: &Env,
-        s1: StateVals,
-    ) -> Result<Option<StateVals>> {
+        s1: EnabledState,
+    ) -> Result<Option<EnabledState>> {
         let core = &self.core;
         let _g = core.enter(e)?;
         match &core.ir.node(e).expr {
@@ -2479,23 +2514,23 @@ impl Enab {
         e: ExprId,
         acts: &Acts,
         env: &Env,
-        s1: StateVals,
-    ) -> Result<Option<StateVals>> {
+        s1: EnabledState,
+    ) -> Result<Option<EnabledState>> {
         let core = &self.core;
-        let Some(var) = core.primed_var(env, lhs, true)? else {
+        let Some(var) = core.var_lookup(env, lhs, VariableLookup::Enabled, true, 0)? else {
             return match self.eval(env, &s1, e)? {
                 Ev::V(Value::Bool(true)) => self.cont(acts, s1),
                 Ev::V(Value::Bool(false)) => Ok(None),
                 _ => Err(EvalError::bug("=, \\in or \\subseteq not boolean")),
             };
         };
-        let lval = s1.get(var).cloned().flatten();
+        let lval = s1.get(&core.ir.decl(var).name).cloned();
         match op {
             BuiltinOp::Eq => {
                 let rval = core.embed(self.eval(env, &s1, rhs)?)?;
                 match lval {
                     None => {
-                        let s2 = Self::with(&s1, var, rval);
+                        let s2 = self.with(&s1, var, rval);
                         self.cont(acts, s2)
                     }
                     Some(l) => {
@@ -2521,7 +2556,7 @@ impl Enab {
                             }
                         };
                         for x in elems.iter() {
-                            let s2 = Self::with(&s1, var, x.clone());
+                            let s2 = self.with(&s1, var, x.clone());
                             if let Some(s) = self.cont(acts, s2)? {
                                 return Ok(Some(s));
                             }
@@ -2552,7 +2587,7 @@ impl Enab {
                             return Err(EvalError::bug("SUBSET is not a set"));
                         };
                         for x in core.explore(s)?.iter() {
-                            let s2 = Self::with(&s1, var, x.clone());
+                            let s2 = self.with(&s1, var, x.clone());
                             if let Some(s) = self.cont(acts, s2)? {
                                 return Ok(Some(s));
                             }
@@ -2577,22 +2612,22 @@ impl Enab {
         e: ExprId,
         acts: &Acts,
         env: &Env,
-        s1: StateVals,
-    ) -> Result<Option<StateVals>> {
+        s1: EnabledState,
+    ) -> Result<Option<EnabledState>> {
         let core = &self.core;
         let _g = core.enter(e)?;
-        if let Some(var) = core.var_of(env, e, true)? {
+        if let Some(var) = core.var_lookup(env, e, VariableLookup::Enabled, false, 0)? {
             let v0 = core.force_fcn(self.eval(env, &s1, e)?)?;
-            return match s1.get(var).cloned().flatten() {
+            return match s1.get(&core.ir.decl(var).name).cloned() {
                 None => {
-                    let s2 = Self::with(&s1, var, v0);
+                    let s2 = self.with(&s1, var, v0);
                     self.cont(acts, s2)
                 }
                 Some(v1) => {
                     if core.equals(&v1, &v0)? {
                         self.cont(acts, s1)
                     } else {
-                        core.unchanged_warning(var, e);
+                        core.unchanged_named_warning(&core.ir.decl(var).name, e);
                         Ok(None)
                     }
                 }
@@ -2630,7 +2665,7 @@ impl Enab {
                     selectseq_callback: self.selectseq_callback,
                 };
                 let st1 = St {
-                    s0: StateRef::Vals(s1.clone()),
+                    s0: StateRef::Named(s1.clone()),
                     s1: StateRef::Empty,
                     control: control::PRIMED,
                     selectseq: self.selectseq.clone(),
