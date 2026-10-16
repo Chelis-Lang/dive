@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_version": "17.0.20.1+1",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "primary_date": "2026-10-16",
+  "settings": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "lncheck": "final",
+    "heap": "512m",
+    "timeout_seconds": 30,
+    "dumpTrace": false
+  },
+  "scope": "New isolated controls; no native conformance or independent word-validation credit; original 156-model population remains separate.",
+  "selection": [
+    {
+      "id": "guard_decoy_exported",
+      "module": "specifications/guard_decoy_exported/Probe.tla",
+      "model": "specifications/guard_decoy_exported/Probe.cfg",
+      "inputs_sha256": {
+        "Guard.tla": "4b457f0d00687d1cd1e0f8635558fc122adc494d276112e1fadf23ce0b58804e",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "9aae5e5bdfdd94810a122e92ca2f29daff2a466f0fce82989a44b710ec7f0228"
+      },
+      "primary": {
+        "elapsed_seconds": 0.21426569391041994,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 0,
+        "deciding_code": 2193,
+        "property": null,
+        "counts": {
+          "generated": 3,
+          "distinct": 2,
+          "depth": 2
+        },
+        "stdout_sha256": "2cdbe0cc94a51867ff4584dde6c27b09b10920caeb6f6fcc01f35143317dbcb6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "conflict_same_direct",
+      "module": "specifications/conflict_same_direct/Probe.tla",
+      "model": "specifications/conflict_same_direct/Probe.cfg",
+      "inputs_sha256": {
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "fa691cf33ccafb4dd57d5134816e1b09bd723d70dbb2a73ecc2657362a32bc75"
+      },
+      "primary": {
+        "elapsed_seconds": 0.21397772093769163,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 0,
+        "deciding_code": 2193,
+        "property": null,
+        "counts": {
+          "generated": 2,
+          "distinct": 1,
+          "depth": 1
+        },
+        "stdout_sha256": "38a8616878455b9b2b0a64fa0698fb5b063fdd92f92fe65a9af095cdd1d9b60c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "conflict_same_outside",
+      "module": "specifications/conflict_same_outside/Probe.tla",
+      "model": "specifications/conflict_same_outside/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "787377a585754862b66ece6d1ef35482b35727f4651493472fbddcad44fe3a86"
+      },
+      "primary": {
+        "elapsed_seconds": 0.21418481098953635,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 0,
+        "deciding_code": 2193,
+        "property": null,
+        "counts": {
+          "generated": 2,
+          "distinct": 1,
+          "depth": 1
+        },
+        "stdout_sha256": "f1439757b1d1dd27e8293bd4806439c69439dcc1e2fc829b0dc9ffd00b525b5e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "conflict_same_exported",
+      "module": "specifications/conflict_same_exported/Probe.tla",
+      "model": "specifications/conflict_same_exported/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "30cacb22e3c158af54da66f994a6a53e69400aaa68e0e208ad177c666c4deed0"
+      },
+      "primary": {
+        "elapsed_seconds": 0.26417352410499007,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 12,
+        "deciding_code": 2107,
+        "property": "P",
+        "counts": null,
+        "stdout_sha256": "212c7e3639b65f5da3bd44045c75969d1e9d1bd1e3ad8bf5fcc4173d2ca0776a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "conflict_decoy_exported",
+      "module": "specifications/conflict_decoy_exported/Probe.tla",
+      "model": "specifications/conflict_decoy_exported/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "ca49085ffcc65d42d97d483d05a3116829816dcdf0a841bd8a83c505b9de8f4c"
+      },
+      "primary": {
+        "elapsed_seconds": 0.26423703401815146,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 12,
+        "deciding_code": 2107,
+        "property": "P",
+        "counts": null,
+        "stdout_sha256": "75a75b581e83e1dfa90658a958a8f984b78637d14f9a2ce0e5f8314147d7ff1c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "conflict_no_root_exported",
+      "module": "specifications/conflict_no_root_exported/Probe.tla",
+      "model": "specifications/conflict_no_root_exported/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "0bc3624f3c907e900eba3ce1a2c9e6df762dc5184e9cde864db60d0d93b85263"
+      },
+      "primary": {
+        "elapsed_seconds": 0.2642637339886278,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 12,
+        "deciding_code": 2107,
+        "property": "P",
+        "counts": null,
+        "stdout_sha256": "aae0dcb90dae9c916cfaae5ceec31682e484eae89259537a6613753edd5e32d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "conflict_no_root_nested",
+      "module": "specifications/conflict_no_root_nested/Probe.tla",
+      "model": "specifications/conflict_no_root_nested/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "PairMiddle.tla": "0f577a58d158211d1c25fdcff4b67c9fd2314f66d12b96b426cda0c92f2f3065",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "7deb40f9a6c5dc0246569b7f240bed5612ab40c79417dfcd4cf52f15cf7fe53d"
+      },
+      "primary": {
+        "elapsed_seconds": 0.2641214160248637,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 0,
+        "deciding_code": 2193,
+        "property": null,
+        "counts": {
+          "generated": 2,
+          "distinct": 1,
+          "depth": 1
+        },
+        "stdout_sha256": "f6d1b6344df71f44ecf21ab607ef85eb05da680e1d4901708055b1f09ea6a68c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "rebind_no_root_old",
+      "module": "specifications/rebind_no_root_old/Probe.tla",
+      "model": "specifications/rebind_no_root_old/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "1c8be712fb12b3b40008b27a71e92cb4997f4989fcb099227d0c3ed09ca84939",
+        "Rebind.tla": "82ca8371ed52f53bf36fa9ae77e0fbc989cf9433a581e0379da6b589b2865c8d"
+      },
+      "primary": {
+        "elapsed_seconds": 0.21401860797777772,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 12,
+        "deciding_code": 2107,
+        "property": "P",
+        "counts": null,
+        "stdout_sha256": "3da0748b63f5b12b04d726908d3d2260417507c7386b66109a8de8c8b9a0cc6f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "rebind_no_root_fresh",
+      "module": "specifications/rebind_no_root_fresh/Probe.tla",
+      "model": "specifications/rebind_no_root_fresh/Probe.cfg",
+      "inputs_sha256": {
+        "Pair.tla": "be7283bed0787f7dc60335ce8482320f3ea1ab660d7c087a4da29cf0e85a6b98",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "187c62ba6986dcedb4c8082d7ba1ae1c8b856a7afb32c212b630033e7db8707c",
+        "Rebind.tla": "82ca8371ed52f53bf36fa9ae77e0fbc989cf9433a581e0379da6b589b2865c8d"
+      },
+      "primary": {
+        "elapsed_seconds": 0.26411950204055756,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 0,
+        "deciding_code": 2193,
+        "property": null,
+        "counts": {
+          "generated": 2,
+          "distinct": 1,
+          "depth": 1
+        },
+        "stdout_sha256": "5d6b63830a44e932392dedeb70f8328e837d8bd8d499bda883f15a6b1fc61a98",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "guard_decoy_nested",
+      "module": "specifications/guard_decoy_nested/Probe.tla",
+      "model": "specifications/guard_decoy_nested/Probe.cfg",
+      "inputs_sha256": {
+        "Guard.tla": "4b457f0d00687d1cd1e0f8635558fc122adc494d276112e1fadf23ce0b58804e",
+        "GuardMiddle.tla": "c988d72f989bfdcae59f0d68b9db093f0375e8cb511afabed8882008b287f5c5",
+        "Probe.cfg": "04b720fdb043ca512ee493423c266da37debe8e712b217acdcbc39003f75fe98",
+        "Probe.tla": "224887aac2c05b78b8933f17ba2f01146e05560966bd4ed3da1f534ecd60711b"
+      },
+      "primary": {
+        "elapsed_seconds": 0.21403261506929994,
+        "manifest_runtime": "00:00:01",
+        "runtime_policy": "ceil measured clean TLC process wall time to whole seconds",
+        "physical_exit": 0,
+        "deciding_code": 2193,
+        "property": null,
+        "counts": {
+          "generated": 3,
+          "distinct": 2,
+          "depth": 2
+        },
+        "stdout_sha256": "9b8158fa644ebc645d87325c1a54638d9337728d05733e9ab82f8ae5acb3fa05",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

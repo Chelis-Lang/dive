@@ -1,5 +1,9 @@
 # Changelog
 
+- Added a separate ten-model pinned INSTANCE/ENABLED namespace corpus before
+  runtime implementation, documenting exported-query, hidden-name and captured
+  binding distinctions. Existing corpus totals and native support are unchanged.
+
 - File-based final temporal checking now bounds compact acceptance buffers by
   8,000,000 requested bytes and independent 32,000,000 materialization work units.
   Existing public owned/custom-limit APIs retain legacy logical cells; additive

@@ -388,3 +388,32 @@ checks, a body with zero bindings may be left unvisited without evaluating its
 queries. Other effect and purity guards still apply; this is not a global
 syntactic query scan.
 Boolean existential and universal bodies retain their bounded query support.
+
+## INSTANCE query namespace controls
+
+The separate `instance-temporal` corpus records ten tiny Boolean controls from
+the pinned primary oracle before changing INSTANCE execution. These expose a
+lexical distinction: `ENABLED I!A` applies an instance inside the query, whereas
+an exported `I!Can` whose definition is `Can == ENABLED A` enters the query after
+the instance bindings. They need not give the same answer.
+
+The conflict action requires `y' = FALSE` and `z' = TRUE`, with both variables
+instantiated by one caller variable. The direct and outside-query controls make
+that conflict unsatisfiable. The exported-query controls instead violate `P`
+in the initial state (TLC code 2107, exit 12), including when the caller has no
+variables named `y` or `z`. These are initial invariant failures, not liveness
+failures. A nested instance sends both substitutions through `q`; its query
+returns false because the successor choices share that name. Flattening every
+instance to the caller's root variable would lose these observed distinctions.
+
+The guarded controls also separate an actual current-state value from a caller
+variable with the same spelling as the imported declaration. Fresh substitutions
+inside the query differ from captured bindings established before it. See
+[the corpus guide](../conformance-corpora.md#instance-query-namespace-controls)
+for the exact selection and generated oracle route.
+
+This corpus records required language behavior, not new execution support. The
+existing native checker refuses some nested and hidden-name cases; independent
+INSTANCE query-word validation, general instantiated temporal actions and
+refinement, callable substitution, and fairness word replay remain required
+scope. No new native agreement or independent full-word validation is claimed.
