@@ -1,5 +1,10 @@
 # Changelog
 
+- Benchmarks retain multi-worker TLC's reported depth as a diagnostic under
+  ADR 0004, while keeping exact depth for single-worker TLC and every native
+  arm. Missing/zero depth and all other required observables still fail validation;
+  JSONL records whether depth equality is required.
+
 - Added a separate ten-model pinned INSTANCE/ENABLED namespace corpus before
   runtime implementation, documenting exported-query, hidden-name and captured
   binding distinctions. Existing corpus totals and native support are unchanged.
