@@ -589,6 +589,54 @@ impl Word<'_> {
         Ok(out)
     }
 
+    // The original declaration is reachable only when substitution lookup is
+    // absent, never for an explicitly unset or opaque binding.
+    fn declaration_fallback(
+        &self,
+        scope: &Scope,
+        decl: dive_ir::DeclId,
+    ) -> Result<Option<Pred>, TemporalError> {
+        let declaration = self.model.ir.decl(decl);
+        if declaration.variable {
+            return Ok(None);
+        }
+        let constant = declaration.constant.ok_or_else(|| {
+            TemporalError::Unsupported("missing original substitution declaration".into())
+        })?;
+        self.constant_context(scope, constant)
+    }
+
+    fn constant_context(
+        &self,
+        scope: &Scope,
+        constant: ConstId,
+    ) -> Result<Option<Pred>, TemporalError> {
+        let ev = &self.model.evaluator;
+        match ev.constant_binding(constant) {
+            Some(ConstBinding::Value(_)) => Ok(None),
+            Some(ConstBinding::Def(def)) => {
+                let def = self.checked_definition(def)?;
+                let target = self.model.ir.def(def);
+                if target.level != Level::Constant || target.recursive || !target.params.is_empty()
+                {
+                    return Err(TemporalError::Unsupported(
+                        "nonconstant/recursive/parameterized constant override".into(),
+                    ));
+                }
+                if !ev.is_value_override(def) {
+                    Self::check_native(target.std)?;
+                }
+                let scope = ev
+                    .scope_enter(scope, def)
+                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                Ok(Some(Pred::new(target.body, scope)))
+            }
+            None => Err(TemporalError::Unsupported(
+                "unbound temporal constant".into(),
+            )),
+        }
+    }
+
     fn checked_definition(&self, def: DefId) -> Result<DefId, TemporalError> {
         if self.model.ir.defs().get(def.index()).is_none() {
             return Err(TemporalError::Unsupported(
@@ -938,10 +986,19 @@ impl Word<'_> {
                         ));
                     }
                 },
-                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&sc, *decl) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
-                    SlotView::Lazy(body, inner) => {
+                Expr::SubstRef { decl, primed } => match ev
+                    .scope_substitution(&sc, *decl, &St::constant(), *primed)
+                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                {
+                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => continue,
+                    Some(SlotView::Lazy(body, inner)) => {
                         todo.push((body, inner, depth + 1));
+                        continue;
+                    }
+                    None => {
+                        if let Some(pred) = self.declaration_fallback(&sc, *decl)? {
+                            todo.push((pred.expr, pred.scope, depth + 1));
+                        }
                         continue;
                     }
                     _ => {
@@ -1191,12 +1248,26 @@ impl Word<'_> {
                 return self.scoped_level_mode(*body, &sc, depth + 1, steps, query_state);
             }
             Expr::SubstRef { decl, primed } => {
-                let level = match ev.scope_subst_slot(scope, *decl) {
-                    SlotView::Value(_) => Level::Constant,
-                    SlotView::AnalysisBound => Level::State,
-                    SlotView::Lazy(e, sc) => {
+                let level = match ev
+                    .scope_substitution(scope, *decl, &St::constant(), *primed)
+                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                {
+                    Some(SlotView::Value(_)) => Level::Constant,
+                    Some(SlotView::AnalysisBound) => Level::State,
+                    Some(SlotView::Lazy(e, sc)) => {
                         self.scoped_level_mode(e, &sc, depth + 1, steps, query_state)?
                     }
+                    None => match self.declaration_fallback(scope, *decl)? {
+                        Some(pred) => self.scoped_level_mode(
+                            pred.expr,
+                            &pred.scope,
+                            depth + 1,
+                            steps,
+                            query_state,
+                        )?,
+                        None if ir.decl(*decl).variable => Level::State,
+                        None => Level::Constant,
+                    },
                     _ => {
                         return Err(TemporalError::Unsupported(
                             "opaque substituted level".into(),
@@ -1663,18 +1734,32 @@ impl Word<'_> {
                     todo.push((*body, sc, depth + 1, false, inside_query));
                     continue;
                 }
-                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => {}
-                    SlotView::Lazy(body, _)
+                Expr::SubstRef { decl, primed } => match ev
+                    .scope_substitution(&scope, *decl, &St::constant(), *primed)
+                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                {
+                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => {}
+                    Some(SlotView::Lazy(body, _))
                         if inside_query && ir.node(body).level > Level::State =>
                     {
                         return Err(TemporalError::Unsupported(
                             "captured primed ENABLED source".into(),
                         ));
                     }
-                    SlotView::Lazy(body, sc) => {
+                    Some(SlotView::Lazy(body, sc)) => {
                         todo.push((body, sc, depth + 1, false, inside_query));
                         continue;
+                    }
+                    None => {
+                        if let Some(pred) = self.declaration_fallback(&scope, *decl)? {
+                            todo.push((
+                                pred.expr,
+                                pred.scope,
+                                depth + 1,
+                                query_allowed,
+                                inside_query,
+                            ));
+                        }
                     }
                     _ => {
                         return Err(TemporalError::Unsupported(
@@ -1682,30 +1767,17 @@ impl Word<'_> {
                         ));
                     }
                 },
-                Expr::Const(c) => match ev.constant_binding(*c) {
-                    Some(ConstBinding::Value(_)) => {}
-                    Some(ConstBinding::Def(d)) => {
-                        let d = self.checked_definition(d)?;
-                        let def = ir.def(d);
-                        if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
-                            return Err(TemporalError::Unsupported(
-                                "nonconstant/recursive/parameterized constant override".into(),
-                            ));
-                        }
-                        if !ev.is_value_override(d) {
-                            Self::check_native(def.std)?;
-                        }
-                        let sc = ev
-                            .scope_enter(&scope, d)
-                            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
-                        todo.push((def.body, sc, depth + 1, query_allowed, inside_query));
-                    }
-                    None => {
-                        return Err(TemporalError::Unsupported(
-                            "unbound temporal constant".into(),
+                Expr::Const(c) => {
+                    if let Some(pred) = self.constant_context(&scope, *c)? {
+                        todo.push((
+                            pred.expr,
+                            pred.scope,
+                            depth + 1,
+                            query_allowed,
+                            inside_query,
                         ));
                     }
-                },
+                }
                 _ => {}
             }
             let call = match &meta.expr {

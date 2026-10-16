@@ -1,5 +1,11 @@
 # Changelog
 
+- Temporal planning and independent word validation distinguish an absent
+  INSTANCE substitution from an explicitly unset binding. Original variables
+  and configured constants remain available through absent substitutions;
+  pure zero-argument constant redirects retain their real scopes. Strict
+  holding and violation controls retain actual counts and reject forged words.
+
 - Independent finite-cover queries retain hidden assignments by canonical name
   and follow actual INSTANCE/lazy scopes. Ordinary counterexample predicates
   dispatch reached ENABLED queries to this search, including queries inside

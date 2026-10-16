@@ -300,6 +300,52 @@ impl Lower<'_> {
         }))
     }
 
+    // Only an absent substitution falls back to its original declaration.
+    // Explicitly unset and opaque bindings never enter this path.
+    fn declaration_fallback(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        decl: dive_ir::DeclId,
+    ) -> Result<Option<Pred>, PlanningError> {
+        let declaration = self.model.ir.decl(decl);
+        if declaration.variable {
+            return Ok(None);
+        }
+        let constant = declaration
+            .constant
+            .ok_or_else(|| self.refused(expr, "missing original substitution declaration"))?;
+        self.constant_context(expr, scope, constant)
+    }
+
+    fn constant_context(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        constant: ConstId,
+    ) -> Result<Option<Pred>, PlanningError> {
+        let ev = &self.model.evaluator;
+        match ev.constant_binding(constant) {
+            Some(ConstBinding::Value(_)) => Ok(None),
+            Some(ConstBinding::Def(def)) => {
+                let def = self.checked_definition(expr, def)?;
+                let target = self.model.ir.def(def);
+                if target.level != Level::Constant || target.recursive || !target.params.is_empty()
+                {
+                    return Err(self.refused(
+                        expr,
+                        "nonconstant/recursive/parameterized constant override",
+                    ));
+                }
+                let scope = ev
+                    .scope_enter(scope, def)
+                    .map_err(|error| self.refused(expr, error.to_string()))?;
+                Ok(Some(Pred::new(target.body, scope)))
+            }
+            None => Err(self.refused(expr, "unbound predicate constant")),
+        }
+    }
+
     fn checked_definition(&self, expr: ExprId, def: DefId) -> Result<DefId, PlanningError> {
         if self.model.ir.defs().get(def.index()).is_none() {
             return Err(self.refused(expr, "missing scoped definition"));
@@ -680,10 +726,19 @@ impl Lower<'_> {
                     }
                     _ => return Err(self.refused(e, "opaque forwarded temporal local")),
                 },
-                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&sc, *decl) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
-                    SlotView::Lazy(body, inner) => {
+                Expr::SubstRef { decl, primed } => match ev
+                    .scope_substitution(&sc, *decl, &St::constant(), *primed)
+                    .map_err(|error| self.refused(e, error.to_string()))?
+                {
+                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => continue,
+                    Some(SlotView::Lazy(body, inner)) => {
                         todo.push((body, inner, depth + 1));
+                        continue;
+                    }
+                    None => {
+                        if let Some(pred) = self.declaration_fallback(e, &sc, *decl)? {
+                            todo.push((pred.expr, pred.scope, depth + 1));
+                        }
                         continue;
                     }
                     _ => return Err(self.refused(e, "opaque forwarded temporal substitution")),
@@ -916,12 +971,22 @@ impl Lower<'_> {
                 return self.scoped_level_mode(*body, &sc, depth + 1, query_state);
             }
             Expr::SubstRef { decl, primed } => {
-                let level = match ev.scope_subst_slot(scope, *decl) {
-                    SlotView::Value(_) => Level::Constant,
-                    SlotView::AnalysisBound => Level::State,
-                    SlotView::Lazy(e, sc) => {
+                let level = match ev
+                    .scope_substitution(scope, *decl, &St::constant(), *primed)
+                    .map_err(|error| self.refused(expr, error.to_string()))?
+                {
+                    Some(SlotView::Value(_)) => Level::Constant,
+                    Some(SlotView::AnalysisBound) => Level::State,
+                    Some(SlotView::Lazy(e, sc)) => {
                         self.scoped_level_mode(e, &sc, depth + 1, query_state)?
                     }
+                    None => match self.declaration_fallback(expr, scope, *decl)? {
+                        Some(pred) => {
+                            self.scoped_level_mode(pred.expr, &pred.scope, depth + 1, query_state)?
+                        }
+                        None if ir.decl(*decl).variable => Level::State,
+                        None => Level::Constant,
+                    },
                     _ => return Err(self.refused(expr, "opaque substituted level")),
                 };
                 return Ok(if *primed && level != Level::Constant {
@@ -1314,32 +1379,39 @@ impl Lower<'_> {
                     todo.push((*body, sc, depth + 1, false, inside_query));
                     continue;
                 }
-                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => {}
-                    SlotView::Lazy(body, sc) => {
+                Expr::SubstRef { decl, primed } => match ev
+                    .scope_substitution(&scope, *decl, &St::constant(), *primed)
+                    .map_err(|error| self.refused(e, error.to_string()))?
+                {
+                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => {}
+                    Some(SlotView::Lazy(body, sc)) => {
                         todo.push((body, sc, depth + 1, false, inside_query));
                         continue;
                     }
-                    _ => return Err(self.refused(e, "opaque substituted predicate atom")),
-                },
-                Expr::Const(c) => match ev.constant_binding(*c) {
-                    Some(ConstBinding::Value(_)) => {}
-                    Some(ConstBinding::Def(d)) => {
-                        let d = self.checked_definition(e, d)?;
-                        let def = ir.def(d);
-                        if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
-                            return Err(self.refused(
-                                e,
-                                "nonconstant/recursive/parameterized constant override",
+                    None => {
+                        if let Some(pred) = self.declaration_fallback(e, &scope, *decl)? {
+                            todo.push((
+                                pred.expr,
+                                pred.scope,
+                                depth + 1,
+                                query_allowed,
+                                inside_query,
                             ));
                         }
-                        let sc = ev
-                            .scope_enter(&scope, d)
-                            .map_err(|err| self.refused(e, err.to_string()))?;
-                        todo.push((def.body, sc, depth + 1, query_allowed, inside_query));
                     }
-                    None => return Err(self.refused(e, "unbound predicate constant")),
+                    _ => return Err(self.refused(e, "opaque substituted predicate atom")),
                 },
+                Expr::Const(c) => {
+                    if let Some(pred) = self.constant_context(e, &scope, *c)? {
+                        todo.push((
+                            pred.expr,
+                            pred.scope,
+                            depth + 1,
+                            query_allowed,
+                            inside_query,
+                        ));
+                    }
+                }
                 _ => {}
             }
             let call = match &n.expr {
