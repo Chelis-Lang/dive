@@ -142,6 +142,30 @@ named refusals. Within configured calls, effects, temporal operands and
 ENABLED inside a pure atom, including unused actual arguments, remain refused. Independent trace replay
 checks the original configured calls separately.
 
+Temporal preflight distinguishes an absent INSTANCE substitution from an
+explicitly unset binding. An absent reference can use its original variable
+declaration or configured constant instead of being rejected as opaque. Pure
+zero-argument constant redirects are inspected in their actual scopes; value
+bindings and lazy substitutions keep their existing meanings. An unused
+INSTANCE import therefore does not hide a configured constant from checking.
+For example:
+
+```sh
+dive check crates/dive-trace/tests/fixtures/instance-constants/constant_absent_violation/Constant.tla \
+  --config crates/dive-trace/tests/fixtures/instance-constants/constant_absent_violation/Constant.cfg \
+  --compat=tlc --fp 0 --seed 0 --workers 1 --output json
+```
+
+This model reports property `Bad` violated, code 2116 and exit 13, with three
+generated states, two distinct states and depth two. Its periodic word passes
+independent validation. The paired configured-redirect fixture has the same
+result; the original holding fixtures report success. Explicit final checking
+also supports these cases with default value semantics: omit `--compat=tlc`
+and add `--lncheck final --lasso short`. Ordinary default-profile temporal
+dispatch keeps its existing support boundary. Explicitly unset or opaque
+bindings, effectful/recursive/nonconstant constant redirects and missing finite
+ENABLED covers retain their named refusals.
+
 Pure state predicates can call authoritative `Sequences!SelectSeq` with a unary
 user definition or `LAMBDA`, including a known forwarded operator and lexical
 captures. For example, `SelectSeq(<<0,1,0>>, LAMBDA y: y=x)` returns `<<0,0>>`

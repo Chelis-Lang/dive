@@ -1,0 +1,70 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "scope": "Four actual primary observations and original input bytes; test expectations only, no replacement golden or native credit",
+  "cases": [
+    {
+      "id": "constant_direct",
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "files": {
+        "Constant.tla": "fbe40a816d18ebc4230aae2c1578850d5eee6eeba148f384ca49f90e92b26312",
+        "Shared.tla": "b1ae366f2dbc7a4087a72c5952bec2c82c3a969ea9f7ab67b6acdc05c08c316c",
+        "Constant.cfg": "e37414914c7492a8377293c9d77b47a9715d12a7ed046cd6d6e013882755a4e1"
+      },
+      "sany_stdout_sha256": "e625e63bd6544d73e6648643e920974c2c88037214ec9f7607f523fa586cdd33",
+      "tlc_stdout_sha256": "972354bbef7b99aebd7df4a5bea5d2fd2190cf70f9e9a7fb11439aabed269655"
+    },
+    {
+      "id": "constant_absent_instance",
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "files": {
+        "Constant.tla": "99156ffd0520ca63534b00ae9b76b721474bde0402f2dc4f6d0e18a653d0728c",
+        "Shared.tla": "b1ae366f2dbc7a4087a72c5952bec2c82c3a969ea9f7ab67b6acdc05c08c316c",
+        "ConstInner.tla": "2a8e1f00053fe6769e3aa73a2a8bc18885b62be6efb58df63f45737aca275414",
+        "Constant.cfg": "e37414914c7492a8377293c9d77b47a9715d12a7ed046cd6d6e013882755a4e1"
+      },
+      "sany_stdout_sha256": "382040bedd142265ad7bf02683f47e4dbcca704bf301601d6bee63ac92265dea",
+      "tlc_stdout_sha256": "84a75c2c3aaed2f77aedd2d50faa82c80d45277b6d405ffcf750ff50452a5fbf"
+    },
+    {
+      "id": "constant_configured_redirect",
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "generated": 3,
+      "distinct": 2,
+      "depth": 2,
+      "files": {
+        "Constant.tla": "4d6c83083e226bc5566c7739d4a2a065072371f74a5ee0f70f7847779abc5070",
+        "Shared.tla": "b1ae366f2dbc7a4087a72c5952bec2c82c3a969ea9f7ab67b6acdc05c08c316c",
+        "ConstInner.tla": "2a8e1f00053fe6769e3aa73a2a8bc18885b62be6efb58df63f45737aca275414",
+        "Constant.cfg": "00c4328bbefb30633c372369c6c2e31850b6e5b70ff070b1711796b105c532b8"
+      },
+      "sany_stdout_sha256": "2ebd758c519113cf456e180500c29a762c455a640349b910d84898a7024f53e4",
+      "tlc_stdout_sha256": "5ee0aff1d878e2cf1373eabfc59abdf5e3295f0030b1a1167e98fedc86fc7b80"
+    },
+    {
+      "id": "constant_bound_instance",
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "generated": 2,
+      "distinct": 1,
+      "depth": 1,
+      "files": {
+        "Constant.tla": "fc5296ef0fac0e8be27df808c2da1b0907cc67d808956da94ec4d508c55c8699",
+        "Shared.tla": "b1ae366f2dbc7a4087a72c5952bec2c82c3a969ea9f7ab67b6acdc05c08c316c",
+        "ConstInner.tla": "2a8e1f00053fe6769e3aa73a2a8bc18885b62be6efb58df63f45737aca275414",
+        "Constant.cfg": "e37414914c7492a8377293c9d77b47a9715d12a7ed046cd6d6e013882755a4e1"
+      },
+      "sany_stdout_sha256": "8b1ed02de4450936c52576d29f9c4d1055bd07ed1f1249b9076e7da66c37e36b",
+      "tlc_stdout_sha256": "c0349140f074b7d2cc1da7c5992650eb93d53985b021b4cdfcf2f9c50a7e48f1"
+    }
+  ]
+}
