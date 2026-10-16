@@ -1,0 +1,29 @@
+{
+  "sources": [
+    "docs/user/temporal.md",
+    "https://github.com/Chelis-Lang/dive/issues/313"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "instance",
+    "enabled",
+    "lazy-lifetime"
+  ],
+  "modules": [
+    {
+      "path": "specifications/delayed_false_guard_unchanged/CallbackEnabled.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/delayed_false_guard_unchanged/CallbackEnabled.cfg",
+          "runtime": "00:00:30",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    }
+  ]
+}

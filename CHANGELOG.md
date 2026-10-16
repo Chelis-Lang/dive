@@ -1,5 +1,8 @@
 # Changelog
 
+- Record primary ENABLED lazy-binding lifetime controls, including genuine and
+  fabricated invariant endings (issue #313).
+
 - IR child visitors avoid constructing temporary child lists in structural
   validation, frame metadata and effects analysis. Existing owned child lists,
   source order, admission checks and error priorities are preserved.
