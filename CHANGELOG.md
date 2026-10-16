@@ -1,5 +1,10 @@
 # Changelog
 
+- Golden generation refuses unclassified TLC/SANY output and oracle errors
+  before creating or overwriting a reference, including with `--reason`. These
+  results report generation failures; classified specification errors remain
+  valid references, and existing timeout/resource-limit refusals are preserved.
+
 - Temporal planning and independent word validation distinguish an absent
   INSTANCE substitution from an explicitly unset binding. Original variables
   and configured constants remain available through absent substitutions;

@@ -670,3 +670,7 @@ link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
 // These controls share the source-bound temporary corpus and golden helpers.
 #[path = "pipeline_totals/whole_words.rs"]
 mod whole_words;
+
+#[cfg(unix)]
+#[path = "pipeline_totals/golden_facts.rs"]
+mod golden_facts;
