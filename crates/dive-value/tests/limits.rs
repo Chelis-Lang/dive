@@ -246,3 +246,40 @@ fn unknown_domain_is_not_inferred_nonempty_from_failed_enumeration() {
         assert!(invalid.as_set().expect("set").elements(ctx).is_err());
     }
 }
+
+/// These three-layer trees fit the adversarial strategy's syntax bounds, but
+/// exhaustively materializing them is unsuitable for a cross-API property test.
+/// Check only cheap symbolic metadata, never elements/print/JSON/fingerprint/hash.
+#[test]
+fn shallow_symbolic_sets_can_have_impractical_materialization_cost() {
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let interval = |a: i64, b: i64| Value::interval(a.into(), b.into(), ctx);
+        let subsets = Value::subset(
+            Value::product(vec![interval(-2, 2), interval(-2, 2)], ctx),
+            ctx,
+        );
+        let functions = Value::fcn_set(Value::subset(interval(-2, 1), ctx), interval(-1, 1), ctx);
+        for (value, expected) in [(&subsets, 33_554_432), (&functions, 43_046_721)] {
+            let set = value.as_set().expect("symbolic set");
+            assert!(set.stored_elements().is_none());
+            assert_eq!(
+                set.size(ctx).expect("finite size below the entry limit"),
+                expected
+            );
+            assert!(expected < dive_value::MAX_ENUMERATION);
+            assert!(!set.is_infinite());
+            assert!(set.stored_elements().is_none());
+        }
+        let double = Value::subset(Value::subset(interval(-2, 2), ctx), ctx);
+        let set = double.as_set().expect("symbolic set");
+        if ctx == Ctx::tlc() {
+            assert_eq!(
+                set.size(ctx).expect_err("TLC overflow").kind(),
+                ErrorKind::Overflow
+            );
+        } else {
+            assert_eq!(set.size(ctx).expect("big integer mode"), 1_u64 << 32);
+        }
+        assert!(set.stored_elements().is_none());
+    }
+}
