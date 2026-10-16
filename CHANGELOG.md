@@ -1,5 +1,9 @@
 # Changelog
 
+- IR child visitors avoid constructing temporary child lists in structural
+  validation, frame metadata and effects analysis. Existing owned child lists,
+  source order, admission checks and error priorities are preserved.
+
 - Golden generation refuses unclassified TLC/SANY output and oracle errors
   before creating or overwriting a reference, including with `--reason`. These
   results report generation failures; classified specification errors remain
