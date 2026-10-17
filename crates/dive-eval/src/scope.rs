@@ -777,6 +777,20 @@ impl Evaluator {
     /// # Errors
     /// If `let_expr` is not a `LET`.
     pub fn scope_let(&self, scope: &Scope, let_expr: ExprId) -> Result<Scope> {
+        self.scope_let_mode(scope, let_expr, false)
+    }
+
+    /// Enters a LET reached during actual expression/query evaluation. Each
+    /// zero-arity value retains its lexical creation context and TLC cachability;
+    /// no body is evaluated. Structural planning uses [`Self::scope_let`].
+    ///
+    /// # Errors
+    /// A foreign scope or an expression that is not an admitted LET.
+    pub fn scope_eval_let(&self, scope: &Scope, let_expr: ExprId) -> Result<Scope> {
+        self.scope_let_mode(scope, let_expr, true)
+    }
+
+    fn scope_let_mode(&self, scope: &Scope, let_expr: ExprId, cachable: bool) -> Result<Scope> {
         self.admit_scoped_expr(scope, let_expr)?;
         self.validate_scope(scope)?;
         let core = &self.core;
@@ -789,7 +803,7 @@ impl Evaluator {
                 let body = core.ir.def(d).body;
                 env.bind(
                     slot.index(),
-                    Sv::Thunk(Thunk::new(body, env.clone(), false)),
+                    Sv::Thunk(Thunk::new(body, env.clone(), cachable)),
                 );
             }
         }

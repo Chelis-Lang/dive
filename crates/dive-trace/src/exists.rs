@@ -2,6 +2,8 @@
 //! No checker generator is called. Covers include every satisfying assignment;
 //! the original predicate checks correlations. Missing covers cause refusal.
 
+mod runtime;
+
 use crate::State;
 use dive_eval::{ConstBinding, Scope, SlotView, St};
 use dive_ir::{
@@ -519,7 +521,7 @@ impl Search<'_> {
             }
             Expr::Let { body, .. } => {
                 let called = ev
-                    .scope_let(scope, expr)
+                    .scope_eval_let(scope, expr)
                     .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
                 return self.boolean_at(*body, &called, st, depth + 1);
             }
@@ -788,16 +790,47 @@ impl Search<'_> {
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     if (self.invocation.is_some() || self.source_only) && !self.inspect_only {
                         let mut remaining = self.limits.expressions.saturating_sub(self.steps);
-                        let projection = self
-                            .model
-                            .evaluator
-                            .scope_selectseq_call(scope, callee, args, &mut remaining)
-                            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                        let query_callback = self.query_depth != 0 && !self.state_source;
+                        let projection = if query_callback {
+                            self.model.evaluator.scope_selectseq_query_call(
+                                scope,
+                                callee,
+                                args,
+                                &mut remaining,
+                            )
+                        } else {
+                            self.model.evaluator.scope_selectseq_call(
+                                scope,
+                                callee,
+                                args,
+                                &mut remaining,
+                            )
+                        }
+                        .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
                         self.steps = self.limits.expressions.saturating_sub(remaining);
                         if let Some((sequence, bodies)) = projection {
                             self.scan(sequence, scope, prime, needed, depth + 1)?;
                             for (body, captured) in bodies {
-                                self.scan_state_source(body, &captured, prime, needed, depth + 1)?;
+                                if query_callback {
+                                    // Analysis formals are not runtime values. Scan
+                                    // their original source without forcing them;
+                                    // every primed read joins the independent cover.
+                                    let saved = (self.source_only, self.query_allowed);
+                                    self.source_only = true;
+                                    self.query_allowed = false;
+                                    let result =
+                                        self.scan(body, &captured, prime, needed, depth + 1);
+                                    (self.source_only, self.query_allowed) = saved;
+                                    result?;
+                                } else {
+                                    self.scan_state_source(
+                                        body,
+                                        &captured,
+                                        prime,
+                                        needed,
+                                        depth + 1,
+                                    )?;
+                                }
                             }
                             return Ok(());
                         }
@@ -934,13 +967,6 @@ impl Search<'_> {
                     ));
                 }
                 SlotView::Value(_) => {}
-                SlotView::Lazy(body, _)
-                    if self.query_depth != 0 && self.model.ir.node(body).level > Level::State =>
-                {
-                    return Err(ExistsError::Unsupported(
-                        "captured primed ENABLED source".into(),
-                    ));
-                }
                 SlotView::Lazy(body, sc) => self.scan(body, &sc, prime, needed, depth + 1)?,
                 SlotView::AnalysisBound
                     if self.state_source || self.inspect_only || self.source_only => {}
@@ -1142,6 +1168,29 @@ impl Search<'_> {
     ) -> Result<Scope, ExistsError> {
         let ev = &self.model.evaluator;
         let d = self.model.ir.def(def);
+        if self.invocation.is_some() && !self.state_source && !self.inspect_only {
+            self.step(depth)?;
+            if d.recursive
+                || d.std.is_some()
+                || ev.is_value_override(def)
+                || d.params.iter().any(|p| p.arity != 0)
+                || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
+            {
+                return Err(ExistsError::Unsupported("opaque query helper".into()));
+            }
+            // A query action may take a lazy action-level argument. Inspect its
+            // original source without forcing it; its primed reads require
+            // covers just like reads in the callee body. Runtime creates a
+            // separate actual scope only when this call is reached.
+            for arg in args {
+                if let Arg::Expr { expr, .. } = arg {
+                    self.scan_data(*expr, scope, prime, needed, depth + 1)?;
+                }
+            }
+            return ev
+                .scope_apply(scope, def, args)
+                .map_err(|e| ExistsError::Unsupported(e.to_string()));
+        }
         if self.source_only {
             if d.recursive
                 || d.std.is_some()
@@ -2133,6 +2182,9 @@ impl Search<'_> {
             .as_ref()
             .map(|p| self.read(p.expr, &p.scope, &self.current_state()))
             .transpose()?;
+        if self.invocation.is_some() {
+            return self.runtime_action(&action, nonstuttering.as_ref(), before.as_ref(), depth);
+        }
         for i in 0..count {
             if self.assignments >= limits.assignments {
                 return Err(ExistsError::Limit("assignments"));

@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "primary_date": "2026-10-16",
+  "settings": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "heap": "512m",
+    "timeout_seconds": 30
+  },
+  "runtime_policy": "All six default pinned primary processes finished within the original30-second cap. Runtime labels conservatively retain that cap.",
+  "scope": "Issue313 primary-first controls. Only default pinned TLC supplies oracle facts. Cache-off diagnostics establish causality and are not oracle goldens. No native or original156-model agreement credit.",
+  "selection": [
+    {
+      "id": "hidden_remove_two",
+      "module": "specifications/hidden_remove_two/CallbackEnabled.tla",
+      "model": "specifications/hidden_remove_two/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "fc976b5d4f2568fb3b149b38281a966932839f83d762d3dfb86c8c0ef60d39d3",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2107,
+        "physical_exit": 12,
+        "property": "Inv",
+        "counts": null,
+        "stdout_sha256": "0e71ce91387397bdb27707e30af055ae1bf3b39829abd14de6338282b1fbc653",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "hidden_unchanged",
+      "module": "specifications/hidden_unchanged/CallbackEnabled.tla",
+      "model": "specifications/hidden_unchanged/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "f840d81da1d8f557cbd01a51c766cd4016c976ef1e5729034cd75ce5fc957c84",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2107,
+        "physical_exit": 12,
+        "property": "Inv",
+        "counts": null,
+        "stdout_sha256": "b8dfeb411175ed6582fba69db1a3c03418f377fa4da256ed7b287a1402affda0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "hidden_remove_one",
+      "module": "specifications/hidden_remove_one/CallbackEnabled.tla",
+      "model": "specifications/hidden_remove_one/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "2b9b7a96e66b89b4555a84bce6cd56e7b3e522811a7e75b1707f3d109641a0bd",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 1,
+          "generated": 2,
+          "depth": 1
+        },
+        "stdout_sha256": "2eca0838d399bb94c302ab03b6458448d6c386f89b665853e05ccb461861e218",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "hidden_singleton_two",
+      "module": "specifications/hidden_singleton_two/CallbackEnabled.tla",
+      "model": "specifications/hidden_singleton_two/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "dfebd0072acfb5ae9af16126bd81419dec60018245b954d57b031fb5fed62281",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 1,
+          "generated": 2,
+          "depth": 1
+        },
+        "stdout_sha256": "ee9d438fc0aa95a070bb174cffafe11d4e9fa93bfe2ed421820e205440c91fcb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "hidden_inline_remove_two",
+      "module": "specifications/hidden_inline_remove_two/CallbackEnabled.tla",
+      "model": "specifications/hidden_inline_remove_two/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "6686ab7588d2dc43ce88d4a2dcab40329ad5ae5d44da5ecbce709941f30bed49",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 1,
+          "generated": 2,
+          "depth": 1
+        },
+        "stdout_sha256": "89a15028655e99809869ff260f8215e4411b97e0a871f972a8e3482f0bb67993",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "root_remove_two",
+      "module": "specifications/root_remove_two/CallbackEnabled.tla",
+      "model": "specifications/root_remove_two/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "5623bfba37576bd330450a471768c065cd54e1bf432abf7c18cb8336c92fcd8b",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 1,
+          "generated": 2,
+          "depth": 1
+        },
+        "stdout_sha256": "98fd0ebd7e8c5cbcbeb2c60120318cc1764a85dcb1a9fe75f28667b7f182e2f7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

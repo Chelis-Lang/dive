@@ -1,0 +1,30 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "settings": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "timeout_seconds": 30
+  },
+  "source_sha256": "b69a9413e36ff3273d139ca7395c45d549e6b63ab6c0ff894f91eb1c94483b4b",
+  "configs_sha256": {
+    "hold": "61ffe03d7bd335f867697d91ca0cf77384cc6307ef8a447f52a3c63014bd9044",
+    "fail": "3ca09f04a7e1c8015ef4aedc142d54755b18ab70286bfb11eb8a1b014c49a0d6"
+  },
+  "sany_exit": 0,
+  "hold": {
+    "exit": 0,
+    "code": 2193,
+    "generated": 3,
+    "distinct": 2,
+    "depth": 2
+  },
+  "fail": {
+    "exit": 12,
+    "code": 2107,
+    "property": "Bad",
+    "initial_x": 0
+  }
+}

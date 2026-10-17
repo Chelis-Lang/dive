@@ -386,12 +386,13 @@ impl Core {
                         *remaining = remaining
                             .checked_sub(1)
                             .ok_or_else(|| EvalError::resource_limit("SelectSeq element work"))?;
-                        evaluator.selectseq_context(
+                        evaluator.selectseq_context_in(
                             &scope,
                             test.clone(),
                             Some(x),
                             s.as_fcn(),
                             &mut remaining,
+                            st,
                         )?;
                         // The finite walk above has this actual value bound in
                         // the exact lexical frame and shares the invocation's
@@ -597,7 +598,11 @@ impl Core {
                 let r = self.eval(
                     &mut callee,
                     &St {
-                        control: crate::env::control::CLEAR,
+                        // Native overrides invoke callbacks synchronously in
+                        // their creation state/context. OpLambdaValue restores
+                        // ENABLED from that context after EvalControl.Clear;
+                        // its primed lookup must keep the INSTANCE cutoff.
+                        control: st.control & crate::env::control::ENABLED,
                         selectseq_callback: st.selectseq.is_some(),
                         ..st.clone()
                     },

@@ -546,3 +546,45 @@ fn action_and_reused_query_budget_reject_both_foreign_named_states() {
         );
     }
 }
+
+#[cfg(feature = "enumerate")]
+#[test]
+fn pinned_hidden_lazy_cache_queries_preserve_default_primary_outcomes() {
+    let corpus = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/corpus/lazy-enabled-cache/specifications");
+    let cases = [
+        ("hidden_remove_two", false),
+        ("hidden_unchanged", false),
+        ("hidden_remove_one", true),
+        ("hidden_singleton_two", true),
+        ("hidden_inline_remove_two", true),
+        ("root_remove_two", true),
+    ];
+    for options in [Options::tlc(), Options::default()] {
+        for (name, enabled) in cases {
+            let path = corpus.join(name).join("CallbackEnabled.tla");
+            let analysis = dive_sema::analyze_file(&path, &dive_sema::Options::default())
+                .expect("primary fixture");
+            assert!(analysis.accepted(), "{name}: {:?}", analysis.diagnostics());
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let state = ir
+                .vars()
+                .iter()
+                .map(|decl| {
+                    Some(match ir.decl(*decl).name.as_str() {
+                        "s" | "c" => Value::tuple(vec![1.into(), 2.into(), 3.into()]),
+                        _ => 0.into(),
+                    })
+                })
+                .collect::<Vec<_>>();
+            let inv = ir.root_def("Inv").expect("invariant");
+            let ev = Evaluator::new(Model::new(ir), options).expect("evaluator");
+            assert_eq!(
+                ev.eval_def(inv, &St::state(state.into()))
+                    .expect("actual initial invariant"),
+                Value::Bool(enabled),
+                "{name}: pinned default TLC, {options:?}"
+            );
+        }
+    }
+}
