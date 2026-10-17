@@ -1,5 +1,9 @@
 # Changelog
 
+- Default TLA+ membership comparisons borrow unnormalized set elements instead
+  of cloning them into temporary storage. Written-order comparisons and TLC
+  fallback errors are preserved.
+
 - Bounded pure query evaluation owns its lazy-expression memo, preserving
   captured lexical contexts and binding lifetimes during independent replay.
   Source-ordered partial assignments retain a LET across precisely its enclosed

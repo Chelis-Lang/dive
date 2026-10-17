@@ -83,13 +83,16 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
         SetKind::Enum | SetKind::Raw => {
             // An enumeration TLC has not normalized is scanned as written, so
             // that the answer does not depend on normalizing it.
-            let elems: std::sync::Arc<[Value]> = match s.raw_elements() {
-                Some(raw) => raw.into(),
-                None => s.elements(core.ctx)?,
+            let normalized;
+            let elems = if let Some(raw) = s.raw_elements() {
+                raw
+            } else {
+                normalized = s.elements(core.ctx)?;
+                &normalized
             };
             let ce = class(elem);
             let mut unspecified = false;
-            for x in elems.iter() {
+            for x in elems {
                 let cx = class(x);
                 if ce == cx && ce != Class::Scalar(3) {
                     if elem == x {
