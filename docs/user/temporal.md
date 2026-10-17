@@ -496,3 +496,18 @@ reached lexical binding's lifetime across precisely the branches it encloses.
 These primary-first fixtures and generated goldens establish the required
 behavior before its implementation. They remain separate from the established
 156-model population; no native or independent replay support is implied.
+
+
+## Query composition oracle controls
+
+The separate `lazy-query-composition` corpus records 18 combinations of
+finite ENABLED queries with lazy callbacks. The cases cover a boxed action
+whose ordinary branch fails, configured action parameters in root and hidden
+INSTANCE scopes, nested ENABLED inside a SelectSeq callback, and a recursive
+function supplying a finite membership domain. Early and late lexical
+bindings and two removal targets distinguish the required outcomes.
+
+Pinned TLC reports 14 complete successes and four initial invariant failures.
+The fixtures record those primary results before further runtime support.
+They supply no native or independent replay support, original156-model
+agreement, full query-composition or performance credit.

@@ -87,3 +87,10 @@ id = "lazy-query-lifetimes"
 path = "conformance/corpus/lazy-query-lifetimes"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first combinations of finite ENABLED queries and lazy callbacks.
+[[corpus]]
+id = "lazy-query-composition"
+path = "conformance/corpus/lazy-query-composition"
+license = "MIT"
+layout = "examples-manifest"

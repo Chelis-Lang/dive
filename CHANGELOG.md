@@ -1,5 +1,8 @@
 # Changelog
 
+- Record 18 primary query-composition controls for boxed actions, configured
+  action arguments, nested callbacks and recursive finite domains.
+
 - Record primary ENABLED lazy-binding lifetime controls, including genuine and
   fabricated invariant endings (issue #313).
 

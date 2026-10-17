@@ -1759,3 +1759,15 @@ source is MIT-licensed tlaplus commit `94d0c5070852b37b801bb8998c436383ab7ee37b`
 Only primary fixture behavior is recorded here; no implementation algorithm
 is ported in this prerequisite. Goldens are produced by the pinned harness
 without diagnostic cache switches.
+
+
+### Finite query composition controls
+
+The 18 dive-authored `lazy-query-composition` fixtures combine boxed-action
+fallback, configured operators, nested ENABLED callbacks and recursive finite
+domains. They were measured with default pinned TLC from MIT-licensed tlaplus
+commit `94d0c5070852b37b801bb8998c436383ab7ee37b`. Relevant reference sources
+are `Tool.java` enabled/application/boxed-action evaluation, `LazyValue.java`
+and `TLCState.java` cache state inclusion. The fixtures constrain observable
+behavior; this prerequisite ports no runtime algorithm. Goldens are generated
+by the pinned harness without cache-disabling diagnostic switches.

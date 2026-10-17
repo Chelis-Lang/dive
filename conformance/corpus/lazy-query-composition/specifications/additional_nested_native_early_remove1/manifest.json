@@ -1,0 +1,29 @@
+{
+  "sources": [
+    "docs/user/temporal.md",
+    "https://github.com/Chelis-Lang/dive/issues/313"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "instance",
+    "enabled",
+    "query-composition"
+  ],
+  "modules": [
+    {
+      "path": "specifications/additional_nested_native_early_remove1/CallbackEnabled.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/additional_nested_native_early_remove1/CallbackEnabled.cfg",
+          "runtime": "00:00:30",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    }
+  ]
+}

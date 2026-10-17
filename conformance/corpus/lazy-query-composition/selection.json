@@ -1,0 +1,307 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "primary_date": "2026-10-17",
+  "settings": {
+    "workers": 1,
+    "seed": 1,
+    "fp_default": 0,
+    "heap": "512m",
+    "timeout_seconds": 30
+  },
+  "runtime_policy": "All18 direct default pinned TLC processes completed within the original30second cap. The manifest conservatively retains that cap; harness regeneration retains its own pinned seed settings.",
+  "scope": "Primary-first composition obligations from fresh runtime review: boxed action fallback, configured action parameters, nested ENABLED callbacks and recursive finite domains. No native support, independent replay, original156-model agreement or performance credit.",
+  "selection": [
+    {
+      "id": "box_fail_remove1",
+      "module": "specifications/box_fail_remove1/CallbackEnabled.tla",
+      "model": "specifications/box_fail_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "ab728f7e55ac60971ec982dd25cbeae2c2214196760c16790f5b7630e8da9737",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "86d0dc8edbb88191f2ac8a89cd7d05871148726e6cdb25c22067327e3be33fbe",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "box_fail_remove2",
+      "module": "specifications/box_fail_remove2/CallbackEnabled.tla",
+      "model": "specifications/box_fail_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "d76dcb9489af927fe5844d0f56f6dfcd25461db17bf8a4ab2180d9289f192fd8",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "ee0678ad09ee2d48f7784f24d9983590a8041a90f89b40b7f28423e716b2a152",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_hidden_early_remove1",
+      "module": "specifications/configured_hidden_early_remove1/CallbackEnabled.tla",
+      "model": "specifications/configured_hidden_early_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "dbfc6ed24ab1d23177e685fe9c95f6c557e6261bfa55818c81828c9801aba503",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "c3026812ce9a4e6aaa8798b6e7c2a4f5856a676188f69d8479b883ccfb431dc5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_hidden_early_remove2",
+      "module": "specifications/configured_hidden_early_remove2/CallbackEnabled.tla",
+      "model": "specifications/configured_hidden_early_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "162e6f8527a7822eb6143960fea7e7bc70ff3645681ffe389d31fb587f8a2df9",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2107,
+        "physical_exit": 12,
+        "property": "Inv",
+        "stdout_sha256": "1ace947db1d149f99947058473ebdf9dd5060108632ec259111fceab8b94f164",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_hidden_late_remove1",
+      "module": "specifications/configured_hidden_late_remove1/CallbackEnabled.tla",
+      "model": "specifications/configured_hidden_late_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "a3df2197ffb681c97682cd4131d49a87421daff89d2fe0fcbe75d9d57d442d86",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "d2392800af07f064bd654119029696631c331bc2b70f7a1cfd21c8dde7da5106",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_hidden_late_remove2",
+      "module": "specifications/configured_hidden_late_remove2/CallbackEnabled.tla",
+      "model": "specifications/configured_hidden_late_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "d081b2bbb1e2abde011aa214d1e88075734eb305a03c505c2fdfdd5ec0624cba",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2107,
+        "physical_exit": 12,
+        "property": "Inv",
+        "stdout_sha256": "5dd9f8f00e07422889a39f7934c2677691db1ae63115849fd323b500ef5325c2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_root_early_remove1",
+      "module": "specifications/configured_root_early_remove1/CallbackEnabled.tla",
+      "model": "specifications/configured_root_early_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "422b966774a9cc10142a86e0aa94db103498665fc521fbeb9b189f9d47037c99",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "7288452c3b05cea375210451a735f3c83f47daa83da4b045105f0db8b243dc88",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_root_early_remove2",
+      "module": "specifications/configured_root_early_remove2/CallbackEnabled.tla",
+      "model": "specifications/configured_root_early_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "e2cb7e48c0ca100cc54fde7fad10f1c1d11667cd5ebeb6339f6952ff052d8547",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "589162eedbe50bb175f924f4a7381f44885cb79144ae97d9f1eda6f36d7d6bc2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_root_late_remove1",
+      "module": "specifications/configured_root_late_remove1/CallbackEnabled.tla",
+      "model": "specifications/configured_root_late_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "541a58baaee0ba9a9e23288685059e8e0aecea40cb4b1724a6595d60a54e9107",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "fe9547a19fd1403480f48ab0e897166292e559ccd5787c16809a9e95ea5a262d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "configured_root_late_remove2",
+      "module": "specifications/configured_root_late_remove2/CallbackEnabled.tla",
+      "model": "specifications/configured_root_late_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "4428691bd6c170231e8a93b14b8a3967d4eeeb9afbf5c206d80e76c797cb4964",
+        "CallbackEnabled.cfg": "7bbfa06f3562bf350cd39f6d368dc92b5bb9a41f971139358495dcd2493ca8b2"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "f3ea62a397c0ad41dfd0aa8f8661c4eba38511b00a38b8d28954d413bb82727e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_nested_native_early_remove1",
+      "module": "specifications/additional_nested_native_early_remove1/CallbackEnabled.tla",
+      "model": "specifications/additional_nested_native_early_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "6e25fa7d58e9ee0c3601ef6aa583466ff971bff7484962004245ceb499887e87",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "28836d4cfebcbdf045d4a94181b53386ec44679788e13ffb9e0b9585e6d0c527",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_nested_native_early_remove2",
+      "module": "specifications/additional_nested_native_early_remove2/CallbackEnabled.tla",
+      "model": "specifications/additional_nested_native_early_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "b542d11fdfe860cd148478e68d80c43249bda17529704c6e2e2901964ebd88e5",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2107,
+        "physical_exit": 12,
+        "property": "Inv",
+        "stdout_sha256": "8b8491af6773f5c4e9c310e6e23a08e3d6b7d365c9f949e9cee9798fc1229042",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_nested_native_late_remove1",
+      "module": "specifications/additional_nested_native_late_remove1/CallbackEnabled.tla",
+      "model": "specifications/additional_nested_native_late_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "e75fee7f5cdf1577d315dc1156810d934d97e43419a9abcb5de44191b0f1afee",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "2600146996ec4bb50aceea94c9d74caf50910fa038e4c64b651d920c6873a99b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_nested_native_late_remove2",
+      "module": "specifications/additional_nested_native_late_remove2/CallbackEnabled.tla",
+      "model": "specifications/additional_nested_native_late_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "f6af7258cdcbd1ef2e0df3627020cf070b160abae5d46fed4c10e73e7dc665c9",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "625c83abf8f5efd9c35df8b26a66fb6c7c9a02f1f32c5ff795052c0beeb41537",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_recursive_domain_early_remove1",
+      "module": "specifications/additional_recursive_domain_early_remove1/CallbackEnabled.tla",
+      "model": "specifications/additional_recursive_domain_early_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "2cde0c140ba08580e3f5d6a041615ad4d41a28b9138dfac07c665c4bfc89da64",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "5ed7e887efe6c3af19a3fd4aa82857037e904a6dbf6d4c20b804dd6e9b499c1a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_recursive_domain_early_remove2",
+      "module": "specifications/additional_recursive_domain_early_remove2/CallbackEnabled.tla",
+      "model": "specifications/additional_recursive_domain_early_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "714a1ca15a50a5ad787129200dd1368102cf9e951e3522aa9872b57c349d9bdb",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2107,
+        "physical_exit": 12,
+        "property": "Inv",
+        "stdout_sha256": "26f43c94b5dd30f6347480eb999455e7ac7a39949b3782a4f36e4f66e6914edd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_recursive_domain_late_remove1",
+      "module": "specifications/additional_recursive_domain_late_remove1/CallbackEnabled.tla",
+      "model": "specifications/additional_recursive_domain_late_remove1/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "64d674ab11188ed83eb47fbb85371e26204566cd1de5f93b750c20c119714c08",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "02eea9473a5c4623d2042cf6c8a4bc4214af8a0e0c6e00f16267f42d10921a1b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "additional_recursive_domain_late_remove2",
+      "module": "specifications/additional_recursive_domain_late_remove2/CallbackEnabled.tla",
+      "model": "specifications/additional_recursive_domain_late_remove2/CallbackEnabled.cfg",
+      "inputs_sha256": {
+        "CallbackEnabled.tla": "deec5cc3dc9b3b469099ec8d947859cddf1d148afd690bc79c68a7c8a2e6d27b",
+        "CallbackEnabled.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "stdout_sha256": "41ed324050ab77953a1cc88d66b56ac108aef237fe22d194b4449fa5e05f6563",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}
