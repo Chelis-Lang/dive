@@ -466,7 +466,7 @@ fn captured_interpretations() {
 }
 
 // ---------------------------------------------------------------------------
-// The harness goldens (small tier).
+// The harness model goldens, including deep and simulated models.
 
 fn json_files(dir: &Path, out: &mut Vec<PathBuf>) {
     let Ok(rd) = std::fs::read_dir(dir) else {
@@ -488,7 +488,7 @@ fn json_files(dir: &Path, out: &mut Vec<PathBuf>) {
 /// dive must accept it too, and the invariant or property TLC reports as
 /// violated must be one dive read from the cfg.
 #[test]
-fn small_tier_goldens_agree() {
+fn model_goldens_agree() {
     let root = crate_dir()
         .join("../../conformance/golden")
         .join(ORACLE)
@@ -506,6 +506,7 @@ fn small_tier_goldens_agree() {
         .map(|c| (c.path, c.bytes))
         .collect();
     let mut checked_names = 0;
+    let mut simulated_reference_checked = false;
     for f in &files {
         let g: serde_json::Value = match serde_json::from_str(&read(f)) {
             Ok(v) => v,
@@ -542,11 +543,19 @@ fn small_tier_goldens_agree() {
                 "{id}: TLC reports `{prop}` ({class}) violated, but dive read {:?}",
                 pool.iter().map(|n| &n.text).collect::<Vec<_>>()
             );
+            if id == "specifications/ewd687a/EWD687a_anim.cfg" {
+                assert_eq!(prop, "InterestingBehavior");
+                assert_eq!(class, "TLC_INVARIANT_VIOLATED_BEHAVIOR");
+                simulated_reference_checked = true;
+            }
             checked_names += 1;
         }
         if result["error_class"] == "TLC_DEADLOCK_REACHED" {
             assert!(cfg.checks_deadlock(), "{id}: TLC found a deadlock");
         }
     }
-    assert_eq!(checked_names, 17);
+    // The recovered simulated EWD687a reference adds one named invariant
+    // violation; all previous 17 references remain covered by this census.
+    assert!(simulated_reference_checked);
+    assert_eq!(checked_names, 18);
 }
