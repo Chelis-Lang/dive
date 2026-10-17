@@ -511,3 +511,8 @@ Pinned TLC reports 14 complete successes and four initial invariant failures.
 The fixtures record those primary results before further runtime support.
 They supply no native or independent replay support, original156-model
 agreement, full query-composition or performance credit.
+
+The direct source-selection measurements use seed1 and omit `-fp`; the
+selection records each run's actual startup polynomial. The harness generates
+references with its explicit seed0 and polynomial0 settings. These settings
+retain their separate measured provenance.

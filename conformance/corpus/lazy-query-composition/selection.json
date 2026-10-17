@@ -8,11 +8,11 @@
   "settings": {
     "workers": 1,
     "seed": 1,
-    "fp_default": 0,
     "heap": "512m",
-    "timeout_seconds": 30
+    "timeout_seconds": 30,
+    "fp_option": "omitted"
   },
-  "runtime_policy": "All18 direct default pinned TLC processes completed within the original30second cap. The manifest conservatively retains that cap; harness regeneration retains its own pinned seed settings.",
+  "runtime_policy": "All18 direct default pinned TLC processes completed within the original30second cap. The manifest conservatively retains that cap; harness regeneration retains its own pinned seed settings. The original direct runs omit -fp; the per-result primary field records each actual startup fingerprint polynomial. Generated harness references explicitly use seed0 and fingerprint polynomial0.",
   "scope": "Primary-first composition obligations from fresh runtime review: boxed action fallback, configured action parameters, nested ENABLED callbacks and recursive finite domains. No native support, independent replay, original156-model agreement or performance credit.",
   "selection": [
     {
@@ -28,7 +28,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "86d0dc8edbb88191f2ac8a89cd7d05871148726e6cdb25c22067327e3be33fbe",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 82
       }
     },
     {
@@ -44,7 +45,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "ee0678ad09ee2d48f7784f24d9983590a8041a90f89b40b7f28423e716b2a152",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 51
       }
     },
     {
@@ -60,7 +62,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "c3026812ce9a4e6aaa8798b6e7c2a4f5856a676188f69d8479b883ccfb431dc5",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 58
       }
     },
     {
@@ -76,7 +79,8 @@
         "physical_exit": 12,
         "property": "Inv",
         "stdout_sha256": "1ace947db1d149f99947058473ebdf9dd5060108632ec259111fceab8b94f164",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 56
       }
     },
     {
@@ -92,7 +96,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "d2392800af07f064bd654119029696631c331bc2b70f7a1cfd21c8dde7da5106",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 107
       }
     },
     {
@@ -108,7 +113,8 @@
         "physical_exit": 12,
         "property": "Inv",
         "stdout_sha256": "5dd9f8f00e07422889a39f7934c2677691db1ae63115849fd323b500ef5325c2",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 106
       }
     },
     {
@@ -124,7 +130,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "7288452c3b05cea375210451a735f3c83f47daa83da4b045105f0db8b243dc88",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 49
       }
     },
     {
@@ -140,7 +147,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "589162eedbe50bb175f924f4a7381f44885cb79144ae97d9f1eda6f36d7d6bc2",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 20
       }
     },
     {
@@ -156,7 +164,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "fe9547a19fd1403480f48ab0e897166292e559ccd5787c16809a9e95ea5a262d",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 7
       }
     },
     {
@@ -172,7 +181,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "f3ea62a397c0ad41dfd0aa8f8661c4eba38511b00a38b8d28954d413bb82727e",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 82
       }
     },
     {
@@ -188,7 +198,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "28836d4cfebcbdf045d4a94181b53386ec44679788e13ffb9e0b9585e6d0c527",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 98
       }
     },
     {
@@ -204,7 +215,8 @@
         "physical_exit": 12,
         "property": "Inv",
         "stdout_sha256": "8b8491af6773f5c4e9c310e6e23a08e3d6b7d365c9f949e9cee9798fc1229042",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 20
       }
     },
     {
@@ -220,7 +232,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "2600146996ec4bb50aceea94c9d74caf50910fa038e4c64b651d920c6873a99b",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 69
       }
     },
     {
@@ -236,7 +249,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "625c83abf8f5efd9c35df8b26a66fb6c7c9a02f1f32c5ff795052c0beeb41537",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 31
       }
     },
     {
@@ -252,7 +266,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "5ed7e887efe6c3af19a3fd4aa82857037e904a6dbf6d4c20b804dd6e9b499c1a",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 58
       }
     },
     {
@@ -268,7 +283,8 @@
         "physical_exit": 12,
         "property": "Inv",
         "stdout_sha256": "26f43c94b5dd30f6347480eb999455e7ac7a39949b3782a4f36e4f66e6914edd",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 80
       }
     },
     {
@@ -284,7 +300,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "02eea9473a5c4623d2042cf6c8a4bc4214af8a0e0c6e00f16267f42d10921a1b",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 105
       }
     },
     {
@@ -300,7 +317,8 @@
         "physical_exit": 0,
         "property": null,
         "stdout_sha256": "41ed324050ab77953a1cc88d66b56ac108aef237fe22d194b4449fa5e05f6563",
-        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fingerprint_polynomial": 10
       }
     }
   ]
