@@ -1748,3 +1748,14 @@ Action composition refuses assigned hidden-name projections instead of losing
 them. No independent trace-search implementation is borrowed from `Enab`;
 name-aware independent covers, membership, word validation and callable/temporal
 traversal remain follow-up work. See ADR 0099.
+
+### Independent query lexical lifetime controls
+
+The 24 dive-authored `lazy-query-lifetimes` fixtures distinguish lexical
+context lifetime from state inclusion under default pinned TLC. Reference
+source is MIT-licensed tlaplus commit `94d0c5070852b37b801bb8998c436383ab7ee37b`,
+`Tool.java` `enabledImpl` LET/application handling and `enabledIn` recursion,
+`LazyValue.java` `getCachedValue`/`getValue`, and `TLCState.java` `isSubset`.
+Only primary fixture behavior is recorded here; no implementation algorithm
+is ported in this prerequisite. Goldens are produced by the pinned harness
+without diagnostic cache switches.

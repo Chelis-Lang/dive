@@ -80,3 +80,10 @@ id = "instance-temporal"
 path = "conformance/corpus/instance-temporal"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first lexical lazy-context lifetime controls (issue #313).
+[[corpus]]
+id = "lazy-query-lifetimes"
+path = "conformance/corpus/lazy-query-lifetimes"
+license = "MIT"
+layout = "examples-manifest"

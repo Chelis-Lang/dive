@@ -472,3 +472,27 @@ agreements. Composition with assigned hidden query names explicitly refuses
 until its intermediate-state generator can retain them; existing root-only
 composition keeps its original behavior. No new native agreement or independent
 full-word validation is claimed.
+
+## Lazy query binding lifetime
+
+The separate `lazy-query-lifetimes` oracle corpus records 24 primary controls
+for the lexical lifetime issue investigated in [issue #313](https://github.com/Chelis-Lang/dive/issues/313).
+An exported INSTANCE query assigns `b' = 42` and then enters a LET binding
+`Cut == a'` before enumerating hidden `a' \in {1, 2}`. A SelectSeq callback
+uses Cut to remove an element from `<<1, 2, 3>>`. Pinned TLC retains the same
+lazy binding across both membership candidates: requiring `<<1, 3>>` leaves
+the query disabled. Moving that LET after membership creates a binding for
+each candidate and makes the same query enabled. Leading helper arguments,
+delayed helper arguments, nested queries, sibling Boolean expressions and
+false leading guards supply controls for this distinction.
+
+The paired inverted invariants make the independent replay obligation explicit:
+a genuine invariant-ending word must validate, and a fabricated ending must
+fail. Recreating all LET contexts per complete candidate, or hoisting every
+LET before all candidates, violates one of these controls. Source inspection
+cannot supply the runtime context. The implementation must preserve each
+reached lexical binding's lifetime across precisely the branches it encloses.
+
+These primary-first fixtures and generated goldens establish the required
+behavior before its implementation. They remain separate from the established
+156-model population; no native or independent replay support is implied.
