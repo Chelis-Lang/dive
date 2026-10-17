@@ -5,6 +5,10 @@
   Results are unchanged; single-worker checking executes about 15–17% fewer
   instructions. Building from source now needs a C compiler.
 
+- Final temporal analysis validates all retained bound-model contexts before
+  planning can evaluate constants or invoke native hooks. Malformed public
+  metadata refuses during planning without starting graph capture.
+
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
   fallback errors are preserved.
