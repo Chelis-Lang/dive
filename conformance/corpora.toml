@@ -87,3 +87,10 @@ id = "lazy-query-lifetimes"
 path = "conformance/corpus/lazy-query-lifetimes"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first ordinary recursive value helpers in temporal predicates/domains.
+[[corpus]]
+id = "recursive-value-operators"
+path = "conformance/corpus/recursive-value-operators"
+license = "MIT"
+layout = "examples-manifest"

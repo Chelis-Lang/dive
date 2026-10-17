@@ -136,3 +136,22 @@ A TLC self-check establishes oracle reproducibility, not native conformance or
 independent validation of a counterexample. General fairness and closing-edge
 word controls, callable substitutions, and uncovered derived-query errors remain
 required beyond this initial selection.
+
+
+## Recursive value operators
+
+The separate `recursive-value-operators` corpus records three source forms:
+a recursive sequence sum in a state-dependent finite fairness domain, a local
+recursive operator capturing its enclosing state, and mutually recursive
+Boolean operators in a domain and a temporal predicate. Each source has holding
+and violating configurations. Pinned TLC reports three successes and three
+liveness violations of `Fail`; every model generates seven states, finds three
+distinct states and reaches depth three. Each source is accepted by pinned SANY.
+The fixed settings are one worker, seed zero, fingerprint polynomial zero,
+a 512 MB TLC heap and the original 30-second per-command limit.
+
+These primary facts precede implementation. The accepted native runtime refuses
+all six configurations at temporal planning in both value profiles. The corpus
+remains separate from the established 156-model acceptance population. Its
+references establish neither native checking nor independent counterexample
+validation; those are required by the eventual implementation.

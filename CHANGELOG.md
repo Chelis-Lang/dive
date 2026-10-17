@@ -1,5 +1,8 @@
 # Changelog
 
+- Record primary controls for recursive value helpers in temporal predicates
+  and finite fairness domains.
+
 - Record primary ENABLED lazy-binding lifetime controls, including genuine and
   fabricated invariant endings (issue #313).
 

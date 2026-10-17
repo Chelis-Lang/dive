@@ -1,0 +1,35 @@
+{
+  "sources": [
+    "docs/user/temporal.md",
+    "https://github.com/Chelis-Lang/dive/issues/241"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "recursive-operator",
+    "temporal",
+    "finite-domain"
+  ],
+  "modules": [
+    {
+      "path": "specifications/sum_domain/RecValue.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/sum_domain/hold.cfg",
+          "runtime": "00:00:30",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "specifications/sum_domain/fail.cfg",
+          "runtime": "00:00:30",
+          "mode": "exhaustive search",
+          "result": "liveness-violation"
+        }
+      ]
+    }
+  ]
+}

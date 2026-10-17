@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "jre_archive_sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+  "primary_date": "2026-10-17",
+  "settings": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "heap": "512m",
+    "timeout_seconds": 30
+  },
+  "scope": "Primary-first ordinary recursive value operators: sequence sums in state-dependent finite fairness domains, recursive LET operators capturing state, and mutually recursive Boolean helpers. Three holds and three genuine liveness violations. No native support, original156-model gain, full-tier or performance credit.",
+  "selection": [
+    {
+      "id": "sum_domain/hold",
+      "module": "specifications/sum_domain/RecValue.tla",
+      "model": "specifications/sum_domain/hold.cfg",
+      "inputs_sha256": {
+        "RecValue.tla": "504b90b26f320607ea5ef3f9c61c6fe2865dab0b8fd57ef767007d66f568febe",
+        "hold.cfg": "f9e42626757a83e536a9d2f2117863d0616925c039abdeac7ff18f899e590edf"
+      },
+      "sany": {
+        "physical_exit": 0,
+        "semantic_accepted": true,
+        "stdout_sha256": "34acd443e9d655ba491ffebbec92ed52b58d3dc194916a3c1dde8da2fb89c035",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 3,
+          "generated": 7,
+          "depth": 3
+        },
+        "stdout_sha256": "8855819cf5c6052115bc9df10e52419370c1033898d1f153da5110f4cf841b4d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "sum_domain/fail",
+      "module": "specifications/sum_domain/RecValue.tla",
+      "model": "specifications/sum_domain/fail.cfg",
+      "inputs_sha256": {
+        "RecValue.tla": "504b90b26f320607ea5ef3f9c61c6fe2865dab0b8fd57ef767007d66f568febe",
+        "fail.cfg": "fb2ab6ba6439c945238cac0639e9110ff3968e2068cbf413086b447dc5377db6"
+      },
+      "sany": {
+        "physical_exit": 0,
+        "semantic_accepted": true,
+        "stdout_sha256": "34acd443e9d655ba491ffebbec92ed52b58d3dc194916a3c1dde8da2fb89c035",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary": {
+        "deciding_code": 2116,
+        "physical_exit": 13,
+        "property": "Fail",
+        "counts": {
+          "distinct": 3,
+          "generated": 7,
+          "depth": 3
+        },
+        "stdout_sha256": "f17496f16320428175705337099b32f417e8fd61dfc58376a122872cc6e20bc9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "lexical_capture/hold",
+      "module": "specifications/lexical_capture/RecValue.tla",
+      "model": "specifications/lexical_capture/hold.cfg",
+      "inputs_sha256": {
+        "RecValue.tla": "9445577de4bf1d1e3b2e561491e38414f09c54c36d813cf35f3b4fb54a3d9cbc",
+        "hold.cfg": "f9e42626757a83e536a9d2f2117863d0616925c039abdeac7ff18f899e590edf"
+      },
+      "sany": {
+        "physical_exit": 0,
+        "semantic_accepted": true,
+        "stdout_sha256": "63257365361d9d06e58fc092d5033cc73403ee5256a406ae969575d945c300a0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 3,
+          "generated": 7,
+          "depth": 3
+        },
+        "stdout_sha256": "1b7a5343342d92433fd6fcfd117f1be978522ed799aa0c68084c8ab8948df0bb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "lexical_capture/fail",
+      "module": "specifications/lexical_capture/RecValue.tla",
+      "model": "specifications/lexical_capture/fail.cfg",
+      "inputs_sha256": {
+        "RecValue.tla": "9445577de4bf1d1e3b2e561491e38414f09c54c36d813cf35f3b4fb54a3d9cbc",
+        "fail.cfg": "fb2ab6ba6439c945238cac0639e9110ff3968e2068cbf413086b447dc5377db6"
+      },
+      "sany": {
+        "physical_exit": 0,
+        "semantic_accepted": true,
+        "stdout_sha256": "63257365361d9d06e58fc092d5033cc73403ee5256a406ae969575d945c300a0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary": {
+        "deciding_code": 2116,
+        "physical_exit": 13,
+        "property": "Fail",
+        "counts": {
+          "distinct": 3,
+          "generated": 7,
+          "depth": 3
+        },
+        "stdout_sha256": "f002fd9039e208b5a93f93762ab0eed4740b59703d72c19e695c39eb2a560335",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "mutual_predicate/hold",
+      "module": "specifications/mutual_predicate/RecValue.tla",
+      "model": "specifications/mutual_predicate/hold.cfg",
+      "inputs_sha256": {
+        "RecValue.tla": "c07e795276042f5898fc971430375fcc45b7b0f022e2e100b8a940323bef457d",
+        "hold.cfg": "f9e42626757a83e536a9d2f2117863d0616925c039abdeac7ff18f899e590edf"
+      },
+      "sany": {
+        "physical_exit": 0,
+        "semantic_accepted": true,
+        "stdout_sha256": "3ed0ceb03ca2c95f535ebcfd6bf2d2882e459ff621ab855e213d58ffe3e08416",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary": {
+        "deciding_code": 2193,
+        "physical_exit": 0,
+        "property": null,
+        "counts": {
+          "distinct": 3,
+          "generated": 7,
+          "depth": 3
+        },
+        "stdout_sha256": "68a6ebed4d9d387fa7af2ac014f284746976f6610fb57b9d3621bbd20a508e08",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "mutual_predicate/fail",
+      "module": "specifications/mutual_predicate/RecValue.tla",
+      "model": "specifications/mutual_predicate/fail.cfg",
+      "inputs_sha256": {
+        "RecValue.tla": "c07e795276042f5898fc971430375fcc45b7b0f022e2e100b8a940323bef457d",
+        "fail.cfg": "fb2ab6ba6439c945238cac0639e9110ff3968e2068cbf413086b447dc5377db6"
+      },
+      "sany": {
+        "physical_exit": 0,
+        "semantic_accepted": true,
+        "stdout_sha256": "3ed0ceb03ca2c95f535ebcfd6bf2d2882e459ff621ab855e213d58ffe3e08416",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary": {
+        "deciding_code": 2116,
+        "physical_exit": 13,
+        "property": "Fail",
+        "counts": {
+          "distinct": 3,
+          "generated": 7,
+          "depth": 3
+        },
+        "stdout_sha256": "91a52cd767c8418dc61f79e7e74e57a53965ad7ecf93bb7c5be02728f8b0137f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}
