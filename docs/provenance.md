@@ -1749,6 +1749,77 @@ them. No independent trace-search implementation is borrowed from `Enab`;
 name-aware independent covers, membership, word validation and callable/temporal
 traversal remain follow-up work. See ADR 0099.
 
+
+### Native callback ENABLED lookup control
+
+Pinned `tlaplus/tlaplus` commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`,
+`tlc2.tool.impl.Tool.evalImplOpArgKind`,
+`tlc2.value.impl.OpLambdaValue` construction and `eval`, and
+`tlc2.module.Sequences.SelectSeq` define the callback context. A native override
+requests `EvalControl.Clear`; `OpLambdaValue.eval` restores the `Enabled` flag
+from the context where its operator argument became a native callable. That
+flag controls primed substitution cutoff. Clearing it can resolve an inner
+primed variable through an unrelated same-named outer variable.
+
+Dive invokes these native callbacks synchronously with their creation states
+and dynamic context. `Core::apply_op_values` preserves that invocation's
+`ENABLED` bit while clearing its other control bits. Lexical frames, named
+candidate assignments, callback work accounting and temporal admission guards
+retain their existing owners. This follows the observed callback semantics;
+it does not replace general callable/temporal scope admission with a proof cache.
+
+The upstream `Github725g.tla`/`Github725h.cfg` safety control was run against the
+pinned primary. It reports the initial invariant violation (2107/12), while the
+previous Dive runtime reported success. Two minimized `CallbackEnabled`
+specifications pass strict pinned SANY: requiring the callback result
+`<<1, 2, 3>>` makes the action disabled and violates `Inv` initially; requiring
+`<<2, 3>>` makes it enabled and satisfies `Inv` (2193/0, two generated states,
+one distinct state, depth one). Both old native profiles invert these verdicts.
+The compact primary fixture in
+`crates/dive-api/tests/fixtures/callback-enabled/primary.json` was derived from
+these actual streams with the existing conformance classifier, not from native
+output. The public API regression checks both profiles, storage modes and
+worker requests, plus independent genuine and forged finite-word replay.
+No existing golden, original model bound or corpus population is changed.
+
+Independent word validation projects the original callback body and lexical
+capture for a reached query without evaluating analysis-only formals. Primed
+reads join its name-aware dependency set and require independently established
+finite covers. Runtime callback inspection uses the actual named candidate and
+preserves query cutoff control. Ordinary state-helper admission remains
+separate; effects, providers, opaque captures, unsupported binders and nested
+query data positions retain their refusals. Source inspection and reached
+element evaluation use the existing invocation work bounds. No checker
+successor or cached witness is used by replay. Direct typed and document
+validation cover the minimized genuine and forged words; renamed/nested module
+controls are native metamorphic tests and add no primary corpus credit.
+
+### Hidden-query LazyValue cache controls
+
+The six `lazy-enabled-cache` fixtures are minimal dive-authored controls derived
+from the INSTANCE/SelectSeq scenario investigated in issues #310–#313. Primary
+source inspection uses MIT-licensed tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`: `LazyValue.java` constructors,
+`getCachedValue`/`getValue`; `TLCState.java` `isSubset`; `TLCStateFun.java`
+immutable bind/copy; `Tool.java` `enabledApplImpl`'s `OPCODE_eq` and
+`OPCODE_in` cases; `SymbolNodeValueLookupProvider.java` `getOpContext`/`getVal`;
+and `Sequences.java` `SelectSeq`. No implementation algorithm
+is ported in this prerequisite. Default pinned oracle generation supplies the
+goldens; cache-disabled research results are not conformance references.
+
+### Bounded query memo and runtime lexical contexts
+
+`query_memo.rs` implements an independent invocation-owned value memo, not TLC's
+object structure or a checker admission proof. Observable cache inclusion and
+lexical-lifetime rules follow the pinned `LazyValue.getCachedValue`,
+`TLCState.isSubset`, and `Tool.enabledImpl` LET/Subst cases at commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b`. Runtime query contexts are retained by source-ordered pending predicates over
+partial named assignments, without running the successor generator. Source-only projections remain distinct
+from actual evaluation; the existing source-first finite-cover procedure still
+determines completeness independently. Eight trace fixture context variants
+copy the tiny inputs measured in the issue312/313 primary campaign; their body
+bytes, outcome pairs and before/inside-query distinction are covered by tests.
 ### Independent query lexical lifetime controls
 
 The 24 dive-authored `lazy-query-lifetimes` fixtures distinguish lexical
@@ -1759,3 +1830,12 @@ source is MIT-licensed tlaplus commit `94d0c5070852b37b801bb8998c436383ab7ee37b`
 Only primary fixture behavior is recorded here; no implementation algorithm
 is ported in this prerequisite. Goldens are produced by the pinned harness
 without diagnostic cache switches.
+
+The independent partial-state executor uses the original source, necessary
+finite covers and its own bounded pending predicates. The pinned `Tool.java`
+`enabledApplImpl` conjunction/disjunction, equality/membership, bounded
+quantifier, IF/CASE, action-subscript and UNCHANGED cases define the observable
+source binding and reachability semantics. LET/application contexts are
+created when reached, not during cover inspection. The query memo's weak
+function capture follows ADR0101; lazy functions retain the originally forced
+partial states and shared work without retaining the memo itself.

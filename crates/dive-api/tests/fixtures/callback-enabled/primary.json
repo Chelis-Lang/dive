@@ -1,0 +1,39 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "workers": 1,
+  "seed": 0,
+  "fingerprint": 0,
+  "cases": {
+    "disabled": {
+      "verdict": "safety-violation",
+      "verdict_code": 2107,
+      "physical_exit": 12,
+      "property": "Inv",
+      "counts": {
+        "depth": null,
+        "distinct_states": null,
+        "states_generated": null,
+        "states_left_on_queue": null
+      },
+      "trace": {
+        "length": 1,
+        "ending": "finite"
+      }
+    },
+    "enabled": {
+      "verdict": "success",
+      "verdict_code": 2193,
+      "physical_exit": 0,
+      "property": null,
+      "counts": {
+        "depth": 1,
+        "distinct_states": 1,
+        "states_generated": 2,
+        "states_left_on_queue": 0
+      },
+      "trace": null
+    }
+  }
+}

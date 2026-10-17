@@ -90,7 +90,9 @@ impl StateRef {
             )
     }
 
-    /// Every variable assigned in the cached state has the same value here.
+    /// TLC's `TLCState.isSubset`: assigned root variables in the cached state
+    /// have the same value here. Hidden query names do not invalidate a lazy
+    /// value; this observable cache behavior matters across ENABLED candidates.
     /// Mixed indexed/named representations never establish cache inclusion.
     pub(crate) fn includes(&self, cached: &Self) -> bool {
         match (self, cached) {
@@ -105,9 +107,12 @@ impl StateRef {
             (Self::Named(s), Self::Named(c)) => {
                 std::sync::Weak::ptr_eq(&s.context, &c.context)
                     && (Arc::ptr_eq(s, c)
-                        || c.values
-                            .iter()
-                            .all(|(name, value)| s.values.get(name) == Some(value)))
+                        || s.context.upgrade().is_some_and(|core| {
+                            core.ir.vars().iter().all(|decl| {
+                                let name = core.ir.decl(*decl).name.as_str();
+                                c.get(name).is_none_or(|value| s.get(name) == Some(value))
+                            })
+                        }))
             }
             (Self::Null | Self::Empty, Self::Vals(c)) => c.iter().all(Option::is_none),
             _ => false,
@@ -126,6 +131,7 @@ pub struct St {
     pub(crate) control: u8,
     pub(crate) selectseq: Option<Arc<SelectSeqBudget>>,
     pub(crate) selectseq_callback: bool,
+    pub(crate) memoize_queries: bool,
     pub(crate) enabled: Option<crate::enabled::EnabledInvocation>,
 }
 
@@ -134,10 +140,30 @@ pub(crate) struct SelectSeqBudget {
     pub(crate) limit: usize,
     pub(crate) wrapper: Option<ExprId>,
     pub(crate) context: std::sync::Weak<crate::core::Core>,
-    pub(crate) remaining: std::sync::Mutex<usize>,
+    pub(crate) remaining: Arc<std::sync::Mutex<usize>>,
+    pub(crate) memo: crate::query_memo::MemoRef,
 }
 
 impl St {
+    // A memoized function retains the work budget, but observes the memo
+    // weakly. Otherwise memo -> function -> captured St -> memo is a cycle.
+    pub(crate) fn for_lazy_value(&self) -> Self {
+        let mut st = self.clone();
+        if let Some(invocation) = &mut st.enabled {
+            invocation.owner = None;
+        }
+        if let Some(policy) = &self.selectseq {
+            st.selectseq = Some(Arc::new(SelectSeqBudget {
+                limit: policy.limit,
+                wrapper: policy.wrapper,
+                context: policy.context.clone(),
+                remaining: policy.remaining.clone(),
+                memo: policy.memo.observer(),
+            }));
+        }
+        st
+    }
+
     /// Constant-level evaluation, as TLC evaluates `ASSUME`s
     /// (`Tool.isValid(expr)`: `Empty`, `Empty`, `EvalControl.Const`).
     #[must_use]
@@ -148,6 +174,7 @@ impl St {
             control: control::CONST,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         }
     }
@@ -163,6 +190,7 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         }
     }
@@ -176,6 +204,7 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         }
     }
@@ -207,6 +236,7 @@ impl St {
         Self {
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
+            memoize_queries: self.memoize_queries,
             enabled: self.enabled.clone(),
             ..Self::constant()
         }
@@ -219,6 +249,7 @@ impl St {
         Self {
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
+            memoize_queries: self.memoize_queries,
             enabled: self.enabled.clone(),
             ..Self::action(s0, s1)
         }
@@ -252,6 +283,7 @@ impl St {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         }
     }
@@ -566,7 +598,7 @@ impl Thunk {
             && control::equivalent(st.control, c.control)
             && match (&st.enabled, &c.enabled) {
                 (None, None) => true,
-                (Some(a), Some(b)) => std::sync::Weak::ptr_eq(&Arc::downgrade(&a.resolver), b),
+                (Some(a), Some(b)) => std::sync::Weak::ptr_eq(&a.resolver, b),
                 _ => false,
             })
         .then(|| c.val.clone())
@@ -583,7 +615,7 @@ impl Thunk {
             s0: st.s0.clone(),
             s1: st.s1.clone(),
             control: st.control,
-            enabled: st.enabled.as_ref().map(|i| Arc::downgrade(&i.resolver)),
+            enabled: st.enabled.as_ref().map(|i| i.resolver.clone()),
         });
     }
 }

@@ -89,10 +89,23 @@ impl Evaluator {
             || (function.st.control & !crate::env::control::KEEP_LAZY)
                 != (invocation.control & !crate::env::control::KEEP_LAZY)
             || function.st.selectseq_callback != invocation.selectseq_callback
+            || function.st.memoize_queries != invocation.memoize_queries
+            || !match (&function.st.enabled, &invocation.enabled) {
+                (None, None) => true,
+                (Some(a), Some(b)) => {
+                    std::sync::Weak::ptr_eq(&a.resolver, &b.resolver)
+                        && a.resolver.strong_count() != 0
+                }
+                _ => false,
+            }
             || !match (&function.st.selectseq, &invocation.selectseq) {
                 (None, None) => true,
                 (Some(a), Some(b)) => {
-                    Arc::ptr_eq(a, b)
+                    Arc::ptr_eq(&a.remaining, &b.remaining)
+                        && a.memo.same_invocation(&b.memo)
+                        && a.limit == b.limit
+                        && a.wrapper == b.wrapper
+                        && std::sync::Weak::ptr_eq(&a.context, &b.context)
                         && std::sync::Weak::ptr_eq(&a.context, &Arc::downgrade(&self.core))
                 }
                 _ => false,

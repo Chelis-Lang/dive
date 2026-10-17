@@ -5,6 +5,12 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
+Invariant expressions that use `ENABLED` through an `INSTANCE` retain the
+query context inside native callbacks such as `SelectSeq`. A callback that reads
+a primed variable observes the query's candidate assignment, including when an
+inner variable shares a name with an outer variable. This applies in both
+semantic profiles.
+
 ## TLC checking entrypoints
 
 The checking-only adapter accepts either `dive tlc [OPTIONS] SPEC[.tla]` or the

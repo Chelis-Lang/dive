@@ -481,6 +481,7 @@ impl Core {
                     control: St::primed_if_enabled(st.control),
                     selectseq: st.selectseq.clone(),
                     selectseq_callback: st.selectseq_callback,
+                    memoize_queries: st.memoize_queries,
                     enabled: st.enabled.clone(),
                 };
                 self.eval(env, &st1, *a)
@@ -495,6 +496,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     *a,
@@ -507,6 +509,7 @@ impl Core {
                         control: St::primed_if_enabled(st.control),
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     *a,
@@ -536,6 +539,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     *sub,
@@ -548,6 +552,7 @@ impl Core {
                         control: St::primed_if_enabled(st.control),
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     *sub,
@@ -640,9 +645,18 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     };
                     return self.eval(&mut t.env.clone(), &st1, t.expr);
+                }
+                if t.cachable
+                    && st.memoize_queries
+                    && st.is(control::ENABLED)
+                    && matches!(st.s1, StateRef::Named(_))
+                    && let Some(policy) = &st.selectseq
+                {
+                    return self.force_query_memo(t, st, policy);
                 }
                 let cache = self.reuse_expression_cache() && st.selectseq.is_none();
                 if cache && let Some(v) = t.cached(st) {
@@ -722,6 +736,7 @@ impl Core {
                     control: St::primed_if_enabled(st.control),
                     selectseq: st.selectseq.clone(),
                     selectseq_callback: st.selectseq_callback,
+                    memoize_queries: st.memoize_queries,
                     enabled: st.enabled.clone(),
                 };
                 return self.force(env, &sv, &st1, e);
@@ -745,6 +760,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     c,
@@ -1455,7 +1471,7 @@ impl Core {
             in_val,
             pred,
             env: env.clone(),
-            st: st.clone(),
+            st: st.for_lazy_value(),
         };
         Ok(Ev::V(Value::deferred(Arc::new(f), self.ctx)))
     }
@@ -1587,7 +1603,7 @@ impl Core {
             bounds: vals,
             body,
             env: env.clone(),
-            st: st.with_control(control),
+            st: st.for_lazy_value().with_control(control),
             rec_slot,
             excepts: Vec::new(),
             materialized: std::sync::OnceLock::new(),
@@ -2275,6 +2291,7 @@ impl Core {
                     control: St::primed_if_enabled(st.control),
                     selectseq: st.selectseq.clone(),
                     selectseq_callback: st.selectseq_callback,
+                    memoize_queries: st.memoize_queries,
                     enabled: st.enabled.clone(),
                 };
                 return self.eval(env, &st1, arg(0)?);
@@ -2289,6 +2306,7 @@ impl Core {
                         control: st.control,
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     a,
@@ -2301,6 +2319,7 @@ impl Core {
                         control: St::primed_if_enabled(st.control),
                         selectseq: st.selectseq.clone(),
                         selectseq_callback: st.selectseq_callback,
+                        memoize_queries: st.memoize_queries,
                         enabled: st.enabled.clone(),
                     },
                     a,

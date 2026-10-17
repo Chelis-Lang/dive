@@ -59,6 +59,7 @@ mod named_state;
 #[cfg(feature = "enumerate")]
 pub mod next;
 mod options;
+mod query_memo;
 mod random_relation;
 mod recursive;
 mod scope;

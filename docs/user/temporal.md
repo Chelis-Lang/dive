@@ -473,6 +473,92 @@ until its intermediate-state generator can retain them; existing root-only
 composition keeps its original behavior. No new native agreement or independent
 full-word validation is claimed.
 
+## Lazy action sources in enabledness callbacks
+
+The isolated `lazy-enabled-capture` oracle corpus records four controls for
+[issue #312](https://github.com/Chelis-Lang/dive/issues/312). An exported
+INSTANCE query assigns `a' = 1`, captures `LET Cut == a'`, and filters
+`<<1, 2, 3>>` with `SelectSeq(..., LAMBDA e : e /= Cut)`. Requiring the result
+to remain `<<1, 2, 3>>` makes that query false; requiring `<<2, 3>>` makes it
+true. The outer invariant exposes the false query as an initial violation
+of `Inv` (TLC 2107, exit 12). The true query completes with one distinct state,
+two generated states and depth one (2193, exit 0). Constant and current-state
+capture controls distinguish the creation context from the successor lookup.
+
+These primary facts guide creation-context and query-namespace support. They
+provide no native checking or independent replay acceptance. The corpus is
+reported separately from the established 156-model population, and its generated
+goldens retain their own source identity. Independent validation must establish
+both genuine and forged words under the actual captured context and finite
+covers; admitting an action-valued capture by syntax alone supplies no proof.
+
+## Hidden-query lazy argument caching
+
+The separate `lazy-enabled-cache` oracle corpus records six minimal controls for
+[issue #313](https://github.com/Chelis-Lang/dive/issues/313). An exported INSTANCE
+query assigns `b' = 42`, enumerates hidden `a' \in {1, 2}`, and calls
+`Step(a')`. Its callback filters `<<1, 2, 3>>` using the lazy `Cut` argument.
+Pinned default TLC reports disabledness when the final conjunct requires
+`<<1, 3>>`, exposed as an initial `Inv` violation (2107, exit12). Requiring
+`<<2, 3>>`, using only candidate2, inlining `a'` in the callback, or moving the
+query to the root module each yields success (2193, exit0; one distinct, two
+generated, depth one). Requiring the unchanged sequence remains disabled.
+
+This result depends on observable primary caching behavior. Pinned
+`LazyValue.getCachedValue` calls `TLCState.isSubset`, which compares only root
+variable names; hidden `a` and `c` do not invalidate the retained lazy value.
+The root collision `b` stays42 for both candidates. A paired research run with
+`-Dtlc2.value.impl.LazyValue.off=true` changes only the remove2 control to
+success. That JVM setting is diagnostic and supplies no oracle golden.
+LazyValue captures its expression and lexical context; forcing supplies the
+states and control flags, so adding creation-state snapshots is not a solution.
+
+Native named-query lazy-cache checks compare the assigned root names, retaining
+pinned TLC's observable behavior across hidden membership candidates. The six
+controls check actual invariant evaluation in both profiles. Independent replay
+compatibility remains open. Replay must evaluate original
+source with its own bounded invocation state; checker caches or witnesses cannot
+establish validity. The six inputs and generated goldens remain separate from
+the established156-model population and do not increase its agreement count.
+
+### Invocation-owned lazy query evaluation
+
+Independent bounded queries execute source bindings in order over partial
+named assignments. Pending predicates retain the actual argument and LET
+contexts across the branches they enclose. A context reached after a membership
+choice is created separately for that choice. Primed lazy sources are inspected through their actual captured
+context and require finite covers for every reached primed dependency. Actual
+forcing supplies the states/control; no creation-state snapshot is substituted.
+
+A pure invocation owns its evaluation memo. It can retain only values computed
+from original source during that invocation, never a checker thunk cache or
+successor witness. Keys weakly reference actual lazy bindings; cached root-name
+state projections, control and resolver identity govern reuse. Structural
+domain/capture inspection cannot read or populate this memo.
+
+The invocation's existing work counter charges stored-value/root traversal and
+lookups; retained entries are limited by the requested finite-binding limit.
+Nested callbacks/queries share these counters. Value retention inspects stored
+structure without enumerating symbolic sets; deferred evaluator/provider values
+refuse. Recursive lazy functions retain their captured
+partial state and work counters, with weak references to the memo and client resolver. Their stored
+bounds, captures, exception values and ordinary-cache owners are inspected only
+for retention safety; ordinary cached results never supply query truth. This
+prevents the memo from retaining itself through a cached function. These are entry/traversal bounds, not total byte-memory or
+general evaluation-time guarantees. Original source purity, ownership, finite
+cover, host-access and trace validity requirements remain independent.
+
+For example, `ENABLED (LET held == x'=1 IN held)` has a finite witness with
+`x'=1`. Finite runtime inspection and independent replay can evaluate this
+lexical action source. The temporal planner still refuses a retained property
+atom that captures it as a primed source; runtime support does not remove that
+separate planning boundary. The pinned `held-enabled` controls include a holding
+invariant, its violated negation and fabricated initial/ending claims.
+
+The isolated lazy-capture/cache controls do not change the established156-model
+population. The new source-ordered runtime and lazy-function retention changes remain
+unqualified until their targeted, independent and original corpus/full workspace
+checks complete.
 ## Lazy query binding lifetime
 
 The separate `lazy-query-lifetimes` oracle corpus records 24 primary controls

@@ -657,6 +657,7 @@ impl Gen<'_, '_> {
                 control: control::INIT,
                 selectseq: None,
                 selectseq_callback: false,
+                memoize_queries: false,
                 enabled: None,
             }
         } else {
@@ -666,6 +667,7 @@ impl Gen<'_, '_> {
                 control: control::CLEAR,
                 selectseq: None,
                 selectseq_callback: false,
+                memoize_queries: false,
                 enabled: None,
             }
         }
@@ -681,6 +683,7 @@ impl Gen<'_, '_> {
                 control: control::CLEAR,
                 selectseq: None,
                 selectseq_callback: false,
+                memoize_queries: false,
                 enabled: None,
             }
         } else {
@@ -768,6 +771,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         };
         let s1 = St {
@@ -776,6 +780,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         };
         let v1 = self.core.eval_v(&mut item.env.clone(), &s0, item.expr)?;
@@ -1223,6 +1228,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         };
         let st1 = St {
@@ -1231,6 +1237,7 @@ impl Gen<'_, '_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         };
         let v0 = self.core.eval_v(&mut env.clone(), &st0, e)?;
@@ -1852,6 +1859,7 @@ impl Expander<'_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         };
         match t {
@@ -1991,6 +1999,7 @@ impl Expander<'_> {
             control: control::CLEAR,
             selectseq: None,
             selectseq_callback: false,
+            memoize_queries: false,
             enabled: None,
         };
         let attempt = (|| -> std::result::Result<(), Split1> {
@@ -2145,6 +2154,7 @@ impl Evaluator {
             s0: state,
             selectseq: invocation.and_then(|st| st.selectseq.clone()),
             selectseq_callback: invocation.is_some_and(|st| st.selectseq_callback),
+            memoize_queries: invocation.is_some_and(|st| st.memoize_queries),
             enabled: invocation.and_then(|st| st.enabled.clone()),
         };
         let successor = crate::NamedState::empty(&self.core);
@@ -2170,6 +2180,7 @@ impl Core {
             s0: st.s0.clone(),
             selectseq: st.selectseq.clone(),
             selectseq_callback: st.selectseq_callback,
+            memoize_queries: st.memoize_queries,
             enabled: st.enabled.clone(),
         };
         let found = en.enabled(a, &None, &env1, s1)?;
@@ -2199,6 +2210,7 @@ struct Enab {
     s0: StateRef,
     selectseq: Option<Arc<crate::env::SelectSeqBudget>>,
     selectseq_callback: bool,
+    memoize_queries: bool,
     enabled: Option<crate::enabled::EnabledInvocation>,
 }
 
@@ -2210,6 +2222,7 @@ impl Enab {
             control: control::ENABLED,
             selectseq: self.selectseq.clone(),
             selectseq_callback: self.selectseq_callback,
+            memoize_queries: self.memoize_queries,
             enabled: self.enabled.clone(),
         }
     }
@@ -2241,6 +2254,7 @@ impl Enab {
                     control: control::ENABLED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    memoize_queries: self.memoize_queries,
                     enabled: self.enabled.clone(),
                 };
                 let st1 = St {
@@ -2249,6 +2263,7 @@ impl Enab {
                     control: control::PRIMED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    memoize_queries: self.memoize_queries,
                     enabled: self.enabled.clone(),
                 };
                 let v1 = self.core.eval_v(&mut item.env.clone(), &st0, item.expr)?;
@@ -2678,6 +2693,7 @@ impl Enab {
                     control: control::ENABLED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    memoize_queries: self.memoize_queries,
                     enabled: self.enabled.clone(),
                 };
                 let st1 = St {
@@ -2686,6 +2702,7 @@ impl Enab {
                     control: control::PRIMED,
                     selectseq: self.selectseq.clone(),
                     selectseq_callback: self.selectseq_callback,
+                    memoize_queries: self.memoize_queries,
                     enabled: self.enabled.clone(),
                 };
                 let v0 = core.eval_v(&mut env.clone(), &st0, e)?;
