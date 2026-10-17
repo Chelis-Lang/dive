@@ -1,5 +1,7 @@
 # Changelog
 
+- Add 27 generated TLC references from the original 44 missing full-tier
+  models; the other 17 retain their original 600-second timeouts.
 - Values free their contents without allocating a work list in the common
   case: children that are scalars or shared are released in place, and nested
   values are freed by bounded recursion before falling back to the work list,
