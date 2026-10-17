@@ -76,7 +76,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:506a58f86934130bc5fc67f07b6727031ecfe1c5fa38d066fc05275c19bf6b7a",
+    "corpus_commit": "sha256:85b182de5e922d5d5416802a25a7efb45fee589987475a532f5306e8a5450b8c",
     "command": [
       "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
       "-XX:+UseParallelGC",
@@ -107,9 +107,9 @@
       "$TMP/states"
     ],
     "timeout_seconds": 30,
-    "reason": "Record default pinned TLC query-composition obligations before runtime implementation: boxed fallback, configured action parameters, nested callbacks and recursive finite domains (issue313)",
+    "reason": "Correct historical omitted-fingerprint metadata and regenerate corpus identity; preserve all18primary outcome payloads and original1623goldens (issue313)",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-17T00:43:38Z",
-    "elapsed_ms": 452
+    "generated_at": "2026-10-17T00:47:50Z",
+    "elapsed_ms": 498
   }
 }
