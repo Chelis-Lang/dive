@@ -26,13 +26,17 @@ pub trait EnabledResolver: std::fmt::Debug + Send + Sync {
 #[derive(Clone, Debug)]
 pub(crate) struct EnabledInvocation {
     pub(crate) context: Weak<Core>,
-    pub(crate) resolver: Arc<dyn EnabledResolver>,
+    pub(crate) resolver: Weak<dyn EnabledResolver>,
+    // Only the live caller owns the callback. Captured lazy values observe it.
+    pub(crate) owner: Option<Arc<dyn EnabledResolver>>,
 }
 
 impl Evaluator {
     /// Installs a client-owned existential procedure on this invocation only.
     /// The callback is bound to this evaluator and participates in lazy-cache
     /// identity. It is never installed on the shared evaluator or its host.
+    /// The returned state owns the callback. Lazy values capture it weakly;
+    /// their query evaluation requires a live owning invocation state.
     ///
     /// # Errors
     /// A supplied state or existing invocation belongs to another evaluator.
@@ -41,7 +45,8 @@ impl Evaluator {
         let mut result = st.clone();
         result.enabled = Some(EnabledInvocation {
             context: Arc::downgrade(&self.core),
-            resolver,
+            resolver: Arc::downgrade(&resolver),
+            owner: Some(resolver),
         });
         Ok(result)
     }
@@ -83,6 +88,10 @@ impl Core {
             };
             return invocation
                 .resolver
+                .upgrade()
+                .ok_or_else(|| {
+                    crate::EvalError::unsupported("independent query invocation has ended")
+                })?
                 .resolve(&scope, action, st)
                 .map(|value| Ev::V(Value::Bool(value)));
         }

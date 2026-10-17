@@ -1,5 +1,29 @@
 # Changelog
 
+- Bounded pure query evaluation owns its lazy-expression memo, preserving
+  captured lexical contexts and binding lifetimes during independent replay.
+  Source-ordered partial assignments retain a LET across precisely its enclosed
+  choices. Recursive lazy functions retain shared work through a weak memo
+  reference; deferred providers and exhausted entry/work bounds refuse explicitly.
+
+- Lazy argument caches in named ENABLED queries retain pinned TLC's root-name
+  inclusion rule across hidden candidates. Independent replay support for the
+  cache-dependent query remains unfinished (issue #313).
+
+- Record pinned hidden ENABLED lazy-cache controls before implementing
+  compatibility support (issue #313).
+
+- Native operator callbacks retain the enclosing `ENABLED` lookup flag while
+  clearing other callback control flags. Primed reads through `INSTANCE`
+  substitutions now preserve their cutoff, preventing both missed initial
+  invariant violations and false violations in `SelectSeq` callbacks.
+  Independent replay retains these query scopes, gathers primed callback
+  dependencies and requires finite covers before evaluating actual candidates.
+
+- Add a separate primary-oracle corpus for action-valued lazy sources in
+  INSTANCE enabledness callbacks, with constant and current-state controls.
+  These fixtures establish the oracle behavior for issue #312; native checking
+  and independent replay support remain separate requirements.
 - Record primary ENABLED lazy-binding lifetime controls, including genuine and
   fabricated invariant endings (issue #313).
 

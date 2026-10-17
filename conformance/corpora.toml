@@ -81,6 +81,22 @@ path = "conformance/corpus/instance-temporal"
 license = "MIT"
 layout = "examples-manifest"
 
+# Primary-first creation/lookup context controls for action-valued lazy sources
+# in INSTANCE ENABLED callbacks (issue #312). Separate from accepted populations.
+[[corpus]]
+id = "lazy-enabled-capture"
+path = "conformance/corpus/lazy-enabled-capture"
+license = "MIT"
+layout = "examples-manifest"
+
+# Primary-first hidden-query LazyValue cache controls (issue #313).
+# Kept separate from all established corpus identities/populations.
+[[corpus]]
+id = "lazy-enabled-cache"
+path = "conformance/corpus/lazy-enabled-cache"
+license = "MIT"
+layout = "examples-manifest"
+
 # Primary-first lexical lazy-context lifetime controls (issue #313).
 [[corpus]]
 id = "lazy-query-lifetimes"

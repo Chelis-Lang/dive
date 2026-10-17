@@ -132,6 +132,67 @@ impl Evaluator {
         args: &[Arg],
         work: &mut usize,
     ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
+        self.scope_selectseq_call_mode(scope, operator, args, work, false)
+    }
+
+    /// Projects a native `SelectSeq` callback for an independent ENABLED query.
+    /// Unlike [`Self::scope_selectseq_call`], primed data reads are retained in
+    /// their original query cutoff scope. This performs no callback evaluation
+    /// and supplies no finite cover or successor witness. The consumer must
+    /// inspect every returned body and prove covers for every primed dependency.
+    /// Effects, providers, binders and opaque/configured captures still refuse.
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use dive_eval::{Evaluator, Model, Options};
+    /// use dive_ir::Expr;
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let source = "---- MODULE CallbackQuery ----\nEXTENDS Sequences\nVARIABLE x\nKeep(v)==v=x'\nCall==SelectSeq(<<0>>,Keep)\n====\n";
+    /// let analysis = dive_sema::analyze_source("CallbackQuery.tla", source, &Default::default());
+    /// let ir = Arc::new(dive_ir::lower(&analysis)?);
+    /// let call = ir.root_def("Call").ok_or("missing call")?;
+    /// let evaluator = Evaluator::new(Model::new(ir), Options::tlc())?;
+    /// let scope = evaluator.scope(call)?;
+    /// let Expr::Apply { callee, args } = evaluator.ir().expr(evaluator.ir().def(call).body) else {
+    ///     return Err("expected native application".into());
+    /// };
+    /// let mut work = 4096;
+    /// let (_, bodies) = evaluator.scope_selectseq_query_call(&scope, callee, args, &mut work)?
+    ///     .ok_or("expected SelectSeq projection")?;
+    /// assert!(!bodies.is_empty());
+    /// // This source projection establishes neither a finite cover nor a witness.
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    /// Invalid ownership, unsupported callback contexts or exhausted work.
+    #[allow(
+        clippy::type_complexity,
+        reason = "original sequence and scoped callback sources, not an admission certificate"
+    )]
+    pub fn scope_selectseq_query_call(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        work: &mut usize,
+    ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
+        self.scope_selectseq_call_mode(scope, operator, args, work, true)
+    }
+
+    #[allow(
+        clippy::type_complexity,
+        reason = "shared source projection retains the state versus query consumer contract"
+    )]
+    fn scope_selectseq_call_mode(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        work: &mut usize,
+        query: bool,
+    ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
         self.validate_scope(scope)?;
         let standard = match operator {
             OpRef::Std(s) => Some(*s),
@@ -170,10 +231,16 @@ impl Evaluator {
             return Err(EvalError::unsupported("SelectSeq user callback target"));
         };
         let value = self.core.op_value(&scope.env, op)?;
-        let (_, bodies) = self.selectseq_context(scope, value, None, None, work)?;
+        let context = if query {
+            St::empty().enabled_current()
+        } else {
+            St::constant()
+        };
+        let (_, bodies) = self.selectseq_context_in(scope, value, None, None, work, &context)?;
         Ok(Some((*sequence, bodies)))
     }
 
+    #[cfg(test)]
     pub(crate) fn selectseq_context(
         &self,
         scope: &Scope,
@@ -182,6 +249,33 @@ impl Evaluator {
         current_sequence: Option<&dive_value::Fcn>,
         work: &mut usize,
     ) -> crate::Result<(Scope, Vec<(ExprId, Scope)>)> {
+        self.selectseq_context_in(
+            scope,
+            value,
+            element,
+            current_sequence,
+            work,
+            &St::constant(),
+        )
+    }
+
+    pub(crate) fn selectseq_context_in(
+        &self,
+        scope: &Scope,
+        value: crate::env::OpVal,
+        element: Option<&dive_value::Value>,
+        current_sequence: Option<&dive_value::Fcn>,
+        work: &mut usize,
+        st: &St,
+    ) -> crate::Result<(Scope, Vec<(ExprId, Scope)>)> {
+        self.validate_state_context(st)?;
+        let constant = St::constant();
+        // Source projection may inspect primed query dependencies before a
+        // candidate exists. Runtime primed callbacks use actual named candidates;
+        // before/after state helpers retain their ordinary state-only admission.
+        let query = st.is(crate::env::control::ENABLED)
+            && (element.is_none() || matches!(st.s1, StateRef::Named(_)));
+        let st = if query { st } else { &constant };
         let (def, mut called) = self
             .selectseq_value_analysis(scope, value, work)?
             .ok_or_else(|| EvalError::unsupported("SelectSeq user callback target"))?;
@@ -221,9 +315,9 @@ impl Evaluator {
             // Actual stored slots, including unused captures, are inspected.
             // Bounded execution bypasses thunk result caches;
             // no provider is normalized or iterated here.
-            guard.native_values(&called, &St::constant())?;
+            guard.native_values(&called, st)?;
             for (body, captured) in &bodies {
-                guard.walk(captured, *body, &St::constant(), 0)?;
+                guard.walk(captured, *body, st, 0)?;
             }
             Ok(())
         })();
@@ -292,6 +386,7 @@ impl Evaluator {
         }
         let mut result = st.clone();
         result.selectseq = Some(budget.clone());
+        result.memoize_queries = true;
         Ok(result)
     }
 
@@ -325,9 +420,13 @@ impl Evaluator {
             limit,
             wrapper: scope.wrapper,
             context: std::sync::Arc::downgrade(&self.core),
-            remaining: std::sync::Mutex::new(limit.saturating_mul(64).min(50_000)),
+            remaining: std::sync::Arc::new(std::sync::Mutex::new(
+                limit.saturating_mul(64).min(50_000),
+            )),
+            memo: crate::query_memo::MemoRef::default(),
         }));
         bounded.selectseq_callback = false;
+        bounded.memoize_queries = true;
         Ok(bounded)
     }
 
@@ -781,6 +880,18 @@ impl Guard<'_> {
         reason = "explicit lexical binding and priming rules"
     )]
     fn walk(&mut self, scope: &Scope, expr: ExprId, st: &St, depth: usize) -> crate::Result<()> {
+        // Domain/capture inspection must not populate the actual evaluation
+        // memo or re-enter its work lock during a native callback preflight.
+        let source_context;
+        let st = if st.memoize_queries {
+            source_context = St {
+                memoize_queries: false,
+                ..st.clone()
+            };
+            &source_context
+        } else {
+            st
+        };
         self.visits = self.visits.saturating_add(1);
         #[cfg(test)]
         if let Some(trace) = &mut self.visit_trace {
@@ -857,6 +968,27 @@ impl Guard<'_> {
             ));
         }
         if self.selectseq
+            && !st.is(crate::env::control::ENABLED)
+            && matches!(
+                node.expr,
+                Expr::Prime(_)
+                    | Expr::Var { primed: true, .. }
+                    | Expr::SubstRef { primed: true, .. }
+                    | Expr::Builtin {
+                        op: BuiltinOp::Prime,
+                        ..
+                    }
+                    | Expr::Apply {
+                        callee: OpRef::Builtin(BuiltinOp::Prime),
+                        ..
+                    }
+            )
+        {
+            return Err(EvalError::unsupported(
+                "SelectSeq primed callback outside a query",
+            ));
+        }
+        if self.selectseq
             && matches!(
                 node.expr,
                 Expr::Quant { .. }
@@ -871,7 +1003,6 @@ impl Guard<'_> {
                         op: BuiltinOp::PowerSet
                             | BuiltinOp::Times
                             | BuiltinOp::String
-                            | BuiltinOp::Prime
                             | BuiltinOp::Unchanged
                             | BuiltinOp::Cdot
                             | BuiltinOp::Enabled
@@ -886,7 +1017,6 @@ impl Guard<'_> {
                             BuiltinOp::PowerSet
                                 | BuiltinOp::Times
                                 | BuiltinOp::String
-                                | BuiltinOp::Prime
                                 | BuiltinOp::Unchanged
                                 | BuiltinOp::Cdot
                                 | BuiltinOp::Enabled
@@ -908,9 +1038,7 @@ impl Guard<'_> {
                     | Expr::StepBox { .. }
                     | Expr::StepAngle { .. }
                     | Expr::Cdot(_, _)
-                    | Expr::Prime(_)
                     | Expr::Unchanged(_)
-                    | Expr::Var { primed: true, .. }
             )
         {
             return Err(EvalError::unsupported(
@@ -1000,12 +1128,6 @@ impl Guard<'_> {
                     ),
                     SlotView::Function(function) if !self.analysis => {
                         self.recursive_function(scope, &function, st, depth + 1)
-                    }
-                    SlotView::Lazy(body, _)
-                        if self.query_depth != 0
-                            && ev.ir().node(body).level > dive_ir::Level::State =>
-                    {
-                        Err(EvalError::unsupported("captured primed ENABLED source"))
                     }
                     SlotView::Lazy(body, sc) => self.walk(&sc, body, st, depth + 1),
                     SlotView::AnalysisBound if self.analysis => Ok(()),
@@ -1321,7 +1443,11 @@ impl Guard<'_> {
                 let ceiling = self.limit.saturating_mul(64).min(100_000);
                 let mut remaining = ceiling.saturating_sub(self.visits);
                 // Inspect structure only. Concrete input and formal checks occur in the native loop.
-                let result = ev.scope_selectseq_call(scope, &op, args, &mut remaining);
+                let result = if st.is(crate::env::control::ENABLED) {
+                    ev.scope_selectseq_query_call(scope, &op, args, &mut remaining)
+                } else {
+                    ev.scope_selectseq_call(scope, &op, args, &mut remaining)
+                };
                 self.visits = ceiling - remaining;
                 let (sequence, _) =
                     result?.ok_or_else(|| EvalError::unsupported("SelectSeq callback shape"))?;
@@ -1365,12 +1491,121 @@ mod selectseq_tests {
     }
 
     fn evaluator_with_options(options: crate::Options) -> Evaluator {
-        let source = "---- MODULE SelectStorage ----\nEXTENDS Sequences, TLC\nVARIABLE S\nGood=={0}\nBox(y)==[TRUE]_<<>>\nAngle(y)==<<TRUE>>_<<>>\nBoxRun==SelectSeq(<<0>>,Box)\nAngleRun==SelectSeq(<<0>>,Angle)\nEvil==PrintT(0)\nAlways(y)==TRUE\nMany==SelectSeq(<<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>,Always)\nStateful(y)==y \\in S\nStateRun==SelectSeq(<<0>>,Stateful)\nHigherOrder(H(_),a)==H(a)\nHigher(y)==HigherOrder(Len,y)\nHigherRun==SelectSeq(<< <<0>> >>,Higher)\nSequence(s)==SelectSeq(s,Always)\nPriority(s)==SelectSeq(s,LAMBDA y:y[1]=0)\nTwin(s,t)==SelectSeq(s,LAMBDA y:y[1]=0)\nAliasRead(s)==SelectSeq(s,LAMBDA y:Len(s)=2)\nWrap(v)==v\nPrimed==Many'\nCached==Many\nAction==S'=S /\\ Cached=Many\nCompose==(S'=S) \\cdot (S'=S)\nEmptyCompose==FALSE \\cdot (S'=S)\nShortCompose==FALSE /\\ Compose\nWarmCompose==IF Cached=Many THEN Compose ELSE FALSE\nForward(H(_),s)==SelectSeq(s,H)\nOuter(v)==Forward(LAMBDA y: y \\in v,<<0,0>>)\nUnused(v)==SelectSeq(<<0>>, LAMBDA y: TRUE)\n====";
+        let source = "---- MODULE SelectStorage ----\nEXTENDS Sequences, TLC\nVARIABLE S\nGood=={0}\nBox(y)==[TRUE]_<<>>\nAngle(y)==<<TRUE>>_<<>>\nBoxRun==SelectSeq(<<0>>,Box)\nAngleRun==SelectSeq(<<0>>,Angle)\nEvil==PrintT(0)\nAlways(y)==TRUE\nMany==SelectSeq(<<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>,Always)\nStateful(y)==y \\in S\nStateRun==SelectSeq(<<0>>,Stateful)\nQuery(y)==y \\in S'\nQueryRun==SelectSeq(<<0,0,0>>,Query)\nEffectRun==SelectSeq(<<0>>,LAMBDA y:PrintT(y))\nHigherOrder(H(_),a)==H(a)\nHigher(y)==HigherOrder(Len,y)\nHigherRun==SelectSeq(<< <<0>> >>,Higher)\nSequence(s)==SelectSeq(s,Always)\nPriority(s)==SelectSeq(s,LAMBDA y:y[1]=0)\nTwin(s,t)==SelectSeq(s,LAMBDA y:y[1]=0)\nAliasRead(s)==SelectSeq(s,LAMBDA y:Len(s)=2)\nWrap(v)==v\nPrimed==Many'\nCached==Many\nAction==S'=S /\\ Cached=Many\nCompose==(S'=S) \\cdot (S'=S)\nEmptyCompose==FALSE \\cdot (S'=S)\nShortCompose==FALSE /\\ Compose\nWarmCompose==IF Cached=Many THEN Compose ELSE FALSE\nForward(H(_),s)==SelectSeq(s,H)\nOuter(v)==Forward(LAMBDA y: y \\in v,<<0,0>>)\nUnused(v)==SelectSeq(<<0>>, LAMBDA y: TRUE)\n====";
         let analysis =
             dive_sema::analyze_source("SelectStorage.tla", source, &dive_sema::Options::default());
         assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
         let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
         Evaluator::new(crate::Model::new(ir), options).expect("evaluator")
+    }
+
+    #[test]
+    fn query_callback_projection_keeps_ownership_budget_and_state_consumer_separate() {
+        let ev = evaluator();
+        let def = ev.ir().root_def("StateRun").expect("state callback call");
+        let scope = ev.scope(def).expect("owned scope");
+        let Expr::Apply { callee, args } = ev.ir().expr(ev.ir().def(def).body) else {
+            panic!("native call");
+        };
+        assert!(
+            ev.scope_selectseq_query_call(&scope, callee, args, &mut 10_000)
+                .expect("pure query projection")
+                .is_some()
+        );
+        assert!(
+            ev.scope_selectseq_call(&scope, callee, args, &mut 10_000)
+                .expect("ordinary state projection")
+                .is_some()
+        );
+        let error = ev
+            .scope_selectseq_query_call(&scope, callee, args, &mut 0)
+            .expect_err("source inspection cannot reset exhausted work");
+        assert_eq!(error.class(), crate::ErrorClass::ResourceLimit);
+        let other = evaluator();
+        let foreign = other
+            .scope(def)
+            .expect("same numeric id in another context");
+        assert!(
+            ev.scope_selectseq_query_call(&foreign, callee, args, &mut 10_000)
+                .is_err()
+        );
+        assert_eq!(ev.take_output(), Vec::<String>::new());
+    }
+
+    #[test]
+    fn query_callbacks_read_actual_candidates_and_keep_state_only_and_effect_refusals() {
+        for options in [crate::Options::tlc(), crate::Options::default()] {
+            let ev = evaluator_with_options(options);
+            let run = ev.ir().root_def("QueryRun").expect("query callback");
+            let scope = ev.scope(run).expect("scope");
+            let expr = ev.ir().def(run).body;
+            let Expr::Apply { callee, args } = ev.ir().expr(expr) else {
+                panic!("native call");
+            };
+            assert!(
+                ev.scope_selectseq_query_call(&scope, callee, args, &mut 10_000)
+                    .expect("query source projection")
+                    .is_some()
+            );
+            assert!(
+                ev.scope_selectseq_call(&scope, callee, args, &mut 10_000)
+                    .is_err()
+            );
+            let current = St::state(Arc::from([Some(
+                Value::set(vec![1.into()], ev.options().ctx).expect("current set"),
+            )]));
+            let state_run = ev.ir().root_def("StateRun").expect("state callback");
+            assert_eq!(
+                ev.eval_scoped_pure(
+                    &ev.scope(state_run).expect("state scope"),
+                    ev.ir().def(state_run).body,
+                    &current.enabled_current(),
+                    4096,
+                )
+                .expect("query current-side state helper needs no successor"),
+                Value::tuple(vec![]),
+            );
+            for (member, expected) in [
+                (0, Value::tuple(vec![0.into(); 3])),
+                (1, Value::tuple(vec![])),
+            ] {
+                let candidate = ev
+                    .named_state([(
+                        ev.ir().vars()[0],
+                        Value::set(vec![member.into()], ev.options().ctx).expect("candidate set"),
+                    )])
+                    .expect("owned candidate");
+                let st = current.enabled_candidate(candidate);
+                assert_eq!(
+                    ev.eval_scoped_pure(&scope, expr, &st, 4096)
+                        .expect("actual candidate, not current state"),
+                    expected
+                );
+                assert_eq!(
+                    ev.eval_scoped_pure(&scope, expr, &st, 1)
+                        .expect_err("shared query work cannot reset per callback")
+                        .class(),
+                    crate::ErrorClass::ResourceLimit
+                );
+            }
+            assert!(
+                ev.eval_scoped_pure(&scope, expr, &current.enabled_current(), 4096)
+                    .is_err()
+            );
+            for name in ["EffectRun", "HigherRun", "BoxRun", "AngleRun"] {
+                let def = ev.ir().root_def(name).expect("refused callback");
+                let called = ev.scope(def).expect("scope");
+                let Expr::Apply { callee, args } = ev.ir().expr(ev.ir().def(def).body) else {
+                    panic!("native call");
+                };
+                assert!(
+                    ev.scope_selectseq_query_call(&called, callee, args, &mut 10_000)
+                        .is_err(),
+                    "{name}"
+                );
+            }
+            assert_eq!(ev.take_output(), Vec::<String>::new());
+        }
     }
 
     #[derive(Debug, Default)]

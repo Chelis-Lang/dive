@@ -227,3 +227,11 @@ cached Deferred sets) refuse before normalization/member callbacks. The public
 helper takes Const or empty Init with the exact slot count and no successor;
 it grants no authority to ordinary random evaluation. Function-valued non-set
 domains retain EC2176 with a static diagnostic, avoiding nested-value formatting.
+
+A reached `ENABLED` query can use bounded `SelectSeq` callbacks that read primed
+data through an `INSTANCE`. Replay inspects their original lexical source,
+requires finite covers for the primed dependencies, and evaluates each callback
+against the actual query candidate. This also preserves hidden-variable cutoff
+when inner and outer variables have the same name. Missing covers, effectful
+callbacks and unsupported captured values remain explicitly refused. This
+query support does not admit action-valued callbacks as ordinary state helpers.

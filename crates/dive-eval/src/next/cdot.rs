@@ -165,6 +165,7 @@ impl Core {
                 control: st.control,
                 selectseq: st.selectseq.clone(),
                 selectseq_callback: st.selectseq_callback,
+                memoize_queries: st.memoize_queries,
                 enabled: st.enabled.clone(),
             };
             match self.eval(&mut env.clone(), &st2, b)? {
@@ -284,6 +285,7 @@ impl Enab {
                 s0: StateRef::Vals(t),
                 selectseq: self.selectseq.clone(),
                 selectseq_callback: self.selectseq_callback,
+                memoize_queries: self.memoize_queries,
                 enabled: self.enabled.clone(),
             };
             if let Some(s2) = en.enabled(b, acts, env, s1.clone())? {

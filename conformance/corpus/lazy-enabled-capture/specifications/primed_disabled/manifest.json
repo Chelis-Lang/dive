@@ -1,0 +1,29 @@
+{
+  "sources": [
+    "docs/user/temporal.md",
+    "https://github.com/Chelis-Lang/dive/issues/312"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "instance",
+    "enabled",
+    "lazy-capture"
+  ],
+  "modules": [
+    {
+      "path": "specifications/primed_disabled/CallbackEnabled.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/primed_disabled/CallbackEnabled.cfg",
+          "runtime": "00:00:30",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    }
+  ]
+}

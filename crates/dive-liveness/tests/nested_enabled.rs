@@ -76,7 +76,11 @@ fn two_primary_counts_truth_and_native_words_match_in_both_profiles_and_stores()
 }
 
 #[test]
-fn native_and_planner_walks_refuse_data_provider_operator_and_primed_query_placements() {
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep all runtime and planner boundaries in one parallel profile matrix"
+)]
+fn query_placements_preserve_each_runtime_and_planner_boundary() {
     use dive_eval::St;
     use dive_model::Pred;
     for tlc in [true, false] {
@@ -85,19 +89,25 @@ fn native_and_planner_walks_refuse_data_provider_operator_and_primed_query_place
         } else {
             CheckOptions::dive(0)
         };
-        for (extra, action) in [
-            ("", "(ENABLED (x'=1))=TRUE /\\ x'=1"),
-            ("", "LET q==ENABLED (x'=1) IN q' /\\ x'=1"),
+        for (extra, action, runtime_supported) in [
+            ("", "(ENABLED (x'=1))=TRUE /\\ x'=1", false),
+            ("", "LET q==ENABLED (x'=1) IN q' /\\ x'=1", false),
             (
                 "F(v)==ENABLED (x'=v)\nPass(H(_),v)==H(v)",
                 "Pass(F,1) /\\ x'=1",
+                false,
             ),
             (
                 "",
                 "SelectSeq(<<0>>,LAMBDA v: ENABLED (x'=v)) = << >> /\\ x'=1",
+                false,
             ),
-            ("", "ENABLED (LET held==x'=1 IN held) /\\ x'=1"),
-            ("", "LET f[t \\in {0}]==ENABLED (x'=1) IN f[0] /\\ x'=1"),
+            ("", "ENABLED (LET held==x'=1 IN held) /\\ x'=1", true),
+            (
+                "",
+                "LET f[t \\in {0}]==ENABLED (x'=1) IN f[0] /\\ x'=1",
+                false,
+            ),
         ] {
             let source = format!(
                 "---- MODULE NestedEnabled ----\nEXTENDS Integers,Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\n{extra}\nA=={action}\nP==<>[][A]_x\n====\n"
@@ -130,7 +140,7 @@ fn native_and_planner_walks_refuse_data_provider_operator_and_primed_query_place
             let property = role("P");
             let before: dive_trace::State = Arc::from([Some(0.into())]);
             let after: dive_trace::State = Arc::from([Some(1.into())]);
-            assert!(
+            assert_eq!(
                 model
                     .evaluator
                     .check_finite_bindings(
@@ -139,7 +149,8 @@ fn native_and_planner_walks_refuse_data_provider_operator_and_primed_query_place
                         &St::action(before.clone(), after),
                         4096
                     )
-                    .is_err(),
+                    .is_ok(),
+                runtime_supported,
                 "finite {action}"
             );
             assert!(
@@ -151,28 +162,113 @@ fn native_and_planner_walks_refuse_data_provider_operator_and_primed_query_place
                 .is_err(),
                 "planner {action}"
             );
-            assert!(
-                dive_trace::temporal::evaluate_lasso(
-                    &model,
-                    &property,
-                    std::slice::from_ref(&before),
-                    0
-                )
-                .is_err(),
-                "word {action}"
+            let word = dive_trace::temporal::evaluate_lasso(
+                &model,
+                &property,
+                std::slice::from_ref(&before),
+                0,
             );
-            assert!(
-                dive_trace::exists::exists_successor_pure(
-                    &model,
-                    &action_pred,
-                    &before,
-                    None,
-                    dive_trace::exists::Limits::default(),
-                    4096
-                )
-                .is_err(),
-                "independent {action}"
+            let query = dive_trace::exists::exists_successor_pure(
+                &model,
+                &action_pred,
+                &before,
+                None,
+                dive_trace::exists::Limits::default(),
+                4096,
             );
+            if runtime_supported {
+                assert_eq!(word.expect("bounded runtime word"), vec![true]);
+                let dive_trace::exists::Decision::Enabled { witness, .. } =
+                    query.expect("bounded independent query")
+                else {
+                    panic!("disabled {action}");
+                };
+                assert_eq!(witness.as_ref(), &[Some(1.into())]);
+            } else {
+                assert!(word.is_err(), "word {action}");
+                assert!(query.is_err(), "independent {action}");
+            }
+        }
+    }
+}
+
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep pinned truth, genuine word and both fabricated claims in one transport matrix"
+)]
+fn held_action_query_matches_primary_and_validates_its_own_words() {
+    use dive_model::BindOptions;
+    use dive_trace::{Check, Trace};
+    let fixture =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/held-enabled");
+    let primary: Value = serde_json::from_str(
+        &std::fs::read_to_string(fixture.join("primary.json")).expect("pinned primary facts"),
+    )
+    .expect("primary JSON");
+    assert_eq!(primary["sany_exit"], 0);
+    assert_eq!(primary["hold"]["code"], 2193);
+    assert_eq!(primary["hold"]["exit"], 0);
+    assert_eq!(primary["hold"]["generated"], 3);
+    assert_eq!(primary["hold"]["distinct"], 2);
+    assert_eq!(primary["hold"]["depth"], 2);
+    assert_eq!(primary["fail"]["code"], 2107);
+    assert_eq!(primary["fail"]["exit"], 12);
+    assert_eq!(primary["fail"]["property"], "Bad");
+    let initial = primary["fail"]["initial_x"]
+        .as_i64()
+        .expect("primary initial x");
+    for options in [BindOptions::tlc(), BindOptions::dive()] {
+        let analysis = dive_sema::analyze_file(
+            &fixture.join("HeldEnabled.tla"),
+            &dive_sema::Options::default(),
+        )
+        .expect("primary source");
+        assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+        let config = dive_config::parse(
+            &std::fs::read_to_string(fixture.join("fail.cfg")).expect("original config"),
+        )
+        .into_config()
+        .expect("configuration");
+        let model = dive_model::bind(
+            Arc::new(dive_ir::lower(&analysis).expect("IR")),
+            &config,
+            &options,
+        )
+        .expect("model");
+        let genuine = Trace {
+            states: vec![Arc::from([Some(initial.into())])],
+            labels: vec![None],
+            ending: Ending::Invariant("Bad".into()),
+            length: Some(1),
+            properties: Vec::new(),
+        };
+        let mut bad_init = genuine.clone();
+        bad_init.states[0] = Arc::from([Some(99.into())]);
+        let mut bad_ending = genuine.clone();
+        bad_ending.ending = Ending::Invariant("Good".into());
+        for (name, word) in [
+            ("genuine", genuine),
+            ("forged Init", bad_init),
+            ("forged ending", bad_ending),
+        ] {
+            let typed = dive_trace::validate(&model, &word).validation;
+            let document = word.to_doc(&model).expect("document");
+            let parsed = TraceDoc::parse(&document.to_json().to_string()).expect("transport");
+            let serialized = dive_trace::validate_doc(&model, &parsed, &config.model_values)
+                .0
+                .validation;
+            for result in [typed, serialized] {
+                match name {
+                    "genuine" => assert_eq!(result, Validation::Valid),
+                    "forged Init" => assert!(
+                        matches!(result, Validation::Invalid(f) if f.state == 0 && f.check == Check::Init)
+                    ),
+                    _ => assert!(
+                        matches!(result, Validation::Invalid(f) if f.state == 0 && f.check == Check::Ending)
+                    ),
+                }
+            }
         }
     }
 }
