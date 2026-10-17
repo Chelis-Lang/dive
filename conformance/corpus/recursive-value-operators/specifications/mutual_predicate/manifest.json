@@ -27,7 +27,7 @@
           "path": "specifications/mutual_predicate/fail.cfg",
           "runtime": "00:00:30",
           "mode": "exhaustive search",
-          "result": "liveness-violation"
+          "result": "liveness failure"
         }
       ]
     }

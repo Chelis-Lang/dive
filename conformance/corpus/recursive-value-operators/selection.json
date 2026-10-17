@@ -12,7 +12,7 @@
     "heap": "512m",
     "timeout_seconds": 30
   },
-  "scope": "Primary-first ordinary recursive value operators: sequence sums in state-dependent finite fairness domains, recursive LET operators capturing state, and mutually recursive Boolean helpers. Three holds and three genuine liveness violations. No native support, original156-model gain, full-tier or performance credit.",
+  "scope": "Primary-first ordinary recursive value operators: sequence sums in state-dependent finite fairness domains, recursive LET operators capturing an outer value parameter whose actual is state-dependent, and mutually recursive Boolean helpers. Three holds and three genuine liveness violations. No native support, original156-model gain, full-tier or performance credit.",
   "selection": [
     {
       "id": "sum_domain/hold",
@@ -73,13 +73,13 @@
       "module": "specifications/lexical_capture/RecValue.tla",
       "model": "specifications/lexical_capture/hold.cfg",
       "inputs_sha256": {
-        "RecValue.tla": "9445577de4bf1d1e3b2e561491e38414f09c54c36d813cf35f3b4fb54a3d9cbc",
+        "RecValue.tla": "3a332733cafb5c64649e6e81775e5600a0b064493372cd9d5d8f9c7864d58164",
         "hold.cfg": "f9e42626757a83e536a9d2f2117863d0616925c039abdeac7ff18f899e590edf"
       },
       "sany": {
         "physical_exit": 0,
         "semantic_accepted": true,
-        "stdout_sha256": "63257365361d9d06e58fc092d5033cc73403ee5256a406ae969575d945c300a0",
+        "stdout_sha256": "f04f8e8deb274729cdfd3b9b1f13b94aceff713e8aa506514f8498e189da0df6",
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
       "primary": {
@@ -91,7 +91,7 @@
           "generated": 7,
           "depth": 3
         },
-        "stdout_sha256": "1b7a5343342d92433fd6fcfd117f1be978522ed799aa0c68084c8ab8948df0bb",
+        "stdout_sha256": "c2fd5185be81cf65c67fbb03b6fd0baa8bda8205730bf46c40df4288070d0ea0",
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },
@@ -100,13 +100,13 @@
       "module": "specifications/lexical_capture/RecValue.tla",
       "model": "specifications/lexical_capture/fail.cfg",
       "inputs_sha256": {
-        "RecValue.tla": "9445577de4bf1d1e3b2e561491e38414f09c54c36d813cf35f3b4fb54a3d9cbc",
+        "RecValue.tla": "3a332733cafb5c64649e6e81775e5600a0b064493372cd9d5d8f9c7864d58164",
         "fail.cfg": "fb2ab6ba6439c945238cac0639e9110ff3968e2068cbf413086b447dc5377db6"
       },
       "sany": {
         "physical_exit": 0,
         "semantic_accepted": true,
-        "stdout_sha256": "63257365361d9d06e58fc092d5033cc73403ee5256a406ae969575d945c300a0",
+        "stdout_sha256": "f04f8e8deb274729cdfd3b9b1f13b94aceff713e8aa506514f8498e189da0df6",
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
       "primary": {
@@ -118,7 +118,7 @@
           "generated": 7,
           "depth": 3
         },
-        "stdout_sha256": "f002fd9039e208b5a93f93762ab0eed4740b59703d72c19e695c39eb2a560335",
+        "stdout_sha256": "2b2f8b96478a70a4130b4f29c6fffb0f54d1edee33cfa8b402d6a810e5e26ec8",
         "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },

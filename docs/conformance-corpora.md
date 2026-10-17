@@ -142,7 +142,7 @@ required beyond this initial selection.
 
 The separate `recursive-value-operators` corpus records three source forms:
 a recursive sequence sum in a state-dependent finite fairness domain, a local
-recursive operator capturing its enclosing state, and mutually recursive
+recursive operator capturing an outer parameter with a state-dependent actual, and mutually recursive
 Boolean operators in a domain and a temporal predicate. Each source has holding
 and violating configurations. Pinned TLC reports three successes and three
 liveness violations of `Fail`; every model generates seven states, finds three

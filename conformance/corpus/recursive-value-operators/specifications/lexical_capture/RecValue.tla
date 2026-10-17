@@ -1,11 +1,11 @@
 ---- MODULE RecValue ----
 EXTENDS Naturals, Sequences
 VARIABLE x
-Offset(n) == LET RECURSIVE Go(_)
-                 Go(k) == IF k=0 THEN x ELSE 1+Go(k-1)
+Offset(n,base) == LET RECURSIVE Go(_)
+                 Go(k) == IF k=0 THEN base ELSE 1+Go(k-1)
              IN Go(n)
 Init == x=0
-A == \E i \in 0..Offset(0) : x<2 /\ x'=Offset(1)
+A == \E i \in 0..Offset(0,x) : x<2 /\ x'=Offset(1,x)
 Next == A \/ UNCHANGED x
 Spec == Init /\ [][Next]_x /\ WF_x(A)
 Hold == <>(x=2)
