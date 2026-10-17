@@ -1,4 +1,6 @@
-# Generated ValidationTestSuite coverage
+# Conformance corpora
+
+## Generated ValidationTestSuite coverage
 
 ValidationTestSuite at `fe99cff1ca48535bdbfc99fd95bd2706f056c12f` is a Python
 pairwise-test generator, not a directory of ready-to-run models. Its pinned
@@ -136,3 +138,60 @@ A TLC self-check establishes oracle reproducibility, not native conformance or
 independent validation of a counterexample. General fairness and closing-edge
 word controls, callable substitutions, and uncovered derived-query errors remain
 required beyond this initial selection.
+
+
+## Full-tier primary reference recovery
+
+The original 263-model full-tier inventory contained 171 in-scope model
+references, 44 in-scope models without references and 48 previously excluded
+models. A separate primary run attempted each of those 44 models once, with
+the original pinned Examples source, authored configurations and model modes.
+It used pinned TLC, one worker, two jobs, a 3 GB heap and the original
+600-second per-job limit, with no overall campaign cap. A separate trace pass
+can also receive its own 600 seconds.
+
+The harness generated 27 facts: 25 exhaustive-mode references and two
+100-trace simulation references. Their observed results are 24 successes,
+one simulated invariant violation and two classified initial-state errors
+(TLC code 2102, exit 255). A simulation success does not prove exhaustive
+correctness. The violation's generated trace contains 26 states and 25 actions.
+All files here are copied byte-for-byte from harness generation; no expected
+result or generated provenance was edited. The existing 1,623 references are
+unchanged.
+
+The remaining 17 original models exceeded 600 seconds and received no
+reference. They remain in scope, without native agreement credit:
+
+- `specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg`
+- `specifications/KeyValueStore/MCKVSSafetyLarge.cfg`
+- `specifications/KeyValueStore/MCKVSSafetyMedium.cfg`
+- `specifications/MultiCarElevator/ElevatorLivenessLarge.cfg`
+- `specifications/MultiCarElevator/ElevatorSafetyLarge.cfg`
+- `specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg`
+- `specifications/NanoBlockchain/MCNanoLarge.cfg`
+- `specifications/SlushProtocol/SlushLarge.cfg`
+- `specifications/TLC/TestMCReachability.cfg`
+- `specifications/bcastFolklore/bcastFolklore.cfg`
+- `specifications/byzpaxos/BPConProof.cfg`
+- `specifications/byzpaxos/PConProof.cfg`
+- `specifications/c1cs/c1cs.cfg`
+- `specifications/dag-consensus/TLCSailfish2.cfg`
+- `specifications/detector_chan96/EnvironmentController.cfg`
+- `specifications/diskpaxos/MC_HDiskSynod.cfg`
+- `specifications/ewd998/EWD998.cfg`
+
+Thus the original inventory now has 198 in-scope model references, 17 missing
+references and the same 48 exclusions. This is reference availability, not a
+new native full-tier measurement. No model was excluded, resized or assigned
+a different runtime limit or mode. The original 156-model small-tier
+population and its agreement counts do not change.
+
+Owning harness streams, physical status, generated provenance and the full
+44-model outcome accounting were retained externally. Original per-Java
+stdout/stderr streams were not exported by the generator. Independent review
+checked the 27 facts and original inputs, then performed seven direct pinned
+Java executions across six selected models, including both classified errors,
+both simulation modes and the exact violation trace. It did not rerun the
+other 21 facts or repeat the 17 timeouts. Native full-tier checking, semantic
+validation of the new violation trace and the full-tier parity target remain
+required.

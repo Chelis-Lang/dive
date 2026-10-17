@@ -24,6 +24,8 @@
   `periodic`. `--compat=tlc` and `--lncheck final` keep final checking. Rust
   callers can set `CheckRequest::periodic`.
 
+- Add 27 generated TLC references from the original 44 missing full-tier
+  models; the other 17 retain their original 600-second timeouts.
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
   boxed so that a slot is no larger than a value, reading a bound name no
