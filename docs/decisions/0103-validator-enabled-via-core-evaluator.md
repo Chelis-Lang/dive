@@ -75,7 +75,24 @@ with TLC, by the positive controls on TLC's own counterexamples, and by the
 mutation controls, which must all still be rejected.
 
 The replay host keeps its refusals for random draws, registers, runtime names
-and action composition. It no longer disables expression caching.
+and action composition. It no longer disables expression caching; instead
+each replay host has its own cache domain (`Host::expression_cache_domain`).
+Lazy argument and lazy function values that replay computes are cached and
+reused within that replay, as TLC's `LazyValue` caches them, but replay never
+reads a value another consumer cached (ordinary evaluation is domain 0) and
+never overwrites one. Otherwise a caller could warm a retained `scope_apply`
+argument through action composition and the cached `TRUE` would bypass the
+composition refusal: a verdict would depend on how warm the caches were. Cold
+and warm replay must agree (`replay_verdict_does_not_depend_on_cache_warmth`
+and `warmed_same_owned_scopes_do_not_supply_replay_truth` in
+`crates/dive-api/tests/trace_composition.rs`).
+
+Public typed states (`dive_trace::validate`, `temporal::evaluate_lasso`,
+`enabled::enabled`) are checked before evaluation for foreign names and opaque
+deferred sets as before, and now also for sets, records and functions sorted in
+another value order (`DIVE-V0043`). The deleted preflights refused these; the
+core evaluator would read such a value in the wrong order (for example, which
+element `CHOOSE` picks).
 
 **Deleted:**
 
@@ -85,7 +102,8 @@ and action composition. It no longer disables expression caching.
 - the validator's pure-predicate budget and finite-binding preflights for
   temporal atoms, temporal actions, periodic predicates and labels: they are
   evaluated with `Evaluator::eval_scoped`, so they use the evaluator's caches;
-- the replay host's `reuse_expression_cache` override;
+- the replay host's `reuse_expression_cache` override (replaced by its own
+  cache domain, above);
 - the `enumerate`-free rule: `ENUMERATE_FREE` in `xtask/src/layering.rs`,
   `xtask/src/features.rs`, the standalone `cargo build -p dive-trace` step in
   `cargo xtask gate` and CI, and the matching sentence in `AGENTS.md`;

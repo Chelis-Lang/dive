@@ -30,6 +30,11 @@
   such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, now validates instead of
   refusing with `DIVE-T0020 ... no finite cover` (issue #321). The
   `dive_trace::exists` API is replaced by `dive_trace::enabled::enabled`.
+  Replay reuses only lazy values it computed itself (its own cache domain), so
+  a value cached by ordinary evaluation, for example through action
+  composition, never becomes a validation verdict. Public typed states sorted
+  in the other profile's value order are refused with `DIVE-V0043`. The
+  `fairness-replay` corpus adds Oyster's weak and strong pilot monitors.
 
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
