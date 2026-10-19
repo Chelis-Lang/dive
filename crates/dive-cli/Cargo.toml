@@ -19,6 +19,7 @@ path = "src/bin/tlc.rs"
 
 [dependencies]
 dive-api = { workspace = true }
+mimalloc = { workspace = true }
 serde_json = { workspace = true }
 
 [lints]
