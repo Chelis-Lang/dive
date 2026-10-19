@@ -716,6 +716,8 @@ fn record_from(
         verdict: result.map(|r| r.verdict),
         verdict_code: result.and_then(|r| r.verdict_code),
         exit_code: result.and_then(|r| r.exit_code),
+        error_class: result.and_then(|r| r.error_class.clone()),
+        violated_property: result.and_then(|r| r.violated_property.clone()),
         distinct_states: result.and_then(|r| r.counts.distinct_states),
         states_generated: result.and_then(|r| r.counts.states_generated),
         depth: result.and_then(|r| r.counts.depth),

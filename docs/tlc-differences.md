@@ -2776,8 +2776,8 @@ is introduced.
 The first correction registers only the 14 measured historical safety/frontend
 paths and adds exact exit pairs to four existing semantic entries. It does not
 register future liveness or scheduling differences. Old default agreement counts
-omitted this required observable; [the scoreboard](scoreboard.md#numeric-exit-accounting-correction)
-retains and qualifies them while fresh complete measurements remain pending.
+omitted this required observable; [ADR 0096](decisions/0096-truthful-default-numeric-exit-conformance.md)
+qualifies them, and [the scoreboard](scoreboard.md#corpus-scoreboard) has the current measurements.
 
 
 D-008 PlusCal checksum/API continuation: schema2 translation reports contain real

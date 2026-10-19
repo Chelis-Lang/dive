@@ -9,6 +9,14 @@
   planning can evaluate constants or invoke native hooks. Malformed public
   metadata refuses during planning without starting graph capture.
 
+- `dive-conformance run --baseline <file>` fails on corpus regressions against a
+  committed baseline: a model or module that agreed and no longer does, or a
+  changed verdict, error class, exit code, property, count or depth.
+  `report baseline` writes the compact baselines in `conformance/baselines/`.
+  `cargo xtask gate --full` and a nightly job check the small tier in both
+  profiles against them. Run records now carry the error class and violated
+  property.
+
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
   fallback errors are preserved.

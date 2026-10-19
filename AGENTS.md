@@ -137,7 +137,9 @@ runs in the full gate. The `Conformance gate` job checks the eight models of
 **Full gate.** `cargo xtask gate --full` runs the fast gate with the whole
 nextest suite, then `scripts/conformance-gate.sh` over `conformance/gates/cm1.txt`
 and the validation-smoke corpus at 1, 4 and 8 workers, then the small corpus
-tier through the harness (`--skip-corpus` leaves that out). It writes
+tier in both profiles through the harness, failing on any regression against
+`conformance/baselines/` (`--skip-corpus` leaves that out; see
+`docs/developer/ci.md`). It writes
 `target/gate-report.md`. Run it before opening any PR that touches
 `dive-eval`, `dive-check`, `dive-value`, `dive-store`, `dive-liveness`,
 `dive-model` or `dive-trace`, and paste the report into the PR body. On a

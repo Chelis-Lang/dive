@@ -41,17 +41,48 @@ whole suite with the default profile.
 
 ```sh
 cargo xtask gate --fast                 # what CI's Workspace gate runs
-cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier
+cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier vs baselines
 cargo xtask gate --full --skip-corpus   # without the small corpus tier
 ```
 
 `--full` keeps going after a failure and writes `target/gate-report.md` (under
 `CARGO_TARGET_DIR` if set): each step's result and duration, and the corpus
-tier's outcome counts. Paste it into the PR body. It is required before PRs
+tier's outcome counts per profile. The corpus tier runs the 156-model small
+selection (examples, probes, validation-smoke, configured-temporal-operators)
+at one worker in the `tlc` profile (models and modules) and the default `dive`
+profile (models), each with `run --baseline` against its committed baseline
+(see [Corpus baselines](#corpus-baselines)). A regression fails the step. Paste it into the PR body. It is required before PRs
 that touch `dive-eval`, `dive-check`, `dive-value`, `dive-store`,
 `dive-liveness`, `dive-model` or `dive-trace`. It needs `cargo-nextest`, and
 `cargo-deny` when the dependency policy inputs change. On a shared machine,
 set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
-TLC self-checks, on manual dispatch only.
+TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
+small-tier dispatch): the same two corpus runs as the full gate, against the
+committed baselines. It is not a required check.
+
+## Corpus baselines
+
+`conformance/baselines/small-<profile>-w<workers>.json` are compact digests
+(`dive-conformance report baseline`) of small-tier reports on `main`: each
+model's outcome and observables (verdict, error class and code, physical exit,
+violated property, distinct and generated counts, depth) per worker count, and
+each module's outcome. `dive-conformance run --baseline <file>` fails (exit 1)
+when a model or module that agreed in the baseline no longer does, or any
+model result's observables changed. Improvements are listed and pass.
+
+Refresh a baseline in the PR that improves it (or that deliberately changes an
+observable, with the reason in the PR body), from a run of that PR:
+
+```sh
+dive-conformance run --impl dive --impl-profile tlc \
+  --corpus examples --corpus probes --corpus validation-smoke \
+  --corpus configured-temporal-operators --tier small --workers 1 \
+  --timeout 1800 --report-dir "$OUT" --no-summary
+dive-conformance report baseline "$OUT"/<run-id>.json \
+  --out conformance/baselines/small-tlc-w1.json
+```
+
+The default profile adds `--no-sany` and writes `small-dive-w1.json`.
+`report summarise` regenerates `docs/conformance.md` from the same reports.

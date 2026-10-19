@@ -962,7 +962,7 @@ Historical default90/4/60 is qualified as an exit-only estimate of 76 Agree /
 18 ExpectedDivergence / 60 Unsupported, not a fresh conformance certificate or
 an approved lower floor. Original reports and floors remain visible; full
 remeasurement and review are pending. See [ADR 0096](decisions/0096-truthful-default-numeric-exit-conformance.md)
-and [the scoreboard](scoreboard.md#numeric-exit-accounting-correction).
+and the current measurements in [the scoreboard](scoreboard.md#corpus-scoreboard).
 
 D-008 original PlusCal AST artifact continuation: explicit `translate --ast` and
 public original-AST APIs expose bounded earlier-stage bytes as data in both
