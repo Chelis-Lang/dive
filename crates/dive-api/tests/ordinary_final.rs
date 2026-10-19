@@ -103,9 +103,18 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             assert_eq!(original["statistics"], value["statistics"]);
             let mut native = request;
             native.compat_tlc = false;
-            let refused = dive_api::check_file(&native)?;
-            assert_eq!(refused.verdict(), "unsupported");
-            assert_eq!(refused.to_json()["schema_version"], 1);
+            let native = dive_api::check_file(&native)?;
+            let native = native.to_json();
+            assert_eq!(native["schema_version"], 2);
+            assert_eq!(native["options"]["profile"], "dive");
+            assert_eq!(native["options"]["lncheck"], "final");
+            assert_eq!(native["verdict"], value["verdict"]);
+            assert_eq!(native["statistics"], value["statistics"]);
+            assert_eq!(native["execution"]["exhausted"], true);
+            if violation {
+                assert_eq!(native["property"], "P");
+                assert_eq!(native["counterexample"]["validation"], "valid");
+            }
         }
     }
     Ok(())

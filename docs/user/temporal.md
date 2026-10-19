@@ -1,7 +1,7 @@
 # Temporal checking
 
-The checker exposes bounded final/short analysis. Eligible ordinary TLC-profile
-requests select it automatically; explicit selection is also available:
+The checker exposes bounded final/short analysis. Eligible ordinary requests
+select it automatically in both profiles; explicit selection is also available:
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --lncheck final --lasso short --seed 7 --output json
@@ -18,7 +18,7 @@ including the closing edge. This does not implement periodic
 scheduling or all evaluation-error timing. Explicit requests retain their
 existing `tlc+overrides` label when combined with TLC value semantics.
 
-## Ordinary checking in the TLC profile
+## Ordinary checking
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --compat=tlc --fp 0 --seed 7 --output json
@@ -32,14 +32,21 @@ The report records the actual `lncheck: final`, `lasso: short` and temporal
 bounds, with profile `tlc`. This is partial temporal support, not general TLC
 parity or an implementation of periodic checking.
 
+Ordinary requests in the default (dive) profile take the same route with dive
+value semantics; their report records profile `dive` with `lncheck: final`.
+The approved deterministic level-boundary schedule (D-014) is not implemented
+yet, so until it is the default profile checks temporal properties once, after
+complete exploration. Verdicts, counts and violated properties are those of a
+final check; no request stops early on a liveness prefix.
+
 The route requires profile-default evaluation and fingerprint settings,
 fingerprint polynomial 0, resident fingerprint storage, and no storage
-budget/directory, deadlock, sequential or chaos overrides. Use `--fp 0`
-explicitly: the TLC profile otherwise selects a random polynomial. Seed and
+budget/directory, deadlock, sequential or chaos overrides. Under `--compat=tlc`
+use `--fp 0` explicitly: the TLC profile otherwise selects a random polynomial
+(the default profile's polynomial is already 0). Seed and
 worker requests are retained. Checkpoint/recovery uses its existing separate
-safety path. Randomness combined with VIEW or SYMMETRY, excluded options and
-ordinary requests in the dive profile retain their existing routes and named
-refusals. Real unsupported language features and resource limits remain explicit;
+safety path. Randomness combined with VIEW or SYMMETRY and excluded options retain their
+existing routes and named refusals. Real unsupported language features and resource limits remain explicit;
 a refusal, bound or external timeout is never a holding result.
 
 File-based temporal checking uses 8,000,000 covered acceptance-buffer bytes and

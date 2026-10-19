@@ -796,14 +796,15 @@ Eligible ordinary TLC-profile checking selects the existing bounded final/short
 backend without extra policy flags. Its report states the actual final schedule;
 this does not implement TLC's periodic trigger. Actual startup-bound safety roles
 retain ordinary safety behavior. Real temporal properties use the supported pure
-subset and independent periodic-word replay. Excluded options and ordinary native
-requests retain their previous refusals. See [ordinary temporal checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
+subset and independent periodic-word replay. Ordinary default-profile requests
+use the same final route with profile `dive`. Excluded options retain their
+previous refusals. See [ordinary temporal checking](user/temporal.md#ordinary-checking)
 for exact eligibility, schema, counts and exit conventions. General TLC parity
 remains incomplete; limits and external timeouts do not prove a model holds.
 
 ## D-014: Periodic liveness checking has a replayable schedule
 
-**Status:** ordinary scheduling remains planned, with an owner-approved deterministic default. The approved `--lncheck=deterministic` interface will check at the documented level boundaries in ADR 0018. The TLC counterpart will retain wall-clock scheduling for `--lncheck=default`. Explicit bounded final checking is separate; this planned schedule does not run through the ordinary strict checker yet.
+**Status:** ordinary scheduling remains planned, with an owner-approved deterministic default. The approved `--lncheck=deterministic` interface will check at the documented level boundaries in ADR 0018. The TLC counterpart will retain wall-clock scheduling for `--lncheck=default`. Explicit bounded final checking is separate; this planned schedule does not run through the ordinary strict checker yet. Until it does, eligible ordinary requests in the default profile, like those under `--compat=tlc`, check temporal properties once after complete exploration and report `lncheck: final`.
 
 The periodic backend controller now implements the pinned callback order. All 296 controlled pinned-method observations retain queue suspension, force state, deciding codes and PERIODIC effect order. This is a backend building block: clock-ratio math, graph-growth authority, quiescence and checkpoint persistence remain pending, and no ordinary model verdict is enabled.
 

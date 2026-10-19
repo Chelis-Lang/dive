@@ -17,7 +17,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
-| Check temporal properties | [Temporal checking](temporal.md) | Bounded pure final subset; eligible ordinary TLC profile and explicit final/short |
+| Check temporal properties | [Temporal checking](temporal.md) | Bounded pure final subset; eligible ordinary requests in both profiles and explicit final/short |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
 | Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; the separate opt-in safety route is available |
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |

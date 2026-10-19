@@ -5,8 +5,8 @@
 //! fresh model for each run and for validation. It selects a deterministic short
 //! lasso, including with TLC value semantics; TLC-exact selection and periodic
 //! checking are not implemented here. Ordinary [`crate::check_file`] also uses
-//! this backend for eligible TLC-profile requests; the dive profile retains its
-//! ordinary temporal refusal. Explicit final/short selection remains available.
+//! this backend for eligible requests in both profiles. Explicit final/short
+//! selection remains available.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};

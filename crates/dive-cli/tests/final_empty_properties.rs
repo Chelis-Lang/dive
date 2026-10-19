@@ -124,10 +124,7 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
     for profile in ["dive", "tlc"] {
         let ordinary = run(&file, profile, 1, false)?;
         let selected = run(&file, profile, 1, true)?;
-        assert_eq!(
-            ordinary.status.code(),
-            Some(if profile == "tlc" { 13 } else { 3 })
-        );
+        assert_eq!(ordinary.status.code(), Some(13));
         assert_eq!(selected.status.code(), Some(13));
         let a: serde_json::Value = serde_json::from_slice(&ordinary.stdout)?;
         let b: serde_json::Value = serde_json::from_slice(&selected.stdout)?;
@@ -140,22 +137,18 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
                 ..TraceOptions::default()
             },
         )?;
-        if profile == "tlc" {
-            assert_eq!(a["schema_version"], 2);
-            assert_eq!(a["verdict"], "liveness-violation");
-            assert_eq!(a["property"], "P");
-            assert_eq!(a["tlc"]["code"], 2116);
-            assert_eq!(a["tlc"]["name"], "TLC_TEMPORAL_PROPERTY_VIOLATED");
-            assert_eq!(a["tlc"]["verified"], true);
-            assert_eq!(a["tlc"]["exit_status"], 13);
-            assert_eq!(a["counterexample"]["validation"], "valid");
-            let document = TraceDoc::from_json(&a["counterexample"]["trace"])?;
-            assert_eq!(validator.read(&document).0.validation, Validation::Valid);
-        } else {
-            assert_eq!(a["schema_version"], 1);
-            assert_eq!(a["verdict"], "unsupported");
-            assert!(a["counterexample"].is_null());
-        }
+        assert_eq!(a["schema_version"], 2);
+        assert_eq!(a["options"]["profile"], profile);
+        assert_eq!(a["options"]["lncheck"], "final");
+        assert_eq!(a["verdict"], "liveness-violation");
+        assert_eq!(a["property"], "P");
+        assert_eq!(a["tlc"]["code"], 2116);
+        assert_eq!(a["tlc"]["name"], "TLC_TEMPORAL_PROPERTY_VIOLATED");
+        assert_eq!(a["tlc"]["verified"], true);
+        assert_eq!(a["tlc"]["exit_status"], 13);
+        assert_eq!(a["counterexample"]["validation"], "valid");
+        let document = TraceDoc::from_json(&a["counterexample"]["trace"])?;
+        assert_eq!(validator.read(&document).0.validation, Validation::Valid);
         assert_eq!(b["verdict"], "liveness-violation");
         assert_eq!(b["property"], "P");
         assert!(b["counterexample"].is_object());
