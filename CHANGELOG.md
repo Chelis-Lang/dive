@@ -1,5 +1,11 @@
 # Changelog
 
+- Values free their contents without allocating a work list in the common
+  case: children that are scalars or shared are released in place, and nested
+  values are freed by bounded recursion before falling back to the work list,
+  so any nesting depth stays safe. Results are unchanged; single-worker checking
+  of the benchmark models executes about 5–7% fewer instructions.
+
 - The `dive` and `tlc` binaries use mimalloc as their global allocator, and
   release builds use fat link-time optimisation with one codegen unit (ADR 0102).
   Results are unchanged; single-worker checking executes about 15–17% fewer
