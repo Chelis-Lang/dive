@@ -68,6 +68,43 @@ fn recursive_operations_handle_the_documented_depth() {
     });
 }
 
+/// Sets, records, general functions and set-valued constructors nested far
+/// beyond any native recursion bound, with some levels also held elsewhere.
+fn nested_mixed(depth: usize, ctx: Ctx, keep: &mut Vec<Value>) -> Value {
+    let names = dive_value::Interner::new();
+    let mut v = Value::Int(0);
+    for i in 0..depth {
+        v = match i % 4 {
+            0 => Value::set(vec![v], ctx).expect("set"),
+            1 => Value::record(vec![(names.intern("a"), v)], ctx).expect("record"),
+            2 => Value::fcn(vec![(Value::Int(0), v), (Value::Int(5), Value::TRUE)], ctx)
+                .expect("fcn"),
+            _ => Value::subset(v, ctx),
+        };
+        if i % 10_007 == 0 {
+            keep.push(v.clone());
+        }
+    }
+    v
+}
+
+#[test]
+fn deeply_nested_compound_values_drop_on_a_small_stack() {
+    small_stack(|| {
+        let ctx = Ctx::tlc();
+        let mut keep = Vec::new();
+        drop(nested_mixed(200_000, ctx, &mut keep));
+        // The levels held elsewhere survive intact, and drop in turn.
+        assert_eq!(keep.len(), 20);
+        drop(keep);
+        let mut none = Vec::new();
+        let a = nested_mixed(200_000, ctx, &mut none);
+        let b = a.clone();
+        drop(a);
+        drop(b);
+    });
+}
+
 #[test]
 fn huge_intervals_are_compared_without_materializing() {
     let ctx = Ctx::tlc();
