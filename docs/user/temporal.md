@@ -257,6 +257,12 @@ still refuses by name until hook execution is implemented.
 
 ## Rust APIs
 
+Final analysis admits every retained bound-model predicate and its evaluator,
+IR and name ownership before planning evaluates constants or calls native hooks.
+Malformed public model metadata returns a planning refusal without graph capture.
+Its diagnostic does not resolve an unadmitted location through the evaluator.
+Valid configured wrappers keep their original native callbacks and typed errors.
+
 Finite predicate binders support structurally bounded deferred filters. Their
 global configured-redirect preflight can resolve scalar constants supplied with
 `=`, such as a bounded `LimitedSeq` helper reading `Max=1`, without calling the

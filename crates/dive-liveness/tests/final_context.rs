@@ -148,3 +148,73 @@ fn public_lowerers_reject_foreign_configured_context_before_hooks() {
         }
     }
 }
+
+#[test]
+fn final_analysis_checks_all_retained_model_context_before_constant_hooks() {
+    for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+        for mutation in [
+            "property-location",
+            "property-expression",
+            "property-scope",
+            "unused-invariant",
+            "next",
+            "initial",
+            "assumption",
+            "temporal-origins",
+            "names",
+            "ir",
+            "foreign-location-owner",
+        ] {
+            let mut model = bound(CONFIGURED, true, &options);
+            let foreign = bound(CONFIGURED, true, &options);
+            let host = install(&model, true);
+            match mutation {
+                "property-location" => {
+                    model.configured_properties[0].pred.location = dive_ir::ExprId(u32::MAX);
+                }
+                "property-expression" => {
+                    model.configured_properties[0].pred.expr = dive_ir::ExprId(u32::MAX);
+                }
+                "property-scope" => {
+                    model.configured_properties[0].pred.scope =
+                        foreign.configured_properties[0].pred.scope.clone();
+                }
+                "unused-invariant" => model.invariants.push(dive_model::Named {
+                    name: "UnusedForeignInvariant".into(),
+                    pred: foreign.next.clone().expect("Next"),
+                }),
+                "next" => model.next = foreign.next.clone(),
+                "initial" => model.init = foreign.init.clone(),
+                "assumption" => model.assumptions.push(dive_ir::DefId(u32::MAX)),
+                "temporal-origins" => model
+                    .implied_temporals
+                    .push(model.implied_temporals[0].clone()),
+                "names" => model.names = Arc::new(dive_value::Interner::new()),
+                "ir" => model.ir = foreign.ir.clone(),
+                "foreign-location-owner" => {
+                    let extended =
+                        CONFIGURED.replace("====", "Padding == <<1,2,3,4,5,6,7,8,9,10>>\n====");
+                    model.ir = bound(&extended, true, &options).ir;
+                    let index = model.ir.nodes().len() - 1;
+                    assert!(index >= model.evaluator.ir().nodes().len());
+                    model.configured_properties[0].pred.location =
+                        dive_ir::ExprId(u32::try_from(index).expect("small fixture"));
+                }
+                _ => unreachable!(),
+            }
+            let context_error = model
+                .validate_context()
+                .expect_err("the mutation invalidates retained model metadata")
+                .to_string();
+            let failure = analyze::analyze_final_with_evidence(&model, &options, Limits::default())
+                .expect_err("invalid public metadata must refuse before constant evaluation");
+            assert_eq!(host.calls.load(Ordering::SeqCst), 0, "{mutation}");
+            assert_eq!(failure.stage, Stage::Planning, "{mutation}");
+            assert!(failure.exploration.is_none(), "{mutation}");
+            let AnalysisError::Planning(PlanningError::Unsupported(refusal)) = failure.error else {
+                panic!("model context must precede native hooks: {mutation}: {failure:?}")
+            };
+            assert_eq!(refusal.detail, context_error, "{mutation}");
+        }
+    }
+}
