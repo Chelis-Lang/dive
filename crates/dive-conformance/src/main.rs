@@ -1,6 +1,7 @@
 //! The `dive-conformance` binary. Run with `--help` for usage.
 #![forbid(unsafe_code)]
 
+use dive_conformance::baseline::Baseline;
 use dive_conformance::cache::Cache;
 use dive_conformance::compare::Outcome;
 use dive_conformance::config::Config;
@@ -45,6 +46,8 @@ COMMANDS:
     report summarise <report.json>...
                            re-render the summary sections of existing reports into
                            --summary (default docs/conformance.md), one per implementation
+    report baseline <report.json> --out <file>
+                           write the compact baseline of a report (for `run --baseline`)
     trace-controls         run every golden counterexample through dive's independent trace
                            validator under --compat=tlc (positive controls) and check that
                            each by-construction mutant is rejected (negative controls;
@@ -82,6 +85,11 @@ RUN:
                            the implementation does not declare result-preserving make every
                            would-be `agree` a `divergence-mode` outcome
     --report-dir <dir>     default: conformance/reports
+    --baseline <file>      after the run, compare with this baseline (or full report) of the
+                           same implementation, profile, tier, workers and corpora: exit 1 if
+                           a model or module that agreed no longer does, or a model's
+                           observables (verdict, error class/code, exit, property, counts,
+                           depth) changed. Improvements are listed and pass
     --summary <file>       default: docs/conformance.md;  --no-summary to skip
 
 FINAL STUDY:
@@ -101,7 +109,8 @@ LIMITS (golden generate, run; timeout options also apply to study final):
 
 EXIT STATUS:
     0 success; 1 findings (failed goldens, or disagree/oracle-error/timeout outcomes,
-    except in runs involving a reference oracle); 2 usage error; 3 harness error.
+    except in runs involving a reference oracle, or `--baseline` regressions);
+    2 usage error; 3 harness error.
     `known-upstream-change` and `expected-divergence` outcomes are not findings.
 ";
 
@@ -156,6 +165,7 @@ struct Opts {
     dive_bin: Option<PathBuf>,
     specs: Option<PathBuf>,
     out: Option<PathBuf>,
+    baseline: Option<PathBuf>,
     seed: Option<i64>,
     lncheck: Option<String>,
     fp: Option<u32>,
@@ -215,6 +225,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--dive-bin" => o.dive_bin = Some(args.value(&a)?.into()),
             "--specs" => o.specs = Some(args.value(&a)?.into()),
             "--out" => o.out = Some(args.value(&a)?.into()),
+            "--baseline" => o.baseline = Some(args.value(&a)?.into()),
             // `next()`, not `value()`: a seed may be negative (`--seed -3`).
             "--seed" => {
                 let v = args
@@ -347,6 +358,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
         }
         ["run"] => cmd_run(&config, &cache, &root, o),
         ["report", "summarise"] => report_summarise(&root, o),
+        ["report", "baseline"] => report_baseline(o),
         ["trace-controls"] => cmd_trace_controls(&config, &cache, &root, o),
         ["dev", "capture"] => {
             dev_capture(&config, &cache, o)?;
@@ -383,6 +395,26 @@ fn report_summarise(root: &Path, o: &Opts) -> Result<bool> {
         );
         std::fs::write(&md, merged).map_err(|e| Error::Io(format!("{}: {e}", md.display())))?;
     }
+    Ok(false)
+}
+
+/// `report baseline <report.json> --out <file>`: writes the report's
+/// compact baseline.
+fn report_baseline(o: &Opts) -> Result<bool> {
+    let ([file], Some(dest)) = (o.positional.as_slice(), &o.out) else {
+        return Err(Error::Usage(
+            "`report baseline` needs one report file and --out <file>".to_owned(),
+        ));
+    };
+    let baseline = Baseline::load(Path::new(file))?;
+    baseline.write(dest)?;
+    out(&format!(
+        "{}: {} model(s), {} module(s) from {}\n",
+        dest.display(),
+        baseline.models.len(),
+        baseline.modules.len(),
+        baseline.source_run_id
+    ));
     Ok(false)
 }
 
@@ -514,6 +546,8 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             "--no-sany and --sany-only conflict".to_owned(),
         ));
     }
+    // Load the baseline first: a bad path should not cost a whole run.
+    let baseline = o.baseline.as_deref().map(Baseline::load).transpose()?;
     let opts = RunOptions {
         corpora: if o.corpus.is_empty() {
             vec!["examples".to_owned()]
@@ -581,7 +615,18 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     } else {
         return Err(Error::Usage(format!("unknown --impl `{imp_spec}`")));
     };
-    Ok(print_and_gate(&report))
+    let findings = print_and_gate(&report);
+    let Some(base) = baseline else {
+        return Ok(findings);
+    };
+    let diff = dive_conformance::baseline::compare(&base, &Baseline::from_report(&report))?;
+    let rendered = diff.render(&base.source_run_id);
+    if diff.regressions.is_empty() {
+        out(&rendered);
+    } else {
+        eprintln_safe(rendered.trim_end());
+    }
+    Ok(findings || !diff.regressions.is_empty())
 }
 
 /// Prints the run's summary and returns whether its findings gate (exit 1).

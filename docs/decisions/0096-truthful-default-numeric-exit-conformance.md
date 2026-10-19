@@ -78,5 +78,5 @@ with unchanged per-model outcomes and no disagreement, timeout, oracle error or
 pending validation. This confirms the accounting estimate without authorizing
 a silent new numeric floor. The delegated measurement repair preserves the
 actual corrected parent agreement set; historical default-floor comparisons
-remain failed. See [the scoreboard qualification](../scoreboard.md#numeric-exit-accounting-correction)
+remain failed. See [the scoreboard](../scoreboard.md#corpus-scoreboard)
 and [D-023](../divergences.md#d-023-truthful-default-numeric-exit-accounting).

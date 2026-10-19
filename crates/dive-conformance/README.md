@@ -157,7 +157,8 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 
 **Outputs:**
 - `run` writes `conformance/reports/<run-id>.json` (schema version 1) and updates `docs/conformance.md`. That file keeps one section per implementation and profile (`tlc:<oracle>`, `dive (tlc)`, `dive (dive)`, ...); a run replaces only its own section (issue #27). `report summarise <report.json>...` re-renders existing reports' sections without running anything. Use `--no-summary` to skip the summary, or `--summary PATH` to put it elsewhere.
-- Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes, except in runs involving a reference oracle); 2 for a usage error, including an empty selection or stray arguments; 3 for a harness error.
+- `run --baseline <file>` compares the run with a committed baseline (`conformance/baselines/`, written by `report baseline <report.json> --out <file>`) or a full report of the same implementation, profile, golden oracle, tier, workers and corpora. It prints one line per change and fails if a model or module that was `agree` is now anything else or missing, or if any model result's observables (verdict, error class and code, physical exit, violated property, distinct and generated counts, depth) changed while it does not agree. Improvements to `agree` (whose observables then match the golden) and other outcome changes are listed and pass. A filtered run checks only what it selected. See `docs/developer/ci.md`.
+- Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes, except in runs involving a reference oracle, or `--baseline` regressions); 2 for a usage error, including an empty selection or stray arguments; 3 for a harness error.
 
 **Examples:**
 

@@ -1,7 +1,10 @@
 name: conformance
 
-# Standard and deep conformance tiers (ADR 0001), on manual dispatch only,
-# with a chosen tier (default small). Runs the pinned TLC against the
+# Standard and deep conformance tiers (ADR 0001), on manual dispatch with a
+# chosen tier (default small). Nightly, the `baseline` job alone runs dive's
+# small tier in both profiles and fails on any regression against the
+# committed baselines in conformance/baselines/ (`run --baseline`). The
+# dispatched `conformance` job runs the pinned TLC against the
 # committed goldens, with worker-count invariance (charter rule 7) and the
 # Examples manifest cross-check. Then runs dive under --compat=tlc (`dive
 # analyze` on the modules of every module corpus, `dive check` on the tier's
@@ -10,6 +13,8 @@ name: conformance
 # fast tier.
 
 on:
+  schedule:
+    - cron: "17 3 * * *"
   workflow_dispatch:
     inputs:
       tier:
@@ -83,9 +88,68 @@ jobs:
           path: ${{ runner.temp }}/frontend-campaign
           if-no-files-found: error
           retention-days: 30
+  baseline:
+    name: Small-tier regression check (baselines)
+    if: ${{ github.event_name == 'schedule' || (inputs.scope != 'frontend' && inputs.tier == 'small') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Cache oracles, JRE and corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.DIVE_CACHE_DIR }}
+          key: dive-cache-${{ runner.os }}-${{ hashFiles('conformance/oracles.toml', 'conformance/corpora.toml') }}
+          restore-keys: dive-cache-${{ runner.os }}-
+      - name: Build harness and dive
+        run: cargo build --release --locked -p dive-conformance -p dive-cli
+      - name: Fetch and verify oracles and the examples corpus
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          target/release/dive-conformance oracle fetch
+          target/release/dive-conformance corpus fetch --corpus examples
+      # The same selection, timeout and baselines as `cargo xtask gate --full`.
+      # A model
+      # or module that agreed in the baseline and no longer does, or a changed
+      # observable, fails the step; improvements are listed and pass.
+      - name: dive (tlc profile) against its baseline
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/baseline"
+          target/release/dive-conformance run \
+            --impl dive --impl-profile tlc \
+            --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators \
+            --tier small --workers 1 --jobs 2 --timeout 1800 \
+            --baseline conformance/baselines/small-tlc-w1.json \
+            --report-dir "$RUNNER_TEMP/baseline" --no-summary
+      - name: dive (default profile) against its baseline
+        if: always()
+        run: |
+          target/release/dive-conformance run \
+            --impl dive --impl-profile dive \
+            --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators \
+            --tier small --workers 1 --no-sany --jobs 2 --timeout 1800 \
+            --baseline conformance/baselines/small-dive-w1.json \
+            --report-dir "$RUNNER_TEMP/baseline" --no-summary
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: baseline-${{ github.run_id }}
+          path: ${{ runner.temp }}/baseline
+          if-no-files-found: warn
+          retention-days: 30
   conformance:
     name: Conformance (${{ inputs.tier || 'small' }})
-    if: ${{ inputs.scope != 'frontend' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.scope != 'frontend' }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ (inputs.tier || 'small') == 'deep' && 355 || 160 }}
     steps:

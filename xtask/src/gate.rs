@@ -16,31 +16,59 @@ const GATE_USAGE: &str = "usage: cargo xtask gate --fast | --full [--skip-corpus
     --fast         mirror CI's `Workspace gate` (nextest `ci` profile)
     --full         everything in --fast with the whole nextest suite, then the
                    cm1 and validation-smoke conformance gates at 1, 4 and 8
-                   workers and the small corpus tier; writes
-                   <target-dir>/gate-report.md for the PR body
-    --skip-corpus  with --full: skip the small corpus tier run
+                   workers and the small corpus tier in both profiles, each
+                   checked against its committed baseline
+                   (conformance/baselines/); writes <target-dir>/gate-report.md
+                   for the PR body
+    --skip-corpus  with --full: skip the small corpus tier runs
 
 Respects CARGO_BUILD_JOBS and NEXTEST_TEST_THREADS for shared machines.";
 
-/// Harness arguments of the full gate's small-tier corpus step.
+/// Harness arguments shared by the full gate's small-tier corpus steps: the
+/// established 156-model selection.
 const CORPUS_ARGS: &[&str] = &[
     "--impl",
     "dive",
-    "--impl-profile",
-    "tlc",
     "--corpus",
     "examples",
     "--corpus",
     "probes",
     "--corpus",
     "validation-smoke",
+    "--corpus",
+    "configured-temporal-operators",
     "--tier",
     "small",
+    "--workers",
+    "1",
     "--jobs",
     "2",
     "--timeout",
-    "600",
+    "1800",
     "--no-summary",
+];
+
+/// A small-tier corpus step: the profile, its extra harness arguments and
+/// its committed baseline (`run --baseline`), relative to the repository.
+struct CorpusProfile {
+    profile: &'static str,
+    extra: &'static [&'static str],
+    baseline: &'static str,
+}
+
+/// The full gate's small-tier corpus steps. The default profile's modules
+/// are the same SANY comparison as the TLC profile's, so it runs models only.
+const CORPUS_PROFILES: &[CorpusProfile] = &[
+    CorpusProfile {
+        profile: "tlc",
+        extra: &[],
+        baseline: "conformance/baselines/small-tlc-w1.json",
+    },
+    CorpusProfile {
+        profile: "dive",
+        extra: &["--no-sany"],
+        baseline: "conformance/baselines/small-dive-w1.json",
+    },
 ];
 
 /// Corpus outcome counts keyed by `(scope, outcome)`, or why there are none.
@@ -188,12 +216,20 @@ pub fn gate(args: &[String]) -> Result<()> {
         conformance_steps(&mut g, skip_corpus);
     }
 
-    let corpus = if mode == Mode::Full && !skip_corpus {
-        Some(corpus_counts(&corpus_report_dir(&g.target)))
+    let corpus: Vec<(&str, CorpusCounts)> = if mode == Mode::Full && !skip_corpus {
+        CORPUS_PROFILES
+            .iter()
+            .map(|p| {
+                (
+                    p.profile,
+                    corpus_counts(&corpus_report_dir(&g.target, p.profile)),
+                )
+            })
+            .collect()
     } else {
-        None
+        Vec::new()
     };
-    let summary = render_summary(&g, mode, started.elapsed(), corpus.as_ref());
+    let summary = render_summary(&g, mode, started.elapsed(), &corpus);
     println!("\n{summary}");
     if mode == Mode::Full {
         let path = g.target.join("gate-report.md");
@@ -275,8 +311,12 @@ fn deny_inputs_changed(root: &Path) -> Option<bool> {
     Some(!changed.trim().is_empty())
 }
 
-fn corpus_report_dir(target: &Path) -> PathBuf {
-    target.join("gate-corpus")
+fn corpus_report_dir(target: &Path, profile: &str) -> PathBuf {
+    target.join("gate-corpus").join(profile)
+}
+
+fn corpus_step_name(profile: &str) -> String {
+    format!("small corpus tier (dive, {profile} profile, vs baseline)")
 }
 
 fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
@@ -298,7 +338,9 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
             g.skip(name, "release build failed");
         }
         if !skip_corpus {
-            g.skip("small corpus tier", "release build failed");
+            for p in CORPUS_PROFILES {
+                g.skip(&corpus_step_name(p.profile), "release build failed");
+            }
         }
         return;
     }
@@ -343,23 +385,30 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
     );
     g.run("cm1 gate (1, 4, 8 workers)", cm1);
     g.run("validation-smoke gate (1, 4, 8 workers)", smoke);
-    if skip_corpus {
-        g.skip("small corpus tier", "--skip-corpus");
-        return;
+    for p in CORPUS_PROFILES {
+        let name = corpus_step_name(p.profile);
+        if skip_corpus {
+            g.skip(&name, "--skip-corpus");
+            continue;
+        }
+        let report_dir = corpus_report_dir(&g.target, p.profile);
+        // Stale reports would be counted as this run's.
+        let _ = std::fs::remove_dir_all(&report_dir);
+        let mut corpus = Command::new(&harness);
+        corpus
+            .current_dir(&g.root)
+            .arg("run")
+            .args(CORPUS_ARGS)
+            .args(["--impl-profile", p.profile])
+            .args(p.extra)
+            .arg("--baseline")
+            .arg(g.root.join(p.baseline))
+            .arg("--dive-bin")
+            .arg(&dive)
+            .arg("--report-dir")
+            .arg(&report_dir);
+        g.run(&name, corpus);
     }
-    let report_dir = corpus_report_dir(&g.target);
-    // Stale reports would be counted as this run's.
-    let _ = std::fs::remove_dir_all(&report_dir);
-    let mut corpus = Command::new(&harness);
-    corpus
-        .current_dir(&g.root)
-        .arg("run")
-        .args(CORPUS_ARGS)
-        .arg("--dive-bin")
-        .arg(&dive)
-        .arg("--report-dir")
-        .arg(&report_dir);
-    g.run("small corpus tier (dive, tlc profile)", corpus);
 }
 
 /// Outcome counts summed over the harness report(s) in `dir`.
@@ -404,7 +453,12 @@ fn fmt_duration(d: Duration) -> String {
     }
 }
 
-fn render_summary(g: &Gate, mode: Mode, total: Duration, corpus: Option<&CorpusCounts>) -> String {
+fn render_summary(
+    g: &Gate,
+    mode: Mode,
+    total: Duration,
+    corpus: &[(&str, CorpusCounts)],
+) -> String {
     let head = crate::run_capture(Command::new("git").current_dir(&g.root).args([
         "rev-parse",
         "--short",
@@ -438,45 +492,52 @@ fn render_summary(g: &Gate, mode: Mode, total: Duration, corpus: Option<&CorpusC
             fmt_duration(r.duration)
         );
     }
-    match corpus {
-        None => {}
-        Some(Err(why)) => {
-            let _ = writeln!(out, "\nSmall corpus tier: no counts ({why}).");
-        }
-        Some(Ok(counts)) => {
-            out.push_str("\nSmall corpus tier (`dive`, tlc profile; examples, probes, validation-smoke):\n\n");
-            out.push_str("| Scope | agree | agree-pending-trace-validation | unsupported | disagree | timeout | oracle-error | other |\n|---|---|---|---|---|---|---|---|\n");
-            for scope in ["models", "modules"] {
-                let get = |name: &str| {
-                    counts
-                        .get(&(scope.to_owned(), name.to_owned()))
-                        .copied()
-                        .unwrap_or(0)
-                };
-                let named = [
-                    "agree",
-                    "agree-pending-trace-validation",
-                    "unsupported",
-                    "disagree",
-                    "timeout",
-                    "oracle-error",
-                ];
-                let other: u64 = counts
-                    .iter()
-                    .filter(|((s, o), _)| s == scope && !named.contains(&o.as_str()))
-                    .map(|(_, n)| n)
-                    .sum();
+    for (profile, counts) in corpus {
+        let counts = match counts {
+            Err(why) => {
                 let _ = writeln!(
                     out,
-                    "| {scope} | {} | {} | {} | {} | {} | {} | {other} |",
-                    get("agree"),
-                    get("agree-pending-trace-validation"),
-                    get("unsupported"),
-                    get("disagree"),
-                    get("timeout"),
-                    get("oracle-error"),
+                    "\nSmall corpus tier, {profile} profile: no counts ({why})."
                 );
+                continue;
             }
+            Ok(counts) => counts,
+        };
+        let _ = writeln!(
+            out,
+            "\nSmall corpus tier (`dive`, {profile} profile, 1 worker; examples, probes, validation-smoke, configured-temporal-operators):\n"
+        );
+        out.push_str("| Scope | agree | agree-pending-trace-validation | unsupported | disagree | timeout | oracle-error | other |\n|---|---|---|---|---|---|---|---|\n");
+        for scope in ["models", "modules"] {
+            let get = |name: &str| {
+                counts
+                    .get(&(scope.to_owned(), name.to_owned()))
+                    .copied()
+                    .unwrap_or(0)
+            };
+            let named = [
+                "agree",
+                "agree-pending-trace-validation",
+                "unsupported",
+                "disagree",
+                "timeout",
+                "oracle-error",
+            ];
+            let other: u64 = counts
+                .iter()
+                .filter(|((s, o), _)| s == scope && !named.contains(&o.as_str()))
+                .map(|(_, n)| n)
+                .sum();
+            let _ = writeln!(
+                out,
+                "| {scope} | {} | {} | {} | {} | {} | {} | {other} |",
+                get("agree"),
+                get("agree-pending-trace-validation"),
+                get("unsupported"),
+                get("disagree"),
+                get("timeout"),
+                get("oracle-error"),
+            );
         }
     }
     out
@@ -514,7 +575,12 @@ mod tests {
             results: Vec::new(),
             keep_going: true,
         };
-        let summary = render_summary(&gate, Mode::Full, Duration::from_secs(61), Some(&counts));
+        let summary = render_summary(
+            &gate,
+            Mode::Full,
+            Duration::from_secs(61),
+            &[("tlc", counts)],
+        );
         assert!(
             summary.contains("| models | 6 | 0 | 2 | 0 | 0 | 0 | 4 |"),
             "{summary}"
