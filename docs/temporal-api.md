@@ -5,8 +5,8 @@ and otherwise eligible default resident-memory settings also select the existing
 final analyzer. `TemporalMode::Ordinary` remains the request default. The actual
 bound role split retains an ordinary safety result on schema 1 or performs final
 temporal analysis on schema 2, with one startup binding and separate independent
-validation. Ordinary dive-profile requests keep their temporal refusal.
-See [ordinary TLC-profile checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
+validation, in both profiles.
+See [ordinary checking](user/temporal.md#ordinary-checking)
 for options, physical exits, reports and limits. Explicit `FinalShort` behavior
 and its mixed-profile label are unchanged; this adds no periodic scheduler.
 
@@ -143,9 +143,8 @@ rustdoc; the existing final/short CLI example below exercises the file default.
 This API uses final checking and deterministic short-lasso selection. Passing
 `CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
-It does not replace the strict TLC conformance path. Eligible ordinary TLC-profile
-`dive check` requests reuse this backend; the dive profile retains its ordinary
-temporal refusal unless final/short checking is explicitly selected.
+It does not replace the strict TLC conformance path. Eligible ordinary
+`dive check` requests reuse this backend in both profiles.
 TLC's exact lasso is not reproduced in any mode (ADR 0082); `--lasso tlc` is a
 usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify`
 reproduces TLC's liveness formula refusals (errors 2213 and 2214) for a later

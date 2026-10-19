@@ -18,6 +18,12 @@
   profiles against them. Run records now carry the error class and violated
   property.
 
+- Ordinary `dive check` in the default profile now checks eligible temporal
+  properties with the bounded final analyzer and independent lasso validation,
+  as `--compat=tlc` already did, instead of refusing them. Reports record
+  profile `dive` and `lncheck: final`; the deterministic periodic schedule
+  (D-014) remains planned.
+
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
   fallback errors are preserved.
