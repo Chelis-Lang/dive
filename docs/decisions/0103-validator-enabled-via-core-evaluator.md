@@ -87,6 +87,19 @@ and warm replay must agree (`replay_verdict_does_not_depend_on_cache_warmth`
 and `warmed_same_owned_scopes_do_not_supply_replay_truth` in
 `crates/dive-api/tests/trace_composition.rs`).
 
+`enabled::enabled` keeps the composition refusal for its public callers too,
+including `ENABLED` and `WF`/`SF` inside `temporal::evaluate_lasso`, which run
+without a replay host. Each search installs a host that forwards to the one
+installed before, refuses action composition
+(`COMPOSITION_UNSUPPORTED`, the same feature `[][A]_x` and replay report) and,
+unless that host already has a replay cache domain, uses a fresh cache domain
+of its own. The checker's `cdot` successor enumeration would otherwise decide
+`ENABLED ((x'=1) \cdot (x'=2))` (it returned `TRUE`) while `[][A]_x` and replay
+refuse the same action. This is a refusal, not a decision TLC disagrees with:
+deciding composition `ENABLED` would need its own TLC-backed control and is not
+part of this decision (`public_enabled_and_lasso_predicates_refuse_shared_composition`
+and `public_enabled_does_not_depend_on_cache_warmth`).
+
 Public typed states (`dive_trace::validate`, `temporal::evaluate_lasso`,
 `enabled::enabled`) are checked before evaluation for foreign names and opaque
 deferred sets as before, and now also for sets, records and functions sorted in

@@ -921,7 +921,7 @@ pub(crate) struct TraceHost {
 }
 
 /// A cache domain no other replay host has used (0 is ordinary evaluation's).
-fn next_cache_domain() -> u64 {
+pub(crate) fn next_cache_domain() -> u64 {
     static NEXT: AtomicU64 = AtomicU64::new(1);
     NEXT.fetch_add(1, Ordering::Relaxed)
 }

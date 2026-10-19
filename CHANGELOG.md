@@ -32,7 +32,9 @@
   `dive_trace::exists` API is replaced by `dive_trace::enabled::enabled`.
   Replay reuses only lazy values it computed itself (its own cache domain), so
   a value cached by ordinary evaluation, for example through action
-  composition, never becomes a validation verdict. Public typed states sorted
+  composition, never becomes a validation verdict. `enabled::enabled`, and
+  `ENABLED`, `WF` and `SF` in `temporal::evaluate_lasso`, refuse action
+  composition by name as replay does. Public typed states sorted
   in the other profile's value order are refused with `DIVE-V0043`. The
   `fairness-replay` corpus adds Oyster's weak and strong pilot monitors.
 

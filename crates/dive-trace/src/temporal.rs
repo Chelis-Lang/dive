@@ -142,6 +142,20 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
     .check_atom_context(pred.expr, &pred.scope)
 }
 
+/// An `ENABLED` refusal as a temporal refusal. Action composition keeps its
+/// feature name, so `ENABLED A` and `[][A]_x` refuse the same composition
+/// alike ([`crate::COMPOSITION_UNSUPPORTED`]).
+fn enabled_refusal(e: &crate::enabled::EnabledError, context: &str) -> TemporalError {
+    match e {
+        crate::enabled::EnabledError::Unsupported(feature)
+            if feature == crate::COMPOSITION_UNSUPPORTED =>
+        {
+            TemporalError::Unsupported(feature.clone())
+        }
+        _ => TemporalError::Unsupported(format!("{context}{e}")),
+    }
+}
+
 /// Entering `INSTANCE ... WITH` evaluates its strict bindings eagerly:
 /// refuse a binding from another model's context or with side effects
 /// before entering. Names it creates are refused after evaluation
@@ -289,7 +303,7 @@ impl Word<'_> {
                 .iter()
                 .map(|state| {
                     enabled(self.model, &Pred::new(*action, scope.clone()), None, state)
-                        .map_err(|e| TemporalError::Unsupported(e.to_string()))
+                        .map_err(|e| enabled_refusal(&e, ""))
                 })
                 .collect(),
             Expr::Always(e) | Expr::Eventually(e) => {
@@ -410,7 +424,7 @@ impl Word<'_> {
                 .map(|state| {
                     enabled(self.model, &action, Some(sub), state)
                         .map(|enabled| !enabled)
-                        .map_err(|e| TemporalError::Unsupported(format!("fairness {e}")))
+                        .map_err(|e| enabled_refusal(&e, "fairness "))
                 })
                 .collect::<Result<_, _>>()?;
             // WF = GF(~enabled) OR GF(occurs); SF = FG(~enabled) OR GF(occurs).

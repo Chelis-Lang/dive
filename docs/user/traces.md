@@ -115,7 +115,9 @@ Action composition (`A \cdot B`) currently has no independent intermediate-state
 validator. A reached composition therefore yields `unsupported`, including
 when the workspace enables the checker enumerator. Untaken composition branches
 do not run. The lasso API conservatively refuses composition in its predicate
-contexts. Checker composition support does not establish trace-validation
+contexts, and `dive_trace::enabled::enabled` (with `ENABLED`, `WF` and `SF` in
+the lasso API) refuses a search that reaches a composition with the same named
+feature. Checker composition support does not establish trace-validation
 agreement.
 
 Replay evaluates lazy arguments and functions with the evaluator's ordinary
