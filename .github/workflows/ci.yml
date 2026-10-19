@@ -6,6 +6,11 @@ name: ci
 # locally with `cargo xtask gate --full` before a PR, and in conformance.yml
 # on manual dispatch.
 #
+# `runs-on` reads the repository variable DIVE_CI_RUNNER (default
+# `ubuntu-latest`). Setting it to `dive-local` moves every job onto the
+# self-hosted runners described in docs/developer/ci.md, for example when hosted
+# minutes run out; the job names, and so the required checks, are unchanged.
+#
 # Push to main runs the same jobs. Branch protection is not strict, so a
 # merged PR can still meet a main it was never tested against; the push run
 # checks the merged result, and it is also the only run whose rust-cache
@@ -33,7 +38,7 @@ jobs:
   no-ai-authorship:
     # Required check name; must match `cargo xtask protect-main`.
     name: No AI authorship markers
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -63,7 +68,7 @@ jobs:
     # Required check name; must match `cargo xtask protect-main`.
     # Mirrored locally by `cargo xtask gate --fast`.
     name: Workspace gate
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 25
     env:
       # Line tables are not needed to run tests in CI, and the whole test
@@ -75,6 +80,8 @@ jobs:
         # The test inventory does not fit in the ~9 GB a hosted runner leaves
         # free after checkout (the linker dies with SIGBUS). Deleting unused
         # preinstalled SDKs frees ~15 GB; it runs while the job compiles.
+        # Hosted runners only: self-hosted runners have neither the SDKs nor sudo.
+        if: ${{ runner.environment == 'github-hosted' }}
         run: nohup sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc >/dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -129,7 +136,7 @@ jobs:
     # the committed TLC goldens. Never runs TLC. The whole CM1 list and the
     # validation-smoke corpus run in `cargo xtask gate --full`.
     name: Conformance gate
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     env:
       DIVE_CACHE_DIR: ${{ github.workspace }}/../dive-cache

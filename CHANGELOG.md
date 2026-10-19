@@ -21,6 +21,9 @@
   scanned. Only definitions outside the standard modules, and what they reach,
   now count. `SpanningTree/SpanTreeTest4Nodes` now agrees in the TLC profile.
 
+- CI jobs can run on self-hosted `dive-local` runners by setting the
+  repository variable `DIVE_CI_RUNNER` (see `docs/developer/ci.md`).
+
 - The `dive` and `tlc` binaries use mimalloc as their global allocator, and
   release builds use fat link-time optimisation with one codegen unit (ADR 0102).
   Results are unchanged; single-worker checking executes about 15–17% fewer
