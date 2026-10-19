@@ -130,6 +130,10 @@ impl Value {
                     }
                 },
                 Self::Set(set) => {
+                    // An opaque deferred set is refused as such whatever its order.
+                    if matches!(set.repr(), SetRepr::Deferred(_)) {
+                        return Err(NameError::OpaqueDeferred);
+                    }
                     if order.is_some_and(|o| set.order() != o) {
                         return Err(NameError::ForeignOrder);
                     }
