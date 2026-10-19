@@ -376,6 +376,19 @@ fn check_refuses_and_rejects_with_distinct_codes() {
         "--config",
         &cfg.to_string_lossy(),
     ]);
+    assert_eq!(
+        out.status.code(),
+        Some(13),
+        "eligible ordinary temporal check"
+    );
+    // An option outside the final temporal route keeps the named refusal.
+    let out = dive(&[
+        "check",
+        &tla.to_string_lossy(),
+        "--config",
+        &cfg.to_string_lossy(),
+        "--sequential",
+    ]);
     assert_eq!(out.status.code(), Some(3));
     assert!(String::from_utf8_lossy(&out.stdout).contains("unsupported: temporal"));
     let bad = temp_file("CheckBad.tla", "---- MODULE CheckBad ----\nx == y\n====\n");

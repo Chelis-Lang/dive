@@ -72,12 +72,19 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
             serde_json::from_slice::<serde_json::Value>(&explicit.stdout)?["options"]["profile"],
             "tlc+overrides"
         );
-        let refused = run(&file, "dive", 1, &[])?;
-        assert_eq!(refused.status.code(), Some(3));
-        assert_eq!(
-            serde_json::from_slice::<serde_json::Value>(&refused.stdout)?["schema_version"],
-            1
-        );
+        let native = run(&file, "dive", 1, &[])?;
+        assert_eq!(native.status.code(), Some(status));
+        let native: serde_json::Value = serde_json::from_slice(&native.stdout)?;
+        assert_eq!(native["schema_version"], 2);
+        assert_eq!(native["options"]["profile"], "dive");
+        assert_eq!(native["options"]["lncheck"], "final");
+        if status == 13 {
+            assert_eq!(native["counterexample"]["validation"], "valid");
+        }
+        if status != 255 {
+            assert_eq!(native["execution"]["exhausted"], true);
+            assert_eq!(native["statistics"]["distinct"], 3);
+        }
         let excluded = run(&file, "tlc", 1, &["--sequential"])?;
         assert_eq!(excluded.status.code(), Some(3));
         assert_eq!(

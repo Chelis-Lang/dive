@@ -92,8 +92,8 @@ pub enum Store {
 /// Temporal checking selected explicitly by a caller.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum TemporalMode {
-    /// Ordinary checking. Eligible TLC-profile temporal requests use bounded
-    /// final analysis; the dive profile retains its temporal refusals.
+    /// Ordinary checking. Eligible temporal requests use bounded final
+    /// analysis in both profiles; other temporal requests keep named refusals.
     #[default]
     Ordinary,
     /// Bounded final analysis with independently validated short lassos.
@@ -153,8 +153,8 @@ pub struct CheckRequest {
     pub chaos: Option<u64>,
     /// Explicit bounded final-only temporal checking. `FinalShort` changes TLC's
     /// witness selection and labels TLC profiles `tlc+overrides`.
-    /// `Ordinary` also selects final analysis for eligible TLC-profile temporal
-    /// roles, without changing the dive profile's ordinary refusals.
+    /// `Ordinary` also selects final analysis for eligible temporal roles in
+    /// either profile, reporting the request's own profile.
     pub temporal: TemporalMode,
 }
 
@@ -456,7 +456,6 @@ fn check_backend(
     temporal: TemporalMode,
 ) -> Phase {
     if temporal == TemporalMode::Ordinary
-        && options.profile == Profile::Tlc
         && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options)
     {
         return match result {

@@ -232,3 +232,17 @@ fields = []
 exit_code_pair = { expected = 12, actual = 10 }
 justification = "Established native property-violation status (D-008/D-023); previously false agreement omitted physical numeric exit comparison"
 link = "docs/divergences.md#d-023-truthful-default-numeric-exit-accounting"
+
+# D-022: action composition with its TLA+ meaning (owner-approved default).
+# TLC with -Dtlc2.tool.impl.Tool.cdot=true counts each composition's
+# intermediate states as generated; the default profile counts only composed
+# successors. Verdict, distinct states, queue and depth still agree.
+
+[[divergence]]
+id = "d022-finitemonotonic-mcreplicatedlog"
+pattern = "specifications/FiniteMonotonic/MCReplicatedLog.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["counts.states_generated"]
+justification = "Action composition with its TLA+ meaning (D-022) generates 11617 states without TLC's composition intermediates (TLC: 17425); Convergence holds and the 1363 distinct states and depth 13 agree"
+link = "docs/divergences.md#registry"

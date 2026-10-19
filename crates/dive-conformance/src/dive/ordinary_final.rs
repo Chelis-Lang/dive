@@ -1,4 +1,4 @@
-//! Structural transport for ordinary TLC-profile completed final reports.
+//! Structural transport for ordinary completed final reports in either profile.
 //! Independent model replay remains the pipeline's authority, never these fields.
 
 use serde_json::Value;
@@ -16,15 +16,18 @@ pub(super) fn read(
     physical_exit: Option<i32>,
 ) -> Result<Fields, String> {
     let options = &value["options"];
-    if !tlc_profile
-        || options["profile"] != "tlc"
+    let profile = if tlc_profile { "tlc" } else { "dive" };
+    if options["profile"] != profile
         || options["lncheck"] != "final"
         || options["lasso"] != "short"
         || options["exit_codes"] != "tlc"
         || value["exit_code"].as_i64() != physical_exit.map(i64::from)
         || physical_exit.is_none()
     {
-        return Err("schema 2 is not an ordinary TLC final report with its physical status".into());
+        return Err(
+            "schema 2 is not an ordinary final report of this profile with its physical status"
+                .into(),
+        );
     }
     let verdict = value["verdict"]
         .as_str()
