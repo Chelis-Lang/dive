@@ -100,7 +100,7 @@ effects annotations; it does not re-prove them.
 
 Whether a state has a successor is decided by the core evaluator's `ENABLED`,
 the same search TLC's `Tool.enabled` performs and the checker uses
-([ADR 0102](../decisions/0102-validator-enabled-via-core-evaluator.md)). This
+([ADR 0103](../decisions/0103-validator-enabled-via-core-evaluator.md)). This
 covers `ENABLED` inside any predicate the validator evaluates, deadlock endings
 (`ENABLED Next` on the last state) and weak or strong fairness on a lasso. The
 validator still replays and checks every state and step of the counterexample

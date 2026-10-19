@@ -1,5 +1,5 @@
 //! `ENABLED` and successor existence on a given state, decided by the core
-//! evaluator's `ENABLED` (ADR 0102). The validator replays and checks the
+//! evaluator's `ENABLED` (ADR 0103). The validator replays and checks the
 //! counterexample's states and steps itself; whether an action has some
 //! successor is the evaluator's TLC-exact search, the same semantics the
 //! checker uses for `ENABLED`.

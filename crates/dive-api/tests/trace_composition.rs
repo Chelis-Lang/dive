@@ -189,7 +189,7 @@ fn warmed_same_owned_scopes_never_validate_a_false_step() {
                     m.validate_context().expect("same-owned valid model");
                     let result = dive_trace::validate_doc(&m, &doc(x), &[]).0.validation;
                     // A value the core evaluator already cached is reused, as
-                    // TLC's LazyValue is (ADR 0102); otherwise replay reaches
+                    // TLC's LazyValue is (ADR 0103); otherwise replay reaches
                     // the composition and refuses it. A false step never
                     // validates.
                     if !warm {

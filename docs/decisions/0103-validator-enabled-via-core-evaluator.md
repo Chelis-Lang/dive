@@ -1,4 +1,4 @@
-# 0102: The trace validator decides ENABLED with the core evaluator
+# 0103: The trace validator decides ENABLED with the core evaluator
 
 - **Status:** accepted (owner approval, 2026-10-19)
 - **Date:** 2026-10-19

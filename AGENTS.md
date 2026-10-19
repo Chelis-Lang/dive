@@ -92,7 +92,7 @@ scripts/        small helpers used by hooks and CI
 dependency edges; `cargo xtask check-layering` enforces it. `dive-trace`, the
 independent trace validator, must not depend on `dive-check`, `dive-liveness`,
 `dive-sim` or `dive-store`. It shares the core evaluator, including `ENABLED`
-(ADR 0102). `dive-model` (ADR 0013 §8) is shared by every backend.
+(ADR 0103). `dive-model` (ADR 0013 §8) is shared by every backend.
 
 ## Rust conventions
 

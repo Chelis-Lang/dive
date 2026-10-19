@@ -12,7 +12,7 @@ repository.workspace = true
 # The successor enumerator (`dive_eval::next`, ADR 0014 §3), which also
 # decides `ENABLED`. Without it, `ENABLED` (which searches for a successor) is
 # refused. Every consumer that decides `ENABLED`, the trace validator included
-# (ADR 0102), enables it.
+# (ADR 0103), enables it.
 default = ["enumerate"]
 # The dev-only model harness needs action fields when this feature is on;
 # standalone core regressions must not enable it through a dev dependency.

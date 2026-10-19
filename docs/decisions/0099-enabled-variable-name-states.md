@@ -1,6 +1,6 @@
 # 0099: Name-addressed existential successor states
 
-- **Status:** superseded by 0102
+- **Status:** superseded by 0103
 - **Date:** 2026-10-16
 
 ## Context

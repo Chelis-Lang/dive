@@ -13,7 +13,7 @@
 //! by-construction mutant of it must be rejected (negative controls).
 //!
 //! **Deadlock.** The core evaluator's `ENABLED` of the next-state relation
-//! decides deadlock endings (ADR 0102). When it cannot decide, the harness
+//! decides deadlock endings (ADR 0103). When it cannot decide, the harness
 //! requires every other check to pass and the final state to equal the
 //! golden's deadlocked state. Refusal never proves absence.
 

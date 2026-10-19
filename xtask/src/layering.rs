@@ -7,7 +7,7 @@
 //! `dive-sim` or `dive-store`, so the trace validator stays a genuine second
 //! check. `dive-model`, the binding stage, sits between the evaluator and
 //! every backend (ADR 0013 §8). `dive-trace` shares the core evaluator,
-//! including its `ENABLED` search (ADR 0102). Changing this table is an
+//! including its `ENABLED` search (ADR 0103). Changing this table is an
 //! architectural decision: record an ADR.
 
 /// `(crate, internal crates it may depend on directly)`.

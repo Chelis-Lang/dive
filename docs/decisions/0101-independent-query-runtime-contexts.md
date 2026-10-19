@@ -1,6 +1,6 @@
 # 0101: Independent query runtime contexts and weak function memo ownership
 
-- Status: superseded by 0102
+- Status: superseded by 0103
 - Date: 2026-10-17
 
 ## Context

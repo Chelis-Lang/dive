@@ -6,7 +6,7 @@
 //! of states. Private register-dependent Init delegates to an independent
 //! single-candidate operation from empty slots. Whether a state has a
 //! successor (a deadlock ending, `ENABLED`, fairness) is the core evaluator's
-//! `ENABLED` search ([`crate::enabled`], ADR 0102).
+//! `ENABLED` search ([`crate::enabled`], ADR 0103).
 //!
 //! **Random draws** (`RandomElement`, the `Randomization` operators) depend
 //! on the checking run's stream position, which only the successor
@@ -151,7 +151,7 @@ pub struct Report {
 }
 
 /// The reason given for a deadlock ending (ADR 0016, amendment 1).
-pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0102)";
+pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0103)";
 
 /// The reason given when the trace or a check created a name after the
 /// model was bound, under an order where names compare by encounter.

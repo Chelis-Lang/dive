@@ -385,7 +385,7 @@ Elevator model or a corpus gain.
 
 The trace validator checks the original `Next` and closing edge on the word and
 decides each query with the core evaluator's `ENABLED`
-([ADR 0102](../decisions/0102-validator-enabled-via-core-evaluator.md)). A
+([ADR 0103](../decisions/0103-validator-enabled-via-core-evaluator.md)). A
 reached query error is reported even when a later guard is false; ordinary
 Boolean short circuit leaves unreached errors unreached. Use the dedicated
 `RECOMMENDED_STACK` thread contract when calling trace validation directly from

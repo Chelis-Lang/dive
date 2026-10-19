@@ -1,6 +1,6 @@
 # 0016: Trace validator independence (`dive-trace`)
 
-- **Status:** accepted; §2's `enumerate` exclusion and Amendment 2 superseded by 0102
+- **Status:** accepted; §2's `enumerate` exclusion and Amendment 2 superseded by 0103
 - **Date:** 2026-10-08
 
 ## Context
@@ -534,7 +534,7 @@ domains retain EC2176 with a static diagnostic, avoiding nested-value formatting
 
 ## Amendment 6: ENABLED through the core evaluator (2026-10-19)
 
-ADR 0102 supersedes §2's exclusion of the `enumerate` feature and Amendment 2's
+ADR 0103 supersedes §2's exclusion of the `enumerate` feature and Amendment 2's
 finite-cover search. The validator decides `ENABLED`, deadlock and fairness
 with the core evaluator's `ENABLED`; it still replays and checks every state
 and step of the counterexample, and still shares nothing on the search path.

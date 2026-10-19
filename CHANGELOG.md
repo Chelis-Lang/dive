@@ -26,7 +26,7 @@
 
 - Trace validation decides `ENABLED`, deadlock endings and weak or strong
   fairness with the core evaluator's `ENABLED` instead of a separate
-  finite-cover search (ADR 0102). Fairness whose action guards a primed read,
+  finite-cover search (ADR 0103). Fairness whose action guards a primed read,
   such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, now validates instead of
   refusing with `DIVE-T0020 ... no finite cover` (issue #321). The
   `dive_trace::exists` API is replaced by `dive_trace::enabled::enabled`.
