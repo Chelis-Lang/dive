@@ -868,23 +868,39 @@ impl Fcn {
 // Iterative drop
 // ---------------------------------------------------------------------------------
 
+/// Queues a child that would be freed with its parent; drops any other child
+/// (a scalar, or a compound value shared elsewhere) in place, in O(1).
+fn queue(out: &mut Vec<Value>, v: Value) {
+    if frees_compound(&v) {
+        out.push(v);
+    }
+}
+
 impl SetInner {
     fn take_children(&mut self, out: &mut Vec<Value>) {
         match std::mem::replace(&mut self.repr, SetRepr::Enum) {
-            SetRepr::Raw(e) | SetRepr::Product(e) => out.extend(e.into_vec()),
-            SetRepr::Subset(v) | SetRepr::Seq(v) => out.push(v),
-            SetRepr::FcnSet(d, r) => {
-                out.push(d);
-                out.push(r);
+            SetRepr::Raw(e) | SetRepr::Product(e) => {
+                for v in e {
+                    queue(out, v);
+                }
             }
-            SetRepr::RcdSet(fs) => out.extend(fs.into_vec().into_iter().map(|(_, v)| v)),
+            SetRepr::Subset(v) | SetRepr::Seq(v) => queue(out, v),
+            SetRepr::FcnSet(d, r) => {
+                queue(out, d);
+                queue(out, r);
+            }
+            SetRepr::RcdSet(fs) => {
+                for (_, v) in fs {
+                    queue(out, v);
+                }
+            }
             other => self.repr = other,
         }
         if let Some(mut e) = self.elems.take()
             && let Some(slice) = Arc::get_mut(&mut e)
         {
             for v in slice.iter_mut() {
-                out.push(std::mem::replace(v, Value::FALSE));
+                queue(out, std::mem::replace(v, Value::FALSE));
             }
         }
     }
@@ -893,12 +909,20 @@ impl SetInner {
 impl FcnInner {
     fn take_children(&mut self, out: &mut Vec<Value>) {
         match std::mem::replace(&mut self.repr, FcnRepr::Tuple(Box::default())) {
-            FcnRepr::Tuple(e) => out.extend(e.into_vec()),
-            FcnRepr::Record(fs) => out.extend(fs.into_vec().into_iter().map(|(_, v)| v)),
+            FcnRepr::Tuple(e) => {
+                for v in e {
+                    queue(out, v);
+                }
+            }
+            FcnRepr::Record(fs) => {
+                for (_, v) in fs {
+                    queue(out, v);
+                }
+            }
             FcnRepr::General(ps) => {
-                for (d, v) in ps.into_vec() {
-                    out.push(d);
-                    out.push(v);
+                for (d, v) in ps {
+                    queue(out, d);
+                    queue(out, v);
                 }
             }
         }
@@ -925,8 +949,96 @@ fn drain(mut stack: Vec<Value>) {
     }
 }
 
+/// Whether dropping this handle would free a compound value, which the iterative
+/// drop must then take apart. Scalars and shared compound values drop in O(1)
+/// without recursion.
+fn frees_compound(v: &Value) -> bool {
+    match v {
+        Value::Set(s) => Arc::strong_count(&s.0) == 1,
+        Value::Fcn(f) => Arc::strong_count(&f.0) == 1,
+        _ => false,
+    }
+}
+
+impl SetInner {
+    /// Whether any child this set owns would be freed with it (see
+    /// [`frees_compound`]).
+    fn frees_compound_child(&self) -> bool {
+        let in_repr = match &self.repr {
+            SetRepr::Raw(e) | SetRepr::Product(e) => e.iter().any(frees_compound),
+            SetRepr::Subset(v) | SetRepr::Seq(v) => frees_compound(v),
+            SetRepr::FcnSet(d, r) => frees_compound(d) || frees_compound(r),
+            SetRepr::RcdSet(fs) => fs.iter().any(|(_, v)| frees_compound(v)),
+            _ => false,
+        };
+        in_repr
+            || self
+                .elems
+                .get()
+                .is_some_and(|e| Arc::strong_count(e) == 1 && e.iter().any(frees_compound))
+    }
+}
+
+impl FcnInner {
+    /// Whether any child this function owns would be freed with it (see
+    /// [`frees_compound`]).
+    fn frees_compound_child(&self) -> bool {
+        match &self.repr {
+            FcnRepr::Tuple(e) => e.iter().any(frees_compound),
+            FcnRepr::Record(fs) => fs.iter().any(|(_, v)| frees_compound(v)),
+            FcnRepr::General(ps) => ps
+                .iter()
+                .any(|(d, v)| frees_compound(d) || frees_compound(v)),
+        }
+    }
+}
+
+// Dropping is iterative only where it must be. A value whose children would
+// all survive it (scalars, or compound values shared elsewhere) drops its
+// children in place. Otherwise the first `NATIVE_DROP_DEPTH` nested levels
+// are freed by native recursion, and deeper ones through a work list, so
+// nesting depth never becomes unbounded recursion depth. A child whose last
+// other owner drops it concurrently is freed by that child's own `Drop`,
+// which applies the same rules.
+/// How many compound values one thread frees by native recursion before it
+/// switches to the work list. Small enough that the recursion is cheap on any
+/// worker stack; deep enough that ordinary values never need the work list.
+const NATIVE_DROP_DEPTH: u32 = 32;
+
+std::thread_local! {
+    static DROP_DEPTH: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+}
+
+/// A level of bounded native recursion while dropping (see
+/// [`NATIVE_DROP_DEPTH`]); none is available beyond the bound.
+struct NativeDrop;
+
+impl NativeDrop {
+    fn enter() -> Option<Self> {
+        let depth = DROP_DEPTH.get();
+        (depth < NATIVE_DROP_DEPTH).then(|| {
+            DROP_DEPTH.set(depth + 1);
+            Self
+        })
+    }
+}
+
+impl Drop for NativeDrop {
+    fn drop(&mut self) {
+        DROP_DEPTH.set(DROP_DEPTH.get().saturating_sub(1));
+    }
+}
+
 impl Drop for SetInner {
     fn drop(&mut self) {
+        if !self.frees_compound_child() {
+            return;
+        }
+        if let Some(_level) = NativeDrop::enter() {
+            drop(std::mem::replace(&mut self.repr, SetRepr::Enum));
+            drop(self.elems.take());
+            return;
+        }
         let mut stack = Vec::new();
         self.take_children(&mut stack);
         drain(stack);
@@ -935,6 +1047,16 @@ impl Drop for SetInner {
 
 impl Drop for FcnInner {
     fn drop(&mut self) {
+        if !self.frees_compound_child() {
+            return;
+        }
+        if let Some(_level) = NativeDrop::enter() {
+            drop(std::mem::replace(
+                &mut self.repr,
+                FcnRepr::Tuple(Box::default()),
+            ));
+            return;
+        }
         let mut stack = Vec::new();
         self.take_children(&mut stack);
         drain(stack);
