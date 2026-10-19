@@ -280,8 +280,6 @@ fn workspace_steps(g: &mut Gate, mode: Mode) {
     doc.env("RUSTDOCFLAGS", "-D warnings");
     g.run("rustdoc", doc);
     g.run_fn("crate layering", crate::check_layering);
-    let trace = g.cargo(&["build", "-p", "dive-trace", "--locked"]);
-    g.run("dive-trace standalone", trace);
     if deny_inputs_changed(&g.root) == Some(false) {
         g.skip("cargo-deny", "Cargo.lock and deny.toml unchanged");
     } else {

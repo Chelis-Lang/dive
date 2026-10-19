@@ -4,8 +4,9 @@
 //! the core evaluator (`Model::eval`): `Init` as a state predicate on the
 //! first state, the next-state relation as an action predicate on each pair
 //! of states. Private register-dependent Init delegates to an independent
-//! single-candidate operation from empty slots. The successor enumerator is
-//! not compiled into this crate (ADR 0016 §2).
+//! single-candidate operation from empty slots. Whether a state has a
+//! successor (a deadlock ending, `ENABLED`, fairness) is the core evaluator's
+//! `ENABLED` search ([`crate::enabled`], ADR 0102).
 //!
 //! **Random draws** (`RandomElement`, the `Randomization` operators) depend
 //! on the checking run's stream position, which only the successor
@@ -150,7 +151,7 @@ pub struct Report {
 }
 
 /// The reason given for a deadlock ending (ADR 0016, amendment 1).
-pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: the independent finite-cover check could not decide absence of successors; every other check passed (ADR 0016, amendment 1)";
+pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0102)";
 
 /// The reason given when the trace or a check created a name after the
 /// model was bound, under an order where names compare by encounter.
@@ -196,14 +197,11 @@ enum Goal {
 /// TLC reader uses it to compare interpretations of a lossy document.
 pub(crate) struct Run<'a> {
     model: &'a Model,
-    queries: crate::ordinary_queries::OrdinaryQueries,
     host: Arc<TraceHost>,
     /// The host installed before the run, restored after it.
     inner: Option<Arc<dyn Host>>,
     pub(crate) passed: u64,
     pub(crate) notes: BTreeSet<String>,
-    /// Concrete periodic predicates must obey the finite-binding entry bounds.
-    periodic: bool,
     private_init: bool,
     pub(crate) init_incomplete: bool,
 }
@@ -227,12 +225,10 @@ impl<'a> Run<'a> {
         model.evaluator.set_host(host.clone());
         Self {
             model,
-            queries: crate::ordinary_queries::OrdinaryQueries::new(model),
             host,
             inner,
             passed: 0,
             notes: BTreeSet::new(),
-            periodic: false,
             private_init: false,
             init_incomplete: false,
         }
@@ -242,12 +238,10 @@ impl<'a> Run<'a> {
         let inner = model.evaluator.replace_host(Some(host.clone()));
         Self {
             model,
-            queries: crate::ordinary_queries::OrdinaryQueries::new(model),
             host,
             inner,
             passed: 0,
             notes: BTreeSet::new(),
-            periodic: false,
             private_init: initial,
             init_incomplete: false,
         }
@@ -506,11 +500,10 @@ impl<'a> Run<'a> {
         }
         Ok(match goal {
             Goal::Deadlock => {
-                use crate::exists::{Decision, Limits, exists_successor};
                 if let Some(next) = &m.next {
-                    match exists_successor(m, next, &trace.states[last], None, Limits::default()) {
-                        Ok(Decision::Disabled) => None,
-                        Ok(Decision::Enabled { .. }) => {
+                    match crate::enabled::enabled(m, next, None, &trace.states[last]) {
+                        Ok(false) => None,
+                        Ok(true) => {
                             return Err(invalid(
                                 last,
                                 Check::Ending,
@@ -609,7 +602,6 @@ impl<'a> Run<'a> {
                     .map_err(|e| Stop::Unsupported(e.to_string()))?,
             ))?;
         }
-        self.periodic = true;
         Ok(())
     }
 
@@ -774,19 +766,6 @@ impl<'a> Run<'a> {
             ));
             return Ok(());
         }
-        if self.periodic
-            && ev
-                .scope(d)
-                .and_then(|scope| {
-                    ev.check_finite_data_bindings(&scope, m.ir.def(d).body, step, 4096)
-                })
-                .is_err()
-        {
-            self.notes.insert(format!(
-                "label `{name}` could not be evaluated on its own; not checked"
-            ));
-            return Ok(());
-        }
         let r = ev.eval_def(d, step);
         match r {
             Ok(Value::Bool(true)) => {
@@ -866,32 +845,7 @@ impl<'a> Run<'a> {
         self.host
             .level
             .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
-        if self.periodic
-            && m.ir
-                .node(pred.expr)
-                .effects
-                .contains(dive_ir::Effects::USES_ENABLED)
-        {
-            return crate::exists::boolean_pure(
-                m,
-                pred,
-                st,
-                crate::exists::Limits::default(),
-                4096,
-            )
-            .map_err(|e| Stop::Unsupported(e.to_string()));
-        }
-        if self.periodic {
-            m.evaluator
-                .check_finite_data_bindings(&pred.scope, pred.expr, st, 4096)
-                .map_err(|e| Stop::Unsupported(e.to_string()))?;
-        }
-        let evaluated = if self.periodic {
-            m.eval(pred, st)
-        } else {
-            self.queries.eval(pred, st)
-        };
-        match evaluated {
+        match m.eval(pred, st) {
             Ok(Value::Bool(b)) => Ok(b),
             Ok(v) => Err(invalid(
                 k,
@@ -1065,10 +1019,6 @@ impl Host for TraceHost {
             code: 0,
             message: COMPOSITION_UNSUPPORTED.to_owned(),
         })
-    }
-
-    fn reuse_expression_cache(&self) -> bool {
-        false
     }
 
     fn random(&self, op: StdOp, _args: &[Value], _ctx: Ctx) -> Option<Result<Value, HostError>> {

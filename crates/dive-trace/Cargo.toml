@@ -11,11 +11,10 @@ repository.workspace = true
 [dependencies]
 dive-ir.workspace = true
 dive-value.workspace = true
-# The successor enumerator stays off in both: the validator must never be able
-# to call it (ADR 0016 §2). `cargo xtask check-layering` and the standalone
-# `cargo build -p dive-trace` in the gate enforce this.
-dive-eval = { path = "../dive-eval", default-features = false }
-dive-model = { path = "../dive-model", default-features = false }
+# The core evaluator decides ENABLED and existential quantification with its
+# own search (ADR 0102), so the `enumerate` feature is on.
+dive-eval.workspace = true
+dive-model.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]

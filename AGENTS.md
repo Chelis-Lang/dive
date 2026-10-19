@@ -91,10 +91,8 @@ scripts/        small helpers used by hooks and CI
 **Layering.** `xtask/src/layering.rs` is the single table of permitted internal
 dependency edges; `cargo xtask check-layering` enforces it. `dive-trace`, the
 independent trace validator, must not depend on `dive-check`, `dive-liveness`,
-`dive-sim` or `dive-store`, and must build without `dive-eval`'s `enumerate`
-feature. The gate builds `dive-trace` standalone so feature unification cannot
-hide a violation (ADR 0016 §2). `dive-model` (ADR 0013 §8) is shared by every
-backend.
+`dive-sim` or `dive-store`. It shares the core evaluator, including `ENABLED`
+(ADR 0102). `dive-model` (ADR 0013 §8) is shared by every backend.
 
 ## Rust conventions
 
@@ -125,7 +123,6 @@ cargo nextest run --workspace --locked --profile ci   # excludes slow tests
 cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked
 cargo xtask check-layering
-cargo build -p dive-trace --locked              # standalone: no feature unification
 cargo deny --locked check                       # only when Cargo.lock or deny.toml changed
 ```
 

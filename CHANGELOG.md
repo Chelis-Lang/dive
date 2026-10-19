@@ -24,6 +24,13 @@
   profile `dive` and `lncheck: final`; the deterministic periodic schedule
   (D-014) remains planned.
 
+- Trace validation decides `ENABLED`, deadlock endings and weak or strong
+  fairness with the core evaluator's `ENABLED` instead of a separate
+  finite-cover search (ADR 0102). Fairness whose action guards a primed read,
+  such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, now validates instead of
+  refusing with `DIVE-T0020 ... no finite cover` (issue #321). The
+  `dive_trace::exists` API is replaced by `dive_trace::enabled::enabled`.
+
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
   fallback errors are preserved.

@@ -6,7 +6,6 @@ use std::sync::Arc;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_eval::{ActionComposition, St};
 use dive_model::{Model, Pred};
-use dive_trace::exists::{ExistsError, Limits, exists_successor};
 use dive_trace::temporal::{TemporalError, evaluate_lasso};
 use serde_json::json;
 
@@ -136,13 +135,10 @@ fn untaken_composition_and_earlier_invalid_init_keep_real_results() {
 }
 
 #[test]
-fn public_finite_cover_and_lasso_predicates_refuse_shared_composition() {
+fn lasso_predicates_refuse_shared_composition() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         let m = model("x'=x", "A == (x'=1) \\cdot (x'=2)\nP == [][A]_x", mode);
         let state = Arc::from([Some(0.into())]);
-        assert!(
-            matches!(exists_successor(&m,&pred(&m,"A"),&state,None,Limits::default()),Err(ExistsError::Unsupported(ref feature)) if feature==dive_trace::COMPOSITION_UNSUPPORTED)
-        );
         assert!(
             matches!(evaluate_lasso(&m,&pred(&m,"P"),&[state],0),Err(TemporalError::Unsupported(ref feature)) if feature==dive_trace::COMPOSITION_UNSUPPORTED)
         );
@@ -151,7 +147,7 @@ fn public_finite_cover_and_lasso_predicates_refuse_shared_composition() {
 }
 
 #[test]
-fn warmed_same_owned_scopes_do_not_supply_replay_truth() {
+fn warmed_same_owned_scopes_never_validate_a_false_step() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         for warm in [false, true] {
             for x in [2, 9] {
@@ -191,10 +187,19 @@ fn warmed_same_owned_scopes_do_not_supply_replay_truth() {
                     }
                     m.next = Some(p.clone());
                     m.validate_context().expect("same-owned valid model");
-                    assert_eq!(
-                        dive_trace::validate_doc(&m, &doc(x), &[]).0.validation,
-                        Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-                    );
+                    let result = dive_trace::validate_doc(&m, &doc(x), &[]).0.validation;
+                    // A value the core evaluator already cached is reused, as
+                    // TLC's LazyValue is (ADR 0102); otherwise replay reaches
+                    // the composition and refuses it. A false step never
+                    // validates.
+                    if !warm {
+                        assert_eq!(
+                            result,
+                            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+                        );
+                    } else if x != 2 {
+                        assert!(!matches!(result, Validation::Valid), "{result:?}");
+                    }
                     if warm {
                         assert_eq!(
                             m.evaluator

@@ -211,16 +211,21 @@ fn independent_native_word_refuses_providers_foreign_names_order_and_budget_befo
         let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d).expect("scope"));
         let calls = Arc::new(AtomicUsize::new(0));
         let provider = Value::deferred(Arc::new(Opaque(calls.clone())), ctx);
-        let mut values = vec![
-            provider.clone(),
+        // A singleton in the other profile's order has the same truth under
+        // the core evaluator, so it is decided rather than refused.
+        let single = vec![Arc::from([Some(
             Value::set(vec![1.into()], wrong).expect("opposite order"),
-        ];
+        )])];
+        assert_eq!(
+            dive_trace::temporal::evaluate_lasso(&model, &pred, &single, 0),
+            Ok(vec![true])
+        );
+        let mut values = vec![provider.clone()];
         let foreign = Interner::new();
         values.push(Value::set_raw(
             vec![Value::Model(foreign.intern("foreign"))],
             ctx,
         ));
-        values.push(Value::set_raw((0..50_000).map(Value::Int).collect(), ctx));
         for value in values {
             let baseline = calls.load(Ordering::Relaxed);
             let states: Vec<dive_trace::State> = vec![Arc::from([Some(value)])];

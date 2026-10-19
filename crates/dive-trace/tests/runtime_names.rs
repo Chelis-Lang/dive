@@ -329,19 +329,15 @@ fn tuple_histories_with_string_alternatives_validate_the_actual_word() {
         let result = validate_doc(&model, &doc, &[]).0.validation;
         assert_eq!(result, Validation::Valid, "{init}; {next}");
         let trace = Trace::decode(&model, &doc).expect("decode stack");
-        let decision = dive_trace::exists::exists_successor(
+        let decision = dive_trace::enabled::enabled(
             &model,
             model.next.as_ref().expect("next"),
-            &trace.states[0],
             None,
-            dive_trace::exists::Limits::default(),
+            &trace.states[0],
         );
         // The state has a successor: the decision may refuse (a call with a
         // state-dependent argument has no cover rule), never be Disabled.
-        assert!(
-            !matches!(decision, Ok(dive_trace::exists::Decision::Disabled)),
-            "{next}: {decision:?}"
-        );
+        assert!(!matches!(decision, Ok(false)), "{next}: {decision:?}");
     }
 }
 
@@ -504,10 +500,8 @@ fn predicate_apis_refuse_encounter_sensitive_names_with_or_without_config_roles(
                 action.names.intern("14");
             }
             assert!(matches!(
-                dive_trace::exists::exists_successor(
-                    &action, &predicate(&action, "A"), &entry_state(), None, dive_trace::exists::Limits::default()
-                ),
-                Err(dive_trace::exists::ExistsError::Unsupported(reason))
+                dive_trace::enabled::enabled(&action, &predicate(&action, "A"), None, &entry_state()),
+                Err(dive_trace::enabled::EnabledError::Unsupported(reason))
                     if reason == dive_trace::RUNTIME_NAMES_UNSUPPORTED
             ));
             // The refusal is about names created, not about the model:
@@ -524,12 +518,11 @@ fn predicate_apis_refuse_encounter_sensitive_names_with_or_without_config_roles(
                 &[entry_state()],
                 0,
             );
-            let b = dive_trace::exists::exists_successor(
+            let b = dive_trace::enabled::enabled(
                 &action,
                 &predicate(&action, "B"),
-                &entry_state(),
                 None,
-                dive_trace::exists::Limits::default(),
+                &entry_state(),
             );
             if previous_encounter {
                 assert!(matches!(
@@ -538,14 +531,11 @@ fn predicate_apis_refuse_encounter_sensitive_names_with_or_without_config_roles(
                 ));
                 assert!(matches!(
                     b,
-                    Err(dive_trace::exists::ExistsError::Unsupported(_))
+                    Err(dive_trace::enabled::EnabledError::Unsupported(_))
                 ));
             } else {
                 assert_eq!(q, Ok(vec![true]));
-                assert!(matches!(
-                    b,
-                    Ok(dive_trace::exists::Decision::Enabled { .. })
-                ));
+                assert!(matches!(b, Ok(true)));
             }
         }
     }
@@ -568,14 +558,8 @@ fn canonical_predicate_answers_do_not_depend_on_prior_name_encounters() {
             Ok(vec![true])
         );
         assert!(matches!(
-            dive_trace::exists::exists_successor(
-                &model,
-                &predicate(&model, "A"),
-                &entry_state(),
-                None,
-                dive_trace::exists::Limits::default()
-            ),
-            Ok(dive_trace::exists::Decision::Enabled { .. })
+            dive_trace::enabled::enabled(&model, &predicate(&model, "A"), None, &entry_state()),
+            Ok(true)
         ));
     }
 }
@@ -612,10 +596,8 @@ fn native_aliases_and_nested_definitions_receive_the_same_scoped_refusal() {
                 if reason == dive_trace::RUNTIME_NAMES_UNSUPPORTED
         ));
         assert!(matches!(
-            dive_trace::exists::exists_successor(
-                &model, &predicate(&model, "A"), &entry_state(), None, dive_trace::exists::Limits::default()
-            ),
-            Err(dive_trace::exists::ExistsError::Unsupported(reason))
+            dive_trace::enabled::enabled(&model, &predicate(&model, "A"), None, &entry_state()),
+            Err(dive_trace::enabled::EnabledError::Unsupported(reason))
                 if reason == dive_trace::RUNTIME_NAMES_UNSUPPORTED
         ));
     }
@@ -664,14 +646,8 @@ fn scoped_tuple_only_sequence_calls_remain_independently_decidable() {
         );
         assert!(
             matches!(
-                dive_trace::exists::exists_successor(
-                    &model,
-                    &predicate(&model, "A"),
-                    &entry_state(),
-                    None,
-                    dive_trace::exists::Limits::default()
-                ),
-                Ok(dive_trace::exists::Decision::Enabled { .. })
+                dive_trace::enabled::enabled(&model, &predicate(&model, "A"), None, &entry_state()),
+                Ok(true)
             ),
             "{expression}"
         );
@@ -700,14 +676,8 @@ fn created_names_and_effects_in_sequence_inputs_stay_refused() {
         );
         assert!(
             matches!(
-                dive_trace::exists::exists_successor(
-                    &model,
-                    &predicate(&model, "A"),
-                    &entry_state(),
-                    None,
-                    dive_trace::exists::Limits::default()
-                ),
-                Err(dive_trace::exists::ExistsError::Unsupported(_))
+                dive_trace::enabled::enabled(&model, &predicate(&model, "A"), None, &entry_state()),
+                Err(dive_trace::enabled::EnabledError::Unsupported(_))
             ),
             "{expression}"
         );
@@ -941,7 +911,7 @@ fn existing_runtime_names_refuse_malformed_words_too() {
 
 #[test]
 fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
-    use dive_trace::exists::{Decision, ExistsError, Limits, exists_successor};
+    use dive_trace::enabled::EnabledError as ExistsError;
     use dive_trace::temporal::{TemporalError, evaluate_lasso};
     use dive_value::{Interner, Value};
 
@@ -982,8 +952,7 @@ fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
                 let report = validate(&m, &trace);
                 let temporal =
                     evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&here), 0);
-                let enabled =
-                    exists_successor(&m, &predicate(&m, "Next"), &here, None, Limits::default());
+                let enabled = dive_trace::enabled::enabled(&m, &predicate(&m, "Next"), None, &here);
                 if owned {
                     let mut behavior = trace.clone();
                     behavior.ending = Ending::Behavior;
@@ -995,10 +964,7 @@ fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
                         "{report:?}"
                     );
                     assert_eq!(temporal, Ok(vec![true]));
-                    assert!(
-                        matches!(enabled, Ok(Decision::Enabled { .. })),
-                        "{enabled:?}"
-                    );
+                    assert!(matches!(enabled, Ok(true)), "{enabled:?}");
                 } else {
                     assert!(
                         matches!(report.validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0041"))
@@ -1055,7 +1021,7 @@ fn opaque_typed_states_refuse_without_evaluation_or_callbacks() {
             matches!(dive_trace::temporal::evaluate_lasso(&m, &predicate(&m, "P"), std::slice::from_ref(&state), 0), Err(dive_trace::temporal::TemporalError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
         );
         assert!(
-            matches!(dive_trace::exists::exists_successor(&m, &predicate(&m, "Next"), &state, None, dive_trace::exists::Limits::default()), Err(dive_trace::exists::ExistsError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
+            matches!(dive_trace::enabled::enabled(&m, &predicate(&m, "Next"), None, &state), Err(dive_trace::enabled::EnabledError::Unsupported(reason)) if reason.contains("DIVE-V0042"))
         );
         assert_eq!(callback.0.load(Ordering::Relaxed), 0);
         assert_eq!(m.take_output(), Vec::<String>::new());

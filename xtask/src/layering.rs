@@ -6,10 +6,9 @@
 //! In particular `dive-trace` may not depend on `dive-check`, `dive-liveness`,
 //! `dive-sim` or `dive-store`, so the trace validator stays a genuine second
 //! check. `dive-model`, the binding stage, sits between the evaluator and
-//! every backend (ADR 0013 §8). `dive-trace` must also build without
-//! `dive-eval`'s `enumerate` feature, the successor enumerator (ADR 0016 §2);
-//! see [`ENUMERATE_FREE`]. Changing this table is an architectural decision:
-//! record an ADR.
+//! every backend (ADR 0013 §8). `dive-trace` shares the core evaluator,
+//! including its `ENABLED` search (ADR 0102). Changing this table is an
+//! architectural decision: record an ADR.
 
 /// `(crate, internal crates it may depend on directly)`.
 pub const ALLOWED: &[(&str, &[&str])] = &[
@@ -106,13 +105,6 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
     ),
     ("dive-bench", &["dive-api", "dive-conformance"]),
 ];
-
-/// Crates whose standalone build must not enable `dive-eval/enumerate`,
-/// directly or through any internal dependency. `cargo xtask check-layering`
-/// resolves each one's features ([`crate::features`]), and the workspace gate
-/// also builds `dive-trace` on its own, so feature unification across the
-/// workspace cannot hide a violation.
-pub const ENUMERATE_FREE: &[&str] = &["dive-trace"];
 
 #[cfg(test)]
 mod tests {

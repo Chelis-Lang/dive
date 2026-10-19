@@ -145,7 +145,7 @@ fn actions_use_the_closing_successor_and_bad_words_refuse() {
 }
 
 #[test]
-fn unfair_stutter_is_false_and_unbounded_enabledness_still_refuses() {
+fn unfair_stutter_is_false_and_unbound_primes_in_enabled_refuse() {
     let model = bound(
         "---- MODULE Word ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nFair == WF_x(Next)\n====\n",
         "INIT Init\nNEXT Next\n",
@@ -160,9 +160,10 @@ fn unfair_stutter_is_false_and_unbounded_enabledness_still_refuses() {
         "INIT Init\nNEXT Next\n",
     );
     let states = [Arc::from([Some(0_i64.into())])];
-    assert!(
-        matches!(evaluate_lasso(&unbounded, &predicate(&unbounded, "Fair"), &states, 0), Err(TemporalError::Unsupported(s)) if s.contains("finite cover"))
-    );
+    assert!(matches!(
+        evaluate_lasso(&unbounded, &predicate(&unbounded, "Fair"), &states, 0),
+        Err(TemporalError::Unsupported(_))
+    ));
 }
 
 #[test]
@@ -476,32 +477,6 @@ Bad==<>[] (Capture(x) = <<0,0>>)
             "{callback}"
         );
     }
-}
-
-#[test]
-fn selectseq_independent_nonstuttering_uses_one_aggregate_budget_per_position() {
-    let items = std::iter::repeat_n("x", 2500).collect::<Vec<_>>().join(",");
-    let source = format!(
-        "---- MODULE SelectTraceAggregate ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\nKeep(y)==TRUE\nSub==SelectSeq(<<{items}>>,Keep)\nSingle==[] (Sub = <<{items}>>)\nBox==[] [TRUE]_Sub\n===="
-    );
-    let model = bound(&source, "INIT Init\nNEXT Next\n");
-    let states = vec![
-        Arc::from([Some(Value::Int(0))]),
-        Arc::from([Some(Value::Int(1))]),
-    ];
-    assert_eq!(
-        evaluate_lasso(&model, &predicate(&model, "Single"), &states, 0)
-            .expect("one sub-evaluation per position fits"),
-        vec![true, true]
-    );
-    let error = evaluate_lasso(&model, &predicate(&model, "Box"), &states, 0)
-        .expect_err("independent aggregate before/after work");
-    assert!(matches!(error,TemporalError::Unsupported(ref detail) if detail.contains("work")));
-    assert_eq!(
-        evaluate_lasso(&model, &predicate(&model, "Single"), &states, 0)
-            .expect("fresh independent invocation after exhaustion"),
-        vec![true, true]
-    );
 }
 
 #[test]

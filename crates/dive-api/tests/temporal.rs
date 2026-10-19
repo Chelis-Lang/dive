@@ -217,19 +217,20 @@ fn state_argument_holds_and_resource_limits_never_become_holds() {
 }
 
 #[test]
-fn undecidable_independent_enabledness_is_a_refusal_not_a_violation() {
+fn never_enabled_fairness_is_a_validated_violation() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = [n \\in {0} |-> 0]\nNext == x' \\in [{0} -> {0}] /\\ x' # x'\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>(x # x)\n====\n";
     let (ir, cfg) = input(
         src,
         "SPECIFICATION Spec\nPROPERTY P\nCHECK_DEADLOCK FALSE\n",
     );
-    let e = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
-        .expect_err("independent procedure cannot cover a lazy function set");
+    // `x' # x'` is never true, so Next is never enabled and WF holds on the
+    // stuttering word, which violates P.
+    let r = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+        .expect("decided");
     assert!(
-        matches!(&e, Error::Validation { report, .. } if matches!(report.validation, Validation::Unsupported(_))),
-        "{e:?}"
+        matches!(r.outcome(), Outcome::Violation(v) if v.validation().validation == Validation::Valid),
+        "{r:?}"
     );
-    assert_eq!(e.code(), "DIVE-A0032");
 }
 
 #[test]
@@ -1742,29 +1743,30 @@ DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
                 .is_err()),
             "{name}"
         );
-        assert!(
-            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
-                .is_err(),
-            "{name}"
-        );
+        // The planner's binding bound does not apply to replay, which evaluates
+        // the 5000-element domain; an infinite domain still fails.
+        let word =
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0);
+        assert_eq!(word.ok(), (name == "Large").then(|| vec![false]), "{name}");
         assert_eq!(
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(false.into())])], 0)
                 .expect("empty domain"),
             vec![name == "Large"], // Empty set equals {}; an existential over it is FALSE.
             "{name}"
         );
-        // Empty current domain is valid. A nonempty later domain must still refuse.
+        // Empty current domain is valid. A nonempty later infinite domain refuses.
         assert!(
-            dive_trace::temporal::evaluate_lasso(
-                &model,
-                &p,
-                &[
-                    Arc::from([Some(false.into())]),
-                    Arc::from([Some(true.into())])
-                ],
-                0
-            )
-            .is_err(),
+            name == "Large"
+                || dive_trace::temporal::evaluate_lasso(
+                    &model,
+                    &p,
+                    &[
+                        Arc::from([Some(false.into())]),
+                        Arc::from([Some(true.into())])
+                    ],
+                    0
+                )
+                .is_err(),
             "{name}"
         );
     }
@@ -2051,11 +2053,14 @@ Empty == []<>((CHOOSE b \in IF x THEN {} ELSE {TRUE} : TRUE)=TRUE)
             plan.atoms.iter().any(|a| a.evaluate(&model, &st).is_err()),
             "{name}"
         );
-        assert!(
-            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
-                .is_err(),
-            "{name}"
-        );
+        // Replay has no planner binding bound: the 5000-element choice is TLC's.
+        let word =
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0);
+        if name == "Huge" {
+            assert_eq!(word, Ok(vec![true]), "{name}");
+        } else {
+            assert!(word.is_err(), "{name}");
+        }
         assert_eq!(
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(false.into())])], 0)
                 .expect("a valid concrete choice"),

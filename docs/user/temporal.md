@@ -366,6 +366,12 @@ local LET expressions and bounded Boolean quantifiers. Queries can appear in
 Each query quantifies a fresh successor from its actual current state; its inner
 primed variables do not refer to the outer transition's target.
 
+Fairness on a lasso is validated with the same `ENABLED`: `WF_v(A)` holds when
+`<<A>>_v` occurs on the cycle or is disabled at some cycle state, and `SF_v(A)`
+when it occurs or is disabled at every cycle state. An action whose guard reads
+a primed variable, such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, is decided
+like any other (issue #321; corpus `fairness-replay`).
+
 ```sh
 dive check crates/dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla --config crates/dive-liveness/tests/fixtures/nested-enabled/hold.cfg --compat=tlc --workers 1 --fp 0 --seed 0 --lncheck final --lasso short --output json
 ```
@@ -377,26 +383,13 @@ word closes from `x=1` to `x=0` even though a reached inner query needs `x'=1`.
 These two pinned primary references qualify this tiny subset, not the original
 Elevator model or a corpus gain.
 
-The independent validator evaluates the original `Next` and closing edge with
-its own finite-cover query procedure. It never calls the checker successor
-enumerator. Inner and outer candidates share expression, assignment and depth
-bounds and one pure invocation; subscript evaluation also shares that invocation.
-A query supplies no outer successor cover. Missing or infinite covers, exhausted
-bounds, and empty nested covers needing further source-order evidence refuse
-explicitly. A later false guard cannot erase an earlier reached query error;
-ordinary Boolean shortcircuit preserves unreached pure errors.
-
-Query placements inside data/native arguments, provider callbacks, higher-order
-operator forwarding, configuration substitutions,
-explicit or hidden primes, and captured primed action values remain unsupported.
-Pure lexical state captures remain available. Existing effect, ownership and
-resource checks remain in force. Native enabledness still uses the original
-checker search; its existing finite-domain and core-depth checks do not imply a
-universal budget on every native assignment visit or a termination guarantee.
-No option, default, schema or numeric cap changes. Use the existing dedicated
+The trace validator checks the original `Next` and closing edge on the word and
+decides each query with the core evaluator's `ENABLED`
+([ADR 0102](../decisions/0102-validator-enabled-via-core-evaluator.md)). A
+reached query error is reported even when a later guard is false; ordinary
+Boolean short circuit leaves unreached errors unreached. Use the dedicated
 `RECOMMENDED_STACK` thread contract when calling trace validation directly from
-Rust. Current-source original-model qualification, fresh review and full gates
-remain pending.
+Rust.
 
 First-order temporal expression arguments retain their existing formula route:
 `Identity(p) == p; Identity([](ENABLED A))` forwards a temporal expression,
@@ -406,19 +399,15 @@ not admit query-bearing operator captures, native/provider arguments or hidden
 state-helper query words.
 
 State-level mixtures of direct queries keep their existing temporal conversion
-and native INSTANCE support. Independent finite-cover queries now retain hidden
-successor names and actual INSTANCE/lazy scopes, including enabled and disabled
-correlated assignments. Direct and instantiated WF/SF words cover continuous
+and native INSTANCE support. Replayed queries use the actual INSTANCE and lazy
+scopes, including enabled and disabled correlated assignments. Direct and instantiated WF/SF words cover continuous
 and intermittent starvation, disabled stutter and recurrent closing occurrences.
 General callable and planner integration remains unfinished.
 
-Periodic word validation may refuse a query hidden behind a state-valued
-helper formal, such as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, even when
-native exhaustive checking can establish Holds. Supported action-valued lazy
-formal guards retain their independent query support. Predicate and data reads
-inspect actual lexical thunks before evaluation. A periodic query-bearing action label is optional metadata:
-its source is refused without evaluation and recorded as a note; the original
-Next edge, closing edge and property claims are still required independently.
+Periodic word validation evaluates queries hidden behind helper formals, such
+as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, with the core evaluator. A
+query-bearing action label is checked like any other label; the original Next
+edge, closing edge and property claims are still required independently.
 
 Finite preflight keeps binder domains, instantiated function/set construction
 bodies, filter predicates and UNCHANGED operands in data-only mode, following
@@ -534,44 +523,14 @@ source with its own bounded invocation state; checker caches or witnesses cannot
 establish validity. The six inputs and generated goldens remain separate from
 the established156-model population and do not increase its agreement count.
 
-### Invocation-owned lazy query evaluation
+### Lazy query evaluation in replay
 
-Independent bounded queries execute source bindings in order over partial
-named assignments. Pending predicates retain the actual argument and LET
-contexts across the branches they enclose. A context reached after a membership
-choice is created separately for that choice. Primed lazy sources are inspected through their actual captured
-context and require finite covers for every reached primed dependency. Actual
-forcing supplies the states/control; no creation-state snapshot is substituted.
+Replay evaluates lazy query sources with the core evaluator and its ordinary
+caches, so a LET reached before a hidden membership choice keeps one binding
+across the choices and one reached after it gets a binding per choice, as in
+TLC. The isolated lazy-capture and lazy-cache controls do not change the
+established 156-model population.
 
-A pure invocation owns its evaluation memo. It can retain only values computed
-from original source during that invocation, never a checker thunk cache or
-successor witness. Keys weakly reference actual lazy bindings; cached root-name
-state projections, control and resolver identity govern reuse. Structural
-domain/capture inspection cannot read or populate this memo.
-
-The invocation's existing work counter charges stored-value/root traversal and
-lookups; retained entries are limited by the requested finite-binding limit.
-Nested callbacks/queries share these counters. Value retention inspects stored
-structure without enumerating symbolic sets; deferred evaluator/provider values
-refuse. Recursive lazy functions retain their captured
-partial state and work counters, with weak references to the memo and client resolver. Their stored
-bounds, captures, exception values and ordinary-cache owners are inspected only
-for retention safety; ordinary cached results never supply query truth. This
-prevents the memo from retaining itself through a cached function. These are entry/traversal bounds, not total byte-memory or
-general evaluation-time guarantees. Original source purity, ownership, finite
-cover, host-access and trace validity requirements remain independent.
-
-For example, `ENABLED (LET held == x'=1 IN held)` has a finite witness with
-`x'=1`. Finite runtime inspection and independent replay can evaluate this
-lexical action source. The temporal planner still refuses a retained property
-atom that captures it as a primed source; runtime support does not remove that
-separate planning boundary. The pinned `held-enabled` controls include a holding
-invariant, its violated negation and fabricated initial/ending claims.
-
-The isolated lazy-capture/cache controls do not change the established156-model
-population. The new source-ordered runtime and lazy-function retention changes remain
-unqualified until their targeted, independent and original corpus/full workspace
-checks complete.
 ## Lazy query binding lifetime
 
 The separate `lazy-query-lifetimes` oracle corpus records 24 primary controls

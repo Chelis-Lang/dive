@@ -125,7 +125,7 @@ fn validate_counterexample(
 // Native-only metamorphic source and admission controls; these do not add
 // primary observations or claim new original-model conformance.
 #[test]
-fn query_callback_replay_keeps_renamed_and_nested_scopes_and_requires_its_own_cover()
+fn query_callback_replay_keeps_renamed_and_nested_scopes_and_rejects_unassigned_reads()
 -> Result<(), Box<dyn std::error::Error>> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/callback-enabled");
     let directory = std::env::temp_dir().join(format!(
@@ -202,10 +202,13 @@ fn query_callback_replay_keeps_renamed_and_nested_scopes_and_requires_its_own_co
                     ..Default::default()
                 },
             )?;
-            assert!(
-                matches!(model.read(&word).0.validation,Validation::Unsupported(ref message)
-                if message.contains("no finite cover for primed variable a"))
-            );
+            // Without `a' = 1`, the callback reads an unassigned `a'`: the
+            // invariant raises TLC's evaluation error, so an invariant-violation
+            // claim is rejected rather than refused.
+            assert!(matches!(
+                model.read(&word).0.validation,
+                Validation::Invalid(ref failure) if failure.check == dive_api::trace::Check::Invariant
+            ));
         }
         Ok(())
     })();

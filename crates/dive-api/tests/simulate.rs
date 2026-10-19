@@ -134,7 +134,7 @@ fn simulation_error_sites_match_pinned_messages_and_statuses() {
 }
 
 #[test]
-fn corrupted_trace_rejected_and_undecidable_deadlock_not_certified() {
+fn corrupted_trace_rejected_and_guarded_deadlock_certified() {
     use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
     let report = simulate_file(&SimulateRequest {
         file: fixture(),
@@ -170,13 +170,13 @@ fn corrupted_trace_rejected_and_undecidable_deadlock_not_certified() {
     })
     .unwrap()
     .to_json();
+    // The false guard `x > 0` leaves no successor: ENABLED Next is FALSE.
     assert_eq!(json["observed_result"], "violation");
     assert_eq!(json["observed_tlc_code"], 2114);
-    assert_eq!(json["result"], "unsupported", "{json}");
-    assert_eq!(json["violation_validated"], false);
-    assert_eq!(json["exit_code"], 3);
+    assert_eq!(json["result"], "violation", "{json}");
+    assert_eq!(json["violation_validated"], true);
+    assert_eq!(json["exit_code"], 11);
     assert_eq!(json["options"]["workers_used"], 1);
-    assert!(json["message"].as_str().unwrap().contains("deadlock"));
 }
 
 #[test]
