@@ -7,6 +7,14 @@
   of the benchmark models executes about 3–7% fewer instructions
   (geometric mean about 5%).
 
+- Temporal atoms no longer fail with a TLC evaluation error raised by a binder
+  domain that evaluation never reaches, such as a `CHOOSE` without a witness
+  or a two-argument function applied outside its domain behind a false guard.
+  The finite-binding preflight visited every branch and reported the error; it
+  now skips that binder, and evaluation still reports the error (or refuses,
+  where dive does not reproduce TLC's message) wherever TLC fails.
+  `YoYo/MCYoYoPruning` now agrees in the TLC profile.
+
 - The `dive` and `tlc` binaries use mimalloc as their global allocator, and
   release builds use fat link-time optimisation with one codegen unit (ADR 0102).
   Results are unchanged; single-worker checking executes about 15–17% fewer

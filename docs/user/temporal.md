@@ -424,6 +424,18 @@ runs. Captured contexts retain their old bindings. Tuple patterns and analysis
 contexts keep eager construction and its original first-error order. These
 entry/work bounds do not provide a runtime or process-memory guarantee.
 
+Finite preflight visits every conjunct and every `IF`/`CASE` branch, including
+ones that evaluation never reaches in the current state or edge. When a
+binder's domain raises a TLC evaluation error there (for example a `CHOOSE`
+with no witness behind a false guard), preflight skips that binder instead of
+failing the atom: evaluation must compute the same domain before it can enter
+the body, so it either raises the same error where TLC does or never reaches
+it. A refusal that stands for such a TLC error is skipped the same way: applying
+a multi-argument lazy function outside its domain is a TLC error whose message
+dive does not reproduce, so evaluation refuses if it reaches it. Other refusals,
+undefined identifiers (a missing state or successor) and resource limits in a
+domain still stop preflight.
+
 ## INSTANCE query namespace controls
 
 The separate `instance-temporal` corpus records ten tiny Boolean controls from

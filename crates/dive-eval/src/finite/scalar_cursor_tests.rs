@@ -229,10 +229,21 @@ fn every_original_guard_visit_error_budget_query_and_analysis_path_matches_eager
             .0
             .expect_err("Cartesian count before body division");
         assert_eq!(quota, EvalError::resource_limit("quantifier bindings"));
-        let divide = guard_run(&ev, "EarlyScalar", 0, 4096, 0, false, true, false)
-            .0
-            .expect_err("first concrete body domain");
+        // A TLC evaluation error in a body's domain skips that binder; the
+        // walk continues with the next binding, and evaluation itself still
+        // raises the error where TLC does.
+        let (skipped, _, trace) = guard_run(&ev, "EarlyScalar", 0, 4096, 0, false, true, false);
+        skipped.expect("an erroring body domain is left to evaluation");
+        let (_, eager_visits, eager_trace) =
+            guard_run(&ev, "EarlyScalar", 0, 4096, 0, false, true, true);
+        assert_eq!(trace, eager_trace);
+        assert!(eager_visits > 1, "the second binding is still visited");
+        let (scope, expr) = scope(&ev, "EarlyScalar");
+        let divide = ev
+            .eval_scoped(&scope, expr, &St::state(Arc::from([Some(0.into())])))
+            .expect_err("evaluation reaches the first body domain");
         assert_eq!(divide.class(), ErrorClass::Eval);
+        assert_eq!(divide.ec(), crate::Ec::DivisionByZero);
         let a = guard_run(&ev, "Order", 0, 4096, 257, false, true, true);
         let b = guard_run(&ev, "Order", 0, 4096, 257, false, true, false);
         assert_eq!(a, b);

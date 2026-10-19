@@ -1646,8 +1646,10 @@ text. The consumed `name-cdot` fixture records two genuine pinned TLC
 `tlc-2026.10.06.014338` runs with state-dependent `SubSeq` operands and composition:
 holding success and a failing `baba` to `ba` stuttering behavior, both 5 generated,
 2 distinct and depth 2. The emitted string is measured rather than inferred from
-an encounter-order prediction. An earlier one-character fixture is also retained
-as a regression for its existing liveness-atom error; its `a`/`b` names were
+an encounter-order prediction. An earlier one-character fixture is also retained;
+pinned TLC reports success for it (5 generated, 2 distinct, depth 2), which dive
+matches since its finite-binding preflight no longer reports evaluation errors
+from untaken binder domains. Its `a`/`b` names were
 already interned at binding, so that fixture does not demonstrate name growth. Independent composed-word replay remains refused;
 this is no new purity or replay admission proof (#241).
 

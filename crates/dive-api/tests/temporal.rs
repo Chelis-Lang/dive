@@ -216,6 +216,45 @@ fn state_argument_holds_and_resource_limits_never_become_holds() {
     assert_eq!(e.code(), "DIVE-L0034");
 }
 
+/// Shape of `specifications/YoYo`: the finite-binding preflight visits every
+/// branch, but TLC evaluates a binder's domain only where evaluation reaches
+/// it. An erroring domain behind a false guard is not an atom failure; the
+/// same domain still fails where evaluation reaches it.
+#[test]
+fn unreached_binder_domain_errors_are_not_atom_failures() {
+    let src = "---- MODULE M ----\nEXTENDS Integers\nVARIABLE x\nMin(S) == CHOOSE e \\in S : \\A y \\in S : e <= y\nBad == \\A v \\in {} \\ {Min({v \\in {x} : v > 9})} : FALSE\nInit == x = 0\nNext == /\\ x < 2\n        /\\ IF x > 5 THEN Bad ELSE TRUE\n        /\\ x' = x + 1\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nLive == <>(x = 2)\nReached == []<>(IF x > 1 THEN Bad ELSE TRUE)\n====\n";
+    // Shape of `MultiCarElevator`: a two-argument function applied outside
+    // its domain. TLC fails there; dive refuses because it does not
+    // reproduce TLC's message, which prints the domain.
+    let outside = src.replace(
+        "Bad == \\A v \\in {} \\ {Min({v \\in {x} : v > 9})} : FALSE",
+        "F[a \\in 0..9, b \\in {0, 1}] == {a, x}\nBad == \\A v \\in F[x, 9] : FALSE",
+    );
+    let cfg = "SPECIFICATION Spec\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n";
+    for source in [src, outside.as_str()] {
+        for opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let (ir, cfg) = input(source, cfg);
+            let r = temporal::check_final(&ir, &cfg, &opts, Limits::default())
+                .expect("an unreached domain is not evaluated");
+            let Outcome::Holds(c) = r.outcome() else {
+                panic!("Live holds: {:?}", r.outcome())
+            };
+            assert_eq!((c.stats.generated, c.stats.distinct), (3, 3));
+        }
+    }
+    let reached = "SPECIFICATION Spec\nPROPERTY Reached\nCHECK_DEADLOCK FALSE\n";
+    let (ir, cfg) = input(src, reached);
+    let e = temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
+        .expect_err("a reached domain still fails");
+    assert_eq!(e.code(), "DIVE-L0033", "{e}");
+    assert!(e.to_string().contains("CHOOSE x \\in S: P"), "{e}");
+    let (ir, cfg) = input(&outside, reached);
+    let e = temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
+        .expect_err("a reached domain still refuses");
+    assert_eq!(e.code(), "DIVE-L0033", "{e}");
+    assert!(e.to_string().contains("outside its domain"), "{e}");
+}
+
 #[test]
 fn never_enabled_fairness_is_a_validated_violation() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = [n \\in {0} |-> 0]\nNext == x' \\in [{0} -> {0}] /\\ x' # x'\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>(x # x)\n====\n";
