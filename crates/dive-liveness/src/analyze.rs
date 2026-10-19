@@ -578,6 +578,28 @@ pub fn analyze_final_with_policy(
     })
 }
 
+fn validate_analysis_context(model: &Model) -> Result<(), AnalysisError> {
+    model.validate_context().map_err(|error| {
+        let expr = model
+            .property_claims()
+            .first()
+            .map_or(dive_ir::ExprId(0), |property| property.pred.location);
+        // Neither the public IR nor the public predicate location is admitted
+        // yet. Do not resolve this location through the evaluator's different
+        // IR, or consult a captured scope while reporting the context refusal.
+        let source = plan::Source {
+            expr,
+            origin: dive_ir::Origin::NONE,
+            location: format!("unadmitted model context at expression {}", expr.index()),
+        };
+        AnalysisError::Planning(plan::PlanningError::Unsupported(Box::new(plan::Refusal {
+            request: source.clone(),
+            cause: source,
+            detail: error.to_string(),
+        })))
+    })
+}
+
 fn analyze_observed(
     model: &Model,
     opts: &CheckOptions,
@@ -587,6 +609,7 @@ fn analyze_observed(
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
+    validate_analysis_context(model)?;
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
     }
