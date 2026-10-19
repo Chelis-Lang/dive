@@ -15,6 +15,7 @@
 //! every value a TLC run with one worker reads.
 
 use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use dive_ir::{Arg, ExprId, StdOp};
@@ -149,6 +150,17 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         true
     }
 
+    /// The cache domain that lazy expression results computed under this
+    /// host belong to. A cached result is reused only by evaluation under a
+    /// host of the same domain. Ordinary drivers share domain 0 (TLC's single
+    /// `LazyValue` cache). Independent replay gives each run its own domain, so
+    /// a value cached by another consumer (for example through action
+    /// composition, which replay refuses) never becomes replay's answer and a
+    /// replay verdict does not depend on how warm the caches were.
+    fn expression_cache_domain(&self) -> u64 {
+        0
+    }
+
     /// `TLCGet("level")` outside `ASSUME` and `Init`: the level of TLC's
     /// `s0`, the state being expanded in the next-state relation and action
     /// checks, the successor in invariants and constraints (initial states
@@ -247,9 +259,27 @@ pub(crate) struct Registers {
 pub(crate) struct HostSlot {
     pub(crate) host: Mutex<Option<Arc<dyn Host>>>,
     pub(crate) registers: Mutex<Registers>,
+    /// The installed host's [`Host::expression_cache_domain`], updated with
+    /// the host so cache lookups need not lock it.
+    pub(crate) cache_domain: AtomicU64,
 }
 
 impl HostSlot {
+    /// Installs `host` (or none) and returns the host installed before.
+    pub(crate) fn replace(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
+        let mut slot = self.host.lock().unwrap_or_else(PoisonError::into_inner);
+        self.cache_domain.store(
+            host.as_ref().map_or(0, |h| h.expression_cache_domain()),
+            Ordering::Release,
+        );
+        std::mem::replace(&mut *slot, host)
+    }
+
+    /// The cache domain of the installed host.
+    pub(crate) fn cache_domain(&self) -> u64 {
+        self.cache_domain.load(Ordering::Acquire)
+    }
+
     pub(crate) fn get(&self) -> Option<Arc<dyn Host>> {
         self.host
             .lock()
@@ -287,6 +317,13 @@ impl Core {
         self.host
             .get()
             .is_none_or(|host| host.reuse_expression_cache())
+    }
+
+    /// The cache domain lazy results are read from and written to, or `None`
+    /// when the host forbids expression caching.
+    pub(crate) fn expression_cache(&self) -> Option<u64> {
+        self.reuse_expression_cache()
+            .then(|| self.host.cache_domain())
     }
 
     /// `RandomElement` and the `Randomization` operators, through the host.

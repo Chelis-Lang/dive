@@ -98,9 +98,9 @@ fn either_append_operand_refuses_hidden_providers_namespace_order_and_work() {
     let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
         .into_config()
         .expect("cfg");
-    for (options, ctx) in [
-        (BindOptions::tlc(), Ctx::tlc()),
-        (BindOptions::dive(), Ctx::dive()),
+    for (options, ctx, wrong) in [
+        (BindOptions::tlc(), Ctx::tlc(), Ctx::dive()),
+        (BindOptions::dive(), Ctx::dive(), Ctx::tlc()),
     ] {
         let model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
         let d = ir.root_def("Live").expect("role");
@@ -108,7 +108,11 @@ fn either_append_operand_refuses_hidden_providers_namespace_order_and_work() {
         let calls = Arc::new(AtomicUsize::new(0));
         let provider = Value::deferred(Arc::new(Opaque(calls.clone())), ctx);
         let foreign = Interner::new();
-        for value in [provider.clone(), Value::Model(foreign.intern("foreign"))] {
+        for value in [
+            provider.clone(),
+            Value::set(vec![1.into()], wrong).expect("order"),
+            Value::Model(foreign.intern("foreign")),
+        ] {
             for first in [false, true] {
                 let x = if first {
                     Value::tuple(vec![value.clone()])

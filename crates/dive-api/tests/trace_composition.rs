@@ -147,7 +147,7 @@ fn lasso_predicates_refuse_shared_composition() {
 }
 
 #[test]
-fn warmed_same_owned_scopes_never_validate_a_false_step() {
+fn warmed_same_owned_scopes_do_not_supply_replay_truth() {
     for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
         for warm in [false, true] {
             for x in [2, 9] {
@@ -187,19 +187,10 @@ fn warmed_same_owned_scopes_never_validate_a_false_step() {
                     }
                     m.next = Some(p.clone());
                     m.validate_context().expect("same-owned valid model");
-                    let result = dive_trace::validate_doc(&m, &doc(x), &[]).0.validation;
-                    // A value the core evaluator already cached is reused, as
-                    // TLC's LazyValue is (ADR 0103); otherwise replay reaches
-                    // the composition and refuses it. A false step never
-                    // validates.
-                    if !warm {
-                        assert_eq!(
-                            result,
-                            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
-                        );
-                    } else if x != 2 {
-                        assert!(!matches!(result, Validation::Valid), "{result:?}");
-                    }
+                    assert_eq!(
+                        dive_trace::validate_doc(&m, &doc(x), &[]).0.validation,
+                        Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+                    );
                     if warm {
                         assert_eq!(
                             m.evaluator
@@ -211,6 +202,57 @@ fn warmed_same_owned_scopes_never_validate_a_false_step() {
                 }
             }
         }
+    }
+}
+
+/// Review probe for ADR 0103: replay reuses only lazy values it computed
+/// itself, so a verdict never depends on how warm the evaluator's caches were.
+/// `W(p) == p` retains `Caller`'s composition argument; one ordinary
+/// `eval_scoped` forces it to `TRUE` for `<<x=0, x=2>>`.
+#[test]
+fn replay_verdict_does_not_depend_on_cache_warmth() {
+    for mode in [ActionComposition::Tla, ActionComposition::Tlc] {
+        let verdicts = [false, true].map(|warm| {
+            let mut m = model("x'=2", "W(p) == p\nCaller == W((x'=1) \\cdot (x'=2))", mode);
+            let caller = m.ir.root_def("Caller").expect("caller");
+            let wrapped = m.ir.root_def("W").expect("wrapper");
+            let dive_ir::Expr::Apply { args, .. } = &m.ir.node(m.ir.def(caller).body).expr else {
+                unreachable!("fixture is a call");
+            };
+            let scope = m
+                .evaluator
+                .scope_apply(
+                    &m.evaluator.scope(caller).expect("caller scope"),
+                    wrapped,
+                    args,
+                )
+                .expect("retained scope");
+            let p = Pred::new(m.ir.def(wrapped).body, scope);
+            if warm {
+                let st = St::action(Arc::from([Some(0.into())]), Arc::from([Some(2.into())]));
+                assert_eq!(
+                    m.evaluator
+                        .eval_scoped(&p.scope, p.expr, &st)
+                        .expect("warm"),
+                    dive_value::Value::Bool(true)
+                );
+            }
+            m.next = Some(p);
+            m.validate_context().expect("same-owned valid model");
+            // A second run must not reuse the first run's values either.
+            let first = dive_trace::validate_doc(&m, &doc(2), &[]).0.validation;
+            let second = dive_trace::validate_doc(&m, &doc(2), &[]).0.validation;
+            assert_eq!(first, second, "warm={warm}");
+            first
+        });
+        assert_eq!(
+            verdicts[0], verdicts[1],
+            "{mode:?}: cold and warm replay disagree"
+        );
+        assert_eq!(
+            verdicts[0],
+            Validation::Unsupported(dive_trace::COMPOSITION_UNSUPPORTED.to_owned())
+        );
     }
 }
 

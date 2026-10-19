@@ -211,16 +211,12 @@ fn independent_native_word_refuses_providers_foreign_names_order_and_budget_befo
         let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d).expect("scope"));
         let calls = Arc::new(AtomicUsize::new(0));
         let provider = Value::deferred(Arc::new(Opaque(calls.clone())), ctx);
-        // A singleton in the other profile's order has the same truth under
-        // the core evaluator, so it is decided rather than refused.
-        let single = vec![Arc::from([Some(
+        // A value sorted in the other profile's order is refused before
+        // evaluation (DIVE-V0043), even a singleton.
+        let mut values = vec![
+            provider.clone(),
             Value::set(vec![1.into()], wrong).expect("opposite order"),
-        )])];
-        assert_eq!(
-            dive_trace::temporal::evaluate_lasso(&model, &pred, &single, 0),
-            Ok(vec![true])
-        );
-        let mut values = vec![provider.clone()];
+        ];
         let foreign = Interner::new();
         values.push(Value::set_raw(
             vec![Value::Model(foreign.intern("foreign"))],
@@ -245,5 +241,41 @@ fn independent_native_word_refuses_providers_foreign_names_order_and_budget_befo
             baseline,
             "constructor baseline separate from admission"
         );
+    }
+}
+
+/// A typed state sorted in the other profile's order would make the core
+/// evaluator read it in the wrong order (`CHOOSE` picks `"alpha"` instead of
+/// TLC's `"zeta"`), so it is refused before evaluation, never decided.
+#[test]
+fn typed_state_in_the_other_profiles_order_is_refused_not_misread() {
+    use dive_value::Ctx;
+    let ir = input(
+        "---- MODULE Native ----\nVARIABLE x\nZ == \"zeta\"\nA == \"alpha\"\nInit==x={Z, A}\nNext==UNCHANGED x\nLive==[]<>((CHOOSE e \\in x : TRUE) = Z)\n====\n",
+    );
+    for (options, ctx, wrong, own_truth) in [
+        (BindOptions::tlc(), Ctx::tlc(), Ctx::dive(), true),
+        (BindOptions::dive(), Ctx::dive(), Ctx::tlc(), false),
+    ] {
+        let model = dive_model::bind(ir.clone(), &config(), &options).expect("model");
+        let d = ir.root_def("Live").expect("role");
+        let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d).expect("scope"));
+        let elems = vec![
+            Value::string(&model.names, "zeta"),
+            Value::string(&model.names, "alpha"),
+        ];
+        let own: Vec<dive_trace::State> = vec![Arc::from([Some(
+            Value::set(elems.clone(), ctx).expect("set"),
+        )])];
+        assert_eq!(
+            dive_trace::temporal::evaluate_lasso(&model, &pred, &own, 0),
+            Ok(vec![own_truth])
+        );
+        let other: Vec<dive_trace::State> =
+            vec![Arc::from([Some(Value::set(elems, wrong).expect("set"))])];
+        assert!(matches!(
+            dive_trace::temporal::evaluate_lasso(&model, &pred, &other, 0),
+            Err(dive_trace::temporal::TemporalError::Unsupported(ref why)) if why.contains("DIVE-V0043")
+        ));
     }
 }

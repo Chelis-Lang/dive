@@ -564,16 +564,23 @@ pub(crate) struct Cached {
     pub(crate) s1: StateRef,
     pub(crate) control: u8,
     pub(crate) enabled: Option<std::sync::Weak<dyn crate::EnabledResolver>>,
+    /// The [`crate::Host::expression_cache_domain`] it was computed under.
+    pub(crate) domain: u64,
 }
 
 /// TLC's `LazyValue`: an expression with its environment, forced at most once
 /// under TLC's caching rule (`LazyValue.getCachedValue`).
+///
+/// Ordinary evaluation (cache domain 0) uses `cache`. Evaluation under a host
+/// with its own cache domain (independent replay) uses `foreign`, which never
+/// supplies a value to, or receives one from, another domain.
 #[derive(Debug)]
 pub(crate) struct Thunk {
     pub(crate) expr: ExprId,
     pub(crate) env: Env,
     pub(crate) cachable: bool,
     pub(crate) cache: Mutex<Option<Cached>>,
+    foreign: Mutex<Option<Cached>>,
 }
 
 impl Thunk {
@@ -583,17 +590,30 @@ impl Thunk {
             env,
             cachable,
             cache: Mutex::new(None),
+            foreign: Mutex::new(None),
         })
     }
 
-    /// `LazyValue.getCachedValue`.
-    pub(crate) fn cached(&self, st: &St) -> Option<Ev> {
+    fn slot(&self, domain: u64) -> &Mutex<Option<Cached>> {
+        if domain == 0 {
+            &self.cache
+        } else {
+            &self.foreign
+        }
+    }
+
+    /// `LazyValue.getCachedValue`, for evaluation in cache `domain`.
+    pub(crate) fn cached(&self, st: &St, domain: u64) -> Option<Ev> {
         if !self.cachable {
             return None;
         }
-        let cache = self.cache.lock().unwrap_or_else(PoisonError::into_inner);
+        let cache = self
+            .slot(domain)
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
         let c = cache.as_ref()?;
-        (st.s0.includes(&c.s0)
+        (c.domain == domain
+            && st.s0.includes(&c.s0)
             && st.s1.includes(&c.s1)
             && control::equivalent(st.control, c.control)
             && match (&st.enabled, &c.enabled) {
@@ -604,18 +624,22 @@ impl Thunk {
         .then(|| c.val.clone())
     }
 
-    /// Records a forced value.
-    pub(crate) fn store(&self, st: &St, val: &Ev) {
+    /// Records a value forced in cache `domain`.
+    pub(crate) fn store(&self, st: &St, val: &Ev, domain: u64) {
         if !self.cachable {
             return;
         }
-        let mut cache = self.cache.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut cache = self
+            .slot(domain)
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
         *cache = Some(Cached {
             val: val.clone(),
             s0: st.s0.clone(),
             s1: st.s1.clone(),
             control: st.control,
             enabled: st.enabled.as_ref().map(|i| i.resolver.clone()),
+            domain,
         });
     }
 }

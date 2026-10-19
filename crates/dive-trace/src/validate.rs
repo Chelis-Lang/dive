@@ -24,7 +24,7 @@
 //! [`RUNTIME_NAMES_UNSUPPORTED`].
 
 use std::collections::BTreeSet;
-use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, Host, HostError, St, StateRef};
@@ -221,6 +221,7 @@ impl<'a> Run<'a> {
             effect: Mutex::new(None),
             private: false,
             run_config: Mutex::new(None),
+            cache_domain: next_cache_domain(),
         });
         model.evaluator.set_host(host.clone());
         Self {
@@ -913,6 +914,16 @@ pub(crate) struct TraceHost {
     effect: Mutex<Option<String>>,
     private: bool,
     pub(crate) run_config: Mutex<Option<dive_eval::RunConfig>>,
+    /// This host's own expression cache domain: replay reuses lazy values it
+    /// computed itself, as TLC's `LazyValue` does, but never values another
+    /// consumer cached (ADR 0103).
+    cache_domain: u64,
+}
+
+/// A cache domain no other replay host has used (0 is ordinary evaluation's).
+fn next_cache_domain() -> u64 {
+    static NEXT: AtomicU64 = AtomicU64::new(1);
+    NEXT.fetch_add(1, Ordering::Relaxed)
 }
 
 impl TraceHost {
@@ -929,6 +940,7 @@ impl TraceHost {
             effect: Mutex::new(None),
             private: true,
             run_config: Mutex::new(None),
+            cache_domain: next_cache_domain(),
         })
     }
 
@@ -1019,6 +1031,10 @@ impl Host for TraceHost {
             code: 0,
             message: COMPOSITION_UNSUPPORTED.to_owned(),
         })
+    }
+
+    fn expression_cache_domain(&self) -> u64 {
+        self.cache_domain
     }
 
     fn random(&self, op: StdOp, _args: &[Value], _ctx: Ctx) -> Option<Result<Value, HostError>> {

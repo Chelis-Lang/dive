@@ -130,10 +130,11 @@ impl Core {
     }
 
     pub(crate) fn materialize(self: &Arc<Self>, f: &Arc<LazyFcn>) -> Result<Value> {
-        if self.reuse_expression_cache()
-            && let Some(v) = f.materialized.get()
+        let domain = self.expression_cache();
+        if let Some(d) = domain
+            && let Some(v) = f.materialized.get(d)
         {
-            return Ok(v.clone());
+            return Ok(v);
         }
         for b in &f.bounds {
             if !is_enumerable(&b.domain) {
@@ -190,8 +191,8 @@ impl Core {
             let new = self.embed(ex.value.clone())?;
             v = self.take_except(&v, &ex.path[ex.idx..], new)?;
         }
-        if self.reuse_expression_cache() {
-            let _ = f.materialized.set(v.clone());
+        if let Some(d) = domain {
+            f.materialized.set(d, v.clone());
         }
         Ok(v)
     }
@@ -658,13 +659,15 @@ impl Core {
                 {
                     return self.force_query_memo(t, st, policy);
                 }
-                let cache = self.reuse_expression_cache() && st.selectseq.is_none();
-                if cache && let Some(v) = t.cached(st) {
+                let cache = self.expression_cache().filter(|_| st.selectseq.is_none());
+                if let Some(d) = cache
+                    && let Some(v) = t.cached(st, d)
+                {
                     return Ok(v);
                 }
                 let v = self.eval(&mut t.env.clone(), st, t.expr)?;
-                if cache {
-                    t.store(st, &v);
+                if let Some(d) = cache {
+                    t.store(st, &v, d);
                 }
                 Ok(v)
             }
@@ -1606,7 +1609,7 @@ impl Core {
             st: st.for_lazy_value().with_control(control),
             rec_slot,
             excepts: Vec::new(),
-            materialized: std::sync::OnceLock::new(),
+            materialized: crate::lazy::Materialized::default(),
         });
         if reducible && !st.is(control::KEEP_LAZY) {
             return self.materialize(&f).map(Ev::V);
@@ -1629,10 +1632,10 @@ impl Core {
         arg: &Value,
         control: u8,
     ) -> Result<Ev> {
-        if self.reuse_expression_cache()
-            && let Some(v) = f.materialized.get()
+        if let Some(d) = self.expression_cache()
+            && let Some(v) = f.materialized.get(d)
         {
-            let Value::Fcn(fv) = v else {
+            let Value::Fcn(fv) = &v else {
                 return Err(EvalError::bug(
                     "materialized lazy function is not a function",
                 ));
@@ -1935,10 +1938,10 @@ impl Core {
         f: &Arc<LazyFcn>,
         arg: &Value,
     ) -> Result<Option<Ev>> {
-        if self.reuse_expression_cache()
-            && let Some(v) = f.materialized.get()
+        if let Some(d) = self.expression_cache()
+            && let Some(v) = f.materialized.get(d)
         {
-            return self.select(&Ev::V(v.clone()), arg);
+            return self.select(&Ev::V(v), arg);
         }
         if f.arity() != 1 || f.bounds[0].tuple {
             return Err(EvalError::unsupported(
@@ -2079,10 +2082,10 @@ impl Core {
         }
         match base {
             Ev::F(f) => {
-                if self.reuse_expression_cache()
-                    && let Some(v) = f.materialized.get()
+                if let Some(d) = self.expression_cache()
+                    && let Some(v) = f.materialized.get(d)
                 {
-                    return self.take_except_ev(Ev::V(v.clone()), path, new);
+                    return self.take_except_ev(Ev::V(v), path, new);
                 }
                 Ok(Ev::F(f.with_except(Except {
                     path: path.into(),
@@ -2615,9 +2618,9 @@ impl Core {
 
     /// `FcnLambdaValue.getDomain`.
     fn lazy_domain(&self, f: &Arc<LazyFcn>) -> Value {
-        if self.reuse_expression_cache()
-            && let Some(Value::Fcn(m)) = f.materialized.get()
-            && let Ok(d) = self.domain(m)
+        if let Some(domain) = self.expression_cache()
+            && let Some(Value::Fcn(m)) = f.materialized.get(domain)
+            && let Ok(d) = self.domain(&m)
         {
             return d;
         }
