@@ -23,6 +23,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+pub mod baseline;
 pub mod cache;
 pub mod compare;
 pub mod config;
