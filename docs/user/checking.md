@@ -198,7 +198,12 @@ witness is missing or independently `unsupported` never counts as full agreement
 Configured `Randomization` replacements, SYMMETRY with randomness, graph
 capture, temporal random checking and seeded native recovery remain explicitly
 refused. The callback-free configured-target scan remains conservative across
-matching modules and aliases.
+matching modules and aliases. For graph capture and the search's random stream,
+a specification counts as random when a definition in a non-standard module,
+used or not, reaches a random operator through the definitions it references.
+Extending `Randomization` or `TLC` without calling a random operator is not
+randomness: the standard modules' own helpers, such as
+`TestRandomSetOfSubsets`, count only when something outside them calls them.
 See the original wrong-answer repair
 and bound-stream controls and remaining replay limits.
 The corrected standalone campaign independently validates 144 of 180 original
