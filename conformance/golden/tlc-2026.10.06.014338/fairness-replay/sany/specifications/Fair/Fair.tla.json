@@ -54,7 +54,7 @@
         "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
       }
     },
-    "corpus_commit": "sha256:bb492891a4c27a4321aaeb425bf5390dccccf103d5d57cc272939d851e94fc80",
+    "corpus_commit": "sha256:49efaca7fee1aa4eb4407b9d3f55668b104e507f4a7a0a3452dfd84635c610e6",
     "command": [
       "$DIVE_CACHE_DIR/jre/0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62/jdk-17.0.20.1+1-jre/bin/java",
       "-XX:+UseParallelGC",
@@ -72,9 +72,9 @@
       "Fair.tla"
     ],
     "timeout_seconds": 300,
-    "reason": "issue #321: weak and strong fairness controls for independent stuttering-lasso replay",
+    "reason": "issue #321: add Oyster pilot regression controls; corpus content hash changed",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-19T18:10:52Z",
-    "elapsed_ms": 756
+    "generated_at": "2026-10-19T20:59:03Z",
+    "elapsed_ms": 179
   }
 }

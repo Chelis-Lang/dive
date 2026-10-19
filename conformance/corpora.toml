@@ -105,8 +105,9 @@ license = "MIT"
 layout = "examples-manifest"
 
 # Weak and strong fairness on a finite stuttering lasso whose action guards a
-# primed read (issue #321). Independent replay decides the fairness ENABLED
-# with the core evaluator (ADR 0103).
+# primed read (issue #321), and the unreduced Oyster pilot monitors (weak and
+# strong) they were minimized from. Independent replay decides the fairness
+# ENABLED with the core evaluator (ADR 0103).
 [[corpus]]
 id = "fairness-replay"
 path = "conformance/corpus/fairness-replay"
