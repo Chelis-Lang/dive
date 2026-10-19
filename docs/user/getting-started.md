@@ -6,6 +6,10 @@ From a source checkout, build the CLI with the pinned stable Rust toolchain:
 cargo build --release -p dive-cli
 ```
 
+The build needs a C compiler (`cc`), because dive links the mimalloc allocator.
+Release builds use whole-program link-time optimisation, so they take longer
+than debug builds (ADR 0102).
+
 Use `target/release/dive` or put that binary on your PATH. Model checking itself
 needs no JVM. The developer conformance harness downloads a pinned JRE and Java
 oracle separately; it is not the checker runtime.

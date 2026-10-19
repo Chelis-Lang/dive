@@ -42,6 +42,8 @@ num-bigint = "0.5"
 num-integer = "0.1"
 num-traits = "0.2"
 divan = "0.1"
+# Global allocator for the dive binaries only (ADR 0102).
+mimalloc = { version = "0.1", default-features = false }
 
 [workspace.lints.rust]
 missing_docs = "deny"
@@ -66,6 +68,10 @@ debug = "line-tables-only"
 
 [profile.release]
 debug = "line-tables-only"
+# Whole-program optimisation (ADR 0102). Keep `panic = "unwind"`: the worker
+# pool and engine recover worker panics with `catch_unwind`.
+lto = "fat"
+codegen-units = 1
 
 # Profiling builds: `cargo build --profile profiling`.
 [profile.profiling]

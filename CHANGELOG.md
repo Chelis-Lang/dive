@@ -1,5 +1,10 @@
 # Changelog
 
+- The `dive` and `tlc` binaries use mimalloc as their global allocator, and
+  release builds use fat link-time optimisation with one codegen unit (ADR 0102).
+  Results are unchanged; single-worker checking executes about 15–17% fewer
+  instructions. Building from source now needs a C compiler.
+
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
   fallback errors are preserved.
