@@ -12,9 +12,10 @@
 //! **regression** fails the run:
 //! - a model or module that was `agree` is now anything else, or missing;
 //! - a model run that had a result (a verdict) at some worker count now has
-//!   none, or any of its observables changed.
+//!   none, or any of its observables changed, unless the model now agrees.
 //!
-//! An **improvement** (anything to `agree`) and other outcome changes are
+//! An **improvement** (anything to `agree`, whose observables then match the
+//! golden even if they differ from the baseline) and other outcome changes are
 //! reported but pass. A refreshed baseline records them.
 //!
 //! ```
@@ -416,10 +417,13 @@ pub fn compare(base: &Baseline, now: &Baseline) -> Result<BaselineDiff> {
             parts.extend(fields.iter().cloned());
             parts.join("; ")
         };
-        if (b.outcome == Outcome::Agree && n.outcome != Outcome::Agree) || !fields.is_empty() {
-            d.regressions.push(change(what));
-        } else if moved && n.outcome == Outcome::Agree {
+        // `agree` means the observables now match the golden, so a move to
+        // `agree` is an improvement even when they differ from the baseline.
+        if moved && n.outcome == Outcome::Agree {
             d.improvements.push(change(what));
+        } else if (b.outcome == Outcome::Agree && n.outcome != Outcome::Agree) || !fields.is_empty()
+        {
+            d.regressions.push(change(what));
         } else if moved {
             d.other.push(change(what));
         }
@@ -577,6 +581,20 @@ mod tests {
         let d = compare(&base(), &now)?;
         assert_eq!(d.regressions, []);
         assert_eq!(ids(&d.improvements), ["e:B", "e:N.tla"]);
+        Ok(())
+    }
+
+    #[test]
+    fn expected_divergence_to_agree_with_changed_counts_is_an_improvement() -> Result<()> {
+        let mut now = base();
+        now.models
+            .insert("e:C".to_owned(), entry(Outcome::Agree, Some(8)));
+        let d = compare(&base(), &now)?;
+        assert_eq!(d.regressions, []);
+        assert_eq!(ids(&d.improvements), ["e:C"]);
+        let what = &d.improvements[0].what;
+        assert!(what.contains("expected-divergence -> agree"), "{what}");
+        assert!(what.contains("distinct_states 7 -> 8"), "{what}");
         Ok(())
     }
 

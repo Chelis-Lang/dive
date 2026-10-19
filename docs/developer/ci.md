@@ -70,7 +70,8 @@ model's outcome and observables (verdict, error class and code, physical exit,
 violated property, distinct and generated counts, depth) per worker count, and
 each module's outcome. `dive-conformance run --baseline <file>` fails (exit 1)
 when a model or module that agreed in the baseline no longer does, or any
-model result's observables changed. Improvements are listed and pass.
+model result's observables changed while the model does not agree. Improvements
+(to `agree`, whose observables then match the golden) are listed and pass.
 
 Refresh a baseline in the PR that improves it (or that deliberately changes an
 observable, with the reason in the PR body), from a run of that PR:

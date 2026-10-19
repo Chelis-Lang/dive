@@ -11,7 +11,8 @@
 
 - `dive-conformance run --baseline <file>` fails on corpus regressions against a
   committed baseline: a model or module that agreed and no longer does, or a
-  changed verdict, error class, exit code, property, count or depth.
+  changed verdict, error class, exit code, property, count or depth in a model
+  that does not now agree.
   `report baseline` writes the compact baselines in `conformance/baselines/`.
   `cargo xtask gate --full` and a nightly job check the small tier in both
   profiles against them. Run records now carry the error class and violated
