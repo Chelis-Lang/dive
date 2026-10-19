@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_run_id": "20261019T222736148-dive-small",
+  "source_run_id": "20261019T231956445-dive-small",
   "implementation": "dive",
   "profile": "dive",
   "golden_oracle": "tlc-2026.10.06.014338",
@@ -75,7 +75,7 @@
     "examples:specifications/SlushProtocol/SlushSmall.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":274678,"states_generated":1621541,"depth":43}]},
     "examples:specifications/SpanningTree/SpanTree.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":1236,"states_generated":10278,"depth":5}]},
     "examples:specifications/SpanningTree/SpanTreeRandom.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
-    "examples:specifications/SpanningTree/SpanTreeTest4Nodes.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
+    "examples:specifications/SpanningTree/SpanTreeTest4Nodes.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":3984,"states_generated":21784,"depth":4}]},
     "examples:specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":3528,"states_generated":24368,"depth":9}]},
     "examples:specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":12,"states_generated":30,"depth":2}]},
     "examples:specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":12,"states_generated":30,"depth":2}]},
@@ -166,5 +166,6 @@
     "probes:specifications/P8ParallelDet/P8ParallelDet.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"safety-violation","verdict_code":2110,"error_class":"TLC_INVARIANT_VIOLATED_BEHAVIOR","exit_code":12,"violated_property":"Inv","distinct_states":63251,"states_generated":362605,"depth":46}]},
     "probes:specifications/P9Random/P9Random.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"safety-violation","verdict_code":2107,"error_class":"TLC_INVARIANT_VIOLATED_INITIAL","exit_code":12,"violated_property":"Inv"}]}
   },
-  "modules": {}
+  "modules": {
+  }
 }
