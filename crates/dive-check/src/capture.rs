@@ -47,6 +47,24 @@ impl Default for Limits {
         }
     }
 }
+impl Limits {
+    /// No fixed retention or generation bound, as in TLC: only allocation
+    /// failure stops capture.
+    ///
+    /// ```
+    /// let limits = dive_check::capture::Limits::unbounded();
+    /// assert_eq!(limits.states, usize::MAX);
+    /// ```
+    #[must_use]
+    pub fn unbounded() -> Self {
+        Self {
+            states: usize::MAX,
+            edges: usize::MAX,
+            generated: u64::MAX,
+            successors_per_unit: u64::MAX,
+        }
+    }
+}
 
 /// A generated transition or an implicit full-state stutter.
 #[derive(Clone, Debug, PartialEq, Eq)]

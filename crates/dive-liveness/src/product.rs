@@ -48,6 +48,19 @@ impl Default for Limits {
     }
 }
 
+impl Limits {
+    /// No fixed product bound, as in TLC; see [`crate::analyze::Limits::unbounded`].
+    #[must_use]
+    pub fn unbounded() -> Self {
+        Self {
+            vertices: usize::MAX,
+            edges: usize::MAX,
+            acceptance_cells: usize::MAX,
+            steps: usize::MAX,
+        }
+    }
+}
+
 /// Malformed inputs, construction limits or a search inconsistency.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ProductError {
@@ -117,6 +130,7 @@ struct Builder<'a> {
 
 impl Builder<'_> {
     fn inspect(&mut self) -> Result<(), ProductError> {
+        crate::resident::tick().map_err(|()| ProductError::Limit("resident memory"))?;
         self.steps = self
             .steps
             .checked_add(1)

@@ -473,10 +473,17 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
             assert_eq!(a["options"]["seed"], 17);
             assert_eq!(b["options"]["workers"]["used"], 8);
             assert_eq!(b["options"]["temporal_bounds"]["max_expansion_units"], 8);
-            assert_eq!(
-                b["options"]["temporal_bounds"]["successors_per_unit"],
-                65_536
-            );
+            // `--compat=tlc` selects TLC's unbounded setting (ADR 0106).
+            if profile == "tlc" {
+                assert_eq!(b["options"]["temporal_bounds"]["setting"], "unbounded");
+                assert_eq!(b["options"]["temporal_bounds"]["kind"], "unbounded");
+            } else {
+                assert_eq!(b["options"]["temporal_bounds"]["setting"], "default");
+                assert_eq!(
+                    b["options"]["temporal_bounds"]["successors_per_unit"],
+                    65_536
+                );
+            }
             assert!(a["tlc"].is_null(), "unverified TLC class cannot be claimed");
             let trace_path = temp_file(
                 &format!("temporal-{profile}-{store}.json"),

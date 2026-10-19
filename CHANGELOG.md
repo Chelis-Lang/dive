@@ -1,5 +1,14 @@
 # Changelog
 
+- `dive check --temporal-bounds default|unbounded` selects the fixed bounds of
+  temporal analysis (ADR 0106, D-025). `--compat=tlc` now selects `unbounded`,
+  TLC's setting: no fixed count of properties, tableau nodes, captured states,
+  label cells or product vertices. A resident-memory ceiling of a quarter of
+  physical memory, TLC's default JVM heap, remains the memory stop.
+  The default profile keeps its bounds and named resource refusals. In the TLC
+  profile, `CoffeeCan/CoffeeCan1000Beans`, `FiniteMonotonic/MCCRDT`,
+  `LoopInvariance/MCQuicksort` and `allocator/AllocatorImplementation` now agree.
+
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
   boxed so that a slot is no larger than a value, reading a bound name no

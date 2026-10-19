@@ -44,6 +44,7 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
                         sequential: false,
                         chaos: Some(19),
                         temporal: TemporalMode::default(),
+                        temporal_bounds: None,
                     })
                     .expect("check");
                     let doc = TraceDoc::from_json(&report.to_json())

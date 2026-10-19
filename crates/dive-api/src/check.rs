@@ -101,6 +101,55 @@ pub enum TemporalMode {
     FinalShort,
 }
 
+/// Fixed entry and work bounds of temporal analysis (`--temporal-bounds`).
+///
+/// TLC has no such bounds: its liveness checking stops only when memory or time
+/// runs out. [`Self::Unbounded`] is therefore the TLC-equivalent setting and
+/// the `--compat=tlc` default; [`Self::Default`] keeps dive's named
+/// resource-limit refusals and is the default profile's setting.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TemporalBounds {
+    /// [`dive_liveness::analyze::Limits::default`] and
+    /// [`dive_liveness::product::AcceptancePolicy::compact_default`].
+    Default,
+    /// [`dive_liveness::analyze::Limits::unbounded`] and
+    /// [`dive_liveness::product::AcceptancePolicy::unbounded`].
+    Unbounded,
+}
+impl TemporalBounds {
+    /// The setting's name, as `--temporal-bounds` spells it.
+    #[must_use]
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::Default => "default",
+            Self::Unbounded => "unbounded",
+        }
+    }
+    /// The analysis limits this setting selects.
+    #[must_use]
+    pub fn limits(self) -> dive_liveness::analyze::Limits {
+        match self {
+            Self::Default => dive_liveness::analyze::Limits::default(),
+            Self::Unbounded => dive_liveness::analyze::Limits::unbounded(),
+        }
+    }
+    /// The acceptance-buffer policy this setting selects.
+    #[must_use]
+    pub fn acceptance(self) -> dive_liveness::product::AcceptancePolicy {
+        match self {
+            Self::Default => dive_liveness::product::AcceptancePolicy::compact_default(),
+            // The covered acceptance buffers stay within the resident ceiling.
+            Self::Unbounded => match self.limits().resident_bytes {
+                Some(ceiling) => dive_liveness::product::AcceptancePolicy::Buffers {
+                    bytes: usize::try_from(ceiling).unwrap_or(usize::MAX),
+                    work: usize::MAX,
+                },
+                None => dive_liveness::product::AcceptancePolicy::unbounded(),
+            },
+        }
+    }
+}
+
 /// What to check and how.
 #[derive(Clone, Debug, Default)]
 pub struct CheckRequest {
@@ -156,6 +205,10 @@ pub struct CheckRequest {
     /// `Ordinary` also selects final analysis for eligible temporal roles in
     /// either profile, reporting the request's own profile.
     pub temporal: TemporalMode,
+    /// `--temporal-bounds`; `None` is the profile's setting:
+    /// [`TemporalBounds::Unbounded`] under `--compat=tlc`, as in TLC, and
+    /// [`TemporalBounds::Default`] otherwise.
+    pub temporal_bounds: Option<TemporalBounds>,
 }
 
 /// The phase a check ended in.
@@ -188,6 +241,7 @@ pub struct CheckReport {
     fp_given: bool,
     workers_requested: usize,
     temporal: TemporalMode,
+    temporal_bounds: TemporalBounds,
     phase: Phase,
 }
 
@@ -387,6 +441,11 @@ fn check_file_in(
         fp_given: req.fp.is_some(),
         workers_requested,
         temporal: req.temporal,
+        temporal_bounds: req.temporal_bounds.unwrap_or(if req.compat_tlc {
+            TemporalBounds::Unbounded
+        } else {
+            TemporalBounds::Default
+        }),
         phase: Phase::Unlowered(String::new()),
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
@@ -444,7 +503,13 @@ fn check_file_in(
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
     } else {
-        check_backend(&ir, &model, &report.opts, req.temporal)
+        check_backend(
+            &ir,
+            &model,
+            &report.opts,
+            req.temporal,
+            report.temporal_bounds,
+        )
     };
     Ok(report)
 }
@@ -454,9 +519,16 @@ fn check_backend(
     config: &dive_config::ModelConfig,
     options: &CheckOptions,
     temporal: TemporalMode,
+    bounds: TemporalBounds,
 ) -> Phase {
     if temporal == TemporalMode::Ordinary
-        && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options)
+        && let Some(result) = crate::temporal::check_ordinary_final_with_policy(
+            ir,
+            config,
+            options,
+            bounds.limits(),
+            bounds.acceptance(),
+        )
     {
         return match result {
             Ok(report) => match report.outcome() {
@@ -471,8 +543,8 @@ fn check_backend(
             ir,
             config,
             options,
-            dive_liveness::analyze::Limits::default(),
-            dive_liveness::product::AcceptancePolicy::compact_default(),
+            bounds.limits(),
+            bounds.acceptance(),
         ) {
             Ok(r) => match r.outcome() {
                 crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),
@@ -745,7 +817,7 @@ impl CheckReport {
         if self.temporal_schema() {
             options["lncheck"] = json!("final");
             options["lasso"] = json!("short");
-            options["temporal_bounds"] = temporal_limits_json();
+            options["temporal_bounds"] = temporal_limits_json(self.temporal_bounds);
             options["tlc_exact_temporal"] = json!(false);
         }
         if let Some(request) = &self.checkpoint_request {
@@ -1497,14 +1569,24 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
     out
 }
 
-fn temporal_limits_json() -> Value {
-    let limits = dive_liveness::analyze::Limits::default();
-    let dive_liveness::product::AcceptancePolicy::Buffers { bytes, work } =
-        dive_liveness::product::AcceptancePolicy::compact_default()
+fn temporal_limits_json(bounds: TemporalBounds) -> Value {
+    if bounds == TemporalBounds::Unbounded {
+        // TLC's setting: no fixed count; memory and time are the only stops.
+        return json!({
+            "setting": bounds.name(),
+            "kind": "unbounded",
+            "resident_ceiling_bytes": bounds.limits().resident_bytes,
+            "max_expansion_units": dive_check::capture::MAX_EXPANSION_UNITS,
+            "total_memory_budget": false,
+        });
+    }
+    let limits = bounds.limits();
+    let dive_liveness::product::AcceptancePolicy::Buffers { bytes, work } = bounds.acceptance()
     else {
         return Value::Null;
     };
     json!({
+        "setting": bounds.name(),
         "kind": "entry-work-counts-and-acceptance-buffers", "states": limits.capture.states,
         "edges": limits.capture.edges, "generated": limits.capture.generated,
         "successors_per_unit": limits.capture.successors_per_unit,
@@ -1560,6 +1642,7 @@ mod evidence_controls {
             fp_given: true,
             workers_requested: 4,
             temporal: TemporalMode::FinalShort,
+            temporal_bounds: TemporalBounds::Default,
             phase,
         }
     }

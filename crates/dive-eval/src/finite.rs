@@ -18,6 +18,26 @@ fn unentered_binder(error: &EvalError) -> bool {
     error.is_tlc_failure() && error.ec() != crate::Ec::UndefinedOrNoOperator
 }
 
+/// Total work allowed for a per-binder `limit`: 64 entries per binding, capped
+/// at `ceiling`. A `usize::MAX` limit is TLC's setting, no fixed count (as the
+/// temporal analysis's unbounded limits pass it), and has no ceiling either.
+fn work_ceiling(limit: usize, ceiling: usize) -> usize {
+    if limit == usize::MAX {
+        usize::MAX
+    } else {
+        limit.saturating_mul(64).min(ceiling)
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn work_ceiling_caps_finite_limits_only() {
+    assert_eq!(work_ceiling(4096, 100_000), 100_000);
+    assert_eq!(work_ceiling(10, 100_000), 640);
+    assert_eq!(work_ceiling(usize::MAX - 1, 50_000), 50_000);
+    assert_eq!(work_ceiling(usize::MAX, 50_000), usize::MAX);
+}
+
 impl Evaluator {
     /// Checks finite constructor/quantifier bindings in the actual state or
     /// edge before interpreting a pure predicate. Domains are never frozen
@@ -439,9 +459,7 @@ impl Evaluator {
             limit,
             wrapper: scope.wrapper,
             context: std::sync::Arc::downgrade(&self.core),
-            remaining: std::sync::Arc::new(std::sync::Mutex::new(
-                limit.saturating_mul(64).min(50_000),
-            )),
+            remaining: std::sync::Arc::new(std::sync::Mutex::new(work_ceiling(limit, 50_000))),
             memo: crate::query_memo::MemoRef::default(),
         }));
         bounded.selectseq_callback = false;
@@ -621,7 +639,7 @@ impl Guard<'_> {
         st: &St,
         depth: usize,
     ) -> crate::Result<()> {
-        let ceiling = self.limit.saturating_mul(64).min(100_000);
+        let ceiling = work_ceiling(self.limit, 100_000);
         let mut remaining = ceiling.saturating_sub(self.visits);
         let (def, analysis) = if self.selectseq {
             let value = self.evaluator.core.op_value(&scope.env, operator)?;
@@ -654,7 +672,7 @@ impl Guard<'_> {
         self.analysis = true;
         self.query_allowed = false;
         let result: crate::Result<()> = (|| {
-            let ceiling = self.limit.saturating_mul(64).min(100_000);
+            let ceiling = work_ceiling(self.limit, 100_000);
             let mut remaining = ceiling.saturating_sub(self.visits);
             let captures =
                 self.evaluator
@@ -703,7 +721,7 @@ impl Guard<'_> {
             Slot(Sv, usize),
             Value(dive_value::Value, usize),
         }
-        let cap = self.limit.saturating_mul(64).min(50_000);
+        let cap = work_ceiling(self.limit, 50_000);
         let mut work = Vec::new();
         if let Some(scope) = scope {
             work.push(Work::Frame(scope.env.frame.clone(), 0));
@@ -917,7 +935,7 @@ impl Guard<'_> {
         if let Some(trace) = &mut self.visit_trace {
             trace.push(expr);
         }
-        if depth > 256 || self.visits > self.limit.saturating_mul(64).min(100_000) {
+        if depth > 256 || self.visits > work_ceiling(self.limit, 100_000) {
             return Err(EvalError::resource_limit("finite binding traversal"));
         }
         let ev = self.evaluator;
@@ -1398,7 +1416,7 @@ impl Guard<'_> {
                 }
                 OpRef::Std(s) => Some(s),
                 OpRef::Param(local) => {
-                    let ceiling = self.limit.saturating_mul(64).min(100_000);
+                    let ceiling = work_ceiling(self.limit, 100_000);
                     let mut remaining = ceiling.saturating_sub(self.visits);
                     let native = ev.scope_native_operator_analysis(
                         scope,
@@ -1469,7 +1487,7 @@ impl Guard<'_> {
                 ));
             }
             if standard == Some(StdOp::SequencesSelectSeq) {
-                let ceiling = self.limit.saturating_mul(64).min(100_000);
+                let ceiling = work_ceiling(self.limit, 100_000);
                 let mut remaining = ceiling.saturating_sub(self.visits);
                 // Inspect structure only. Concrete input and formal checks occur in the native loop.
                 let result = if st.is(crate::env::control::ENABLED) {

@@ -39,7 +39,7 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit and 4 internal error. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
+               [--lncheck final --lasso short] [--temporal-bounds default|unbounded]\n               [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit and 4 internal error. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -369,6 +369,13 @@ fn check_command(
                     );
                 }
                 _ => return usage_error(err, "--lasso expects `short` with --lncheck final"),
+            },
+            "--temporal-bounds" => match value().as_deref() {
+                Some("default") => req.temporal_bounds = Some(dive_api::TemporalBounds::Default),
+                Some("unbounded") => {
+                    req.temporal_bounds = Some(dive_api::TemporalBounds::Unbounded);
+                }
+                _ => return usage_error(err, "--temporal-bounds expects `default` or `unbounded`"),
             },
             "--store" => match value().as_deref() {
                 Some("exact") => req.store = dive_api::Store::Exact,
@@ -1240,6 +1247,37 @@ mod seen_tests {
                     || error.contains("is not implemented"),
                 "{error}"
             );
+        }
+    }
+}
+
+#[cfg(test)]
+mod temporal_bounds_tests {
+    use super::*;
+    #[test]
+    fn temporal_bounds_accepts_only_its_two_settings() {
+        for (value, usage) in [
+            ("default", false),
+            ("unbounded", false),
+            ("none", true),
+            ("", true),
+        ] {
+            let arguments = vec![
+                "missing-temporal-bounds-model.tla".to_owned(),
+                format!("--temporal-bounds={value}"),
+            ];
+            let mut output = Vec::new();
+            let mut errors = Vec::new();
+            let code = check_command(&arguments, &mut output, &mut errors);
+            let error = String::from_utf8_lossy(&errors);
+            assert_eq!(
+                error.contains("--temporal-bounds expects `default` or `unbounded`"),
+                usage,
+                "{value}: {error}"
+            );
+            if usage {
+                assert_eq!(code, ExitCode::from(EXIT_USAGE));
+            }
         }
     }
 }

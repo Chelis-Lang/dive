@@ -28,6 +28,9 @@ pub struct Limits {
     pub properties: usize,
     /// Maximum state and action label cells for one property.
     pub atom_cells: usize,
+    /// Resident-memory ceiling, in bytes, sampled while the tableau, labels
+    /// and product are built (see [`crate::resident`]). `None` samples nothing.
+    pub resident_bytes: Option<u64>,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -37,6 +40,35 @@ impl Default for Limits {
             product: product::Limits::default(),
             properties: 256,
             atom_cells: 8_000_000,
+            resident_bytes: None,
+        }
+    }
+}
+impl Limits {
+    /// TLC's setting: no fixed entry or work count in planning, capture,
+    /// labelling or product construction. TLC bounds liveness checking only by
+    /// memory and time. The resident-memory ceiling stands for TLC's heap:
+    /// [`crate::resident::default_ceiling`], a quarter of physical memory, the
+    /// JVM's default maximum heap. Exceeding it, or an external timeout, is
+    /// never a holding result. The `usize::MAX`
+    /// formula-node count is also the atoms' per-binder limit, which lifts the
+    /// evaluator's pure predicate replay work ceilings as well.
+    ///
+    /// ```
+    /// use dive_liveness::analyze::Limits;
+    /// let limits = Limits::unbounded();
+    /// assert_eq!(limits.atom_cells, usize::MAX);
+    /// assert_eq!(limits.capture.generated, u64::MAX);
+    /// ```
+    #[must_use]
+    pub fn unbounded() -> Self {
+        Self {
+            formula: formula::Limits::unbounded(),
+            capture: capture::Limits::unbounded(),
+            product: product::Limits::unbounded(),
+            properties: usize::MAX,
+            atom_cells: usize::MAX,
+            resident_bytes: crate::resident::default_ceiling(),
         }
     }
 }
@@ -380,6 +412,7 @@ fn labels(
         let mut state_row = Vec::new();
         let mut action_rows = Vec::new();
         for (v, vals) in graph.states.iter().enumerate() {
+            crate::resident::tick().map_err(|()| AnalysisError::Limit("resident memory"))?;
             state_row.push(if pred.kind == AtomKind::State {
                 atom(model, plan, index, &St::state(vals.clone()), property)?
             } else {
@@ -609,6 +642,7 @@ fn analyze_observed(
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
+    let _resident = crate::resident::enter(limits.resident_bytes);
     validate_analysis_context(model)?;
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));

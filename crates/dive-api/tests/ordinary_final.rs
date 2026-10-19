@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, ExitConvention, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention, TemporalBounds, TemporalMode};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 struct Spec(PathBuf);
@@ -275,9 +275,13 @@ fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
                 let mut request = spec.request(workers);
                 request.compat_tlc = compat_tlc;
                 request.temporal = mode;
+                // `--compat=tlc` alone selects TLC's unbounded setting
+                // (ADR 0106); the defaults stay selectable in both profiles.
+                request.temporal_bounds = Some(TemporalBounds::Default);
                 let report = dive_api::check_file(&request)?;
                 let json = report.to_json();
                 let bounds = &json["options"]["temporal_bounds"];
+                assert_eq!(bounds["setting"], "default");
                 assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
                 assert_eq!(bounds["acceptance_materialization_work"], 32_000_000);
                 assert_eq!(bounds["total_memory_budget"], false);

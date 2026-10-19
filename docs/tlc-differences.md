@@ -2854,3 +2854,36 @@ Independent INSTANCE query-word validation and general callable/temporal
 integration remain unfinished. Under D-022, composition still requires root-only
 intermediates; assigned hidden query names refuse instead of being silently
 dropped. This changes no comparison, model limit or approved default.
+
+## D-025: Temporal analysis has fixed bounds by default
+
+| | |
+|---|---|
+| **Kind** | Different answer (a refusal instead of a verdict) |
+| **Default** | `--temporal-bounds=default`: fixed entry and work counts; exhausting one is a named resource refusal |
+| **TLC behaviour** | `--temporal-bounds=unbounded`, selected by `--compat=tlc` |
+| **Status** | implemented ([ADR 0106](decisions/0106-temporal-bounds-setting.md)) |
+
+**What TLC does.** TLC's liveness checking has no fixed count of properties,
+tableau nodes, behavior-graph states or product vertices. It runs until it
+finishes, runs out of memory, or is stopped.
+
+**What dive does.** By default, final temporal analysis bounds every stage
+(256 properties, 4096 formula and tableau nodes, 1,000,000 captured states,
+8,000,000 atom label cells, 1,000,000 product vertices, and the acceptance
+buffers of ADR 0098). A model that exceeds one is refused with
+`resource-limit`, never reported as holding. For example, the Examples model
+`CoffeeCan/CoffeeCan1000Beans` (501,500 states) exceeds the product-vertex
+bound:
+
+```sh
+dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --fp 0
+```
+
+refuses, while `--compat=tlc`, or `--temporal-bounds=unbounded` in either
+profile, checks it and agrees with TLC (130 s and 1.4 GB on the measuring
+machine). Like TLC's heap, `unbounded` keeps a memory stop: a resident-memory
+ceiling of a quarter of physical memory, the JVM's default maximum heap. `options.temporal_bounds.setting` in the JSON report names the
+setting used. `unbounded` also lifts the work ceilings of pure predicate replay
+(finite-binding traversal and lazy query work); the structural nesting-depth
+limit stays in both settings.

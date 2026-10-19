@@ -73,6 +73,7 @@ impl Build {
         if depth > 256 {
             return Err(FormulaError::Limit("TLC planning depth"));
         }
+        crate::resident::tick().map_err(|()| FormulaError::Limit("resident memory"))?;
         self.steps = self
             .steps
             .checked_add(1)

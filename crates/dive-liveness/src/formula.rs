@@ -228,6 +228,19 @@ impl Default for Limits {
     }
 }
 
+impl Limits {
+    /// No fixed formula, tableau or expansion bound, as in TLC; see
+    /// [`crate::analyze::Limits::unbounded`].
+    #[must_use]
+    pub fn unbounded() -> Self {
+        Self {
+            formula_nodes: usize::MAX,
+            tableau_nodes: usize::MAX,
+            expansion_steps: usize::MAX,
+        }
+    }
+}
+
 /// A predicate and the truth value required at a tableau state.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Literal {
@@ -427,6 +440,7 @@ impl Builder {
         }];
         let mut roots = Vec::new();
         while let Some(mut w) = work.pop() {
+            crate::resident::tick().map_err(|()| FormulaError::Limit("resident memory"))?;
             self.steps = self
                 .steps
                 .checked_add(1)

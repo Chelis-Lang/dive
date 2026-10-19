@@ -38,6 +38,16 @@ impl AcceptancePolicy {
             work: limits.steps,
         }
     }
+
+    /// No fixed buffer or work allowance, as in TLC; only allocation failure
+    /// stops materialization (see [`crate::analyze::Limits::unbounded`]).
+    #[must_use]
+    pub fn unbounded() -> Self {
+        Self::Buffers {
+            bytes: usize::MAX,
+            work: usize::MAX,
+        }
+    }
 }
 
 const BYTES: ProductError = ProductError::Limit("acceptance buffer bytes");

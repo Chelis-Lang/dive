@@ -416,10 +416,13 @@ fn run_bound(
 // Ordinary requests use only the accepted default-memory role dispatch. Keep
 // its original model/host through analysis, and its complete safety results.
 // This is private source/configuration dispatch, never a prebound caller API.
-pub(crate) fn check_ordinary_final(
+// The caller selects the analysis bounds (`--temporal-bounds`).
+pub(crate) fn check_ordinary_final_with_policy(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
+    limits: Limits,
+    acceptance: AcceptancePolicy,
 ) -> Option<Result<Report, Failure>> {
     if config.properties.is_empty() {
         return None;
@@ -434,14 +437,9 @@ pub(crate) fn check_ordinary_final(
                         dive_check::final_roles::Dispatch::Safety(result) => {
                             Ok(Outcome::Safety(result))
                         }
-                        dive_check::final_roles::Dispatch::Temporal(model) => run_bound(
-                            ir,
-                            config,
-                            options,
-                            Limits::default(),
-                            &model,
-                            AcceptancePolicy::compact_default(),
-                        ),
+                        dive_check::final_roles::Dispatch::Temporal(model) => {
+                            run_bound(ir, config, options, limits, &model, acceptance)
+                        }
                     }
                 })
             })

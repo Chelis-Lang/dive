@@ -26,6 +26,7 @@ pub mod plan;
 pub mod product;
 
 pub mod analyze;
+pub mod resident;
 
 /// TLC's 2213/2214 liveness formula refusals, for `--compat=tlc`.
 pub mod tlc_plan;

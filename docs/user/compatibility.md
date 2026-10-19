@@ -15,6 +15,7 @@ TLC coverage.
 | Fingerprints | Native combination | TLC polynomial scheme, selectable with `--fp` |
 | Explicit bounded final temporal mode | Deterministic short selection | Same short selection, labeled `tlc+overrides`; TLC's exact lasso is not reproduced (`--lasso tlc` is a usage error) |
 | Ordinary periodic temporal scheduling | Pending | Pending; final mode does not implement periodic scheduling |
+| Temporal analysis bounds | Fixed counts; exhaustion refuses (`--temporal-bounds=default`) | None, as in TLC (`--temporal-bounds=unbounded`) |
 
 Named opt-ins can produce `tlc+overrides`. For example, final/short temporal
 checking and retained checkpoint counters must not claim pure TLC semantics.

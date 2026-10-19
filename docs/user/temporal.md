@@ -49,8 +49,24 @@ safety path. Randomness combined with VIEW or SYMMETRY and excluded options reta
 existing routes and named refusals. Real unsupported language features and resource limits remain explicit;
 a refusal, bound or external timeout is never a holding result.
 
-File-based temporal checking uses 8,000,000 covered acceptance-buffer bytes and
-32,000,000 independent acceptance materialization work units, in both profiles.
+`--temporal-bounds default|unbounded` selects the fixed bounds of file-based
+temporal analysis (ADR 0106, D-025). `default`, the default profile's setting,
+keeps the counts described below; exhausting one is a named resource refusal.
+`unbounded` has no fixed count in planning, capture, labelling, product
+construction or acceptance materialization: like TLC, only memory and time stop
+it. Its memory stop stands for TLC's heap: a resident-memory ceiling of a quarter
+of physical memory (the JVM's default maximum heap), sampled while the tableau,
+labels and product are built and reported as
+`options.temporal_bounds.resident_ceiling_bytes`. Exceeding it refuses with
+`resident memory`. `--compat=tlc` selects `unbounded` unless the flag is given, and JSON reports
+the setting as `options.temporal_bounds.setting`. `unbounded` also lifts the
+work ceilings of pure predicate replay (100,000 finite-binding traversal visits
+and 50,000 lazy query work units); the structural nesting-depth limit stays in
+both settings.
+
+With `--temporal-bounds=default`, file-based temporal checking uses 8,000,000
+covered acceptance-buffer bytes and 32,000,000 independent acceptance
+materialization work units.
 Packed words, column headers, optional edge offsets and Boolean scratch count;
 capture, labels, graph construction, search, runtime and allocator overhead do
 not. This is not a total memory or search-work limit. Other graph, evaluator and
