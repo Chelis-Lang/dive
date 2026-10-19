@@ -276,10 +276,6 @@ fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
                 request.compat_tlc = compat_tlc;
                 request.temporal = mode;
                 let report = dive_api::check_file(&request)?;
-                if !compat_tlc && mode == TemporalMode::Ordinary {
-                    assert_eq!(report.verdict(), "unsupported");
-                    continue;
-                }
                 let json = report.to_json();
                 let bounds = &json["options"]["temporal_bounds"];
                 assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
