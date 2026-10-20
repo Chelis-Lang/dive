@@ -11,9 +11,7 @@ repository.workspace = true
 [dependencies]
 dive-value.workspace = true
 dive-ir.workspace = true
-# The value-level overrides need the evaluator's host interface only; the
-# successor enumerator stays off (the trace validator may depend on this crate).
-dive-eval = { path = "../dive-eval", default-features = false }
+dive-eval.workspace = true
 num-bigint.workspace = true
 num-traits.workspace = true
 

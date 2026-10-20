@@ -142,14 +142,6 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         Ok(())
     }
 
-    /// Whether lazy expression results may be read from or written to caches.
-    /// Ordinary drivers retain TLC's cache behavior. Independent replay returns
-    /// false so a result previously computed by another consumer cannot replace
-    /// evaluation of the original expression under the replay host.
-    fn reuse_expression_cache(&self) -> bool {
-        true
-    }
-
     /// The cache domain that lazy expression results computed under this
     /// host belong to. A cached result is reused only by evaluation under a
     /// host of the same domain. Ordinary drivers share domain 0 (TLC's single
@@ -313,17 +305,9 @@ impl Core {
         }
     }
 
-    pub(crate) fn reuse_expression_cache(&self) -> bool {
-        self.host
-            .get()
-            .is_none_or(|host| host.reuse_expression_cache())
-    }
-
-    /// The cache domain lazy results are read from and written to, or `None`
-    /// when the host forbids expression caching.
-    pub(crate) fn expression_cache(&self) -> Option<u64> {
-        self.reuse_expression_cache()
-            .then(|| self.host.cache_domain())
+    /// The cache domain lazy results are read from and written to.
+    pub(crate) fn expression_cache(&self) -> u64 {
+        self.host.cache_domain()
     }
 
     /// `RandomElement` and the `Randomization` operators, through the host.

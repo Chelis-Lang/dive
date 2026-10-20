@@ -41,37 +41,13 @@ impl Core {
     /// Evaluates `e`.
     ///
     /// Inlined into its callers, so that evaluating a node costs one call
-    /// (to [`Self::eval_inner`]) rather than two; the rare `SelectSeq`
-    /// callback check stays out of line.
+    /// (to [`Self::eval_inner`]) rather than two.
     #[inline]
     pub(crate) fn eval(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
-        if st.selectseq_callback {
-            return self.eval_checked(env, st, e);
-        }
         match self.eval_inner(env, st, e) {
             Ok(v) => Ok(v),
             Err(err) => Err(err.at(e)),
         }
-    }
-
-    /// [`Self::eval`] under a `SelectSeq` callback, which checks every value.
-    #[inline(never)]
-    fn eval_checked(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
-        let result = self.eval_inner(env, st, e).map_err(|err| err.at(e))?;
-        if st.selectseq_callback {
-            match &result {
-                Ev::V(value) => crate::Evaluator {
-                    core: self.clone(),
-                    collected: None,
-                }
-                .check_selectseq_value(st, value)
-                .map_err(|err| err.at(e))?,
-                Ev::F(_) => {
-                    return Err(EvalError::unsupported("SelectSeq deferred callback value").at(e));
-                }
-            }
-        }
-        Ok(result)
     }
 
     /// Evaluates `e` and computes a lazy function's value (TLC's implicit
@@ -148,9 +124,7 @@ impl Core {
 
     pub(crate) fn materialize(self: &Arc<Self>, f: &Arc<LazyFcn>) -> Result<Value> {
         let domain = self.expression_cache();
-        if let Some(d) = domain
-            && let Some(v) = f.materialized.get(d)
-        {
+        if let Some(v) = f.materialized.get(domain) {
             return Ok(v);
         }
         for b in &f.bounds {
@@ -208,9 +182,7 @@ impl Core {
             let new = self.embed(ex.value.clone())?;
             v = self.take_except(&v, &ex.path[ex.idx..], new)?;
         }
-        if let Some(d) = domain {
-            f.materialized.set(d, v.clone());
-        }
+        f.materialized.set(domain, v.clone());
         Ok(v)
     }
 
@@ -504,10 +476,6 @@ impl Core {
                     s0: st.s1.clone(),
                     s1: StateRef::Null,
                     control: St::primed_if_enabled(st.control),
-                    selectseq: st.selectseq.clone(),
-                    selectseq_callback: st.selectseq_callback,
-                    memoize_queries: st.memoize_queries,
-                    enabled: st.enabled.clone(),
                 };
                 self.eval(env, &st1, *a)
             }
@@ -519,10 +487,6 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Empty,
                         control: st.control,
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     *a,
                 )?;
@@ -532,10 +496,6 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: St::primed_if_enabled(st.control),
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     *a,
                 )?;
@@ -562,10 +522,6 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Empty,
                         control: st.control,
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     *sub,
                 )?;
@@ -575,17 +531,13 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: St::primed_if_enabled(st.control),
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     *sub,
                 )?;
                 let same = self.equals(&v0, &v1)?;
                 Ok(Ev::V(Value::Bool(if angle { !same } else { same })))
             }
-            Expr::Enabled(a) => self.eval_enabled(env, st, *a, e),
+            Expr::Enabled(a) => self.eval_enabled_native(env, st, *a, e),
             Expr::Cdot(a, b) => self.eval_cdot(env, st, *a, *b, e),
             Expr::Always(_) => Err(self.temporal("[]A", e)),
             Expr::Eventually(_) => Err(self.temporal("<>A", e)),
@@ -668,31 +620,15 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Null,
                         control: st.control,
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     };
                     return self.eval(&mut t.env.clone(), &st1, t.expr);
                 }
-                if t.cachable
-                    && st.memoize_queries
-                    && st.is(control::ENABLED)
-                    && matches!(st.s1, StateRef::Named(_))
-                    && let Some(policy) = &st.selectseq
-                {
-                    return self.force_query_memo(t, st, policy);
-                }
-                let cache = self.expression_cache().filter(|_| st.selectseq.is_none());
-                if let Some(d) = cache
-                    && let Some(v) = t.cached(st, d)
-                {
+                let domain = self.expression_cache();
+                if let Some(v) = t.cached(st, domain) {
                     return Ok(v);
                 }
                 let v = self.eval(&mut t.env.clone(), st, t.expr)?;
-                if let Some(d) = cache {
-                    t.store(st, &v, d);
-                }
+                t.store(st, &v, domain);
                 Ok(v)
             }
             Sv::Op(op) => {
@@ -761,10 +697,6 @@ impl Core {
                     s0: st.s1.clone(),
                     s1: StateRef::Null,
                     control: St::primed_if_enabled(st.control),
-                    selectseq: st.selectseq.clone(),
-                    selectseq_callback: st.selectseq_callback,
-                    memoize_queries: st.memoize_queries,
-                    enabled: st.enabled.clone(),
                 };
                 return self.force(env, &sv, &st1, e);
             }
@@ -785,10 +717,6 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: st.control,
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     c,
                     e,
@@ -856,23 +784,15 @@ impl Core {
             return self.eval_std(env, st, op, &[], e);
         }
         if self.cacheable(d) {
-            if st.selectseq.is_none()
-                && let Some(v) = self.def_cache[d.index()].get()
-            {
+            if let Some(v) = self.def_cache[d.index()].get() {
                 return Ok(Ev::V(v.clone()));
             }
             // TLC evaluates constant definitions once, at start-up, in an empty
             // context; only successes are kept.
             let _g = self.enter(e)?;
             let mut fresh = Env::new(d, def.depth, def.frame.len(), None, Dyn::default());
-            let mut constant = St::constant();
-            constant.selectseq.clone_from(&st.selectseq);
-            constant.selectseq_callback = st.selectseq_callback;
-            constant.enabled.clone_from(&st.enabled);
-            let v = self.eval(&mut fresh, &constant, def.body)?;
-            if st.selectseq.is_none()
-                && let Ev::V(v) = &v
-            {
+            let v = self.eval(&mut fresh, &St::constant(), def.body)?;
+            if let Ev::V(v) = &v {
                 let _ = self.def_cache[d.index()].set(v.clone());
             }
             return Ok(v);
@@ -1522,7 +1442,7 @@ impl Core {
             in_val,
             pred,
             env: env.clone(),
-            st: st.for_lazy_value(),
+            st: st.clone(),
         };
         Ok(Ev::V(Value::deferred(Arc::new(f), self.ctx)))
     }
@@ -1654,7 +1574,7 @@ impl Core {
             bounds: vals,
             body,
             env: env.clone(),
-            st: st.for_lazy_value().with_control(control),
+            st: st.clone().with_control(control),
             rec_slot,
             excepts: Vec::new(),
             materialized: crate::lazy::Materialized::default(),
@@ -1680,9 +1600,7 @@ impl Core {
         arg: &Value,
         control: u8,
     ) -> Result<Ev> {
-        if let Some(d) = self.expression_cache()
-            && let Some(v) = f.materialized.get(d)
-        {
+        if let Some(v) = f.materialized.get(self.expression_cache()) {
             let Value::Fcn(fv) = &v else {
                 return Err(EvalError::bug(
                     "materialized lazy function is not a function",
@@ -1770,7 +1688,7 @@ impl Core {
                         } else {
                             for &s in &b.slots {
                                 if !self.member(&elems[k], &b.domain)? {
-                                    return Err(EvalError::unsupported_tlc_failure(
+                                    return Err(EvalError::unsupported(
                                         "applying a multi-argument lazy function outside its domain (TLC's message prints the domain)",
                                     ));
                                 }
@@ -1986,9 +1904,7 @@ impl Core {
         f: &Arc<LazyFcn>,
         arg: &Value,
     ) -> Result<Option<Ev>> {
-        if let Some(d) = self.expression_cache()
-            && let Some(v) = f.materialized.get(d)
-        {
+        if let Some(v) = f.materialized.get(self.expression_cache()) {
             return self.select(&Ev::V(v), arg);
         }
         if f.arity() != 1 || f.bounds[0].tuple {
@@ -2130,9 +2046,7 @@ impl Core {
         }
         match base {
             Ev::F(f) => {
-                if let Some(d) = self.expression_cache()
-                    && let Some(v) = f.materialized.get(d)
-                {
+                if let Some(v) = f.materialized.get(self.expression_cache()) {
                     return self.take_except_ev(Ev::V(v), path, new);
                 }
                 Ok(Ev::F(f.with_except(Except {
@@ -2340,10 +2254,6 @@ impl Core {
                     s0: st.s1.clone(),
                     s1: StateRef::Null,
                     control: St::primed_if_enabled(st.control),
-                    selectseq: st.selectseq.clone(),
-                    selectseq_callback: st.selectseq_callback,
-                    memoize_queries: st.memoize_queries,
-                    enabled: st.enabled.clone(),
                 };
                 return self.eval(env, &st1, arg(0)?);
             }
@@ -2355,10 +2265,6 @@ impl Core {
                         s0: st.s0.clone(),
                         s1: StateRef::Empty,
                         control: st.control,
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     a,
                 )?;
@@ -2368,16 +2274,12 @@ impl Core {
                         s0: st.s1.clone(),
                         s1: StateRef::Null,
                         control: St::primed_if_enabled(st.control),
-                        selectseq: st.selectseq.clone(),
-                        selectseq_callback: st.selectseq_callback,
-                        memoize_queries: st.memoize_queries,
-                        enabled: st.enabled.clone(),
                     },
                     a,
                 )?;
                 Value::Bool(self.equals(&v0, &v1)?)
             }
-            BuiltinOp::Enabled => return self.eval_enabled(env, st, arg(0)?, e),
+            BuiltinOp::Enabled => return self.eval_enabled_native(env, st, arg(0)?, e),
             BuiltinOp::Cdot => {
                 if self.opts.action_composition != crate::options::ActionComposition::Off {
                     return Err(EvalError::unsupported(format!(
@@ -2666,8 +2568,7 @@ impl Core {
 
     /// `FcnLambdaValue.getDomain`.
     fn lazy_domain(&self, f: &Arc<LazyFcn>) -> Value {
-        if let Some(domain) = self.expression_cache()
-            && let Some(Value::Fcn(m)) = f.materialized.get(domain)
+        if let Some(Value::Fcn(m)) = f.materialized.get(self.expression_cache())
             && let Ok(d) = self.domain(&m)
         {
             return d;

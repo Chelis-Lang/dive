@@ -1776,14 +1776,15 @@ DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
         let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
             .expect("pure dynamic domain planned without reading it");
         let state: dive_trace::State = Arc::from([Some(true.into())]);
-        assert!(
+        // The checker's atoms and replay both evaluate the 5000-element
+        // domain, as TLC does; an infinite domain fails in both.
+        assert_eq!(
             plan.atoms.iter().any(|a| a
                 .evaluate(&model, &dive_eval::St::state(state.clone()))
                 .is_err()),
+            name == "Unbounded",
             "{name}"
         );
-        // The planner's binding bound does not apply to replay, which evaluates
-        // the 5000-element domain; an infinite domain still fails.
         let word =
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0);
         assert_eq!(word.ok(), (name == "Large").then(|| vec![false]), "{name}");
@@ -1902,7 +1903,7 @@ fn state_domain_models_match_pinned_final_truth_counts_and_independent_validatio
 }
 
 #[test]
-fn concrete_binding_guard_reads_successor_domains_without_placeholder_states() {
+fn successor_domains_are_read_without_placeholder_states() {
     let (ir, cfg) = input(
         r"---- MODULE ShiftedDomains ----
 VARIABLE x
@@ -1921,10 +1922,6 @@ Still == UNCHANGED x
     let before: dive_trace::State = Arc::from([Some(false.into())]);
     let after: dive_trace::State = Arc::from([Some(true.into())]);
     let edge = dive_eval::St::action(before.clone(), after.clone());
-    model
-        .evaluator
-        .check_finite_bindings(&scope, expr, &edge, 4096)
-        .expect("actual successor domain");
     assert_eq!(
         model
             .evaluator
@@ -1933,10 +1930,6 @@ Still == UNCHANGED x
         true.into()
     );
     let reverse = dive_eval::St::action(after, before.clone());
-    model
-        .evaluator
-        .check_finite_bindings(&scope, expr, &reverse, 4096)
-        .expect("empty successor domain");
     assert_eq!(
         model
             .evaluator
@@ -1946,28 +1939,8 @@ Still == UNCHANGED x
     );
     let missing = dive_eval::St::state(before);
     assert!(
-        model
-            .evaluator
-            .check_finite_bindings(&scope, expr, &missing, 4096)
-            .is_err(),
+        model.evaluator.eval_scoped(&scope, expr, &missing).is_err(),
         "missing state must not reuse the empty current domain"
-    );
-    let still = ir.root_def("Still").expect("Still");
-    model
-        .evaluator
-        .check_finite_bindings(
-            &model.evaluator.scope(still).expect("valid scope"),
-            ir.def(still).body,
-            &missing,
-            4096,
-        )
-        .expect("a walk with no domain needs no successor value");
-    assert!(
-        model
-            .evaluator
-            .check_finite_bindings(&scope, expr, &edge, 0)
-            .is_err(),
-        "zero traversal budget"
     );
 }
 
@@ -2088,11 +2061,12 @@ Empty == []<>((CHOOSE b \in IF x THEN {} ELSE {TRUE} : TRUE)=TRUE)
         let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
             .expect("dynamic pure choice");
         let st = dive_eval::St::state(Arc::from([Some(true.into())]));
-        assert!(
+        // The 5000-element choice is TLC's, for the checker's atoms and replay.
+        assert_eq!(
             plan.atoms.iter().any(|a| a.evaluate(&model, &st).is_err()),
+            name != "Huge",
             "{name}"
         );
-        // Replay has no planner binding bound: the 5000-element choice is TLC's.
         let word =
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0);
         if name == "Huge" {

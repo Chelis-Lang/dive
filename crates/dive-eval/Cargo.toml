@@ -8,43 +8,16 @@ publish.workspace = true
 license.workspace = true
 repository.workspace = true
 
-[features]
-# The successor enumerator (`dive_eval::next`, ADR 0014 §3), which also
-# decides `ENABLED`. Without it, `ENABLED` (which searches for a successor) is
-# refused. Every consumer that decides `ENABLED`, the trace validator included
-# (ADR 0103), enables it.
-default = ["enumerate"]
-# The dev-only model harness needs action fields when this feature is on;
-# standalone core regressions must not enable it through a dev dependency.
-enumerate = ["dive-model/enumerate"]
-
 [dependencies]
 dive-ir.workspace = true
 dive-value.workspace = true
 
 [dev-dependencies]
 dive-sema.workspace = true
-dive-model = { workspace = true, default-features = false }
+dive-model.workspace = true
 dive-config.workspace = true
 proptest.workspace = true
 serde_json.workspace = true
 
 [lints]
 workspace = true
-
-# The successor generator's tests and corpus runner need it.
-[[test]]
-name = "next_probes"
-required-features = ["enumerate"]
-
-[[test]]
-name = "next_examples"
-required-features = ["enumerate"]
-
-[[test]]
-name = "cdot"
-required-features = ["enumerate"]
-
-[[example]]
-name = "next_corpus"
-required-features = ["enumerate"]

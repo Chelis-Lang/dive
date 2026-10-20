@@ -338,16 +338,6 @@ impl Core {
             StdOp::SequencesSelectSeq => {
                 let s = v(0)?;
                 let Some(t) = self.to_tuple(s) else {
-                    if st.selectseq.is_some() && matches!(s, Value::Fcn(_) | Value::Set(_)) {
-                        // Invalid compound operands may contain deferred values
-                        // that error rendering would otherwise enumerate. Valid
-                        // sequences are checked only in the original loop below.
-                        crate::Evaluator {
-                            core: self.clone(),
-                            collected: None,
-                        }
-                        .check_selectseq_value(st, s)?;
-                    }
                     return Err(self.arg_error("first", "SelectSeq", "sequence", s));
                 };
                 if t.is_empty() {
@@ -361,43 +351,6 @@ impl Core {
                 };
                 let mut out = Vec::new();
                 for x in t {
-                    if let Some(policy) = &st.selectseq {
-                        if let Value::Fcn(function) = s
-                            && function.kind() != dive_value::FcnKind::Tuple
-                            && function.order() != self.ctx.order
-                        {
-                            return Err(EvalError::unsupported("SelectSeq stored sequence order"));
-                        }
-                        let evaluator = crate::Evaluator {
-                            core: self.clone(),
-                            collected: None,
-                        };
-                        let scope = crate::Scope {
-                            env: env.clone(),
-                            owner: self.ir.clone(),
-                            names: self.names.clone(),
-                            context: Arc::downgrade(self),
-                            wrapper: policy.wrapper,
-                        };
-                        let mut remaining = policy
-                            .remaining
-                            .lock()
-                            .unwrap_or_else(std::sync::PoisonError::into_inner);
-                        *remaining = remaining
-                            .checked_sub(1)
-                            .ok_or_else(|| EvalError::resource_limit("SelectSeq element work"))?;
-                        evaluator.selectseq_context_in(
-                            &scope,
-                            test.clone(),
-                            Some(x),
-                            s.as_fcn(),
-                            &mut remaining,
-                            st,
-                        )?;
-                        // The finite walk above has this actual value bound in
-                        // the exact lexical frame and shares the invocation's
-                        // remaining work. It never inspects predicate truth.
-                    }
                     match self.apply_op_values(env, st, test, std::slice::from_ref(x), e)? {
                         Value::Bool(true) => out.push(x.clone()),
                         Value::Bool(false) => {}
@@ -603,7 +556,6 @@ impl Core {
                         // ENABLED from that context after EvalControl.Clear;
                         // its primed lookup must keep the INSTANCE cutoff.
                         control: st.control & crate::env::control::ENABLED,
-                        selectseq_callback: st.selectseq.is_some(),
                         ..st.clone()
                     },
                     d.body,

@@ -81,7 +81,6 @@ fn two_primary_counts_truth_and_native_words_match_in_both_profiles_and_stores()
     reason = "keep all runtime and planner boundaries in one parallel profile matrix"
 )]
 fn query_placements_preserve_each_runtime_and_planner_boundary() {
-    use dive_eval::St;
     use dive_model::Pred;
     for tlc in [true, false] {
         let options = if tlc {
@@ -139,20 +138,6 @@ fn query_placements_preserve_each_runtime_and_planner_boundary() {
             let action_pred = role("A");
             let property = role("P");
             let before: dive_trace::State = Arc::from([Some(0.into())]);
-            let after: dive_trace::State = Arc::from([Some(1.into())]);
-            assert_eq!(
-                model
-                    .evaluator
-                    .check_finite_bindings(
-                        &action_pred.scope,
-                        action_pred.expr,
-                        &St::action(before.clone(), after),
-                        4096
-                    )
-                    .is_ok(),
-                runtime_supported,
-                "finite {action}"
-            );
             assert!(
                 dive_liveness::plan::lower(
                     &model,
@@ -273,42 +258,15 @@ impl dive_eval::Host for SubscriptHooks {
         Ok(())
     }
 }
-#[derive(Debug)]
-struct SubscriptProvider(Arc<std::sync::atomic::AtomicUsize>);
-impl dive_value::DeferredSet for SubscriptProvider {
-    fn kind(&self) -> dive_value::DeferredKind {
-        dive_value::DeferredKind::Filter
-    }
-    fn elements(&self, _: dive_value::Ctx) -> dive_value::Result<Vec<dive_value::Value>> {
-        self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        Ok(vec![0.into()])
-    }
-    fn member(
-        &self,
-        _: &dive_value::Value,
-        _: dive_value::Ctx,
-    ) -> Option<dive_value::Result<bool>> {
-        self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        Some(Ok(true))
-    }
-    fn key(&self) -> Vec<dive_value::Value> {
-        self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        vec![]
-    }
-}
+
 #[test]
-#[allow(
-    clippy::too_many_lines,
-    reason = "one prebound scope exercises refusal, callback isolation and original error ordering together"
-)]
-fn prebound_nonstuttering_subscripts_refuse_direct_and_hidden_lazy_queries_before_callbacks() {
+fn prebound_nonstuttering_subscripts_keep_original_error_ordering() {
     use dive_eval::St;
     use dive_liveness::formula::AtomKind;
     use dive_liveness::plan::{AtomTest, PredicateAtom};
     use dive_model::Pred;
-    use std::sync::atomic::{AtomicUsize, Ordering};
     for options in [dive_eval::Options::tlc(), dive_eval::Options::dive()] {
-        let source = "---- MODULE SubscriptQueries ----\nEXTENDS Integers\nVARIABLE x\nInit==x=0\nNext==x'=1\nQ==ENABLED (x' \\in x)\nWrap==LET held==Q IN TRUE /\\ held\nBody==1 \\div 0=0\nOrdinary==x\nBad==1 \\div 0\n====\n";
+        let source = "---- MODULE SubscriptQueries ----\nEXTENDS Integers\nVARIABLE x\nInit==x=0\nNext==x'=1\nBody==1 \\div 0=0\nOrdinary==x\nBad==1 \\div 0\n====\n";
         let a = dive_sema::analyze_source(
             "SubscriptQueries.tla",
             source,
@@ -333,60 +291,22 @@ fn prebound_nonstuttering_subscripts_refuse_direct_and_hidden_lazy_queries_befor
                 model.evaluator.scope(d).expect("scope"),
             )
         };
-        let wrap = role("Wrap");
-        let dive_ir::Expr::Let { body, .. } = model.ir.expr(wrap.expr) else {
-            panic!("LET")
-        };
-        let scope = model
-            .evaluator
-            .scope_let(&wrap.scope, wrap.expr)
-            .expect("lazy scope");
-        let dive_ir::Expr::Junction { items, .. } = model.ir.expr(*body) else {
-            panic!("conjunction")
-        };
-        let hidden = PredicateAtom {
-            pred: Pred::new(items[0], scope),
-            kind: AtomKind::Action,
-            test: AtomTest::Nonstuttering { sub: items[1] },
-            binding_limit: 4096,
-        };
         let direct = PredicateAtom {
             pred: role("Body"),
-            test: AtomTest::Nonstuttering {
-                sub: role("Q").expr,
-            },
-            ..hidden.clone()
-        };
-        let hooks = Arc::new(SubscriptHooks::default());
-        model.evaluator.set_host(hooks.clone());
-        let count = Arc::new(AtomicUsize::new(0));
-        let provider =
-            dive_value::Value::deferred(Arc::new(SubscriptProvider(count.clone())), options.ctx);
-        let state = |v| Arc::from([Some(v)]);
-        for atom in [&direct, &hidden] {
-            for (before, after) in [(0.into(), 1.into()), (provider.clone(), provider.clone())] {
-                let error = atom
-                    .evaluate(&model, &St::action(state(before), state(after)))
-                    .expect_err("data-position query must be refused before evaluation");
-                assert!(error.to_string().contains("ENABLED"), "{error}");
-            }
-        }
-        assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
-        assert_eq!(count.load(Ordering::SeqCst), 0);
-        let ordinary = PredicateAtom {
+            kind: AtomKind::Action,
             test: AtomTest::Nonstuttering {
                 sub: role("Ordinary").expr,
             },
-            ..direct.clone()
         };
+        let state = |v: i64| -> dive_trace::State { Arc::from([Some(v.into())]) };
         assert!(
-            !ordinary
-                .evaluate(&model, &St::action(state(0.into()), state(0.into())))
+            !direct
+                .evaluate(&model, &St::action(state(0), state(0)))
                 .expect("stutter skips body error")
         );
         assert_eq!(
-            ordinary
-                .evaluate(&model, &St::action(state(0.into()), state(1.into())))
+            direct
+                .evaluate(&model, &St::action(state(0), state(1)))
                 .expect_err("changed subscript reaches body")
                 .ec()
                 .code(),
@@ -399,7 +319,7 @@ fn prebound_nonstuttering_subscripts_refuse_direct_and_hidden_lazy_queries_befor
             ..direct
         };
         assert_eq!(
-            bad.evaluate(&model, &St::action(state(0.into()), state(0.into())))
+            bad.evaluate(&model, &St::action(state(0), state(0)))
                 .expect_err("ordinary subscript error precedes stutter")
                 .ec()
                 .code(),
@@ -573,19 +493,6 @@ fn configured_known_hidden_and_unused_query_actuals_refuse_in_all_four_routes() 
                 role("Unused"),
                 Pred::new(body, scope),
             ] {
-                let before: dive_trace::State = Arc::from([Some(0.into())]);
-                let after: dive_trace::State = Arc::from([Some(1.into())]);
-                assert!(
-                    m.evaluator
-                        .check_finite_bindings(
-                            &p.scope,
-                            p.expr,
-                            &dive_eval::St::action(before.clone(), after.clone()),
-                            4096
-                        )
-                        .is_err(),
-                    "finite {target}"
-                );
                 assert!(
                     dive_liveness::plan::lower(&m, &p, dive_liveness::formula::Limits::default())
                         .is_err(),

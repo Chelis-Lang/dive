@@ -98,102 +98,6 @@ fn actual_recursive_evaluation_reuses_no_other_invocations_capture() {
     }
 }
 
-#[test]
-fn projected_body_contexts_keep_actual_self_and_reject_foreign_or_stale_invocations() {
-    let ev = evaluator(Options::tlc());
-    let def = ev.ir().root_def("PermSeqs").expect("PermSeqs");
-    let root = &ev.ir().def(def);
-    let Expr::Let { defs, .. } = ev.ir().expr(root.body) else {
-        panic!("LET");
-    };
-    let local = defs
-        .iter()
-        .copied()
-        .find(|d| ev.ir().def(*d).name == "perms")
-        .expect("perms");
-    let rec = ev.ir().def(local).body;
-    let Expr::RecFcn { name, bounds, .. } = ev.ir().expr(rec) else {
-        panic!("recursive function");
-    };
-    let domain = Value::set(vec![1.into(), 2.into()], Ctx::tlc()).expect("domain");
-    let scope = ev
-        .scope_call_values(&ev.scope(def).expect("scope"), def, vec![domain])
-        .expect("call");
-    let scope = ev.scope_let(&scope, root.body).expect("LET");
-    let invocation = ev
-        .begin_pure_predicate(&scope, &St::constant(), 4096)
-        .expect("invocation");
-    let function = ev
-        .scope_recursive_function_bounded(&scope, rec, &invocation, 4096)
-        .expect("actual function");
-    let contexts = ev
-        .recursive_function_body_scopes_bounded(&scope, &function, &invocation, 4096)
-        .expect("contexts");
-    assert_eq!(contexts.bindings.len(), 4);
-    for bound in &contexts.bindings {
-        assert!(
-            matches!(ev.scope_slot(bound,LocalRef{up:0,slot:*name}),SlotView::Function(actual) if Arc::ptr_eq(&actual,&function))
-        );
-        assert!(matches!(
-            ev.scope_slot(
-                bound,
-                LocalRef {
-                    up: 0,
-                    slot: bounds[0].vars[0]
-                }
-            ),
-            SlotView::Value(_)
-        ));
-        ev.eval_scoped(bound, contexts.body, &contexts.state)
-            .expect("real recursive body");
-    }
-    let other = evaluator(Options::tlc());
-    let other_def = other.ir().root_def("PermSeqs").expect("other");
-    let foreign_invocation = other
-        .begin_pure_predicate(
-            &other.scope(other_def).expect("other scope"),
-            &St::constant(),
-            4096,
-        )
-        .expect("foreign invocation");
-    assert!(
-        ev.scope_recursive_function_bounded(&scope, rec, &foreign_invocation, 4096)
-            .is_err()
-    );
-    assert!(
-        ev.scope_recursive_function_bounded(&scope, dive_ir::ExprId(u32::MAX), &invocation, 4096)
-            .is_err()
-    );
-    assert!(
-        other
-            .recursive_function_body_scopes_bounded(
-                &other.scope(other_def).expect("scope"),
-                &function,
-                &invocation,
-                4096
-            )
-            .is_err()
-    );
-    let stale = ev
-        .begin_pure_predicate(&scope, &St::constant(), 4096)
-        .expect("different invocation");
-    assert!(
-        ev.recursive_function_body_scopes_bounded(&scope, &function, &stale, 4096)
-            .is_err()
-    );
-    let changed = invocation.at_state(Arc::from([Some(1.into()), Some(false.into())]));
-    assert!(
-        ev.recursive_function_body_scopes_bounded(&scope, &function, &changed, 4096)
-            .is_err()
-    );
-    for limit in [0, 1] {
-        assert!(
-            ev.scope_recursive_function_bounded(&scope, rec, &invocation, limit)
-                .is_err()
-        );
-    }
-}
-
 fn source_evaluator(body: &str) -> Evaluator {
     let source = format!("---- MODULE RecursiveSmall ----\nEXTENDS Integers, TLC\n{body}\n====\n");
     let analysis = dive_sema::analyze_source(
@@ -218,28 +122,12 @@ fn empty_unused_domains_and_nonterminating_or_invalid_applications_keep_boundari
     );
     for name in ["Empty", "Unused", "Tuple", "Multiple"] {
         let def = ev.ir().root_def(name).expect(name);
-        let scope = ev.scope(def).expect("scope");
-        ev.check_finite_bindings(&scope, ev.ir().def(def).body, &St::constant(), 4096)
-            .expect(name);
         let value = ev.eval_def(def, &St::constant()).expect(name);
         match name {
             "Empty" => assert_eq!(value, Value::empty_set(Ctx::tlc())),
             "Unused" => assert_eq!(value, Value::Bool(true)),
             _ => assert_eq!(value, Value::Int(1)),
         }
-    }
-    for name in ["Infinite", "Large"] {
-        let def = ev.ir().root_def(name).expect(name);
-        assert!(
-            ev.check_finite_bindings(
-                &ev.scope(def).expect("scope"),
-                ev.ir().def(def).body,
-                &St::constant(),
-                4096
-            )
-            .is_err(),
-            "{name}"
-        );
     }
     for name in ["Loop", "Outside"] {
         let def = ev.ir().root_def(name).expect(name);
@@ -257,56 +145,5 @@ fn empty_unused_domains_and_nonterminating_or_invalid_applications_keep_boundari
             error.origin().is_some(),
             "original source location: {error}"
         );
-    }
-}
-#[test]
-fn recursive_effects_are_inspected_before_any_runtime_host_callback() {
-    use std::sync::atomic::{AtomicUsize, Ordering};
-    #[derive(Debug, Default)]
-    struct Host(AtomicUsize);
-    impl dive_eval::Host for Host {
-        fn print_output(&self, _: &str) -> Result<bool, dive_eval::HostError> {
-            self.0.fetch_add(1, Ordering::Relaxed);
-            Ok(true)
-        }
-    }
-    let ev = source_evaluator(
-        "Bad==LET f[x \\in {0}]==IF PrintT(x) THEN f[x] ELSE FALSE IN f[0]\nCaptured(p)==LET f[x \\in {0}]==IF x=0 THEN p ELSE f[x] IN f[0]\nHidden==Captured(PrintT(0))\nEmptyBad==LET f[x \\in {}]==IF PrintT(x) THEN f[x] ELSE FALSE IN DOMAIN f",
-    );
-    let host = Arc::new(Host::default());
-    ev.set_host(host.clone());
-    for name in ["Bad", "Hidden", "EmptyBad"] {
-        let def = ev.ir().root_def(name).expect(name);
-        assert!(
-            ev.check_finite_bindings(
-                &ev.scope(def).expect("scope"),
-                ev.ir().def(def).body,
-                &St::constant(),
-                4096
-            )
-            .is_err(),
-            "{name}"
-        );
-    }
-    assert_eq!(host.0.load(Ordering::Relaxed), 0);
-}
-
-#[test]
-fn actual_recursive_body_cannot_capture_a_primed_or_hidden_primed_value() {
-    let ev = source_evaluator(
-        "VARIABLE v\nDirect==LET f[t \\in {0}]==IF t=0 THEN v' ELSE f[t] IN f[0]\nF(p)==LET f[t \\in {0}]==IF t=0 THEN p ELSE f[t] IN f[0]\nHidden==F(v')",
-    );
-    let state = St::action(Arc::from([Some(0.into())]), Arc::from([Some(1.into())]));
-    for name in ["Direct", "Hidden"] {
-        let def = ev.ir().root_def(name).expect(name);
-        let error = ev
-            .check_finite_bindings(
-                &ev.scope(def).expect("scope"),
-                ev.ir().def(def).body,
-                &state,
-                4096,
-            )
-            .expect_err("recursive action capture remains refused");
-        assert!(error.message().contains("recursive"), "{name}: {error}");
     }
 }

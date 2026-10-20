@@ -655,20 +655,12 @@ impl Gen<'_, '_> {
                 s0: StateRef::Vals(self.s1.clone()),
                 s1: StateRef::Empty,
                 control: control::INIT,
-                selectseq: None,
-                selectseq_callback: false,
-                memoize_queries: false,
-                enabled: None,
             }
         } else {
             St {
                 s0: self.s0.clone(),
                 s1: StateRef::Vals(self.s1.clone()),
                 control: control::CLEAR,
-                selectseq: None,
-                selectseq_callback: false,
-                memoize_queries: false,
-                enabled: None,
             }
         }
     }
@@ -681,10 +673,6 @@ impl Gen<'_, '_> {
                 s0: StateRef::Vals(self.s1.clone()),
                 s1: StateRef::Null,
                 control: control::CLEAR,
-                selectseq: None,
-                selectseq_callback: false,
-                memoize_queries: false,
-                enabled: None,
             }
         } else {
             self.st()
@@ -769,19 +757,11 @@ impl Gen<'_, '_> {
             s0: self.s0.clone(),
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         };
         let s1 = St {
             s0: StateRef::Vals(self.s1.clone()),
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         };
         let v1 = self.core.eval_v(&mut item.env.clone(), &s0, item.expr)?;
         let v2 = self.core.eval_v(&mut item.env.clone(), &s1, item.expr)?;
@@ -1226,19 +1206,11 @@ impl Gen<'_, '_> {
             s0: self.s0.clone(),
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         };
         let st1 = St {
             s0: StateRef::Vals(self.s1.clone()),
             s1: StateRef::Null,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         };
         let v0 = self.core.eval_v(&mut env.clone(), &st0, e)?;
         let v1 = self.core.eval_v(&mut env.clone(), &st1, e)?;
@@ -1857,10 +1829,6 @@ impl Expander<'_> {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         };
         match t {
             ActionTree::Leaf { expr, name } => {
@@ -1997,10 +1965,6 @@ impl Expander<'_> {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         };
         let attempt = (|| -> std::result::Result<(), Split1> {
             let d = core.ir.def(def);
@@ -2057,8 +2021,8 @@ impl Expander<'_> {
 impl Evaluator {
     /// Decides whether a scoped action has a successor, using TLC's existing
     /// ENABLED search. A subscript requests a non-stuttering successor,
-    /// equivalent to `ENABLED <<action>>_sub`. This checker API is available
-    /// only with `enumerate`; the independent validator uses its own procedure.
+    /// equivalent to `ENABLED <<action>>_sub`. The checker, the liveness
+    /// checker and the trace validator all decide `ENABLED` here (ADR 0103).
     ///
     /// ```
     /// use std::sync::Arc;
@@ -2082,66 +2046,12 @@ impl Evaluator {
         sub: Option<ExprId>,
         state: StateVals,
     ) -> Result<bool> {
-        self.enabled_scoped_context(scope, action, sub, StateRef::Vals(state), None)
-    }
-
-    /// Evaluates the original ENABLED search sharing an existing pure predicate
-    /// invocation's resource counters. With no context, initializes one fresh
-    /// invocation using `limit`. This supplies no enabledness/admission proof.
-    ///
-    /// # Errors
-    /// Invalid scope/state/context, unsupported callback or original search error.
-    pub fn enabled_scoped_pure(
-        &self,
-        scope: &Scope,
-        action: ExprId,
-        sub: Option<ExprId>,
-        st: &St,
-        limit: usize,
-    ) -> Result<bool> {
-        self.validate_scope(scope)?;
-        self.validate_state_context(st)?;
-        if let Some(policy) = &st.selectseq
-            && !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
-        {
-            return Err(EvalError::unsupported(
-                "foreign pure predicate invocation context",
-            ));
-        }
-        let bounded = if st.selectseq.is_some() {
-            st.clone()
-        } else {
-            self.begin_pure_predicate(scope, st, limit)?
-        };
-        self.enabled_scoped_context(scope, action, sub, bounded.s0.clone(), Some(&bounded))
-    }
-
-    fn enabled_scoped_context(
-        &self,
-        scope: &Scope,
-        action: ExprId,
-        sub: Option<ExprId>,
-        state: StateRef,
-        invocation: Option<&St>,
-    ) -> Result<bool> {
         self.validate_scope(scope)?;
         self.admit_scoped_expr(scope, action)?;
         if let Some(sub) = sub {
             self.admit_scoped_expr(scope, sub)?;
         }
-        if match &state {
-            StateRef::Vals(values) => {
-                values.len() != self.core.ir.vars().len() || values.iter().any(Option::is_none)
-            }
-            StateRef::Named(named) => {
-                self.validate_state_context(&St {
-                    s0: StateRef::Named(named.clone()),
-                    ..St::empty()
-                })?;
-                false
-            }
-            StateRef::Null | StateRef::Empty => true,
-        } {
+        if state.len() != self.core.ir.vars().len() || state.iter().any(Option::is_none) {
             return Err(EvalError::general(
                 "ENABLED requires a complete current state",
             ));
@@ -2151,11 +2061,7 @@ impl Evaluator {
         let acts = sub.and_then(|sub| cons(&None, Kind::Changed, sub, &env));
         let en = Enab {
             core: self.core.clone(),
-            s0: state,
-            selectseq: invocation.and_then(|st| st.selectseq.clone()),
-            selectseq_callback: invocation.is_some_and(|st| st.selectseq_callback),
-            memoize_queries: invocation.is_some_and(|st| st.memoize_queries),
-            enabled: invocation.and_then(|st| st.enabled.clone()),
+            s0: StateRef::Vals(state),
         };
         let successor = crate::NamedState::empty(&self.core);
         Ok(en.enabled(action, &acts, &env, successor)?.is_some())
@@ -2178,10 +2084,6 @@ impl Core {
         let en = Enab {
             core: self.clone(),
             s0: st.s0.clone(),
-            selectseq: st.selectseq.clone(),
-            selectseq_callback: st.selectseq_callback,
-            memoize_queries: st.memoize_queries,
-            enabled: st.enabled.clone(),
         };
         let found = en.enabled(a, &None, &env1, s1)?;
         Ok(Ev::V(Value::Bool(found.is_some())))
@@ -2208,10 +2110,6 @@ type EnabledState = Arc<crate::NamedState>;
 struct Enab {
     core: Arc<Core>,
     s0: StateRef,
-    selectseq: Option<Arc<crate::env::SelectSeqBudget>>,
-    selectseq_callback: bool,
-    memoize_queries: bool,
-    enabled: Option<crate::enabled::EnabledInvocation>,
 }
 
 impl Enab {
@@ -2220,10 +2118,6 @@ impl Enab {
             s0: self.s0.clone(),
             s1: StateRef::Named(s1.clone()),
             control: control::ENABLED,
-            selectseq: self.selectseq.clone(),
-            selectseq_callback: self.selectseq_callback,
-            memoize_queries: self.memoize_queries,
-            enabled: self.enabled.clone(),
         }
     }
 
@@ -2252,19 +2146,11 @@ impl Enab {
                     s0: self.s0.clone(),
                     s1: StateRef::Empty,
                     control: control::ENABLED,
-                    selectseq: self.selectseq.clone(),
-                    selectseq_callback: self.selectseq_callback,
-                    memoize_queries: self.memoize_queries,
-                    enabled: self.enabled.clone(),
                 };
                 let st1 = St {
                     s0: StateRef::Named(s1.clone()),
                     s1: StateRef::Null,
                     control: control::PRIMED,
-                    selectseq: self.selectseq.clone(),
-                    selectseq_callback: self.selectseq_callback,
-                    memoize_queries: self.memoize_queries,
-                    enabled: self.enabled.clone(),
                 };
                 let v1 = self.core.eval_v(&mut item.env.clone(), &st0, item.expr)?;
                 let v2 = self.core.eval_v(&mut item.env.clone(), &st1, item.expr)?;
@@ -2691,19 +2577,11 @@ impl Enab {
                     s0: self.s0.clone(),
                     s1: StateRef::Empty,
                     control: control::ENABLED,
-                    selectseq: self.selectseq.clone(),
-                    selectseq_callback: self.selectseq_callback,
-                    memoize_queries: self.memoize_queries,
-                    enabled: self.enabled.clone(),
                 };
                 let st1 = St {
                     s0: StateRef::Named(s1.clone()),
                     s1: StateRef::Empty,
                     control: control::PRIMED,
-                    selectseq: self.selectseq.clone(),
-                    selectseq_callback: self.selectseq_callback,
-                    memoize_queries: self.memoize_queries,
-                    enabled: self.enabled.clone(),
                 };
                 let v0 = core.eval_v(&mut env.clone(), &st0, e)?;
                 let v1 = core.eval_v(&mut env.clone(), &st1, e)?;

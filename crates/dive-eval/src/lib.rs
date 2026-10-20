@@ -29,15 +29,12 @@
 //!
 //! # How the successor generator plugs in
 //!
-//! `dive_eval::next` (behind the `enumerate` feature, on by default) ports
-//! TLC's `getInitStates`, `getNextStates`, `getActions` and `enabled`: it
-//! generates initial states and successors in TLC's order, duplicates
-//! included, evaluating the non-action parts of an action through this
-//! interpreter against the partial successor it is building, and uses
-//! [`EvalError`] for the error classes. `ENABLED` goes through it too, so a
-//! core build without the feature refuses `ENABLED` unless the invocation
-//! supplies an [`EnabledResolver`]. The independent trace validator installs
-//! its own separate bounded finite-cover procedure for ordinary predicates.
+//! `dive_eval::next` ports TLC's `getInitStates`, `getNextStates`,
+//! `getActions` and `enabled`: it generates initial states and successors in
+//! TLC's order, duplicates included, evaluating the non-action parts of an
+//! action through this interpreter against the partial successor it is
+//! building, and uses [`EvalError`] for the error classes. `ENABLED` goes
+//! through it too, for the checker and the trace validator alike (ADR 0103).
 #![forbid(unsafe_code)]
 
 mod bounded_domain;
@@ -46,9 +43,7 @@ mod community;
 mod context;
 mod core;
 pub use context::{ContextError, ContextErrorKind, validate_ir};
-mod enabled;
 mod env;
-pub use enabled::EnabledResolver;
 mod error;
 mod eval;
 mod finite;
@@ -56,61 +51,14 @@ mod host;
 mod json;
 mod lazy;
 mod named_state;
-#[cfg(feature = "enumerate")]
 pub mod next;
 mod options;
-mod query_memo;
 mod random_relation;
-mod recursive;
 mod scope;
 mod std;
 mod svg;
 mod tla_cmp;
 mod tlc_enum;
-
-/// Without the successor enumerator, `ENABLED` (which searches for a
-/// successor with TLC's `enabled`) is refused.
-#[cfg(not(feature = "enumerate"))]
-impl Core {
-    pub(crate) fn eval_enabled_native(
-        self: &Arc<Self>,
-        _env: &mut Env,
-        _st: &St,
-        _a: ExprId,
-        e: ExprId,
-    ) -> Result<Ev> {
-        Err(EvalError::unsupported(format!(
-            "ENABLED without the successor enumerator (the `enumerate` feature) ({})",
-            self.loc(e)
-        )))
-    }
-}
-
-/// Without the successor enumerator, `A \cdot B` (which enumerates the
-/// intermediate states) is refused, after TLC's error when the switch is off.
-#[cfg(not(feature = "enumerate"))]
-impl Core {
-    pub(crate) fn eval_cdot(
-        self: &Arc<Self>,
-        _env: &mut Env,
-        _st: &St,
-        _a: ExprId,
-        _b: ExprId,
-        e: ExprId,
-    ) -> Result<Ev> {
-        if self.opts.action_composition == ActionComposition::Off {
-            return Err(EvalError::general(format!(
-                "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",
-                self.loc(e)
-            )));
-        }
-        self.check_action_composition()?;
-        Err(EvalError::unsupported(format!(
-            "action composition without the successor enumerator (the `enumerate` feature) ({})",
-            self.loc(e)
-        )))
-    }
-}
 
 use ::std::collections::HashMap;
 use ::std::sync::Arc;
@@ -128,7 +76,6 @@ pub use crate::options::{
     ActionComposition, Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile,
     RECOMMENDED_STACK,
 };
-pub use crate::recursive::RecursiveScopes;
 pub use crate::scope::{Scope, SlotView};
 
 use crate::core::Core;

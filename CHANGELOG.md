@@ -1,5 +1,18 @@
 # Changelog
 
+- Liveness checking evaluates its atoms with the core evaluator and its
+  definition and lazy-value caches, instead of a bounded re-evaluation that
+  first walked every binder domain (issue #322, ADR 0103 follow-up). On the
+  small tier `LoopInvariance/MCQuicksort` and `YoYo/YoYoAllGraphs` now agree
+  in both profiles; no other result changes. Checking the liveness models
+  there executes 75–89% fewer instructions and runs up to 27 times faster
+  (for example `MCFlashWithMutexLive` 978 s to 36 s, `ReadersWriters` 118 s
+  to 14 s). An atom evaluates only the branches it reaches, as TLC does.
+  `dive-eval`'s `EnabledResolver`, pure-predicate budget and finite-binding
+  preflight API (`eval_scoped_pure`, `check_finite_bindings` and related),
+  `Host::reuse_expression_cache` and the `enumerate` cargo feature are
+  removed.
+
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
   boxed so that a slot is no larger than a value, reading a bound name no

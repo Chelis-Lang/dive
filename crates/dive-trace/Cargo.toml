@@ -12,7 +12,7 @@ repository.workspace = true
 dive-ir.workspace = true
 dive-value.workspace = true
 # The core evaluator decides ENABLED and existential quantification with its
-# own search (ADR 0103), so the `enumerate` feature is on.
+# own search (ADR 0103).
 dive-eval.workspace = true
 dive-model.workspace = true
 serde_json.workspace = true

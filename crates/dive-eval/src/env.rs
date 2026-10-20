@@ -60,36 +60,6 @@ pub enum StateRef {
 }
 
 impl StateRef {
-    /// Stored slots, including unassigned indexed slots, for bounded traversal.
-    pub(crate) fn slots_len(&self) -> usize {
-        match self {
-            Self::Vals(values) => values.len(),
-            Self::Named(state) => state.len(),
-            Self::Null | Self::Empty => 0,
-        }
-    }
-
-    /// Stored assigned values without evaluating deferred representations.
-    pub(crate) fn values(&self) -> impl Iterator<Item = &Value> {
-        let indexed = match self {
-            Self::Vals(values) => Some(values.as_ref()),
-            _ => None,
-        };
-        let named = match self {
-            Self::Named(state) => Some(&state.values),
-            _ => None,
-        };
-        indexed
-            .into_iter()
-            .flatten()
-            .filter_map(Option::as_ref)
-            .chain(
-                named
-                    .into_iter()
-                    .flat_map(std::collections::BTreeMap::values),
-            )
-    }
-
     /// TLC's `TLCState.isSubset`: assigned root variables in the cached state
     /// have the same value here. Hidden query names do not invalidate a lazy
     /// value; this observable cache behavior matters across ENABLED candidates.
@@ -129,41 +99,9 @@ pub struct St {
     /// The successor (`s1`).
     pub s1: StateRef,
     pub(crate) control: u8,
-    pub(crate) selectseq: Option<Arc<SelectSeqBudget>>,
-    pub(crate) selectseq_callback: bool,
-    pub(crate) memoize_queries: bool,
-    pub(crate) enabled: Option<crate::enabled::EnabledInvocation>,
-}
-
-#[derive(Debug)]
-pub(crate) struct SelectSeqBudget {
-    pub(crate) limit: usize,
-    pub(crate) wrapper: Option<ExprId>,
-    pub(crate) context: std::sync::Weak<crate::core::Core>,
-    pub(crate) remaining: Arc<std::sync::Mutex<usize>>,
-    pub(crate) memo: crate::query_memo::MemoRef,
 }
 
 impl St {
-    // A memoized function retains the work budget, but observes the memo
-    // weakly. Otherwise memo -> function -> captured St -> memo is a cycle.
-    pub(crate) fn for_lazy_value(&self) -> Self {
-        let mut st = self.clone();
-        if let Some(invocation) = &mut st.enabled {
-            invocation.owner = None;
-        }
-        if let Some(policy) = &self.selectseq {
-            st.selectseq = Some(Arc::new(SelectSeqBudget {
-                limit: policy.limit,
-                wrapper: policy.wrapper,
-                context: policy.context.clone(),
-                remaining: policy.remaining.clone(),
-                memo: policy.memo.observer(),
-            }));
-        }
-        st
-    }
-
     /// Constant-level evaluation, as TLC evaluates `ASSUME`s
     /// (`Tool.isValid(expr)`: `Empty`, `Empty`, `EvalControl.Const`).
     #[must_use]
@@ -172,10 +110,6 @@ impl St {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CONST,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         }
     }
 
@@ -188,10 +122,6 @@ impl St {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         }
     }
 
@@ -202,56 +132,6 @@ impl St {
             s0: StateRef::Vals(state),
             s1: StateRef::Empty,
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
-        }
-    }
-
-    /// Reads a supplied current state with clear control, preserving any
-    /// invocation-local predicate work budget. The successor is empty.
-    ///
-    /// ```
-    /// use dive_eval::{St, StateRef};
-    /// use std::sync::Arc;
-    /// let edge = St::action(Arc::from([Some(0.into())]), Arc::from([Some(1.into())]));
-    /// let current = edge.at_state(Arc::from([Some(1.into())]));
-    /// assert!(matches!(current.s1, StateRef::Empty));
-    /// ```
-    #[must_use]
-    pub fn at_state(&self, state: Arc<[Option<Value>]>) -> Self {
-        Self {
-            s0: StateRef::Vals(state),
-            s1: StateRef::Empty,
-            control: control::CLEAR,
-            ..self.clone()
-        }
-    }
-
-    /// Reads constant data under the original constant-state semantics while
-    /// preserving invocation-local resource counters.
-    #[must_use]
-    pub fn at_constant(&self) -> Self {
-        Self {
-            selectseq: self.selectseq.clone(),
-            selectseq_callback: self.selectseq_callback,
-            memoize_queries: self.memoize_queries,
-            enabled: self.enabled.clone(),
-            ..Self::constant()
-        }
-    }
-
-    /// Reads the original relation between two supplied states with clear
-    /// control, preserving invocation-local resource counters.
-    #[must_use]
-    pub fn at_action(&self, s0: Arc<[Option<Value>]>, s1: Arc<[Option<Value>]>) -> Self {
-        Self {
-            selectseq: self.selectseq.clone(),
-            selectseq_callback: self.selectseq_callback,
-            memoize_queries: self.memoize_queries,
-            enabled: self.enabled.clone(),
-            ..Self::action(s0, s1)
         }
     }
 
@@ -281,15 +161,11 @@ impl St {
             s0: StateRef::Vals(s0),
             s1: StateRef::Vals(s1),
             control: control::CLEAR,
-            selectseq: None,
-            selectseq_callback: false,
-            memoize_queries: false,
-            enabled: None,
         }
     }
 
     /// Evaluates a query relation in the supplied partial named successor while
-    /// retaining the current state and shared invocation-local resource counters.
+    /// retaining the current state.
     #[must_use]
     pub fn enabled_candidate(&self, successor: Arc<crate::NamedState>) -> Self {
         Self {
@@ -299,8 +175,7 @@ impl St {
         }
     }
 
-    /// Reads the current side of an ENABLED query, preserving its cutoff control
-    /// and invocation-local counters.
+    /// Reads the current side of an ENABLED query, preserving its cutoff control.
     #[must_use]
     pub fn enabled_current(&self) -> Self {
         Self {
@@ -311,14 +186,13 @@ impl St {
     }
 
     /// Moves the whole successor into the current position for primed evaluation.
-    /// Hidden named assignments and invocation-local counters are retained.
+    /// Hidden named assignments are retained.
     #[must_use]
     pub fn primed_successor(&self) -> Self {
         Self {
             s0: self.s1.clone(),
             s1: StateRef::Null,
             control: Self::primed_if_enabled(self.control),
-            ..self.clone()
         }
     }
 
@@ -579,17 +453,6 @@ pub(crate) struct Env {
     pub(crate) dynamic: Dyn,
 }
 
-#[cfg(test)]
-std::thread_local! {
-    // Arc::make_mut clones Frame exactly when another strong owner exists.
-    static FRAME_COW_COPIES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-}
-
-#[cfg(test)]
-pub(crate) fn take_frame_copies() -> usize {
-    FRAME_COW_COPIES.with(|count| count.replace(0))
-}
-
 impl Env {
     /// A fresh frame for definition `def` with `slots` slots.
     pub(crate) fn new(
@@ -612,10 +475,6 @@ impl Env {
 
     /// Binds a slot of the current frame (copy-on-write).
     pub(crate) fn bind(&mut self, slot: usize, v: Sv) {
-        #[cfg(test)]
-        if Arc::strong_count(&self.frame) > 1 {
-            FRAME_COW_COPIES.with(|count| count.set(count.get().saturating_add(1)));
-        }
         let frame = Arc::make_mut(&mut self.frame);
         frame.slots.ensure_len(slot + 1);
         if let Some(target) = frame.slots.get_mut(slot) {
@@ -649,7 +508,6 @@ pub(crate) struct Cached {
     pub(crate) s0: StateRef,
     pub(crate) s1: StateRef,
     pub(crate) control: u8,
-    pub(crate) enabled: Option<std::sync::Weak<dyn crate::EnabledResolver>>,
     /// The [`crate::Host::expression_cache_domain`] it was computed under.
     pub(crate) domain: u64,
 }
@@ -701,12 +559,7 @@ impl Thunk {
         (c.domain == domain
             && st.s0.includes(&c.s0)
             && st.s1.includes(&c.s1)
-            && control::equivalent(st.control, c.control)
-            && match (&st.enabled, &c.enabled) {
-                (None, None) => true,
-                (Some(a), Some(b)) => std::sync::Weak::ptr_eq(&a.resolver, b),
-                _ => false,
-            })
+            && control::equivalent(st.control, c.control))
         .then(|| c.val.clone())
     }
 
@@ -724,7 +577,6 @@ impl Thunk {
             s0: st.s0.clone(),
             s1: st.s1.clone(),
             control: st.control,
-            enabled: st.enabled.as_ref().map(|i| i.resolver.clone()),
             domain,
         });
     }

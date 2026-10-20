@@ -26,8 +26,7 @@
 //!    invariants, implied initial predicates, implied actions and temporal
 //!    properties), constraints, `VIEW`.
 //! 6. **Actions** (`Tool.getActions`): the next-state relation split into
-//!    TLC's actions, with their labels, as `dive_eval::next` actions (with
-//!    the default `enumerate` feature).
+//!    TLC's actions, with their labels, as `dive_eval::next` actions.
 //!
 //! The result is a [`Model`]: an [`dive_eval::Evaluator`] with everything
 //! bound, and every role as a [`Pred`] (an expression and the scope TLC
@@ -69,7 +68,6 @@
 //! ```
 #![forbid(unsafe_code)]
 
-#[cfg(feature = "enumerate")]
 mod actions;
 mod bind;
 mod error;
@@ -127,8 +125,8 @@ impl Recipe {
 
     /// Repeats the real binder's complete startup operation with a new runtime.
     /// The host is installed before any constant definition is evaluated.
-    /// Checker action construction is omitted even when `enumerate` is unified
-    /// by a different consumer; the result carries source predicates only.
+    /// Checker action construction is omitted; the result carries source
+    /// predicates only.
     ///
     /// # Errors
     /// The ordinary binding errors. Randomness combined with VIEW or SYMMETRY
@@ -314,14 +312,11 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
         return Err(BindError::unsupported("_PERIODIC"));
     }
     let view = b.process_view()?;
-    #[cfg(feature = "enumerate")]
     let (init_actions, actions) = if predicates_only {
         (Vec::new(), Vec::new())
     } else {
         (b.init_actions()?, b.expand_actions()?)
     };
-    #[cfg(not(feature = "enumerate"))]
-    let _ = predicates_only;
     b.drain_prints();
     let ir = b.t.ir.clone();
     let root = ir.module(ir.root());
@@ -339,9 +334,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
         output: std::mem::take(&mut b.output),
         init: std::mem::take(&mut b.init),
         next: b.next.clone(),
-        #[cfg(feature = "enumerate")]
         init_actions,
-        #[cfg(feature = "enumerate")]
         actions,
         invariants: std::mem::take(&mut b.invariants),
         implied_inits: std::mem::take(&mut b.implied_inits),

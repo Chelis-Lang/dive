@@ -221,9 +221,6 @@ struct Inner {
     /// Whether TLC raises this as an `EvalException` (not wrapped by a Java
     /// override) rather than as a `TLCRuntimeException`.
     eval_exception: bool,
-    /// A refusal that stands for an evaluation error TLC raises at this
-    /// point, whose message dive does not reproduce.
-    tlc_failure: bool,
 }
 
 /// An evaluation error: its class, TLC's code and message, and the node it was
@@ -239,7 +236,6 @@ impl EvalError {
             message,
             origin: None,
             eval_exception,
-            tlc_failure: false,
         }))
     }
 
@@ -269,26 +265,6 @@ impl EvalError {
     pub fn unsupported(feature: impl Into<String>) -> Self {
         let feature = feature.into();
         Self::make(ErrorClass::Unsupported, Ec::General, feature, false)
-    }
-
-    /// A refusal that stands for an evaluation error TLC raises at this
-    /// point: dive refuses rather than approximate TLC's message. It stays a
-    /// refusal wherever evaluation reaches it; only analyses that visit code
-    /// evaluation may never reach, such as finite-binding preflight, may treat
-    /// it as they treat [`ErrorClass::Eval`] (see [`Self::is_tlc_failure`]).
-    #[must_use]
-    pub fn unsupported_tlc_failure(feature: impl Into<String>) -> Self {
-        let mut error = Self::unsupported(feature);
-        error.0.tlc_failure = true;
-        error
-    }
-
-    /// Whether TLC raises an evaluation error at this point: an
-    /// [`ErrorClass::Eval`] error, or a refusal made with
-    /// [`Self::unsupported_tlc_failure`].
-    #[must_use]
-    pub fn is_tlc_failure(&self) -> bool {
-        self.0.class == ErrorClass::Eval || self.0.tlc_failure
     }
 
     /// A resource limit.
