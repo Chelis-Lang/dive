@@ -172,13 +172,13 @@ heap in its provenance; no file was edited after generation.
 | `specifications/NanoBlockchain/MCNanoLarge.cfg` | 2 | 120,130,843 | 15 | 86 min |
 | `specifications/bcastFolklore/bcastFolklore.cfg` | 3 | 501,552 | 9 | 68 min |
 | `specifications/byzpaxos/PConProof.cfg` | 3 | 1,009,133 | 28 | 43 min |
+| `specifications/SlushProtocol/SlushLarge.cfg` | 3 | 244,335,240 | 59 | 265 min |
 
-The remaining 10 models have no reference and stay in scope, without
+The remaining 9 models have no reference and stay in scope, without
 agreement credit. A run reports each of them as `oracle-error` (no golden):
 
 - `specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg`
 - `specifications/KeyValueStore/MCKVSSafetyLarge.cfg`
-- `specifications/SlushProtocol/SlushLarge.cfg`
 - `specifications/TLC/TestMCReachability.cfg`
 - `specifications/byzpaxos/BPConProof.cfg`
 - `specifications/c1cs/c1cs.cfg`
@@ -187,8 +187,8 @@ agreement credit. A run reports each of them as `oracle-error` (no golden):
 - `specifications/diskpaxos/MC_HDiskSynod.cfg`
 - `specifications/ewd998/EWD998.cfg`
 
-The full tier now has 207 in-scope model references (including the two
-`configured-temporal-operators` models), 10 missing references and the same
+The full tier now has 208 in-scope model references (including the two
+`configured-temporal-operators` models), 9 missing references and the same
 48 exclusions. No model was excluded, resized or given a different
 mode. The small tier and its agreement counts do not change.
 
