@@ -1,7 +1,8 @@
 # 0106: Temporal analysis bounds as a profile setting
 
-- **Status:** proposed (awaiting owner sign-off; see `docs/open-questions.md`,
-  "Temporal bounds under `--compat=tlc`")
+- **Status:** proposed, pending explicit owner confirmation (see
+  `docs/open-questions.md`, "Temporal bounds under `--compat=tlc`"). No owner
+  approval is claimed here.
 - **Date:** 2026-10-19
 - **Amends:** [ADR 0098](0098-compact-acceptance-buffer-bounds.md), whose
   shared file-checking resource policy now applies to the `default` setting only
@@ -25,6 +26,10 @@ TLC-equivalent setting, and every option to name its TLC-equivalent setting.
 
 ## Decision
 
+This follows ADR 0010's `--compat=tlc` contract: `--compat=tlc` must select
+every TLC-equivalent setting, and TLC has no such counts. Because it reverses
+part of ADR 0098 for the TLC profile, it waits for the owner's confirmation.
+
 `--temporal-bounds default|unbounded` (Rust: `CheckRequest::temporal_bounds`,
 `TemporalBounds`) selects the bounds of file-based temporal analysis, both on
 the ordinary route and with `--lncheck final --lasso short`.
@@ -37,16 +42,28 @@ the ordinary route and with `--lncheck final --lasso short`.
   labelling, product construction or acceptance materialization. This is the
   TLC-equivalent setting, and `--compat=tlc` selects it unless the flag is
   given. TLC is bounded by its heap instead, so `unbounded` keeps one memory
-  stop: a resident-memory ceiling of a quarter of physical memory (the JVM's
-  default maximum heap; `dive_check::resident`, re-exported as
-  `dive_liveness::resident`). Graph capture samples the process's resident set
-  size every 4,096 retained states and edges
-  (`dive_check::capture::Limits::resident_bytes`), on whichever thread retains
-  them. The analysis thread samples it every 4,096 units of planning, tableau
-  expansion, state labelling and product construction. Above the ceiling each
-  stage refuses with `resident memory`; the covered acceptance buffers are
-  limited to the same number of bytes. Where the platform does not report
-  resident memory (not Linux), no sample is taken.
+  stop, a ceiling on the process's resident memory (`dive_check::resident`,
+  re-exported as `dive_liveness::resident`). Graph capture samples it every
+  4,096 retained states and edges (`dive_check::capture::Limits::resident_bytes`),
+  on whichever thread retains them. The analysis thread samples it every 4,096
+  units of planning, tableau expansion, state and edge labelling, the
+  adjacency copy of the captured graph, product construction, lasso search
+  (including the recurrent-edge copy and each breadth-first pass) and
+  attribution, and once more at each stage boundary (after capture, after
+  labelling, after product construction and after the search). Above the
+  ceiling each stage refuses with `resident memory`; the covered acceptance
+  buffers are limited to the same number of bytes. Where the platform does
+  not report resident memory (not Linux), no sample is taken.
+- The ceiling is an explicit setting: `--temporal-memory-bytes auto|N`, or the
+  `DIVE_TEMPORAL_MEMORY_BYTES` environment setting (the flag wins; Rust:
+  `CheckRequest::temporal_memory`, `TemporalMemory`). `auto`, the default in
+  both profiles, is a quarter of physical memory: the JVM's default maximum
+  heap, which is TLC's own behaviour when no `-Xmx` is given, and so the
+  TLC-equivalent value. `N` bytes stands for `-Xmx` and makes the verdict
+  independent of the host. JSON reports the ceiling applied as
+  `options.temporal_bounds.resident_ceiling_bytes` and its source as
+  `resident_ceiling_setting` (`quarter-of-physical-memory` or `explicit`).
+  `default` has no ceiling and ignores the setting.
 
 Samples fall between units of work, never inside one. One successor
 computation during capture, and one atom evaluated for one state during
@@ -55,11 +72,13 @@ example, an atom that enumerates a huge `SUBSET`) ends the process the way an
 `OutOfMemoryError` ends TLC, with no verdict and no `resource-limit` result.
 The ceiling bounds accumulated growth, not a single evaluation.
 
-The ceiling depends on the host, as TLC's default heap does: on a 16 GB
-machine it is 4 GB. A model whose analysis needs more than a quarter of
-physical memory can therefore agree on a large machine and refuse on a small
-one. The JSON report states the ceiling in effect as
-`options.temporal_bounds.resident_ceiling_bytes`.
+With `auto`, the ceiling depends on the host, as TLC's default heap does: on a
+16 GB machine it is 4 GB. The conformance harness therefore never relies on
+it. It passes `--temporal-memory-bytes` equal to its `--xmx` (default `3g`,
+3 GiB), the heap the TLC goldens are generated with, to every dive model run.
+The gate, the nightly baseline job and the committed baselines thus use one
+ceiling on every machine, and a model that needs more than 3 GiB to agree
+refuses there by name rather than agreeing only on a large host.
 
 The unbounded per-binder limit (`usize::MAX`) also lifts the work ceilings of
 pure predicate replay in `dive-eval` (100,000 finite-binding traversal visits
@@ -76,11 +95,12 @@ past 77 GB resident in product construction before it was stopped. With the
 ceiling, product construction refuses with `resident memory` at about the
 ceiling (34 GB peak on a 125 GB machine) instead of exhausting the machine.
 
-In the full gate's TLC-profile run, five models move from unsupported to
-agree (139 to 144 of 156): `CoffeeCan1000Beans` (121 s), `MCCRDT` (268 s),
-`MCQuicksort` (692 s), `AllocatorImplementation` (511 s) and
-`MisraReachability/MCParReach` (1,530 s, against the manifest's 30 s for TLC and a
-1,800 s gate timeout).
+In the full gate's TLC-profile run, `CoffeeCan1000Beans`, `MCCRDT`,
+`MCQuicksort` and `AllocatorImplementation` move from unsupported to agree.
+`MisraReachability/MCParReach` also agrees, but in about 1,530 s against the
+gate's 1,800 s timeout (TLC: 30 s), so its committed baseline entry stays
+`unsupported` until pure predicate replay is faster; its agreement is reported
+as an improvement, not required.
 
 ## Consequences
 

@@ -54,15 +54,19 @@ temporal analysis (ADR 0106, D-025). `default`, the default profile's setting,
 keeps the counts described below; exhausting one is a named resource refusal.
 `unbounded` has no fixed count in planning, capture, labelling, product
 construction or acceptance materialization: like TLC, only memory and time stop
-it. Its memory stop stands for TLC's heap: a resident-memory ceiling of a quarter
-of physical memory (the JVM's default maximum heap), reported as
-`options.temporal_bounds.resident_ceiling_bytes`. Graph capture, tableau
-expansion, labelling and product construction sample it every 4,096 units of
-work; exceeding it refuses with `resident memory`. A single successor
+it. Its memory stop stands for TLC's heap: a resident-memory ceiling set with
+`--temporal-memory-bytes auto|N` or the `DIVE_TEMPORAL_MEMORY_BYTES`
+environment setting (the flag wins). `auto`, the default, is a quarter of
+physical memory, the JVM's default maximum heap; `N` is a byte count, like
+`-Xmx`. JSON reports it as `options.temporal_bounds.resident_ceiling_bytes`
+and `resident_ceiling_setting`. Graph capture, tableau expansion, labelling,
+product construction, lasso search and attribution sample it every 4,096 units
+of work and at each stage boundary; exceeding it refuses with `resident memory`. A single successor
 computation or atom evaluation is not interrupted: one that alone exhausts
-memory ends the process, as TLC ends with `OutOfMemoryError`. The ceiling
-depends on the machine, as TLC's default heap does, so a large model can agree
-on one machine and refuse on a smaller one. `--compat=tlc` selects `unbounded` unless the flag is given, and JSON reports
+memory ends the process, as TLC ends with `OutOfMemoryError`. With `auto` the
+ceiling depends on the machine, as TLC's default heap does, so a large model
+can agree on one machine and refuse on a smaller one; give a byte count for a
+host-independent verdict. `--compat=tlc` selects `unbounded` unless the flag is given, and JSON reports
 the setting as `options.temporal_bounds.setting`. `unbounded` also lifts the
 work ceilings of pure predicate replay (100,000 finite-binding traversal visits
 and 50,000 lazy query work units); the structural nesting-depth limit stays in

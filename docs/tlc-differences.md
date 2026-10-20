@@ -2883,14 +2883,20 @@ dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --fp 0
 refuses, while `--compat=tlc`, or `--temporal-bounds=unbounded` in either
 profile, checks it and agrees with TLC (130 s and 1.4 GB on the measuring
 machine). Like TLC's heap, `unbounded` keeps a memory stop: a resident-memory
-ceiling of a quarter of physical memory, the JVM's default maximum heap. Graph
-capture, tableau expansion, labelling and product construction sample it
-between units of work and refuse with `resident memory` above it. One successor
+ceiling, set with `--temporal-memory-bytes auto|N` (or
+`DIVE_TEMPORAL_MEMORY_BYTES`), the counterpart of `-Xmx`. `auto`, the default,
+is a quarter of physical memory, the JVM's default maximum heap. Graph capture,
+tableau expansion, labelling, product construction, lasso search and
+attribution sample it between units of work and refuse with `resident memory`
+above it. One successor
 computation or one atom evaluation is not interrupted, so an evaluation that
-alone exhausts memory ends the process, as an `OutOfMemoryError` ends TLC. As
-with TLC's default heap, the ceiling depends on the machine: a model can agree
-on a large machine and refuse on a small one.
+alone exhausts memory ends the process, as an `OutOfMemoryError` ends TLC. With
+`auto`, as with TLC's default heap, the ceiling depends on the machine: a model
+can agree on a large machine and refuse on a small one. Give an explicit byte
+count for a host-independent result; the conformance harness passes its
+`--xmx` (3 GiB by default), the heap the TLC goldens ran with.
 `options.temporal_bounds.setting` in the JSON report names the setting used,
-and `options.temporal_bounds.resident_ceiling_bytes` the ceiling in effect. `unbounded` also lifts the work ceilings of pure predicate replay
+`options.temporal_bounds.resident_ceiling_bytes` the ceiling in effect, and
+`resident_ceiling_setting` whether it was explicit. `unbounded` also lifts the work ceilings of pure predicate replay
 (finite-binding traversal and lazy query work); the structural nesting-depth
 limit stays in both settings.

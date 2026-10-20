@@ -3,17 +3,22 @@
 - `dive check --temporal-bounds default|unbounded` selects the fixed bounds of
   temporal analysis (ADR 0106, D-025). `--compat=tlc` now selects `unbounded`,
   TLC's setting: no fixed count of properties, tableau nodes, captured states,
-  label cells or product vertices. A resident-memory ceiling of a quarter of
-  physical memory, TLC's default JVM heap, remains the memory stop: graph
-  capture, tableau expansion, labelling and product construction sample it
-  between units of work and refuse with `resident memory` above it. A single
-  successor computation or atom evaluation is not interrupted, and the ceiling
-  depends on the machine (JSON: `options.temporal_bounds.resident_ceiling_bytes`).
+  label cells or product vertices. A resident-memory ceiling remains the memory
+  stop: `--temporal-memory-bytes auto|N` (or `DIVE_TEMPORAL_MEMORY_BYTES`),
+  default `auto`, a quarter of physical memory, TLC's default JVM heap. Graph
+  capture, tableau expansion, labelling, product construction, lasso search and
+  attribution sample it between units of work and refuse with `resident memory`
+  above it; a single successor computation or atom evaluation is not
+  interrupted. JSON reports `options.temporal_bounds.resident_ceiling_bytes`
+  and `resident_ceiling_setting`. The conformance harness passes its `--xmx`
+  (3 GiB by default) as the ceiling, so gate and baseline results do not depend
+  on the host.
   The default profile keeps its bounds and named resource refusals. In the TLC
   profile, `CoffeeCan/CoffeeCan1000Beans`, `FiniteMonotonic/MCCRDT`,
-  `LoopInvariance/MCQuicksort`, `allocator/AllocatorImplementation` and
-  `MisraReachability/MCParReach` now agree (139 to 144 of 156). ADR 0106 is
-  proposed, pending owner sign-off.
+  `LoopInvariance/MCQuicksort` and `allocator/AllocatorImplementation` now
+  agree; `MisraReachability/MCParReach` agrees near the gate timeout and stays
+  `unsupported` in the committed baseline. ADR 0106 is proposed, pending owner
+  confirmation.
 
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is

@@ -146,7 +146,7 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 
 **Common options:**
 - `--jobs N` (default `min(4, cpus/2)`): parallel oracle runs.
-- `--xmx SIZE` (default `3g`): JVM heap per run. Four 3 GB JVMs fit an 8-core / 24 GB machine with room to spare.
+- `--xmx SIZE` (default `3g`): JVM heap per run. Four 3 GB JVMs fit an 8-core / 24 GB machine with room to spare. `run --impl dive` passes the same size to every model run as `--temporal-memory-bytes`, the resident-memory ceiling of unbounded temporal analysis (ADR 0106), so results do not depend on the host.
 - `--timeout SECS`, or the derived default:
   - 20 × the manifest runtime + 120 s, at least 300 s, capped by `--timeout-cap` (default 3600); unknown runtimes get the cap;
   - in `run`, also at least 4 × the golden's recorded elapsed time + 60 s, even above the cap. Manifest runtimes were measured with several workers.

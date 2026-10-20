@@ -7,8 +7,10 @@
 > **Amendment (ADR 0106, proposed).** The shared file-checking resource policy
 > below applies to `--temporal-bounds=default`, the default profile's setting.
 > Under `--temporal-bounds=unbounded`, which `--compat=tlc` selects, the
-> acceptance-buffer allowances are replaced by a resident-memory ceiling of a
-> quarter of physical memory.
+> acceptance-buffer allowances are replaced by the resident-memory ceiling
+> (`--temporal-memory-bytes`, default a quarter of physical memory). ADR 0106
+> is pending the owner's confirmation; until then this ADR stands as written
+> for the default profile.
 
 ## Context
 

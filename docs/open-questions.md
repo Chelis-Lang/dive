@@ -74,20 +74,23 @@ ADR 0098 applies one file-checking resource policy to both semantic profiles:
 exhausting a temporal analysis bound is an explicit refusal. ADR 0106
 (proposed) keeps that policy as `--temporal-bounds=default` and adds
 `--temporal-bounds=unbounded`, which `--compat=tlc` selects. It drops the fixed
-counts, as TLC has none, and keeps one memory stop, a resident-memory ceiling
-of a quarter of physical memory, standing for TLC's default JVM heap. In the
-TLC profile five small-tier models move from unsupported to agree.
+counts, as TLC has none (ADR 0010's `--compat=tlc` contract), and keeps one
+memory stop, a resident-memory ceiling (`--temporal-memory-bytes`, default a
+quarter of physical memory, TLC's default JVM heap). The harness pins it to
+its `--xmx` (3 GiB), so gate and baselines do not depend on the host. In the
+TLC profile four small-tier models move from unsupported to agree in the
+committed baseline (a fifth, `MCParReach`, agrees near the gate timeout and
+stays `unsupported` there).
 
 - **Question 1.** Approve `unbounded` as the TLC-equivalent setting selected by
   `--compat=tlc`, amending ADR 0098 for that profile?
-- **Question 2.** Keep the ceiling host-relative (a quarter of physical memory,
-  as TLC's default heap), or fix it (for example 3 GB, the `-Xmx` the goldens
-  were generated with), so that a verdict does not depend on the machine?
+- **Question 2.** Keep `auto` (a quarter of physical memory, TLC's default
+  heap) as the CLI default, with the harness pinning the ceiling to `--xmx`?
 - **Not proposed:** lifting the bounds in the default profile.
 
-Recommendation: approve question 1 and keep the host-relative ceiling, which
-is TLC's own default and is reported in the JSON as
-`options.temporal_bounds.resident_ceiling_bytes`.
+Recommendation: approve both. The ceiling applied, and whether it was
+explicit, are reported as `options.temporal_bounds.resident_ceiling_bytes` and
+`resident_ceiling_setting`.
 
 ## Checker CLI exit default (resolved 2026-10-14)
 
