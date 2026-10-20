@@ -139,6 +139,8 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
         )?;
         if profile == "tlc" {
             assert_eq!(a["schema_version"], 2);
+            assert_eq!(a["options"]["profile"], profile);
+            assert_eq!(a["options"]["lncheck"], "final");
             assert_eq!(a["verdict"], "liveness-violation");
             assert_eq!(a["property"], "P");
             assert_eq!(a["tlc"]["code"], 2116);
@@ -150,8 +152,15 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
             assert_eq!(validator.read(&document).0.validation, Validation::Valid);
         } else {
             assert_eq!(a["schema_version"], 2);
+            assert_eq!(a["options"]["profile"], profile);
             assert_eq!(a["options"]["lncheck"], "deterministic");
             assert_eq!(a["verdict"], "liveness-violation");
+            assert_eq!(a["property"], "P");
+            assert_eq!(a["tlc"]["code"], 2116);
+            assert_eq!(a["tlc"]["name"], "TLC_TEMPORAL_PROPERTY_VIOLATED");
+            assert_eq!(a["tlc"]["verified"], true);
+            assert_eq!(a["tlc"]["exit_status"], 13);
+            assert_eq!(a["counterexample"]["validation"], "valid");
             assert_eq!(a["execution"]["capture_completed"], true);
             assert_eq!(a["periodic"]["prefix_checks"], 0);
             assert_eq!(a["periodic"]["exhausted"], true);

@@ -130,6 +130,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             assert_eq!(value["execution"]["capture_completed"], !violation);
             if violation {
                 assert_eq!(value["verdict"], "liveness-violation");
+                assert_eq!(value["property"], "P");
                 assert_eq!(value["counterexample"]["validation"], "valid");
                 assert_eq!(value["statistics"]["left_on_queue"], 1);
                 assert_eq!(value["execution"]["level"], 1);
