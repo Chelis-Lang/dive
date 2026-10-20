@@ -1,7 +1,10 @@
 # 0106: Temporal analysis bounds as a profile setting
 
-- **Status:** accepted
+- **Status:** proposed (awaiting owner sign-off; see `docs/open-questions.md`,
+  "Temporal bounds under `--compat=tlc`")
 - **Date:** 2026-10-19
+- **Amends:** [ADR 0098](0098-compact-acceptance-buffer-bounds.md), whose
+  shared file-checking resource policy now applies to the `default` setting only
 
 ## Context
 
@@ -35,11 +38,28 @@ the ordinary route and with `--lncheck final --lasso short`.
   TLC-equivalent setting, and `--compat=tlc` selects it unless the flag is
   given. TLC is bounded by its heap instead, so `unbounded` keeps one memory
   stop: a resident-memory ceiling of a quarter of physical memory (the JVM's
-  default maximum heap; `dive_liveness::resident`). The tableau, label and
-  product loops sample the process's resident set size and refuse with
-  `resident memory` above it; the covered acceptance buffers are limited to the
-  same number of bytes. Where the platform does not report resident memory
-  (not Linux), no sample is taken.
+  default maximum heap; `dive_check::resident`, re-exported as
+  `dive_liveness::resident`). Graph capture samples the process's resident set
+  size every 4,096 retained states and edges
+  (`dive_check::capture::Limits::resident_bytes`), on whichever thread retains
+  them. The analysis thread samples it every 4,096 units of planning, tableau
+  expansion, state labelling and product construction. Above the ceiling each
+  stage refuses with `resident memory`; the covered acceptance buffers are
+  limited to the same number of bytes. Where the platform does not report
+  resident memory (not Linux), no sample is taken.
+
+Samples fall between units of work, never inside one. One successor
+computation during capture, and one atom evaluated for one state during
+labelling, are not interrupted: an evaluation that alone exhausts memory (for
+example, an atom that enumerates a huge `SUBSET`) ends the process the way an
+`OutOfMemoryError` ends TLC, with no verdict and no `resource-limit` result.
+The ceiling bounds accumulated growth, not a single evaluation.
+
+The ceiling depends on the host, as TLC's default heap does: on a 16 GB
+machine it is 4 GB. A model whose analysis needs more than a quarter of
+physical memory can therefore agree on a large machine and refuse on a small
+one. The JSON report states the ceiling in effect as
+`options.temporal_bounds.resident_ceiling_bytes`.
 
 The unbounded per-binder limit (`usize::MAX`) also lifts the work ceilings of
 pure predicate replay in `dive-eval` (100,000 finite-binding traversal visits
@@ -52,8 +72,9 @@ The difference is registered as D-025.
 
 Measured before the ceiling existed: with this setting and the companion
 preflight fix, `MultiCarElevator/ElevatorLivenessMedium` (TLC: success) grew
-past 77 GB resident in product construction before it was stopped. The ceiling
-turns that into a named refusal well before it threatens the machine.
+past 77 GB resident in product construction before it was stopped. With the
+ceiling, product construction refuses with `resident memory` at about the
+ceiling (34 GB peak on a 125 GB machine) instead of exhausting the machine.
 
 In the full gate's TLC-profile run, five models move from unsupported to
 agree (139 to 144 of 156): `CoffeeCan1000Beans` (121 s), `MCCRDT` (268 s),
@@ -70,3 +91,10 @@ default profile is unchanged. Whether the default profile should also lift
 these bounds is an owner question, not decided here. Some liveness models are
 far slower than in TLC once unbounded (pure predicate replay); that is a
 performance issue, not a bound.
+
+ADR 0098 said that both semantic profiles use the same file-checking resource
+policy and that acceptance-buffer exhaustion remains an explicit refusal. Under
+this decision that holds for `default` only; `unbounded` replaces the
+acceptance-buffer byte and work allowances with the resident ceiling. Because
+this reverses part of an accepted ADR, it stays proposed until the owner signs
+off.

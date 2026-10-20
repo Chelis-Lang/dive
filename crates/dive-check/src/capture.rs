@@ -36,6 +36,11 @@ pub struct Limits {
     /// TLC setting: no such capture bound; exceeding it is a resource refusal,
     /// never a complete exploration or evidence of TLC agreement.
     pub successors_per_unit: u64,
+    /// Resident-memory ceiling, in bytes of the whole process, sampled every
+    /// [`crate::resident::SAMPLE_EVERY`] retained states and edges (see
+    /// [`crate::resident`]). Exceeding it is a resource refusal. `None`
+    /// samples nothing.
+    pub resident_bytes: Option<u64>,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -44,16 +49,19 @@ impl Default for Limits {
             edges: 8_000_000,
             generated: 32_000_000,
             successors_per_unit: 65_536,
+            resident_bytes: None,
         }
     }
 }
 impl Limits {
-    /// No fixed retention or generation bound, as in TLC: only allocation
-    /// failure stops capture.
+    /// No fixed retention or generation count, as in TLC. TLC is bounded by
+    /// its heap instead, so the resident-memory ceiling stays:
+    /// [`crate::resident::default_ceiling`], a quarter of physical memory.
     ///
     /// ```
     /// let limits = dive_check::capture::Limits::unbounded();
     /// assert_eq!(limits.states, usize::MAX);
+    /// assert_eq!(limits.resident_bytes, dive_check::resident::default_ceiling());
     /// ```
     #[must_use]
     pub fn unbounded() -> Self {
@@ -62,6 +70,7 @@ impl Limits {
             edges: usize::MAX,
             generated: u64::MAX,
             successors_per_unit: u64::MAX,
+            resident_bytes: crate::resident::default_ceiling(),
         }
     }
 }
@@ -331,6 +340,7 @@ pub(crate) struct Collector<K> {
     limits: Limits,
     count: usize,
     concrete_pool: bool,
+    resident: crate::resident::Sampler,
 }
 
 impl<K: Ord> Collector<K> {
@@ -343,6 +353,7 @@ impl<K: Ord> Collector<K> {
                 concrete: vec![],
                 roots: vec![],
             },
+            resident: crate::resident::Sampler::new(limits.resident_bytes),
             limits,
             count: 0,
             concrete_pool: false,
@@ -389,6 +400,7 @@ impl<K: Ord> Collector<K> {
             if id >= self.limits.states {
                 return Err(limit("states"));
             }
+            self.resident.tick().map_err(|_| limit("resident memory"))?;
             self.ids.insert(key, id);
             self.graph.states.push(vals);
             self.graph.edges.push(vec![]);
@@ -406,6 +418,7 @@ impl<K: Ord> Collector<K> {
         if self.count >= self.limits.edges {
             return Err(limit("edges"));
         }
+        self.resident.tick().map_err(|_| limit("resident memory"))?;
         let from = usize::try_from(from).map_err(|_| bug("edge source exceeds address space"))?;
         let row = self
             .graph
@@ -918,6 +931,43 @@ mod evidence_controls {
             roots: vec![],
         };
         assert!(GraphCompletion::finalize(&empty, Stats::default(), limits).is_ok());
+    }
+    #[test]
+    fn retention_samples_the_resident_ceiling() {
+        if crate::resident::resident_bytes().is_none() {
+            return;
+        }
+        let period = u64::from(crate::resident::SAMPLE_EVERY);
+        // A ceiling below any process footprint refuses within one sampling
+        // period of retained states, never with a holding result.
+        let mut tight = super::Collector::<u64>::new(Limits {
+            resident_bytes: Some(1),
+            ..Limits::unbounded()
+        });
+        let refused = (0..period).find_map(|id| {
+            tight
+                .state(id, Vec::new().into(), Some(id))
+                .err()
+                .map(|verdict| (id, verdict))
+        });
+        assert!(matches!(
+            refused,
+            Some((_, crate::Verdict::ResourceLimit { message }))
+                if message == "behavior graph capture resident memory"
+        ));
+        // The same holds for retained edges.
+        let mut edges = super::Collector::<u64>::new(Limits {
+            resident_bytes: Some(1),
+            ..Limits::unbounded()
+        });
+        assert!(edges.state(0, Vec::new().into(), Some(0)).is_ok());
+        assert!((0..period).any(|_| edges.stutter(0).is_err()));
+        // Without a ceiling nothing is sampled.
+        let mut free = super::Collector::<u64>::new(Limits {
+            resident_bytes: None,
+            ..Limits::unbounded()
+        });
+        assert!((0..2 * period).all(|id| free.state(id, Vec::new().into(), Some(id)).is_ok()));
     }
     #[test]
     fn panic_does_not_fabricate_a_zero_worker_stop() {

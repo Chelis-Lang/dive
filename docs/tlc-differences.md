@@ -2862,7 +2862,7 @@ dropped. This changes no comparison, model limit or approved default.
 | **Kind** | Different answer (a refusal instead of a verdict) |
 | **Default** | `--temporal-bounds=default`: fixed entry and work counts; exhausting one is a named resource refusal |
 | **TLC behaviour** | `--temporal-bounds=unbounded`, selected by `--compat=tlc` |
-| **Status** | implemented ([ADR 0106](decisions/0106-temporal-bounds-setting.md)) |
+| **Status** | implemented ([ADR 0106](decisions/0106-temporal-bounds-setting.md), proposed) |
 
 **What TLC does.** TLC's liveness checking has no fixed count of properties,
 tableau nodes, behavior-graph states or product vertices. It runs until it
@@ -2883,7 +2883,14 @@ dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --fp 0
 refuses, while `--compat=tlc`, or `--temporal-bounds=unbounded` in either
 profile, checks it and agrees with TLC (130 s and 1.4 GB on the measuring
 machine). Like TLC's heap, `unbounded` keeps a memory stop: a resident-memory
-ceiling of a quarter of physical memory, the JVM's default maximum heap. `options.temporal_bounds.setting` in the JSON report names the
-setting used. `unbounded` also lifts the work ceilings of pure predicate replay
+ceiling of a quarter of physical memory, the JVM's default maximum heap. Graph
+capture, tableau expansion, labelling and product construction sample it
+between units of work and refuse with `resident memory` above it. One successor
+computation or one atom evaluation is not interrupted, so an evaluation that
+alone exhausts memory ends the process, as an `OutOfMemoryError` ends TLC. As
+with TLC's default heap, the ceiling depends on the machine: a model can agree
+on a large machine and refuse on a small one.
+`options.temporal_bounds.setting` in the JSON report names the setting used,
+and `options.temporal_bounds.resident_ceiling_bytes` the ceiling in effect. `unbounded` also lifts the work ceilings of pure predicate replay
 (finite-binding traversal and lazy query work); the structural nesting-depth
 limit stays in both settings.

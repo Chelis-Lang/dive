@@ -76,6 +76,7 @@ mod options;
 mod parallel;
 mod pool;
 mod render;
+pub mod resident;
 mod result;
 mod seen;
 pub use seen::{SeenFailure, SeenOptions, SeenPhase, SeenReplay, SeenUsage};

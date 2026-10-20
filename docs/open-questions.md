@@ -68,6 +68,27 @@ is not implemented, no new default is approved, and the TLC-equivalent setting
 must preserve the recorded IEEE arithmetic. Component evidence and the native
 diagnostic ResourceLimit experiment are qualified in [D-014](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
 
+## Temporal bounds under `--compat=tlc` (ADR 0106, D-025, open)
+
+ADR 0098 applies one file-checking resource policy to both semantic profiles:
+exhausting a temporal analysis bound is an explicit refusal. ADR 0106
+(proposed) keeps that policy as `--temporal-bounds=default` and adds
+`--temporal-bounds=unbounded`, which `--compat=tlc` selects. It drops the fixed
+counts, as TLC has none, and keeps one memory stop, a resident-memory ceiling
+of a quarter of physical memory, standing for TLC's default JVM heap. In the
+TLC profile five small-tier models move from unsupported to agree.
+
+- **Question 1.** Approve `unbounded` as the TLC-equivalent setting selected by
+  `--compat=tlc`, amending ADR 0098 for that profile?
+- **Question 2.** Keep the ceiling host-relative (a quarter of physical memory,
+  as TLC's default heap), or fix it (for example 3 GB, the `-Xmx` the goldens
+  were generated with), so that a verdict does not depend on the machine?
+- **Not proposed:** lifting the bounds in the default profile.
+
+Recommendation: approve question 1 and keep the host-relative ceiling, which
+is TLC's own default and is reported in the JSON as
+`options.temporal_bounds.resident_ceiling_bytes`.
+
 ## Checker CLI exit default (resolved 2026-10-14)
 
 **Resolved by the lead under the owner's delegated judgment toward eventual

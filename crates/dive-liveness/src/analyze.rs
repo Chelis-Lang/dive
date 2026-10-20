@@ -28,8 +28,10 @@ pub struct Limits {
     pub properties: usize,
     /// Maximum state and action label cells for one property.
     pub atom_cells: usize,
-    /// Resident-memory ceiling, in bytes, sampled while the tableau, labels
-    /// and product are built (see [`crate::resident`]). `None` samples nothing.
+    /// Resident-memory ceiling, in bytes, sampled on the analysis thread
+    /// between units of planning, tableau, labelling and product work (see
+    /// [`crate::resident`]). Graph capture has its own field,
+    /// [`capture::Limits::resident_bytes`]. `None` samples nothing.
     pub resident_bytes: Option<u64>,
 }
 impl Default for Limits {
@@ -49,16 +51,19 @@ impl Limits {
     /// labelling or product construction. TLC bounds liveness checking only by
     /// memory and time. The resident-memory ceiling stands for TLC's heap:
     /// [`crate::resident::default_ceiling`], a quarter of physical memory, the
-    /// JVM's default maximum heap. Exceeding it, or an external timeout, is
-    /// never a holding result. The `usize::MAX`
-    /// formula-node count is also the atoms' per-binder limit, which lifts the
-    /// evaluator's pure predicate replay work ceilings as well.
+    /// JVM's default maximum heap, set both here and on capture. Exceeding
+    /// it, or an external timeout, is never a holding result. Samples fall
+    /// between units of work, so one atom evaluation or one successor
+    /// computation is not interrupted. The `usize::MAX` formula-node count is
+    /// also the atoms' per-binder limit, which lifts the evaluator's pure
+    /// predicate replay work ceilings as well.
     ///
     /// ```
     /// use dive_liveness::analyze::Limits;
     /// let limits = Limits::unbounded();
     /// assert_eq!(limits.atom_cells, usize::MAX);
     /// assert_eq!(limits.capture.generated, u64::MAX);
+    /// assert_eq!(limits.capture.resident_bytes, limits.resident_bytes);
     /// ```
     #[must_use]
     pub fn unbounded() -> Self {

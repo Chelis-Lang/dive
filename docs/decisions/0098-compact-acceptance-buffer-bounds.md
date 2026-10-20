@@ -1,7 +1,14 @@
 # 0098: Compact acceptance buffer bounds
 
-- **Status:** accepted
+- **Status:** accepted; amended by [ADR 0106](0106-temporal-bounds-setting.md)
+  (proposed)
 - **Date:** 2026-10-15
+
+> **Amendment (ADR 0106, proposed).** The shared file-checking resource policy
+> below applies to `--temporal-bounds=default`, the default profile's setting.
+> Under `--temporal-bounds=unbounded`, which `--compat=tlc` selects, the
+> acceptance-buffer allowances are replaced by a resident-memory ceiling of a
+> quarter of physical memory.
 
 ## Context
 

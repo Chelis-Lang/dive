@@ -4,11 +4,16 @@
   temporal analysis (ADR 0106, D-025). `--compat=tlc` now selects `unbounded`,
   TLC's setting: no fixed count of properties, tableau nodes, captured states,
   label cells or product vertices. A resident-memory ceiling of a quarter of
-  physical memory, TLC's default JVM heap, remains the memory stop.
+  physical memory, TLC's default JVM heap, remains the memory stop: graph
+  capture, tableau expansion, labelling and product construction sample it
+  between units of work and refuse with `resident memory` above it. A single
+  successor computation or atom evaluation is not interrupted, and the ceiling
+  depends on the machine (JSON: `options.temporal_bounds.resident_ceiling_bytes`).
   The default profile keeps its bounds and named resource refusals. In the TLC
   profile, `CoffeeCan/CoffeeCan1000Beans`, `FiniteMonotonic/MCCRDT`,
   `LoopInvariance/MCQuicksort`, `allocator/AllocatorImplementation` and
-  `MisraReachability/MCParReach` now agree (139 to 144 of 156).
+  `MisraReachability/MCParReach` now agree (139 to 144 of 156). ADR 0106 is
+  proposed, pending owner sign-off.
 
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
