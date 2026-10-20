@@ -97,6 +97,9 @@ jobs:
         with:
           key: workspace-gate
           save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
+          # step deletes binaries that predate the job (docs/developer/ci.md).
+          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Did Cargo.lock or deny.toml change?
         id: deny
         env:
@@ -150,6 +153,9 @@ jobs:
         with:
           key: release-gate
           save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
+          # step deletes binaries that predate the job (docs/developer/ci.md).
+          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Cache oracles, JRE and corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
