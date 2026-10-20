@@ -154,8 +154,14 @@ fn independent_composed_word_refusal_keeps_noncomposed_valid_and_forged_controls
     Ok(())
 }
 
+/// The one-character fragment's `SubSeq(s,2,2)` sits in a `CHOOSE` domain
+/// behind `IF Len(s)=4`, which no reachable one-character state takes. Pinned
+/// TLC `tlc-2026.10.06.014338` (`-workers 1 -fp 0 -seed 0`, action
+/// composition on) reports success with 5 generated, 2 distinct states and
+/// depth 2. dive formerly refused the WF atom with a `SubSeq` error (2183)
+/// because its finite-binding preflight evaluated that untaken domain.
 #[test]
-fn original_short_fragment_retains_its_separate_atom_refusal() -> TestResult {
+fn original_short_fragment_matches_the_pinned_success() -> TestResult {
     let report = dive_api::check_file(&CheckRequest {
         file: fixtures().join("original/NameCdot.tla"),
         config: Some(fixtures().join("hold.cfg")),
@@ -168,15 +174,11 @@ fn original_short_fragment_retains_its_separate_atom_refusal() -> TestResult {
         ..Default::default()
     })?;
     let doc = report.to_json();
-    assert_eq!(doc["verdict"], "unsupported");
+    assert_eq!(doc["verdict"], "success", "{doc}");
     assert_eq!(doc["execution"]["capture_completed"], true);
-    assert_eq!(doc["execution"]["stage"], "atoms");
-    assert!(
-        doc["message"]
-            .as_str()
-            .is_some_and(|m| m.contains("SubSeq") && m.contains("2183"))
-    );
     assert_eq!(doc["statistics"]["generated"], 5);
+    assert_eq!(doc["statistics"]["distinct"], 2);
+    assert_eq!(doc["statistics"]["depth"], 2);
     assert!(doc["counterexample"].is_null());
     Ok(())
 }
