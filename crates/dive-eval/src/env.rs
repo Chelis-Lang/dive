@@ -400,8 +400,15 @@ pub(crate) enum Sv {
     Fcn(Arc<LazyFcn>),
     /// A `LazyValue`.
     Thunk(Arc<Thunk>),
-    /// An operator.
-    Op(OpVal),
+    /// An operator, boxed so that a slot stays as small as a value.
+    Op(Box<OpVal>),
+}
+
+impl Sv {
+    /// A slot holding the operator `op`.
+    pub(crate) fn op(op: OpVal) -> Self {
+        Self::Op(Box::new(op))
+    }
 }
 
 impl From<Ev> for Sv {
@@ -413,6 +420,85 @@ impl From<Ev> for Sv {
     }
 }
 
+// A slot is no larger than a value plus its tag: frames copy and free slots
+// on every call, so their size is on the hot path.
+const _: () = assert!(std::mem::size_of::<Sv>() <= 24);
+
+/// The number of slots a frame stores inline, in the frame's own allocation.
+/// Most activations (operator parameters, a quantifier's variables, a few
+/// `LET` definitions) fit; larger frames keep their slots on the heap.
+const INLINE_SLOTS: usize = 4;
+
+/// The slots of a frame: inline up to [`INLINE_SLOTS`], so that a call
+/// allocates its frame once, and on the heap beyond.
+#[derive(Clone, Debug)]
+pub(crate) enum Slots {
+    Inline { len: u8, items: [Sv; INLINE_SLOTS] },
+    Heap(Vec<Sv>),
+}
+
+impl Slots {
+    /// `n` unbound slots.
+    fn unset(n: usize) -> Self {
+        match u8::try_from(n) {
+            Ok(len) if n <= INLINE_SLOTS => Self::Inline {
+                len,
+                items: Default::default(),
+            },
+            _ => Self::Heap(vec![Sv::Unset; n]),
+        }
+    }
+
+    /// Grows to at least `n` slots, binding the new ones to [`Sv::Unset`].
+    fn ensure_len(&mut self, n: usize) {
+        if n <= self.len() {
+            return;
+        }
+        match self {
+            Self::Inline { len, .. } if n <= INLINE_SLOTS => {
+                // `n <= INLINE_SLOTS`, which fits in a `u8`.
+                *len = u8::try_from(n).unwrap_or(u8::MAX);
+            }
+            Self::Inline { len, items } => {
+                let mut v: Vec<Sv> = items[..usize::from(*len)]
+                    .iter_mut()
+                    .map(std::mem::take)
+                    .collect();
+                v.resize(n, Sv::Unset);
+                *self = Self::Heap(v);
+            }
+            Self::Heap(v) => v.resize(n, Sv::Unset),
+        }
+    }
+}
+
+impl std::ops::Deref for Slots {
+    type Target = [Sv];
+    fn deref(&self) -> &[Sv] {
+        match self {
+            Self::Inline { len, items } => &items[..usize::from(*len)],
+            Self::Heap(v) => v,
+        }
+    }
+}
+
+impl std::ops::DerefMut for Slots {
+    fn deref_mut(&mut self) -> &mut [Sv] {
+        match self {
+            Self::Inline { len, items } => &mut items[..usize::from(*len)],
+            Self::Heap(v) => v,
+        }
+    }
+}
+
+impl<'a> IntoIterator for &'a Slots {
+    type Item = &'a Sv;
+    type IntoIter = std::slice::Iter<'a, Sv>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
 /// A frame: the slots of one definition's activation.
 #[derive(Clone, Debug)]
 pub(crate) struct Frame {
@@ -420,7 +506,7 @@ pub(crate) struct Frame {
     pub(crate) def: DefId,
     /// Its frame depth ([`dive_ir::Def::depth`]).
     pub(crate) depth: u32,
-    pub(crate) slots: Vec<Sv>,
+    pub(crate) slots: Slots,
     /// The frame a `LET` operator or `LAMBDA` closes over.
     pub(crate) parent: Option<Arc<Frame>>,
 }
@@ -517,7 +603,7 @@ impl Env {
             frame: Arc::new(Frame {
                 def,
                 depth,
-                slots: vec![Sv::Unset; slots],
+                slots: Slots::unset(slots),
                 parent,
             }),
             dynamic,
@@ -531,10 +617,10 @@ impl Env {
             FRAME_COW_COPIES.with(|count| count.set(count.get().saturating_add(1)));
         }
         let frame = Arc::make_mut(&mut self.frame);
-        if slot >= frame.slots.len() {
-            frame.slots.resize(slot + 1, Sv::Unset);
+        frame.slots.ensure_len(slot + 1);
+        if let Some(target) = frame.slots.get_mut(slot) {
+            *target = v;
         }
-        frame.slots[slot] = v;
     }
 
     /// The frame `up` levels out.
@@ -738,20 +824,47 @@ fn captures_with_effects(
                 {
                     return true;
                 }
-                Sv::Op(OpVal::Def {
-                    parent, dynamic, ..
-                }) => {
-                    if let Some(p) = parent {
-                        frames.push(p);
-                    }
-                    if let Some(d) = dynamic {
-                        dyns.push(d);
+                Sv::Op(op) => {
+                    if let OpVal::Def {
+                        parent, dynamic, ..
+                    } = &**op
+                    {
+                        if let Some(p) = parent {
+                            frames.push(p);
+                        }
+                        if let Some(d) = dynamic {
+                            dyns.push(d);
+                        }
                     }
                 }
-                Sv::Unset | Sv::Val(_) | Sv::AnalysisBound | Sv::Op(_) => {}
+                Sv::Unset | Sv::Val(_) | Sv::AnalysisBound => {}
             }
         } else {
             return false;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{INLINE_SLOTS, Slots, Sv};
+    use dive_value::Value;
+
+    #[test]
+    fn slots_grow_from_inline_to_heap_keeping_bindings() {
+        let mut slots = Slots::unset(1);
+        assert!(matches!(slots, Slots::Inline { len: 1, .. }));
+        slots[0] = Sv::Val(Value::Int(7));
+        slots.ensure_len(INLINE_SLOTS);
+        assert!(matches!(slots, Slots::Inline { .. }));
+        assert_eq!(slots.len(), INLINE_SLOTS);
+        slots.ensure_len(INLINE_SLOTS + 2);
+        assert!(matches!(slots, Slots::Heap(_)));
+        assert_eq!(slots.len(), INLINE_SLOTS + 2);
+        assert!(matches!(&slots[0], Sv::Val(Value::Int(7))));
+        assert!(slots[1..].iter().all(|s| matches!(s, Sv::Unset)));
+        slots.ensure_len(1);
+        assert_eq!(slots.len(), INLINE_SLOTS + 2);
+        assert!(matches!(Slots::unset(INLINE_SLOTS + 1), Slots::Heap(_)));
     }
 }

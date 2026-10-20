@@ -1,5 +1,13 @@
 # Changelog
 
+- Evaluation allocates less per operator call (ADR 0104, item 2): a frame
+  keeps up to four slots inline in its own allocation, an operator slot is
+  boxed so that a slot is no larger than a value, reading a bound name no
+  longer copies its slot, and an argument that is a literal or a name bound to
+  a value is bound directly instead of through a thunk. Results are
+  unchanged; single-worker checking runs 6–11% fewer instructions on the
+  benchmark models in both profiles.
+
 - Self-hosted CI runners never let `rust-cache` cache or prune
   `CARGO_HOME/bin`, and each runner uses its own `CARGO_HOME`
   (`docs/developer/ci.md`).
