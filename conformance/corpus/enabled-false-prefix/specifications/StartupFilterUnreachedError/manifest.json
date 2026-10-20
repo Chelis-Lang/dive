@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/user/temporal.md",
+    "https://github.com/Chelis-Lang/dive/issues/320"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "enabled"
+  ],
+  "modules": [
+    {
+      "path": "specifications/StartupFilterUnreachedError/StartupFilterUnreachedError.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/StartupFilterUnreachedError/StartupFilterUnreachedError.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "liveness failure"
+        }
+      ]
+    }
+  ]
+}

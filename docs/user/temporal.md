@@ -506,6 +506,22 @@ goldens retain their own source identity. Independent validation must establish
 both genuine and forged words under the actual captured context and finite
 covers; admitting an action-valued capture by syntax alone supplies no proof.
 
+## A false prefix inside ENABLED
+
+`ENABLED A` evaluates `A`'s conjuncts in order, as TLC does, and stops at a
+false one. In the `enabled-false-prefix` corpus
+([issue #320](https://github.com/Chelis-Lang/dive/issues/320)),
+`A == FALSE /\ x' = 0 /\ D = D` compares a startup set filter
+`D == {k \in SUBSET {0} : 1 \div 0 = 0}` that would divide by zero. The false
+prefix leaves the equality unevaluated, so `[]<>ENABLED A` is violated
+(2116, exit 13; 2 generated, 1 distinct, depth 1) with no division error, in
+both profiles, and the reported lasso validates. Two controls with a `TRUE`
+filter predicate, comparing `D` with itself and with an alias of it, hold.
+`crates/dive-api/tests/enabled_false_prefix.rs` also rejects forged words (an
+unreachable state, and the violation claimed for a holding control) and
+checks that without the `FALSE` prefix the TLC profile reaches the division by
+zero, which TLC reports with exit 255.
+
 ## Hidden-query lazy argument caching
 
 The separate `lazy-enabled-cache` oracle corpus records six minimal controls for
