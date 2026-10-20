@@ -18,12 +18,15 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 Measured 2026-10-19 on `main` at `1f5ae5fa` (pinned TLC `tlc-2026.10.06.014338`
 goldens, unchanged comparison rules). The selection is the small tier of
 `examples`, `probes`, `validation-smoke` and `configured-temporal-operators`:
-156 models, plus 458 SANY module comparisons in the TLC profile.
+156 models, plus 458 SANY module comparisons in the TLC profile. The default
+one-worker row was remeasured on 2026-10-20 at `2124a2fd`, after ordinary
+temporal checking reached the default profile (#326); the four-worker row
+predates that change.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
 | TLC | 1 | 156 | 139 | 17 | 0 | 0 |
-| default | 1 | 156 | 92 | 60 | 4 | 0 |
+| default | 1 | 156 | 134 | 17 | 5 | 0 |
 | default | 4 | 156 | 93 | 60 | 3 | 0 |
 
 The one-worker rows are committed as baselines in `conformance/baselines/`.
