@@ -39,7 +39,24 @@ impl Core {
     // -----------------------------------------------------------------------------
 
     /// Evaluates `e`.
+    ///
+    /// Inlined into its callers, so that evaluating a node costs one call
+    /// (to [`Self::eval_inner`]) rather than two; the rare `SelectSeq`
+    /// callback check stays out of line.
+    #[inline]
     pub(crate) fn eval(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
+        if st.selectseq_callback {
+            return self.eval_checked(env, st, e);
+        }
+        match self.eval_inner(env, st, e) {
+            Ok(v) => Ok(v),
+            Err(err) => Err(err.at(e)),
+        }
+    }
+
+    /// [`Self::eval`] under a `SelectSeq` callback, which checks every value.
+    #[inline(never)]
+    fn eval_checked(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
         let result = self.eval_inner(env, st, e).map_err(|err| err.at(e))?;
         if st.selectseq_callback {
             match &result {
@@ -242,8 +259,9 @@ impl Core {
         clippy::too_many_lines,
         reason = "one arm per construct, kept together like Tool.evalAppl"
     )]
+    #[inline(never)]
     fn eval_inner(self: &Arc<Self>, env: &mut Env, st: &St, e: ExprId) -> Result<Ev> {
-        let ir = &*self.ir.clone();
+        let ir = &*self.ir;
         let node = ir.node(e);
         match &node.expr {
             Expr::Bool(_) | Expr::Num(_) | Expr::Str(_) | Expr::Decimal { .. } => {
@@ -263,10 +281,16 @@ impl Core {
                 }
             }
             Expr::Const(c) => self.eval_const(env, st, *c, e),
-            Expr::Local(lr) => {
-                let sv = self.slot(env, *lr)?.clone();
-                self.force(env, &sv, st, e)
-            }
+            Expr::Local(lr) => match self.slot(env, *lr)? {
+                // Values are read in place; only a binding that evaluates
+                // (a thunk or an operator) is cloned out of the frame.
+                Sv::Val(v) => Ok(Ev::V(v.clone())),
+                Sv::Fcn(f) => Ok(Ev::F(f.clone())),
+                sv => {
+                    let sv = sv.clone();
+                    self.force(env, &sv, st, e)
+                }
+            },
             Expr::SubstRef { decl, primed } => self.eval_subst_ref(env, st, *decl, *primed, e),
             Expr::Def(d) => self.eval_def_use(env, st, *d, e),
             Expr::Apply { callee, args } => self.eval_apply(env, st, callee, args, e),
@@ -464,7 +488,7 @@ impl Core {
                                 Sv::Thunk(Thunk::new(*expr, outer.clone(), true))
                             }
                         },
-                        Arg::Op { op: o, .. } => Sv::Op(self.op_value(&outer, o)?),
+                        Arg::Op { op: o, .. } => Sv::op(self.op_value(&outer, o)?),
                     };
                     dynamic.push(b.decl, val);
                 }
@@ -941,11 +965,35 @@ impl Core {
     pub(crate) fn arg_value(self: &Arc<Self>, caller: &mut Env, st: &St, a: &Arg) -> Result<Sv> {
         Ok(match a {
             Arg::Expr { expr, pass } => match pass {
-                Pass::Lazy => Sv::Thunk(Thunk::new(*expr, caller.clone(), true)),
+                Pass::Lazy => match self.settled(caller, *expr) {
+                    Some(v) => Sv::Val(v),
+                    None => Sv::Thunk(Thunk::new(*expr, caller.clone(), true)),
+                },
                 Pass::Strict | Pass::Direct => Sv::from(self.eval(caller, st, *expr)?),
             },
-            Arg::Op { op: o, .. } => Sv::Op(self.op_value(caller, o)?),
+            Arg::Op { op: o, .. } => Sv::op(self.op_value(caller, o)?),
         })
+    }
+
+    /// The value of an argument that needs no `LazyValue`: a literal, or a
+    /// name already bound to a value. Evaluating either cannot fail, has no
+    /// effect and does not depend on the states, so binding the value
+    /// directly is indistinguishable from TLC's lazy binding, and the call
+    /// allocates no thunk for the argument.
+    fn settled(&self, env: &Env, expr: ExprId) -> Option<Value> {
+        match &self.ir.node(expr).expr {
+            Expr::Bool(_) | Expr::Num(_) | Expr::Str(_) | Expr::Decimal { .. } => {
+                match &self.lits[expr.index()] {
+                    Lit::Val(v) => Some(v.clone()),
+                    Lit::Err(_) | Lit::None => None,
+                }
+            }
+            Expr::Local(lr) => match self.slot(env, *lr).ok()? {
+                Sv::Val(v) => Some(v.clone()),
+                _ => None,
+            },
+            _ => None,
+        }
     }
 
     /// The operator an operator argument denotes (`getVal` for an
@@ -968,7 +1016,7 @@ impl Core {
                 }
             }
             OpRef::Param(lr) => match self.slot(env, *lr)? {
-                Sv::Op(op) => op.clone(),
+                Sv::Op(op) => (**op).clone(),
                 _ => return Err(EvalError::bug("operator parameter bound to a value")),
             },
             OpRef::Std(op) => OpVal::Std(*op),
@@ -982,7 +1030,7 @@ impl Core {
                 _ => OpVal::Const(*c),
             },
             OpRef::Subst(decl) => match env.dynamic.lookup(*decl) {
-                Some(Sv::Op(op)) => op.clone(),
+                Some(Sv::Op(op)) => (**op).clone(),
                 Some(_) => {
                     return Err(EvalError::unsupported(
                         "an operator substituted by a non-operator expression",

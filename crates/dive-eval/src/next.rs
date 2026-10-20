@@ -2009,7 +2009,7 @@ impl Expander<'_> {
             for a in &args {
                 vals.push(match a {
                     Arg::Expr { expr, .. } => Sv::from(core.eval(&mut env.clone(), &st, *expr)?),
-                    Arg::Op { op, .. } => Sv::Op(core.op_value(env, op)?),
+                    Arg::Op { op, .. } => Sv::op(core.op_value(env, op)?),
                 });
             }
             let parent = match d.scope {
