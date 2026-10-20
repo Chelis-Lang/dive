@@ -26,6 +26,10 @@
 
 - Add 27 generated TLC references from the original 44 missing full-tier
   models; the other 17 retain their original 600-second timeouts.
+
+- Add 32 generated TLC references for full-tier models that had none: 27
+  from a 600-second pass and five larger models from a four-hour pass. Twelve
+  full-tier models still have no reference (`docs/conformance-corpora.md`).
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
   boxed so that a slot is no larger than a value, reading a bound name no
