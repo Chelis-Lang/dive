@@ -257,6 +257,11 @@ impl Selection {
     }
 }
 
+/// How long after its `--time-limit` the harness kills a `dive check` run
+/// that has not stopped by itself (a single evaluation the budget cannot
+/// interrupt).
+pub const KILL_GRACE: Duration = Duration::from_secs(30);
+
 /// Resource limits for oracle runs.
 #[derive(Debug, Clone)]
 pub struct Limits {
@@ -268,6 +273,11 @@ pub struct Limits {
     pub timeout: Option<Duration>,
     /// Cap on derived timeouts.
     pub timeout_cap: Duration,
+    /// `--tlc-budgets`: derive each model's budget from its golden's TLC
+    /// time (ADR 0107), with this cap, never below twice that time. `None`
+    /// keeps the historical timeouts and runs `dive check` without budgets of
+    /// its own, as the gate does until it switches (a follow-up of ADR 0107).
+    pub budget_cap: Option<Duration>,
 }
 
 impl Limits {
@@ -282,11 +292,23 @@ impl Limits {
     /// - When a golden exists, its recorded single-worker time also counts:
     ///   the timeout is at least `4 × golden elapsed + 60 s`, even above the
     ///   cap, since that run is evidence of what the model needs.
-    /// - `--timeout` overrides both.
+    /// - With `--tlc-budgets` (`budget_cap`), a model with a golden instead
+    ///   gets a budget derived from TLC's recorded time (ADR 0107):
+    ///   `max(60 s, 10 × golden elapsed)`, capped by `budget_cap` but never
+    ///   below twice TLC's time. A run that needs more is a performance
+    ///   finding, not a long job.
+    /// - `--timeout` overrides all of these.
     #[must_use]
     pub fn timeout_for(&self, m: &ModelEntry, golden_elapsed_ms: Option<u64>) -> Duration {
         if let Some(t) = self.timeout {
             return t;
+        }
+        if let (Some(cap), Some(ms)) = (self.budget_cap, golden_elapsed_ms) {
+            let tlc = Duration::from_millis(ms);
+            return tlc
+                .saturating_mul(10)
+                .max(Duration::from_secs(60))
+                .min(cap.max(tlc.saturating_mul(2)));
         }
         let cap = self.timeout_cap;
         let derived = m.expected.runtime_seconds.map_or(cap, |s| {
@@ -310,11 +332,16 @@ impl Limits {
     #[must_use]
     pub fn policy(&self) -> String {
         self.timeout.map_or_else(
-            || {
-                format!(
+            || match self.budget_cap {
+                Some(cap) => format!(
+                    "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed) [cap {} s, at least 2 x golden elapsed]; otherwise 20 x recorded runtime + 120 s [min 300 s, cap {} s, cap when unknown]",
+                    cap.as_secs(),
+                    self.timeout_cap.as_secs()
+                ),
+                None => format!(
                     "max(20 x recorded runtime + 120 s [min 300 s, cap {} s, cap when unknown], 4 x golden elapsed + 60 s)",
                     self.timeout_cap.as_secs()
-                )
+                ),
             },
             |t| format!("fixed {} s", t.as_secs()),
         )
@@ -490,6 +517,7 @@ pub fn golden_generate(
             workers,
             timeout,
             xmx: &opts.limits.xmx,
+            budgets: opts.limits.budget_cap.is_some(),
         };
         let n = done.fetch_add(1, Ordering::Relaxed) + 1;
         match run_oracle_model_traced(env, &req) {
@@ -938,6 +966,7 @@ fn run_model(
                 .limits
                 .timeout_for(m, Some(golden.provenance.elapsed_ms)),
             xmx: &opts.limits.xmx,
+            budgets: opts.limits.budget_cap.is_some(),
         };
         let rec = match imp.check_model(&req) {
             Err(e) => record_from(
@@ -1655,6 +1684,53 @@ pub fn corpus_list(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn budgets_derive_from_tlc_time_with_a_floor_and_a_cap_never_below_twice_tlc() {
+        let m = crate::corpus::ModelEntry {
+            id: "M.cfg".to_owned(),
+            module: "M.tla".to_owned(),
+            mode: crate::corpus::ModelMode::Exhaustive,
+            features: Vec::new(),
+            tier: crate::corpus::Tier::Small,
+            out_of_scope: None,
+            counts_comparable: true,
+            expected: crate::corpus::ManifestExpectation {
+                result: "success".to_owned(),
+                runtime_seconds: Some(10),
+                distinct_states: None,
+                total_states: None,
+                state_depth: None,
+                workers: None,
+            },
+            worker_introspecting: false,
+        };
+        let limits = Limits {
+            jobs: 1,
+            xmx: "3g".to_owned(),
+            timeout: None,
+            timeout_cap: Duration::from_hours(1),
+            budget_cap: Some(Duration::from_mins(15)),
+        };
+        let secs = |golden_ms| limits.timeout_for(&m, golden_ms).as_secs();
+        assert_eq!(secs(Some(2_000)), 60, "floor");
+        assert_eq!(secs(Some(30_000)), 300, "ten times TLC");
+        assert_eq!(secs(Some(240_000)), 900, "cap");
+        assert_eq!(secs(Some(4_077_000)), 8_154, "never below twice TLC");
+        assert_eq!(secs(None), 320, "no golden: manifest-derived");
+        let fixed = Limits {
+            timeout: Some(Duration::from_mins(30)),
+            ..limits.clone()
+        };
+        assert_eq!(fixed.timeout_for(&m, Some(2_000)).as_secs(), 1800);
+        // Without `--tlc-budgets` the historical policy is unchanged.
+        let historical = Limits {
+            budget_cap: None,
+            ..limits.clone()
+        };
+        assert_eq!(historical.timeout_for(&m, Some(2_000)).as_secs(), 320);
+        assert_eq!(historical.timeout_for(&m, Some(240_000)).as_secs(), 1020);
+    }
 
     #[test]
     fn parallel_map_preserves_order() {

@@ -150,6 +150,7 @@ fn failure(value: &Value, physical_exit: Option<i32>) -> Result<(), String> {
         Some(
             "unsupported"
                 | "resource-limit"
+                | "stopped"
                 | "evaluation-error"
                 | "model-error"
                 | "internal-error"

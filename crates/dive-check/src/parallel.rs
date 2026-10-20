@@ -172,6 +172,16 @@ fn ranges(n: usize, size: usize) -> Vec<Range<usize>> {
     (0..n).step_by(size).map(|s| s..(s + size).min(n)).collect()
 }
 
+/// Whether an event at unit `cut` (`u64::MAX`: none) is decided by expanded
+/// blocks alone: every block starting at or before it has output (`done`).
+fn covers(blocks: &[Range<usize>], cut: u64, done: impl Fn(usize) -> bool) -> bool {
+    cut != u64::MAX
+        && blocks
+            .iter()
+            .enumerate()
+            .all(|(b, range)| range.start as u64 > cut || done(b))
+}
+
 /// ADR 0015 §2's block size: about 16 blocks per worker, 1 to 256 units.
 fn block_size(n: usize, threads: usize) -> usize {
     (n / (16 * threads.max(1))).clamp(1, 256)
@@ -228,6 +238,11 @@ struct Expand<'env, S: Keyed> {
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
     chaos: Option<u64>,
+    /// The run's armed budget, polled once per claimed block (ADR 0107).
+    budget: crate::budget::Budget,
+    /// Whether a block was left unexpanded because the budget ran out; the
+    /// wave is then not published.
+    exhausted: std::sync::atomic::AtomicBool,
 }
 
 /// The result of a successor's phase-1 checks that stops its block.
@@ -271,6 +286,19 @@ impl<S: Keyed> Expand<'_, S> {
         input
     }
 
+    /// Whether some block found an event and every block that starts at or
+    /// before the earliest one was expanded, so that the event is the wave's
+    /// first in reference order even though the budget left later blocks
+    /// unexpanded. Coverage is checked per block, whatever the claim order.
+    fn covers_first_event(&self) -> bool {
+        covers(&self.blocks, self.cut.load(Ordering::Relaxed), |b| {
+            self.outs[b]
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .is_some()
+        })
+    }
+
     fn actions(&self) -> usize {
         self.m.actions.len()
     }
@@ -304,6 +332,10 @@ impl<S: Keyed> Expand<'_, S> {
             let range = self.blocks[b].clone();
             if range.start as u64 > self.cut.load(Ordering::Relaxed) {
                 continue;
+            }
+            if self.budget.poll().is_some() {
+                self.exhausted.store(true, Ordering::Relaxed);
+                break;
             }
             let out = self.block(&set, range, &mut buf, &mut rng);
             *self.outs[b].lock().unwrap_or_else(PoisonError::into_inner) = Some(out);
@@ -989,6 +1021,9 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         initial_generated: search.initial_generated,
     };
     while !frontier.is_empty() {
+        if let Some(stop) = search.budget_stop() {
+            return (Some(stop), stats_now(search, frontier.len() as u64));
+        }
         if let Some(verdict) = search.checkpoint_boundary(&frontier, level) {
             return (
                 Some(Stop {
@@ -1095,6 +1130,8 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 cut: AtomicU64::new(u64::MAX),
                 buffers: Mutex::new(Vec::new()),
                 chaos: opts.chaos,
+                budget: search.budget.clone(),
+                exhausted: std::sync::atomic::AtomicBool::new(false),
             });
             let job: Job<'env> = {
                 let e = expand.clone();
@@ -1107,6 +1144,19 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 );
             }
             drop(job);
+            if expand.exhausted.load(Ordering::Relaxed)
+                && !expand.covers_first_event()
+                && let Some(stop) = search.budget_stop()
+            {
+                // The wave is incomplete before any event: report the
+                // published prefix only. An event every earlier block was
+                // expanded for is the first in reference order, and is
+                // published below as it would be without a budget.
+                return (
+                    Some(stop),
+                    stats_now(search, (len - wave_start + next_frontier.len()) as u64),
+                );
+            }
             let CommitInput {
                 gens,
                 done,
@@ -1514,6 +1564,27 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         }
     }
     (None, stats_now(search, next_frontier.len() as u64))
+}
+
+#[cfg(test)]
+mod budget_cut_tests {
+    use super::covers;
+
+    #[test]
+    fn an_event_survives_a_budget_stop_only_when_every_earlier_block_was_expanded() {
+        let blocks = [0..4, 4..8, 8..12, 12..16];
+        // Blocks 0 and 1 expanded, event at unit 5: decided.
+        assert!(covers(&blocks, 5, |b| b < 2));
+        // Chaos claimed block 1 first and block 0 was left unexpanded: an
+        // earlier event may hide in block 0, so the wave is not decided.
+        assert!(!covers(&blocks, 5, |b| b == 1));
+        // An event in block 2 with block 1 unexpanded is not decided either.
+        assert!(!covers(&blocks, 9, |b| b != 1));
+        // Later blocks never matter.
+        assert!(covers(&blocks, 3, |b| b == 0));
+        // No event: nothing to publish.
+        assert!(!covers(&blocks, u64::MAX, |_| true));
+    }
 }
 
 #[cfg(test)]

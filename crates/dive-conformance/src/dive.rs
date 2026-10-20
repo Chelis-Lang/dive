@@ -69,6 +69,8 @@ pub const DIVE_JSON_SCHEMA: u64 = 1;
 
 /// Exit code `dive` uses for a recognised but unimplemented request.
 const DIVE_EXIT_UNSUPPORTED: i32 = 3;
+/// `dive check`'s exit status for a run its budget stopped (ADR 0107).
+const DIVE_EXIT_STOPPED: i32 = 5;
 
 /// What a report records about the `dive` binary under test.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -196,6 +198,23 @@ impl DiveImplementation {
     ) -> Result<(Vec<String>, ProcessOutcome)> {
         let cfg = req.corpus_root.join(&req.model.id);
         let workers = req.workers.to_string();
+        // With `--tlc-budgets` the run gets its own budget (ADR 0107) and
+        // stops itself with a structured result; the harness kills it only
+        // `KILL_GRACE` later. The TLC profile keeps the harness timeout only,
+        // since TLC has no time limit to be compatible with. Without it, dive
+        // runs with no budget of its own, exactly as before.
+        let (time_limit, max_memory) = if req.budgets {
+            (
+                if self.profile == Profile::Tlc {
+                    "none".to_owned()
+                } else {
+                    format!("{}ms", req.timeout.as_millis().max(1))
+                },
+                req.xmx.to_owned(),
+            )
+        } else {
+            ("none".to_owned(), "none".to_owned())
+        };
         // TLC's goldens run with `-fp 0 -seed 0` (`oracle::run_tlc`).
         let mut extra: Vec<&std::ffi::OsStr> = vec![
             "--config".as_ref(),
@@ -206,6 +225,10 @@ impl DiveImplementation {
             "0".as_ref(),
             "--fp".as_ref(),
             "0".as_ref(),
+            "--time-limit".as_ref(),
+            time_limit.as_ref(),
+            "--max-memory".as_ref(),
+            max_memory.as_ref(),
         ];
         for p in &self.module_path {
             extra.push("--module-path".as_ref());
@@ -233,7 +256,11 @@ impl DiveImplementation {
             &extra,
             req.corpus_root,
             &req.model.module,
-            req.timeout,
+            if req.budgets {
+                req.timeout.saturating_add(crate::pipeline::KILL_GRACE)
+            } else {
+                req.timeout
+            },
         )
     }
 
@@ -622,6 +649,38 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
                 format!("dive check internal error: {message}"),
             );
         }
+        "stopped" => {
+            if outcome.exit_code != Some(DIVE_EXIT_STOPPED) {
+                return unclassified(
+                    outcome.exit_code,
+                    format!(
+                        "dive check reported stopped but exited {:?}",
+                        outcome.exit_code
+                    ),
+                );
+            }
+            // Out of time is the harness's timeout, reported by dive itself
+            // rather than by a kill. Neither stop claims anything about the
+            // model.
+            return match v["stopped"]["resource"].as_str() {
+                Some("time") => CheckMapping::Result(Box::new(bare(
+                    Verdict::Timeout,
+                    outcome.exit_code,
+                    format!("dive check stopped at its --time-limit: {message}"),
+                ))),
+                // A finding, like a timeout: the run did not finish within its
+                // budget, and a blowup must not hide among refusals.
+                Some("memory") => CheckMapping::Result(Box::new(bare(
+                    Verdict::Timeout,
+                    outcome.exit_code,
+                    format!("dive check stopped at its --max-memory: {message}"),
+                ))),
+                _ => unclassified(
+                    outcome.exit_code,
+                    "dive check reported stopped without a resource".into(),
+                ),
+            };
+        }
         "rejected" => {
             let errs = errors(&v);
             let verdict = if errs.iter().any(|(c, _)| c.starts_with("DIVE-C")) {
@@ -932,6 +991,39 @@ mod tests {
             stderr: String::new(),
             elapsed: Duration::ZERO,
         }
+    }
+
+    #[test]
+    fn budget_stops_map_to_timeout_or_refusal_never_to_a_result() {
+        let stopped = |resource: &str, exit: i32| {
+            check_result(
+                &outcome(
+                    exit,
+                    &format!(
+                        r#"{{"schema_version":1,"command":"check","verdict":"stopped","message":"stopped during safety-search","stopped":{{"resource":"{resource}"}}}}"#
+                    ),
+                ),
+                true,
+            )
+        };
+        assert!(matches!(
+            stopped("time", 5),
+            CheckMapping::Result(r) if r.verdict == Verdict::Timeout
+        ));
+        assert!(matches!(
+            stopped("memory", 5),
+            CheckMapping::Result(r) if r.verdict == Verdict::Timeout
+                && r.note.as_deref().is_some_and(|n| n.contains("--max-memory"))
+        ));
+        // A stop must carry its own exit status and resource.
+        assert!(matches!(
+            stopped("time", 3),
+            CheckMapping::Result(r) if r.verdict == Verdict::Unclassified
+        ));
+        assert!(matches!(
+            stopped("disk", 5),
+            CheckMapping::Result(r) if r.verdict == Verdict::Unclassified
+        ));
     }
 
     #[test]

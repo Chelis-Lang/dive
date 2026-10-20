@@ -290,6 +290,19 @@ fn assess(
         };
         return (Outcome::Unsupported, format!("{kind}: {message}"), Some(v));
     }
+    if kind == "stopped" {
+        // A run its own budget stopped (ADR 0107): out of time is the
+        // study's timeout, out of memory a named resource limitation.
+        if outcome.exit_code != Some(5) {
+            return bad("budget stop has a contradictory exit code".into());
+        }
+        let message = v["message"].as_str().unwrap_or_default().to_owned();
+        return match v["stopped"]["resource"].as_str() {
+            Some("time") => (Outcome::Timeout, format!("stopped: {message}"), Some(v)),
+            Some("memory") => (Outcome::Unsupported, format!("stopped: {message}"), Some(v)),
+            _ => bad("budget stop must name its resource".into()),
+        };
+    }
     let tlc = *profile == Profile::Tlc;
     let (observed, observed_counts, doc) = match kind {
         "success" | "liveness-violation" => {
@@ -576,6 +589,7 @@ pub fn run(config: &Config, cache: &Cache, opts: &Options) -> Result<Report> {
                     workers,
                     timeout: opts.limits.timeout_for(m, Some(g.provenance.elapsed_ms)),
                     xmx: &opts.limits.xmx,
+                    budgets: opts.limits.budget_cap.is_some(),
                 };
                 let (command, process) = imp.run_model(&req, true)?;
                 row.command = command;
@@ -693,6 +707,28 @@ mod tests {
         v["counterexample"] = json!({"length":2,"ending":"lasso","back_to":2,"trace":d.to_json(),"validation":"valid","states":[{"index":1,"values":{"x":false}},{"index":2,"values":{"x":true}}]});
         v
     }
+    #[test]
+    fn budget_stops_are_timeouts_or_limitations_never_observations() {
+        let g = golden(Verdict::Success);
+        let stopped = |resource: &str| {
+            let mut v = success();
+            v["verdict"] = json!("stopped");
+            v["message"] = json!("stopped during graph-capture");
+            v["stopped"] = json!({"resource": resource});
+            v
+        };
+        let assess_at = |v: &Value, exit| {
+            assess(&process(v, exit), &Profile::Tlc, 4, &g, |_| {
+                panic!("a stop has no witness")
+            })
+            .0
+        };
+        assert_eq!(assess_at(&stopped("time"), 5), Outcome::Timeout);
+        assert_eq!(assess_at(&stopped("memory"), 5), Outcome::Unsupported);
+        assert_eq!(assess_at(&stopped("time"), 3), Outcome::MalformedReport);
+        assert_eq!(assess_at(&stopped("disk"), 5), Outcome::MalformedReport);
+    }
+
     #[test]
     fn observations_require_the_requested_mode_truth_counts_and_exit() {
         let g = golden(Verdict::Success);

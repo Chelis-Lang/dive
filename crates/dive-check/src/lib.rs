@@ -63,6 +63,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+pub mod budget;
 pub mod capture;
 pub mod checkpoint;
 mod class;
@@ -113,6 +114,8 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         );
     }
     let started = Instant::now();
+    let (_watchdog, armed) = budget::arm(opts);
+    let opts = armed.as_ref();
     let run = || run_check(ir, cfg, opts);
     let outcome = std::thread::scope(|s| {
         std::thread::Builder::new()

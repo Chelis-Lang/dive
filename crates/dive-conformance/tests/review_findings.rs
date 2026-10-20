@@ -295,6 +295,7 @@ impl World {
                 xmx: "1g".to_owned(),
                 timeout: Some(Duration::from_secs(5)),
                 timeout_cap: Duration::from_secs(5),
+                budget_cap: None,
             },
             crosscheck_manifest: false,
             models: true,

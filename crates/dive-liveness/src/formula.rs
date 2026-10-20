@@ -427,6 +427,9 @@ impl Builder {
         }];
         let mut roots = Vec::new();
         while let Some(mut w) = work.pop() {
+            if crate::budget::exhausted() {
+                return Err(FormulaError::Limit(crate::budget::EXHAUSTED));
+            }
             self.steps = self
                 .steps
                 .checked_add(1)

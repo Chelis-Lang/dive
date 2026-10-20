@@ -63,7 +63,12 @@ pub(super) fn read(
         }
     } else if !matches!(
         verdict,
-        "unsupported" | "resource-limit" | "evaluation-error" | "model-error" | "internal-error"
+        "unsupported"
+            | "resource-limit"
+            | "stopped"
+            | "evaluation-error"
+            | "model-error"
+            | "internal-error"
     ) || execution["stage"].as_str().is_none_or(str::is_empty)
     {
         return Err("unknown temporal result or missing failure stage".into());
