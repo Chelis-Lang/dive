@@ -503,7 +503,8 @@ Native checking matches all four in both profiles. Since the validator decides
 `ENABLED` with the core evaluator (ADR 0103), replay accepts the genuine
 initial-violation word of the primed disabled case and rejects the same word
 for the primed enabled case, where `Inv` holds, through both the document and
-the typed API (`crates/dive-api/tests/callback_enabled.rs`). The corpus is
+the typed API, on the corpus's own `LET Cut == a'` specs
+(`crates/dive-api/tests/callback_enabled.rs`). The corpus is
 reported separately from the established 156-model population, and its
 generated goldens retain their own source identity.
 

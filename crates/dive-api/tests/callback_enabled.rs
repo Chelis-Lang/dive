@@ -123,10 +123,13 @@ fn validate_counterexample(
     Ok(())
 }
 
-/// Issue #312: when the primed `LET Cut == a'` callback leaves `Step` enabled,
-/// the invariant holds in the initial state, so a word that ends the initial
-/// state with an `Inv` violation is forged. Replay must reject it, through the
-/// document and the typed API, instead of refusing the captured primed source.
+/// Issue #312's forged word: when the callback leaves `Step` enabled, the
+/// invariant holds in the initial state, so a word that ends the initial state
+/// with an `Inv` violation is forged. Replay must reject it, through the
+/// document and the typed API. The `callback-enabled` fixtures write the prime
+/// inline (`LAMBDA e : e /= a'`); the issue's own captured primed
+/// `LET Cut == a'` is the corpus spec exercised by
+/// `issue_312_primed_let_capture_words_replay_in_both_profiles`.
 fn reject_forged_invariant_word(
     file: &Path,
     config: &Path,
@@ -154,6 +157,113 @@ fn reject_forged_invariant_word(
         model.validate_trace(&typed).validation,
         Validation::Invalid(_)
     ));
+    Ok(())
+}
+
+/// Issue #312 on its own spec: the `lazy-enabled-capture` corpus's
+/// `primed_disabled` and `primed_enabled` models, whose callback reads the
+/// captured primed `LET Cut == a'`. Native checking must match the pinned TLC
+/// goldens in both profiles; replay must accept the genuine initial-violation
+/// word of the disabled case and reject the same word for the enabled case,
+/// where `Inv` holds, through the document and typed APIs.
+#[test]
+fn issue_312_primed_let_capture_words_replay_in_both_profiles()
+-> Result<(), Box<dyn std::error::Error>> {
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let specs = repo.join("conformance/corpus/lazy-enabled-capture/specifications");
+    let goldens =
+        repo.join("conformance/golden/tlc-2026.10.06.014338/lazy-enabled-capture/specifications");
+    for (name, violated) in [("primed_disabled", true), ("primed_enabled", false)] {
+        let file = specs.join(name).join("CallbackEnabled.tla");
+        let config = specs.join(name).join("CallbackEnabled.cfg");
+        assert!(
+            std::fs::read_to_string(&file)?
+                .contains("LET Cut == a' IN c' = SelectSeq(c, LAMBDA e : e /= Cut)"),
+            "{name} must keep the issue's captured primed LET"
+        );
+        let golden: Value = serde_json::from_str(&std::fs::read_to_string(
+            goldens.join(name).join("CallbackEnabled.cfg.json"),
+        )?)?;
+        let expected = &golden["result"];
+        for compat_tlc in [true, false] {
+            let value = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            })?
+            .to_json_with_exit_convention(ExitConvention::Tlc);
+            assert_eq!(value["exit_code"], expected["exit_code"], "{name}: {value}");
+            assert_eq!(value["tlc"]["code"], expected["verdict_code"], "{name}");
+            assert_eq!(value["property"], expected["violated_property"], "{name}");
+            if violated {
+                assert_eq!(value["tlc"]["verified"], true, "{name}");
+                let genuine = TraceDoc::from_json(&value["counterexample"]["trace"])?;
+                assert_eq!(
+                    Value::from(genuine.states.len()),
+                    expected["trace"]["length"],
+                    "{name}"
+                );
+                let model = SpecModel::load(
+                    &file,
+                    &config,
+                    &TraceOptions {
+                        compat_tlc,
+                        run: Some((0, 0)),
+                        ..Default::default()
+                    },
+                )?;
+                let (document, typed) = model.read(&genuine);
+                assert_eq!(document.validation, Validation::Valid, "{name}");
+                let typed = typed.ok_or("decoded genuine word")?;
+                assert_eq!(model.validate_trace(&typed).validation, Validation::Valid);
+            } else {
+                assert!(value["counterexample"].is_null(), "{name}");
+                for (native, oracle) in [
+                    ("generated", "states_generated"),
+                    ("distinct", "distinct_states"),
+                    ("depth", "depth"),
+                    ("left_on_queue", "states_left_on_queue"),
+                ] {
+                    assert_eq!(
+                        value["statistics"][native], expected["counts"][oracle],
+                        "{name}: {native}"
+                    );
+                }
+            }
+            // The same initial-state `Inv` word is genuine for the disabled
+            // case and forged for the enabled one.
+            let mut word =
+                TraceDoc::behavior(vec![serde_json::json!({"b":0,"q":0,"s":{"seq":[1,2,3]}})])?;
+            word.ending = Some(Ending::Invariant("Inv".into()));
+            let model = SpecModel::load(
+                &file,
+                &config,
+                &TraceOptions {
+                    compat_tlc,
+                    run: Some((0, 0)),
+                    ..Default::default()
+                },
+            )?;
+            let (document, typed) = model.read(&word);
+            let typed = typed.ok_or("decoded initial-state word")?;
+            let typed = model.validate_trace(&typed).validation;
+            if violated {
+                assert_eq!(document.validation, Validation::Valid, "{name}");
+                assert_eq!(typed, Validation::Valid, "{name}");
+            } else {
+                assert!(
+                    matches!(document.validation, Validation::Invalid(_)),
+                    "{name}: {:?}",
+                    document.validation
+                );
+                assert!(matches!(typed, Validation::Invalid(_)), "{name}");
+            }
+        }
+    }
     Ok(())
 }
 
