@@ -53,7 +53,8 @@ exact lasso choice is not a parity obligation (ADR 0082), so the former
 2026-10-12. Eligible ordinary TLC-profile requests select the same bounded final
 analyzer without extra policy flags; the report records the actual final/short
 mode and retains profile `tlc`. Ordinary default-profile requests use the same
-analyzer with profile `dive`. See [temporal checking](temporal.md#ordinary-checking)
+analyzer at deterministic completed-level boundaries (D-014). See
+[temporal checking](temporal.md#ordinary-checking-in-the-tlc-profile)
 for fp0/default resident-memory eligibility and explicit limits. Excluded
-temporal routes retain named refusals; periodic scheduling remains
-unimplemented.
+temporal routes retain named refusals; TLC's wall-clock periodic trigger is not
+emulated.

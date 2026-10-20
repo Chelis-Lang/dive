@@ -144,8 +144,8 @@ input-error priority. See the
 
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |
 |---|---|---|---|---|
-| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | none: TLC's exact lasso is not a parity obligation (ADR 0082); `--compat=tlc` keeps the short validated lasso. `--lasso=tlc` was withdrawn on 2026-10-12 and its emulation removed | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports and eligible ordinary TLC-profile final access; bounded ordered parallel capture with 1/4/8/chaos controls; ordinary periodic and remaining recovery/error boundaries stay refused. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
-| D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | ordinary schedule remains planned (eligible ordinary requests in both profiles check once at the end meanwhile); separate periodic callback kernel implemented with296 pinned-method controls, no clock/graph/checkpoint or ordinary-verdict certification; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
+| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | none: TLC's exact lasso is not a parity obligation (ADR 0082); `--compat=tlc` keeps the short validated lasso. `--lasso=tlc` was withdrawn on 2026-10-12 and its emulation removed | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports and eligible ordinary TLC-profile final access; bounded ordered parallel capture with 1/4/8/chaos controls; eligible ordinary dive-profile requests use bounded deterministic completed-level checks (D-014); remaining recovery/error and resource boundaries retain named refusals. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
+| D-014 | Periodic liveness scheduling | Eligible ordinary dive requests: deterministic completed-level checks once the graph has at least 2^16 states and has doubled since the previous check (`options.lncheck: deterministic`, ADR 0018 §7) | Ordinary TLC profile and explicit `--lncheck final --lasso short`: final checking; no TLC wall-clock emulation | Bounded implementation; prefix checks search only the first configured property; prefix words require fresh typed and serialized validation, actual partial counts retained; no corpus or performance claim |
 | D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | bounded checked/TLC closure and pure safety reduction implemented; default non-bijections refuse before search, compat reproduces SyNonBiject; staged startup warnings match source-backed probes; liveness/randomness and unverified declaration/value shapes still refused (ADR 0019) |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
 | D-017 | Host access from a specification | No access without explicit category grants | Explicit grants also required under `--compat=tlc`; restrictions are reported | planned; existing named refusals, CommunityModules `AllTests`, Examples `TLC/TestGraphs` and `ewd998/EWD998ChanTrace` |
@@ -430,9 +430,9 @@ The selected schedule is reported as final, with deterministic short witnesses;
 periodic scheduling, finite-prefix stopping and general temporal error timing are
 not implemented by this route. Actual completed counters remain observable in
 schema 2; safety-only roles keep the complete ordinary schema-1 result and startup
-host. Ordinary default-profile requests use the same final route (profile
-`dive`) until D-014's deterministic schedule lands. Excluded options retain their
-existing named refusals. See [the temporal guide](user/temporal.md#ordinary-checking)
+host. Ordinary default-profile requests use D-014's deterministic completed-level
+schedule instead. Excluded options retain their
+existing named refusals. See [the temporal guide](user/temporal.md#ordinary-checking-in-the-tlc-profile)
 for precise eligibility. This changes no resource bounds or periodic defaults.
 
 

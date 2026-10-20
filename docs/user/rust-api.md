@@ -72,7 +72,7 @@ available through the unobserved entry points.
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | Ordinary safety, eligible ordinary TLC-profile bounded final analysis, or explicit `TemporalMode::FinalShort`; inspect actual route/completion |
+| `check_file` | Ordinary safety, eligible ordinary dive-profile deterministic level checks, TLC-profile final analysis, or explicit `TemporalMode::FinalShort`; inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |

@@ -192,6 +192,13 @@ impl GraphCompletion {
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 pub trait Observer: Send {
+    /// Requests a prefix stop after a successful completed-level callback.
+    /// Use [`explore_controlled_with_evidence`]; exhausted frontiers cannot stop
+    /// as prefixes. The default preserves all existing observation behavior.
+    fn stop_after_level(&self) -> bool {
+        false
+    }
+
     /// A distinct accepted initial state after every Init check succeeded.
     /// Counters describe the complete initialization, including excluded candidates.
     ///
@@ -287,6 +294,68 @@ impl Complete {
     #[must_use]
     pub fn safety_result(&self) -> &CheckResult {
         &self.safety_result
+    }
+}
+
+/// Actual committed-level exploration prefix, explicitly not completion.
+#[derive(Clone, Debug)]
+pub struct Prefix {
+    level: u64,
+    result: Box<CheckResult>,
+    /// Original run settings.
+    pub options: CheckOptions,
+    /// Retained graph; unexpanded rows remain empty.
+    pub graph: BehaviorGraph,
+    /// Actual counters at the committed boundary.
+    pub stats: Stats,
+    /// Fingerprint qualifications, absent for exact storage.
+    pub collision: Option<Collision>,
+    /// Actual requested and used workers after joined work.
+    pub workers: Workers,
+    /// Startup and exploration output in order.
+    pub output: Vec<String>,
+    /// Actual startup warnings.
+    pub warnings: Vec<(u32, String)>,
+}
+impl Prefix {
+    /// Last fully committed expansion level. No complete verdict is implied.
+    #[must_use]
+    pub const fn level(&self) -> u64 {
+        self.level
+    }
+}
+
+/// Controlled capture distinguishes a real prefix from completed exploration.
+#[derive(Clone, Debug)]
+pub enum ControlledExploration {
+    /// Actual complete exploration, without a temporal verdict.
+    Complete(Box<Complete>),
+    /// Requested stop after a fully committed, unexhausted level.
+    Prefix(Box<Prefix>),
+    /// Safety, resource or unsupported stop.
+    Stopped(Box<CheckResult>),
+}
+impl From<Exploration> for ControlledExploration {
+    fn from(value: Exploration) -> Self {
+        match value {
+            Exploration::Complete(c) => Self::Complete(c),
+            Exploration::Stopped(s) => Self::Stopped(s),
+        }
+    }
+}
+impl ControlledExploration {
+    fn legacy(self) -> Exploration {
+        match self {
+            Self::Complete(c) => Exploration::Complete(c),
+            Self::Stopped(s) => Exploration::Stopped(s),
+            Self::Prefix(p) => {
+                let mut result = p.result;
+                result.verdict = Verdict::Unsupported {
+                    feature: "prefix stop requires controlled capture entrypoint".into(),
+                };
+                Exploration::Stopped(result)
+            }
+        }
     }
 }
 
@@ -562,7 +631,7 @@ pub fn explore_with_evidence(
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false, None);
+    let run = || explore_inner(model, opts, limits, false, None).legacy();
     let mut result = run_on_thread(run)?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
@@ -628,7 +697,7 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None))?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None).legacy())?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -658,12 +727,38 @@ pub fn explore_observed_with_evidence(
         ));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)))?;
+    let mut result =
+        run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)).legacy())?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
 
-fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
+/// Captures with completed-level prefix control at the requested worker width.
+/// Every callback follows joined, committed safety work. A prefix is never
+/// complete; callback errors retain the existing safety stop behavior.
+///
+/// # Errors
+/// The dedicated exploration thread failed or panicked; work is unknown.
+pub fn explore_controlled_with_evidence(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn Observer,
+) -> Result<ControlledExploration, String> {
+    if let Some(stop) = context_stop(model, opts) {
+        return Ok(stop.into());
+    }
+    let started = std::time::Instant::now();
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, false, Some(observer)))?;
+    match &mut result {
+        ControlledExploration::Complete(c) => c.safety_result.elapsed = started.elapsed(),
+        ControlledExploration::Stopped(s) => s.elapsed = started.elapsed(),
+        ControlledExploration::Prefix(p) => p.result.elapsed = started.elapsed(),
+    }
+    Ok(result)
+}
+
+fn run_on_thread<T: Send>(run: impl FnOnce() -> T + Send) -> Result<T, String> {
     std::thread::scope(|scope| {
         match std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
@@ -720,8 +815,10 @@ fn explore_inner(
     limits: Limits,
     parallel: bool,
     observer: Option<&mut dyn Observer>,
-) -> Exploration {
-    let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
+) -> ControlledExploration {
+    let refuse = |s: String| {
+        ControlledExploration::from(stopped(Verdict::Unsupported { feature: s }, model, opts))
+    };
     if opts.frontier_memory_bytes.is_some() {
         return refuse("frontier spill with behavior graph capture is not yet certified".into());
     }
@@ -782,11 +879,11 @@ fn explore_inner(
         AssumptionOutcome::AllTrue => {}
         AssumptionOutcome::False { message, .. } => {
             result.verdict = Verdict::AssumptionFalse { message };
-            return Exploration::Stopped(Box::new(result));
+            return ControlledExploration::Stopped(Box::new(result));
         }
         AssumptionOutcome::Error { error, message, .. } => {
             result.verdict = crate::class::assumption_error(&error, message);
-            return Exploration::Stopped(Box::new(result));
+            return ControlledExploration::Stopped(Box::new(result));
         }
     }
     let outcome = engine::search(
@@ -809,20 +906,37 @@ fn explore_inner(
     result.notes = outcome.notes;
     crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
-        return Exploration::Stopped(Box::new(result));
+        return ControlledExploration::Stopped(Box::new(result));
     }
     let (Some(graph), Some(stats)) = (outcome.graph, result.stats) else {
         result.verdict = bug("completed exploration did not return graph/statistics");
-        return Exploration::Stopped(Box::new(result));
+        return ControlledExploration::Stopped(Box::new(result));
     };
+    if let Some(level) = outcome.prefix_level {
+        if stats.left_on_queue == 0 {
+            result.verdict = bug("prefix has exhausted frontier");
+            return ControlledExploration::Stopped(Box::new(result));
+        }
+        return ControlledExploration::Prefix(Box::new(Prefix {
+            level,
+            result: Box::new(result.clone()),
+            options: opts.clone(),
+            graph,
+            stats,
+            collision: result.collision,
+            workers: result.workers,
+            output: result.output,
+            warnings: result.warnings,
+        }));
+    }
     let completion = match GraphCompletion::finalize(&graph, stats, limits) {
         Ok(completion) => completion,
         Err(verdict) => {
             result.verdict = verdict;
-            return Exploration::Stopped(Box::new(result));
+            return ControlledExploration::Stopped(Box::new(result));
         }
     };
-    Exploration::Complete(Box::new(Complete {
+    ControlledExploration::Complete(Box::new(Complete {
         completion,
         safety_result: Box::new(result.clone()),
         options: opts.clone(),
@@ -903,7 +1017,8 @@ mod evidence_controls {
     }
     #[test]
     fn panic_does_not_fabricate_a_zero_worker_stop() {
-        let result = super::run_on_thread(|| panic!("controlled capture panic"));
+        let result: Result<super::Exploration, String> =
+            super::run_on_thread(|| panic!("controlled capture panic"));
         assert!(matches!(result, Err(message) if message == "exploration thread panicked"));
     }
 }

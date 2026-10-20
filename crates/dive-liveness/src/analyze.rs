@@ -1,10 +1,10 @@
-//! Final-only pure liveness analysis through the shared safety engine.
+//! Pure liveness analysis through the shared safety engine.
 //!
-//! This library coordinator does not implement TLC's exact planning/selection,
-//! periodic checks or symmetry. WF/SF expansion uses TLC-side enabledness. Counterexample candidates
+//! This library coordinator does not implement TLC's exact planning/selection
+//! or symmetry. [`periodic`] adds deterministic completed-level checks. WF/SF expansion uses TLC-side enabledness. Counterexample candidates
 //! still require independent validation; direct formula evaluation attributes
 //! their complete configured property set.
-//! The CLI retains its liveness refusal until that integration is complete.
+//! Prefix candidates require independent validation and never prove `Holds`.
 
 use dive_check::{CheckOptions, CheckResult, capture};
 use dive_eval::{St, next::StateVals};
@@ -610,6 +610,36 @@ fn analyze_observed(
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
     validate_analysis_context(model)?;
+    let plans = prepare(model, limits)?;
+    *stage = Stage::Capture;
+    let captured =
+        match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
+            *stage = Stage::Unknown;
+            AnalysisError::CaptureThread(message)
+        })? {
+            capture::Exploration::Complete(c) => *c,
+            capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
+        };
+    let word = analyze_captured(
+        model,
+        &plans,
+        usize::MAX,
+        &captured.graph,
+        limits,
+        policy,
+        stage,
+        action_error,
+    )
+    .inspect_err(|_| {
+        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
+    })?;
+    Ok(final_analysis(word, captured))
+}
+
+fn prepare(
+    model: &Model,
+    limits: Limits,
+) -> Result<Vec<(Plan, Tableau, Vec<Recurrence>)>, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
     }
@@ -621,7 +651,7 @@ fn analyze_observed(
     if model.property_claims().len() > limits.properties {
         return Err(AnalysisError::Limit("properties"));
     }
-    let plans: Vec<(Plan, Tableau, Vec<Recurrence>)> = model
+    let plans = model
         .property_claims()
         .iter()
         .map(|p| {
@@ -636,28 +666,11 @@ fn analyze_observed(
             Ok((plan, tableau, conditions))
         })
         .collect::<Result<_, AnalysisError>>()?;
-    *stage = Stage::Capture;
-    let captured =
-        match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
-            *stage = Stage::Unknown;
-            AnalysisError::CaptureThread(message)
-        })? {
-            capture::Exploration::Complete(c) => *c,
-            capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
-        };
-    let word = analyze_captured(
-        model,
-        &plans,
-        &captured,
-        limits,
-        policy,
-        stage,
-        action_error,
-    )
-    .inspect_err(|_| {
-        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
-    })?;
-    Ok(match word {
+    Ok(plans)
+}
+
+fn final_analysis(word: Option<CandidateWord>, captured: capture::Complete) -> Analysis {
+    match word {
         Some(word) => Analysis::Candidate(Candidate {
             target_property: word.target_property,
             properties: word.properties,
@@ -667,7 +680,7 @@ fn analyze_observed(
             exploration: captured,
         }),
         None => Analysis::Holds(captured),
-    })
+    }
 }
 
 struct CandidateWord {
@@ -678,10 +691,20 @@ struct CandidateWord {
     edges: Vec<capture::Edge>,
 }
 
+/// Searches the first `searched` properties in configuration order for an
+/// accepting word; attribution always covers every property. A complete graph
+/// searches all of them. A prefix searches only the first, because a word for a
+/// later property on a prefix does not show which property the complete
+/// graph's search would name first.
+#[allow(
+    clippy::too_many_arguments,
+    reason = "the search width is the only difference between prefix and final checks"
+)]
 fn analyze_captured(
     model: &Model,
     plans: &[(Plan, Tableau, Vec<Recurrence>)],
-    captured: &capture::Complete,
+    searched: usize,
+    captured: &capture::BehaviorGraph,
     limits: Limits,
     policy: AcceptancePolicy,
     stage: &mut Stage,
@@ -690,15 +713,15 @@ fn analyze_captured(
     *stage = Stage::Product;
     let graph = Graph::new(
         captured
-            .graph
             .edges
             .iter()
             .map(|r| r.iter().map(|e| e.to).collect())
             .collect(),
-        captured.graph.roots.clone(),
+        captured.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans) {
+    for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans).take(searched)
+    {
         *stage = Stage::Atoms;
         let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
             crate::tlc_plan::active_actions(&plan.formula, limits.formula)
@@ -709,7 +732,7 @@ fn analyze_captured(
         let (labels, behavior_edges) = labels(
             model,
             plan,
-            &captured.graph,
+            captured,
             &p.name,
             limits.atom_cells,
             &active,
@@ -730,10 +753,10 @@ fn analyze_captured(
             let steps = lasso.prefix.iter().chain(&lasso.cycle);
             let states: Vec<StateVals> = steps
                 .clone()
-                .map(|s| captured.graph.states[s.from].clone())
+                .map(|s| captured.states[s.from].clone())
                 .collect();
             let edges = steps
-                .map(|s| captured.graph.edges[s.from][s.edge].clone())
+                .map(|s| captured.edges[s.from][s.edge].clone())
                 .collect();
             *stage = Stage::Attribution;
             let properties =
@@ -754,3 +777,6 @@ fn analyze_captured(
     }
     Ok(None)
 }
+
+/// Completed-level deterministic scheduling without weakening final completion.
+pub mod periodic;

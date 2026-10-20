@@ -797,54 +797,53 @@ backend without extra policy flags. Its report states the actual final schedule;
 this does not implement TLC's periodic trigger. Actual startup-bound safety roles
 retain ordinary safety behavior. Real temporal properties use the supported pure
 subset and independent periodic-word replay. Ordinary default-profile requests
-use the same final route with profile `dive`. Excluded options retain their
-previous refusals. See [ordinary temporal checking](user/temporal.md#ordinary-checking)
+use the deterministic completed-level schedule (D-014). Excluded options retain their
+previous refusals. See [ordinary temporal checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
 for exact eligibility, schema, counts and exit conventions. General TLC parity
 remains incomplete; limits and external timeouts do not prove a model holds.
 
 ## D-014: Periodic liveness checking has a replayable schedule
 
-**Status:** ordinary scheduling remains planned, with an owner-approved deterministic default. The approved `--lncheck=deterministic` interface will check at the documented level boundaries in ADR 0018. The TLC counterpart will retain wall-clock scheduling for `--lncheck=default`. Explicit bounded final checking is separate; this planned schedule does not run through the ordinary strict checker yet. Until it does, eligible ordinary requests in the default profile, like those under `--compat=tlc`, check temporal properties once after complete exploration and report `lncheck: final`.
+Eligible ordinary dive-profile temporal checking uses deterministic completed
+BFS-level boundaries. A check is due once the graph has at least 2^16 distinct
+states and at least twice as many as at the previous check (ADR 0018 §7), so
+all prefix checks together cost about one final check, and smaller models are
+checked once, at the end. Workers join and the level commits first. Exhausted frontiers
+receive only the final check. Ordinary TLC-profile requests and explicit
+`--lncheck final --lasso short` keep final checking. The implementation does not
+provide TLC's wall-clock controller or a `--lncheck default` timing emulation.
 
-The periodic backend controller now implements the pinned callback order. All 296 controlled pinned-method observations retain queue suspension, force state, deciding codes and PERIODIC effect order. This is a backend building block: clock-ratio math, graph-growth authority, quiescence and checkpoint persistence remain pending, and no ordinary model verdict is enabled.
+A prefix never proves `Holds`. A deciding periodic word must pass fresh
+independent typed and serialized validation. Results retain actual partial
+counts, depth and nonempty frontier with `capture_completed: false`; they never
+borrow final counts. Reports name the actual schedule and growth/check/boundary/
+exhaustion facts. Capture limits are cumulative; analysis bounds keep their
+per-property/per-check scope, so repeated checks add work without a total-run
+work/byte cap or speedup promise. A prefix check searches only the first
+configured property, so a prefix violation names the same property that the
+final check would name first; later properties are decided by the final check.
+A violation found on a prefix stops with fewer states than TLC's
+`-lncheck final` golden, which is a D-014 count divergence. As with TLC's own
+periodic checking, it can also preempt an invariant violation or evaluation
+error that lies beyond the checked prefix and that a final-only run would
+report instead. `--compat=tlc` restores final checking. See [the temporal guide](user/temporal.md).
 
-**Example and measurement.** The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct states in three pinned-TLC runs. All found the same violation, but the stopping counts depended on time. Fixed level boundaries make those counts reproducible across workers. They are a named scheduling difference, not a claim of exact TLC scheduling. Evidence: ADR 0017 §6 and the recorded probe transcripts.
+### Historical component observations
+
+The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct
+states in three pinned-TLC runs; all found the same violation with different
+time-dependent stopping counts (ADR 0017 §6).
 
 ### Zero-duration ratio edge case (controlled component evidence)
 
-The pinned `ModelChecker.updateRuntimeRatio` returns NaN when previous ratio is
-zero and both elapsed runtime and liveness time are zero: `0/0`. The actual
-zero-duration sample in `conformance/probes/runtime-ratio/stage1.stdout` (ROW 4)
-records IEEE bits `7ff8000000000000`. The complete updater selection is 196
-rows plus three assertion negatives. Controlled actual `doPeriodicWork` rows
-in `conformance/probes/ordinary-periodic-work/capture.json` show supplied NaN
-with force=false skips its liveness callback; force=true still invokes it.
-These are actual component observations, not a measured ordinary TLC startup
-starvation run.
-
-A native diagnostic experiment used:
-
-```tla
-Init == x = 0
-Next == \E i \in 1..1024: x' = x + 1
-Live == <>(x = 2)
-Hook == TRUE
-```
-
-Its initial forced empty service can take zero milliseconds and produce NaN.
-With the current Java-compatible ratio policy, a width-3 run retained 12,337
-genuine requests, reached 3,929,089 generated occurrences and returned a shared
-ResourceLimit instead of selecting a later unforced candidate. This failed
-experiment is retained in `conformance/probes/request-owned-service/development/gate1`;
-it earns no success or schedule credit. JSON null ratios remain unchanged in
-that history; new diagnostic recordings also expose raw IEEE bits.
-
-A separately named `--liveness-ratio=finite` improvement is under consideration,
-not implemented or approved as a default. The current ratio arithmetic and TLC
-setting remain unchanged. The stable candidate control explicitly selects a
-+Infinity ratio limit, no initially forced timer request, and a test-only
-returned-prefix/timer rendezvous. It proves diagnostic composition and replay,
-not ordinary timing or default-policy equivalence.
+The former controller's 296
+controlled observations and the 196-row runtime-ratio selection with three
+assertion negatives are component evidence, not evidence for this implementation.
+Its zero-duration ratio sample recorded NaN bits `7ff8000000000000`. A historical
+native diagnostic retained 12,337 requests and reached 3,929,089 generated
+occurrences before ResourceLimit. That failed experiment remains uncredited;
+no controller, ratio policy, proof or historical performance result is imported
+into the completed-level implementation.
 
 ## D-015: Symmetry functions must actually be permutations
 

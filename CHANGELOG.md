@@ -13,6 +13,17 @@
   `Host::reuse_expression_cache` and the `enumerate` cargo feature are
   removed.
 
+- Ordinary `dive check` in the default profile now checks eligible temporal
+  properties at deterministic completed-level boundaries (D-014, ADR 0018 §7)
+  instead of only once at the end: after a BFS level, once the graph has at
+  least 2^16 distinct states and has doubled since the previous check. A
+  violation found on such a prefix stops the run with that level's actual
+  counts and an independently validated lasso; only complete exploration
+  reports success. Models below 2^16 states are checked once, at the end, as
+  before. Reports record `lncheck: deterministic` and the schedule in
+  `periodic`. `--compat=tlc` and `--lncheck final` keep final checking. Rust
+  callers can set `CheckRequest::periodic`.
+
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
   boxed so that a slot is no larger than a value, reading a bound name no

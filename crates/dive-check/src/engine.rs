@@ -812,6 +812,7 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) capture: Option<Collector<S::Key>>,
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
     pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
+    pub(crate) prefix_level: Option<u64>,
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
@@ -866,6 +867,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         let first = usize::try_from(first_id).map_err(|_| Verdict::InternalError {
             message: "observed source id exceeds address space".into(),
         })?;
+        let mut stop = false;
         observer_call(|| {
             let graph = capture.graph();
             let end = first
@@ -901,8 +903,17 @@ impl<S: Keyed> Search<'_, '_, S> {
             }
             observer
                 .level_done(level, graph, stats)
-                .map_err(observer_failure)
-        })
+                .map_err(observer_failure)?;
+            stop = observer.stop_after_level();
+            Ok(())
+        })?;
+        if stop {
+            if stats.left_on_queue == 0 {
+                return Err(observer_bug("prefix stop requires an unexhausted frontier"));
+            }
+            self.prefix_level = Some(level);
+        }
+        Ok(())
     }
 
     /// Native transaction state is only present on admitted pure safety runs.
@@ -1425,6 +1436,9 @@ impl<S: Keyed> Search<'_, '_, S> {
                     stats,
                 );
             }
+            if self.prefix_level.is_some() {
+                return (None, stats);
+            }
             level += 1;
         }
         (None, self.stats(0))
@@ -1833,6 +1847,7 @@ impl<S: Keyed> Search<'_, '_, S> {
 pub(crate) struct Outcome {
     pub seen: Option<crate::SeenUsage>,
     pub graph: Option<BehaviorGraph>,
+    pub prefix_level: Option<u64>,
     pub frontier: crate::FrontierUsage,
     pub predecessor: crate::result::PredecessorUsage,
     pub verdict: Verdict,
@@ -1984,6 +1999,7 @@ fn search_in<S: Keyed>(
         Err(feature) => {
             workers.used = 0;
             return Outcome {
+                prefix_level: None,
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
@@ -2004,6 +2020,7 @@ fn search_in<S: Keyed>(
         Ok(k) => k,
         Err(message) => {
             return Outcome {
+                prefix_level: None,
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
@@ -2021,6 +2038,7 @@ fn search_in<S: Keyed>(
     };
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
+            prefix_level: None,
             seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
@@ -2055,6 +2073,7 @@ fn search_in<S: Keyed>(
         Err(error) => {
             workers.used = 0;
             return Outcome {
+                prefix_level: None,
                 seen: Some(crate::seen::SeenUsage::creation_failure(
                     opts.seen_disk.as_ref(),
                     &error,
@@ -2092,6 +2111,7 @@ fn search_in<S: Keyed>(
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
         checkpoint,
         observer,
+        prefix_level: None,
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
@@ -2216,7 +2236,7 @@ fn search_in<S: Keyed>(
         ] {
             host.set_counter(counter, i64::try_from(value).ok());
         }
-        let verdict = if no_actions {
+        let verdict = if no_actions || s.prefix_level.is_some() {
             Verdict::Success
         } else {
             postconditions(m).unwrap_or(Verdict::Success)
@@ -2227,6 +2247,7 @@ fn search_in<S: Keyed>(
             finalize_predecessor(
                 &mut s.log,
                 Outcome {
+                    prefix_level: s.prefix_level,
                     seen: None,
                     predecessor: crate::result::PredecessorUsage::default(),
                     graph: s.capture.take().map(Collector::finish),
@@ -2321,6 +2342,7 @@ fn search_in<S: Keyed>(
     let mut final_outcome = finalize_predecessor(
         &mut s.log,
         Outcome {
+            prefix_level: None,
             seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
@@ -2386,6 +2408,7 @@ mod predecessor_tests {
         let outcome = finalize_predecessor(
             &mut log,
             Outcome {
+                prefix_level: None,
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
@@ -2431,6 +2454,7 @@ mod predecessor_tests {
         let outcome = finalize_predecessor(
             &mut log,
             Outcome {
+                prefix_level: None,
                 seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,

@@ -1,14 +1,20 @@
-# Final temporal checking from Rust
+# Temporal checking from Rust
 
-Ordinary `dive_api::check_file` requests with `compat_tlc: true`, `fp: Some(0)`
-and otherwise eligible default resident-memory settings also select the existing
-final analyzer. `TemporalMode::Ordinary` remains the request default. The actual
-bound role split retains an ordinary safety result on schema 1 or performs final
-temporal analysis on schema 2, with one startup binding and separate independent
-validation, in both profiles.
-See [ordinary checking](user/temporal.md#ordinary-checking)
+Eligible ordinary `dive_api::check_file` requests use deterministic completed-level
+checks in the dive profile and final analysis in the TLC profile.
+`TemporalMode::Ordinary` remains the request default. The actual bound role split
+retains an ordinary safety result on schema 1 or performs temporal analysis on
+schema 2, with one startup binding and separate independent validation.
+A deciding prefix returns `Outcome::PrefixViolation` with actual incomplete
+capture evidence; only exhaustion can return `Outcome::Holds`. Both typed and
+serialized words must pass fresh independent validation.
+`CheckRequest::periodic` (`dive_api::PeriodicSchedule`) selects the completed
+levels to check; the default checks once the graph has at least 2^16 states and
+has doubled since the previous check.
+See [ordinary dive-profile checking](user/temporal.md#ordinary-checking-in-the-dive-profile)
+and [ordinary TLC-profile checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
 for options, physical exits, reports and limits. Explicit `FinalShort` behavior
-and its mixed-profile label are unchanged; this adds no periodic scheduler.
+and its mixed-profile label retain the final-only schedule.
 
 `dive_api::temporal::check_final` checks the supported pure temporal subset
 once the safety graph is completely explored. It returns either a holding
@@ -56,6 +62,10 @@ let report = check_final(&ir, &config, &CheckOptions::dive(17), Limits::default(
 
 match report.outcome() {
     Outcome::Violation(v) => {
+        println!("{}", v.document().to_json());
+        assert_eq!(v.validation().validation, dive_trace::Validation::Valid);
+    }
+    Outcome::PrefixViolation(v) => {
         println!("{}", v.document().to_json());
         assert_eq!(v.validation().validation, dive_trace::Validation::Valid);
     }
@@ -143,8 +153,8 @@ rustdoc; the existing final/short CLI example below exercises the file default.
 This API uses final checking and deterministic short-lasso selection. Passing
 `CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
-It does not replace the strict TLC conformance path. Eligible ordinary
-`dive check` requests reuse this backend in both profiles.
+Eligible ordinary `dive check` uses the profile schedules described above.
+Excluded options and unsupported combinations retain named refusals.
 TLC's exact lasso is not reproduced in any mode (ADR 0082); `--lasso tlc` is a
 usage error. Under `--compat=tlc`, `dive_liveness::tlc_plan::classify`
 reproduces TLC's liveness formula refusals (errors 2213 and 2214) for a later
@@ -174,9 +184,10 @@ The same backend is available explicitly:
 dive check Model.tla --lncheck final --lasso short --store exact --seed 17 --output json
 ```
 
-Both flags are required for explicit selection. Eligible ordinary TLC-profile
-requests select bounded final analysis without these flags; ordinary safety
-checks also retain their existing command. With these flags, an empty property list or the bounded
+Both flags are required for explicit selection. Eligible ordinary requests
+select deterministic level checks in the dive profile and bounded final analysis
+in the TLC profile without these flags; ordinary safety checks also retain their
+existing command. With these flags, an empty property list or the bounded
 configured-safety-role route above returns the ordinary safety result. Supported final
 checking returns success or independently validated periodic counterexamples;
 unsupported formulas, missing independent covers and limits return no verdict.

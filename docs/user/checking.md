@@ -46,10 +46,9 @@ capture and independent periodic-word validation. This selection need not match
 TLC's arbitrary lasso choice. `-lncheck default` retains ordinary checking.
 With profile-default resident-memory settings and `-fp 0`, eligible pure temporal
 obligations use the same bounded final analyzer, reported as profile `tlc` with
-actual final/short metadata and independent word validation. The default profile
-uses the same analyzer for ordinary requests, reported as profile `dive`. Other
-ordinary temporal combinations retain named refusals; see [ordinary temporal
-checking](temporal.md#ordinary-checking) for exact eligibility.
+actual final/short metadata and independent word validation. Other TLC-profile
+temporal combinations retain named refusals; see [ordinary TLC-profile temporal
+checking](temporal.md#ordinary-checking-in-the-tlc-profile) for exact eligibility.
 Other strategies refuse by name. Native
 `dive check --lncheck final --lasso short` keeps its existing explicit contract.
 
@@ -212,9 +211,10 @@ changed-Init controls. The remaining refusals cover two draws, a discarded rando
 branch and conditional random Init. These counts belong to the corrected
 producer; the original failed campaign's 48 refusals remain historical evidence.
 
-Eligible ordinary requests in either profile use the bounded pure final analyzer;
-other ordinary temporal routes retain named refusals. See [temporal checking](temporal.md#ordinary-checking)
-for exact eligibility, actual schemas and limits. The explicit final/short mode
+Eligible ordinary dive-profile requests check temporal properties at deterministic
+completed-level boundaries; ordinary TLC-profile requests use the bounded pure
+final analyzer. Unsupported combinations retain named refusals. See
+[temporal checking](temporal.md) for exact eligibility, actual schemas and limits. The explicit final/short mode
 remains available in either evaluator profile. Refused library
 operators, unknown finite deadlock covers, resource stops and internal failures
 must never be treated as `success`.

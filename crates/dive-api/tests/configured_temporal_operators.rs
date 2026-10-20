@@ -122,6 +122,7 @@ fn configured_reply_matches_pinned_counts_and_rejects_forged_words() {
                     ));
                     &v.candidate().exploration
                 }
+                Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                 Outcome::Safety(s) => panic!("unexpected safety result: {:?}", s.verdict),
             };
             let counts = &golden["result"]["counts"];
