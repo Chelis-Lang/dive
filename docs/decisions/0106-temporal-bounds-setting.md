@@ -44,7 +44,7 @@ the ordinary route and with `--lncheck final --lasso short`.
 The unbounded per-binder limit (`usize::MAX`) also lifts the work ceilings of
 pure predicate replay in `dive-eval` (100,000 finite-binding traversal visits
 and 50,000 lazy query work units per atom invocation). `LoopInvariance/MCQuicksort`
-needs both: it agrees in 517 s with them lifted, against TLC's 5 s. The
+needs both: it agrees in 517 to 692 s with them lifted, against TLC's 5 s. The
 structural nesting-depth limit (256) stays in both settings. JSON reports the
 resolved setting as `options.temporal_bounds.setting`.
 
@@ -54,6 +54,12 @@ Measured before the ceiling existed: with this setting and the companion
 preflight fix, `MultiCarElevator/ElevatorLivenessMedium` (TLC: success) grew
 past 77 GB resident in product construction before it was stopped. The ceiling
 turns that into a named refusal well before it threatens the machine.
+
+In the full gate's TLC-profile run, five models move from unsupported to
+agree (139 to 144 of 156): `CoffeeCan1000Beans` (121 s), `MCCRDT` (268 s),
+`MCQuicksort` (692 s), `AllocatorImplementation` (511 s) and
+`MisraReachability/MCParReach` (1,530 s, against the manifest's 30 s for TLC and a
+1,800 s gate timeout).
 
 ## Consequences
 

@@ -7,7 +7,8 @@
   physical memory, TLC's default JVM heap, remains the memory stop.
   The default profile keeps its bounds and named resource refusals. In the TLC
   profile, `CoffeeCan/CoffeeCan1000Beans`, `FiniteMonotonic/MCCRDT`,
-  `LoopInvariance/MCQuicksort` and `allocator/AllocatorImplementation` now agree.
+  `LoopInvariance/MCQuicksort`, `allocator/AllocatorImplementation` and
+  `MisraReachability/MCParReach` now agree (139 to 144 of 156).
 
 - Evaluation allocates less per operator call (ADR 0104, item 2): a frame
   keeps up to four slots inline in its own allocation, an operator slot is
