@@ -8,6 +8,13 @@
   unchanged; single-worker checking runs 6–11% fewer instructions on the
   benchmark models in both profiles.
 
+- Membership of a function in `[S -> T]` decides `DOMAIN f = S` without
+  building the domain set when `S` is an interval, an enumerated set or a
+  product of those, in both profiles, comparing the same elements in the same
+  order so that answers and errors are unchanged (ADR 0104, item 4). Type
+  invariants such as `x \in [0..N-1 -> T]` and `childOf \in [Nodes \X Keys -> T]`
+  run 4–14% fewer instructions on SimpleRegular and MCbtree.
+
 - Self-hosted CI runners never let `rust-cache` cache or prune
   `CARGO_HOME/bin`, and each runner uses its own `CARGO_HOME`
   (`docs/developer/ci.md`).

@@ -472,3 +472,179 @@ fn records_with_mixed_field_types_are_comparable_field_by_field() {
     ]));
     assert!(Value::elements_comparable(&[a, Value::tuple(Vec::new())]));
 }
+
+/// A domain candidate for `Fcn::domain_equals`: an interval, an enumerated set,
+/// or a product of those.
+fn domain_set(order: ValueOrder) -> impl Strategy<Value = Value> {
+    let ctx = ctx_for(order);
+    let simple = prop_oneof![
+        (-2i64..3, -2i64..4).prop_map(move |(lo, hi)| Value::interval(
+            Int::Small(lo),
+            Int::Small(hi),
+            ctx
+        )),
+        prop::collection::vec(leaf(), 0..4)
+            .prop_map(move |v| Value::set(v, ctx).unwrap_or_else(|_| Value::empty_set(ctx))),
+    ];
+    prop_oneof![
+        simple.clone(),
+        (simple.clone(), simple).prop_map(move |(a, b)| Value::product(vec![a, b], ctx)),
+    ]
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(600))]
+
+    /// Deciding `DOMAIN f = S` without building the domain set agrees with
+    /// building it, and only answers when building it cannot fail.
+    #[test]
+    fn domain_equals_agrees_with_the_domain_set(
+        (order, dom) in prop::sample::select(ORDERS.to_vec())
+            .prop_flat_map(|o| (Just(o), domain_set(o))),
+        keys in prop::collection::vec(prop_oneof![
+            leaf(),
+            (-2i64..3, -2i64..3).prop_map(|(a, b)| Value::tuple(vec![Value::Int(a), Value::Int(b)])),
+        ], 0..6),
+    ) {
+        let ctx = ctx_for(order);
+        let pairs: Vec<(Value, Value)> = keys.into_iter().map(|k| (k, Value::TRUE)).collect();
+        let Ok(Value::Fcn(f)) = Value::fcn(pairs, ctx) else {
+            return Ok(());
+        };
+        let Value::Set(d) = &dom else {
+            panic!("domain candidates are sets");
+        };
+        if let Some(same) = f.domain_equals(d) {
+            let fdom = Value::set(f.iter().map(|(k, _)| k).collect(), ctx)
+                .expect("an answered domain set can be built");
+            prop_assert_eq!(same, fdom == dom);
+        }
+    }
+}
+
+#[test]
+fn domain_equals_decides_intervals_enumerations_and_products() {
+    let ctx = ctx_for(ValueOrder::Canonical);
+    let fcn = |keys: Vec<Value>| match Value::fcn(
+        keys.into_iter().map(|k| (k, Value::FALSE)).collect(),
+        ctx,
+    ) {
+        Ok(Value::Fcn(f)) => f,
+        other => panic!("function: {other:?}"),
+    };
+    let set = |v: Value| match v {
+        Value::Set(s) => s,
+        other => panic!("set: {other:?}"),
+    };
+    let ints = |r: std::ops::Range<i64>| r.map(Value::Int).collect::<Vec<_>>();
+    let interval = |lo, hi| set(Value::interval(Int::Small(lo), Int::Small(hi), ctx));
+    // [0..2 -> _] and the interval 0..2.
+    assert_eq!(fcn(ints(0..3)).domain_equals(&interval(0, 2)), Some(true));
+    assert_eq!(fcn(ints(0..3)).domain_equals(&interval(0, 3)), Some(false));
+    assert_eq!(fcn(ints(1..4)).domain_equals(&interval(0, 2)), Some(false));
+    // Model values against an enumeration.
+    let m = |n| Value::model(&NAMES, n);
+    let ms = set(Value::set(vec![m("m1"), m("m2")], ctx).expect("set"));
+    assert_eq!(fcn(vec![m("m2"), m("m1")]).domain_equals(&ms), Some(true));
+    assert_eq!(fcn(vec![m("m1")]).domain_equals(&ms), Some(false));
+    // A product of an enumeration and an interval.
+    let p = set(Value::product(
+        vec![Value::Set(ms.clone()), Value::Set(interval(1, 2))],
+        ctx,
+    ));
+    let pairs: Vec<Value> = ["m1", "m2"]
+        .iter()
+        .flat_map(|n| (1..3).map(move |i| Value::tuple(vec![m(n), Value::Int(i)])))
+        .collect();
+    assert_eq!(fcn(pairs.clone()).domain_equals(&p), Some(true));
+    assert_eq!(fcn(pairs[..3].to_vec()).domain_equals(&p), Some(false));
+    // Other kinds of set are left to the general comparison.
+    assert_eq!(fcn(ints(0..2)).domain_equals(&set(Value::nat(ctx))), None);
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(600))]
+
+    /// TLC's `[S -> T]` membership compares the domain as
+    /// `S.equals(new SetEnumValue(DOMAIN f))`, with the same answer and error
+    /// however the comparison is carried out.
+    #[test]
+    fn tlc_function_set_membership_compares_the_domain_set(
+        (order, dom) in prop::sample::select(ORDERS.to_vec())
+            .prop_flat_map(|o| (Just(o), domain_set(o))),
+        keys in prop::collection::vec(prop_oneof![
+            leaf(),
+            (-2i64..3, -2i64..3).prop_map(|(a, b)| Value::tuple(vec![Value::Int(a), Value::Int(b)])),
+        ], 0..6),
+    ) {
+        let ctx = ctx_for(order);
+        let pairs: Vec<(Value, Value)> = keys.into_iter().map(|k| (k, Value::TRUE)).collect();
+        let Ok(f) = Value::fcn(pairs, ctx) else {
+            return Ok(());
+        };
+        let Value::Fcn(fv) = &f else {
+            return Ok(());
+        };
+        let Ok(fdom) = Value::set(fv.iter().map(|(k, _)| k).collect(), ctx) else {
+            return Ok(());
+        };
+        let range = Value::set(vec![Value::TRUE], ctx).expect("range");
+        let expected = tlc::equals(&dom, &fdom, ctx).map_err(|e| e.to_string());
+        let actual = tlc::member(&f, &Value::fcn_set(dom.clone(), range, ctx), ctx)
+            .map_err(|e| e.to_string());
+        prop_assert_eq!(actual, expected);
+    }
+}
+
+#[test]
+fn tlc_function_set_membership_over_products_and_enumerations() {
+    for order in ORDERS {
+        let ctx = ctx_for(order);
+        let m = |n| Value::model(&NAMES, n);
+        let ms = Value::set(vec![m("m1"), m("m2")], ctx).expect("set");
+        let ints = Value::interval(Int::Small(1), Int::Small(2), ctx);
+        let range = Value::set(vec![Value::TRUE, Value::FALSE], ctx).expect("range");
+        // Functions TLC cannot build (incomparable keys) are left out.
+        let fcn = |keys: Vec<Value>| {
+            Value::fcn(keys.into_iter().map(|k| (k, Value::TRUE)).collect(), ctx)
+                .unwrap_or(Value::FALSE)
+        };
+        let member = |f: &Value, dom: &Value| {
+            tlc::member(f, &Value::fcn_set(dom.clone(), range.clone(), ctx), ctx)
+                .map_err(|e| e.to_string())
+        };
+        let reference = |f: &Value, dom: &Value| {
+            let Value::Fcn(fv) = f else {
+                panic!("function")
+            };
+            let fdom = Value::set(fv.iter().map(|(k, _)| k).collect(), ctx).expect("domain");
+            tlc::equals(dom, &fdom, ctx).map_err(|e| e.to_string())
+        };
+        let product = Value::product(vec![ms.clone(), ints.clone()], ctx);
+        let pairs: Vec<Value> = ["m1", "m2"]
+            .iter()
+            .flat_map(|n| (1..3).map(move |i| Value::tuple(vec![m(n), Value::Int(i)])))
+            .collect();
+        let cases = [
+            (fcn(pairs.clone()), product.clone()),
+            (fcn(pairs[..3].to_vec()), product.clone()),
+            (
+                fcn(vec![
+                    pairs[0].clone(),
+                    pairs[1].clone(),
+                    pairs[2].clone(),
+                    Value::tuple(vec![m("m2"), Value::string(&NAMES, "a")]),
+                ]),
+                product.clone(),
+            ),
+            (fcn(vec![m("m1"), m("m2")]), ms.clone()),
+            (fcn(vec![m("m1"), Value::Int(1)]), ms.clone()),
+            (fcn(vec![Value::Int(1), Value::Int(2)]), ints.clone()),
+            (fcn(vec![Value::Int(1), Value::string(&NAMES, "a")]), ints),
+        ];
+        for (f, dom) in cases.iter().filter(|(f, _)| matches!(f, Value::Fcn(_))) {
+            assert_eq!(member(f, dom), reference(f, dom), "{f:?} in [{dom:?} -> _]");
+        }
+        assert_eq!(member(&cases[0].0, &cases[0].1), Ok(true));
+    }
+}

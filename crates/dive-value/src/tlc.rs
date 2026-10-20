@@ -132,7 +132,7 @@ fn enum_value(elems: &Arc<[Value]>, ctx: Ctx) -> Value {
 /// (sorted in the context's order).
 enum FcnView<'a> {
     Intv(&'a [Value]),
-    Array(Vec<(Value, Value)>),
+    Array(Cow<'a, [(Value, Value)]>),
 }
 
 impl FcnView<'_> {
@@ -164,7 +164,9 @@ fn to_fcn(v: &Value, ctx: Ctx) -> Option<FcnView<'_>> {
     match v {
         Value::Fcn(f) => Some(match &f.0.repr {
             FcnRepr::Tuple(e) => FcnView::Intv(e),
-            _ => FcnView::Array(sorted_pairs(f, ctx.order)),
+            // A general domain already in the context's order is borrowed.
+            FcnRepr::General(ps) if f.order() == ctx.order => FcnView::Array(Cow::Borrowed(ps)),
+            _ => FcnView::Array(Cow::Owned(sorted_pairs(f, ctx.order))),
         }),
         _ => None,
     }
@@ -457,7 +459,7 @@ fn compare_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
         }
         // A string-domain function that is not a record literal is a `FcnRcdValue`.
         FcnRepr::Record(_) | FcnRepr::General(_) => {
-            let view = FcnView::Array(sorted_pairs(f, ctx.order));
+            let view = FcnView::Array(Cow::Owned(sorted_pairs(f, ctx.order)));
             compare_fcnrcd(&view, a, b, ctx)
         }
     }
@@ -513,7 +515,7 @@ fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Or
             }
         }
         (FcnView::Array(p1), FcnView::Array(p2)) => {
-            for ((d1, _), (d2, _)) in p1.iter().zip(p2) {
+            for ((d1, _), (d2, _)) in p1.iter().zip(p2.iter()) {
                 let c = compare(d1, d2, ctx)?;
                 if c != Ordering::Equal {
                     return Ok(c);
@@ -723,7 +725,7 @@ fn equals_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
         }
         // A string-domain function that is not a record literal is a `FcnRcdValue`.
         FcnRepr::Record(_) | FcnRepr::General(_) => {
-            let view = FcnView::Array(sorted_pairs(f, ctx.order));
+            let view = FcnView::Array(Cow::Owned(sorted_pairs(f, ctx.order)));
             equals_fcnrcd(&view, a, b, ctx)
         }
     }
@@ -756,7 +758,7 @@ fn equals_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<boo
             }
         }
         (FcnView::Array(p1), FcnView::Array(p2)) => {
-            for ((d1, _), (d2, _)) in p1.iter().zip(p2) {
+            for ((d1, _), (d2, _)) in p1.iter().zip(p2.iter()) {
                 if !equals(d1, d2, ctx)? {
                     return Ok(false);
                 }
@@ -1030,11 +1032,15 @@ fn member_fcn_set(
         }
         FcnView::Array(ps) => {
             // `this.domain.equals(new SetEnumValue(fcn.domain, true))`.
-            let dom = Value::Set(Set::from_sorted(
-                ctx.order,
-                ps.iter().map(|(d, _)| d.clone()).collect(),
-            ));
-            equals(domain, &dom, ctx)?
+            if let Some(same) = domain_equals_keys(domain, ps, ctx) {
+                same?
+            } else {
+                let dom = Value::Set(Set::from_sorted(
+                    ctx.order,
+                    ps.iter().map(|(d, _)| d.clone()).collect(),
+                ));
+                equals(domain, &dom, ctx)?
+            }
         }
     };
     if !dom_ok {
@@ -1042,6 +1048,171 @@ fn member_fcn_set(
     }
     for i in 0..f.len() {
         if !member(f.value(i), range, ctx)? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// `domain.equals(new SetEnumValue(keys, true))` for an interval or an
+/// enumerated `domain` the function's keys could match, without building
+/// either element list: TLC compares the same pairs, in the same order, so
+/// the answer and any error are the same. `None` for other domains, and when
+/// the sizes differ (TLC then still sizes and enumerates `domain` first).
+fn domain_equals_keys(domain: &Value, keys: &[(Value, Value)], ctx: Ctx) -> Option<Result<bool>> {
+    let Value::Set(d) = domain else {
+        return None;
+    };
+    if !matches!(
+        d.repr(),
+        SetRepr::Interval(..) | SetRepr::Enum | SetRepr::Product(_)
+    ) {
+        return None;
+    }
+    // The nesting level `equals(domain, ...)` would enter.
+    let _guard = match Guard::enter() {
+        Ok(g) => g,
+        Err(e) => return Some(Err(e)),
+    };
+    match d.repr() {
+        SetRepr::Interval(lo, hi) => {
+            let (lo, hi) = (lo.to_i64()?, hi.to_i64()?);
+            let n = i64::try_from(keys.len()).ok()?;
+            if hi.checked_sub(lo)?.checked_add(1)? != n {
+                return None;
+            }
+            Some(pairwise(
+                (lo..=hi).map(Value::Int),
+                keys.iter().map(|(k, _)| k),
+                ctx,
+            ))
+        }
+        SetRepr::Enum if d.order() == ctx.order => {
+            let elems = d.stored_elements()?;
+            if elems.len() != keys.len() {
+                return None;
+            }
+            Some(pairwise(
+                elems.iter().cloned(),
+                keys.iter().map(|(k, _)| k),
+                ctx,
+            ))
+        }
+        SetRepr::Product(factors) if d.order() == ctx.order => {
+            // The product's elements are the tuples of its factors' elements,
+            // last position fastest; with every factor settled, nothing is
+            // normalized on the way.
+            let mut comps: Vec<FactorElems<'_>> = Vec::with_capacity(factors.len());
+            let mut size: usize = 1;
+            for f in factors {
+                let c = FactorElems::of(f, ctx)?;
+                size = size.checked_mul(c.len())?;
+                comps.push(c);
+            }
+            if size != keys.len() || size as u128 > u128::from(crate::enumerate::MAX_ENUMERATION) {
+                return None;
+            }
+            Some(product_pairwise(&comps, keys, ctx))
+        }
+        _ => None,
+    }
+}
+
+/// The elements of a product's factor in order: an interval's bounds, or an
+/// enumerated set's stored elements.
+enum FactorElems<'a> {
+    Interval(i64, usize),
+    Elems(&'a [Value]),
+}
+
+impl<'a> FactorElems<'a> {
+    fn of(f: &'a Value, ctx: Ctx) -> Option<Self> {
+        let Value::Set(f) = f else {
+            return None;
+        };
+        match f.repr() {
+            SetRepr::Interval(lo, hi) => {
+                let (lo, hi) = (lo.to_i64()?, hi.to_i64()?);
+                let n = if hi < lo {
+                    0
+                } else {
+                    usize::try_from(hi.checked_sub(lo)?.checked_add(1)?).ok()?
+                };
+                Some(Self::Interval(lo, n))
+            }
+            SetRepr::Enum if f.order() == ctx.order => Some(Self::Elems(f.stored_elements()?)),
+            _ => None,
+        }
+    }
+
+    fn len(&self) -> usize {
+        match self {
+            Self::Interval(_, n) => *n,
+            Self::Elems(e) => e.len(),
+        }
+    }
+
+    fn get(&self, i: usize) -> Value {
+        match self {
+            // `i < n`, and the interval's elements are `i64`s.
+            Self::Interval(lo, _) => {
+                Value::Int(lo.saturating_add(i64::try_from(i).unwrap_or(i64::MAX)))
+            }
+            Self::Elems(e) => e[i].clone(),
+        }
+    }
+}
+
+/// [`pairwise`] between a product's tuples, in order, and `keys`, comparing a
+/// tuple key component by component without building the product's tuple.
+fn product_pairwise(comps: &[FactorElems<'_>], keys: &[(Value, Value)], ctx: Ctx) -> Result<bool> {
+    let mut idx = vec![0usize; comps.len()];
+    for (key, _) in keys {
+        let same = if let Some(t) = to_tuple(key) {
+            // `TupleValue.equals`.
+            let _guard = Guard::enter()?;
+            if t.len() == comps.len() {
+                let mut same = true;
+                for (x, y) in comps.iter().zip(&idx).map(|(c, &i)| c.get(i)).zip(t) {
+                    if !equals(&x, y, ctx)? {
+                        same = false;
+                        break;
+                    }
+                }
+                same
+            } else {
+                false
+            }
+        } else {
+            equals(
+                &Value::tuple(comps.iter().zip(&idx).map(|(c, &i)| c.get(i)).collect()),
+                key,
+                ctx,
+            )?
+        };
+        if !same {
+            return Ok(false);
+        }
+        // Advance, last position fastest.
+        for pos in (0..comps.len()).rev() {
+            idx[pos] += 1;
+            if idx[pos] < comps[pos].len() {
+                break;
+            }
+            idx[pos] = 0;
+        }
+    }
+    Ok(true)
+}
+
+/// `SetEnumValue.equals` once both sides are normalized and of one size.
+fn pairwise<'a>(
+    mine: impl Iterator<Item = Value>,
+    theirs: impl Iterator<Item = &'a Value>,
+    ctx: Ctx,
+) -> Result<bool> {
+    for (x, y) in mine.zip(theirs) {
+        if !equals(&x, y, ctx)? {
             return Ok(false);
         }
     }
