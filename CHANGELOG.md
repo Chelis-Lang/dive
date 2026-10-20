@@ -24,17 +24,6 @@
   `periodic`. `--compat=tlc` and `--lncheck final` keep final checking. Rust
   callers can set `CheckRequest::periodic`.
 
-- Add 27 generated TLC references from the original 44 missing full-tier
-  models; the other 17 retain their original 600-second timeouts.
-
-- Add 32 generated TLC references for full-tier models that had none: 27
-  from a 600-second pass and five larger models from a four-hour pass. Twelve
-  full-tier models still have no reference (`docs/conformance-corpora.md`).
-
-- Add 34 generated TLC references for full-tier models that had none: 27
-  from a 600-second pass and seven larger models from four- and eight-hour
-  passes. Ten full-tier models still have no reference
-
 - Add 35 generated TLC references for full-tier models that had none: 27
   from a 600-second pass and eight larger models from four- and eight-hour
   passes. Nine full-tier models still have no reference
