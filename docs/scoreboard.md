@@ -15,17 +15,21 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-Measured 2026-10-19 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
-comparison rules). The one-worker rows are from `main` at `2124a2fd` plus the
-finite-binding preflight fix; the four-worker row is from `main` at `1f5ae5fa`.
+Measured 2026-10-20 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
+comparison rules). The one-worker rows are from `main` at `fd1d27fd` plus the
+temporal-bounds setting of ADR 0106 (`--compat=tlc` selects `unbounded`, with
+the harness's 3 GiB resident ceiling); the four-worker row is from `main` at
+`1f5ae5fa`. In the TLC row, `MisraReachability/MCParReach` agrees in about
+1,500 s of the 1,800 s timeout and is kept `unsupported` in the committed
+baseline; `YoYo/YoYoAllGraphs` times out (TLC: 2 s).
 The selection is the small tier of `examples`, `probes`, `validation-smoke` and
 `configured-temporal-operators`: 156 models, plus 458 SANY module comparisons in
 the TLC profile.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
-| TLC | 1 | 156 | 140 | 16 | 0 | 0 |
-| default | 1 | 156 | 135 | 16 | 5 | 0 |
+| TLC | 1 | 156 | 146 | 9 | 0 | 1 (timeout) |
+| default | 1 | 156 | 136 | 15 | 5 | 0 |
 | default | 4 | 156 | 93 | 60 | 3 | 0 |
 
 The one-worker rows are committed as baselines in `conformance/baselines/`.
