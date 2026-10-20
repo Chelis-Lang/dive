@@ -113,3 +113,13 @@ id = "fairness-replay"
 path = "conformance/corpus/fairness-replay"
 license = "MIT"
 layout = "examples-manifest"
+
+# A false prefix inside ENABLED leaves a later startup set-filter equality
+# unevaluated (issue #320): the temporal property is violated with no
+# division error. Two TRUE-predicate controls, direct and through an alias,
+# hold.
+[[corpus]]
+id = "enabled-false-prefix"
+path = "conformance/corpus/enabled-false-prefix"
+license = "MIT"
+layout = "examples-manifest"
