@@ -268,14 +268,79 @@ fn random_op(op: dive_ir::StdOp) -> bool {
     )
 }
 
+/// Whether a definition outside the embedded standard modules, or a node that
+/// belongs to no definition, can reach a random operator through the
+/// definitions it references. A standard module that merely defines a random
+/// helper, such as `Randomization`'s `TestRandomSetOfSubsets`, does not make
+/// a specification that never calls it random. Any reference counts, used or
+/// not, so an unused random helper in a user module still does. A native
+/// definition itself is not a reference: `INSTANCE` of a module that extends
+/// `TLC` copies `RandomElement` into the instantiating module without calling it.
 pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
-    use dive_ir::OpRef;
-    ir.nodes().iter().any(|n| {
-        n.expr.op_refs().into_iter().any(|r| match r {
-            OpRef::Std(op) => random_op(*op),
-            OpRef::Def(d) => ir.def(*d).std.is_some_and(random_op),
-            _ => false,
-        })
+    use dive_ir::{Expr, OpRef};
+    let defs = ir.defs();
+    let mut owned = vec![false; ir.nodes().len()];
+    // Direct references of each definition's body subtree.
+    let mut refs: Vec<Vec<usize>> = Vec::with_capacity(defs.len());
+    // Whether a definition's own body calls a random native operator.
+    let mut direct = vec![false; defs.len()];
+    let referenced = |e: &Expr, out: &mut Vec<usize>| -> bool {
+        let mut random = false;
+        if let Expr::Def(d) = e {
+            out.push(d.index());
+        }
+        for r in e.op_refs() {
+            match r {
+                OpRef::Std(op) => random |= random_op(*op),
+                OpRef::Def(d) => out.push(d.index()),
+                _ => {}
+            }
+        }
+        random
+    };
+    for (i, def) in defs.iter().enumerate() {
+        let mut out = Vec::new();
+        let mut stack = vec![def.body];
+        while let Some(e) = stack.pop() {
+            let Some(slot) = owned.get_mut(e.index()) else {
+                // A malformed reference: keep the conservative answer.
+                return true;
+            };
+            *slot = true;
+            let node = ir.node(e);
+            direct[i] |= referenced(&node.expr, &mut out);
+            stack.extend(node.expr.children());
+        }
+        refs.push(out);
+    }
+    // Close over references until no definition changes. Natives seed it.
+    let mut random: Vec<bool> = defs
+        .iter()
+        .zip(&direct)
+        .map(|(def, direct)| *direct || def.std.is_some_and(random_op))
+        .collect();
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for i in 0..defs.len() {
+            if !random[i]
+                && refs[i]
+                    .iter()
+                    .any(|&d| random.get(d).copied().unwrap_or(true))
+            {
+                random[i] = true;
+                changed = true;
+            }
+        }
+    }
+    let reaches = |out: &[usize]| out.iter().any(|&d| random.get(d).copied().unwrap_or(true));
+    let user = defs
+        .iter()
+        .zip(direct.iter().zip(&refs))
+        .any(|(def, (direct, out))| !ir.module(def.module).standard && (*direct || reaches(out)));
+    user || ir.nodes().iter().zip(&owned).any(|(node, owned)| {
+        let mut out = Vec::new();
+        !owned && (referenced(&node.expr, &mut out) || reaches(&out))
     })
 }
 

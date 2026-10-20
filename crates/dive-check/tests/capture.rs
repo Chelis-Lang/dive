@@ -450,6 +450,18 @@ fn capture_still_refuses_projection_randomness_and_stateful_effects() {
             "INIT Init\nNEXT Next\n",
             "stateful",
         ),
+        // Through a non-native standard helper that calls a random operator.
+        (
+            "---- MODULE Capture ----\nEXTENDS Integers, Randomization\nVARIABLE x\nInit == x = TestRandomSetOfSubsets(1, 1, {1})[1]\nNext == x' = x\n====\n",
+            "INIT Init\nNEXT Next\n",
+            "random",
+        ),
+        // An unused user helper still counts.
+        (
+            "---- MODULE Capture ----\nEXTENDS TLC\nVARIABLE x\nUnused == RandomElement({TRUE})\nInit == x = TRUE\nNext == x' = x\n====\n",
+            "INIT Init\nNEXT Next\n",
+            "random",
+        ),
     ] {
         let r = stopped(&model(source, cfg, &opts), &opts, Limits::default());
         assert!(
@@ -458,6 +470,27 @@ fn capture_still_refuses_projection_randomness_and_stateful_effects() {
             r.verdict
         );
         assert!(r.stats.is_none());
+    }
+}
+
+/// `specifications/SpanningTree/SpanTreeTest` extends `Randomization` but
+/// never calls it. The module's own definitions do not make the model random.
+#[test]
+fn extending_randomization_without_calling_it_still_captures() {
+    let extended = "---- MODULE Capture ----\nEXTENDS Integers, Randomization\nVARIABLE x\nInit == x = 0\nNext == x' = 1 - x\nProp == []<>(x = 0)\n====\n";
+    // `AllocatorImplementation` shape: an instance copies `RandomElement`
+    // into the instantiating module without calling it.
+    let instantiated = extended.replace("VARIABLE x\n", "VARIABLE x\nT == INSTANCE TLC\n");
+    for (source, workers) in [(extended, 1), (extended, 8), (instantiated.as_str(), 1)] {
+        let opts = CheckOptions {
+            workers,
+            ..CheckOptions::tlc(0, 17)
+        };
+        let c = complete(
+            &model(source, "INIT Init\nNEXT Next\nPROPERTY Prop\n", &opts),
+            &opts,
+        );
+        assert_eq!((c.stats.generated, c.stats.distinct), (3, 2));
     }
 }
 
