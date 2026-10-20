@@ -15,7 +15,7 @@ use std::hash::{Hash, Hasher};
 use std::sync::LazyLock;
 
 use dive_value::fp64::{Fingerprinter, TlcFingerprint};
-use dive_value::{Ctx, Int, IntMode, Interner, Value, ValueOrder, ops, tlc};
+use dive_value::{Ctx, FcnKind, Int, IntMode, Interner, Value, ValueOrder, ops, tlc};
 use num_bigint::BigInt;
 use proptest::prelude::*;
 
@@ -565,9 +565,11 @@ fn domain_equals_decides_intervals_enumerations_and_products() {
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(600))]
 
-    /// TLC's `[S -> T]` membership compares the domain as
-    /// `S.equals(new SetEnumValue(DOMAIN f))`, with the same answer and error
-    /// however the comparison is carried out.
+    /// TLC's `[S -> T]` membership (`SetOfFcnsValue.member`) compares the
+    /// domain as `S.equals(new SetEnumValue(DOMAIN f))`, or as
+    /// `f.intv.equals(S)` for a function over `1..n` (dive's tuple
+    /// representation), with the same answer and error however the
+    /// comparison is carried out.
     #[test]
     fn tlc_function_set_membership_compares_the_domain_set(
         (order, dom) in prop::sample::select(ORDERS.to_vec())
@@ -589,11 +591,51 @@ proptest! {
             return Ok(());
         };
         let range = Value::set(vec![Value::TRUE], ctx).expect("range");
-        let expected = tlc::equals(&dom, &fdom, ctx).map_err(|e| e.to_string());
+        let expected = if fv.kind() == FcnKind::Tuple {
+            let n = i64::try_from(fv.len()).expect("length");
+            tlc::equals(&Value::interval(Int::ONE, Int::Small(n), ctx), &dom, ctx)
+        } else {
+            tlc::equals(&dom, &fdom, ctx)
+        }
+        .map_err(|e| e.to_string());
         let actual = tlc::member(&f, &Value::fcn_set(dom.clone(), range, ctx), ctx)
             .map_err(|e| e.to_string());
         prop_assert_eq!(actual, expected);
     }
+}
+
+/// #344: which operand a failed domain comparison names depends on the
+/// function's domain. Pinned TLC (`94d0c50`) reports `<<TRUE>>` and
+/// `[k \in 1..1 |-> TRUE]` (an `intv`) with the integer first, and
+/// `[k \in {2} |-> TRUE]` (a domain array) with the string first.
+#[test]
+fn tlc_function_set_membership_names_the_operands_as_tlc_does() {
+    let ctx = ctx_for(ValueOrder::Tlc);
+    let dom = Value::set(vec![Value::string(&NAMES, "a")], ctx).expect("domain");
+    let range = Value::set(vec![Value::TRUE], ctx).expect("range");
+    let member = |keys: Vec<i64>| {
+        let pairs = keys
+            .into_iter()
+            .map(|k| (Value::Int(k), Value::TRUE))
+            .collect();
+        let f = Value::fcn(pairs, ctx).expect("function");
+        tlc::member(&f, &Value::fcn_set(dom.clone(), range.clone(), ctx), ctx)
+            .map_err(|e| e.to_string())
+    };
+    assert_eq!(
+        member(vec![1]),
+        Err(
+            "DIVE-V0001: Attempted to check equality of integer 1 with non-integer:\n\"a\""
+                .to_owned()
+        )
+    );
+    assert_eq!(
+        member(vec![2]),
+        Err(
+            "DIVE-V0001: Attempted to check equality of string \"a\" with non-string:\n2"
+                .to_owned()
+        )
+    );
 }
 
 #[test]
