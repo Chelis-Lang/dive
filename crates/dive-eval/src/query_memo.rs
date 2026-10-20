@@ -219,9 +219,13 @@ fn owned_sv(
             }
             owned_env(core, &thunk.env, remaining, depth + 1, seen)
         }
-        Sv::Op(crate::env::OpVal::Def {
-            parent, dynamic, ..
-        }) => {
+        Sv::Op(op) => {
+            let crate::env::OpVal::Def {
+                parent, dynamic, ..
+            } = &**op
+            else {
+                return Ok(());
+            };
             if let Some(frame) = parent {
                 owned_frame(core, frame, remaining, depth + 1, seen)?;
             }

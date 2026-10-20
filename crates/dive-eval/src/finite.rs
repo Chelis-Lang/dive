@@ -802,12 +802,13 @@ impl Guard<'_> {
                         }
                     }
                 }
-                Work::Slot(
-                    Sv::Op(OpVal::Def {
+                Work::Slot(Sv::Op(op), _) => {
+                    let OpVal::Def {
                         parent, dynamic, ..
-                    }),
-                    _,
-                ) => {
+                    } = *op
+                    else {
+                        continue;
+                    };
                     if self.selectseq && dynamic.is_some() {
                         return Err(EvalError::unsupported(
                             "SelectSeq retained dynamic callback",
@@ -2060,7 +2061,7 @@ mod selectseq_tests {
             OpVal::Std(StdOp::TlcRandomElement),
             OpVal::Std(StdOp::TlcTLCGet),
         ] {
-            scope.env.bind(0, Sv::Op(op));
+            scope.env.bind(0, Sv::op(op));
             assert!(
                 owned
                     .eval_scoped_pure(&scope, owned.ir().def(unused).body, &St::constant(), 4096)

@@ -111,7 +111,7 @@ impl Evaluator {
                 let Some(Sv::Op(value)) = frame.slots.get(local.slot.index()) else {
                     return Ok(None);
                 };
-                value.clone()
+                (**value).clone()
             }
             _ => return Ok(None),
         };
@@ -155,7 +155,7 @@ impl Evaluator {
                 let Some(Sv::Op(value)) = frame.slots.get(local.slot.index()) else {
                     return Ok(None);
                 };
-                value.clone()
+                (**value).clone()
             }
             _ => return Ok(None),
         };
@@ -419,7 +419,7 @@ impl Evaluator {
                     }
                     Sv::Op(operator) => {
                         if selectseq
-                            && !matches!(operator, crate::env::OpVal::Def { dynamic: None, .. })
+                            && !matches!(&**operator, crate::env::OpVal::Def { dynamic: None, .. })
                         {
                             return Ok(None);
                         }
@@ -429,9 +429,9 @@ impl Evaluator {
                             continue;
                         }
                         let resolved = if selectseq {
-                            self.selectseq_value_analysis(&context_scope, operator.clone(), work)?
+                            self.selectseq_value_analysis(&context_scope, *operator.clone(), work)?
                         } else {
-                            self.operator_value_analysis(&context_scope, operator.clone())?
+                            self.operator_value_analysis(&context_scope, *operator.clone())?
                         };
                         let Some((def, source)) = resolved else {
                             return Ok(None);
@@ -488,7 +488,7 @@ impl Evaluator {
         for (i, a) in args.iter().enumerate() {
             let sv = match a {
                 Arg::Expr { expr, .. } => Sv::Thunk(Thunk::new(*expr, scope.env.clone(), true)),
-                Arg::Op { op, .. } => Sv::Op(core.op_value(&scope.env, op)?),
+                Arg::Op { op, .. } => Sv::op(core.op_value(&scope.env, op)?),
             };
             callee.bind(i, sv);
         }
@@ -520,11 +520,14 @@ impl Evaluator {
         }
         let core = &self.core;
         let frame = scope.env.frame_up(r.up)?;
-        let Some(Sv::Op(crate::env::OpVal::Def {
+        let Some(Sv::Op(op)) = frame.slots.get(r.slot.index()) else {
+            return None;
+        };
+        let crate::env::OpVal::Def {
             def,
             parent,
             dynamic,
-        })) = frame.slots.get(r.slot.index())
+        } = &**op
         else {
             return None;
         };
@@ -551,7 +554,7 @@ impl Evaluator {
             let sv = match a {
                 Arg::Expr { expr, .. } => Sv::Thunk(Thunk::new(*expr, scope.env.clone(), true)),
                 Arg::Op { op, .. } => match core.op_value(&scope.env, op) {
-                    Ok(v) => Sv::Op(v),
+                    Ok(v) => Sv::op(v),
                     Err(e) => return Some(Err(e)),
                 },
             };
@@ -751,7 +754,7 @@ impl Evaluator {
                         Sv::Thunk(Thunk::new(*expr, scope.env.clone(), false))
                     }
                 },
-                Arg::Op { op, .. } => Sv::Op(self.core.op_value(&scope.env, op)?),
+                Arg::Op { op, .. } => Sv::op(self.core.op_value(&scope.env, op)?),
             };
             env.bind(i, sv);
         }
@@ -1328,7 +1331,7 @@ impl crate::core::Core {
                         Sv::Thunk(Thunk::new(*expr, outer.clone(), cachable))
                     }
                 },
-                Arg::Op { op, .. } => Sv::Op(self.op_value(&outer, op)?),
+                Arg::Op { op, .. } => Sv::op(self.op_value(&outer, op)?),
             };
             env1.dynamic.push(b.decl, val);
         }
@@ -1355,7 +1358,7 @@ mod operator_capture_tests {
             .expect("evaluator");
         let def = |name| ir.root_def(name).expect("definition");
         let operator = |def| {
-            Sv::Op(OpVal::Def {
+            Sv::op(OpVal::Def {
                 def,
                 parent: None,
                 dynamic: None,
@@ -1404,7 +1407,10 @@ mod operator_capture_tests {
             .iter()
             .map(
                 |(_, context)| match context.env.dynamic.lookup(decl).expect("substitution") {
-                    Sv::Op(OpVal::Def { def, .. }) => *def,
+                    Sv::Op(op) => match &**op {
+                        OpVal::Def { def, .. } => *def,
+                        _ => def("Root"),
+                    },
                     _ => def("Root"),
                 },
             )
