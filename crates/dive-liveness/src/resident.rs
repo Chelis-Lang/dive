@@ -57,6 +57,15 @@ pub(crate) fn tick() -> Result<(), ()> {
     })
 }
 
+/// Checks the resident set size against this thread's ceiling now, at a stage
+/// boundary after bulk work that has no periodic sample of its own.
+///
+/// # Errors
+/// The process's resident memory exceeds the installed ceiling.
+pub(crate) fn check() -> Result<(), ()> {
+    SAMPLER.with(|c| c.get().sample().map_err(|_| ()))
+}
+
 /// The ceiling installed on this thread, if any.
 #[cfg(test)]
 fn ceiling() -> Option<u64> {

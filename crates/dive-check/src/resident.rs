@@ -54,6 +54,18 @@ impl Sampler {
         }
         Ok(())
     }
+
+    /// Checks the process's resident set size against the ceiling now, at a
+    /// stage boundary, without waiting for the next periodic sample.
+    ///
+    /// # Errors
+    /// The process's resident memory exceeds the ceiling.
+    pub fn sample(&self) -> Result<(), Exceeded> {
+        match self.ceiling {
+            Some(ceiling) if resident_bytes().is_some_and(|rss| rss > ceiling) => Err(Exceeded),
+            _ => Ok(()),
+        }
+    }
 }
 
 /// The process's resident memory exceeded a [`Sampler`]'s ceiling.

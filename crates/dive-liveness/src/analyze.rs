@@ -76,6 +76,23 @@ impl Limits {
             resident_bytes: crate::resident::default_ceiling(),
         }
     }
+
+    /// The same limits with `ceiling` bytes of resident memory, applied to
+    /// graph capture and to the analysis alike, so that no stage that retains
+    /// memory runs without it. `None` samples nothing.
+    ///
+    /// ```
+    /// use dive_liveness::analyze::Limits;
+    /// let limits = Limits::unbounded().with_resident_ceiling(Some(3 << 30));
+    /// assert_eq!(limits.resident_bytes, Some(3 << 30));
+    /// assert_eq!(limits.capture.resident_bytes, Some(3 << 30));
+    /// ```
+    #[must_use]
+    pub fn with_resident_ceiling(mut self, ceiling: Option<u64>) -> Self {
+        self.resident_bytes = ceiling;
+        self.capture.resident_bytes = ceiling;
+        self
+    }
 }
 
 /// The final-only analysis of the supported pure temporal subset.
@@ -431,6 +448,7 @@ fn labels(
             };
             let mut evaluated = std::collections::BTreeMap::new();
             for edge in &graph.edges[v] {
+                crate::resident::tick().map_err(|()| AnalysisError::Limit("resident memory"))?;
                 let value = if let Some(target) = targets.get(&edge.to) {
                     if let Some(value) = evaluated.get(&edge.to) {
                         *value
@@ -488,6 +506,7 @@ fn attribute(
             .ok_or(AnalysisError::Limit("attribution atom cells"))?;
         let mut rows = Vec::new();
         for (i, state) in states.iter().enumerate() {
+            crate::resident::tick().map_err(|()| AnalysisError::Limit("resident memory"))?;
             let next = if i + 1 == states.len() { back } else { i + 1 };
             let st = St::action(state.clone(), states[next].clone());
             let row = (0..plan.atoms.len())
@@ -727,16 +746,21 @@ fn analyze_captured(
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
-    let graph = Graph::new(
-        captured
-            .graph
-            .edges
-            .iter()
-            .map(|r| r.iter().map(|e| e.to).collect())
-            .collect(),
-        captured.graph.roots.clone(),
-    )
-    .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
+    let resident = || AnalysisError::Limit("resident memory");
+    // The captured graph is within the ceiling (capture samples it); its
+    // adjacency copy and every later stage are sampled here.
+    crate::resident::check().map_err(|()| resident())?;
+    let adjacency = captured
+        .graph
+        .edges
+        .iter()
+        .map(|r| {
+            crate::resident::tick().map_err(|()| resident())?;
+            Ok(r.iter().map(|e| e.to).collect())
+        })
+        .collect::<Result<_, AnalysisError>>()?;
+    let graph = Graph::new(adjacency, captured.graph.roots.clone())
+        .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
     for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans) {
         *stage = Stage::Atoms;
         let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
@@ -754,6 +778,7 @@ fn analyze_captured(
             &active,
             action_error,
         )?;
+        crate::resident::check().map_err(|()| resident())?;
         *stage = Stage::Product;
         let product = CompactProduct::with_policy_and_edges(
             &graph,
@@ -765,7 +790,10 @@ fn analyze_captured(
             behavior_edges,
         )
         .map_err(AnalysisError::Product)?;
-        if let Some(lasso) = product.find_lasso().map_err(AnalysisError::Product)? {
+        crate::resident::check().map_err(|()| resident())?;
+        let lasso = product.find_lasso().map_err(AnalysisError::Product)?;
+        crate::resident::check().map_err(|()| resident())?;
+        if let Some(lasso) = lasso {
             let steps = lasso.prefix.iter().chain(&lasso.cycle);
             let states: Vec<StateVals> = steps
                 .clone()

@@ -91,6 +91,11 @@ pub struct DiveImplementation {
     pub options: Vec<ImplOption>,
     /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
     pub profile: Profile,
+    /// `--temporal-memory-bytes` for every model run: the heap TLC's goldens
+    /// ran with (`--xmx`), so that the resident-memory ceiling of unbounded
+    /// temporal analysis (ADR 0106) does not depend on the host. `None`
+    /// leaves dive's default, a quarter of physical memory.
+    pub temporal_memory_bytes: Option<u64>,
     bin: PathBuf,
     module_path: Vec<ClasspathEntry>,
     provenance: Option<DiveProvenance>,
@@ -179,6 +184,7 @@ impl DiveImplementation {
         Ok(Self {
             options: Vec::new(),
             profile: Profile::default(),
+            temporal_memory_bytes: None,
             bin: executable,
             module_path,
             provenance: Some(provenance),
@@ -219,6 +225,13 @@ impl DiveImplementation {
         {
             extra
                 .extend::<[&std::ffi::OsStr; 2]>(["--action-composition".as_ref(), "tlc".as_ref()]);
+        }
+        let memory = self.temporal_memory_bytes.map(|n| n.to_string());
+        if let Some(memory) = &memory {
+            extra.extend::<[&std::ffi::OsStr; 2]>([
+                "--temporal-memory-bytes".as_ref(),
+                memory.as_ref(),
+            ]);
         }
         if final_short {
             extra.extend::<[&std::ffi::OsStr; 4]>([
@@ -280,6 +293,35 @@ impl DiveImplementation {
         outcome.stderr = redact(&outcome.stderr, &reps);
         Ok((shown, outcome))
     }
+}
+
+/// The bytes of a JVM `-Xmx` size (`3g`, `512m`, `4096k`, or plain bytes), as
+/// the JVM reads it: binary multiples. `None` for anything else.
+///
+/// ```
+/// use dive_conformance::dive::jvm_size_bytes;
+/// assert_eq!(jvm_size_bytes("3g"), Some(3 << 30));
+/// assert_eq!(jvm_size_bytes("512M"), Some(512 << 20));
+/// assert_eq!(jvm_size_bytes("4096"), Some(4096));
+/// assert_eq!(jvm_size_bytes("3gb"), None);
+/// ```
+#[must_use]
+pub fn jvm_size_bytes(size: &str) -> Option<u64> {
+    let (digits, shift) = match size.chars().last()? {
+        'k' | 'K' => (&size[..size.len() - 1], 10),
+        'm' | 'M' => (&size[..size.len() - 1], 20),
+        'g' | 'G' => (&size[..size.len() - 1], 30),
+        't' | 'T' => (&size[..size.len() - 1], 40),
+        _ => (size, 0),
+    };
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    digits
+        .parse::<u64>()
+        .ok()?
+        .checked_mul(1_u64 << shift)
+        .filter(|n| *n > 0)
 }
 
 /// Extracts the `.tla` files at the root of a verified jar into

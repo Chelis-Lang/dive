@@ -125,27 +125,73 @@ impl TemporalBounds {
             Self::Unbounded => "unbounded",
         }
     }
-    /// The analysis limits this setting selects.
+    /// The analysis limits this setting selects. `ceiling` is the
+    /// resident-memory ceiling in bytes ([`TemporalMemory::ceiling`]); only
+    /// [`Self::Unbounded`] applies it, to graph capture and to analysis alike.
     #[must_use]
-    pub fn limits(self) -> dive_liveness::analyze::Limits {
+    pub fn limits(self, ceiling: Option<u64>) -> dive_liveness::analyze::Limits {
         match self {
             Self::Default => dive_liveness::analyze::Limits::default(),
-            Self::Unbounded => dive_liveness::analyze::Limits::unbounded(),
+            Self::Unbounded => {
+                dive_liveness::analyze::Limits::unbounded().with_resident_ceiling(ceiling)
+            }
         }
     }
-    /// The acceptance-buffer policy this setting selects.
+    /// The acceptance-buffer policy this setting selects; under
+    /// [`Self::Unbounded`] the covered buffers stay within `ceiling` bytes.
     #[must_use]
-    pub fn acceptance(self) -> dive_liveness::product::AcceptancePolicy {
+    pub fn acceptance(self, ceiling: Option<u64>) -> dive_liveness::product::AcceptancePolicy {
         match self {
             Self::Default => dive_liveness::product::AcceptancePolicy::compact_default(),
-            // The covered acceptance buffers stay within the resident ceiling.
-            Self::Unbounded => match self.limits().resident_bytes {
+            Self::Unbounded => match ceiling {
                 Some(ceiling) => dive_liveness::product::AcceptancePolicy::Buffers {
                     bytes: usize::try_from(ceiling).unwrap_or(usize::MAX),
                     work: usize::MAX,
                 },
                 None => dive_liveness::product::AcceptancePolicy::unbounded(),
             },
+        }
+    }
+}
+
+/// The resident-memory ceiling of [`TemporalBounds::Unbounded`]
+/// (`--temporal-memory-bytes`, or the `DIVE_TEMPORAL_MEMORY_BYTES` setting).
+///
+/// TLC's liveness checking is bounded by its JVM heap, whose default maximum
+/// is a quarter of physical memory. [`Self::QuarterOfPhysical`] mirrors that
+/// default and is therefore the TLC-equivalent setting in both profiles; an
+/// explicit [`Self::Bytes`] stands for `-Xmx` and makes the verdict independent
+/// of the host. [`TemporalBounds::Default`] has no ceiling and ignores this.
+///
+/// ```
+/// use dive_api::TemporalMemory;
+/// assert_eq!(TemporalMemory::Bytes(3 << 30).ceiling(), Some(3 << 30));
+/// assert_eq!(TemporalMemory::default(), TemporalMemory::QuarterOfPhysical);
+/// ```
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum TemporalMemory {
+    /// A quarter of physical memory, as the JVM's default maximum heap.
+    /// Unknown (no ceiling) where the platform does not report it.
+    #[default]
+    QuarterOfPhysical,
+    /// This many bytes of whole-process resident memory.
+    Bytes(u64),
+}
+impl TemporalMemory {
+    /// The setting's name, as JSON reports it.
+    #[must_use]
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::QuarterOfPhysical => "quarter-of-physical-memory",
+            Self::Bytes(_) => "explicit",
+        }
+    }
+    /// The ceiling in bytes, read from the host for [`Self::QuarterOfPhysical`].
+    #[must_use]
+    pub fn ceiling(self) -> Option<u64> {
+        match self {
+            Self::QuarterOfPhysical => dive_liveness::resident::default_ceiling(),
+            Self::Bytes(bytes) => Some(bytes),
         }
     }
 }
@@ -209,6 +255,9 @@ pub struct CheckRequest {
     /// [`TemporalBounds::Unbounded`] under `--compat=tlc`, as in TLC, and
     /// [`TemporalBounds::Default`] otherwise.
     pub temporal_bounds: Option<TemporalBounds>,
+    /// `--temporal-memory-bytes`: the resident-memory ceiling of
+    /// [`TemporalBounds::Unbounded`]. The default mirrors TLC's default heap.
+    pub temporal_memory: TemporalMemory,
 }
 
 /// The phase a check ended in.
@@ -242,6 +291,9 @@ pub struct CheckReport {
     workers_requested: usize,
     temporal: TemporalMode,
     temporal_bounds: TemporalBounds,
+    temporal_memory: TemporalMemory,
+    // Resolved once, so that the report states the ceiling actually applied.
+    temporal_ceiling: Option<u64>,
     phase: Phase,
 }
 
@@ -446,6 +498,8 @@ fn check_file_in(
         } else {
             TemporalBounds::Default
         }),
+        temporal_memory: req.temporal_memory,
+        temporal_ceiling: req.temporal_memory.ceiling(),
         phase: Phase::Unlowered(String::new()),
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
@@ -509,6 +563,7 @@ fn check_file_in(
             &report.opts,
             req.temporal,
             report.temporal_bounds,
+            report.temporal_ceiling,
         )
     };
     Ok(report)
@@ -520,14 +575,15 @@ fn check_backend(
     options: &CheckOptions,
     temporal: TemporalMode,
     bounds: TemporalBounds,
+    ceiling: Option<u64>,
 ) -> Phase {
     if temporal == TemporalMode::Ordinary
         && let Some(result) = crate::temporal::check_ordinary_final_with_policy(
             ir,
             config,
             options,
-            bounds.limits(),
-            bounds.acceptance(),
+            bounds.limits(ceiling),
+            bounds.acceptance(ceiling),
         )
     {
         return match result {
@@ -543,8 +599,8 @@ fn check_backend(
             ir,
             config,
             options,
-            bounds.limits(),
-            bounds.acceptance(),
+            bounds.limits(ceiling),
+            bounds.acceptance(ceiling),
         ) {
             Ok(r) => match r.outcome() {
                 crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),
@@ -817,7 +873,11 @@ impl CheckReport {
         if self.temporal_schema() {
             options["lncheck"] = json!("final");
             options["lasso"] = json!("short");
-            options["temporal_bounds"] = temporal_limits_json(self.temporal_bounds);
+            options["temporal_bounds"] = temporal_limits_json(
+                self.temporal_bounds,
+                self.temporal_memory,
+                self.temporal_ceiling,
+            );
             options["tlc_exact_temporal"] = json!(false);
         }
         if let Some(request) = &self.checkpoint_request {
@@ -1569,19 +1629,25 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
     out
 }
 
-fn temporal_limits_json(bounds: TemporalBounds) -> Value {
+fn temporal_limits_json(
+    bounds: TemporalBounds,
+    memory: TemporalMemory,
+    ceiling: Option<u64>,
+) -> Value {
     if bounds == TemporalBounds::Unbounded {
         // TLC's setting: no fixed count; memory and time are the only stops.
         return json!({
             "setting": bounds.name(),
             "kind": "unbounded",
-            "resident_ceiling_bytes": bounds.limits().resident_bytes,
+            "resident_ceiling_bytes": ceiling,
+            "resident_ceiling_setting": memory.name(),
             "max_expansion_units": dive_check::capture::MAX_EXPANSION_UNITS,
             "total_memory_budget": false,
         });
     }
-    let limits = bounds.limits();
-    let dive_liveness::product::AcceptancePolicy::Buffers { bytes, work } = bounds.acceptance()
+    let limits = bounds.limits(ceiling);
+    let dive_liveness::product::AcceptancePolicy::Buffers { bytes, work } =
+        bounds.acceptance(ceiling)
     else {
         return Value::Null;
     };
@@ -1643,6 +1709,8 @@ mod evidence_controls {
             workers_requested: 4,
             temporal: TemporalMode::FinalShort,
             temporal_bounds: TemporalBounds::Default,
+            temporal_memory: TemporalMemory::default(),
+            temporal_ceiling: None,
             phase,
         }
     }

@@ -527,6 +527,14 @@ fn sany_phase(o: &Opts) -> Result<SanyPhase> {
 }
 
 /// `run`: returns whether there were findings.
+/// The bytes of `--xmx`. dive's unbounded temporal analysis (ADR 0106) gets
+/// the heap TLC's goldens ran with, so that its verdict does not depend on the
+/// host's physical memory.
+fn xmx_bytes(xmx: &str) -> Result<u64> {
+    dive_conformance::dive::jvm_size_bytes(xmx)
+        .ok_or_else(|| Error::Usage(format!("--xmx: bad size `{xmx}`")))
+}
+
 fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
     let imp_spec = o
         .imp
@@ -602,6 +610,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             None => Profile::from_env()?.unwrap_or_default(),
         };
         imp.options = parse_impl_options(&o.impl_options, &imp)?;
+        imp.temporal_memory_bytes = Some(xmx_bytes(&opts.limits.xmx)?);
         pipeline::run(config, cache, &imp, None, &opts)?
     } else if let Some(path) = imp_spec.strip_prefix("adapter:") {
         if o.impl_profile.is_some() {

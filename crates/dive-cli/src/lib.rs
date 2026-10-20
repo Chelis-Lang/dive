@@ -39,7 +39,7 @@ fn usage() -> String {
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
-               [--lncheck final --lasso short] [--temporal-bounds default|unbounded]\n               [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit and 4 internal error. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
+               [--lncheck final --lasso short] [--temporal-bounds default|unbounded]\n               [--temporal-memory-bytes auto|N]\n               [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit and 4 internal error. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -292,6 +292,19 @@ fn number<T: std::str::FromStr>(
     parsed
 }
 
+/// `--temporal-memory-bytes` and `DIVE_TEMPORAL_MEMORY_BYTES`: `auto` (a
+/// quarter of physical memory, TLC's default heap) or a positive byte count.
+fn temporal_memory(value: &str) -> Option<dive_api::TemporalMemory> {
+    match value {
+        "auto" => Some(dive_api::TemporalMemory::QuarterOfPhysical),
+        bytes => bytes
+            .parse::<u64>()
+            .ok()
+            .filter(|n| *n > 0)
+            .map(dive_api::TemporalMemory::Bytes),
+    }
+}
+
 /// `dive check <file> [options]`: safety model checking (see `usage`).
 #[allow(clippy::too_many_lines, reason = "one flag per arm")]
 fn check_command(
@@ -324,6 +337,17 @@ fn check_command(
         let _ = writeln!(err, "error: {m}");
         ExitCode::from(EXIT_USAGE)
     };
+    if let Ok(value) = std::env::var("DIVE_TEMPORAL_MEMORY_BYTES") {
+        match temporal_memory(&value) {
+            Some(memory) => req.temporal_memory = memory,
+            None => {
+                return usage_error(
+                    err,
+                    "DIVE_TEMPORAL_MEMORY_BYTES expects `auto` or a positive byte count",
+                );
+            }
+        }
+    }
     let mut it = args.iter();
     while let Some(a) = it.next() {
         let (flag, inline) = match a.split_once('=') {
@@ -376,6 +400,15 @@ fn check_command(
                     req.temporal_bounds = Some(dive_api::TemporalBounds::Unbounded);
                 }
                 _ => return usage_error(err, "--temporal-bounds expects `default` or `unbounded`"),
+            },
+            "--temporal-memory-bytes" => match value().as_deref().and_then(temporal_memory) {
+                Some(memory) => req.temporal_memory = memory,
+                None => {
+                    return usage_error(
+                        err,
+                        "--temporal-memory-bytes expects `auto` or a positive byte count",
+                    );
+                }
             },
             "--store" => match value().as_deref() {
                 Some("exact") => req.store = dive_api::Store::Exact,
@@ -1278,6 +1311,33 @@ mod temporal_bounds_tests {
             if usage {
                 assert_eq!(code, ExitCode::from(EXIT_USAGE));
             }
+        }
+    }
+
+    #[test]
+    fn temporal_memory_accepts_auto_or_a_positive_byte_count() {
+        assert_eq!(
+            temporal_memory("auto"),
+            Some(dive_api::TemporalMemory::QuarterOfPhysical)
+        );
+        assert_eq!(
+            temporal_memory("3221225472"),
+            Some(dive_api::TemporalMemory::Bytes(3 << 30))
+        );
+        for bad in ["0", "", "3g", "-1", "none"] {
+            assert_eq!(temporal_memory(bad), None, "{bad}");
+            let arguments = vec![
+                "missing-temporal-memory-model.tla".to_owned(),
+                format!("--temporal-memory-bytes={bad}"),
+            ];
+            let mut output = Vec::new();
+            let mut errors = Vec::new();
+            let code = check_command(&arguments, &mut output, &mut errors);
+            assert_eq!(code, ExitCode::from(EXIT_USAGE), "{bad}");
+            assert!(
+                String::from_utf8_lossy(&errors).contains("--temporal-memory-bytes expects"),
+                "{bad}"
+            );
         }
     }
 }

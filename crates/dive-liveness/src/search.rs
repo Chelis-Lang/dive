@@ -32,6 +32,9 @@ pub enum SearchError {
     /// An accepting component failed to provide its promised witness.
     /// This is a bug, never an absence-of-violation result.
     Invariant(&'static str),
+    /// A named resource bound (the resident-memory ceiling of
+    /// [`crate::analyze::Limits::resident_bytes`]). Never a search result.
+    Limit(&'static str),
 }
 
 impl std::fmt::Display for SearchError {
@@ -39,6 +42,7 @@ impl std::fmt::Display for SearchError {
         match self {
             Self::Shape(s) => write!(f, "invalid acceptance labels: {s}"),
             Self::Invariant(s) => write!(f, "lasso search invariant: {s}"),
+            Self::Limit(s) => write!(f, "lasso search resource limit: {s}"),
         }
     }
 }
@@ -177,20 +181,21 @@ pub(crate) fn find_lasso_view(
     graph: &Graph,
     labels: &impl AcceptanceAccess,
 ) -> Result<Option<Lasso>, SearchError> {
-    let prefix = Paths::new(graph, &graph.roots, |_, _, _| true);
+    let prefix = Paths::new(graph, &graph.roots, |_, _, _| true)?;
     let restricted = Graph {
         edges: graph
             .edges
             .iter()
             .enumerate()
             .map(|(v, targets)| {
-                targets
+                tick()?;
+                Ok(targets
                     .iter()
                     .enumerate()
                     .filter_map(|(e, t)| labels.recurrent(v, e).then_some(*t))
-                    .collect()
+                    .collect())
             })
-            .collect(),
+            .collect::<Result<_, SearchError>>()?,
         // A finite prefix may cross edges that fail EA. Such destinations
         // must remain candidates for a recurrent component.
         roots: prefix
@@ -202,7 +207,9 @@ pub(crate) fn find_lasso_view(
     };
     let mut selected: Option<(usize, usize, Vec<usize>)> = None;
     let mut membership = vec![0; graph.edges.len()];
-    for (i, component) in restricted.cyclic_components().into_iter().enumerate() {
+    let components = restricted.cyclic_components();
+    check()?;
+    for (i, component) in components.into_iter().enumerate() {
         let stamp = i + 1;
         for &v in &component {
             membership[v] = stamp;
@@ -245,6 +252,16 @@ pub(crate) fn find_lasso_view(
     }))
 }
 
+/// Counts one unit of search work against the resident-memory ceiling.
+fn tick() -> Result<(), SearchError> {
+    crate::resident::tick().map_err(|()| SearchError::Limit("resident memory"))
+}
+
+/// Samples the resident-memory ceiling now, after bulk work.
+fn check() -> Result<(), SearchError> {
+    crate::resident::check().map_err(|()| SearchError::Limit("resident memory"))
+}
+
 struct Paths {
     distance: Vec<Option<usize>>,
     parent: Vec<Option<Step>>,
@@ -255,7 +272,7 @@ impl Paths {
         graph: &Graph,
         roots: &[usize],
         mut keep: impl FnMut(usize, usize, usize) -> bool,
-    ) -> Self {
+    ) -> Result<Self, SearchError> {
         let mut distance = vec![None; graph.edges.len()];
         let mut parent = vec![None; graph.edges.len()];
         let mut frontier = roots.to_vec();
@@ -268,6 +285,7 @@ impl Paths {
         while !frontier.is_empty() {
             let mut next = Vec::new();
             for v in frontier {
+                tick()?;
                 for (edge, &to) in graph.edges[v].iter().enumerate() {
                     if keep(v, edge, to) && distance[to].is_none() {
                         distance[to] = Some(depth + 1);
@@ -280,7 +298,7 @@ impl Paths {
             frontier = next;
             depth += 1;
         }
-        Self { distance, parent }
+        Ok(Self { distance, parent })
     }
 
     fn path(&self, target: usize) -> Result<Vec<Step>, SearchError> {
@@ -358,7 +376,7 @@ fn covering_cycle(
     let mut cycle = Vec::new();
     let keep = |v: usize, edge: usize, to: usize| inside[to] && labels.recurrent(v, edge);
     while !missing.done() {
-        let paths = Paths::new(graph, &[current], keep);
+        let paths = Paths::new(graph, &[current], keep)?;
         // (distance to discharge, source/node id, optional edge position).
         let mut best = None;
         for (v, distance) in paths.distance.iter().enumerate() {
@@ -427,7 +445,7 @@ fn covering_cycle(
                 }
             }
         }
-        let back = Paths::new(&reverse, &[entry], |_, _, _| true);
+        let back = Paths::new(&reverse, &[entry], |_, _, _| true)?;
         let best = graph.edges[entry]
             .iter()
             .enumerate()
@@ -444,9 +462,9 @@ fn covering_cycle(
             edge,
             to,
         }];
-        steps.extend(Paths::new(graph, &[to], keep).path(entry)?);
+        steps.extend(Paths::new(graph, &[to], keep)?.path(entry)?);
         return Ok(steps);
     }
-    cycle.extend(Paths::new(graph, &[current], keep).path(entry)?);
+    cycle.extend(Paths::new(graph, &[current], keep)?.path(entry)?);
     Ok(cycle)
 }
