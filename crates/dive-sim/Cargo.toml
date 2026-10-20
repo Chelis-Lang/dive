@@ -9,7 +9,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-dive-eval = { workspace = true, features = ["enumerate"] }
+dive-eval.workspace = true
 dive-ir.workspace = true
 dive-model.workspace = true
 dive-stdlib.workspace = true

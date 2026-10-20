@@ -13,14 +13,7 @@ dive-ir.workspace = true
 sha2.workspace = true
 dive-value.workspace = true
 dive-config.workspace = true
-# `enumerate` comes from this crate's own feature below.
-dive-eval = { path = "../dive-eval", default-features = false }
-
-[features]
-# The next-state relation split into the successor generator's actions
-# (`Model::actions`), which needs `dive-eval`'s enumerator.
-default = ["enumerate"]
-enumerate = ["dive-eval/enumerate"]
+dive-eval.workspace = true
 
 [dev-dependencies]
 dive-sema.workspace = true

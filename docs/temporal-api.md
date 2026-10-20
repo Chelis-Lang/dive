@@ -350,10 +350,9 @@ It derives complete inner finite covers, rechecks original correlations, and
 shares expression/assignment/depth counters and the original pure invocation
 across outer candidates and inner decisions. Inner primes never supply outer
 covers. The action subscript and body use one invocation, with the existing
-subscript-first stutter shortcircuit. Prebound non-stuttering atoms inspect the
-actual subscript in both source states with `Evaluator::check_finite_data_bindings`
-before evaluating either value. This source check follows lazy lexical bindings
-and refuses queries in the data position without invoking a query or provider.
+subscript-first stutter shortcircuit. Non-stuttering atoms evaluate the actual
+subscript in both source states with the core evaluator; planning refuses
+queries in the subscript.
 
 Only a query-free state prefix can decide false before candidate construction;
 later query guards remain neutral during cover derivation. Missing/infinite
@@ -384,11 +383,3 @@ exhaustive checking can still establish Holds for these formulas. Supported
 action-valued lazy formal guards retain their independent Boolean paths. Periodic optional labels
 use the same check; refusal skips only that metadata evaluation and adds its
 existing note. Original Next and property checks remain required.
-
-Finite preflight keeps binder domains, instantiated function/set construction
-bodies, filter predicates and UNCHANGED operands in data-only mode, following
-actual lazy bindings before reading domains. As in existing concrete-binding
-checks, a body with zero bindings may be left unvisited without evaluating its
-queries. Other effect and purity guards still apply; this is not a global
-syntactic query scan.
-Boolean existential and universal bodies retain their bounded query support.

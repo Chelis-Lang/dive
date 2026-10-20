@@ -55,9 +55,6 @@ impl dive_eval::Host for Hooks {
             Ok(())
         }
     }
-    fn reuse_expression_cache(&self) -> bool {
-        false
-    }
 }
 fn install(model: &dive_model::Model, deny: bool) -> Arc<Hooks> {
     let host = Arc::new(Hooks {

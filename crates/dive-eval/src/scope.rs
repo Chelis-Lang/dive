@@ -1131,42 +1131,6 @@ impl Evaluator {
         Ok(columns)
     }
 
-    // Only non-analysis scalar Quant walks select this private route. Defensive
-    // eager fallback keeps tuple errors ahead of any body error, as before.
-    pub(crate) fn for_each_scalar_quantifier_scope(
-        &self,
-        scope: &Scope,
-        quant: ExprId,
-        st: &St,
-        limit: usize,
-        mut body: impl FnMut(&Scope) -> Result<()>,
-    ) -> Result<()> {
-        let columns = self.bounded_binding_columns(scope, quant, st, limit)?;
-        if !matches!(self.core.ir.expr(quant), Expr::Quant { .. })
-            || columns.iter().any(|(_, tuple, _)| *tuple)
-        {
-            for bound in self.bounded_body_contexts(scope, quant, &columns, limit)? {
-                body(&bound)?;
-            }
-            return Ok(());
-        }
-        let count = Self::bounded_binding_count(&columns, limit)?;
-        let mut bound = scope.clone();
-        for i in 0..count {
-            let mut quotient = i;
-            for (slots, _, values) in &columns {
-                let value = &values[quotient % values.len()];
-                quotient /= values.len();
-                // Each prior body borrow ended. Any retained snapshot forces
-                // ordinary Env::bind COW; no caller/capture can be overwritten.
-                self.core
-                    .bind_one(&mut bound.env, slots, false, value, quant)?;
-            }
-            body(&bound)?;
-        }
-        Ok(())
-    }
-
     fn bounded_binding_count(columns: &[BindingColumn], limit: usize) -> Result<usize> {
         columns
             .iter()
@@ -1241,13 +1205,6 @@ impl Evaluator {
         self.admit_scoped_expr(scope, expr)?;
         self.validate_scope(scope)?;
         self.validate_state_context(st)?;
-        if st.selectseq.as_ref().is_some_and(|policy| {
-            !std::sync::Weak::ptr_eq(&policy.context, &Arc::downgrade(&self.core))
-        }) {
-            return Err(EvalError::unsupported(
-                "foreign pure predicate invocation context",
-            ));
-        }
         let mut env = scope.env.clone();
         let ev = self.core.eval(&mut env, st, expr)?;
         self.core.force_fcn(ev)

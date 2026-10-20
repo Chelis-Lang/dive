@@ -12,7 +12,7 @@ repository.workspace = true
 dive-ir.workspace = true
 dive-value.workspace = true
 # The successor enumerator (`dive_eval::next`) is the checker's engine.
-dive-eval = { workspace = true, features = ["enumerate"] }
+dive-eval.workspace = true
 dive-config.workspace = true
 dive-store.workspace = true
 dive-stdlib.workspace = true

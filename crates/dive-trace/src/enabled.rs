@@ -191,12 +191,6 @@ impl Host for ComposeGuardHost {
         })
     }
 
-    fn reuse_expression_cache(&self) -> bool {
-        self.inner
-            .as_ref()
-            .is_none_or(|h| h.reuse_expression_cache())
-    }
-
     fn expression_cache_domain(&self) -> u64 {
         self.cache_domain
     }

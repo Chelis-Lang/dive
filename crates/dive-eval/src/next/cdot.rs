@@ -163,10 +163,6 @@ impl Core {
                 s0: StateRef::Vals(t),
                 s1: st.s1.clone(),
                 control: st.control,
-                selectseq: st.selectseq.clone(),
-                selectseq_callback: st.selectseq_callback,
-                memoize_queries: st.memoize_queries,
-                enabled: st.enabled.clone(),
             };
             match self.eval(&mut env.clone(), &st2, b)? {
                 Ev::V(Value::Bool(true)) => return Ok(Ev::V(Value::Bool(true))),
@@ -265,11 +261,6 @@ impl Enab {
         e: ExprId,
     ) -> Result<Option<EnabledState>> {
         let core = &self.core;
-        if self.selectseq.is_some() {
-            return Err(EvalError::unsupported(
-                "bounded pure predicate ENABLED action composition",
-            ));
-        }
         let root_s1 = core.composition_named(s1)?;
         match core.opts.action_composition {
             ActionComposition::Off => return Err(off_error(core, e)),
@@ -283,10 +274,6 @@ impl Enab {
             let en = Enab {
                 core: core.clone(),
                 s0: StateRef::Vals(t),
-                selectseq: self.selectseq.clone(),
-                selectseq_callback: self.selectseq_callback,
-                memoize_queries: self.memoize_queries,
-                enabled: self.enabled.clone(),
             };
             if let Some(s2) = en.enabled(b, acts, env, s1.clone())? {
                 return Ok(Some(s2));

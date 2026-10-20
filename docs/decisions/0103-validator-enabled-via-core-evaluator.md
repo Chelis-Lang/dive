@@ -135,6 +135,16 @@ elsewhere):
 - the `enumerate` feature itself, which `dive-stdlib` and `dive-model` still
   select explicitly.
 
+**Follow-up done (2026-10-20, issue #322).** All three are deleted. The
+liveness planner evaluates its atoms with `Evaluator::eval_scoped` and
+`Evaluator::enabled_scoped`, so they use the evaluator's caches like every
+other predicate; the planner's static source inspection, including
+`scope_selectseq_call`, is unchanged. With the runtime guard gone, an atom
+evaluates only the branches it reaches, as TLC does (for example, an untaken
+`THEN` branch's `CHOOSE` domain is no longer evaluated and refused).
+`Host::reuse_expression_cache`, the bounded recursive-function views and the
+`enumerate` feature are removed; `dive_eval::next` is always built.
+
 ## Consequences
 
 - #321 is fixed: both fairness kinds validate the TLC counterexample. The

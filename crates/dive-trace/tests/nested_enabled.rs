@@ -374,110 +374,17 @@ fn nested_queries_over_actual_recursive_domains() {
     }
 }
 
-fn actual_query_thunk_pred(m: &Model, name: &str, q: &Pred) -> Pred {
-    let d = m.ir.root_def(name).expect(name);
-    let body = m.ir.def(d).body;
-    assert!(
-        !m.ir
-            .node(body)
-            .effects
-            .contains(dive_ir::Effects::USES_ENABLED)
-    );
-    let mut args = vec![dive_ir::Arg::Expr {
-        expr: q.expr,
-        pass: dive_ir::Pass::Lazy,
-    }];
-    if name == "ParameterData" {
-        let call = m.ir.root_def("ParameterSource").expect("source call");
-        let dive_ir::Expr::Apply { args: actual, .. } = m.ir.expr(m.ir.def(call).body) else {
-            panic!("actual operator call")
-        };
-        args.insert(0, actual[0].clone());
-    }
-    let scope = m
-        .evaluator
-        .scope_apply(&q.scope, d, &args)
-        .expect("actual Lazy(query) argument");
-    let mut todo = vec![body];
-    let mut actual_query = false;
-    while let Some(e) = todo.pop() {
-        if let dive_ir::Expr::Local(local) = m.ir.expr(e)
-            && let dive_eval::SlotView::Lazy(actual, _) = m.evaluator.scope_slot(&scope, *local)
-        {
-            assert_eq!(actual, q.expr);
-            actual_query = true;
-        }
-        todo.extend(m.ir.expr(e).children());
-    }
-    assert!(actual_query, "{name}: original owned query source");
-    Pred::new(body, scope)
-}
-
 #[test]
-fn finite_data_positions_refuse_actual_query_thunks_before_domain_evaluation() {
+fn boolean_quantified_queries_decide_lasso_words() {
     let source = "---- MODULE NestedEnabled ----\nEXTENDS Naturals,Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\nQ==ENABLED (x'=7)\nFilterDomain(z)==\\E v \\in {i \\in {0}:z}:TRUE\nForallDomain(z)==\\A v \\in {i \\in {0}:z}:TRUE\nFunctionDomain(z)==[v \\in (IF z THEN {0} ELSE {})|->TRUE]\nMapDomain(z)=={TRUE:v \\in (IF z THEN {0} ELSE {})}\nFilterBase(z)=={v \\in (IF z THEN {0} ELSE {}):TRUE}\nFunctionData(z)==[v \\in {0}|->z]\nMapData(z)=={z:v \\in {0}}\nFilterData(z)=={v \\in {0}:z}\nChooseData(z)==CHOOSE v \\in {0}:z\nUnchangedData(z)==UNCHANGED z\nPrimeData(z)==z'\nKeep(v)==TRUE\nSequenceData(z)==SelectSeq(z,Keep)\nNativeData(z)==Len(z)\nParameterData(H(_),z)==H(z)\nParameterSource==ParameterData(Len,Q)\nExistsBody(z)==\\E v \\in {0}:z\nForallBody(z)==\\A v \\in {0}:z\nExistsDirect==\\E v \\in {7}:ENABLED (x'=v)\nForallDirect==\\A v \\in {7}:ENABLED (x'=v)\n====\n";
     for options in [Options::tlc(), Options::dive()] {
         let m = bind(source, "INIT Init\nNEXT Next\n", options);
         assert_eq!(dive_ir::validate::check(&m.ir), [] as [String; 0]);
         let hooks = Arc::new(Hooks::default());
         m.evaluator.set_host(hooks.clone());
-        let q = pred(&m, "Q");
-        for name in [
-            "FilterDomain",
-            "ForallDomain",
-            "FunctionDomain",
-            "MapDomain",
-            "FilterBase",
-            "FunctionData",
-            "MapData",
-            "FilterData",
-            "ChooseData",
-            "UnchangedData",
-            "PrimeData",
-            "SequenceData",
-            "NativeData",
-            "ParameterData",
-            "ExistsBody",
-            "ForallBody",
-        ] {
-            let p = actual_query_thunk_pred(&m, name, &q);
-            let body = p.expr;
-            let scope = p.scope;
-            for _ in 0..2 {
-                let result = m.evaluator.check_finite_bindings(
-                    &scope,
-                    body,
-                    &dive_eval::St::state(state(0)),
-                    4096,
-                );
-                if matches!(name, "ExistsBody" | "ForallBody") {
-                    result.expect("Boolean quantifier bodies retain query support");
-                } else {
-                    let error =
-                        result.expect_err("data query must refuse before evaluating a domain");
-                    assert_eq!(error.class(), dive_eval::ErrorClass::Unsupported, "{name}");
-                    // Core ENABLED evaluation attaches a source origin, even
-                    // when its enumerator is absent. This is source refusal.
-                    assert_eq!(error.origin(), None, "{name}: {error}");
-                }
-                assert!(
-                    m.evaluator
-                        .check_finite_data_bindings(
-                            &scope,
-                            body,
-                            &dive_eval::St::state(state(0)),
-                            4096
-                        )
-                        .is_err()
-                );
-            }
-        }
         for name in ["ExistsDirect", "ForallDirect"] {
             let p = pred(&m, name);
             for _ in 0..2 {
-                m.evaluator
-                    .check_finite_bindings(&p.scope, p.expr, &dive_eval::St::state(state(0)), 4096)
-                    .expect("Boolean query source");
                 assert_eq!(
                     evaluate_lasso(&m, &p, &[state(0)], 0).expect("independent Boolean query"),
                     [true]

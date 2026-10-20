@@ -293,13 +293,6 @@ Qp == (\A f \in Domain : f[1])'
             (qp, St::action(before.clone(), after.clone()), true),
             (qp, St::action(after, before.clone()), false),
         ] {
-            ev.check_finite_bindings(
-                &ev.scope(def).expect("valid scope"),
-                ev.ir().def(def).body,
-                &st,
-                4096,
-            )
-            .expect("guard");
             assert_eq!(ev.eval_def(def, &st).expect("truth"), Value::from(expected));
         }
         // Materialization of the captured domain does not let subsequent small budgets bypass its input bound.

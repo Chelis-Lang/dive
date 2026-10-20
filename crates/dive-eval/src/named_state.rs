@@ -46,7 +46,6 @@ impl NamedState {
         self.values.is_empty()
     }
 
-    #[cfg(feature = "enumerate")]
     pub(crate) fn empty(core: &Arc<Core>) -> Arc<Self> {
         Arc::new(Self {
             context: Arc::downgrade(core),
@@ -54,7 +53,6 @@ impl NamedState {
         })
     }
 
-    #[cfg(feature = "enumerate")]
     pub(crate) fn with(self: &Arc<Self>, name: &str, value: Value) -> Arc<Self> {
         let mut result = self.clone();
         Arc::make_mut(&mut result)
@@ -66,15 +64,6 @@ impl NamedState {
 
 impl Evaluator {
     pub(crate) fn validate_state_context(&self, st: &crate::St) -> crate::Result<()> {
-        if st
-            .enabled
-            .as_ref()
-            .is_some_and(|i| !std::sync::Weak::ptr_eq(&i.context, &Arc::downgrade(&self.core)))
-        {
-            return Err(crate::EvalError::unsupported(
-                "foreign ENABLED invocation context",
-            ));
-        }
         for state in [&st.s0, &st.s1] {
             if let StateRef::Named(state) = state
                 && !std::ptr::eq(state.context.as_ptr(), Arc::as_ptr(&self.core))

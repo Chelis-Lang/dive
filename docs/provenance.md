@@ -1033,9 +1033,8 @@ pinned source; DFID and simulation use emitted successors only.
 D-022 records the default TLA+ counterpart, which counts composed successors and
 refuses enclosing conjunctions whose continuation or preassigned variables TLC
 would distort. Tests retain the complete existing six-probe selection and its
-consumed pinned oracle fixtures. The independent evaluator build explicitly
-refuses enabled composition without `enumerate`; it never imports the checker
-successor generator to validate a trace. Pure TLC-profile capture now uses the
+consumed pinned oracle fixtures. The trace validator refuses action
+composition, including in `ENABLED` (ADR 0103). Pure TLC-profile capture now uses the
 inline fallback and counts intermediates as generated; only emitted successors
 become transition edges. Ordinary liveness integration remains pending.
 
@@ -1648,8 +1647,7 @@ holding success and a failing `baba` to `ba` stuttering behavior, both 5 generat
 2 distinct and depth 2. The emitted string is measured rather than inferred from
 an encounter-order prediction. An earlier one-character fixture is also retained;
 pinned TLC reports success for it (5 generated, 2 distinct, depth 2), which dive
-matches since its finite-binding preflight no longer reports evaluation errors
-from untaken binder domains. Its `a`/`b` names were
+matches since liveness atoms are evaluated only where evaluation reaches them. Its `a`/`b` names were
 already interned at binding, so that fixture does not demonstrate name growth. Independent composed-word replay remains refused;
 this is no new purity or replay admission proof (#241).
 
@@ -1810,18 +1808,6 @@ and `Sequences.java` `SelectSeq`. No implementation algorithm
 is ported in this prerequisite. Default pinned oracle generation supplies the
 goldens; cache-disabled research results are not conformance references.
 
-### Bounded query memo and runtime lexical contexts
-
-`query_memo.rs` implements an independent invocation-owned value memo, not TLC's
-object structure or a checker admission proof. Observable cache inclusion and
-lexical-lifetime rules follow the pinned `LazyValue.getCachedValue`,
-`TLCState.isSubset`, and `Tool.enabledImpl` LET/Subst cases at commit
-`94d0c5070852b37b801bb8998c436383ab7ee37b`. Runtime query contexts are retained by source-ordered pending predicates over
-partial named assignments, without running the successor generator. Source-only projections remain distinct
-from actual evaluation; the existing source-first finite-cover procedure still
-determines completeness independently. Eight trace fixture context variants
-copy the tiny inputs measured in the issue312/313 primary campaign; their body
-bytes, outcome pairs and before/inside-query distinction are covered by tests.
 ### Independent query lexical lifetime controls
 
 The 24 dive-authored `lazy-query-lifetimes` fixtures distinguish lexical

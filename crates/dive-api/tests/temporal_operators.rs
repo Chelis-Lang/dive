@@ -346,34 +346,6 @@ Live==Use(Good)
                 .is_none()
         );
     }
-    // Static analysis does not force the operator's unknown domain. Actual
-    // predicate execution still enforces the original finite binding ceiling.
-    let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
-        .into_config()
-        .expect("cfg");
-    let mut admitted = dive_eval::Model::new(ir.clone());
-    admitted.constants[0] = Some(dive_eval::ConstBinding::Def(good));
-    let evaluator =
-        dive_eval::Evaluator::new(admitted, dive_eval::Options::tlc()).expect("evaluator");
-    let d = ir.root_def("Domain").expect("Domain");
-    let root = evaluator.scope(d).expect("scope");
-    let values = dive_value::Value::set(
-        (0..5).map(dive_value::Value::Int).collect(),
-        dive_value::Ctx::tlc(),
-    )
-    .expect("set");
-    let scope = evaluator
-        .scope_call_values(&root, d, vec![values])
-        .expect("actual finite domain");
-    assert!(
-        evaluator
-            .check_finite_bindings(&scope, ir.def(d).body, &dive_eval::St::constant(), 4)
-            .is_err()
-    );
-    evaluator
-        .check_finite_bindings(&scope, ir.def(d).body, &dive_eval::St::constant(), 5)
-        .expect("actual bounded domain");
-    let _ = cfg;
 }
 
 #[test]
