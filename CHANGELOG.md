@@ -15,6 +15,12 @@
   where dive does not reproduce TLC's message) wherever TLC fails.
   `YoYo/MCYoYoPruning` now agrees in the TLC profile.
 
+- Temporal graph capture no longer refuses a specification as random merely
+  because it extends `Randomization`: that module's own helper
+  `TestRandomSetOfSubsets` calls `RandomSetOfSubsets`, and every IR node was
+  scanned. Only definitions outside the standard modules, and what they reach,
+  now count. `SpanningTree/SpanTreeTest4Nodes` now agrees in the TLC profile.
+
 - The `dive` and `tlc` binaries use mimalloc as their global allocator, and
   release builds use fat link-time optimisation with one codegen unit (ADR 0102).
   Results are unchanged; single-worker checking executes about 15–17% fewer
