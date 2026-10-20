@@ -325,7 +325,6 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
     let shared = role_preds(model)
         .iter()
         .any(|p| ev.scope_shares_side_effects(&p.scope));
-    #[cfg(feature = "enumerate")]
     let shared = shared
         || model
             .init_actions

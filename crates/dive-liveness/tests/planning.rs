@@ -380,7 +380,6 @@ fn temporal_nonstuttering_checks_subscript_before_body() {
         test: AtomTest::Nonstuttering {
             sub: pred(&model, "Sub").expr,
         },
-        binding_limit: 4096,
     };
     let state = |x| Arc::from([Some(Value::Int(x))]);
     let stutter = St::action(state(1), state(1));
@@ -457,7 +456,6 @@ fn direct_temporal_and_runtime_atoms_match_pinned_order_controls() {
                             sub: pred(&model, if mode == "bad-sub" { "BadSub" } else { "Sub" })
                                 .expr,
                         },
-                        binding_limit: 4096,
                     }
                     .evaluate(&model, &st)
                     .map_err(|e| format!("error:{}", e.ec().code())),
@@ -476,7 +474,6 @@ fn direct_temporal_and_runtime_atoms_match_pinned_order_controls() {
         test: AtomTest::Nonstuttering {
             sub: pred(&model, "Sub").expr,
         },
-        binding_limit: 4096,
     };
     invalid.pred.expr = dive_ir::ExprId(u32::MAX);
     assert_eq!(
@@ -557,85 +554,7 @@ fn selectseq_temporal_callbacks_keep_named_capability_refusals() {
 }
 
 #[test]
-fn bounded_selectseq_preserves_empty_native_errors_and_first_element_priority() {
-    let model = bound(
-        r"---- MODULE SelectPriority ----
-EXTENDS Sequences
-VARIABLE x
-Init==x = <<>>
-Next==x'=x
-Empty==SelectSeq(<<>>, LAMBDA y: 7)
-Wrong==SelectSeq(7, LAMBDA y: TRUE)
-Nonbool==SelectSeq(<<0>>, LAMBDA y: 7)
-Run==SelectSeq(x, LAMBDA y: y[1]=0)
-====",
-        "INIT Init\nNEXT Next\n",
-    );
-    for name in ["Empty", "Wrong", "Nonbool"] {
-        let p = pred(&model, name);
-        let raw = model
-            .evaluator
-            .eval_scoped(&p.scope, p.expr, &St::constant());
-        let checked = model
-            .evaluator
-            .eval_scoped_pure(&p.scope, p.expr, &St::constant(), 4096);
-        assert_eq!(
-            raw.map_err(|e| e.to_string()),
-            checked.map_err(|e| e.to_string()),
-            "{name}"
-        );
-    }
-    for name in ["Empty", "Wrong"] {
-        let p = pred(&model, name);
-        assert_eq!(
-            model
-                .evaluator
-                .eval_scoped(&p.scope, p.expr, &St::constant())
-                .map_err(|e| e.to_string()),
-            model
-                .evaluator
-                .eval_scoped_pure(&p.scope, p.expr, &St::constant(), 0)
-                .map_err(|e| e.to_string()),
-            "{name}: exhausted budget still preserves native first argument/empty priority"
-        );
-    }
-    let nonbool = pred(&model, "Nonbool");
-    assert!(
-        model
-            .evaluator
-            .eval_scoped_pure(&nonbool.scope, nonbool.expr, &St::constant(), 0)
-            .expect_err("no callback invocation after exhaustion")
-            .to_string()
-            .contains("work")
-    );
-    let p = pred(&model, "Run");
-    let large = Value::tuple(vec![0.into(); 30_000]);
-    let first = St::state(Arc::from([Some(Value::tuple(vec![
-        0.into(),
-        large.clone(),
-    ]))]));
-    let raw = model
-        .evaluator
-        .eval_scoped(&p.scope, p.expr, &first)
-        .expect_err("first scalar is not function");
-    let checked = model
-        .evaluator
-        .eval_scoped_pure(&p.scope, p.expr, &first, 4096)
-        .expect_err("first typed error wins");
-    assert_eq!(raw.to_string(), checked.to_string());
-    let reverse = St::state(Arc::from([Some(Value::tuple(vec![large, 0.into()]))]));
-    assert!(
-        model
-            .evaluator
-            .eval_scoped_pure(&p.scope, p.expr, &reverse, 4096)
-            .expect_err("first reached oversized element")
-            .to_string()
-            .contains("work")
-    );
-}
-
-#[test]
-fn selectseq_constant_and_if_probes_keep_bounds_with_warm_enclosing_caches() {
+fn selectseq_constant_and_if_probes_lower_with_warm_enclosing_caches() {
     let mut model = bound(
         "---- MODULE SelectConstant ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=TRUE\nNext==x'=x\nKeep(y)==TRUE\nSelected==SelectSeq(<<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>,Keep)\nWrapper==Selected\nSame==Selected = <<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>\nP==[] Same\nI==IF Same THEN <>x ELSE <>~x\n====",
         "INIT Init\nNEXT Next\n",
@@ -659,19 +578,10 @@ fn selectseq_constant_and_if_probes_keep_bounds_with_warm_enclosing_caches() {
         lower(&model, &pred(&model, name), Limits::default())
             .expect("ordinary definition/IF evaluation");
     }
-    for name in ["P", "I"] {
-        let limits = Limits {
-            formula_nodes: 1,
-            ..Limits::default()
-        };
-        let error = lower(&model, &pred(&model, name), limits)
-            .expect_err("aggregate callback work at existing constant/IF probe");
-        assert!(error.to_string().contains("work"), "{name}: {error}");
-    }
 }
 
 #[test]
-fn selectseq_nonstuttering_shares_one_budget_and_next_atom_starts_fresh() {
+fn selectseq_nonstuttering_reads_subscript_before_and_after() {
     use dive_liveness::plan::{AtomTest, PredicateAtom};
     let model = bound(
         "---- MODULE SelectAggregate ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\nKeep(y)==TRUE\nSub==SelectSeq(<<x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x>>,Keep)\nBody==TRUE\nSingle==Sub = <<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>\n====",
@@ -680,59 +590,24 @@ fn selectseq_nonstuttering_shares_one_budget_and_next_atom_starts_fresh() {
     let sub = pred(&model, "Sub");
     let before: Arc<[Option<Value>]> = Arc::from([Some(Value::Int(0))]);
     let after: Arc<[Option<Value>]> = Arc::from([Some(Value::Int(1))]);
-    let limit = (1..4096)
-        .find(|limit| {
-            model
-                .evaluator
-                .eval_scoped_pure(&sub.scope, sub.expr, &St::state(before.clone()), *limit)
-                .is_ok()
-        })
-        .expect("individual sub-evaluation fits");
-    assert_eq!(
-        model
-            .evaluator
-            .eval_scoped_pure(&sub.scope, sub.expr, &St::state(after.clone()), limit)
-            .expect("after fits alone"),
-        Value::tuple(vec![1.into(); 20])
-    );
     let atom = PredicateAtom {
         pred: pred(&model, "Body"),
         kind: AtomKind::Action,
         test: AtomTest::Nonstuttering { sub: sub.expr },
-        binding_limit: limit,
     };
-    let st = St::action(before, after);
-    assert!(
-        atom.evaluate(&model, &st)
-            .expect_err("one aggregate budget for before/after/body")
-            .to_string()
-            .contains("work")
-    );
     let single = PredicateAtom {
         pred: pred(&model, "Single"),
         kind: AtomKind::State,
         test: AtomTest::Predicate,
-        binding_limit: limit,
     };
+    let step = St::action(before.clone(), after);
+    assert!(atom.evaluate(&model, &step).expect("subscript changes"));
+    assert!(single.evaluate(&model, &step).expect("state atom"));
+    let stutter = St::action(before.clone(), before);
     assert!(
-        single
-            .evaluate(&model, &st)
-            .expect("next atom has fresh budget")
-    );
-    let generous = PredicateAtom {
-        binding_limit: 4096,
-        ..atom.clone()
-    };
-    assert!(
-        generous
-            .evaluate(&model, &st)
-            .expect("original nonstuttering before/after/body order")
-    );
-    assert!(
-        atom.evaluate(&model, &st)
-            .expect_err("fresh small budget still aggregates")
-            .to_string()
-            .contains("work")
+        !atom
+            .evaluate(&model, &stutter)
+            .expect("subscript unchanged")
     );
 }
 
@@ -758,7 +633,7 @@ fn selectseq_enabled_negation_and_fairness_preserve_original_atom_semantics() {
 }
 
 #[test]
-fn selectseq_manual_prebound_atom_retains_structural_capability_refusal() {
+fn selectseq_manual_prebound_atom_reports_the_callback_evaluation_error() {
     use dive_liveness::plan::{AtomTest, PredicateAtom};
     let model = bound(
         "---- MODULE SelectPrebound ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=x\nRun(S)==SelectSeq(S,LAMBDA y:y[1]=0) = <<>>\n====",
@@ -780,14 +655,10 @@ fn selectseq_manual_prebound_atom_retains_structural_capability_refusal() {
         pred: Pred::new(model.ir.def(def).body, scope),
         kind: AtomKind::State,
         test: AtomTest::Predicate,
-        binding_limit: 4096,
     };
-    // Source-only capability checks have no evaluated current native input:
-    // they retain strict storage checks and cannot claim runtime loop admission.
-    assert!(
-        atom.evaluate(&model, &St::state(Arc::from([Some(0.into())])))
-            .expect_err("direct prebound capability refusal")
-            .to_string()
-            .contains("work")
-    );
+    // The callback applies the first element, 0, to 1: TLC's evaluation error.
+    let error = atom
+        .evaluate(&model, &St::state(Arc::from([Some(0.into())])))
+        .expect_err("callback evaluation error");
+    assert_eq!(error.class(), dive_eval::ErrorClass::Eval, "{error}");
 }

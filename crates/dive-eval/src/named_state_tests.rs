@@ -127,8 +127,6 @@ fn named_construction_and_basic_evaluation_reject_foreign_contexts() {
             .expect_err("foreign state"),
         ev.eval_scoped(&scope, body(&ev, "Literal"), &bad)
             .expect_err("foreign state"),
-        ev.begin_pure_predicate(&scope, &bad, 8)
-            .expect_err("foreign state"),
         ev.scope_substitution(&scope, x, &bad, false)
             .expect_err("foreign state"),
     ] {
@@ -184,27 +182,12 @@ fn actual_warm_thunk_reuses_compatible_names_and_observes_changed_candidates() {
 }
 
 #[test]
-fn query_state_projections_keep_whole_successor_and_one_shared_work_budget() {
+fn query_state_projections_keep_whole_successor() {
     let ev = evaluator(Options::tlc());
-    let literal = ev.ir().root_def("Literal").expect("literal");
-    let scope = ev.scope(literal).expect("scope");
-    let base = ev
-        .begin_pure_predicate(
-            &scope,
-            &St::state(Arc::from([Some(Value::FALSE), Some(Value::TRUE)])),
-            17,
-        )
-        .expect("budget");
+    let base = St::state(Arc::from([Some(Value::FALSE), Some(Value::TRUE)]));
     let successor = named(&ev, &[("x", true), ("y", false)]);
     let candidate = base.enabled_candidate(successor.clone());
-    let current = candidate.enabled_current();
     let primed = candidate.primed_successor();
-    for state in [&candidate, &current, &primed] {
-        assert!(Arc::ptr_eq(
-            state.selectseq.as_ref().expect("budget"),
-            base.selectseq.as_ref().expect("budget")
-        ));
-    }
     assert!(matches!(&primed.s0, StateRef::Named(actual) if Arc::ptr_eq(actual, &successor)));
     assert!(matches!(primed.s1, StateRef::Null));
     assert!(primed.is(crate::env::control::PRIMED));
@@ -263,7 +246,6 @@ fn substitution_projection_distinguishes_unset_absent_and_captured_cutoffs() {
     );
 }
 
-#[cfg(feature = "enumerate")]
 #[test]
 fn nested_enabled_searches_use_separate_candidate_namespaces() {
     for options in [Options::tlc(), Options::default()] {
@@ -285,7 +267,6 @@ fn nested_enabled_searches_use_separate_candidate_namespaces() {
     }
 }
 
-#[cfg(feature = "enumerate")]
 #[test]
 fn committed_primary_namespace_cases_match_query_truth_in_both_profiles() {
     let corpus = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -388,7 +369,6 @@ fn distinct_variable_declarations_with_the_same_name_share_one_assignment() {
     );
 }
 
-#[cfg(feature = "enumerate")]
 #[test]
 fn primed_nested_query_keeps_partial_named_current_and_missing_values_are_errors() {
     for options in [Options::tlc(), Options::default()] {
@@ -437,13 +417,7 @@ fn state_entries_reject_foreign_named_before_callbacks_and_captures() {
         let bindings = ev
             .scope(ev.ir().root_def("Bindings").expect("binder"))
             .expect("scope");
-        let recursive = ev
-            .scope(ev.ir().root_def("R").expect("recursive"))
-            .expect("scope");
         let local = St::state(Arc::from([Some(Value::FALSE), Some(Value::TRUE)]));
-        let function = ev
-            .scope_recursive_function_bounded(&recursive, body(&ev, "R"), &local, 4096)
-            .expect("local capture");
         let arg = Arg::Expr {
             expr: body(&ev, "Side"),
             pass: Pass::Lazy,
@@ -458,16 +432,6 @@ fn state_entries_reject_foreign_named_before_callbacks_and_captures() {
                     .expect_err("foreign domain"),
                 ev.scope_bindings_bounded(&bindings, body(&ev, "Bindings"), &bad, 4096)
                     .expect_err("foreign bounded domain"),
-                ev.scope_recursive_function_bounded(&recursive, body(&ev, "R"), &bad, 4096)
-                    .expect_err("foreign capture"),
-                ev.recursive_function_body_scopes_bounded(&recursive, &function, &bad, 4096)
-                    .expect_err("foreign invocation"),
-                ev.check_finite_bindings(&scope, body(&ev, "Side"), &bad, 4096)
-                    .expect_err("foreign finite input"),
-                ev.check_finite_data_bindings(&scope, body(&ev, "Side"), &bad, 4096)
-                    .expect_err("foreign finite data"),
-                ev.eval_scoped_pure(&scope, body(&ev, "Side"), &bad, 4096)
-                    .expect_err("foreign pure input"),
                 ev.random_element_member(&scope, body(&ev, "Side"), &bad, &Value::TRUE, 4096)
                     .expect_err("foreign relation input"),
             ] {
@@ -491,47 +455,20 @@ fn state_entries_reject_foreign_named_before_callbacks_and_captures() {
             1
         );
         assert_eq!(ev.take_output(), ["42  {1}"]);
-        assert_eq!(
-            ev.recursive_function_body_scopes_bounded(&recursive, &function, &local, 4096)
-                .expect("local body projection")
-                .bindings
-                .len(),
-            1
-        );
     }
 }
 
-#[cfg(feature = "enumerate")]
 #[test]
-fn action_and_reused_query_budget_reject_both_foreign_named_states() {
+fn actions_reject_both_foreign_named_states() {
     for options in [Options::tlc(), Options::default()] {
         let ev = evaluator(options);
         let foreign = evaluator(options);
         let side = ev.ir().root_def("Side").expect("side");
         let action = ev.init_predicate(side, 0).expect("action");
-        let literal = ev.ir().root_def("Literal").expect("literal");
-        let scope = ev.scope(literal).expect("scope");
         let local = St::state(Arc::from([Some(Value::FALSE), Some(Value::TRUE)]));
-        let budget = ev
-            .begin_pure_predicate(&scope, &local, 4096)
-            .expect("local invocation");
         for bad in foreign_states(&ev, &foreign) {
-            let bounded = St {
-                s0: bad.s0.clone(),
-                s1: bad.s1.clone(),
-                ..budget.clone()
-            };
-            for error in [
-                ev.eval_action(&action, &bad).expect_err("foreign action"),
-                ev.enabled_scoped_pure(&scope, body(&ev, "Literal"), None, &bad, 4096)
-                    .expect_err("foreign fresh query"),
-                ev.enabled_scoped_pure(&scope, body(&ev, "Literal"), None, &bounded, 4096)
-                    .expect_err("foreign query with existing local budget"),
-                ev.eval_scoped_pure(&scope, body(&ev, "Literal"), &bounded, 4096)
-                    .expect_err("foreign pure evaluation with existing local budget"),
-            ] {
-                assert!(error.message().contains("C004"), "{error}");
-            }
+            let error = ev.eval_action(&action, &bad).expect_err("foreign action");
+            assert!(error.message().contains("C004"), "{error}");
             assert_eq!(ev.take_output(), Vec::<String>::new());
             assert!(!ev.has_print_event());
         }
@@ -540,14 +477,9 @@ fn action_and_reused_query_budget_reject_both_foreign_named_states() {
             Value::TRUE
         );
         assert_eq!(ev.take_output(), ["42  TRUE"]);
-        assert!(
-            ev.enabled_scoped_pure(&scope, body(&ev, "Literal"), None, &budget, 4096)
-                .expect("local query with reused budget")
-        );
     }
 }
 
-#[cfg(feature = "enumerate")]
 #[test]
 fn pinned_hidden_lazy_cache_queries_preserve_default_primary_outcomes() {
     let corpus = Path::new(env!("CARGO_MANIFEST_DIR"))

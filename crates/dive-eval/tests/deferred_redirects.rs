@@ -91,9 +91,6 @@ impl dive_eval::Host for Hooks {
         self.0.fetch_add(1, Ordering::SeqCst);
         Ok(())
     }
-    fn reuse_expression_cache(&self) -> bool {
-        true
-    }
 }
 fn evaluator(model: Model, opts: Options) -> (Evaluator, Arc<Hooks>) {
     let ev = Evaluator::new(model, opts).expect("valid evaluator");

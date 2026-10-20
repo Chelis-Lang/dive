@@ -9,7 +9,6 @@
 #![allow(dead_code, reason = "shared by several test binaries")]
 #![allow(clippy::expect_used, clippy::panic, reason = "test code")]
 
-#[cfg(feature = "enumerate")]
 pub mod model;
 
 use std::collections::HashMap;

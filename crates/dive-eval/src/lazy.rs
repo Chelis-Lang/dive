@@ -287,3 +287,7 @@ impl DeferredSet for SetOp {
         Some(self)
     }
 }
+
+#[cfg(test)]
+#[path = "recursive_tests.rs"]
+mod recursive_tests;

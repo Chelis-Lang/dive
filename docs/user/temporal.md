@@ -111,7 +111,8 @@ sequential execution reason. This option does not add independent composition
 replay: a candidate requiring composed original Next or a composed closing edge
 still refuses without a published word. Holding on a complete captured graph
 requires no candidate replay; genuine violations still require it. Composed
-ENABLED/fairness predicates retain their bounded pure-predicate refusal. TLC's
+ENABLED/fairness atoms are decided by the evaluator's port of TLC's composed
+`ENABLED`; a violation that needs them still refuses at replay. TLC's
 `off` default and the default profile are unchanged; `tla` and other evaluator,
 storage or explicit sequential overrides do not gain ordinary dispatch support.
 Seed and worker requests are retained. Other options and randomness
@@ -193,23 +194,13 @@ Missing covers, explicit primed/action callback sources, generic higher-order
 action forwarding and action composition retain named refusals. Independent
 replay can also prove fairness from an action recurring on the repeated cycle
 without querying enabledness.
-Each atom evaluation starts one fresh aggregate work budget, shared by its
-original before/after/body evaluations and nested calls. An enabledness atom
-shares that budget through its complete original search; the independent trace
-search initializes its own counters and shares them through cover reads,
-candidate relations and nonstuttering comparisons. The existing native
-loop checks each actual element before invoking its original callback and stops
-at the first error. Empty sequences invoke no callback. Bounded predicate
-execution bypasses definition and lazy argument result caches, leaving caller
-caches untouched. Authoritative configured/prebound and startup values retain
-their original semantics; reading such a value does not invoke a selection
-loop. During an actual selection, a captured alias of that same input is
-checked by storage identity at the sequence shell; its elements are checked as
-the loop reaches them. Reading the alias inside the callback still checks the
-whole consumed value. Unrelated stored captures get no exemption. Source-only
-capability checks on manually prebound API scopes remain strict and can refuse
-such a stored input before any loop executes. These checks enforce capability and work limits, not
-predicate truth or a temporal verdict. Both value profiles use this same subset.
+Atoms are evaluated by the core evaluator, as TLC evaluates them: the native
+loop invokes the original callback on each element and stops at the first
+error, empty sequences invoke no callback, only the branches an evaluation
+reaches are evaluated, and definition and lazy argument results are cached as
+for invariants. An enabledness atom runs the evaluator's `ENABLED` search
+(ADR 0103). Planning still inspects callback sources without evaluating them.
+Both value profiles use this same subset.
 
 Schema 2 reports explicit final requests and actual ordinary temporal analysis;
 ordinary safety results retain schema 1.
@@ -409,33 +400,6 @@ as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, with the core evaluator. A
 query-bearing action label is checked like any other label; the original Next
 edge, closing edge and property claims are still required independently.
 
-Finite preflight keeps binder domains, instantiated function/set construction
-bodies, filter predicates and UNCHANGED operands in data-only mode, following
-actual lazy bindings before reading domains. As in existing concrete-binding
-checks, a body with zero bindings may be left unvisited without evaluating its
-queries. Other effect and purity guards still apply; this is not a global
-syntactic query scan.
-Boolean existential and universal bodies retain their bounded query support.
-
-Finite preflight prepares all bounded domains and checks the complete binding
-count before visiting a quantifier body. Concrete non-tuple quantifiers can
-reuse one copy-on-write working context; every original body and guard still
-runs. Captured contexts retain their old bindings. Tuple patterns and analysis
-contexts keep eager construction and its original first-error order. These
-entry/work bounds do not provide a runtime or process-memory guarantee.
-
-Finite preflight visits every conjunct and every `IF`/`CASE` branch, including
-ones that evaluation never reaches in the current state or edge. When a
-binder's domain raises a TLC evaluation error there (for example a `CHOOSE`
-with no witness behind a false guard), preflight skips that binder instead of
-failing the atom: evaluation must compute the same domain before it can enter
-the body, so it either raises the same error where TLC does or never reaches
-it. A refusal that stands for such a TLC error is skipped the same way: applying
-a multi-argument lazy function outside its domain is a TLC error whose message
-dive does not reproduce, so evaluation refuses if it reaches it. Other refusals,
-undefined identifiers (a missing state or successor) and resource limits in a
-domain still stop preflight.
-
 ## INSTANCE query namespace controls
 
 The separate `instance-temporal` corpus records ten tiny Boolean controls from
@@ -468,11 +432,10 @@ same query-name rules; no new flag or default divergence is introduced.
 Rust callers can construct an actual partial query assignment with
 `Evaluator::named_state`, using checked IR variable declaration IDs and values.
 `StateRef::Named` retains it for scoped reads; `St::enabled_candidate`,
-`enabled_current` and `primed_successor` preserve the complete state and shared
-invocation counters. An absent name is unassigned and does not fall back to the
-old current state. Public evaluation and context operations check both current
-and successor named-state ownership before effects or retained captures, including
-when a pure invocation already has a work budget. Named assignments from another
+`enabled_current` and `primed_successor` preserve the complete state. An absent
+name is unassigned and does not fall back to the old current state. Public
+evaluation and context operations check both current and successor named-state
+ownership before effects or retained captures. Named assignments from another
 evaluator are refused. A root
 projection of a query candidate is not an ordinary Next transition. See the
 constructor's runnable rustdoc example and [ADR 0099](../decisions/0099-enabled-variable-name-states.md).

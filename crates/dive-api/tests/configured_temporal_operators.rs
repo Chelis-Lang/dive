@@ -176,14 +176,10 @@ fn unused_actual_binder_domains_are_inspected_without_evaluation() {
         let p = pred(&model, "P");
         plan::lower(&model, &p, FormulaLimits::default()).expect("unused domain is not forced");
         let call = pred(&model, "Call");
-        model
-            .evaluator
-            .check_finite_bindings(&call.scope, call.expr, &St::state(state(0)), 4096)
-            .expect("unused finite guard domain is not forced");
         assert_eq!(
             model
                 .evaluator
-                .eval_scoped_pure(&call.scope, call.expr, &St::state(state(0)), 4096)
+                .eval_scoped(&call.scope, call.expr, &St::state(state(0)))
                 .expect("original unused call"),
             Value::Bool(true)
         );
@@ -298,15 +294,13 @@ fn configured_cycles_and_concrete_binders_keep_existing_resource_limits() {
             &options,
         );
         let call = pred(&model, "Call");
-        let failure = model
-            .evaluator
-            .check_finite_bindings(&call.scope, call.expr, &St::state(state(0)), 1)
-            .expect_err("binder bound");
-        assert_eq!(failure.class(), dive_eval::ErrorClass::ResourceLimit);
-        model
-            .evaluator
-            .check_finite_bindings(&call.scope, call.expr, &St::state(state(0)), 4096)
-            .expect("ordinary binder bound");
+        assert_eq!(
+            model
+                .evaluator
+                .eval_scoped(&call.scope, call.expr, &St::state(state(0)))
+                .expect("ordinary binder"),
+            Value::Bool(true)
+        );
     }
 }
 

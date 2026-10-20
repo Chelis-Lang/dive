@@ -46,8 +46,6 @@ pub struct PredicateAtom {
     pub kind: AtomKind,
     /// Predicate, enabledness or non-stuttering action semantics.
     pub test: AtomTest,
-    /// Maximum concrete bindings per predicate binder.
-    pub binding_limit: usize,
 }
 
 pub(crate) enum AtomError {
@@ -80,85 +78,48 @@ impl PredicateAtom {
 
     pub(crate) fn evaluate_detailed(&self, model: &Model, st: &St) -> Result<bool, AtomError> {
         let ev = &model.evaluator;
+        let scope = &self.pred.scope;
         ev.validate_model_context(&model.ir, &model.names)
             .map_err(EvalError::from)?;
-        ev.validate_predicate(&self.pred.scope, self.pred.expr)?;
-        let invocation = ev.begin_pure_predicate(&self.pred.scope, st, self.binding_limit)?;
-        let st = &invocation;
-        if let AtomTest::Enabled { sub } = self.test {
-            ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
-            let StateRef::Vals(_) = &st.s0 else {
-                return Err(EvalError::general("ENABLED atom requires a current state").into());
-            };
-            return ev
-                .enabled_scoped_pure(
-                    &self.pred.scope,
-                    self.pred.expr,
-                    sub,
-                    st,
-                    self.binding_limit,
-                )
-                .map_err(AtomError::from);
-        }
-        if let AtomTest::NegatedEnabled { action } = self.test {
-            ev.validate_predicate(&self.pred.scope, action)?;
-            ev.check_finite_bindings(&self.pred.scope, action, st, self.binding_limit)?;
-            let StateRef::Vals(_) = &st.s0 else {
-                return Err(
-                    EvalError::general("negated ENABLED atom requires a current state").into(),
-                );
-            };
-            return ev
-                .enabled_scoped_pure(&self.pred.scope, action, None, st, self.binding_limit)
-                .map(|b| !b)
-                .map_err(AtomError::from);
-        }
-        if let AtomTest::Nonstuttering { sub } = self.test {
-            ev.validate_predicate(&self.pred.scope, sub)?;
-            let (StateRef::Vals(before), StateRef::Vals(after)) = (&st.s0, &st.s1) else {
-                return Err(EvalError::general("non-stuttering atom requires two states").into());
-            };
-            ev.check_finite_data_bindings(
-                &self.pred.scope,
-                sub,
-                &st.at_state(before.clone()),
-                self.binding_limit,
-            )?;
-            ev.check_finite_data_bindings(
-                &self.pred.scope,
-                sub,
-                &st.at_state(after.clone()),
-                self.binding_limit,
-            )?;
-            let a = ev.eval_scoped_pure(
-                &self.pred.scope,
-                sub,
-                &st.at_state(before.clone()),
-                self.binding_limit,
-            )?;
-            let b = ev.eval_scoped_pure(
-                &self.pred.scope,
-                sub,
-                &st.at_state(after.clone()),
-                self.binding_limit,
-            )?;
-            if ev.equal_values(&a, &b)? {
-                return Ok(false);
+        ev.validate_predicate(scope, self.pred.expr)?;
+        match self.test {
+            AtomTest::Enabled { sub } => {
+                return Ok(ev.enabled_scoped(scope, self.pred.expr, sub, current(st)?)?);
             }
-        }
-        ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
-        let holds =
-            match ev.eval_scoped_pure(&self.pred.scope, self.pred.expr, st, self.binding_limit)? {
-                Value::Bool(b) => b,
-                v => {
-                    return Err(AtomError::NonBoolean(EvalError::general(format!(
-                        "temporal predicate is {}, not boolean",
-                        v.kind_name()
-                    ))));
+            AtomTest::NegatedEnabled { action } => {
+                ev.validate_predicate(scope, action)?;
+                return Ok(!ev.enabled_scoped(scope, action, None, current(st)?)?);
+            }
+            AtomTest::Nonstuttering { sub } => {
+                ev.validate_predicate(scope, sub)?;
+                let (StateRef::Vals(before), StateRef::Vals(after)) = (&st.s0, &st.s1) else {
+                    return Err(
+                        EvalError::general("non-stuttering atom requires two states").into(),
+                    );
+                };
+                let a = ev.eval_scoped(scope, sub, &St::state(before.clone()))?;
+                let b = ev.eval_scoped(scope, sub, &St::state(after.clone()))?;
+                if ev.equal_values(&a, &b)? {
+                    return Ok(false);
                 }
-            };
+            }
+            AtomTest::Predicate => {}
+        }
+        match ev.eval_scoped(scope, self.pred.expr, st)? {
+            Value::Bool(b) => Ok(b),
+            v => Err(AtomError::NonBoolean(EvalError::general(format!(
+                "temporal predicate is {}, not boolean",
+                v.kind_name()
+            )))),
+        }
+    }
+}
 
-        Ok(holds)
+/// The current state an `ENABLED` atom is decided in.
+fn current(st: &St) -> Result<dive_eval::next::StateVals, EvalError> {
+    match &st.s0 {
+        StateRef::Vals(state) => Ok(state.clone()),
+        _ => Err(EvalError::general("ENABLED atom requires a current state")),
     }
 }
 
@@ -383,12 +344,11 @@ impl Lower<'_> {
     }
 
     fn bool_constant(&self, expr: ExprId, scope: &Scope) -> Result<bool, PlanningError> {
-        match self.model.evaluator.eval_scoped_pure(
-            scope,
-            expr,
-            &St::constant(),
-            self.limits.formula_nodes,
-        ) {
+        match self
+            .model
+            .evaluator
+            .eval_scoped(scope, expr, &St::constant())
+        {
             Ok(Value::Bool(b)) => Ok(b),
             Ok(_) if matches!(&self.model.ir.nodes()[expr.index()].expr, Expr::Num(_)) => {
                 let Expr::Num(text) = &self.model.ir.nodes()[expr.index()].expr else {
@@ -476,11 +436,11 @@ impl Lower<'_> {
             let values = args
                 .iter()
                 .map(|arg| match arg {
-                    Arg::Expr { expr: arg, .. } => ev
-                        .eval_scoped_pure(scope, *arg, &St::constant(), self.limits.formula_nodes)
-                        .map_err(|e| {
+                    Arg::Expr { expr: arg, .. } => {
+                        ev.eval_scoped(scope, *arg, &St::constant()).map_err(|e| {
                             self.refused(*arg, format!("constant temporal argument: {e}"))
-                        }),
+                        })
+                    }
                     Arg::Op { .. } => Err(self.refused(expr, "operator argument in temporal call")),
                 })
                 .collect::<Result<Vec<_>, _>>()?;
@@ -1533,7 +1493,6 @@ impl Lower<'_> {
             pred: Pred::new(expr, scope.clone()),
             kind,
             test,
-            binding_limit: self.limits.formula_nodes,
         });
         self.push(Node::Atom(Atom { kind, index }))
     }
@@ -1640,8 +1599,7 @@ impl Lower<'_> {
             // converts guard/then/else in source order before level fallback.
             if self.scoped_level(*cond, scope, depth)? <= Level::Action {
                 self.pure_atom(*cond, scope)?;
-                match ev.eval_scoped_pure(scope, *cond, &St::constant(), self.limits.formula_nodes)
-                {
+                match ev.eval_scoped(scope, *cond, &St::constant()) {
                     Ok(Value::Bool(chosen)) => {
                         return self.expr(if chosen { *then } else { *other }, scope, depth + 1);
                     }
@@ -1701,7 +1659,6 @@ impl Lower<'_> {
                 pred: Pred::new(expr, scope.clone()),
                 kind,
                 test: AtomTest::Predicate,
-                binding_limit: self.limits.formula_nodes,
             });
             return self.push(Node::Atom(Atom { kind, index }));
         }
@@ -1967,7 +1924,6 @@ NEXT Next
                 ),
                 kind: AtomKind::Action,
                 test: AtomTest::Predicate,
-                binding_limit: 4096,
             };
             let detailed = atom
                 .evaluate_detailed(&model, &st)

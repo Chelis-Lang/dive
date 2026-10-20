@@ -710,12 +710,11 @@ impl Word<'_> {
             let values = args
                 .iter()
                 .map(|arg| match arg {
-                    Arg::Expr { expr, .. } => ev
-                        .check_finite_data_bindings(scope, *expr, &St::constant(), 4096)
-                        .and_then(|()| ev.eval_scoped_pure(scope, *expr, &St::constant(), 4096))
-                        .map_err(|e| {
+                    Arg::Expr { expr, .. } => {
+                        ev.eval_scoped(scope, *expr, &St::constant()).map_err(|e| {
                             TemporalError::Unsupported(format!("constant temporal argument: {e}"))
-                        }),
+                        })
+                    }
                     Arg::Op { .. } => Err(TemporalError::Unsupported(
                         "operator temporal argument".into(),
                     )),

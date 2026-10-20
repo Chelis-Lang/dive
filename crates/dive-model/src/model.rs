@@ -102,11 +102,9 @@ pub struct Model {
     pub next: Option<Pred>,
     /// The initial predicates as the successor generator's actions
     /// (`Evaluator::init_states`), numbered from 0.
-    #[cfg(feature = "enumerate")]
     pub init_actions: Vec<dive_eval::next::Action>,
     /// The next-state relation split into TLC's actions, with TLC's labels,
     /// numbered after the initial predicates (`Evaluator::successors`).
-    #[cfg(feature = "enumerate")]
     pub actions: Vec<dive_eval::next::Action>,
     /// Invariants: `INVARIANT`s, then the state predicates `[]P` of
     /// `PROPERTY`s.
@@ -262,7 +260,6 @@ impl Model {
                 "invalid assumption definition (DIVE-EVAL-C001)",
             ));
         }
-        #[cfg(feature = "enumerate")]
         for action in self.init_actions.iter().chain(&self.actions) {
             self.evaluator
                 .validate_predicate(&action.scope(), action.expr())?;
