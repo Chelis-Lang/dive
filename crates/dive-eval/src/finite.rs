@@ -591,8 +591,27 @@ impl Guard<'_> {
         if let Some((op, args)) = call {
             let standard = match op {
                 OpRef::Def(d) => {
+                    let leaf = ev.recursive_leaf(d);
                     let d = ev.redirected(d);
                     let def = ev.ir().def(d);
+                    if def.recursive
+                        && self.configured_depth == 0
+                        && !scope.has_substitutions()
+                        && leaf
+                    {
+                        // A state-level recursive operator is an evaluation
+                        // leaf (`Evaluator::recursive_leaf`): its actuals are
+                        // walked in this scope, its body is not projected.
+                        for arg in args {
+                            let Arg::Expr { expr, .. } = arg else {
+                                return Err(EvalError::unsupported(
+                                    "recursive/higher-order finite binding",
+                                ));
+                            };
+                            self.walk_data(scope, *expr, depth + 1)?;
+                        }
+                        return Ok(());
+                    }
                     if def.recursive {
                         return Err(EvalError::unsupported(
                             "recursive/higher-order finite binding",
