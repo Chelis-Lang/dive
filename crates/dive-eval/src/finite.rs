@@ -3,6 +3,21 @@
 use crate::{ConstBinding, EvalError, Evaluator, Scope, SlotView, St, StateRef};
 use dive_ir::{Arg, BuiltinOp, ConstId, DefScope, Effects, Expr, ExprId, Level, OpRef, StdOp};
 
+/// Whether a runtime preflight may skip a binder whose domain evaluation or
+/// value binding raised `error`. The walk visits every conjunct and branch,
+/// including ones that TLC's short-circuit evaluation never reaches in this
+/// state (a false guard, an untaken `IF` branch). The interpreter evaluates
+/// the same domain in the same binding context before it can enter the body,
+/// so a TLC evaluation error here is either raised there, where TLC raises
+/// it, or never reached. The same holds for a refusal that stands for such an
+/// error ([`EvalError::unsupported_tlc_failure`]): evaluation refuses again
+/// if it reaches it. Other refusals, resource limits and bugs still stop the
+/// preflight, and so does an undefined identifier, which is how a missing
+/// state or successor in the supplied context surfaces.
+fn unentered_binder(error: &EvalError) -> bool {
+    error.is_tlc_failure() && error.ec() != crate::Ec::UndefinedOrNoOperator
+}
+
 impl Evaluator {
     /// Checks finite constructor/quantifier bindings in the actual state or
     /// edge before interpreting a pure predicate. Domains are never frozen
@@ -14,6 +29,10 @@ impl Evaluator {
     /// This walk rejects effects and opaque operators before reading domains,
     /// and never calls the successor enumerator. It does not evaluate the
     /// predicate's truth or certify successor existence.
+    ///
+    /// The walk visits branches that evaluation may never reach. A binder
+    /// whose domain raises a TLC evaluation error is skipped, not reported:
+    /// evaluation raises it only if it reaches that binder, as TLC does.
     ///
     /// # Errors
     /// Missing, infinite, opaque or oversized bindings; missing evaluation
@@ -1256,24 +1275,29 @@ impl Guard<'_> {
                     && matches!(node.expr, Expr::Quant { .. })
                     && bounds.iter().all(|bound| !bound.tuple)
                 {
-                    return ev.for_each_scalar_quantifier_scope(
-                        scope,
-                        expr,
-                        st,
-                        self.limit,
-                        |sc| {
-                            if boolean_body {
+                    let mut body_failed = false;
+                    let result =
+                        ev.for_each_scalar_quantifier_scope(scope, expr, st, self.limit, |sc| {
+                            let result = if boolean_body {
                                 self.walk(sc, *body, st, depth + 1)
                             } else {
                                 self.walk_data(sc, *body, st, depth + 1)
-                            }
-                        },
-                    );
+                            };
+                            body_failed = result.is_err();
+                            result
+                        });
+                    return match result {
+                        Err(error) if !body_failed && unentered_binder(&error) => Ok(()),
+                        result => result,
+                    };
                 }
                 let scopes = if self.analysis {
                     vec![ev.scope_binder_analysis(scope, expr)?]
                 } else {
-                    ev.scope_bindings_bounded(scope, expr, st, self.limit)?
+                    match ev.scope_bindings_bounded(scope, expr, st, self.limit) {
+                        Err(error) if unentered_binder(&error) => return Ok(()),
+                        scopes => scopes?,
+                    }
                 };
                 for sc in scopes {
                     if boolean_body {
@@ -1297,7 +1321,11 @@ impl Guard<'_> {
                         depth + 1,
                     )?;
                 } else {
-                    for sc in ev.scope_bindings_bounded(scope, expr, st, self.limit)? {
+                    let scopes = match ev.scope_bindings_bounded(scope, expr, st, self.limit) {
+                        Err(error) if unentered_binder(&error) => return Ok(()),
+                        scopes => scopes?,
+                    };
+                    for sc in scopes {
                         self.walk_data(&sc, *pred, st, depth + 1)?;
                     }
                 }

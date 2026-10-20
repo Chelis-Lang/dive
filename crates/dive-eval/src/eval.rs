@@ -1722,7 +1722,7 @@ impl Core {
                         } else {
                             for &s in &b.slots {
                                 if !self.member(&elems[k], &b.domain)? {
-                                    return Err(EvalError::unsupported(
+                                    return Err(EvalError::unsupported_tlc_failure(
                                         "applying a multi-argument lazy function outside its domain (TLC's message prints the domain)",
                                     ));
                                 }

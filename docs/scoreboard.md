@@ -15,15 +15,17 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-Measured 2026-10-19 on `main` at `1f5ae5fa` (pinned TLC `tlc-2026.10.06.014338`
-goldens, unchanged comparison rules). The selection is the small tier of
-`examples`, `probes`, `validation-smoke` and `configured-temporal-operators`:
-156 models, plus 458 SANY module comparisons in the TLC profile.
+Measured 2026-10-19 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
+comparison rules). The one-worker rows are from `main` at `2124a2fd` plus the
+finite-binding preflight fix; the four-worker row is from `main` at `1f5ae5fa`.
+The selection is the small tier of `examples`, `probes`, `validation-smoke` and
+`configured-temporal-operators`: 156 models, plus 458 SANY module comparisons in
+the TLC profile.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
-| TLC | 1 | 156 | 139 | 17 | 0 | 0 |
-| default | 1 | 156 | 92 | 60 | 4 | 0 |
+| TLC | 1 | 156 | 140 | 16 | 0 | 0 |
+| default | 1 | 156 | 135 | 16 | 5 | 0 |
 | default | 4 | 156 | 93 | 60 | 3 | 0 |
 
 The one-worker rows are committed as baselines in `conformance/baselines/`.
