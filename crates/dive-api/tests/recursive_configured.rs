@@ -10,11 +10,7 @@ use dive_eval::{Host, HostError, SlotView, St};
 use dive_ir::{Expr, LocalRef, StdOp};
 use dive_liveness::{formula::Limits as FormulaLimits, plan};
 use dive_model::{Model, Pred};
-use dive_trace::{
-    State,
-    exists::{self, Decision},
-    temporal::evaluate_lasso,
-};
+use dive_trace::{State, enabled::enabled, temporal::evaluate_lasso};
 use dive_value::Value;
 use std::sync::{
     Arc,
@@ -144,17 +140,10 @@ fn configured_local_recursion_refuses_in_four_independent_routes_before_callback
                 evaluate_lasso(&model, &property, std::slice::from_ref(&before), 0).is_err(),
                 "word {call}"
             );
-            assert!(
-                exists::exists_successor_pure(
-                    &model,
-                    &action,
-                    &before,
-                    None,
-                    exists::Limits::default(),
-                    4096
-                )
-                .is_err(),
-                "EXISTS must not certify Disabled: {call}"
+            assert_ne!(
+                enabled(&model, &action, None, &before),
+                Ok(false),
+                "ENABLED must not certify Disabled: {call}"
             );
             assert_eq!(hooks.0.load(Ordering::SeqCst), 0, "no callback {call}");
             assert_eq!(model.output, [] as [dive_model::Message; 0]);
@@ -192,23 +181,7 @@ fn plain_configured_and_unconfigured_recursive_calls_keep_real_enabled_witnesses
                     .expect("word positive"),
                 vec![true]
             );
-            let Decision::Enabled { witness, .. } = exists::exists_successor_pure(
-                &model,
-                &action,
-                &before,
-                None,
-                exists::Limits::default(),
-                4096,
-            )
-            .expect("independent decision") else {
-                panic!("actual enabled relation")
-            };
-            assert_eq!(
-                model
-                    .eval(&action, &St::action(before, witness))
-                    .expect("original witness"),
-                Value::Bool(true)
-            );
+            assert_eq!(enabled(&model, &action, None, &before), Ok(true));
         }
     }
 }
@@ -267,16 +240,6 @@ fn actual_recursive_self_slot_is_refused_even_after_ordinary_body_cache_is_warm(
             let error = evaluate_lasso(&model, &configured, std::slice::from_ref(&before), 0)
                 .expect_err("actual Function independent word refusal");
             assert!(error.to_string().contains("configured"), "{error}");
-            let error = exists::exists_successor_pure(
-                &model,
-                &configured,
-                &before,
-                None,
-                exists::Limits::default(),
-                4096,
-            )
-            .expect_err("actual Function EXISTS refusal");
-            assert!(error.to_string().contains("configured"), "{error}");
         }
     }
 }
@@ -310,16 +273,6 @@ fn configured_recursive_domain_is_refused_before_its_original_division_error() {
             evaluate_lasso(&model, &property, std::slice::from_ref(&before), 0)
                 .expect_err("word source refusal")
                 .to_string(),
-            exists::exists_successor_pure(
-                &model,
-                &action,
-                &before,
-                None,
-                exists::Limits::default(),
-                4096,
-            )
-            .expect_err("EXISTS source refusal")
-            .to_string(),
         ];
         for error in errors {
             assert!(
@@ -384,16 +337,6 @@ fn configured_unused_nested_helper_recursive_actuals_refuse_in_all_four_routes()
                     evaluate_lasso(&model, &property, std::slice::from_ref(&before), 0)
                         .expect_err("word unused recursive helper actual")
                         .to_string(),
-                    exists::exists_successor_pure(
-                        &model,
-                        &action,
-                        &before,
-                        None,
-                        exists::Limits::default(),
-                        4096,
-                    )
-                    .expect_err("EXISTS cannot certify Disabled")
-                    .to_string(),
                 ];
                 for error in errors {
                     assert!(
@@ -447,23 +390,7 @@ fn nested_helper_plain_configured_and_ordinary_recursive_positives_keep_witnesse
                     .expect("word positive"),
                 vec![true]
             );
-            let Decision::Enabled { witness, .. } = exists::exists_successor_pure(
-                &model,
-                &action,
-                &before,
-                None,
-                exists::Limits::default(),
-                4096,
-            )
-            .expect("real independent witness") else {
-                panic!("actual enabled relation")
-            };
-            assert_eq!(
-                model
-                    .eval(&action, &St::action(before, witness))
-                    .expect("original witness"),
-                Value::Bool(true)
-            );
+            assert_eq!(enabled(&model, &action, None, &before), Ok(true));
         }
         // The configured-depth-zero finite route must not start inspecting or
         // evaluating an ordinary helper's unused expression actuals.
@@ -520,17 +447,7 @@ fn configured_unused_higher_order_helper_actual_remains_a_refusal() {
         }
         assert!(plan::lower(&model, &property, FormulaLimits::default()).is_err());
         assert!(evaluate_lasso(&model, &property, std::slice::from_ref(&before), 0).is_err());
-        assert!(
-            exists::exists_successor_pure(
-                &model,
-                &action,
-                &before,
-                None,
-                exists::Limits::default(),
-                4096
-            )
-            .is_err()
-        );
+        assert_ne!(enabled(&model, &action, None, &before), Ok(false));
         assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
         assert_eq!(model.output, [] as [dive_model::Message; 0]);
     }

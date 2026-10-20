@@ -9,11 +9,10 @@ license.workspace = true
 repository.workspace = true
 
 [features]
-# The successor enumerator (`dive_eval::next`, ADR 0014 §3). `dive-trace`
-# keeps it off so the independent trace validator cannot call it (ADR 0016 §2);
-# `cargo xtask check-layering` enforces that. `dive-model` and `dive-trace`
-# must therefore depend on `dive-eval` with `default-features = false`.
-# Without it, `ENABLED` (which searches for a successor) is refused.
+# The successor enumerator (`dive_eval::next`, ADR 0014 §3), which also
+# decides `ENABLED`. Without it, `ENABLED` (which searches for a successor) is
+# refused. Every consumer that decides `ENABLED`, the trace validator included
+# (ADR 0103), enables it.
 default = ["enumerate"]
 # The dev-only model harness needs action fields when this feature is on;
 # standalone core regressions must not enable it through a dev dependency.

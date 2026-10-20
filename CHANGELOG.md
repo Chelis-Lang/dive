@@ -31,6 +31,20 @@
   profile `dive` and `lncheck: final`; the deterministic periodic schedule
   (D-014) remains planned.
 
+- Trace validation decides `ENABLED`, deadlock endings and weak or strong
+  fairness with the core evaluator's `ENABLED` instead of a separate
+  finite-cover search (ADR 0103). Fairness whose action guards a primed read,
+  such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, now validates instead of
+  refusing with `DIVE-T0020 ... no finite cover` (issue #321). The
+  `dive_trace::exists` API is replaced by `dive_trace::enabled::enabled`.
+  Replay reuses only lazy values it computed itself (its own cache domain), so
+  a value cached by ordinary evaluation, for example through action
+  composition, never becomes a validation verdict. `enabled::enabled`, and
+  `ENABLED`, `WF` and `SF` in `temporal::evaluate_lasso`, refuse action
+  composition by name as replay does. Public typed states sorted
+  in the other profile's value order are refused with `DIVE-V0043`. The
+  `fairness-replay` corpus adds Oyster's weak and strong pilot monitors.
+
 - Default TLA+ membership comparisons borrow unnormalized set elements instead
   of cloning them into temporary storage. Written-order comparisons and TLC
   fallback errors are preserved.

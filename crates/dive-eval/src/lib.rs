@@ -419,16 +419,9 @@ impl Evaluator {
     }
 
     /// Installs `host` (or none) and returns the host installed before.
+    #[must_use = "the previous host must be restored or dropped deliberately"]
     pub fn replace_host(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
-        ::std::mem::replace(
-            &mut *self
-                .core
-                .host
-                .host
-                .lock()
-                .unwrap_or_else(::std::sync::PoisonError::into_inner),
-            host,
-        )
+        self.core.host.replace(host)
     }
 
     /// The installed host, if any.

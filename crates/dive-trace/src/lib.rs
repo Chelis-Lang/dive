@@ -7,18 +7,16 @@
 //! a predicate over the two given states, that the states the search must
 //! have explored are inside the model and violate nothing earlier, and that
 //! the trace ends as it claims. It shares only the core evaluator, the value
-//! library and the binding stage with the checker: it is built without
-//! `dive-eval`'s successor enumerator (the `enumerate` feature), so it cannot call the checker
-//! generator, and a bug in successor generation cannot make it
-//! accept a trace the specification does not allow. `cargo xtask
-//! check-layering` and the gate's standalone `cargo build -p dive-trace`
-//! enforce that.
+//! library and the binding stage with the checker, never the search, store or
+//! liveness graph. Whether a state has a successor (`ENABLED`, deadlock and
+//! fairness) is the core evaluator's `ENABLED` (ADR 0103); the states and
+//! steps of the counterexample are still replayed and checked here.
 //!
 //! Named pure periodic words (`TraceDoc::with_properties`) also check all
 //! behavior temporal conjuncts and the complete violated-property set.
-//! Fairness with recurring actions or finite independently decided enabledness
-//! is supported. Missing finite covers, VIEW/symmetry closing evidence and
-//! unnamed legacy periodic claims remain explicit refusals.
+//! Fairness is decided with the core evaluator's `ENABLED`. VIEW/symmetry
+//! closing evidence and unnamed legacy periodic claims remain explicit
+//! refusals.
 //!
 //! - [`mod@format`]: the versioned trace format (also TLC's `-dumpTrace json`).
 //! - [`value_json`]: dive's tagged JSON values, with documented representation
@@ -72,7 +70,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
-pub mod exists;
+pub mod enabled;
 pub mod format;
 mod initial;
 pub mod mutate;
@@ -142,5 +140,3 @@ pub fn validate_doc(
         },
     }
 }
-
-mod ordinary_queries;

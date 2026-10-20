@@ -1,7 +1,6 @@
 //! Repository automation. Run as `cargo xtask <command>`.
 #![forbid(unsafe_code)]
 
-mod features;
 mod gate;
 mod layering;
 mod pluscal_corpus;
@@ -15,8 +14,7 @@ const USAGE: &str = "usage: cargo xtask <command>
 commands:
     install-hooks   copy tracked git hooks (commit-msg authorship check,
                     pre-commit repository budget) into the shared hooks directory
-    check-layering  verify internal crate dependencies follow the charter DAG, and
-                    that dive-trace builds without dive-eval/enumerate
+    check-layering  verify internal crate dependencies follow the charter DAG
     protect-main    apply branch protection to main on GitHub (PR mode)
     gate            run the local gate: --fast mirrors CI's Workspace gate;
                     --full [--skip-corpus] adds the whole suite and conformance
@@ -151,14 +149,6 @@ fn check_layering() -> Result<()> {
             if dep_name.starts_with("dive-") && !is_dev && !permitted.contains(dep_name) {
                 violations.push(format!("{name} -> {dep_name} is not a permitted edge"));
             }
-        }
-    }
-    for root in layering::ENUMERATE_FREE {
-        if features::enables(packages, root, "dive-eval", "enumerate") {
-            violations.push(format!(
-                "{root} enables dive-eval/enumerate (directly or through a dependency); \
-                 the successor enumerator must stay out of it (ADR 0016 §2)"
-            ));
         }
     }
     for name in allowed.keys() {

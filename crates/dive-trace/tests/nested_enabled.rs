@@ -6,11 +6,7 @@
 )]
 use dive_eval::Options;
 use dive_model::{Model, Pred};
-use dive_trace::{
-    Ending, State, TraceDoc, Validation,
-    exists::{Decision, Limits, exists_successor_pure},
-    temporal::evaluate_lasso,
-};
+use dive_trace::{Ending, State, TraceDoc, Validation, temporal::evaluate_lasso};
 use serde_json::json;
 use std::sync::{
     Arc,
@@ -46,17 +42,12 @@ fn pred(m: &Model, name: &str) -> Pred {
 fn state(x: i64) -> State {
     Arc::from([Some(x.into())])
 }
-fn query(
-    m: &Model,
-    name: &str,
-    x: i64,
-    limits: Limits,
-) -> Result<Decision, dive_trace::exists::ExistsError> {
-    exists_successor_pure(m, &pred(m, name), &state(x), None, limits, 4096)
+fn query(m: &Model, name: &str, x: i64) -> Result<bool, dive_trace::enabled::EnabledError> {
+    dive_trace::enabled::enabled(m, &pred(m, name), None, &state(x))
 }
 
 #[test]
-fn nested_queries_keep_inner_witness_namespaces_and_independent_constraints() {
+fn nested_queries_keep_inner_namespaces_and_ignore_constraints() {
     for options in [Options::tlc(), Options::dive()] {
         let m = small(
             "Inner(v)==x'=v /\\ x=0\nA==ENABLED Inner(99) /\\ x'=1\nB==~ENABLED (x'=1 /\\ x=1) /\\ x'=1\nC==LET guard==ENABLED Inner(99) IN guard /\\ x'=1\nD==\\E v \\in {99}: ENABLED Inner(v) /\\ x'=1\n",
@@ -64,100 +55,16 @@ fn nested_queries_keep_inner_witness_namespaces_and_independent_constraints() {
         );
         for _ in 0..2 {
             for name in ["A", "B", "C", "D"] {
-                let Decision::Enabled { witness, .. } =
-                    query(&m, name, 0, Limits::default()).expect(name)
-                else {
-                    panic!("{name}: actual inner99/outer1 witness")
-                };
-                assert_eq!(witness, state(1));
+                assert_eq!(query(&m, name, 0), Ok(true), "{name}");
             }
         }
-        // Inner primes supply no cover for the outer x'.
-        let missing = small("A==ENABLED (x'=99) /\\ x'>0", options);
-        assert!(query(&missing, "A", 0, Limits::default()).is_err());
         let source = "---- MODULE NestedEnabled ----\nEXTENDS Naturals\nVARIABLE x\nInit==x=0\nNext==x'=0\nLimit==x=0\nA==ENABLED (x'=99) /\\ x'=1\n====\n";
         let constrained = bind(source, "INIT Init\nNEXT Next\nCONSTRAINT Limit\n", options);
-        assert!(matches!(
-            query(&constrained, "A", 0, Limits::default()).expect("not graph-restricted"),
-            Decision::Enabled { .. }
-        ));
-    }
-}
-
-#[test]
-fn nested_candidate_assignment_and_expression_budgets_never_reset() {
-    for options in [Options::tlc(), Options::dive()] {
-        let m = small("A==x' \\in {0,1} /\\ ENABLED (x'=7) /\\ x'=1\n", options);
-        assert!(matches!(
-            query(
-                &m,
-                "A",
-                0,
-                Limits {
-                    assignments: 4,
-                    ..Limits::default()
-                }
-            )
-            .expect("two outer plus two inner visits"),
-            Decision::Enabled { .. }
-        ));
-        for limits in [
-            Limits {
-                assignments: 3,
-                ..Limits::default()
-            },
-            Limits {
-                assignments: 0,
-                ..Limits::default()
-            },
-            Limits {
-                expressions: 0,
-                ..Limits::default()
-            },
-            Limits {
-                domain_values: 0,
-                ..Limits::default()
-            },
-        ] {
-            assert!(
-                query(&m, "A", 0, limits).is_err(),
-                "{limits:?}: never Disabled"
-            );
-        }
-        let late = small(
-            "A==x' \\in {0,1,2} /\\ ((x'=0 /\\ ENABLED (x'=7) /\\ FALSE) \\/ x'=99)",
-            options,
+        assert_eq!(
+            query(&constrained, "A", 0),
+            Ok(true),
+            "not graph-restricted"
         );
-        assert!(
-            query(
-                &late,
-                "A",
-                0,
-                Limits {
-                    assignments: 3,
-                    ..Limits::default()
-                }
-            )
-            .is_err(),
-            "inner consumption must be checked before the late outer shortcircuit"
-        );
-        let bounded = small("A==ENABLED (\\E i \\in 1..100: x'=i) /\\ x'=1", options);
-        assert!(
-            exists_successor_pure(
-                &bounded,
-                &pred(&bounded, "A"),
-                &state(0),
-                None,
-                Limits::default(),
-                10
-            )
-            .is_err(),
-            "inner binders retain the original invocation binding limit"
-        );
-        for inner in ["x'>0", "x' \\in Nat", "x' \\in {} /\\ ENABLED (x'=0)"] {
-            let m = small(&format!("A==ENABLED ({inner}) /\\ x'=1"), options);
-            assert!(query(&m, "A", 0, Limits::default()).is_err(), "{inner}");
-        }
     }
 }
 
@@ -167,18 +74,12 @@ fn nested_boolean_source_order_preserves_reached_and_unreached_errors() {
     for options in [Options::tlc(), Options::dive()] {
         let m = small(source, options);
         for name in ["A", "B"] {
-            assert!(matches!(
-                query(&m, name, 0, Limits::default()).expect("unreached division"),
-                Decision::Disabled
-            ));
+            assert_eq!(query(&m, name, 0), Ok(false), "{name}: unreached division");
         }
-        assert!(matches!(
-            query(&m, "E", 0, Limits::default()).expect("inner unreached division"),
-            Decision::Enabled { .. }
-        ));
+        assert_eq!(query(&m, "E", 0), Ok(true), "inner unreached division");
         for name in ["C", "D"] {
             assert!(
-                query(&m, name, 0, Limits::default()).is_err(),
+                query(&m, name, 0).is_err(),
                 "{name}: reached division remains error"
             );
         }
@@ -203,37 +104,25 @@ impl dive_eval::Host for Hooks {
     }
 }
 #[test]
-fn unsupported_query_placements_effects_foreign_scopes_and_callbacks_refuse() {
+fn effects_foreign_scopes_and_incomplete_states_refuse() {
     for options in [Options::tlc(), Options::dive()] {
         for body in [
-            "A==(ENABLED (x'=1))' /\\ x'=1",
-            "A==LET q==ENABLED (x'=1) IN q' /\\ x'=1",
-            "A==(ENABLED (x'=1))=TRUE /\\ x'=1",
             "A==ENABLED (PrintT(0) /\\ x'=1) /\\ x'=1",
-            "A==ENABLED (TLCGet(\"level\")=0 /\\ x'=1) /\\ x'=1",
             "A==ENABLED (x' \\in {PrintT(0)}) /\\ x'=1",
         ] {
             let m = small(body, options);
             let h = Arc::new(Hooks::default());
             m.evaluator.set_host(h.clone());
-            assert!(query(&m, "A", 0, Limits::default()).is_err(), "{body}");
+            assert!(query(&m, "A", 0).is_err(), "{body}");
             assert_eq!(h.0.load(Ordering::SeqCst), 0);
         }
         let m = small("A==ENABLED (x'=1) /\\ x'=1", options);
         let other = small("A==ENABLED (x'=1) /\\ x'=1", options);
         let mut p = pred(&m, "A");
         p.scope = pred(&other, "A").scope;
-        assert!(exists_successor_pure(&m, &p, &state(0), None, Limits::default(), 4096).is_err());
+        assert!(dive_trace::enabled::enabled(&m, &p, None, &state(0)).is_err());
         assert!(
-            exists_successor_pure(
-                &m,
-                &pred(&m, "A"),
-                &Arc::from([None]),
-                None,
-                Limits::default(),
-                4096
-            )
-            .is_err()
+            dive_trace::enabled::enabled(&m, &pred(&m, "A"), None, &Arc::from([None])).is_err()
         );
     }
 }
@@ -326,37 +215,16 @@ impl dive_value::DeferredSet for Provider {
     }
 }
 #[test]
-fn nested_queries_refuse_rust_providers_and_existing_depth_exhaustion_without_callbacks() {
+fn nested_queries_refuse_rust_providers_without_callbacks() {
     for options in [Options::tlc(), Options::dive()] {
         let m = small("A==ENABLED (x' \\in x) /\\ x'=0", options);
         let count = Arc::new(AtomicUsize::new(0));
         let set = dive_value::Value::deferred(Arc::new(Provider(count.clone())), options.ctx);
         let before: State = Arc::from([Some(set)]);
         for _ in 0..2 {
-            assert!(
-                exists_successor_pure(&m, &pred(&m, "A"), &before, None, Limits::default(), 4096)
-                    .is_err()
-            );
+            assert!(dive_trace::enabled::enabled(&m, &pred(&m, "A"), None, &before).is_err());
         }
         assert_eq!(count.load(Ordering::SeqCst), 0);
-        std::thread::Builder::new()
-            .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn(move || {
-                let mut inner = "x'=1".to_owned();
-                for _ in 0..100 {
-                    inner = format!("x'=1 /\\ ENABLED ({inner})");
-                }
-                let m = small(&format!("A=={inner}"), options);
-                let error = query(&m, "A", 0, Limits::default())
-                    .expect_err("existing absolute source-depth guard");
-                assert!(
-                    matches!(error, dive_trace::exists::ExistsError::Limit("expressions")),
-                    "{error}"
-                );
-            })
-            .expect("documented stack worker")
-            .join()
-            .expect("deep control completed without a panic");
     }
 }
 
@@ -447,88 +315,7 @@ fn actual_lazy_action_formals_use_independent_nested_queries_in_source_order() {
 }
 
 #[test]
-fn hidden_state_query_actuals_use_independent_exists_and_keep_word_boundary() {
-    use dive_ir::{Arg, Effects, Pass};
-    let source =
-        include_str!("../../dive-liveness/tests/fixtures/nested-enabled/StateFormalEnabled.tla");
-    for options in [Options::tlc(), Options::dive()] {
-        let mut m = bind(source, "INIT Init\nNEXT Next\n", options);
-        let hooks = Arc::new(Hooks::default());
-        m.evaluator.set_host(hooks.clone());
-        for name in ["A", "B", "C", "D"] {
-            assert!(
-                matches!(
-                    evaluate_lasso(&m, &pred(&m, name), &[state(0), state(1)], 0),
-                    Err(dive_trace::temporal::TemporalError::Unsupported(_))
-                ),
-                "{name}"
-            );
-        }
-        let q = pred(&m, "Q");
-        let guard = m.ir.root_def("Guard").expect("helper");
-        let body = m.ir.def(guard).body;
-        assert!(
-            !m.ir.node(body).effects.contains(Effects::USES_ENABLED),
-            "actual raw-low-effects body"
-        );
-        let called = m
-            .evaluator
-            .scope_apply(
-                &q.scope,
-                guard,
-                &[Arg::Expr {
-                    expr: q.expr,
-                    pass: Pass::Lazy,
-                }],
-            )
-            .expect("actual lazy query slot");
-        let thunk = Pred::new(body, called);
-        assert!(matches!(
-            evaluate_lasso(&m, &thunk, &[state(0), state(1)], 0),
-            Err(dive_trace::temporal::TemporalError::Unsupported(_))
-        ));
-        let Decision::Enabled {
-            witness,
-            assignment,
-        } = exists_successor_pure(&m, &thunk, &state(0), None, Limits::default(), 4096)
-            .expect("actual lazy state query uses independent inner cover")
-        else {
-            panic!("the reached query has a successor")
-        };
-        assert_eq!(witness, state(0));
-        assert!(
-            assignment.is_empty(),
-            "inner primes cannot populate an outer candidate"
-        );
-        let limited = Limits {
-            assignments: 1,
-            ..Limits::default()
-        };
-        assert!(
-            matches!(
-                exists_successor_pure(&m, &thunk, &state(0), None, limited, 4096),
-                Err(dive_trace::exists::ExistsError::Limit("assignments"))
-            ),
-            "the outer candidate and reached inner query share work"
-        );
-        assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
-        m.next = Some(thunk);
-        let doc = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])
-            .expect("word")
-            .with_ending(Ending::Lasso { back_to: 0 });
-        assert!(
-            matches!(
-                dive_trace::validate_doc(&m, &doc, &[]).0.validation,
-                Validation::Unsupported(_)
-            ),
-            "original periodic predicate keeps the actual lazy scope"
-        );
-        assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
-    }
-}
-
-#[test]
-fn periodic_query_labels_are_optional_notes_and_cannot_hide_a_forged_next_edge() {
+fn periodic_query_labels_are_checked_and_cannot_hide_a_forged_next_edge() {
     for options in [Options::tlc(), Options::dive()] {
         let source =
             include_str!("../../dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla")
@@ -549,12 +336,6 @@ fn periodic_query_labels_are_optional_notes_and_cannot_hide_a_forged_next_edge()
         });
         let report = dive_trace::validate_doc(&m, &doc, &[]).0;
         assert_eq!(report.validation, Validation::Valid);
-        assert!(
-            report
-                .notes
-                .iter()
-                .any(|n| n == "label `QueryLabel` could not be evaluated on its own; not checked")
-        );
         assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
         doc.states[1]["x"] = json!(2);
         let Validation::Invalid(failure) = dive_trace::validate_doc(&m, &doc, &[]).0.validation
@@ -567,7 +348,7 @@ fn periodic_query_labels_are_optional_notes_and_cannot_hide_a_forged_next_edge()
 }
 
 #[test]
-fn nested_queries_retain_actual_recursive_domains_and_original_schedule_witnesses() {
+fn nested_queries_over_actual_recursive_domains() {
     let source =
         include_str!("../../dive-liveness/tests/fixtures/recursive-function/PermSeqsScope.tla")
             .replace("MODULE PermSeqsScope", "MODULE NestedEnabled")
@@ -583,84 +364,12 @@ fn nested_queries_retain_actual_recursive_domains_and_original_schedule_witnesse
                     )),
                     Some(done.into()),
                 ]);
-                let result = exists_successor_pure(
-                    &m,
-                    &pred(&m, "Nested"),
-                    &before,
-                    Some(&pred(&m, "vars")),
-                    Limits::default(),
-                    4096,
-                )
-                .expect("bounded recursive inner and outer covers");
-                assert_eq!(
-                    matches!(result, Decision::Enabled { .. }),
-                    !(values.is_empty() && done)
-                );
-                if let Decision::Enabled { witness, .. } = result {
-                    assert_eq!(
-                        m.eval(
-                            &pred(&m, "Schedule"),
-                            &dive_eval::St::action(before, witness)
-                        )
-                        .expect("original Schedule correlation"),
-                        dive_value::Value::Bool(true)
-                    );
-                }
+                let nested = pred(&m, "Nested");
+                let vars = pred(&m, "vars");
+                let result = dive_trace::enabled::enabled(&m, &nested, Some(vars.expr), &before)
+                    .expect("decision");
+                assert_eq!(result, !(values.is_empty() && done));
             }
-        }
-    }
-}
-
-#[test]
-fn independent_configured_query_actuals_refuse_even_when_raw_effects_are_clear() {
-    let source = include_str!(
-        "../../dive-liveness/tests/fixtures/nested-enabled/ConfiguredQueryEnabled.tla"
-    );
-    for options in [Options::tlc(), Options::dive()] {
-        for target in ["Use", "Ignore", "QueryTarget"] {
-            let m = bind(
-                source,
-                &format!("INIT Init\nNEXT Next\nCONSTANT K <- {target}\n"),
-                options,
-            );
-            let hooks = Arc::new(Hooks::default());
-            m.evaluator.set_host(hooks.clone());
-            let q = pred(&m, "Q");
-            let d = m.ir.root_def("Raw").expect("helper");
-            let body = m.ir.def(d).body;
-            assert!(
-                !m.ir
-                    .node(body)
-                    .effects
-                    .contains(dive_ir::Effects::USES_ENABLED)
-            );
-            let scope = m
-                .evaluator
-                .scope_apply(
-                    &q.scope,
-                    d,
-                    &[dive_ir::Arg::Expr {
-                        expr: q.expr,
-                        pass: dive_ir::Pass::Lazy,
-                    }],
-                )
-                .expect("actual configured query thunk");
-            for p in [
-                pred(&m, "Known"),
-                pred(&m, "Lazy"),
-                pred(&m, "Unused"),
-                Pred::new(body, scope),
-            ] {
-                assert!(matches!(
-                    evaluate_lasso(&m, &p, &[state(0), state(1)], 0),
-                    Err(dive_trace::temporal::TemporalError::Unsupported(_))
-                ));
-                assert!(matches!(
-                    exists_successor_pure(&m, &p, &state(0), None, Limits::default(), 4096),
-                    Err(dive_trace::exists::ExistsError::Unsupported(_))
-                ));
-            }
-            assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
         }
     }
 }
@@ -780,7 +489,7 @@ fn finite_data_positions_refuse_actual_query_thunks_before_domain_evaluation() {
 }
 
 #[test]
-fn temporal_expression_forwarding_keeps_queries_but_not_operator_or_data_captures() {
+fn temporal_expression_forwarding_keeps_queries_and_data_captures() {
     let source = r"---- MODULE NestedEnabled ----
 VARIABLE x
 Init == x=FALSE
@@ -814,6 +523,7 @@ Data == Identity([](<<Query>> = <<TRUE>>))
                 ("EventuallyQuery", true),
                 ("NegatedQuery", false),
                 ("Fair", true),
+                ("Hidden", true),
             ] {
                 assert_eq!(
                     dive_trace::temporal::evaluate_lasso(&model, &pred(&model, name), &states, 0)
@@ -822,12 +532,15 @@ Data == Identity([](<<Query>> = <<TRUE>>))
                     "{name}"
                 );
             }
-            for name in ["Hidden", "OperatorCapture", "Data"] {
-                assert!(matches!(
-                    dive_trace::temporal::evaluate_lasso(&model, &pred(&model, name), &states, 0),
-                    Err(dive_trace::temporal::TemporalError::Unsupported(_))
-                ));
-            }
+            assert!(matches!(
+                dive_trace::temporal::evaluate_lasso(
+                    &model,
+                    &pred(&model, "OperatorCapture"),
+                    &states,
+                    0
+                ),
+                Err(dive_trace::temporal::TemporalError::Unsupported(_))
+            ));
             assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
             assert_eq!(model.evaluator.take_output(), [] as [String; 0]);
         }

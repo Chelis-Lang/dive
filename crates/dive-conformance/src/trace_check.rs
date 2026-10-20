@@ -12,10 +12,10 @@
 //! counterexample must validate (positive controls), and every
 //! by-construction mutant of it must be rejected (negative controls).
 //!
-//! **Deadlock.** Independent finite covers certify supported deadlocks without
-//! the checker enumerator (ADR 0016 amendment 2). For missing covers only,
-//! the harness requires every other check to pass and the final state to equal
-//! the golden's deadlocked state. Refusal never proves absence.
+//! **Deadlock.** The core evaluator's `ENABLED` of the next-state relation
+//! decides deadlock endings (ADR 0103). When it cannot decide, the harness
+//! requires every other check to pass and the final state to equal the
+//! golden's deadlocked state. Refusal never proves absence.
 
 use std::path::{Path, PathBuf};
 

@@ -1,9 +1,9 @@
-//! Finite constructor scopes cannot conceal primed reads or certify guessed disabledness.
+//! ENABLED through set and function constructors never certifies a disabled action that has a successor.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_eval::St;
 use dive_model::{BindOptions, Model, Pred};
-use dive_trace::exists::{self, Decision, ExistsError, Limits};
+use dive_trace::enabled::{EnabledError, enabled};
 use dive_value::{Ctx, Value};
 use std::sync::Arc;
 
@@ -78,37 +78,17 @@ fn finite_constructor_decisions_match_every_concrete_boolean_assignment() {
                             == true.into()
                     })
                 });
-                let result =
-                    exists::exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
-                match result {
-                    Decision::Disabled => assert!(!expected, "{name}/{mask}/{t}: lost witness"),
-                    Decision::Enabled { witness, .. } => {
-                        assert!(expected, "{name}/{mask}/{t}");
-                        assert_eq!(
-                            m.eval(&p, &St::action(before, witness)).expect("witness"),
-                            true.into(),
-                            "{name}"
-                        );
-                    }
-                }
+                let result = enabled(&m, &p, None, &before).expect(name);
+                assert_eq!(result, expected, "{name}/{mask}/{t}");
             }
         }
     }
 }
 #[test]
-fn constructors_do_not_hide_uncovered_successor_reads() {
+fn constructors_never_certify_disabled_with_a_successor() {
     let m = model();
-    let result = exists::exists_successor(
-        &m,
-        &pred(&m, "Missing"),
-        &state(&m, 0, false),
-        None,
-        Limits::default(),
-    );
-    assert!(
-        matches!(result, Err(ExistsError::Unsupported(ref s)) if s.contains("no finite cover")),
-        "{result:?}"
-    );
+    let result = enabled(&m, &pred(&m, "Missing"), None, &state(&m, 0, false));
+    assert_ne!(result, Ok(false));
 }
 #[test]
 fn primed_constructor_domains_are_not_bound_from_the_current_empty_state() {
@@ -122,34 +102,19 @@ fn primed_constructor_domains_are_not_bound_from_the_current_empty_state() {
             true.into(),
             "{name}"
         );
-        let result = exists::exists_successor(&m, &p, &before, None, Limits::default());
-        assert!(
-            matches!(result, Err(ExistsError::Unsupported(ref s)) if s.contains("primed action quantifier domain")),
-            "{name}: {result:?}"
-        );
+        let result = enabled(&m, &p, None, &before);
+        assert_ne!(result, Ok(false), "{name}");
     }
 }
 #[test]
-fn constructor_effects_and_binding_budgets_refuse_before_guessing() {
+fn constructor_effects_refuse_before_evaluation() {
     let m = model();
-    let result = exists::exists_successor(
-        &m,
-        &pred(&m, "Effect"),
-        &state(&m, 0, false),
-        None,
-        Limits::default(),
-    );
+    let result = enabled(&m, &pred(&m, "Effect"), None, &state(&m, 0, false));
     assert!(
-        matches!(result, Err(ExistsError::Unsupported(_))),
+        matches!(result, Err(EnabledError::Unsupported(_))),
         "{result:?}"
     );
     assert_eq!(m.take_output(), Vec::<String>::new());
-    let limits = Limits {
-        domain_values: 1,
-        ..Limits::default()
-    };
-    let result = exists::exists_successor(&m, &pred(&m, "Map"), &state(&m, 0, false), None, limits);
-    assert!(matches!(result, Err(ExistsError::Limit(_))), "{result:?}");
 }
 
 #[test]
@@ -247,20 +212,12 @@ fn pinned_enabled_constructor_identities_cover_every_initial_state() {
             let before = state(&m, mask, t);
             for name in ["Map", "Filter", "Function", "Nested", "Current", "Empty"] {
                 let p = pred(&m, name);
-                let result =
-                    exists::exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
+                let result = enabled(&m, &p, None, &before).expect(name);
                 assert_eq!(
-                    matches!(result, Decision::Enabled { .. }),
+                    result,
                     name != "Current" || mask & 2 != 0,
                     "{name}/{mask}/{t}"
                 );
-                if let Decision::Enabled { witness, .. } = result {
-                    assert_eq!(
-                        m.eval(&p, &St::action(before.clone(), witness))
-                            .expect("original witness"),
-                        true.into()
-                    );
-                }
             }
         }
     }

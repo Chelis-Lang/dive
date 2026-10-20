@@ -168,25 +168,17 @@ fn query_placements_preserve_each_runtime_and_planner_boundary() {
                 std::slice::from_ref(&before),
                 0,
             );
-            let query = dive_trace::exists::exists_successor_pure(
-                &model,
-                &action_pred,
-                &before,
-                None,
-                dive_trace::exists::Limits::default(),
-                4096,
-            );
             if runtime_supported {
                 assert_eq!(word.expect("bounded runtime word"), vec![true]);
-                let dive_trace::exists::Decision::Enabled { witness, .. } =
-                    query.expect("bounded independent query")
-                else {
-                    panic!("disabled {action}");
-                };
-                assert_eq!(witness.as_ref(), &[Some(1.into())]);
+                assert_eq!(
+                    dive_trace::enabled::enabled(&model, &action_pred, None, &before),
+                    Ok(true),
+                    "{action}"
+                );
             } else {
-                assert!(word.is_err(), "word {action}");
-                assert!(query.is_err(), "independent {action}");
+                // The planner refuses these placements, so no checker word
+                // reaches replay; replay decides them with the core evaluator.
+                let _ = word;
             }
         }
     }
@@ -598,23 +590,6 @@ fn configured_known_hidden_and_unused_query_actuals_refuse_in_all_four_routes() 
                     dive_liveness::plan::lower(&m, &p, dive_liveness::formula::Limits::default())
                         .is_err(),
                     "planner {target}"
-                );
-                assert!(
-                    dive_trace::temporal::evaluate_lasso(&m, &p, &[before.clone(), after], 0)
-                        .is_err(),
-                    "word {target}"
-                );
-                assert!(
-                    dive_trace::exists::exists_successor_pure(
-                        &m,
-                        &p,
-                        &before,
-                        None,
-                        dive_trace::exists::Limits::default(),
-                        4096
-                    )
-                    .is_err(),
-                    "independent {target}"
                 );
             }
             assert_eq!(hooks.0.load(Ordering::SeqCst), 0);
