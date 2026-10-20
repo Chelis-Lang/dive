@@ -98,17 +98,14 @@ evaluated eagerly, the validator refuses a binding from another model's
 context or one whose effects annotation is not pure. It trusts the IR's
 effects annotations; it does not re-prove them.
 
-Ordinary counterexample predicates evaluate reached `ENABLED` occurrences with
-the independent bounded finite-cover search. The normal interpreter preserves
-argument laziness, data expressions, short circuit, host operations and error
-order around the query. The search follows the actual INSTANCE substitution
-scope and retains hidden successor variables by their canonical names, rather
-than replacing them with root aliases. Sibling and nested queries share work
-bounds. Missing finite covers remain unsupported. Temporal words and general
-operator substitutions retain their separately documented support boundaries;
-an independently replayed initial invariant violation does not establish
-general fairness support. See [ADR 0100](../decisions/0100-reached-independent-query-dispatch.md).
-
+Whether a state has a successor is decided by the core evaluator's `ENABLED`,
+the same search TLC's `Tool.enabled` performs and the checker uses
+([ADR 0103](../decisions/0103-validator-enabled-via-core-evaluator.md)). This
+covers `ENABLED` inside any predicate the validator evaluates, deadlock endings
+(`ENABLED Next` on the last state) and weak or strong fairness on a lasso. The
+validator still replays and checks every state and step of the counterexample
+itself; an `ENABLED` whose action has side effects, or that the evaluator cannot
+decide, makes the result `unsupported`, never a decision.
 
 ### Initial-predicate level
 
@@ -117,13 +114,14 @@ Init runs at startup level 0; generated-state invariants and implied initial pro
 Action composition (`A \cdot B`) currently has no independent intermediate-state
 validator. A reached composition therefore yields `unsupported`, including
 when the workspace enables the checker enumerator. Untaken composition branches
-do not run. The public finite-cover and lasso APIs conservatively refuse
-composition in their predicate contexts. Checker composition support does not
-establish trace-validation agreement.
+do not run. The lasso API conservatively refuses composition in its predicate
+contexts, and `dive_trace::enabled::enabled` (with `ENABLED`, `WF` and `SF` in
+the lasso API) refuses a search that reaches a composition with the same named
+feature. Checker composition support does not establish trace-validation
+agreement.
 
-Replay evaluates lazy arguments and functions under its own restrictions, without
-using or replacing results cached by the caller. Ordinary checking and evaluation
-retain their existing caching.
+Replay evaluates lazy arguments and functions with the evaluator's ordinary
+caching, as TLC's `LazyValue` does.
 
 
 ### Private startup registers
@@ -228,10 +226,8 @@ helper takes Const or empty Init with the exact slot count and no successor;
 it grants no authority to ordinary random evaluation. Function-valued non-set
 domains retain EC2176 with a static diagnostic, avoiding nested-value formatting.
 
-A reached `ENABLED` query can use bounded `SelectSeq` callbacks that read primed
-data through an `INSTANCE`. Replay inspects their original lexical source,
-requires finite covers for the primed dependencies, and evaluates each callback
-against the actual query candidate. This also preserves hidden-variable cutoff
-when inner and outer variables have the same name. Missing covers, effectful
-callbacks and unsupported captured values remain explicitly refused. This
+A reached `ENABLED` query can use `SelectSeq` callbacks that read primed data
+through an `INSTANCE`; replay evaluates them with the core evaluator, which keeps
+the hidden-variable cutoff when inner and outer variables have the same name.
+Effectful callbacks remain refused. This
 query support does not admit action-valued callbacks as ordinary state helpers.

@@ -7,8 +7,8 @@ protect-main`:
 - **No AI authorship markers**: `scripts/check-ai-markers.sh` over the pushed
   or PR commits.
 - **Workspace gate**: one job and one compile. It runs rustfmt, clippy, the
-  nextest `ci` profile, doctests, rustdoc with `-D warnings`, the layering
-  check and a standalone `dive-trace` build. `cargo deny` runs only when the
+  nextest `ci` profile, doctests, rustdoc with `-D warnings` and the layering
+  check. `cargo deny` runs only when the
   PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
   check always reports), and on every push to `main`.
 - **Conformance gate**: release builds of the harness and `dive`, then

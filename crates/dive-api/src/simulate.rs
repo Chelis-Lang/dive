@@ -257,7 +257,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         let document = TraceDoc::behavior(states)
             .map_err(|message| crate::ApiError::Rejected { message })?
             .with_ending(ending);
-        // Validation uses predicates and finite covers, not the simulation enumerator.
+        // Validation replays the given states; it never reruns the simulation.
         let validation = model.validate(&document);
         let mut compressed = Vec::<usize>::new();
         for (index, state) in trace.states.iter().enumerate() {

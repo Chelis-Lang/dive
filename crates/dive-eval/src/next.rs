@@ -1267,8 +1267,8 @@ impl Gen<'_, '_> {
         let f = core.eval(&mut env.clone(), &st, fcn)?;
         let fv = match f {
             Ev::F(lf) => {
-                if let Some(v) = lf.materialized.get() {
-                    v.clone()
+                if let Some(v) = lf.materialized.get(core.host.cache_domain()) {
+                    v
                 } else {
                     // `getFcnContext`: the lambda's body, its parameters bound.
                     let a = self.eval_v(env, arg)?;
@@ -1310,7 +1310,7 @@ impl Gen<'_, '_> {
         match core.op_target(env, &st, e)? {
             OpTarget::Body(env1, body) => self.step(body, acts, &env1),
             OpTarget::Thunk(t) => {
-                if let Some(v) = t.cached(&self.st_cache()) {
+                if let Some(v) = t.cached(&self.st_cache(), core.host.cache_domain()) {
                     return self.user_bool(&v, acts, e);
                 }
                 self.step(t.expr, acts, &t.env)
@@ -2452,8 +2452,8 @@ impl Enab {
                 let f = core.eval(&mut env.clone(), &st, *fcn)?;
                 let fv = match f {
                     Ev::F(lf) => {
-                        if let Some(v) = lf.materialized.get() {
-                            v.clone()
+                        if let Some(v) = lf.materialized.get(core.host.cache_domain()) {
+                            v
                         } else {
                             let a = core.force_fcn(self.eval(env, &s1, *arg)?)?;
                             let env1 = core.fcn_context(&lf, &a, e)?;

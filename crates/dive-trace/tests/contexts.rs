@@ -62,14 +62,8 @@ fn foreign_scopes_and_replaced_model_arenas_never_certify() {
                 )
             };
             assert!(matches!(
-                dive_trace::exists::exists_successor(
-                    &m,
-                    &exists,
-                    &current,
-                    None,
-                    dive_trace::exists::Limits::default()
-                ),
-                Err(dive_trace::exists::ExistsError::Unsupported(_))
+                dive_trace::enabled::enabled(&m, &exists, None, &current),
+                Err(dive_trace::enabled::EnabledError::Unsupported(_))
             ));
             assert!(matches!(
                 dive_trace::validate(&m, &trace).validation,
@@ -104,17 +98,7 @@ fn admitted_clones_and_complete_words_remain_valid() {
             vec![true]
         );
         let next = pred(&m, "Next");
-        assert!(matches!(
-            dive_trace::exists::exists_successor(
-                &m,
-                &next,
-                &states[0],
-                None,
-                dive_trace::exists::Limits::default()
-            )
-            .expect("existence"),
-            dive_trace::exists::Decision::Enabled { .. }
-        ));
+        assert!(dive_trace::enabled::enabled(&m, &next, None, &states[0]).expect("existence"));
         let trace = Trace {
             states,
             labels: vec![None],

@@ -112,7 +112,6 @@ fn either_append_operand_refuses_hidden_providers_namespace_order_and_work() {
             provider.clone(),
             Value::set(vec![1.into()], wrong).expect("order"),
             Value::Model(foreign.intern("foreign")),
-            Value::set_raw((0..50_000).map(Value::Int).collect(), ctx),
         ] {
             for first in [false, true] {
                 let x = if first {

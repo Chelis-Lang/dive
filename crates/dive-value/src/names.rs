@@ -3,7 +3,7 @@
 use std::fmt;
 
 use crate::value::{FcnRepr, SetRepr};
-use crate::{Atom, Interner, Value};
+use crate::{Atom, Interner, Value, ValueOrder};
 
 /// Why a typed value's name tokens cannot be trusted in a given name table.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -12,6 +12,9 @@ pub enum NameError {
     ForeignAtom,
     /// An opaque deferred set would require caller code to inspect its names.
     OpaqueDeferred,
+    /// A set, record or function is sorted in another value order than the
+    /// one it is checked against.
+    ForeignOrder,
 }
 
 impl fmt::Display for NameError {
@@ -24,6 +27,8 @@ impl fmt::Display for NameError {
                 Self::ForeignAtom => "typed value contains a name token from another name table",
                 Self::OpaqueDeferred =>
                     "typed value contains an opaque deferred set whose names cannot be checked without evaluating it",
+                Self::ForeignOrder =>
+                    "typed value contains a set, record or function sorted in another value order",
             }
         )
     }
@@ -36,6 +41,7 @@ impl NameError {
         match self {
             Self::ForeignAtom => "DIVE-V0041",
             Self::OpaqueDeferred => "DIVE-V0042",
+            Self::ForeignOrder => "DIVE-V0043",
         }
     }
 }
@@ -75,12 +81,41 @@ impl Value {
     /// with cached elements is refused because its source may contain names
     /// the cache does not expose.
     pub fn validate_names(&self, names: &Interner) -> Result<(), NameError> {
+        self.walk_names(names, None)
+    }
+
+    /// [`Self::validate_names`], and also checks that every stored set,
+    /// record and non-tuple function is sorted in `order`: a value built under
+    /// another run's order would be read in the wrong order by operations
+    /// that rely on normalization (`CHOOSE`, enumeration, merging).
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Interner, NameError, Value};
+    /// let names = Interner::new();
+    /// let set = Value::set(vec![Value::string(&names, "a")], Ctx::dive()).expect("set");
+    /// assert_eq!(set.validate_names_in(&names, Ctx::dive().order), Ok(()));
+    /// assert_eq!(
+    ///     set.validate_names_in(&names, Ctx::tlc().order),
+    ///     Err(NameError::ForeignOrder)
+    /// );
+    /// ```
+    ///
+    /// # Errors
+    /// As [`Self::validate_names`], or a value sorted in another order.
+    pub fn validate_names_in(&self, names: &Interner, order: ValueOrder) -> Result<(), NameError> {
+        self.walk_names(names, Some(order))
+    }
+
+    fn walk_names(&self, names: &Interner, order: Option<ValueOrder>) -> Result<(), NameError> {
         let mut work = vec![self];
         while let Some(value) = work.pop() {
             match value {
                 Self::Str(atom) | Self::Model(atom) => check_atom(atom, names)?,
                 Self::Fcn(fcn) => match &fcn.0.repr {
                     FcnRepr::Tuple(values) => work.extend(values.iter()),
+                    _ if order.is_some_and(|o| fcn.order() != o) => {
+                        return Err(NameError::ForeignOrder);
+                    }
                     FcnRepr::Record(fields) => {
                         for (atom, value) in fields {
                             check_atom(atom, names)?;
@@ -95,6 +130,13 @@ impl Value {
                     }
                 },
                 Self::Set(set) => {
+                    // An opaque deferred set is refused as such whatever its order.
+                    if matches!(set.repr(), SetRepr::Deferred(_)) {
+                        return Err(NameError::OpaqueDeferred);
+                    }
+                    if order.is_some_and(|o| set.order() != o) {
+                        return Err(NameError::ForeignOrder);
+                    }
                     match set.repr() {
                         SetRepr::Deferred(_) => return Err(NameError::OpaqueDeferred),
                         SetRepr::Raw(values) | SetRepr::Product(values) => {

@@ -1,6 +1,6 @@
 # 0100: Reached independent query dispatch
 
-- **Status:** accepted
+- **Status:** superseded by 0103
 - **Date:** 2026-10-16
 
 ## Context

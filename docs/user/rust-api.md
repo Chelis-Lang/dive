@@ -88,7 +88,8 @@ source/configuration in a `cargo test` failure artifact.
 Low-level crates expose syntax, IR, values, evaluation, stores and staged temporal
 graph studies. Public IR/model metadata is validated before execution; manually
 constructing a graph or marking a validation boolean does not supply a certified
-model result. The independent trace crate builds without the successor enumerator.
+model result. The trace crate decides `ENABLED` with the core evaluator and
+shares nothing else with the checker.
 For exact type signatures and compiled examples run `cargo doc -p dive-api --no-deps`
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md) and [temporal guide](temporal.md).

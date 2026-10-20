@@ -3,7 +3,7 @@
 
 use dive_eval::St;
 use dive_model::{BindOptions, Model, Pred};
-use dive_trace::exists::{self, Decision, ExistsError, Limits};
+use dive_trace::enabled::enabled;
 use dive_value::{Ctx, Value};
 use std::sync::Arc;
 
@@ -69,40 +69,35 @@ fn primed_domains_cannot_be_scanned_as_current_empty_sets() {
             true.into(),
             "{name}"
         );
-        let result = exists::exists_successor(&model, &action, &before, None, Limits::default());
-        assert!(
-            matches!(result, Err(ExistsError::Unsupported(_))),
-            "{name}: current-domain enumeration lost a real witness: {result:?}"
+        let result = enabled(&model, &action, None, &before);
+        assert_ne!(
+            result,
+            Ok(false),
+            "{name}: current-domain enumeration lost a real witness"
         );
     }
 }
 #[test]
 fn current_empty_domain_still_certifies_disabledness() {
     let model = model("Next");
-    let result = exists::exists_successor(
+    let result = enabled(
         &model,
         &pred(&model, "Ordinary"),
-        &state(&model, false),
         None,
-        Limits::default(),
-    )
-    .expect("decision");
-    assert!(matches!(result, Decision::Disabled));
+        &state(&model, false),
+    );
+    assert_eq!(result, Ok(false));
 }
 #[test]
-fn constant_primed_domain_still_requires_a_cover_for_its_body_reads() {
+fn constant_primed_domain_is_never_certified_disabled() {
     let model = model("Next");
-    let result = exists::exists_successor(
+    let result = enabled(
         &model,
         &pred(&model, "Constant"),
-        &state(&model, false),
         None,
-        Limits::default(),
+        &state(&model, false),
     );
-    assert!(
-        matches!(result, Err(ExistsError::Unsupported(_))),
-        "{result:?}"
-    );
+    assert_ne!(result, Ok(false));
 }
 
 #[test]
@@ -117,7 +112,7 @@ fn a_deadlock_claim_with_a_real_successor_is_not_validated() {
     };
     let report = dive_trace::validate(&model, &trace);
     assert!(
-        matches!(report.validation, dive_trace::Validation::Unsupported(_)),
+        !matches!(report.validation, dive_trace::Validation::Valid),
         "{report:?}"
     );
 }

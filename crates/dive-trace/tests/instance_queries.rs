@@ -8,10 +8,7 @@
 use std::{path::Path, sync::Arc};
 
 use dive_model::{BindOptions, Pred};
-use dive_trace::{
-    State,
-    exists::{Decision, Limits, exists_successor_pure},
-};
+use dive_trace::{State, enabled::enabled};
 use dive_value::Value;
 use serde_json::json;
 
@@ -95,14 +92,8 @@ fn independent_queries_preserve_exported_outside_nested_and_fresh_contexts() {
                 model.evaluator.scope(def).expect("scope"),
             );
             for repetition in 0..2 {
-                let decision =
-                    exists_successor_pure(&model, &pred, &state, None, Limits::default(), 4096);
-                let matches = match &decision {
-                    Ok(Decision::Enabled { .. }) => expected,
-                    Ok(Decision::Disabled) => !expected,
-                    Err(_) => false,
-                };
-                if !matches {
+                let decision = enabled(&model, &pred, None, &state);
+                if decision != Ok(expected) {
                     failures.push(format!("{case}/{profile}/{repetition}: {decision:?}"));
                 }
             }

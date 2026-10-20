@@ -1641,7 +1641,7 @@ mod selectseq_tests {
         ] {
             let thunk = Thunk::new(ev.ir().def(good).body, source.env.clone(), true);
             if let Some(value) = &cached {
-                thunk.store(&St::constant(), &Ev::V(value.clone()));
+                thunk.store(&St::constant(), &Ev::V(value.clone()), 0);
             }
             let mut scope = ev.scope(outer).expect("outer scope");
             scope.env.bind(0, Sv::Thunk(thunk.clone()));
@@ -1651,7 +1651,7 @@ mod selectseq_tests {
                 result.expect("safe source independently recomputed"),
                 Value::tuple(vec![0.into(), 0.into()])
             );
-            let after = thunk.cached(&St::constant());
+            let after = thunk.cached(&St::constant(), 0);
             match (cached.as_ref(), after) {
                 (None, None) => {}
                 (Some(Value::Set(before)), Some(Ev::V(Value::Set(after)))) => {
@@ -1789,7 +1789,7 @@ mod selectseq_tests {
         let Sv::Thunk(thunk) = &captured.env.frame.slots[0] else {
             panic!("thunk expected");
         };
-        let Some(Ev::V(Value::Fcn(before))) = thunk.cached(&St::constant()) else {
+        let Some(Ev::V(Value::Fcn(before))) = thunk.cached(&St::constant(), 0) else {
             panic!("warmed tuple expected");
         };
         for (scope, expr) in [
@@ -1811,7 +1811,7 @@ mod selectseq_tests {
                 );
             }
         }
-        let Some(Ev::V(Value::Fcn(after))) = thunk.cached(&St::constant()) else {
+        let Some(Ev::V(Value::Fcn(after))) = thunk.cached(&St::constant(), 0) else {
             panic!("caller cache retained");
         };
         assert!(before.ptr_eq(&after));
@@ -2151,7 +2151,7 @@ mod selectseq_tests {
                     if warm {
                         // Synthetic existing representation; the bounded mode
                         // must ignore it and reach the actual unsupported source.
-                        thunk.store(&St::constant(), &Ev::V(Value::tuple(vec![0.into()])));
+                        thunk.store(&St::constant(), &Ev::V(Value::tuple(vec![0.into()])), 0);
                     }
                     let result =
                         ev.eval_scoped_pure(&scope, ev.ir().def(wrap).body, &St::constant(), 4096);

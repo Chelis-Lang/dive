@@ -170,8 +170,8 @@ fn owned_ev(
             for bound in &function.bounds {
                 owned(core, &bound.domain, remaining)?;
             }
-            if let Some(value) = function.materialized.get() {
-                owned(core, value, remaining)?;
+            if let Some(value) = function.materialized.get(0) {
+                owned(core, &value, remaining)?;
             }
             for except in &function.excepts {
                 for value in except.path.iter() {
@@ -475,7 +475,7 @@ mod tests {
     fn own_invocation_ignores_ordinary_cache_and_observes_root_changes() {
         let ev = evaluator();
         let (scope, thunk, st) = setup(&ev, 4096);
-        thunk.store(&st, &Ev::V(99.into()));
+        thunk.store(&st, &Ev::V(99.into()), 0);
         assert_eq!(
             force(&ev, &scope, &thunk, &st).expect("original source"),
             Value::Int(1)
@@ -487,7 +487,7 @@ mod tests {
         );
         assert!(ev.take_output().is_empty(), "no additional source effects");
         assert!(
-            matches!(thunk.cached(&st), Some(Ev::V(Value::Int(99)))),
+            matches!(thunk.cached(&st, 0), Some(Ev::V(Value::Int(99)))),
             "ordinary cache unchanged"
         );
         let changed = st.enabled_candidate(

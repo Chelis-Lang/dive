@@ -8,7 +8,7 @@
 //! as TLC's `FcnLambdaValue` (`tlc2/value/impl/FcnLambdaValue.java`).
 
 use std::fmt;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock, PoisonError};
 
 use dive_ir::ExprId;
 use dive_value::{Ctx, DeferredKind, DeferredSet, Result as VResult, Value, ValueError, tlc};
@@ -67,7 +67,42 @@ pub struct LazyFcn {
     pub(crate) rec_slot: Option<usize>,
     pub(crate) excepts: Vec<Except>,
     /// `fcnRcd`: the computed function, once materialized.
-    pub(crate) materialized: OnceLock<Value>,
+    pub(crate) materialized: Materialized,
+}
+
+/// `fcnRcd`, kept per cache domain ([`crate::Host::expression_cache_domain`]):
+/// ordinary evaluation (domain 0) shares one value set at most once, as TLC
+/// does; evaluation under another domain (independent replay) keeps its own,
+/// so neither supplies the other's answer.
+#[derive(Debug, Default)]
+pub(crate) struct Materialized {
+    ordinary: OnceLock<Value>,
+    foreign: Mutex<Option<(u64, Value)>>,
+}
+
+impl Materialized {
+    /// The function materialized in cache `domain`, if any.
+    pub(crate) fn get(&self, domain: u64) -> Option<Value> {
+        if domain == 0 {
+            return self.ordinary.get().cloned();
+        }
+        let foreign = self.foreign.lock().unwrap_or_else(PoisonError::into_inner);
+        foreign
+            .as_ref()
+            .and_then(|(d, v)| (*d == domain).then(|| v.clone()))
+    }
+
+    /// Records the function materialized in cache `domain`.
+    pub(crate) fn set(&self, domain: u64, v: Value) {
+        if domain == 0 {
+            let _ = self.ordinary.set(v);
+        } else {
+            let mut foreign = self.foreign.lock().unwrap_or_else(PoisonError::into_inner);
+            if foreign.as_ref().is_none_or(|(d, _)| *d != domain) {
+                *foreign = Some((domain, v));
+            }
+        }
+    }
 }
 
 impl fmt::Debug for LazyFcn {
@@ -102,7 +137,7 @@ impl LazyFcn {
             st: self.st.clone(),
             rec_slot: self.rec_slot,
             excepts,
-            materialized: OnceLock::new(),
+            materialized: Materialized::default(),
         })
     }
 

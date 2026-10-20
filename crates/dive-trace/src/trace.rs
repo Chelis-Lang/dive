@@ -19,7 +19,7 @@ pub type State = Arc<[Option<Value>]>;
 pub(crate) fn validate_state_names(model: &Model, state: &State) -> Result<(), String> {
     for value in state.iter().flatten() {
         value
-            .validate_names(&model.names)
+            .validate_names_in(&model.names, model.evaluator.options().ctx.order)
             .map_err(|error| error.to_string())?;
     }
     Ok(())
