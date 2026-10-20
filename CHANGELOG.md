@@ -1,5 +1,9 @@
 # Changelog
 
+- Self-hosted CI runners never let `rust-cache` cache or prune
+  `CARGO_HOME/bin`, and each runner uses its own `CARGO_HOME`
+  (`docs/developer/ci.md`).
+
 - Values free their contents without allocating a work list in the common
   case: children that are scalars or shared are released in place, and nested
   values are freed by bounded recursion before falling back to the work list,

@@ -57,6 +57,9 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
+          # step deletes binaries that predate the job (docs/developer/ci.md).
+          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Cache pinned oracle and source
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -102,6 +105,9 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
+          # step deletes binaries that predate the job (docs/developer/ci.md).
+          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Cache oracles, JRE and corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -161,6 +167,9 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
+          # step deletes binaries that predate the job (docs/developer/ci.md).
+          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Cache oracles, JRE and corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
