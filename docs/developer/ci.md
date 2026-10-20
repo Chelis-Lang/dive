@@ -17,6 +17,26 @@ protect-main`:
 The push run on `main` checks the merged result (branch protection is not
 strict) and saves the rust-cache entries that PR runs restore.
 
+## Self-hosted runners
+
+Every job's `runs-on` reads the repository variable `DIVE_CI_RUNNER`. Unset,
+jobs run on `ubuntu-latest`. Set to `dive-local`, they run on self-hosted
+runners with that label, so required checks keep reporting when hosted
+minutes are unavailable:
+
+```sh
+gh variable set DIVE_CI_RUNNER --body dive-local   # self-hosted
+gh variable delete DIVE_CI_RUNNER                  # back to hosted
+```
+
+A `dive-local` runner is a stock `actions/runner` registered to this
+repository with the label `dive-local`, running as an ordinary user with the
+pinned toolchain, `cargo-nextest` and `cargo-deny` on `PATH`. Register one
+runner per concurrent job (three cover one PR). The runners execute PR code
+with that user's privileges, which is acceptable only because the repository
+is private. Steps that need a hosted image, such as freeing preinstalled SDKs,
+are skipped with `runner.environment == 'github-hosted'`.
+
 ## The `ci` nextest profile
 
 `.config/nextest.toml` gives the `ci` profile a `default-filter` that leaves out
