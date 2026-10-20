@@ -1,8 +1,9 @@
 # Changelog
 
-- Add 32 generated TLC references for full-tier models that had none: 27
-  from a 600-second pass and five larger models from a four-hour pass. Twelve
-  full-tier models still have no reference (`docs/conformance-corpora.md`).
+- Add 34 generated TLC references for full-tier models that had none: 27
+  from a 600-second pass and seven larger models from four- and eight-hour
+  passes. Ten full-tier models still have no reference
+  (`docs/conformance-corpora.md`).
 - Values free their contents without allocating a work list in the common
   case: children that are scalars or shared are released in place, and nested
   values are freed by bounded recursion before falling back to the work list,
