@@ -843,6 +843,21 @@ impl Fcn {
         (0..self.len()).filter_map(move |i| self.entry(i))
     }
 
+    /// Iterates over the values in normalized domain order, without building
+    /// the domain elements.
+    pub fn values(&self) -> impl Iterator<Item = &Value> + '_ {
+        let (tuple, record, general) = match &self.0.repr {
+            FcnRepr::Tuple(e) => (Some(e.iter()), None, None),
+            FcnRepr::Record(f) => (None, Some(f.iter().map(|(_, v)| v)), None),
+            FcnRepr::General(p) => (None, None, Some(p.iter().map(|(_, v)| v))),
+        };
+        tuple
+            .into_iter()
+            .flatten()
+            .chain(record.into_iter().flatten())
+            .chain(general.into_iter().flatten())
+    }
+
     /// Applies the function to `arg`, returning `None` when `arg` is not in the domain.
     #[must_use]
     pub fn apply(&self, arg: &Value) -> Option<&Value> {

@@ -1077,3 +1077,148 @@ fn tlc_fcn_normalize(pairs: &mut [(Value, Value)], ctx: Ctx) -> Result<()> {
     }
     Ok(())
 }
+
+// ---------------------------------------------------------------------------------
+// Function domains
+// ---------------------------------------------------------------------------------
+
+impl Fcn {
+    /// Whether the function's domain, as a set, equals `dom` (`DOMAIN f = dom`
+    /// under `==`), decided without building the domain set: by the bounds of
+    /// an interval, by lookup in an enumerated set, or factor by factor for a
+    /// product of those. `None` when no such shortcut applies, or when
+    /// building the domain set could fail (domain elements TLC cannot
+    /// compare); the caller then builds the set.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, Int, Value};
+    /// let ctx = Ctx::default();
+    /// let (Value::Fcn(f), Value::Set(d)) = (
+    ///     Value::tuple(vec![Value::TRUE, Value::FALSE]),
+    ///     Value::interval(Int::Small(1), Int::Small(2), ctx),
+    /// ) else {
+    ///     unreachable!()
+    /// };
+    /// assert_eq!(f.domain_equals(&d), Some(true));
+    /// ```
+    #[must_use]
+    pub fn domain_equals(&self, dom: &Set) -> Option<bool> {
+        if !self.domain_comparable() {
+            return None;
+        }
+        let n = self.len() as u128;
+        match dom.repr() {
+            SetRepr::Interval(..) | SetRepr::Enum => {
+                if quiet_size(dom)? != n {
+                    return Some(false);
+                }
+                let mut verdict = Some(true);
+                self.for_each_key(&mut |k| {
+                    if verdict == Some(true) {
+                        verdict = contains_settled(dom, k);
+                    }
+                });
+                verdict
+            }
+            SetRepr::Product(factors) => {
+                // A product too large to enumerate compares by structure.
+                if class(dom) == Class::Structural {
+                    return None;
+                }
+                let mut size: u128 = 1;
+                for f in factors {
+                    let Value::Set(f) = f else { return None };
+                    if !matches!(f.repr(), SetRepr::Interval(..) | SetRepr::Enum) {
+                        return None;
+                    }
+                    size = size.checked_mul(quiet_size(f)?)?;
+                }
+                if size != n {
+                    return Some(false);
+                }
+                let mut verdict = Some(true);
+                self.for_each_key(&mut |k| {
+                    if verdict == Some(true) {
+                        verdict = in_product(factors, k);
+                    }
+                });
+                verdict
+            }
+            _ => None,
+        }
+    }
+
+    /// Whether building the set of the domain elements cannot fail: as in
+    /// `normalize_set`, every pair is comparable in TLC.
+    fn domain_comparable(&self) -> bool {
+        match &self.0.repr {
+            // The integers `1..n`, or strings.
+            FcnRepr::Tuple(_) | FcnRepr::Record(_) => true,
+            FcnRepr::General(p) => {
+                p.len() <= 1
+                    || p.iter()
+                        .all(|(d, _)| matches!(d, Value::Int(_) | Value::BigInt(_)))
+                    || join_all(p.iter().map(|(d, _)| d)) != Shape::Conflict
+            }
+        }
+    }
+
+    /// Visits the domain elements, without cloning stored ones.
+    fn for_each_key(&self, visit: &mut dyn FnMut(&Value)) {
+        match &self.0.repr {
+            FcnRepr::Tuple(e) => {
+                for i in 1..=e.len() {
+                    visit(&Value::Int(i64::try_from(i).unwrap_or(i64::MAX)));
+                }
+            }
+            FcnRepr::Record(f) => {
+                for (a, _) in f {
+                    visit(&Value::Str(a.clone()));
+                }
+            }
+            FcnRepr::General(p) => {
+                for (d, _) in p {
+                    visit(d);
+                }
+            }
+        }
+    }
+}
+
+/// Whether `k` is a tuple whose components are members of `factors` in turn,
+/// or `None` when a factor cannot decide without enumeration.
+fn in_product(factors: &[Value], k: &Value) -> Option<bool> {
+    let Some(t) = k.as_fcn().and_then(Fcn::as_tuple) else {
+        return Some(false);
+    };
+    if t.len() != factors.len() {
+        return Some(false);
+    }
+    for (x, f) in t.iter().zip(factors) {
+        if !contains_settled(f.as_set()?, x)? {
+            return Some(false);
+        }
+    }
+    Some(true)
+}
+
+/// `x \in s` under `==` for an interval or an enumerated set whose elements
+/// are stored, or `None` for other sets and big integers.
+fn contains_settled(s: &Set, x: &Value) -> Option<bool> {
+    match s.repr() {
+        SetRepr::Interval(lo, hi) => {
+            let (lo, hi) = (lo.to_i64()?, hi.to_i64()?);
+            match x {
+                Value::Int(v) => Some(lo <= *v && *v <= hi),
+                Value::BigInt(_) => None,
+                _ => Some(false),
+            }
+        }
+        SetRepr::Enum => {
+            let elems = s.stored_elements()?;
+            let order = s.order();
+            Some(elems.binary_search_by(|e| total_cmp(e, x, order)).is_ok())
+        }
+        _ => None,
+    }
+}
