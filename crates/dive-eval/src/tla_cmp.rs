@@ -127,19 +127,15 @@ fn structural_member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
     let (Value::Fcn(f), Value::Set(s)) = (elem, set) else {
         return Ok(false);
     };
-    let comps = s.components();
     match s.kind() {
         SetKind::RcdSet => {
-            let Some(fields) = f.as_record() else {
+            let (Some(fields), Some(comps)) = (f.as_record(), s.as_rcd_set()) else {
                 return Ok(false);
             };
             if fields.len() != comps.len() {
                 return Ok(false);
             }
-            for (name, sub) in &comps {
-                let Some(name) = name else {
-                    return Ok(false);
-                };
+            for (name, sub) in comps {
                 let Some((_, v)) = fields.iter().find(|(a, _)| a == name) else {
                     return Ok(false);
                 };
@@ -150,13 +146,13 @@ fn structural_member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
             Ok(true)
         }
         SetKind::Product => {
-            let Some(t) = f.as_tuple() else {
+            let (Some(t), Some(comps)) = (f.as_tuple(), s.as_product()) else {
                 return Ok(false);
             };
             if t.len() != comps.len() {
                 return Ok(false);
             }
-            for (x, (_, sub)) in t.iter().zip(&comps) {
+            for (x, sub) in t.iter().zip(comps) {
                 if !member(core, x, sub)? {
                     return Ok(false);
                 }
@@ -167,6 +163,7 @@ fn structural_member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
             let Some(t) = f.as_tuple() else {
                 return Ok(false);
             };
+            let comps = s.components();
             let Some((_, range)) = comps.first() else {
                 return Ok(false);
             };
@@ -178,14 +175,21 @@ fn structural_member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
             Ok(true)
         }
         SetKind::FcnSet => {
-            let (Some((_, dom)), Some((_, range))) = (comps.first(), comps.get(1)) else {
+            let Some((dom, range)) = s.as_fcn_set() else {
                 return Ok(false);
             };
-            let fdom = Value::set(f.iter().map(|(d, _)| d).collect(), core.ctx)?;
-            if !equals(core, &fdom, dom)? {
+            // `DOMAIN f = dom` without building the domain set where the
+            // answer is certain; otherwise as TLA+ defines it, through the set.
+            let same = if let Some(same) = dom.as_set().and_then(|d| f.domain_equals(d)) {
+                same
+            } else {
+                let fdom = Value::set(f.iter().map(|(d, _)| d).collect(), core.ctx)?;
+                equals(core, &fdom, dom)?
+            };
+            if !same {
                 return Ok(false);
             }
-            for (_, v) in f.iter() {
+            for v in f.values() {
                 if !member(core, v, range)? {
                     return Ok(false);
                 }
