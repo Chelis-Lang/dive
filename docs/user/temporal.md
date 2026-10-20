@@ -1,7 +1,9 @@
 # Temporal checking
 
-The checker exposes bounded final/short analysis. Eligible ordinary requests
-select it automatically in both profiles; explicit selection is also available:
+The checker exposes bounded temporal analysis. Eligible ordinary dive-profile
+requests check at deterministic completed-level boundaries; ordinary TLC-profile
+requests check only after exhaustion. Explicit final/short selection is available
+in both profiles:
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --lncheck final --lasso short --seed 7 --output json
@@ -14,11 +16,60 @@ condition in this model requiring the increment action to occur.
 This mode explores the supported graph, checks once at the end, chooses a
 deterministic short periodic witness and independently replays it in memory and
 as a lossless document. It checks the complete configured property claims,
-including the closing edge. This does not implement periodic
-scheduling or all evaluation-error timing. Explicit requests retain their
+including the closing edge. This explicit mode does not use periodic
+scheduling or claim all evaluation-error timing. Explicit requests retain their
 existing `tlc+overrides` label when combined with TLC value semantics.
 
-## Ordinary checking
+## Ordinary checking in the dive profile
+
+With profile-default evaluation, resident fingerprint storage and no storage,
+deadlock, sequential or chaos overrides, ordinary `dive check` uses
+`options.lncheck: deterministic`. Binding and safety-role dispatch retain the
+original startup host and error priority. After each fully committed BFS
+expansion level with an unexhausted frontier, the graph is checked when it has
+at least 65,536 (2^16) distinct states and at least twice as many as at the
+previous check (ADR 0018 §7). The doubling bounds the cost of all prefix checks
+together by about one final check, and the schedule depends only on the graph,
+so results are the same at every worker count. Workers finish and join their
+level work before checking. Unexpanded frontier rows remain empty. Exhausted
+levels skip the prefix check; the complete graph receives one final check. A
+model with fewer than 65,536 states is therefore checked exactly once, at the
+end, with the same verdict and counts as `--lncheck final`.
+
+A prefix can produce only an independently validated violation or a named
+failure. It never proves that a property holds. A deciding prefix stops at that
+actual boundary, skips postconditions and reports its actual generated/distinct/
+depth/queue counters, `capture_completed: false` and `exhausted: false`. A fresh
+model validates both the typed periodic word and its serialized trace, including
+original `Next`, configured property names and the closing edge. A refused or
+invalid word publishes no violation or counterexample. Only real exhaustion can
+produce `Holds`. TLC timing, queue order and final-oracle counts are not copied.
+A prefix check searches only the first configured property: a violation of it
+on a prefix is also a violation on the complete graph, where the final check
+would name it first. Violations of later properties wait for the final check,
+so the reported property is the one `--lncheck final` reports.
+
+Schema 2 reports the schedule (`min_states`, `growth_factor`), prefix check
+count, last checked level/size, exhaustion and final-check truth in `periodic`.
+Rust callers can choose another schedule with `CheckRequest::periodic`
+(`dive_api::PeriodicSchedule`); the CLI always uses the default. Capture bounds are
+cumulative across the search. Planning happens once; label/product/formula
+bounds retain their actual per-property and per-analysis-check scopes. Repeated
+checks add computation: these bounds promise neither a total-run work/byte cap
+nor a speedup. Explicit `--lncheck final --lasso short` retains the final schedule.
+
+The conformance adapter reads these actual default prefix counters and schedule
+facts alongside ordinary TLC final reports. It independently replays words; a
+producer's validation marker is insufficient. Required result comparisons stay
+strict, so prefix counts are not replaced with final-oracle counts or waived.
+Goldens use `-lncheck final`; a model whose violation the default profile finds
+on a prefix stops with fewer states than the golden, which is a D-014 count
+divergence. Like TLC's own periodic checking, a prefix violation can also
+preempt an invariant violation or evaluation error beyond the checked prefix
+that a final-only run reports instead. The
+TLC-equivalent setting is `--compat=tlc` or `--lncheck final --lasso short`.
+
+## Ordinary checking in the TLC profile
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --compat=tlc --fp 0 --seed 7 --output json
@@ -32,21 +83,15 @@ The report records the actual `lncheck: final`, `lasso: short` and temporal
 bounds, with profile `tlc`. This is partial temporal support, not general TLC
 parity or an implementation of periodic checking.
 
-Ordinary requests in the default (dive) profile take the same route with dive
-value semantics; their report records profile `dive` with `lncheck: final`.
-The approved deterministic level-boundary schedule (D-014) is not implemented
-yet, so until it is the default profile checks temporal properties once, after
-complete exploration. Verdicts, counts and violated properties are those of a
-final check; no request stops early on a liveness prefix.
-
 The route requires profile-default evaluation and fingerprint settings,
 fingerprint polynomial 0, resident fingerprint storage, and no storage
 budget/directory, deadlock, sequential or chaos overrides. Under `--compat=tlc`
 use `--fp 0` explicitly: the TLC profile otherwise selects a random polynomial
 (the default profile's polynomial is already 0). Seed and
 worker requests are retained. Checkpoint/recovery uses its existing separate
-safety path. Randomness combined with VIEW or SYMMETRY and excluded options retain their
-existing routes and named refusals. Real unsupported language features and resource limits remain explicit;
+safety path. Randomness combined with VIEW or SYMMETRY, excluded options and
+requests with excluded dive-profile options retain their existing routes and named
+refusals. Real unsupported language features and resource limits remain explicit;
 a refusal, bound or external timeout is never a holding result.
 
 File-based temporal checking uses 8,000,000 covered acceptance-buffer bytes and
@@ -127,9 +172,10 @@ recursive/opaque-operator refusal. These are different requested obligations.
 
 Pure supported boolean/temporal operators, finite quantification and WF/SF
 predicates have scoped limits. Unknown ENABLED/fairness covers, runtime effects,
-dynamic/exported scopes and other unproved constructs refuse. Ordinary strict
-`dive check` retains its temporal refusal. A diagnostic planning/tableau/product
-API that completes has not issued a temporal verdict.
+dynamic/exported scopes and other unproved constructs refuse. Eligible ordinary
+requests use the profile schedules described above; excluded options retain
+their named refusals. A diagnostic planning/tableau/product API that completes
+has not issued a temporal verdict.
 
 Direct configured operator constants can call nonrecursive top-level user
 operators with ordinary value parameters inside pure state/action predicates.
@@ -216,7 +262,9 @@ properties with TLC's value semantics and reports a deterministic short lasso
 that passes independent replay. The profile is labeled `tlc+overrides`, because
 TLC's own lasso choice is not reproduced: it depends on hash-table and SCC
 visitation order, which are not parity obligations (ADR 0082, ADR 0086).
-`--lasso tlc` is a usage error. Periodic scheduling is not implemented yet.
+`--lasso tlc` is a usage error. Explicit final requests check only after
+exhaustion; the ordinary dive profile uses the deterministic level schedule
+described above.
 
 Malformed numeric temporal operands, such as `Bad == <>1`, report
 `evaluation-error` before exploration, with TLC code 2215 (`TLC_EXPECTED_VALUE`).
@@ -283,8 +331,8 @@ other corpus models is not established by these controls.
 kernel it uses: planning (`plan`), the tableau (`formula`), the product and
 lasso search (`product`, `search`), the coordinator (`analyze`), TLC's liveness
 formula classifier for `--compat=tlc` (`tlc_plan::classify`, TLC errors 2213
-and 2214) and the growth trigger for future periodic checks
-(`periodic_backend::Growth`).
+and 2214), and the ordinary deterministic coordinator and its schedule
+(`analyze::periodic`, `analyze::periodic::Schedule`).
 
 ## Finite local recursive functions
 

@@ -61,5 +61,6 @@ not (
     ))
     | (binary_id(dive-check::invariance) & test(=wide_levels_stop_identically_at_every_worker_count))
     | (binary_id(dive-store::state_fingerprint) & test(=fingerprint_and_exact_membership_agree_on_a_large_sample))
+    | (binary_id(dive-cli::ordinary_final) & test(=default_schedule_stops_at_the_first_due_level))
 )
 """

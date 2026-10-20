@@ -467,3 +467,151 @@ fn unsupported_observation_width_runs_no_callback() {
     );
     assert!(events.roots.is_empty() && events.edges.is_empty() && events.levels.is_empty());
 }
+
+struct StopLevel {
+    events: Events,
+    fail: bool,
+}
+impl Observer for StopLevel {
+    fn level_done(
+        &mut self,
+        level: u64,
+        graph: &BehaviorGraph,
+        stats: Stats,
+    ) -> Result<(), String> {
+        self.events.level_done(level, graph, stats)?;
+        if self.fail {
+            Err("controlled level failure".into())
+        } else {
+            Ok(())
+        }
+    }
+    fn stop_after_level(&self) -> bool {
+        !self.events.levels.is_empty()
+    }
+}
+
+#[test]
+fn controlled_prefix_is_committed_joined_and_never_complete_at_all_widths() {
+    for mut opts in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
+        for width in [1, 4, 8] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                opts.workers = width;
+                opts.store = store;
+                let m = model(
+                    "Init == x \\in 0..3\nNext == x'=x+4",
+                    "INIT Init\nNEXT Next\n",
+                    &opts,
+                );
+                let mut observer = StopLevel {
+                    events: Events::default(),
+                    fail: false,
+                };
+                let result = capture::explore_controlled_with_evidence(
+                    &m,
+                    &opts,
+                    Limits::default(),
+                    &mut observer,
+                )
+                .expect("capture thread");
+                let capture::ControlledExploration::Prefix(prefix) = result else {
+                    panic!("must stop at real prefix: {opts:?}: {result:?}")
+                };
+                assert_eq!(prefix.level(), 1);
+                assert_eq!(
+                    (
+                        prefix.stats.generated,
+                        prefix.stats.distinct,
+                        prefix.stats.depth,
+                        prefix.stats.left_on_queue
+                    ),
+                    (8, 8, 2, 4)
+                );
+                assert_eq!(prefix.workers.requested, width);
+                assert_eq!(prefix.workers.used, width);
+                assert_eq!(prefix.options.seed, 7);
+                assert_eq!(observer.events.levels.len(), 1);
+                assert!(prefix.graph.edges[..4].iter().all(|row| row.len() == 2));
+                assert!(prefix.graph.edges[4..].iter().all(Vec::is_empty));
+                assert!(prefix.graph.concrete[4..].iter().all(Vec::is_empty));
+                assert_eq!(prefix.collision.is_some(), store == StoreMode::Fingerprint);
+            }
+        }
+    }
+}
+
+#[test]
+fn controlled_callback_error_and_failed_partial_level_never_become_prefixes() {
+    for width in [1, 4, 8] {
+        let opts = CheckOptions {
+            workers: width,
+            ..CheckOptions::dive(0)
+        };
+        let m = model(
+            "Init == x \\in 0..3\nNext == x'=x+4",
+            "INIT Init\nNEXT Next\n",
+            &opts,
+        );
+        let mut observer = StopLevel {
+            events: Events::default(),
+            fail: true,
+        };
+        let result =
+            capture::explore_controlled_with_evidence(&m, &opts, Limits::default(), &mut observer)
+                .expect("thread");
+        assert!(
+            matches!(result, capture::ControlledExploration::Stopped(stop) if matches!(stop.verdict, Verdict::Unsupported { ref feature } if feature.contains("controlled level failure")))
+        );
+        assert_eq!(observer.events.levels.len(), 1);
+        let m = model(
+            "Init == x \\in 0..3\nNext == x'=x+4\nSafe == x<4",
+            "INIT Init\nNEXT Next\nINVARIANT Safe\n",
+            &opts,
+        );
+        let mut observer = StopLevel {
+            events: Events::default(),
+            fail: false,
+        };
+        let result =
+            capture::explore_controlled_with_evidence(&m, &opts, Limits::default(), &mut observer)
+                .expect("thread");
+        assert!(
+            matches!(result, capture::ControlledExploration::Stopped(stop) if matches!(stop.verdict, Verdict::InvariantViolated { .. }))
+        );
+        assert!(observer.events.levels.is_empty());
+    }
+}
+
+#[test]
+fn controlled_prefix_skips_postconditions_and_legacy_entrypoint_cannot_publish_it() {
+    let opts = CheckOptions {
+        sequential: true,
+        ..CheckOptions::dive(0)
+    };
+    let m = model(
+        "Init == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nPost == FALSE",
+        "INIT Init\nNEXT Next\nPOSTCONDITION Post\n",
+        &opts,
+    );
+    let mut observer = StopLevel {
+        events: Events::default(),
+        fail: false,
+    };
+    assert!(matches!(
+        capture::explore_controlled_with_evidence(&m, &opts, Limits::default(), &mut observer)
+            .expect("thread"),
+        capture::ControlledExploration::Prefix(_)
+    ));
+    let mut observer = StopLevel {
+        events: Events::default(),
+        fail: false,
+    };
+    assert!(
+        matches!(observed(&m, &opts, Limits::default(), &mut observer), Exploration::Stopped(stop) if matches!(stop.verdict, Verdict::Unsupported { .. }))
+    );
+    let result = capture::explore(&m, &opts, Limits::default());
+    assert!(
+        matches!(&result, Exploration::Stopped(stop) if matches!(&stop.verdict, Verdict::ModelError { code: 1000, message, .. } if message.contains("The post condition Post cannot be a constant."))),
+        "{result:?}"
+    );
+}

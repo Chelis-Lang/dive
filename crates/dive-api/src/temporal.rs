@@ -3,10 +3,10 @@
 //! This API checks the supported pure temporal subset and independently validates
 //! every periodic counterexample before returning it as a violation. It binds a
 //! fresh model for each run and for validation. It selects a deterministic short
-//! lasso, including with TLC value semantics; TLC-exact selection and periodic
-//! checking are not implemented here. Ordinary [`crate::check_file`] also uses
-//! this backend for eligible requests in both profiles. Explicit final/short
-//! selection remains available.
+//! lasso, including with TLC value semantics. Eligible ordinary [`crate::check_file`]
+//! requests use final checking in the TLC profile and deterministic completed-level
+//! checks in the dive profile. Explicit final/short selection remains unchanged;
+//! neither schedule reproduces TLC's periodic timing or exact lasso selection.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -14,12 +14,13 @@ use std::time::{Duration, Instant};
 use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
+use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate, Schedule};
 use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
 use dive_trace::{Ending, Report as ValidationReport, Trace, TraceDoc, Validation};
 
-/// The outcome of a final-only temporal run.
+/// The outcome of a bounded temporal run, distinguishing real prefixes.
 #[derive(Clone, Debug)]
 pub enum Outcome {
     /// Every planned property holds on the fully captured graph, subject to
@@ -28,6 +29,8 @@ pub enum Outcome {
     /// A concrete periodic word falsifies the named properties and passes
     /// the independent validator. TLC's exact lasso selection is not claimed.
     Violation(Box<ValidatedCounterexample>),
+    /// Independently validated word on a real incomplete capture prefix.
+    PrefixViolation(Box<ValidatedPrefix>),
     /// The ordinary safety result when no properties are configured, when
     /// configured properties bind entirely to safety roles on the supported
     /// default-memory route, or a safety stop before temporal checking completes.
@@ -63,12 +66,39 @@ impl ValidatedCounterexample {
     }
 }
 
+/// A prefix word admitted by fresh independent typed and serialized validation.
+/// It cannot supply complete exploration evidence or a holding verdict.
+#[derive(Clone, Debug)]
+pub struct ValidatedPrefix {
+    candidate: PrefixCandidate,
+    document: TraceDoc,
+    validation: ValidationReport,
+}
+impl ValidatedPrefix {
+    /// Original candidate and actual committed-prefix capture evidence.
+    #[must_use]
+    pub fn candidate(&self) -> &PrefixCandidate {
+        &self.candidate
+    }
+    /// Independently validated serialized word and false-property names.
+    #[must_use]
+    pub fn document(&self) -> &TraceDoc {
+        &self.document
+    }
+    /// The actual independent serialized validation report, always valid.
+    #[must_use]
+    pub fn validation(&self) -> &ValidationReport {
+        &self.validation
+    }
+}
+
 /// A temporal result with total binding, exploration and validation time.
 #[derive(Clone, Debug)]
 pub struct Report {
     outcome: Outcome,
     options: CheckOptions,
     elapsed: Duration,
+    periodic: Option<Checks>,
 }
 impl Report {
     /// The temporal outcome or the complete safety stop.
@@ -80,6 +110,20 @@ impl Report {
     #[must_use]
     pub fn options(&self) -> &CheckOptions {
         &self.options
+    }
+    /// Actual deterministic checks, absent for the final-only schedule.
+    #[must_use]
+    pub const fn periodic(&self) -> Option<Checks> {
+        self.periodic
+    }
+    /// Actual schedule used, independent of the value-semantics profile.
+    #[must_use]
+    pub const fn lncheck(&self) -> &'static str {
+        if self.periodic.is_some() {
+            "deterministic"
+        } else {
+            "final"
+        }
     }
     /// Total wall-clock time, including independent validation.
     #[must_use]
@@ -104,6 +148,13 @@ pub enum Error {
         /// Independent validation details.
         report: ValidationReport,
     },
+    /// Independent validation refused or refuted an incomplete-prefix word.
+    PrefixValidation {
+        /// Actual prefix candidate, never a completed graph.
+        candidate: Box<PrefixCandidate>,
+        /// Actual independent validator report.
+        report: ValidationReport,
+    },
     /// A value could not be represented in the tagged trace document.
     Document(String),
     /// The evaluation thread failed to start or panicked.
@@ -117,12 +168,12 @@ impl Error {
         match self {
             Self::Binding(_) => "DIVE-A0030",
             Self::Analysis(e) => e.code(),
-            Self::Validation { report, .. }
+            Self::Validation { report, .. } | Self::PrefixValidation { report, .. }
                 if matches!(report.validation, Validation::Invalid(_)) =>
             {
                 "DIVE-A0031"
             }
-            Self::Validation { .. } => "DIVE-A0032",
+            Self::Validation { .. } | Self::PrefixValidation { .. } => "DIVE-A0032",
             Self::Document(_) => "DIVE-A0033",
             Self::Thread(_) => "DIVE-A0034",
         }
@@ -133,7 +184,7 @@ impl std::fmt::Display for Error {
         match self {
             Self::Binding(e) => e.fmt(f),
             Self::Analysis(e) => e.fmt(f),
-            Self::Validation { report, .. } => write!(
+            Self::Validation { report, .. } | Self::PrefixValidation { report, .. } => write!(
                 f,
                 "{}: temporal candidate did not pass independent validation: {:?}",
                 self.code(),
@@ -179,29 +230,35 @@ impl Stage {
 /// [`check_final_with_evidence`] exposes these additional facts.
 #[derive(Clone, Debug)]
 pub struct Failure {
-    error: Error,
+    error: Box<Error>,
     stage: Stage,
     exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
     elapsed: Duration,
     action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
+    incomplete: bool,
+    periodic: Option<Box<Checks>>,
 }
 impl Failure {
     fn before(error: Error, stage: Stage) -> Self {
         Self {
-            error,
+            error: Box::new(error),
             stage,
             exploration: None,
             elapsed: Duration::ZERO,
             action_evaluation: None,
+            incomplete: false,
+            periodic: None,
         }
     }
     fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
         Self {
-            error,
+            error: Box::new(error),
             stage,
             exploration: Some(Box::new(capture.into())),
             elapsed: Duration::ZERO,
             action_evaluation: None,
+            incomplete: false,
+            periodic: None,
         }
     }
     /// The actual typed active action-label error, when one occurred.
@@ -220,7 +277,8 @@ impl Failure {
     pub const fn stage(&self) -> Stage {
         self.stage
     }
-    /// Complete capture facts, when capture finished before the failure.
+    /// Actual capture facts, when available. Consult [`Self::capture_completed`]
+    /// to distinguish a committed prefix from complete exploration.
     #[must_use]
     pub fn exploration(&self) -> Option<&dive_liveness::analyze::ExplorationEvidence> {
         self.exploration.as_deref()
@@ -234,7 +292,9 @@ impl Failure {
     /// a claim that no work ran.
     #[must_use]
     pub fn capture_completed(&self) -> Option<bool> {
-        if self.exploration.is_some() {
+        if self.incomplete {
+            Some(false)
+        } else if self.exploration.is_some() {
             Some(true)
         } else if matches!(
             self.stage,
@@ -244,6 +304,11 @@ impl Failure {
         } else {
             None
         }
+    }
+    /// Actual deterministic scheduling work before this failure, if selected.
+    #[must_use]
+    pub fn periodic(&self) -> Option<Checks> {
+        self.periodic.as_deref().copied()
     }
     /// Actual execution width where known. Pre-search refusals prove zero;
     /// unobserved thread failures do not.
@@ -270,7 +335,7 @@ impl std::fmt::Display for Failure {
 }
 impl std::error::Error for Failure {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        Some(&self.error)
+        Some(&*self.error)
     }
 }
 
@@ -329,7 +394,21 @@ fn run_bound(
     model: &Model,
     policy: AcceptancePolicy,
 ) -> Result<Outcome, Failure> {
-    match dive_liveness::analyze::analyze_final_with_policy(model, options, limits, policy) {
+    finish_final(
+        ir,
+        config,
+        options,
+        dive_liveness::analyze::analyze_final_with_policy(model, options, limits, policy),
+    )
+}
+
+fn finish_final(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    analysis: Result<Analysis, dive_liveness::analyze::DetailedFailure>,
+) -> Result<Outcome, Failure> {
+    match analysis {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
             // Rebind separately: validation cannot inspect the checker's graph
@@ -350,19 +429,7 @@ fn run_bound(
             };
             let report = dive_trace::validate(&validation_model, &trace);
             if report.validation != Validation::Valid {
-                let exploration = Some(Box::new(
-                    dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
-                ));
-                return Err(Failure {
-                    error: Error::Validation {
-                        candidate: Box::new(candidate),
-                        report,
-                    },
-                    stage: Stage::Validation,
-                    exploration,
-                    elapsed: Duration::ZERO,
-                    action_evaluation: None,
-                });
+                return Err(final_validation_failure(candidate, report));
             }
             let document = trace.to_doc(&validation_model).map_err(|error| {
                 Failure::after(
@@ -376,19 +443,7 @@ fn run_bound(
             let report =
                 dive_trace::validate_doc(&validation_model, &document, &config.model_values).0;
             if report.validation != Validation::Valid {
-                let exploration = Some(Box::new(
-                    dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
-                ));
-                return Err(Failure {
-                    error: Error::Validation {
-                        candidate: Box::new(candidate),
-                        report,
-                    },
-                    stage: Stage::Validation,
-                    exploration,
-                    elapsed: Duration::ZERO,
-                    action_evaluation: None,
-                });
+                return Err(final_validation_failure(candidate, report));
             }
             Ok(Outcome::Violation(Box::new(ValidatedCounterexample {
                 candidate,
@@ -402,15 +457,141 @@ fn run_bound(
                 Ok(Outcome::Safety(result))
             } else {
                 Err(Failure {
-                    error: Error::Analysis(failure.error),
+                    error: Box::new(Error::Analysis(failure.error)),
                     stage: Stage::Analysis(failure.stage),
                     exploration: failure.exploration,
                     elapsed: Duration::ZERO,
                     action_evaluation,
+                    incomplete: false,
+                    periodic: None,
                 })
             }
         }
     }
+}
+
+fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> Failure {
+    let exploration = Some(Box::new((&candidate.exploration).into()));
+    Failure {
+        error: Box::new(Error::Validation {
+            candidate: Box::new(candidate),
+            report,
+        }),
+        stage: Stage::Validation,
+        exploration,
+        elapsed: Duration::ZERO,
+        action_evaluation: None,
+        incomplete: false,
+        periodic: None,
+    }
+}
+
+fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failure {
+    Failure {
+        error: Box::new(error),
+        stage,
+        exploration: Some(Box::new(prefix.into())),
+        elapsed: Duration::ZERO,
+        action_evaluation: None,
+        incomplete: true,
+        periodic: None,
+    }
+}
+
+fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationReport) -> Failure {
+    let exploration = Some(Box::new((&candidate.exploration).into()));
+    Failure {
+        error: Box::new(Error::PrefixValidation {
+            candidate: Box::new(candidate),
+            report,
+        }),
+        stage: Stage::Validation,
+        exploration,
+        elapsed: Duration::ZERO,
+        action_evaluation: None,
+        incomplete: true,
+        periodic: None,
+    }
+}
+
+fn validate_prefix(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    candidate: PrefixCandidate,
+) -> Result<Outcome, Failure> {
+    // Same independent checks as final candidates, with distinct prefix evidence.
+    let model = bind(ir, config, options)
+        .map_err(|error| prefix_failure(error, Stage::Validation, &candidate.exploration))?;
+    let trace = Trace {
+        states: candidate.states.clone(),
+        labels: vec![None; candidate.states.len()],
+        ending: Ending::Lasso {
+            back_to: candidate.back_to,
+        },
+        length: Some(candidate.states.len()),
+        properties: candidate.properties.clone(),
+    };
+    let report = dive_trace::validate(&model, &trace);
+    if report.validation != Validation::Valid {
+        return Err(prefix_validation_failure(candidate, report));
+    }
+    let document = trace.to_doc(&model).map_err(|error| {
+        prefix_failure(
+            Error::Document(error),
+            Stage::Document,
+            &candidate.exploration,
+        )
+    })?;
+    let report = dive_trace::validate_doc(&model, &document, &config.model_values).0;
+    if report.validation != Validation::Valid {
+        return Err(prefix_validation_failure(candidate, report));
+    }
+    Ok(Outcome::PrefixViolation(Box::new(ValidatedPrefix {
+        candidate,
+        document,
+        validation: report,
+    })))
+}
+
+fn run_periodic(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    model: &Model,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    schedule: Schedule,
+) -> Result<(Outcome, Checks), Failure> {
+    let (analysis, checks) = match dive_liveness::analyze::periodic::analyze_periodic(
+        model, options, limits, policy, schedule,
+    ) {
+        Ok(result) => result,
+        Err(failure) => {
+            let (detail, action_evaluation) = (*failure.failure).into_parts();
+            if let AnalysisError::Exploration(result) = detail.error {
+                return Ok((Outcome::Safety(result), failure.checks));
+            }
+            return Err(Failure {
+                error: Box::new(Error::Analysis(detail.error)),
+                stage: Stage::Analysis(detail.stage),
+                exploration: detail.exploration.or(failure.prefix),
+                elapsed: Duration::ZERO,
+                action_evaluation,
+                incomplete: failure.capture_completed == Some(false),
+                periodic: Some(Box::new(failure.checks)),
+            });
+        }
+    };
+    let outcome = match analysis {
+        PeriodicAnalysis::Final(analysis) => finish_final(ir, config, options, Ok(analysis)),
+        PeriodicAnalysis::Prefix(candidate) => validate_prefix(ir, config, options, candidate),
+    }
+    .map_err(|mut failure| {
+        failure.periodic = Some(Box::new(checks));
+        failure
+    })?;
+    Ok((outcome, checks))
 }
 
 // Ordinary requests use only the accepted default-memory role dispatch. Keep
@@ -420,6 +601,7 @@ pub(crate) fn check_ordinary_final(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
+    schedule: Schedule,
 ) -> Option<Result<Report, Failure>> {
     if config.properties.is_empty() {
         return None;
@@ -432,16 +614,32 @@ pub(crate) fn check_ordinary_final(
                 dive_check::final_roles::dispatch_ordinary(ir, config, options).map(|bound| {
                     match bound {
                         dive_check::final_roles::Dispatch::Safety(result) => {
-                            Ok(Outcome::Safety(result))
+                            Ok((Outcome::Safety(result), None))
                         }
-                        dive_check::final_roles::Dispatch::Temporal(model) => run_bound(
-                            ir,
-                            config,
-                            options,
-                            Limits::default(),
-                            &model,
-                            AcceptancePolicy::compact_default(),
-                        ),
+                        dive_check::final_roles::Dispatch::Temporal(model) => {
+                            if options.profile == dive_eval::Profile::Dive {
+                                run_periodic(
+                                    ir,
+                                    config,
+                                    options,
+                                    &model,
+                                    Limits::default(),
+                                    AcceptancePolicy::compact_default(),
+                                    schedule,
+                                )
+                                .map(|(outcome, checks)| (outcome, Some(checks)))
+                            } else {
+                                run_bound(
+                                    ir,
+                                    config,
+                                    options,
+                                    Limits::default(),
+                                    &model,
+                                    AcceptancePolicy::compact_default(),
+                                )
+                                .map(|outcome| (outcome, None))
+                            }
+                        }
                     }
                 })
             })
@@ -458,10 +656,11 @@ pub(crate) fn check_ordinary_final(
         Ok(None) => None,
         Ok(Some(result)) => Some(
             result
-                .map(|outcome| Report {
+                .map(|(outcome, periodic)| Report {
                     outcome,
                     options: options.clone(),
                     elapsed: started.elapsed(),
+                    periodic,
                 })
                 .map_err(|mut failure| {
                     failure.elapsed = started.elapsed();
@@ -519,7 +718,7 @@ pub fn check_final(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Report, Error> {
-    check_final_with_evidence(ir, config, options, limits).map_err(|failure| failure.error)
+    check_final_with_evidence(ir, config, options, limits).map_err(|failure| *failure.error)
 }
 
 /// Like [`check_final`], preserving execution-stage, worker, statistics and
@@ -569,6 +768,7 @@ pub fn check_final_with_policy(
             outcome: Outcome::Safety(Box::new(dive_check::check(ir, config, options))),
             options: options.clone(),
             elapsed: started.elapsed(),
+            periodic: None,
         });
     }
     let outcome = std::thread::scope(|s| {
@@ -592,6 +792,7 @@ pub fn check_final_with_policy(
         outcome,
         options: options.clone(),
         elapsed: started.elapsed(),
+        periodic: None,
     })
 }
 
@@ -610,6 +811,150 @@ mod evidence_controls {
             assert_eq!(failure.capture_completed(), None);
             assert!(failure.workers(8).is_none());
             assert!(failure.exploration().is_none());
+        }
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "prefix publication boundary assertions"
+)]
+mod prefix_controls {
+    use super::*;
+    /// Checks every grown completed level, so small graphs exercise prefixes.
+    const EVERY_LEVEL: Schedule = Schedule {
+        min_states: 2,
+        growth_factor: 1,
+    };
+    fn input() -> (Arc<Ir>, ModelConfig, CheckOptions) {
+        let source = "---- MODULE Prefix ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nP == <>(x=3)\n====\n";
+        let analysis =
+            dive_sema::analyze_source("Prefix.tla", source, &dive_sema::Options::default());
+        assert!(analysis.accepted());
+        (
+            Arc::new(dive_ir::lower(&analysis).expect("IR")),
+            dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+                .into_config()
+                .expect("config"),
+            CheckOptions::dive(7),
+        )
+    }
+    #[test]
+    fn prefix_resource_failure_keeps_actual_incomplete_evidence_and_capture_stop() {
+        let (ir, config, options) = input();
+        let model = bind(&ir, &config, &options).expect("model");
+        let failure = run_periodic(
+            &ir,
+            &config,
+            &options,
+            &model,
+            Limits {
+                atom_cells: 0,
+                ..Limits::default()
+            },
+            AcceptancePolicy::compact_default(),
+            EVERY_LEVEL,
+        )
+        .expect_err("prefix label bound");
+        assert_eq!(failure.error().code(), "DIVE-L0034");
+        assert_eq!(
+            failure.stage(),
+            Stage::Analysis(dive_liveness::analyze::Stage::Atoms)
+        );
+        assert_eq!(failure.capture_completed(), Some(false));
+        assert_eq!(failure.workers(1).expect("actual workers").used, 1);
+        assert_eq!(
+            failure
+                .exploration()
+                .expect("actual prefix")
+                .stats
+                .left_on_queue,
+            1
+        );
+        assert_eq!(failure.periodic().expect("schedule").prefixes, 1);
+        assert!(!failure.periodic().expect("schedule").final_check);
+        let model = bind(&ir, &config, &options).expect("fresh model");
+        let (outcome, checks) = run_periodic(
+            &ir,
+            &config,
+            &options,
+            &model,
+            Limits {
+                capture: capture::Limits {
+                    states: 1,
+                    ..capture::Limits::default()
+                },
+                ..Limits::default()
+            },
+            AcceptancePolicy::compact_default(),
+            EVERY_LEVEL,
+        )
+        .expect("safety stop");
+        assert!(
+            matches!(outcome, Outcome::Safety(stop) if matches!(stop.verdict, dive_check::Verdict::ResourceLimit { .. }))
+        );
+        assert_eq!(checks.prefixes, 0);
+        assert!(!checks.exhausted && !checks.final_check);
+    }
+    #[test]
+    fn prefix_publication_requires_fresh_typed_and_serialized_validation() {
+        let (ir, config, options) = input();
+        for mutation in 0..4 {
+            let model = bind(&ir, &config, &options).expect("model");
+            let (analysis, checks) = dive_liveness::analyze::periodic::analyze_periodic(
+                &model,
+                &options,
+                Limits::default(),
+                AcceptancePolicy::compact_default(),
+                EVERY_LEVEL,
+            )
+            .expect("candidate");
+            let PeriodicAnalysis::Prefix(mut candidate) = analysis else {
+                panic!("real prefix expected")
+            };
+            match mutation {
+                0 => {}
+                1 => candidate.states[0] = vec![Some(dive_value::Value::Int(99))].into(),
+                2 => candidate.back_to = candidate.states.len(),
+                _ => candidate.properties = vec!["invented-property".into()],
+            }
+            match validate_prefix(&ir, &config, &options, candidate) {
+                Ok(Outcome::PrefixViolation(word)) => {
+                    assert_eq!(mutation, 0);
+                    assert_eq!(word.validation().validation, Validation::Valid);
+                    assert_eq!(word.document().properties, ["P"]);
+                    assert_eq!(word.candidate().exploration.stats.left_on_queue, 1);
+                    let fresh = bind(&ir, &config, &options).expect("fresh model");
+                    assert_eq!(
+                        dive_trace::validate_doc(&fresh, word.document(), &config.model_values)
+                            .0
+                            .validation,
+                        Validation::Valid
+                    );
+                }
+                Err(failure) => {
+                    assert_ne!(mutation, 0);
+                    assert!(
+                        matches!(failure.error(), Error::PrefixValidation { report, .. } if report.validation != Validation::Valid)
+                    );
+                    assert_eq!(failure.stage(), Stage::Validation);
+                    assert_eq!(failure.capture_completed(), Some(false));
+                    assert_eq!(
+                        failure
+                            .exploration()
+                            .expect("actual prefix")
+                            .stats
+                            .left_on_queue,
+                        1
+                    );
+                    assert_eq!(failure.workers(1).expect("actual width").used, 1);
+                }
+                other => panic!("unexpected publication outcome: {other:?}"),
+            }
+            assert_eq!(checks.prefixes, 1);
+            assert!(!checks.exhausted);
         }
     }
 }

@@ -26,13 +26,18 @@ complete search's counts and the named violated property where it is well
 defined. Every reported counterexample must replay in `dive-trace`. TLC's exact
 lasso, SCC choice, tableau numbering and edge order are not parity obligations.
 
-**Final checking is the reference schedule.** Liveness is checked once, after
-safety exploration completes (`-lncheck final`). The verdict is the same as
-under TLC's periodic schedule, but TLC's periodic schedule depends on wall-clock
-time and queue state. dive therefore does not emulate periodic timing. Counts at
-a liveness violation are compared only when the oracle ran with
-`-lncheck final`. Any periodic-check feature dive adds later is a dive option
-with deterministic triggers, not a reproduction of TLC's clock.
+**Schedules.** Final checking remains the reference schedule for ordinary
+TLC-profile and explicit `--lncheck final --lasso short` requests. Eligible
+ordinary dive-profile requests use the owner-approved deterministic
+completed-level schedule (D-014, ADR 0018 §7): a check after a completed level
+once the graph has at least 2^16 distinct states and at least twice as many as
+at the previous check. Exhausted frontiers skip prefix analysis and receive a
+final check. A prefix never proves `Holds`; a violation requires
+fresh independent typed and serialized validation. Prefix statistics and
+completion/exhaustion truth describe the actual boundary, without copying final
+counts or reproducing TLC's wall clock. Goldens stay final; a model whose
+violation is found on a prefix differs from them in its counts only, and is
+registered as a D-014 expected divergence.
 
 **Counterexamples.** dive's default lasso is short and deterministic
 (`--lasso short`). A violation is reported only when the candidate word passes
@@ -66,7 +71,10 @@ anything.
 
 **Bounds.** Formula, tableau, graph and recursion limits are explicit named
 resource results. They are entry and work bounds, not total memory guarantees.
-A resource stop never reports `Holds`.
+A resource stop never reports `Holds`. Capture bounds are cumulative per run;
+planning is performed once, and label/product/formula bounds retain their actual
+per-property/per-analysis-check scopes. Repeated checks add work; there is no
+total-run work/byte budget or speedup claim.
 
 ## Consequences
 
@@ -75,8 +83,9 @@ A resource stop never reports `Holds`.
   removed on 2026-10-12, together with the explicit `--lasso tlc` mode and its
   `dive-final-tlc` harness mode. What remains of them is TLC's liveness formula
   classifier (`dive_liveness::tlc_plan::classify`, errors 2213 and 2214, for
-  `--compat=tlc`) and the size-based growth trigger
-  (`dive_liveness::periodic_backend::Growth`) for deterministic periodic checks.
+  `--compat=tlc`) and TLC's size-based growth trigger
+  (`dive_liveness::periodic_backend::Growth`). Deterministic periodic checks use
+  `dive_liveness::analyze::periodic::Schedule` instead.
   `plan.rs` keeps one lowering entry point, `lower`, for final/short checking
   and the classifier. It follows TLC's conversion rules for `IF`, `~ENABLED`,
   numeric operands and evaluation errors; unsupported scopes and effects remain

@@ -191,6 +191,7 @@ fn replay_identity_mismatch_retains_typed_position_without_fake_library_poison()
     );
     mutate(&parent, Mutation::CleanupBlocker);
     let mut outcome = crate::engine::Outcome {
+        prefix_level: None,
         seen: None,
         graph: None,
         frontier: crate::FrontierUsage::default(),

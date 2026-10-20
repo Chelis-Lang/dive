@@ -54,7 +54,7 @@ mod simulate;
 pub use simulate::{SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, simulate_file};
 
 pub use check::{
-    CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, ExitConvention, Store,
+    CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, ExitConvention, PeriodicSchedule, Store,
     TEMPORAL_CHECK_SCHEMA_VERSION, TemporalMode, check_file, check_file_checkpoint,
     check_file_tlc_inputs, exit,
 };

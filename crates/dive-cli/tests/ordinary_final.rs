@@ -77,11 +77,15 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
         let native: serde_json::Value = serde_json::from_slice(&native.stdout)?;
         assert_eq!(native["schema_version"], 2);
         assert_eq!(native["options"]["profile"], "dive");
-        assert_eq!(native["options"]["lncheck"], "final");
+        assert_eq!(native["options"]["lncheck"], "deterministic");
         if status == 13 {
             assert_eq!(native["counterexample"]["validation"], "valid");
         }
         if status != 255 {
+            // Three states never reach the default schedule's minimum: the
+            // only check is the final one, with complete counts.
+            assert_eq!(native["periodic"]["prefix_checks"], 0);
+            assert_eq!(native["periodic"]["final_check"], true);
             assert_eq!(native["execution"]["exhausted"], true);
             assert_eq!(native["statistics"]["distinct"], 3);
         }
@@ -153,5 +157,56 @@ fn existing_tlc_composition_option_keeps_counts_and_safe_validation_refusal()
             assert_eq!(value["verdict"], "unsupported");
         }
     }
+    Ok(())
+}
+
+/// The default schedule checks the first completed expansion level with at
+/// least 2^16 distinct states. A violation there stops with that level's actual counts.
+#[test]
+fn default_schedule_stops_at_the_first_due_level() -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "dive-cli-ordinary-periodic-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_nanos()
+    ));
+    std::fs::create_dir(&directory)?;
+    let spec = Spec(directory);
+    let file = spec.0.join("Wide.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Wide ----\nEXTENDS Naturals\nVARIABLES x, y\nInit == x=0 /\\ y \\in 0..65535\nNext == x'=(x+1)%3 /\\ UNCHANGED y\nP == <>(x=1)\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nPROPERTY P\n",
+    )?;
+    for workers in [1, 4] {
+        let native = run(&file, "dive", workers, &[])?;
+        assert_eq!(native.status.code(), Some(13));
+        let json: serde_json::Value = serde_json::from_slice(&native.stdout)?;
+        assert_eq!(json["options"]["lncheck"], "deterministic");
+        assert_eq!(json["verdict"], "liveness-violation");
+        assert_eq!(json["property"], "P");
+        assert_eq!(json["counterexample"]["validation"], "valid");
+        assert_eq!(json["execution"]["capture_completed"], false);
+        assert_eq!(json["execution"]["exhausted"], false);
+        assert_eq!(json["periodic"]["prefix_checks"], 1);
+        // Level 1 (the first expansion) commits 131,072 states, 65,536 queued.
+        assert_eq!(json["execution"]["level"], 1);
+        assert_eq!(json["periodic"]["last_level"], 1);
+        assert_eq!(json["periodic"]["last_size"], 131_072);
+        assert_eq!(json["statistics"]["distinct"], 131_072);
+        assert_eq!(json["statistics"]["depth"], 2);
+        assert_eq!(json["statistics"]["left_on_queue"], 65_536);
+    }
+    // The TLC profile keeps final checking and the complete graph's counts.
+    let tlc = run(&file, "tlc", 1, &[])?;
+    assert_eq!(tlc.status.code(), Some(13));
+    let tlc: serde_json::Value = serde_json::from_slice(&tlc.stdout)?;
+    assert_eq!(tlc["options"]["lncheck"], "final");
+    assert_eq!(tlc["property"], "P");
+    assert_eq!(tlc["statistics"]["distinct"], 196_608);
     Ok(())
 }

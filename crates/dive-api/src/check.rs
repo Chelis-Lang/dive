@@ -12,11 +12,11 @@ use serde_json::{Value, json};
 
 use crate::{AnalyzeReport, ConfigReport};
 
-/// Version of the JSON document produced by [`CheckReport::to_json`].
+/// Version of ordinary safety JSON documents produced by [`CheckReport::to_json`].
 pub const CHECK_SCHEMA_VERSION: u32 = 1;
 
-/// Version of the final-only temporal JSON document. Ordinary safety checks
-/// retain schema 1; version 2 adds periodic endings, claims and mode metadata.
+/// Version of temporal JSON documents. Ordinary safety checks retain schema 1;
+/// version 2 includes temporal claims, words and final or prefix execution facts.
 pub const TEMPORAL_CHECK_SCHEMA_VERSION: u32 = 2;
 
 /// Historical native exit codes, selected by `dive check --exit-codes native`
@@ -89,11 +89,12 @@ pub enum Store {
     Exact,
 }
 
-/// Temporal checking selected explicitly by a caller.
+/// Temporal checking strategy for a request.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum TemporalMode {
-    /// Ordinary checking. Eligible temporal requests use bounded final
-    /// analysis in both profiles; other temporal requests keep named refusals.
+    /// Ordinary checking. Eligible temporal requests use bounded final analysis
+    /// in the TLC profile and deterministic completed-level checks in the dive
+    /// profile.
     #[default]
     Ordinary,
     /// Bounded final analysis with independently validated short lassos.
@@ -151,12 +152,20 @@ pub struct CheckRequest {
     /// Test-only chaos scheduling (`--chaos SEED`, or `DIVE_CHAOS`); see
     /// `dive_check::CheckOptions::chaos`. Results must be identical.
     pub chaos: Option<u64>,
-    /// Explicit bounded final-only temporal checking. `FinalShort` changes TLC's
-    /// witness selection and labels TLC profiles `tlc+overrides`.
-    /// `Ordinary` also selects final analysis for eligible temporal roles in
-    /// either profile, reporting the request's own profile.
+    /// Temporal checking strategy. `FinalShort` selects bounded final-only
+    /// analysis and labels TLC profiles `tlc+overrides`.
+    /// `Ordinary` selects final analysis for eligible TLC-profile temporal roles
+    /// and deterministic completed-level checks for eligible dive-profile roles.
+    /// Unsupported combinations retain named refusals.
     pub temporal: TemporalMode,
+    /// Completed-level schedule for ordinary dive-profile temporal checking
+    /// (D-014). The default is the documented [`PeriodicSchedule::DEFAULT`];
+    /// TLC-profile and explicit final requests ignore it and check once at the end.
+    pub periodic: PeriodicSchedule,
 }
+
+/// Completed-level schedule for ordinary dive-profile temporal checking.
+pub use dive_liveness::analyze::periodic::Schedule as PeriodicSchedule;
 
 /// The phase a check ended in.
 #[derive(Debug)]
@@ -169,7 +178,7 @@ enum Phase {
     Unlowered(String),
     /// The checker ran.
     Checked(Box<CheckResult>),
-    /// Independently validated bounded final temporal analysis.
+    /// Independently validated bounded temporal analysis.
     Temporal(Box<crate::temporal::Report>),
     /// No temporal verdict: a refusal, limit, evaluation or internal failure.
     TemporalError(Box<crate::temporal::Failure>),
@@ -444,7 +453,7 @@ fn check_file_in(
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
     } else {
-        check_backend(&ir, &model, &report.opts, req.temporal)
+        check_backend(&ir, &model, &report.opts, req.temporal, req.periodic)
     };
     Ok(report)
 }
@@ -454,9 +463,10 @@ fn check_backend(
     config: &dive_config::ModelConfig,
     options: &CheckOptions,
     temporal: TemporalMode,
+    periodic: PeriodicSchedule,
 ) -> Phase {
     if temporal == TemporalMode::Ordinary
-        && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options)
+        && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options, periodic)
     {
         return match result {
             Ok(report) => match report.outcome() {
@@ -520,7 +530,8 @@ impl CheckReport {
             Phase::Checked(r) => r.verdict.kind(),
             Phase::Temporal(r) => match r.outcome() {
                 crate::temporal::Outcome::Holds(_) => "success",
-                crate::temporal::Outcome::Violation(_) => "liveness-violation",
+                crate::temporal::Outcome::Violation(_)
+                | crate::temporal::Outcome::PrefixViolation(_) => "liveness-violation",
                 crate::temporal::Outcome::Safety(_) => "internal-error",
             },
             Phase::TemporalError(e) => temporal_failure_kind(e),
@@ -566,7 +577,8 @@ impl CheckReport {
             Phase::Unlowered(_) => exit::UNSUPPORTED,
             Phase::Temporal(r) => match r.outcome() {
                 crate::temporal::Outcome::Holds(_) => exit::SUCCESS,
-                crate::temporal::Outcome::Violation(_) => {
+                crate::temporal::Outcome::Violation(_)
+                | crate::temporal::Outcome::PrefixViolation(_) => {
                     if tlc {
                         13
                     } else {
@@ -743,7 +755,18 @@ impl CheckReport {
             options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
         }
         if self.temporal_schema() {
-            options["lncheck"] = json!("final");
+            options["lncheck"] = json!(self.temporal_result().map_or_else(
+                || if let Phase::TemporalError(failure) = &self.phase {
+                    if failure.periodic().is_some() {
+                        "deterministic"
+                    } else {
+                        "final"
+                    }
+                } else {
+                    "final"
+                },
+                crate::temporal::Report::lncheck
+            ));
             options["lasso"] = json!("short");
             options["temporal_bounds"] = temporal_limits_json();
             options["tlc_exact_temporal"] = json!(false);
@@ -787,13 +810,12 @@ impl CheckReport {
         }
         let w = self
             .result()
-            .map(|r| &r.workers)
+            .map(|r| r.workers.clone())
             .or_else(|| {
                 self.temporal_result()
-                    .and_then(temporal_complete)
-                    .map(|c| &c.workers)
+                    .and_then(temporal_evidence)
+                    .map(|c| c.workers)
             })
-            .cloned()
             .unwrap_or_else(|| dive_check::Workers {
                 requested: self.workers_requested,
                 used: 0,
@@ -813,7 +835,7 @@ impl CheckReport {
     fn workers_used(&self) -> String {
         match &self.phase {
             Phase::Checked(r) => r.workers.used.to_string(),
-            Phase::Temporal(r) => temporal_complete(r)
+            Phase::Temporal(r) => temporal_evidence(r)
                 .map_or(0, |c| c.workers.used)
                 .to_string(),
             Phase::TemporalError(failure) => failure
@@ -908,8 +930,13 @@ impl CheckReport {
             Phase::Temporal(r) => {
                 temporal_json(&mut doc, r, self.opts.tlc_fingerprints);
                 if self.temporal == TemporalMode::Ordinary {
-                    let violation = matches!(r.outcome(), crate::temporal::Outcome::Violation(_));
-                    doc["execution"]["exhausted"] = json!(true);
+                    let violation = matches!(
+                        r.outcome(),
+                        crate::temporal::Outcome::Violation(_)
+                            | crate::temporal::Outcome::PrefixViolation(_)
+                    );
+                    doc["execution"]["exhausted"] =
+                        json!(r.periodic().is_none_or(|checks| checks.exhausted));
                     doc["tlc"] = if violation {
                         json!({"code":2116,"name":"TLC_TEMPORAL_PROPERTY_VIOLATED","exit_status":13,"verified":true})
                     } else {
@@ -922,6 +949,9 @@ impl CheckReport {
                 doc["diagnostics"] = json!([{"code": e.error().code(), "message": e.to_string()}]);
                 doc["execution"] =
                     json!({"stage": e.stage().name(), "capture_completed": e.capture_completed()});
+                if let Some(checks) = e.periodic() {
+                    doc["periodic"] = periodic_json(checks);
+                }
                 doc["elapsed_ms"] =
                     json!(u64::try_from(e.elapsed().as_millis()).unwrap_or(u64::MAX));
                 if let crate::temporal::Error::Binding(failure) = e.error()
@@ -951,7 +981,7 @@ impl CheckReport {
                 if let Some(capture) = e.exploration() {
                     temporal_evidence_json(&mut doc, capture, self.opts.tlc_fingerprints);
                     doc["notes"] = json!([
-                        "Capture completed, but temporal checking failed; these statistics are exploration evidence, not a temporal verdict."
+                        "Temporal checking failed; capture_completed records whether these actual exploration statistics describe completion. No temporal verdict was produced."
                     ]);
                 } else if let crate::temporal::Error::Binding(failure) = e.error() {
                     doc["warnings"] = json!(
@@ -1325,7 +1355,7 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
         Error::Analysis(AnalysisError::Planning(PlanningError::Evaluation { .. })) => {
             "evaluation-error"
         }
-        Error::Validation { report, .. }
+        Error::Validation { report, .. } | Error::PrefixValidation { report, .. }
             if matches!(report.validation, dive_trace::Validation::Invalid(_)) =>
         {
             "internal-error"
@@ -1363,11 +1393,47 @@ fn temporal_complete(report: &crate::temporal::Report) -> Option<&dive_check::ca
     match report.outcome() {
         crate::temporal::Outcome::Holds(c) => Some(c),
         crate::temporal::Outcome::Violation(v) => Some(&v.candidate().exploration),
-        crate::temporal::Outcome::Safety(_) => None,
+        crate::temporal::Outcome::Safety(_) | crate::temporal::Outcome::PrefixViolation(_) => None,
     }
 }
 
-const TEMPORAL_NOTE: &str = "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned.";
+fn temporal_evidence(
+    report: &crate::temporal::Report,
+) -> Option<dive_liveness::analyze::ExplorationEvidence> {
+    if let Some(complete) = temporal_complete(report) {
+        return Some(complete.into());
+    }
+    if let crate::temporal::Outcome::PrefixViolation(word) = report.outcome() {
+        return Some((&word.candidate().exploration).into());
+    }
+    None
+}
+
+fn temporal_word(report: &crate::temporal::Report) -> Option<(&str, &dive_trace::TraceDoc, usize)> {
+    match report.outcome() {
+        crate::temporal::Outcome::Violation(word) => Some((
+            &word.candidate().target_property,
+            word.document(),
+            word.candidate().back_to,
+        )),
+        crate::temporal::Outcome::PrefixViolation(word) => Some((
+            &word.candidate().target_property,
+            word.document(),
+            word.candidate().back_to,
+        )),
+        crate::temporal::Outcome::Holds(_) | crate::temporal::Outcome::Safety(_) => None,
+    }
+}
+
+fn periodic_json(checks: dive_liveness::analyze::periodic::Checks) -> Value {
+    json!({"min_states": checks.schedule.min_states,
+        "growth_factor": checks.schedule.growth_factor,
+        "prefix_checks": checks.prefixes, "last_level": checks.last_level, "last_size": checks.last_size,
+        "exhausted": checks.exhausted, "final_check": checks.final_check,
+        "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap"})
+}
+
+const TEMPORAL_NOTE: &str = "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary.";
 
 fn temporal_evidence_json(
     doc: &mut Value,
@@ -1398,45 +1464,29 @@ fn temporal_evidence_json(
 }
 
 fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerprints: bool) {
-    let Some(complete) = temporal_complete(report) else {
+    let Some(evidence) = temporal_evidence(report) else {
         doc["verdict"] = json!("internal-error");
         doc["message"] = json!("safety stop was not routed through the safety report");
         return;
     };
-    let s = &complete.stats;
-    doc["execution"] = json!({"stage": "complete", "capture_completed": true});
-    doc["statistics"] = json!({
-        "generated": s.generated, "distinct": s.distinct,
-        "left_on_queue": s.left_on_queue, "depth": s.depth,
-        "initial_generated": s.initial_generated,
-        "reported_by_tlc": false,
-    });
-    doc["output"] = json!(complete.output);
-    doc["warnings"] = json!(
-        complete
-            .warnings
-            .iter()
-            .map(|(c, m)| json!({"code":c,"message":m}))
-            .collect::<Vec<_>>()
-    );
+    let complete = temporal_complete(report).is_some();
+    doc["execution"] = json!({"stage": if complete {"complete"} else {"prefix"}, "capture_completed": complete, "exhausted": complete});
+    if let crate::temporal::Outcome::PrefixViolation(word) = report.outcome() {
+        doc["execution"]["level"] = json!(word.candidate().exploration.level());
+    }
+    if let Some(checks) = report.periodic() {
+        doc["periodic"] = periodic_json(checks);
+    }
+    temporal_evidence_json(doc, &evidence, tlc_fingerprints);
     doc["notes"] = json!([TEMPORAL_NOTE]);
     doc["elapsed_ms"] = json!(u64::try_from(report.elapsed().as_millis()).unwrap_or(u64::MAX));
-    if let Some(c) = &complete.collision {
-        doc["collision"] = json!({
-            "store": "fingerprint", "scheme": if tlc_fingerprints {"tlc"} else {"dive"},
-            "optimistic": c.optimistic, "actual": c.actual,
-            "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-        });
-    }
-    if let crate::temporal::Outcome::Violation(v) = report.outcome() {
-        doc["property"] = json!(v.candidate().target_property);
-        doc["properties"] = json!(v.document().properties);
+    if let Some((property, document, back_to)) = temporal_word(report) {
+        doc["property"] = json!(property);
+        doc["properties"] = json!(document.properties);
         doc["counterexample"] = json!({
-            "length": v.document().states.len(), "ending": "lasso",
-            "back_to": v.candidate().back_to + 1,
-            "states": v.document().states.iter().enumerate().map(|(i,s)| json!({"index":i+1,"label":null,"action":null,"values":s})).collect::<Vec<_>>(),
-            "trace": v.document().to_json(),
-            "validation": "valid",
+            "length": document.states.len(), "ending": "lasso", "back_to": back_to + 1,
+            "states": document.states.iter().enumerate().map(|(i,s)| json!({"index":i+1,"label":null,"action":null,"values":s})).collect::<Vec<_>>(),
+            "trace": document.to_json(), "validation": "valid",
         });
     }
 }
@@ -1444,7 +1494,7 @@ fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerpr
 fn temporal_human(report: &crate::temporal::Report) -> String {
     use std::fmt::Write as _;
     let mut out = String::new();
-    let Some(complete) = temporal_complete(report) else {
+    let Some(complete) = temporal_evidence(report) else {
         return "internal-error: unrouted temporal safety stop; no verdict produced\n".to_owned();
     };
     for (_, warning) in &complete.warnings {
@@ -1456,26 +1506,29 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
     if let Some(reason) = &complete.workers.reason {
         let _ = writeln!(out, "{reason}");
     }
-    match report.outcome() {
-        crate::temporal::Outcome::Holds(_) => {
-            let _ = writeln!(
-                out,
-                "Complete final temporal analysis: no error has been found."
-            );
+    if matches!(report.outcome(), crate::temporal::Outcome::Holds(_)) {
+        let _ = writeln!(
+            out,
+            "Complete final temporal analysis: no error has been found."
+        );
+    } else if let Some((_, document, back_to)) = temporal_word(report) {
+        let _ = writeln!(
+            out,
+            "Temporal properties {} were violated.",
+            document.properties.join(", ")
+        );
+        let _ = writeln!(out, "Independently validated counterexample:");
+        for (i, state) in document.states.iter().enumerate() {
+            let _ = writeln!(out, "State {}: {}", i + 1, json!(state));
         }
-        crate::temporal::Outcome::Violation(v) => {
-            let _ = writeln!(
-                out,
-                "Temporal properties {} were violated.",
-                v.document().properties.join(", ")
-            );
-            let _ = writeln!(out, "Independently validated counterexample:");
-            for (i, state) in v.document().states.iter().enumerate() {
-                let _ = writeln!(out, "State {}: {}", i + 1, json!(state));
-            }
-            let _ = writeln!(out, "Back to state {}.", v.candidate().back_to + 1);
-        }
-        crate::temporal::Outcome::Safety(_) => {}
+        let _ = writeln!(out, "Back to state {}.", back_to + 1);
+    }
+    if let Some(checks) = report.periodic() {
+        let _ = writeln!(
+            out,
+            "Deterministic liveness: {} prefix checks, final check {}, exhausted {}.",
+            checks.prefixes, checks.final_check, checks.exhausted
+        );
     }
     let s = &complete.stats;
     let _ = writeln!(

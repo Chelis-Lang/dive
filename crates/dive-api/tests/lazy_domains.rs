@@ -12,6 +12,10 @@ use dive_value::Value;
 use std::{path::Path, sync::Arc};
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "retain oracle assertions and explicit rejection of unexpected Final prefixes"
+)]
 fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/lazy-domains");
     for kind in ["Function", "Record", "Product", "Subset"] {
@@ -76,6 +80,9 @@ fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() 
                                 assert!(!holds, "{name}");
                                 assert_eq!(v.validation().validation, Validation::Valid);
                                 &v.candidate().exploration
+                            }
+                            Outcome::PrefixViolation(_) => {
+                                panic!("explicit Final cannot return a prefix")
                             }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };

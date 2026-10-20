@@ -80,7 +80,7 @@ The design is in ADRs 0013–0016. The safety checker and parallel engine are im
 
 ## M6: Liveness, fairness and symmetry
 
-- **Liveness:** explicit final/short checking (`--lncheck final --lasso short`) checks the supported pure temporal language, including weak and strong fairness, over the deterministic parallel safety graph. It selects deterministic lassos and validates them independently with `dive-trace`, including fairness and configured property attribution. Eligible ordinary TLC liveness requests now use this bounded final/short route. Default completed-level periodic checks remain pending, and unsupported language and request modes still refuse explicitly; full temporal parity remains open. TLC's internal tableau numbering, SCC selection and wall-clock scheduling are not parity obligations (ADR 0086).
+- **Liveness:** explicit final/short checking (`--lncheck final --lasso short`) checks the supported pure temporal language, including weak and strong fairness, over the deterministic parallel safety graph. It selects deterministic lassos and validates them independently with `dive-trace`, including fairness and configured property attribution. Eligible ordinary TLC-profile liveness requests use this bounded final/short route; eligible ordinary default-profile requests check at deterministic completed-level growth boundaries (D-014). Unsupported language and request modes still refuse explicitly; full temporal parity remains open. TLC's internal tableau numbering, SCC selection and wall-clock scheduling are not parity obligations (ADR 0086).
 - **Symmetry:** pure safety reduction now uses the bounded group and canonical keys in both stores, retaining concrete traces. `--compat=tlc` uses TLC's group, warning rules and representative order. Deferred/lazy permutations, unverified startup contracts and randomness remain partial. The intended default for symmetry with liveness is unreduced checking (D-005); TLC's behavior stays under `--symmetry-liveness=tlc`. Liveness symmetry modes and the symmetry audit remain planned and refuse explicitly.
 
 The separate [symmetry safety study](../conformance/reports/studies/symmetry-safety.md)
@@ -130,12 +130,11 @@ conversion errors; the retained formula classifier covers TLC errors 2213 and
 2214 for later integration. See [the temporal guide](user/temporal.md) for the
 current language and explicit refusal boundary.
 
-Eligible ordinary TLC requests already use FinalShort under the request guards
-described in the temporal guide. Default completed-level periodic checking remains
-pending. After kernel consolidation and independent replay simplification, add
-deterministic completed-level checks with geometric growth thresholds. Reuse the bounded partial-graph SCC and growth kernels where
-useful. A prefix check may prove a violation, but only complete exploration can
-prove success. Independent validation, named-property attribution, temporal
+Eligible ordinary TLC requests use FinalShort under the request guards
+described in the temporal guide. Eligible ordinary default-profile requests check
+at deterministic completed-level boundaries with a geometric growth threshold
+(D-014, issue #258). A prefix check may prove a violation, but only complete
+exploration can prove success. Independent validation, named-property attribution, temporal
 language coverage and unreduced symmetry checking remain acceptance requirements.
 
 The removed Phase-L receipt, producer-clock, request-owned, hook and terminal
