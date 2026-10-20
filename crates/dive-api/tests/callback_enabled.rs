@@ -63,6 +63,7 @@ fn callback_enabled_cutoff_keeps_initial_invariant_and_real_enabled_control()
                         assert_eq!(value["verdict"], "success");
                         assert!(value["counterexample"].is_null());
                         assert!(expected["trace"].is_null());
+                        reject_forged_invariant_word(&file, &config, compat_tlc)?;
                         for (native, oracle) in [
                             ("generated", "states_generated"),
                             ("distinct", "distinct_states"),
@@ -115,6 +116,40 @@ fn validate_counterexample(
     let (invalid, typed) = model.read(&word);
     assert!(matches!(invalid.validation, Validation::Invalid(_)));
     let typed = typed.ok_or("decoded forged trace")?;
+    assert!(matches!(
+        model.validate_trace(&typed).validation,
+        Validation::Invalid(_)
+    ));
+    Ok(())
+}
+
+/// Issue #312: when the primed `LET Cut == a'` callback leaves `Step` enabled,
+/// the invariant holds in the initial state, so a word that ends the initial
+/// state with an `Inv` violation is forged. Replay must reject it, through the
+/// document and the typed API, instead of refusing the captured primed source.
+fn reject_forged_invariant_word(
+    file: &Path,
+    config: &Path,
+    compat_tlc: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut word = TraceDoc::behavior(vec![serde_json::json!({"b":0,"q":0,"s":{"seq":[1,2,3]}})])?;
+    word.ending = Some(Ending::Invariant("Inv".into()));
+    let model = SpecModel::load(
+        file,
+        config,
+        &TraceOptions {
+            compat_tlc,
+            run: Some((0, 0)),
+            ..Default::default()
+        },
+    )?;
+    let (document, typed) = model.read(&word);
+    assert!(
+        matches!(document.validation, Validation::Invalid(_)),
+        "{:?}",
+        document.validation
+    );
+    let typed = typed.ok_or("decoded forged word")?;
     assert!(matches!(
         model.validate_trace(&typed).validation,
         Validation::Invalid(_)

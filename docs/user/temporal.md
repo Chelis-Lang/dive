@@ -499,12 +499,13 @@ of `Inv` (TLC 2107, exit 12). The true query completes with one distinct state,
 two generated states and depth one (2193, exit 0). Constant and current-state
 capture controls distinguish the creation context from the successor lookup.
 
-These primary facts guide creation-context and query-namespace support. They
-provide no native checking or independent replay acceptance. The corpus is
-reported separately from the established 156-model population, and its generated
-goldens retain their own source identity. Independent validation must establish
-both genuine and forged words under the actual captured context and finite
-covers; admitting an action-valued capture by syntax alone supplies no proof.
+Native checking matches all four in both profiles. Since the validator decides
+`ENABLED` with the core evaluator (ADR 0103), replay accepts the genuine
+initial-violation word of the primed disabled case and rejects the same word
+for the primed enabled case, where `Inv` holds, through both the document and
+the typed API (`crates/dive-api/tests/callback_enabled.rs`). The corpus is
+reported separately from the established 156-model population, and its
+generated goldens retain their own source identity.
 
 ## Hidden-query lazy argument caching
 
