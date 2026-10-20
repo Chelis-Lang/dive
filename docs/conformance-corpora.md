@@ -159,35 +159,36 @@ heap in its provenance; no file was edited after generation.
   `InterestingBehavior`, a 26-state trace) and two classified initial-state
   errors (TLC code 2102, exit 255). A simulation success does not prove
   exhaustive correctness.
-- **Second pass** (8 GB heap, derived limits capped at four hours): five
-  exhaustive successes.
+- **Second pass** (8 GB heap, derived limits capped at four hours) and
+  **third pass** (6 GB heap, eight-hour limit) over the models still without
+  a reference: exhaustive successes only.
 
-| Model | Distinct states | Depth | TLC time |
-|-------|----------------:|------:|---------:|
-| `specifications/KeyValueStore/MCKVSSafetyMedium.cfg` | 17,220,672 | 22 | 23 min |
-| `specifications/MultiCarElevator/ElevatorLivenessLarge.cfg` | 50,653 | 39 | 38 min |
-| `specifications/MultiCarElevator/ElevatorSafetyLarge.cfg` | 59,007,145 | 44 | 42 min |
-| `specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg` | 37,078,209 | 37 | 77 min |
-| `specifications/NanoBlockchain/MCNanoLarge.cfg` | 120,130,843 | 15 | 86 min |
+| Model | Pass | Distinct states | Depth | TLC time |
+|-------|-----:|----------------:|------:|---------:|
+| `specifications/KeyValueStore/MCKVSSafetyMedium.cfg` | 2 | 17,220,672 | 22 | 23 min |
+| `specifications/MultiCarElevator/ElevatorLivenessLarge.cfg` | 2 | 50,653 | 39 | 38 min |
+| `specifications/MultiCarElevator/ElevatorSafetyLarge.cfg` | 2 | 59,007,145 | 44 | 42 min |
+| `specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg` | 2 | 37,078,209 | 37 | 77 min |
+| `specifications/NanoBlockchain/MCNanoLarge.cfg` | 2 | 120,130,843 | 15 | 86 min |
+| `specifications/bcastFolklore/bcastFolklore.cfg` | 3 | 501,552 | 9 | 68 min |
+| `specifications/byzpaxos/PConProof.cfg` | 3 | 1,009,133 | 28 | 43 min |
 
-The remaining 12 models have no reference and stay in scope, without
+The remaining 10 models have no reference and stay in scope, without
 agreement credit. A run reports each of them as `oracle-error` (no golden):
 
 - `specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg`
 - `specifications/KeyValueStore/MCKVSSafetyLarge.cfg`
 - `specifications/SlushProtocol/SlushLarge.cfg`
 - `specifications/TLC/TestMCReachability.cfg`
-- `specifications/bcastFolklore/bcastFolklore.cfg`
 - `specifications/byzpaxos/BPConProof.cfg`
-- `specifications/byzpaxos/PConProof.cfg`
 - `specifications/c1cs/c1cs.cfg`
 - `specifications/dag-consensus/TLCSailfish2.cfg`
 - `specifications/detector_chan96/EnvironmentController.cfg`
 - `specifications/diskpaxos/MC_HDiskSynod.cfg`
 - `specifications/ewd998/EWD998.cfg`
 
-The full tier now has 205 in-scope model references (including the two
-`configured-temporal-operators` models), 12 missing references and the same
+The full tier now has 207 in-scope model references (including the two
+`configured-temporal-operators` models), 10 missing references and the same
 48 exclusions. No model was excluded, resized or given a different
 mode. The small tier and its agreement counts do not change.
 
