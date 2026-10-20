@@ -34,6 +34,24 @@ Expected divergence never counts as agreement. The per-model outcomes are in
 [docs/conformance.md](conformance.md); earlier measurements are in the history
 of this file.
 
+## Full-tier scoreboard
+
+Measured 2026-10-20 on `main` at `478782db` with the TLC references of
+`docs/conformance-corpora.md` (one worker, fixed 3,600-second timeout per
+model). The selection is `--tier all` over the same four corpora, models only:
+265 models, 48 of them out of scope (symbolic Apalache models and similar).
+
+| Date | Profile | Workers | Models | In scope | Agree | Unsupported | Timeout | No reference | Disagree / pending |
+|------|---------|--------:|-------:|---------:|------:|------------:|--------:|-------------:|-------------------:|
+| 2026-10-20 | TLC | 1 | 265 | 217 | 166 | 33 | 8 | 10 | 0 |
+
+The previous full-tier measurement (2026-10-13, older code and 44 fewer
+references) was 107 of 263. The row is committed as
+`conformance/baselines/full-tlc-w1.json`; it is not part of any gate. Models
+without a reference report `oracle-error`. The eight timeouts are models
+that TLC needs 3.5 to 86 minutes to check at one worker (1 to 120 million
+distinct states). Issue #338 ranks the refusal and timeout causes.
+
 ## Roadmap feature checklist
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means

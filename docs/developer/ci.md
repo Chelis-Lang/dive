@@ -86,4 +86,9 @@ dive-conformance report baseline "$OUT"/<run-id>.json \
 ```
 
 The default profile adds `--no-sany` and writes `small-dive-w1.json`.
+
+`conformance/baselines/full-tlc-w1.json` is the same digest for the full tier
+(`--tier all --no-sany --timeout 3600`, TLC profile, one worker). No gate uses
+it; it records the dated full-tier row of `docs/scoreboard.md`, and a full-tier
+run can be checked against it with `--baseline`.
 `report summarise` regenerates `docs/conformance.md` from the same reports.
