@@ -1,0 +1,458 @@
+{
+  "format_version": 1,
+  "date": "2026-10-21",
+  "purpose": "Source-specific historical dd2 functional observations and independently verified integrated855 full-gate/native evidence for noncopying live action membership; no new Agree, default-limit removal or throughput claim.",
+  "prior_dd2_observations": {
+    "format_version": 1,
+    "date": "2026-10-21",
+    "purpose": "Prior bounded functional observations for noncopying live action membership; no integrated-source full-gate, Agree, count-removal or throughput qualification.",
+    "measured_source": "dd2f0907dab0e571a037bbaaa170a6eed10a3978",
+    "measured_source_tree": "077efa447d1d1dae4ae686152b39ada67c461adb",
+    "measured_binary_sha256": "531fb86e7b82766466fc18a104e55b9c83db9f33b2f301ab92d3ccaf0c08b0c9",
+    "measured_build": "cargo build -p dive-cli --release --locked; CARGO_BUILD_JOBS=2; isolated target",
+    "source_clean_before_arms": true,
+    "source_binary_inputs_attested_before_arms_unix": 1792604176.36545,
+    "before_run_provenance_sha256": "f76f12d5bd4d6d698feabf44e4991ffdbc0a041767591e4a00833aeae423f735",
+    "machine": {
+      "platform": "macOS-26.5-arm64-arm-64bit",
+      "architecture": "arm64",
+      "shared_machine": true,
+      "throughput_claim": false
+    },
+    "model": "specifications/allocator/AllocatorImplementation.cfg",
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "standard_modules_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "command_settings": {
+      "native_time_limit_ms": 361620,
+      "native_memory_bytes": 4294967296,
+      "external_backstop_seconds": 392,
+      "workers": 1,
+      "seed": 0,
+      "fingerprint_polynomial": 0,
+      "lncheck": "final",
+      "lasso": "short",
+      "output": "json",
+      "module_path_order": [
+        "pinned standard modules"
+      ],
+      "configuration": "unmodified AllocatorImplementation.cfg"
+    },
+    "golden": {
+      "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "verdict": "success",
+      "distinct": 17701,
+      "generated": 64414,
+      "depth": 16,
+      "elapsed_ms": 36162,
+      "budget_derivation": "max(60000ms,10*36162ms), capped at900000ms =361620ms"
+    },
+    "input_sha256": {
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/AllocatorImplementation.cfg": "89187ace6f8b6f743fc8bd0cdf0a7efbfdabbd992ce989f037e22b4edcc08b70",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/AllocatorImplementation.tla": "209c8953785972a12c699370fc39085ad732ec534bd7ed5b573a48a6ea3ba72e",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/AllocatorImplementation_proof.tla": "90e197d259730d495108449362d5a7efea47c6c80ab23b34d9712048c075b932",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/AllocatorRefinement.tla": "7c3900880a1a6235440d37818e43e9a2d818af4645b2bca1964a144adc95fb74",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/SchedulingAllocator.tla": "2079cbb8770147eff672f1f3fddd759064e63c0e2c31bfa6a08de57d2d3bac79",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/SchedulingAllocator_proof.tla": "11402242872c6bc07418a9fde6241b91bcb56c8f34d954188e5e25815edffae2",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/SimpleAllocator.tla": "39180889fb44ea7cbba47e97c2fa727a54c43f8f7ff983caf61d67eb0a2db0e3",
+      "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/allocator/SimpleAllocator_proof.tla": "7debe796f6ab469d08930cc81b5ce0e62697c48c517f17cacb191bbc6f62ff18",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Bags.tla": "a2b668a8cf375b9ef9f2c14fdba742137ab8722ade0f41f11965c67acba76c39",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/FiniteSets.tla": "d94cb545256539bf782fc1914842dfe8c19c1d3d4e48b8327dd0c47b74922e1e",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Integers.tla": "071da69e5eea383d361ef308ba12ecc931bf968fcea98175c3bca419bbd8cbf2",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Json.tla": "52e38eeed89c35ef9d65ac7f6e884a8ae761c7302a52c35c0f0658035ddca0b8",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Naturals.tla": "73f2a68412039aa86f37ad08f0d0fef50fa8327d0ad8806f515548c75e9d9d84",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Randomization.tla": "998209fcb33bac3c9b4d6851dc5df5ca83d33722201cc5280b51a1f58fffaebf",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/RealTime.tla": "9052ccc8a150c93ae13a4d136da7b83dc68d1d8e9a0eee6f787db02b755f6682",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Reals.tla": "33cc699c0139b39fcee903d4dde255b64a0b430291630aa4825c6dd32b2f2fa2",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Sequences.tla": "f613cffe14133769f0972b6f6e0139aaf0773004a51bac88ada382426e3eb7f4",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/TLC.tla": "944ece590eec81ace059881c2a62064c06041efa81539a788cd40fa7d1da41ce",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/TLCExt.tla": "6c3e7e54cf1b8a4d2d1c7a5fd088f06452edce68ec28d8be99392cc0037a5399",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Toolbox.tla": "9deac1facb0b71809714229dace116da75f80bf4c65b707ff40026f380c7804a",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_DotTrace.tla": "c2f4b13446298c026decf0b3867134d2a176355344db05af7270e31981f0c8bc",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_JsonTrace.tla": "4e93f1de053afb59cbeb5ae6f0d71685acf3530c840ac4811f54e86100195742",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_Possible.tla": "3c360af74043d85a0399376aa2b1553ca9d230d06a34bd46cbae1f1e02109a13",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLAPlusCounterExample.tla": "ebc408fd614b832d2f8eab1a4dae7ae67c6d5a7958e0233c7da702c1a0e29705",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCActionTrace.tla": "4cb2f1e02109cee0053f59e72bdfb59edab12a30cddf4bc1765927288db2d134",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCTESpec.tla": "ee5b74e29dcd8d64f2a8840c293018a2007371aab14ea0eaa7c542de8f97b4aa",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCTrace.tla": "864407a426e7e438af3652a5db92912bfdf682cf97912c6bdc91d87cb94a5007",
+      "tlaplus@94d0c5070852b37b801bb8998c436383ab7ee37b/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCTracePlain.tla": "4f05472f833eadec96a2ec8cb2f1331ce8902bf08c800b80407d2980809e6d09"
+    },
+    "runs": [
+      {
+        "profile": "tlc",
+        "physical_exit": 3,
+        "verdict": "resource-limit",
+        "diagnostic": "DIVE-L0034",
+        "named_limit": "atom cells",
+        "execution": {
+          "capture_completed": true,
+          "stage": "atoms"
+        },
+        "actual_statistics": {
+          "depth": 16,
+          "distinct": 17701,
+          "generated": 64414,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "sampled_memory": {
+          "final_sampled": true,
+          "initial_sampled": true,
+          "metric": "rss",
+          "observed_max_bytes": 73793536,
+          "samples": 6,
+          "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+          "status": "sampled",
+          "unavailable_at": null
+        },
+        "external_backstop": false
+      },
+      {
+        "profile": "dive",
+        "physical_exit": 3,
+        "verdict": "resource-limit",
+        "diagnostic": "DIVE-L0034",
+        "named_limit": "atom cells",
+        "execution": {
+          "capture_completed": true,
+          "stage": "atoms"
+        },
+        "actual_statistics": {
+          "depth": 16,
+          "distinct": 17701,
+          "generated": 64414,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "sampled_memory": {
+          "final_sampled": true,
+          "initial_sampled": true,
+          "metric": "rss",
+          "observed_max_bytes": 78004224,
+          "samples": 6,
+          "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+          "status": "sampled",
+          "unavailable_at": null
+        },
+        "external_backstop": false
+      }
+    ],
+    "raw_sha256": {
+      "tlc.stdout.json": "d941087128869def3594ee32ba989cb44b1a56bf25802d1b3b94a0f628b4d2c6",
+      "tlc.stderr": "83e5d114cdcc6674a70f419d1f18df5550af390043aadb916d602491018ee076",
+      "tlc.command.json": "26fd56663c5606bcf20bbe38a64d57eaeb3e959398ac2ccf5684cecda908d394",
+      "dive.stdout.json": "67fa159fca4fda7fe822ea87dbd5a6fe487f6cffe6020ec028a5ae674a2859b5",
+      "dive.stderr": "3cae1b07eaed2609bacdba2875b911149eb221401218ebc6591eed8d6264f6d4",
+      "dive.command.json": "661a3f32dbe8b3ef0e6736755f7bd9d4e7fe18948d08bdee36bad86c500e385a"
+    },
+    "focused_controls": {
+      "source": "dd2f0907dab0e571a037bbaaa170a6eed10a3978",
+      "unique_tests": 98,
+      "suites": {
+        "liveness_lib": 42,
+        "api_original_action_targets": 4,
+        "api_temporal": 47,
+        "api_temporal_evidence": 5
+      },
+      "bounded_old_vs_new_formula_combinations": 7200,
+      "shared_fairness_dag": {
+        "GF_occurrences": 1000,
+        "input_terms": 1006,
+        "old_result": "TLC planning terms limit",
+        "new_result": "active IDs{7}, directNone under unchanged default limits"
+      },
+      "other_controls": [
+        "Absorbed/unreachable malformed root and child references, self/forward/cyclic references fail closed.",
+        "Negative polarity and plain Boolean constants, repeated modalities, exact GF/FG atomic classification and repeated junction multiplicity.",
+        "Independent original infinite-word truth remains unchanged when inactive action labels change.",
+        "Zero/exact input and actual work bounds, typed expired budget, iterative depth256boundary on64KiBstack.",
+        "Original action-error class/name/priority, complete/incomplete evidence and independently validated temporal words remain intact in both profiles."
+      ],
+      "raw_local_focused_logs_retained": false,
+      "qualification": "Local focused checks recorded from tool execution; same-source controls, not a replacement for a new integrated full gate."
+    },
+    "own_code_blobs": {
+      "crates/dive-liveness/src/tlc_plan.rs": "6e58dec6d5bb2fcc1a0134806c7be184ce9e9fec",
+      "crates/dive-liveness/src/tlc_plan/active.rs": "ecab736ba00c4e7d6fd42e4f6b3aabcf8a3fc2cf"
+    },
+    "interpretation": "The redundant copied-normalization refusal is removed; existing atom-cell guard is now the named refusal. Neither run proves the property, improves Agree, or qualifies any count removal. Early refusal timing is not compared with TLC full checking.",
+    "integration_qualification": "These observations and binary identity belong only to dd2f0907. Own-code identity does not relabel them as native observations on a later shipping pin; the integrated candidate requires its own exact full gate. Native sampled RSS is observed memory, not a projected allocation lower bound."
+  },
+  "integrated_855_qualification": {
+    "measured_source": "855928190e2b826a92bd0e0ad6371fc918d6920a",
+    "measured_source_tree": "9d2ea1f3e68cd388f55272c4602a7f539c9fd3dc",
+    "parent_actual_main": "4dcdd33969ed22847355a197f672bc0da6e976f0",
+    "original_before_source_clean": true,
+    "final_source_clean": true,
+    "original_before_source_sha256": "b9d970ecd461cb1db76c58277dc04f1e7f32c84d2daefe80cdd78209a06bfd6b",
+    "final_source_sha256": "b67a1f28d9d28dd655439c0de1a4041b483511c09f1790895e93d7f5a16183ec",
+    "source_bundle_sha256": "b62a35bd41333a82e6bc8412bb12cd9ceba1dcac0d7f8952260bbc5d848f57bb",
+    "runner_sha256": "65ce5916ea5c4210ae075ab61ec767e7fa86d583578d4add28b7548d6e8827e2",
+    "archive_script_sha256": "18465df7218cbb3afd2a3bd91b9a1c429df5f8b79f74f22178142537ab0c4c57",
+    "raw_archive_sha256": "9a9e9bf2a08205005618f0b484fc0ad7594cf74ce6be11701e040d07a90c1c2a",
+    "raw_archive_bytes": 19242892,
+    "release_binary_sha256": "a38806cce73300442dfce1d7667d58de384e4f2d60a70fee31e35751b017d637",
+    "harness_binary_sha256": "4f3069bbbe7e6580574bda578e637057c8e4e710d40ee2a5d097753c9e02f876",
+    "machine": {
+      "instance_type": "c7i.8xlarge",
+      "platform": "Linux x86_64",
+      "kernel": "7.0.0-1014-aws",
+      "cpu": "Intel Xeon Platinum 8488C",
+      "logical_cpus": 32,
+      "physical_cores": 16,
+      "memory_bytes": 66320318464,
+      "target_arms_shared_with_full_gate": true,
+      "quiet_wall_clock_claim": false
+    },
+    "toolchain": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "nextest": "0.9.143",
+      "cargo_deny": "cargo-deny 0.20.2",
+      "CARGO_BUILD_JOBS": 4,
+      "NEXTEST_TEST_THREADS": 4
+    },
+    "full_gate": {
+      "command": "cargo xtask gate --full",
+      "status": "passed",
+      "uncensored_physical_exit": 0,
+      "reported_duration": "37m11s",
+      "external_wrapper_elapsed_seconds": 2234.959636791,
+      "whole_tests_passed": 2178,
+      "whole_tests_skipped": 0,
+      "all_report_steps_passed": true,
+      "cm1_workers": [
+        1,
+        4,
+        8
+      ],
+      "validation_smoke_workers": [
+        1,
+        4,
+        8
+      ],
+      "gate_report_sha256": "14cb915fdfbe135a1ec4cd602a4d68e8bb8dfe8564eb3e7c60e260b3cb5e56ee",
+      "small_baseline_reports": [
+        {
+          "profile": "tlc",
+          "file": "20261021T191641795-dive-small.json",
+          "sha256": "951cd58378198b89057d089fa6373d7525b059bc063ab87166dc3350fa11bf65",
+          "actual_rows": {
+            "agree": 147,
+            "unsupported": 9
+          },
+          "actual_modules": {
+            "agree": 458
+          },
+          "regressions": 0,
+          "improvements": 0,
+          "other_changes": 0
+        },
+        {
+          "profile": "dive",
+          "file": "20261021T192453436-dive-small.json",
+          "sha256": "01d2d7c061357da793c3d8a195711b70410c38a00d2d9abe1963309edd2c97a0",
+          "actual_rows": {
+            "agree": 142,
+            "unsupported": 9,
+            "expected-divergence": 5
+          },
+          "actual_modules": {},
+          "regressions": 0,
+          "improvements": 0,
+          "other_changes": 0
+        }
+      ],
+      "total_sany_modules_agree": 458,
+      "new_agree_entries": 0,
+      "baseline_regressions": 0,
+      "baseline_improvements": 0,
+      "baseline_other_changes": 0,
+      "disagreements": 0,
+      "timeouts": 0,
+      "pending_trace_validation": 0
+    },
+    "native_allocator": {
+      "model": "specifications/allocator/AllocatorImplementation.cfg",
+      "unchanged_examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "oracle_rerun": false,
+      "golden_sha256": "28123a3b127a39dc89e78b660b81f8cd59042c2033f4e4478736affd34476b40",
+      "configuration": "unmodified pinned AllocatorImplementation.cfg",
+      "command_settings": {
+        "workers": 1,
+        "seed": 0,
+        "fp": 0,
+        "lncheck": "final",
+        "lasso": "short",
+        "output": "json",
+        "native_time_limit_ms": 361620,
+        "native_memory_bytes": 4294967296,
+        "external_backstop_seconds": 391.62,
+        "module_path_order": [
+          "apalache-modules-v0.62.3",
+          "tlapm-library-d8b9747"
+        ]
+      },
+      "direct_input_sha256": {
+        "AllocatorImplementation.tla": "209c8953785972a12c699370fc39085ad732ec534bd7ed5b573a48a6ea3ba72e",
+        "SimpleAllocator.cfg": "584308b2df46126ebb5423d58186ec149ae5048c348b6cb48f052fb3ec5305ca",
+        "SimpleAllocator.tla": "39180889fb44ea7cbba47e97c2fa727a54c43f8f7ff983caf61d67eb0a2db0e3",
+        "SchedulingAllocator.cfg": "48f07c633652ba7fe8509fc8950f04789efb5491e56119923623de91375a11b6",
+        "AllocatorImplementation.cfg": "89187ace6f8b6f743fc8bd0cdf0a7efbfdabbd992ce989f037e22b4edcc08b70",
+        "SchedulingAllocator_proof.tla": "11402242872c6bc07418a9fde6241b91bcb56c8f34d954188e5e25815edffae2",
+        "AllocatorRefinement.tla": "7c3900880a1a6235440d37818e43e9a2d818af4645b2bca1964a144adc95fb74",
+        "SimpleAllocator_proof.tla": "7debe796f6ab469d08930cc81b5ce0e62697c48c517f17cacb191bbc6f62ff18",
+        "AllocatorImplementation_proof.tla": "90e197d259730d495108449362d5a7efea47c6c80ab23b34d9712048c075b932",
+        "AllocatorRefinement.cfg": "685ae012385ee06d906b81eb716b0342de9a985c610edef48ee3e4cba487242f",
+        "SchedulingAllocator.tla": "2079cbb8770147eff672f1f3fddd759064e63c0e2c31bfa6a08de57d2d3bac79"
+      },
+      "module_libraries": [
+        {
+          "id": "apalache-modules-v0.62.3",
+          "commit": "3eb15b253482005222fabbf50bb7aae501eb9f8d",
+          "subdir": "src/tla",
+          "tla_sha256_manifest": {
+            "Apalache.tla": "a9115b404e72c58fd085f81bc59cc918f8adac49feabfb57f8e285bc7ab5cfac",
+            "DummyForIntegrationTests.tla": "e6c621c1b1eede1e6d01926999f59d55a29599dc85ec99d75111914dedf0d3f5",
+            "Option.tla": "0ac8049d76b57d8f84fcbcb4f8c5e14398c579959ac4ef52bb144da5d6ea5e87",
+            "Variants.tla": "d29b8c6b11703c69a0b930b2ef09aa3f16a82ef7a7b74aac276cdd9801f239b0",
+            "__apalache_folds.tla": "af712597cfd3b9bce34fceb7bc3ce2dc3910258e33cad96d9ec51a5aa2ec4687",
+            "__apalache_internal.tla": "7dacbfc5c0bda314d7b236839f3d2038a6b4eea01128c6c07dca9aa41e4e2812",
+            "__rewire_bags_ext_in_apalache.tla": "8640bad1def833cda0b8a8fd866df383ea8bceb2730d32175a441f0d81d39276",
+            "__rewire_bags_in_apalache.tla": "ee538073ee03d0f100cb7b549a3935e1e10587e546eec849db3ddf54b3374c3f",
+            "__rewire_finite_sets_ext_in_apalache.tla": "ac57de4d931c1de8c8aa72da4553354512888dac0f4c64a6075d8ef9d70d17ae",
+            "__rewire_folds_in_apalache.tla": "5d97ddc1f8b366a92978e1dbbf24a3d2f27737937cde42345f3151fe9f74ef6e",
+            "__rewire_functions_in_apalache.tla": "08b104ed949e8ca9c2b948eb19377407c8af28c690e1f3203f01c17bb1dfc51b",
+            "__rewire_sequences_ext_in_apalache.tla": "e3b6c5376df68d7bab30bee73c7ae8de417bdd34ab3be406b7047d6ac216ab61",
+            "__rewire_sequences_in_apalache.tla": "5a8e3879441710d69590f5dde8a063febcf914506cc035627a984bd747153afe",
+            "__rewire_tlc_in_apalache.tla": "050472966d3d992ba47e02fbc89aa440de6512bb501811a8a2368eb240419076"
+          }
+        },
+        {
+          "id": "tlapm-library-d8b9747",
+          "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37",
+          "subdir": "library",
+          "tla_sha256_manifest": {
+            "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+            "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+            "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+            "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+            "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+            "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+            "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+            "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+            "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+            "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+            "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+            "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+            "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+            "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+          }
+        }
+      ],
+      "independently_verified_input_files_per_profile": 39,
+      "runs": [
+        {
+          "profile": "dive",
+          "identity_captured_before_arm": "2026-10-21T19:07:54.912210+00:00",
+          "physical_exit": 3,
+          "verdict": "resource-limit",
+          "diagnostics": [
+            {
+              "cause": "liveness analysis resource limit: atom cells",
+              "code": "DIVE-L0034",
+              "help": "Include the named bound and progress in a capacity issue and use the pinned TLC for the unchanged model. A resource refusal proves no property.",
+              "location": null,
+              "message": "liveness analysis resource limit: atom cells",
+              "span": null
+            }
+          ],
+          "execution": {
+            "capture_completed": true,
+            "stage": "atoms"
+          },
+          "actual_statistics": {
+            "depth": 16,
+            "distinct": 17701,
+            "generated": 64414,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": false
+          },
+          "requested_workers": 1,
+          "used_workers": 1,
+          "native_report_elapsed_ms": 5329,
+          "external_wall_seconds": 5.375935148000053,
+          "externally_censored": false,
+          "sampled_process_memory": {
+            "final_sampled": true,
+            "initial_sampled": true,
+            "metric": "rss+swap",
+            "observed_max_bytes": 107810816,
+            "samples": 55,
+            "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+            "status": "sampled",
+            "unavailable_at": null
+          },
+          "raw_receipt_sha256": {
+            "allocator-dive.identity-before.json": "36f9dbb76014c84dc8e909b760209d2f6db44d09f4da0b5ca21a6eac239b4f66",
+            "allocator-dive.observation.json": "0c24936a2c4b415e4fc2299a4e9e592c49c57fd05b7dd0b85991ac7ae7973807",
+            "allocator-dive.stdout": "95f8b4c5c940f2f6b6967de6e68df2a73c8985b467de712a0ed8c4435539a794",
+            "allocator-dive.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "profile": "tlc",
+          "identity_captured_before_arm": "2026-10-21T19:07:54.897805+00:00",
+          "physical_exit": 3,
+          "verdict": "resource-limit",
+          "diagnostics": [
+            {
+              "cause": "liveness analysis resource limit: atom cells",
+              "code": "DIVE-L0034",
+              "help": "Include the named bound and progress in a capacity issue and use the pinned TLC for the unchanged model. A resource refusal proves no property.",
+              "location": null,
+              "message": "liveness analysis resource limit: atom cells",
+              "span": null
+            }
+          ],
+          "execution": {
+            "capture_completed": true,
+            "stage": "atoms"
+          },
+          "actual_statistics": {
+            "depth": 16,
+            "distinct": 17701,
+            "generated": 64414,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": false
+          },
+          "requested_workers": 1,
+          "used_workers": 1,
+          "native_report_elapsed_ms": 5320,
+          "external_wall_seconds": 5.377017465000108,
+          "externally_censored": false,
+          "sampled_process_memory": {
+            "final_sampled": true,
+            "initial_sampled": true,
+            "metric": "rss+swap",
+            "observed_max_bytes": 103845888,
+            "samples": 55,
+            "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+            "status": "sampled",
+            "unavailable_at": null
+          },
+          "raw_receipt_sha256": {
+            "allocator-tlc.identity-before.json": "8934d74978132702bb8e9a62a53aff6924af0c50671efa5db6d4ee9230075bc8",
+            "allocator-tlc.observation.json": "26e92cf306522c37c7c50f673509bc9dd5cca5ae969577a07aa686b36f643f42",
+            "allocator-tlc.stdout": "09f77e791efc1e2d93c33d9dd070c770de62687eb845da6941098d86460a09d3",
+            "allocator-tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "interpretation": "Both exact-source arms completed capture then returned DIVE-L0034 resource-limit: atom cells at stage atoms. The producer does not identify the graph-label, attribution or word-cell sub-bound, or report their dimensions; do not infer one. Reported capture counts match the historical golden counts, but the refused verdict does not match golden success. No property proof, Agree, capacity, performance or count-removal credit. Early refusal timing and sampled process memory are not TLC-throughput, true-peak or projected-allocation measurements."
+    },
+    "delivery_equivalence": "A later documentation-only delivery commit may carry this qualification only after an exhaustive tracked-tree comparison proves all runtime, tests, build metadata, gates, harness, corpus and oracle files unchanged from85592819. Original source/native binary identities remain85592819; they are not relabeled as a different measured shipping pin."
+  }
+}
