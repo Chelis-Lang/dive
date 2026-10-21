@@ -17,12 +17,19 @@ pub(super) fn read(
     value: &Value,
     tlc_profile: bool,
     physical_exit: Option<i32>,
+    budget_override: bool,
 ) -> Result<Fields, String> {
     let options = &value["options"];
     if !tlc_profile && options["profile"] == "dive" && options["lncheck"] == "deterministic" {
         return periodic::read(value, physical_exit);
     }
-    let profile = if tlc_profile { "tlc" } else { "dive" };
+    let profile = if budget_override {
+        "tlc+overrides"
+    } else if tlc_profile {
+        "tlc"
+    } else {
+        "dive"
+    };
     if options["profile"] != profile
         || options["lncheck"] != "final"
         || options["lasso"] != "short"

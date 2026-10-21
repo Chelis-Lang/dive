@@ -107,10 +107,18 @@ observable, with the reason in the PR body), from a run of that PR:
 dive-conformance run --impl dive --impl-profile tlc \
   --corpus examples --corpus probes --corpus validation-smoke \
   --corpus configured-temporal-operators --tier small --workers 1 \
-  --timeout 1800 --report-dir "$OUT" --no-summary
+  --tlc-budgets --budget-cap 900 --report-dir "$OUT" --no-summary
 dive-conformance report baseline "$OUT"/<run-id>.json \
   --out conformance/baselines/small-tlc-w1.json
 ```
 
 The default profile adds `--no-sany` and writes `small-dive-w1.json`.
 `report summarise` regenerates `docs/conformance.md` from the same reports.
+
+The model gates and nightly runs pass `--tlc-budgets --budget-cap 900`
+(ADR 0107): each model gets `max(60 s, 10 × golden TLC elapsed)`, hard-capped at
+900 s. Both dive profiles receive explicit
+time and memory budgets, and the harness allows a further 30 s only for
+uninterruptible work before killing the process. A budget stop is a resource
+finding, never agreement or an unsupported feature. These runs do not depend
+on the release-time default limit.

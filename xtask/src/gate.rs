@@ -43,8 +43,9 @@ const CORPUS_ARGS: &[&str] = &[
     "1",
     "--jobs",
     "2",
-    "--timeout",
-    "1800",
+    "--tlc-budgets",
+    "--budget-cap",
+    "900",
     "--no-summary",
 ];
 
@@ -379,7 +380,7 @@ fn conformance_steps(g: &mut Gate, skip_corpus: bool) {
     let smoke = gate_script(
         "conformance/gates/validation-smoke.txt",
         "validation-smoke",
-        &["--timeout", "30"],
+        &[],
     );
     g.run("cm1 gate (1, 4, 8 workers)", cm1);
     g.run("validation-smoke gate (1, 4, 8 workers)", smoke);

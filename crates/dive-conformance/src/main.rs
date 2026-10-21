@@ -107,9 +107,8 @@ LIMITS (golden generate, run; timeout options also apply to study final):
     --timeout-cap <secs>   cap on derived timeouts (default: 3600)
     --tlc-budgets          derive each model's budget from its golden's TLC time
                            and pass it to dive as --time-limit, with --xmx as
-                           --max-memory (ADR 0107); off by default, as in the gate
-    --budget-cap <secs>    cap on those budgets, never below twice TLC's time
-                           (default: 900)
+                           --max-memory (ADR 0107); selected by model gates/nightly
+    --budget-cap <secs>    hard cap on those budgets (default: 900)
     --java <path>          use this java instead of the pinned JRE (recorded in provenance)
 
 EXIT STATUS:

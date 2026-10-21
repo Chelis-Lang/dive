@@ -200,16 +200,12 @@ impl DiveImplementation {
         let workers = req.workers.to_string();
         // With `--tlc-budgets` the run gets its own budget (ADR 0107) and
         // stops itself with a structured result; the harness kills it only
-        // `KILL_GRACE` later. The TLC profile keeps the harness timeout only,
-        // since TLC has no time limit to be compatible with. Without it, dive
-        // runs with no budget of its own, exactly as before.
+        // `KILL_GRACE` later. Both profiles use the explicit host budget;
+        // compat reports it as `tlc+overrides`. Without it, dive runs with
+        // no budget of its own, exactly as before.
         let (time_limit, max_memory) = if req.budgets {
             (
-                if self.profile == Profile::Tlc {
-                    "none".to_owned()
-                } else {
-                    format!("{}ms", req.timeout.as_millis().max(1))
-                },
+                format!("{}ms", req.timeout.as_millis().max(1)),
                 req.xmx.to_owned(),
             )
         } else {
@@ -577,12 +573,45 @@ fn as_i32(v: &Value) -> Option<i32> {
     v.as_i64().and_then(|c| i32::try_from(c).ok())
 }
 
+fn budget_profile(options: &Value, time_limit: Option<Duration>) -> bool {
+    let Some(limit) = time_limit else {
+        return false;
+    };
+    let millis = u64::try_from(limit.as_millis()).unwrap_or(u64::MAX).max(1);
+    options["profile"] == "tlc+overrides"
+        && options["semantic_profile"] == "tlc"
+        && options["budget"]["time_limit_source"] == "explicit"
+        && options["budget"]["time_limit_ms"].as_u64() == Some(millis)
+        && options["int"] == "tlc"
+        && options["choose_order"] == "tlc"
+        && options["explore_order"] == "tlc"
+        && options["comparisons"] == "tlc"
+        && options["store"] == "fingerprint"
+        && options["fingerprint"]["scheme"] == "tlc"
+        && options["fingerprint"]["polynomial_index"] == 0
+        && options["seed"] == 0
+        && options["deadlock_flag"] == false
+        && options["warnings"] == true
+        && matches!(options["action_composition"].as_str(), Some("off" | "tlc"))
+        && options["checkpoint"].is_null()
+}
+
 /// Maps a `dive check --output json` run into the oracle vocabulary.
 /// `tlc_profile`: the run was under `--compat=tlc`, so its exit code must be
 /// TLC's for the verdict.
 #[must_use]
-#[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
 pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping {
+    check_result_with_budget(outcome, tlc_profile, None)
+}
+
+/// A harness-selected time budget is the sole admitted compat override.
+/// Its reported value and the semantic settings must match the request.
+#[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
+fn check_result_with_budget(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    time_limit: Option<Duration>,
+) -> CheckMapping {
     if outcome.timed_out {
         return CheckMapping::Result(Box::new(bare(
             Verdict::Timeout,
@@ -609,12 +638,21 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
             "dive check's report has an unknown schema".to_owned(),
         );
     }
+    let budget_override = tlc_profile && time_limit.is_some();
+    if budget_override && !budget_profile(&v["options"], time_limit) {
+        return unclassified(
+            outcome.exit_code,
+            "budgeted compat report contradicts the requested budget or TLC semantics".into(),
+        );
+    }
     let temporal = match v.get("schema_version").and_then(Value::as_u64) {
         Some(DIVE_JSON_SCHEMA) => None,
-        Some(2) => match ordinary_final::read(&v, tlc_profile, outcome.exit_code) {
-            Ok(fields) => Some(fields),
-            Err(error) => return unclassified(outcome.exit_code, error),
-        },
+        Some(2) => {
+            match ordinary_final::read(&v, tlc_profile, outcome.exit_code, budget_override) {
+                Ok(fields) => Some(fields),
+                Err(error) => return unclassified(outcome.exit_code, error),
+            }
+        }
         _ => {
             return unclassified(
                 outcome.exit_code,
@@ -893,14 +931,20 @@ impl Implementation for DiveImplementation {
             )));
         }
         let (command, outcome) = self.run_model(req, false)?;
-        Ok(match check_result(&outcome, self.profile == Profile::Tlc) {
-            CheckMapping::Refused(why) => ImplResult::Unsupported(why),
-            CheckMapping::Result(result) => ImplResult::Completed {
-                result: *result,
-                command,
-                elapsed: outcome.elapsed,
+        Ok(
+            match check_result_with_budget(
+                &outcome,
+                self.profile == Profile::Tlc,
+                req.budgets.then_some(req.timeout),
+            ) {
+                CheckMapping::Refused(why) => ImplResult::Unsupported(why),
+                CheckMapping::Result(result) => ImplResult::Completed {
+                    result: *result,
+                    command,
+                    elapsed: outcome.elapsed,
+                },
             },
-        })
+        )
     }
 
     fn parse_module(
@@ -991,6 +1035,93 @@ mod tests {
             stderr: String::new(),
             elapsed: Duration::ZERO,
         }
+    }
+
+    #[test]
+    fn only_the_requested_budget_override_preserves_tlc_facts()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        use dive_api::{BudgetSetting, CheckRequest, ExitConvention};
+        use serde_json::json;
+
+        let scratch = TempDir::new_in(&std::env::temp_dir(), "budget-profile")?;
+        let file = scratch.path().join("BudgetProfile.tla");
+        std::fs::write(
+            &file,
+            "---- MODULE BudgetProfile ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x\nP == <>(x=1)\n====\n",
+        )?;
+        let limit = Duration::from_secs(60);
+        for temporal in [false, true] {
+            std::fs::write(
+                file.with_extension("cfg"),
+                if temporal {
+                    "INIT Init\nNEXT Next\nPROPERTY P\n"
+                } else {
+                    "INIT Init\nNEXT Next\n"
+                },
+            )?;
+            let report = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                compat_tlc: true,
+                fp: Some(0),
+                seed: Some(0),
+                time_limit: BudgetSetting::Explicit(limit),
+                max_memory: BudgetSetting::Unlimited,
+                ..CheckRequest::default()
+            })?;
+            let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+            let status = i32::from(report.exit_code_for(ExitConvention::Tlc));
+            let mapped = |value: &Value| {
+                check_result_with_budget(&outcome(status, &value.to_string()), true, Some(limit))
+            };
+            let CheckMapping::Result(fact) = mapped(&value) else {
+                return Err("budgeted report must produce a classified result".into());
+            };
+            assert_eq!(
+                fact.verdict,
+                if temporal {
+                    Verdict::LivenessViolation
+                } else {
+                    Verdict::Success
+                }
+            );
+            for (pointer, replacement) in [
+                ("/options/profile", json!("tlc")),
+                ("/options/semantic_profile", json!("dive")),
+                ("/options/int", json!("big")),
+                ("/options/choose_order", json!("canonical")),
+                ("/options/explore_order", json!("value")),
+                ("/options/comparisons", json!("tla")),
+                ("/options/action_composition", json!("tla")),
+                ("/options/store", json!("exact")),
+                ("/options/fingerprint/scheme", json!("dive")),
+                ("/options/fingerprint/polynomial_index", json!(1)),
+                ("/options/seed", json!(1)),
+                ("/options/deadlock_flag", json!(true)),
+                ("/options/warnings", json!(false)),
+                ("/options/budget/time_limit_ms", json!(1)),
+                ("/options/budget/time_limit_source", json!("none")),
+            ] {
+                let mut bad = value.clone();
+                *bad.pointer_mut(pointer).ok_or("control field exists")? = replacement;
+                assert!(
+                    matches!(mapped(&bad), CheckMapping::Result(r) if r.verdict == Verdict::Unclassified),
+                    "{pointer}"
+                );
+            }
+            let mut checkpoint = value.clone();
+            checkpoint["options"]["checkpoint"] = json!({"counters": "retain"});
+            assert!(
+                matches!(mapped(&checkpoint), CheckMapping::Result(r) if r.verdict == Verdict::Unclassified)
+            );
+            if temporal {
+                // The ordinary reader still rejects overrides without a
+                // harness request authorizing this exact budget.
+                assert!(
+                    matches!(check_result(&outcome(status, &value.to_string()), true), CheckMapping::Result(r) if r.verdict == Verdict::Unclassified)
+                );
+            }
+        }
+        Ok(())
     }
 
     #[test]
