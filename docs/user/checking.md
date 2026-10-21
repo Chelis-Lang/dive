@@ -419,15 +419,19 @@ Unassigned `x \in lo..hi` initial predicates and `x' \in lo..hi` successor
 assignments stream ascending integers without first retaining the whole domain.
 This lets existing checker guards run when a complete assignment reaches the
 sink. Already assigned variables still use the ordinary membership check. Other
-constructors, branches that never emit a complete assignment, and long individual
-evaluations remain potentially uninterruptible (issue #349). No fixed domain-size
-count is introduced. Parallel checking polls the armed run budget during
+constructors can still materialize a domain before candidate binding, and long
+individual evaluations remain potentially uninterruptible (issue #349). No fixed
+domain-size count is introduced. Parallel checking polls the armed run budget during
 successor emission (issue #362). A stop retains its actual ordered prefix and
 leaves the unfinished source queued; a later worker's violation cannot bypass an
 earlier incomplete expansion. A predicate such as
-`x' \in 0..50000000 /\ FALSE` emits no complete successors, so this emission
-guard does not interrupt its enumeration; single long evaluations retain the
-same limitation. For a bounded first-state violation with an independently
+`x' \in 0..50000000 /\ FALSE` emits no complete successors, so the emission
+guard alone cannot interrupt it. The additional amortized candidate checkpoint
+now observes the budget before binding while this rejecting search proceeds
+(issue #393), including inside private action-composition collection. Quiet
+normalization/equality/hash units, domain materialization before the candidate
+loop, and single long evaluations retain their limitations. For a bounded
+first-state violation with an independently
 validated witness, run:
 
 ```sh

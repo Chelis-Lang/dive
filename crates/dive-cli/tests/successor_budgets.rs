@@ -70,6 +70,8 @@ fn rejected_candidates_return_stopped_with_only_actual_external_progress() -> Te
                 String::from_utf8_lossy(&output.stderr)
             );
             let json: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            assert_eq!(json["options"]["workers"]["requested"], workers, "{json}");
+            assert_eq!(json["options"]["workers"]["used"], workers, "{json}");
             assert_eq!(json["verdict"], "stopped", "{json}");
             assert_eq!(json["stopped"]["resource"], "time", "{json}");
             assert_eq!(json["stopped"]["phase"], "safety-search", "{json}");
