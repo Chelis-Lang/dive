@@ -184,7 +184,9 @@ fn a_memory_ceiling_below_the_footprint_stops_the_run() -> Result<(), Box<dyn st
             ..request(&file, compat_tlc, 1)
         })?;
         let json = report.to_json();
-        assert_stopped(&json, "memory", "safety-search");
+        assert_stopped(&json, "memory", "check-startup");
+        assert!(json["statistics"].is_null());
+        assert_eq!(json["execution"]["started"], false);
         assert_eq!(json["stopped"]["limit"], 1 << 20);
         assert_eq!(json["options"]["budget"]["max_memory_source"], "explicit");
     }
@@ -380,5 +382,106 @@ fn a_large_interval_reaches_the_successor_budget_at_each_worker_width()
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), exit::STOPPED);
         }
     }
+    Ok(())
+}
+
+#[test]
+fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
+-> Result<(), Box<dyn std::error::Error>> {
+    if dive_check::budget::resident_bytes().is_none() {
+        return Ok(());
+    }
+    let scratch = scratch()?;
+    let file = scratch.0.join("Tiny.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Tiny ----\nEXTENDS Naturals, TLC\nVARIABLE x\nASSUME PrintT(\"binding-ran\") /\\ FALSE\nInit == x \\in 0..1000000000\nNext == UNCHANGED x\nP == <>TRUE\n====\n",
+    )?;
+    for compat in [false, true] {
+        for workers in [1, 8] {
+            for (property, temporal) in [
+                (false, dive_api::TemporalMode::Ordinary),
+                (true, dive_api::TemporalMode::Ordinary),
+                (true, dive_api::TemporalMode::FinalShort),
+            ] {
+                std::fs::write(
+                    file.with_extension("cfg"),
+                    if property {
+                        "INIT Init\nNEXT Next\nPROPERTY P\n"
+                    } else {
+                        "INIT Init\nNEXT Next\n"
+                    },
+                )?;
+                let report = check_file(&CheckRequest {
+                    max_memory: BudgetSetting::Explicit(1),
+                    time_limit: BudgetSetting::Unlimited,
+                    temporal,
+                    ..request(&file, compat, workers)
+                })?;
+                let json = report.to_json();
+                assert_stopped(&json, "memory", "check-startup");
+                assert_eq!(report.exit_code(), 5);
+                assert_eq!(json["stopped"]["limit"], 1);
+                assert!(json["stopped"]["observed"].as_u64() > Some(1));
+                assert!(json["statistics"].is_null(), "no search began: {json}");
+                assert_eq!(json["execution"]["stage"], "check-startup");
+                assert_eq!(json["execution"]["started"], false);
+                assert_eq!(json["execution"]["capture_completed"], false);
+                assert_eq!(json["resources"]["memory"]["initial_sampled"], true);
+                assert_eq!(json["resources"]["memory"]["final_sampled"], true);
+                assert!(json["resources"]["memory"]["samples"].as_u64() >= Some(2));
+                assert_eq!(json["options"]["budget"]["max_memory_source"], "explicit");
+                assert_eq!(
+                    json["output"],
+                    serde_json::json!([]),
+                    "future ASSUME was not evaluated"
+                );
+            }
+        }
+        // This control proves the binding effect/error would occur without the cut.
+        std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")?;
+        let ordinary = check_file(&CheckRequest {
+            max_memory: BudgetSetting::Unlimited,
+            time_limit: BudgetSetting::Unlimited,
+            ..request(&file, compat, 1)
+        })?
+        .to_json();
+        assert_eq!(ordinary["verdict"], "assumption-failure");
+        assert!(
+            ordinary["output"]
+                .as_array()
+                .ok_or("output array")?
+                .iter()
+                .any(|line| line
+                    .as_str()
+                    .is_some_and(|text| text.contains("binding-ran")))
+        );
+    }
+    Ok(())
+}
+
+#[test]
+fn loading_errors_remain_before_initial_memory_sampling() -> Result<(), Box<dyn std::error::Error>>
+{
+    let scratch = scratch()?;
+    let file = scratch.0.join("Small.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Small ----\nVARIABLE x\nInit == x = TRUE\nNext == UNCHANGED x\n====\n",
+    )?;
+    let req = CheckRequest {
+        max_memory: BudgetSetting::Explicit(1),
+        ..request(&file, false, 1)
+    };
+    assert!(matches!(
+        check_file(&req),
+        Err(dive_api::ApiError::Io { .. })
+    ));
+    std::fs::write(file.with_extension("cfg"), "INIT\n")?;
+    let rejected = check_file(&req)?.to_json();
+    assert_eq!(rejected["verdict"], "rejected");
+    assert_eq!(rejected["resources"]["memory"]["status"], "not-started");
+    assert_eq!(rejected["resources"]["memory"]["samples"], 0);
+    assert!(rejected.get("stopped").is_none());
     Ok(())
 }

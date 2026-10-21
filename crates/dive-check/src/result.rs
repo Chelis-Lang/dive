@@ -158,6 +158,11 @@ pub enum Verdict {
     /// (ADR 0107). Never a verdict about the model; the statistics are those
     /// at the stop.
     Stopped(Box<crate::budget::Stopped>),
+    /// A required process-memory observation failed; never a model verdict.
+    BudgetMeasurement {
+        /// Typed measurement failure, without an invented observed byte count.
+        error: crate::budget::MeasurementError,
+    },
     /// An internal invariant of dive failed: a bug, never a verdict.
     InternalError {
         /// What.
@@ -207,7 +212,7 @@ impl Verdict {
             Self::Unsupported { .. } => "unsupported",
             Self::ResourceLimit { .. } => "resource-limit",
             Self::Stopped(_) => "stopped",
-            Self::InternalError { .. } => "internal-error",
+            Self::InternalError { .. } | Self::BudgetMeasurement { .. } => "internal-error",
         }
     }
 
@@ -232,6 +237,7 @@ impl Verdict {
             Self::Unsupported { .. }
                 | Self::ResourceLimit { .. }
                 | Self::Stopped(_)
+                | Self::BudgetMeasurement { .. }
                 | Self::InternalError { .. }
         )
     }
@@ -290,6 +296,7 @@ impl Verdict {
             Self::Unsupported { .. }
             | Self::ResourceLimit { .. }
             | Self::Stopped(_)
+            | Self::BudgetMeasurement { .. }
             | Self::InternalError { .. } => {
                 return None;
             }

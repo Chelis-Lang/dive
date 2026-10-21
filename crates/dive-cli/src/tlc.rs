@@ -333,6 +333,10 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
             let _ = writeln!(err, "{error}; no verdict produced");
             return ExitCode::from(4);
         }
+        Err(dive_api::ApiError::BudgetMeasurement(error)) => {
+            let _ = writeln!(err, "{error}; no verdict produced");
+            return ExitCode::from(4);
+        }
         Err(dive_api::ApiError::Unsupported { feature }) => {
             return Failure::Unsupported(feature).emit(err);
         }

@@ -62,6 +62,7 @@ fn headline(v: &Verdict) -> String {
         Verdict::Stopped(stopped) => {
             format!("{stopped}; no verdict produced ({})", stopped.hint())
         }
+        Verdict::BudgetMeasurement { error } => format!("{error}; no verdict produced"),
         Verdict::InternalError { message } => {
             format!("internal error: {message}; no verdict produced (please report this)")
         }

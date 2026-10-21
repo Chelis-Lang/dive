@@ -138,3 +138,31 @@ not report completed temporal capture. Parse/analysis and translation acceptance
 simulation samples, DFID bounds and trace validation retain their operation's
 original proof qualifications. This wire policy does not promise a stable Rust
 library API; that interface has its own delivery milestone.
+
+
+## Memory observations
+
+Check reports add `resources.memory` without changing schema-2 verdict tags.
+The configured ceiling remains in `options.budget.max_memory_bytes`; its
+requested source is retained separately from enforcement observations.
+`metric` is `rss+swap` on Linux or `rss` on macOS. `samples` and
+`observed_max_bytes` describe successful observations, with `null` maximum when
+none succeeded; they are not a true process-peak measurement.
+`initial_sampled`, `final_sampled` and `unavailable_at` describe the boundaries
+actually reached. `status` distinguishes sampled, not-started, disabled and
+unavailable observations. Disabled means an explicit unlimited memory setting;
+it never means an unknown measurement was replaced by zero.
+
+A known initial excess uses the existing `stopped` outcome and exit 5, phase
+`check-startup`, no statistics and `execution.started: false`; binding and graph
+capture have not started. An unavailable observation or default/auto RAM lookup
+fails with `DIVE-R0002` using the existing internal-error/no-verdict transport,
+exit 4. It has no invented `stopped.observed` byte count or TLC class.
+Terminal excess uses phase/stage `finalization`, retaining actual capture
+completion and progress. Stops and measurement failures mark retained statistics
+`exhaustive: false`; completed capture alone does not prove the checked claim.
+`DIVE-R0001` remains the separate watchdog-thread startup failure. A genuine
+earlier error or already validated witness keeps its actual precedence; a later
+sampling failure is still reported as unavailable rather than an enforced
+ceiling. Optional diagnostic identifiers and resource metadata are additive
+under ADR 0108; the `dive-trace` payload remains version 1.

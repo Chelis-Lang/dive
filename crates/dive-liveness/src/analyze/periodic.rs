@@ -234,9 +234,16 @@ pub fn analyze_periodic(
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     // One budget for capture and every level check (ADR 0107); only the
     // budget's own limit becomes a stop.
-    let (_watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
+    let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
         failure(
-            AnalysisError::BudgetStartup(error.to_string()),
+            match error {
+                dive_check::budget::StartError::Measurement(error) => {
+                    AnalysisError::BudgetMeasurement(error)
+                }
+                error @ dive_check::budget::StartError::Thread(_) => {
+                    AnalysisError::BudgetStartup(error.to_string())
+                }
+            },
             Stage::Planning,
             None,
             None,
@@ -248,20 +255,68 @@ pub fn analyze_periodic(
         )
     })?;
     let _scope = crate::budget::enter(&armed.budget);
-    periodic_unbudgeted(model, &armed, limits, policy, schedule)
-        .map_err(|failure| budget_failure(failure, &armed.budget))
+    let result = periodic_unbudgeted(model, &armed, limits, policy, schedule)
+        .map_err(|failure| budget_failure(failure, &armed.budget));
+    if let Some(watchdog) = &mut watchdog {
+        let finished = watchdog.finish();
+        if let Ok((analysis, checks)) = &result {
+            let error = match finished {
+                Err(error) => Some(AnalysisError::BudgetMeasurement(error)),
+                Ok(Some(exhausted)) => Some(AnalysisError::Stopped(Box::new(
+                    exhausted.during(dive_check::budget::Phase::Finalization),
+                ))),
+                Ok(None) => None,
+            };
+            if let Some(error) = error {
+                let (evidence, completed) = match analysis {
+                    PeriodicAnalysis::Final(Analysis::Holds(capture)) => {
+                        (ExplorationEvidence::from(capture), true)
+                    }
+                    PeriodicAnalysis::Final(Analysis::Candidate(candidate)) => {
+                        (ExplorationEvidence::from(&candidate.exploration), true)
+                    }
+                    PeriodicAnalysis::Prefix(candidate) => {
+                        let capture = &candidate.exploration;
+                        (
+                            ExplorationEvidence {
+                                stats: capture.stats,
+                                workers: capture.workers.clone(),
+                                collision: capture.collision.clone(),
+                                output: capture.output.clone(),
+                                warnings: capture.warnings.clone(),
+                            },
+                            false,
+                        )
+                    }
+                };
+                return Err(failure(
+                    error,
+                    Stage::Finalization,
+                    Some(Box::new(evidence)),
+                    None,
+                    Some(completed),
+                    *checks,
+                ));
+            }
+        }
+    }
+    result
 }
 
 fn budget_failure(
     mut failure: PeriodicFailure,
     budget: &dive_check::budget::Budget,
 ) -> PeriodicFailure {
-    if let Some(exhausted) = budget.poll()
-        && super::budget_limit(&failure.failure.failure.error)
-    {
-        failure.failure.failure.error = AnalysisError::Stopped(Box::new(
-            exhausted.during(dive_check::budget::Phase::Temporal),
-        ));
+    if super::budget_limit(&failure.failure.failure.error) {
+        match budget.poll() {
+            Ok(Some(exhausted)) => {
+                failure.failure.failure.error = AnalysisError::Stopped(Box::new(
+                    exhausted.during(dive_check::budget::Phase::Temporal),
+                ));
+            }
+            Err(error) => failure.failure.failure.error = AnalysisError::BudgetMeasurement(error),
+            Ok(None) => return failure,
+        }
         failure.failure.action = None;
     }
     failure
