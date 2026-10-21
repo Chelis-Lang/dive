@@ -107,11 +107,11 @@ fn opaque_providers_remain_refused_without_methods_even_with_warm_caches() {
 #[test]
 fn huge_binders_and_nested_selection_use_metadata_and_one_shared_budget() {
     let ir = ir(
-        "---- MODULE Projection ----\nEXTENDS Naturals, Sequences\nQ==SelectSeq(<<0>>,LAMBDA v: \\E z \\in 1..1000000000: z=v)\nNested==SelectSeq(<<0>>,LAMBDA v: Len(SelectSeq(<<v>>,LAMBDA w: w=0))=1)\n====\n",
+        "---- MODULE Projection ----\nEXTENDS Naturals, Sequences\nQ==SelectSeq(<<0>>,LAMBDA v: \\E z \\in 1..1000000000: z=v)\nNested==SelectSeq(<<0>>,LAMBDA v: Len(SelectSeq(<<v>>,LAMBDA w: w=0))=1)\nDependent==SelectSeq(<<0>>,LAMBDA v: \\A w \\in {v}: Len(SelectSeq(<<w>>,LAMBDA z: z=w))=1)\n====\n",
     );
     for options in [Options::tlc(), Options::dive()] {
         let evaluator = Evaluator::new(Model::new(ir.clone()), options).expect("evaluator");
-        for name in ["Q", "Nested"] {
+        for name in ["Q", "Nested", "Dependent"] {
             let def = ir.root_def(name).expect("definition");
             let Expr::Apply { callee, args } = ir.expr(ir.def(def).body) else {
                 panic!("SelectSeq application")

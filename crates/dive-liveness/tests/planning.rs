@@ -530,19 +530,24 @@ Q == [] (Captured(1-x) = IF x=0 THEN <<1>> ELSE <<0,0>>)
 }
 
 #[test]
-fn selectseq_temporal_callbacks_keep_named_capability_refusals() {
-    for (callback, supported) in [
-        ("LAMBDA y: y=x'", false),
-        ("LAMBDA y: \\E z \\in {y}: z=x", true),
-        ("LAMBDA y: [z \\in {y} |-> z] = [z \\in {y} |-> z]", true),
-        ("LAMBDA y: y \\in Seq({x})", false),
-        ("LAMBDA y: PrintT(y)", false),
-        ("LAMBDA y: ToString(y)=\"0\"", false),
-        ("LAMBDA y: ENABLED (x'=y)", false),
-        ("LAMBDA y: RandomElement({TRUE,FALSE})", false),
+fn selectseq_callback_truth_and_capability_boundaries() {
+    for (callback, supported, constant_true) in [
+        ("LAMBDA y: y=x'", false, false),
+        ("LAMBDA y: \\E z \\in {y}: z=x", true, false),
+        (
+            "LAMBDA y: [z \\in {y} |-> z] = [z \\in {y} |-> z]",
+            true,
+            true,
+        ),
+        ("LAMBDA y: y \\in Seq({x})", false, false),
+        ("LAMBDA y: PrintT(y)", false, false),
+        ("LAMBDA y: ToString(y)=\"0\"", false, false),
+        ("LAMBDA y: ENABLED (x'=y)", false, false),
+        ("LAMBDA y: RandomElement({TRUE,FALSE})", false, false),
         (
             "LAMBDA y: IF TRUE THEN y=x ELSE (\\E z \\in {y}: z=x)",
             true,
+            false,
         ),
     ] {
         let source = format!(
@@ -556,7 +561,6 @@ fn selectseq_temporal_callbacks_keep_named_capability_refusals() {
             continue;
         }
         let plan = result.expect(callback);
-        let constant_true = callback.contains("|->");
         for x in [0, 1] {
             let before: dive_trace::State = Arc::from([Some(Value::Int(x))]);
             let after: dive_trace::State = Arc::from([Some(Value::Int(1 - x))]);
