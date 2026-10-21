@@ -3,7 +3,7 @@
   "measured_at": "2026-10-21",
   "campaign": "persistent-function-domains-239db53f",
   "tracking_issue": 397,
-  "status": "Complete instruction screen passed; conditional full checker gate pending. Not production acceptance.",
+  "status": "Complete eight-cell instruction screen and exact239 full checker gate passed; final delivery source review remains separate.",
   "measurement": {
     "kind": "Cachegrind instruction count",
     "counter": "Ir",
@@ -1044,22 +1044,85 @@
     "all_other_nonowned_main_paths": "Preserved byte for byte. Whole delivery tree is not claimed identical to measured239."
   },
   "checker_gate": {
-    "status": "pending",
+    "status": "passed",
     "source": "239db53f4666f5433426ce86e402bcaf7e7548c5",
-    "exit": null,
-    "tests_passed": null,
-    "tests_skipped": null,
-    "report_sha256": null,
-    "small_tlc": null,
-    "small_dive": null,
-    "baseline_comparisons": null,
-    "qualified": false
+    "tree": "418962c849b29a6916c5489c6d69c5a369fae3ec",
+    "exit": 0,
+    "externally_censored": false,
+    "report_duration": "35m16s",
+    "tests_passed": 2188,
+    "tests_skipped": 0,
+    "report_sha256": "93bd42c74cd0138299ba0ed30e8727192e7517b2d36dd53881960544655c6bd0",
+    "source_after_sha256": "5dfc16b658784277093233f62c63c873e21af784de793a29ad1bd5c5f5cded73",
+    "gate_observation_sha256": "cf445055fc7983f4e2911f2d40b717bd161268ce7db044ca7e11bd84d2f03471",
+    "canonical_archive_sha256": "e52ecde6a9aa7107d9e1a7ded03de3537e0c927ee276678a5e98b47f3c2b8b0e",
+    "independent_delivery_audit_sha256": "0ca7c8cdc6c7e68a42177d2848f53b1e3b0c57d03f674c3fc98acefce706cc7c",
+    "small_profiles": [
+      {
+        "profile": "tlc",
+        "report_sha256": "e297a82498e669da3824666872e4655a511d5965001facc558a9b7c749a133bd",
+        "outcomes": {
+          "agree": 147,
+          "unsupported": 9
+        },
+        "models": 156,
+        "modules": 458,
+        "all_baseline_ids_outcomes_and_recorded_run_fields_equal": true,
+        "release_cli_sha256": "0fec7e9f4f18c5c64c318931e71c86a8e063146f24961f82a26d07079f279dd0"
+      },
+      {
+        "profile": "dive",
+        "report_sha256": "ae764aa03d1758e30dc93c48c1927751e0e20d742307170ae7c6b417f222eeac",
+        "outcomes": {
+          "agree": 142,
+          "unsupported": 9,
+          "expected-divergence": 5
+        },
+        "models": 156,
+        "modules": 0,
+        "all_baseline_ids_outcomes_and_recorded_run_fields_equal": true,
+        "release_cli_sha256": "0fec7e9f4f18c5c64c318931e71c86a8e063146f24961f82a26d07079f279dd0"
+      }
+    ],
+    "baseline_comparisons": {
+      "both_complete_id_sets_and_recorded_run_fields_identical": true,
+      "regressions": 0,
+      "improvements": 0,
+      "other_changes": 0,
+      "baselines_modified": false
+    },
+    "cm1_workers": [
+      1,
+      4,
+      8
+    ],
+    "validation_smoke_workers": [
+      1,
+      4,
+      8
+    ],
+    "sany_agree": 458,
+    "qualified": true,
+    "qualification": "Gate belongs to actual239; the separately qualified399 fixture delta is transferred explicitly, not relabelled as part of this full gate.",
+    "release_binaries_collection": {
+      "collected_at": "2026-10-21T21:08:35.173188+00:00",
+      "source": "239db53f4666f5433426ce86e402bcaf7e7548c5",
+      "source_matches_final_after": true,
+      "binaries_sha256": {
+        "dive": "0fec7e9f4f18c5c64c318931e71c86a8e063146f24961f82a26d07079f279dd0",
+        "dive-conformance": "1e7beec709c24dc9dd75c5caf8b172b85e53f3860f5d9a4149fe9312428d79d8"
+      },
+      "receipt_sha256": "18dbf5df880eb7954d4e7be6baf569c89cf1625125e8e589e18fca227b96e87b",
+      "archive_sha256": "e8e67b9fbb028e1f6e905fe792208ac8de9cc8e37c97fb1fcd1599806d24bd39",
+      "release_cli_matches_both_corpus_producer_hashes": true,
+      "qualification": "Collection-time source/binary snapshot after runner completion; not before-build, before-run or continuous attestation. Initial evidence-only git-owner failure remains external; corrected collection did not run models, build or change source."
+    }
   },
   "qualification": {
     "instruction_screen": true,
-    "full_gate": false,
+    "full_gate": true,
     "production_acceptance": false,
-    "adr_0110_status": "proposed",
+    "adr_0110_status": "accepted",
     "wall_time_gain": false,
     "tlc_throughput_gain": false,
     "parallel_scaling_gain": false,
@@ -1069,7 +1132,7 @@
       "Four reduced ADR0104 models, both profiles, one worker and one paired measurement per cell.",
       "No quiet wall-clock, full-model,8-worker or TLC speedup measurement.",
       "Observed native safety verdict/count/depth equivalence is not a95-percent corpus-parity claim.",
-      "Pending gate fields remain null; no failed/skipped/unrun result is relabelled."
+      "Final delivery source review and required PR checks are distinct from the measured source gate; no result is relabelled."
     ]
   }
 }

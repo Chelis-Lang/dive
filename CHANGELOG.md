@@ -5,7 +5,8 @@
   and borrow checked domain views. Existing unknown-key comparison/refusal,
   literal/order, hash, fingerprint and codec behavior is retained. A complete
   reduced eight-cell screen measured 5.365455% fewer instructions geometrically;
-  the full checker gate is pending, with no wall-clock or TLC-throughput claim.
+  the full checker gate and both small baselines pass without regressions.
+  This is no wall-clock or TLC-throughput claim.
 
 - Live action-membership metadata uses iterative summaries of the original
   formula DAG instead of retaining copied normalization trees. Preserve original

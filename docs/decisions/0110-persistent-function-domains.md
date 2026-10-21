@@ -1,6 +1,6 @@
 # 0110: Persistent finite-function domains
 
-- **Status:** proposed (experimental performance candidate)
+- **Status:** accepted (2026-10-21)
 - **Date:** 2026-10-21
 
 ## Context
@@ -20,7 +20,7 @@ the existing checked comparison and forcing boundaries.
 
 ## Decision
 
-In this experiment, a general function stores immutable keys in an `Arc`-owned
+A general function stores immutable keys in an `Arc`-owned
 private domain descriptor and keeps its range in a separate boxed slice. Tuple
 and Record representations and their public borrowed slices stay unchanged.
 Same-context EXCEPT may share a proven canonical domain while replacing range
@@ -79,7 +79,12 @@ with identical verdicts/counts/depth; geometric instruction reduction is
 receipts and all raw arm hashes are retained. See the
 [compact evidence](../survey/data/persistent-function-domains-2026-10-21.json).
 
-The conditional full checker gate and both small-baseline comparisons remain
-pending. This ADR remains proposed until that evidence and final source review
-are complete. Instruction screening alone is not production acceptance or a
-wall-clock, TLC-throughput, parallel-scaling or release milestone claim.
+The exact `239db53f` full checker gate passed in 35m16s: all 2,188 tests,
+cm1 and independent validation at 1/4/8 workers, 147 TLC-profile and 142 default
+small-corpus agreements, 458 SANY agreements, and no disagreements, timeouts or
+baseline changes. Main's subsequent benchmark fake-child test headroom change
+is separately qualified; delivery preserves the measured owned runtime/tests
+and the benchmark production prefix, rather than claiming whole-tree identity.
+Final delivery source review and PR checks remain separate obligations. These
+instruction counts establish no wall-clock, TLC-throughput, parallel-scaling or
+release milestone claim.
