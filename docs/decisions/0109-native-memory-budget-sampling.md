@@ -1,6 +1,6 @@
 # ADR 0109: Native memory-budget boundary sampling
 
-- **Status:** accepted (owner, 2026-10-21); implementation qualification required.
+- **Status:** accepted (2026-10-21).
 - **Supersedes:** ADR 0107's delayed-only memory sampling and silent unavailable-memory fallback.
 
 ## Context
@@ -61,6 +61,8 @@ native medians of 459–500 ns and cold samples of 1,125–1,958 ns, versus 20-c
 `ps` medians of 1.135–1.192 ms. The diagnostic ran on a shared macOS host and
 makes no quiet-machine or integrated-check performance claim. Dependency/source
 and licence checks passed; raw observations remain outside the repository.
-Production acceptance still requires focused failure/precedence controls, the
-full checker gate, trivial-check wall-time comparisons and at most 1% normal
-instruction overhead across the ADR 0104 matrix and a genuine parallel path.
+Focused failure/precedence controls, the full checker gate, and trivial-check
+wall-time diagnostics passed. Normal-input instructions remained within 1% on
+every ADR 0104 cell and on a genuine parallel path. The
+[qualification](../developer/performance.md#native-memory-budget-sampling-qualification)
+records the complete matrix, source identity and measurement limitations.

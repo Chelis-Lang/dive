@@ -396,3 +396,33 @@ retains all rows/pairs, exact source/binary/workload/library identities, machine
 toolchain, constraints and archive hash. The shared host and reduced diagnostic
 workloads earn no wall-clock or TLC throughput credit; no TLC oracle executes
 in this paired instruction campaign. Raw output remains external.
+
+## Native memory-budget sampling qualification
+
+Initial and terminal process-memory observations were compared at frozen sources
+`52485957` and `ca2d6e96`. All eight ADR 0104 single-worker cells retained their
+verdict/counts/depth; instruction deltas ranged from −0.091353% to +0.113696%,
+with geometric mean +0.007820%. Three interleaved pairs per profile on
+SimpleRegular's genuine eight-worker path gave paired median deltas +0.084346%
+(default) and −0.118612% (TLC). Every pair remained within one percent, with
+actual eight-worker use and nonzero `parallel::commit_sources` evidence.
+Cachegrind single-worker and Callgrind parallel totals are separate; these are
+whole-command instruction observations on a shared host, not throughput claims.
+
+The runner's original provenance block accidentally named older source and
+binary paths. That block is preserved and invalidated in the
+[compact evidence](../survey/data/native-memory-overhead-2026-10-21.json).
+The original staging script checks and builds the intended clean source heads,
+and every original Valgrind header names the corresponding executable path.
+Corrected hashes and clean-head observations were collected afterward. Retained
+file timestamps support ordinary filesystem continuity; they are not an
+original pre-execution hash attestation or a continuous tamper audit.
+The final sampling-comparison tests change only test code; their explicit
+source transfer preserves the measured runtime/build/harness tree.
+
+A separate macOS startup diagnostic used fresh release binaries and twenty
+interleaved Counter pairs per profile after two warmup pairs. Default CLI
+medians were 3.735→3.761 ms (default) and 3.795→3.812 ms (TLC). Warm same-process
+API diagnostics and nine initial one-byte memory-stop controls are recorded
+alongside them. Shared-host sub-millisecond differences are diagnostic; they
+do not establish quiet-machine speedups or replace instruction qualification.
