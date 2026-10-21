@@ -1932,3 +1932,26 @@ native safe `/proc/self/status` parser and checked RSS-plus-swap sum. No FFI or
 unsafe implementation is copied into the workspace. The narrow dependency and
 its conditional graph are recorded in ADR 0109; sampling failures have their
 own typed diagnostic rather than an invented memory observation.
+
+
+## Noncopying live action membership
+
+`dive-liveness/src/tlc_plan/active.rs` summarizes the same polarity pushing and
+plain Boolean simplification used by pinned MIT `LNConj`/`LNDisj::pushNeg` and
+`simplify`, `LNAll`/`LNEven::simplify`, and `Liveness::classifyExpr` (revision
+`94d0c5070852b37b801bb8998c436383ab7ee37b`). The adaptation computes only surviving
+original action occurrence IDs and the existing exact atomic GF/FG operand
+metadata. It uses iterative reference validation and summaries per original DAG
+node/polarity, retaining junction multiplicity and TLC's unfurled `[]TRUE` and
+`<>FALSE` forms. It performs no DNF classification, atom evaluation, logical
+predicate deduplication or tableau construction. Custom input/depth/work bounds
+remain; historical copied intermediate trees are not charged as retained output.
+
+The bounded differential matrix compares 7,200 Boolean/temporal combinations
+with the old copied membership implementation under explicit generous test
+bounds, and checks original infinite-word truth when inactive actions change.
+Separate controls cover repeated GF/FG operands, absorbed malformed references,
+zero/exact work and input bounds, typed budget exhaustion, shared fairness DAGs
+and the existing depth boundary on a small stack. The old algorithm is retained
+only as a test oracle. This is no new corpus agreement or TLC lasso-selection
+claim.

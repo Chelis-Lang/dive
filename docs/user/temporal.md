@@ -290,9 +290,16 @@ published after that refusal. Action-only constant simplification excludes
 eliminated temporal operands only at graph labeling. Existing eager candidate
 attribution and independent validation can still refuse eliminated-action
 candidates; those refusals emit no model error or counterexample. The additional
-bounded normalization uses the existing formula-node and work limits and can
-itself refuse when they are exhausted. Predicate-local lazy Boolean guards
-retain their existing evaluation.
+action-membership pass summarizes the original formula DAG and its negative
+polarity without retaining copied normalization trees. It preserves original
+action occurrence IDs, plain Boolean constant simplification and exact direct
+atomic GF/FG classification. Repeated conjunction/disjunction operands remain
+multiple operands even when their action IDs coincide. Input-term, depth and
+actual-work limits still apply; all references are validated before constant
+pruning. This pass neither classifies TLC formulas nor changes tableau rules,
+limit defaults or predicate-local lazy Boolean guards. A model can reach a
+separate existing graph/product bound after this temporary-copy refusal is
+removed; new corpus agreement is claimed only after bounded qualification.
 
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit

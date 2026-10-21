@@ -515,9 +515,21 @@ pub fn classify(
     b.branches(dnf)
 }
 
+#[path = "tlc_plan/active.rs"]
+mod active;
+
+// Membership/error-attribution metadata only; no classifier authority.
+pub(crate) fn active_actions(
+    formula: &Formula,
+    limits: Limits,
+) -> Result<(std::collections::BTreeSet<usize>, Option<usize>), FormulaError> {
+    active::summarize(formula, limits)
+}
+
 // Only membership after the existing semantic normalization. This neither
 // evaluates predicates nor supplies TLC grouping or error-order authority.
-pub(crate) fn active_actions(
+#[cfg(test)]
+fn active_actions_copied(
     formula: &Formula,
     limits: Limits,
 ) -> Result<(std::collections::BTreeSet<usize>, Option<usize>), FormulaError> {
