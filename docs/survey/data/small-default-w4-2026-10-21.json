@@ -1,0 +1,1624 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-21T16:53:53Z",
+  "source_commit": "52485957449fd59ef33e5f7385ce4d437680c8ba",
+  "harness_source_commit": "52485957449fd59ef33e5f7385ce4d437680c8ba",
+  "source_clean_before_and_after": true,
+  "report_id": "20261021T165353643-dive-small",
+  "report_sha256": "f51eda2468fdaf08dcc3d4475ff7677f05c7df6e083250fc23943f6b6742e953",
+  "raw_archive_sha256": "5499258faf003219810d63868fca0f34808a5be9cde6f74f2b345cbce3a5e28c",
+  "native_binary_sha256": "7b36275097d7edfada9d6f84273a4feced0bdf613ea4a231fd7b0b5f5af8ed7c",
+  "harness_binary_sha256": "8e4125a5b83727e2189b0e85e38806c85950d1503194bf11d1b8e73f2c0f3408",
+  "recording_launcher_sha256": "ae937296b0ee6e1549499c4334addf8825cb124066a103e6b162bb4fbc43c5ab",
+  "launcher_qualification": "Harness binary provenance names the transparent recording launcher. Actual native and harness hashes are recorded separately before execution; launcher forwards unchanged argv/cwd/environment, bytes and physical exit/signal. No environment values were saved.",
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "corpora": [
+    {
+      "id": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "unfetched_submodules": [
+        "specifications/BlockingQueue",
+        "specifications/CCF",
+        "specifications/azure-cosmos-tla",
+        "specifications/microwave"
+      ],
+      "uncovered": [
+        "specifications/CASPaxos/ (no manifest.json)",
+        "specifications/Caesar/ (no manifest.json)",
+        "specifications/DataPort/ (no manifest.json)",
+        "specifications/HLC/ (no manifest.json)",
+        "specifications/L1/ (no manifest.json)",
+        "specifications/MultiPaxos/ (no manifest.json)",
+        "specifications/ParalleRaft/ (no manifest.json)",
+        "specifications/SnapshotIsolation/ (no manifest.json)",
+        "specifications/SyncConsensus/ (no manifest.json)",
+        "specifications/TencentPaxos/ (no manifest.json)",
+        "specifications/Termination/ (no manifest.json)",
+        "specifications/Tla-tortoise-hare/ (no manifest.json)",
+        "specifications/VoldemortKV/ (no manifest.json)",
+        "specifications/async-comm/ (no manifest.json)",
+        "specifications/egalitarian-paxos/ (no manifest.json)",
+        "specifications/fastpaxos/ (no manifest.json)",
+        "specifications/fpaxos/ (no manifest.json)",
+        "specifications/leaderless/ (no manifest.json)",
+        "specifications/losa_ap/ (no manifest.json)",
+        "specifications/losa_rda/ (no manifest.json)",
+        "specifications/m2paxos/ (no manifest.json)",
+        "specifications/mongo-repl-tla/ (no manifest.json)",
+        "specifications/naiad/ (no manifest.json)",
+        "specifications/nfc04/ (no manifest.json)",
+        "specifications/raft/ (no manifest.json)"
+      ]
+    },
+    {
+      "id": "probes",
+      "commit": "sha256:a15ccbed4f892c331d3c652b3ed1a4d81ee9fcd85e68122c4b00a48154797eac",
+      "unfetched_submodules": [],
+      "uncovered": []
+    },
+    {
+      "id": "validation-smoke",
+      "commit": "sha256:894f55e23245de464084043a3bb3ff49d86eb400552a526ecf6e0f40f7ccc4e6",
+      "unfetched_submodules": [],
+      "uncovered": []
+    },
+    {
+      "id": "configured-temporal-operators",
+      "commit": "sha256:553fe9c476b1e73924e3fd3c461a7cc6b55a742d8b6a43d84a4e387f88df7eb7",
+      "unfetched_submodules": [],
+      "uncovered": []
+    }
+  ],
+  "policy": {
+    "profile": "dive",
+    "workers_requested": 4,
+    "jobs": 2,
+    "time": "TLC-derived max(60s,10x golden elapsed), hardcap900s",
+    "memory_bytes_per_native_process": 8589934592,
+    "harness_cleanup_grace_seconds": 30,
+    "independent_child_backstop_seconds": 930,
+    "outer_campaign_backstop_seconds": 1800,
+    "outer_cleanup_grace_seconds": 10,
+    "sany": false,
+    "quiet_wall_clock_claim": false
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "cpu": "Intel Xeon Platinum8488C",
+    "memory_bytes": 66320338944,
+    "kernel": "7.0.0-1014-aws",
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "shared_with_gates_and_instruction_profiling": true,
+    "instance_id": "i-0aa864e1e40c45c02",
+    "region": "us-east-1"
+  },
+  "selection": {
+    "models": 156,
+    "same_ids_as_committed_default_w1_baseline": true,
+    "unchanged_four_corpus_selection": true,
+    "omitted_model_ids": []
+  },
+  "outcomes": {
+    "agree": 144,
+    "unsupported": 9,
+    "expected-divergence": 3
+  },
+  "actual_workers": [
+    {
+      "used": 0,
+      "sequential": false,
+      "models": 8
+    },
+    {
+      "used": 1,
+      "sequential": true,
+      "models": 14
+    },
+    {
+      "used": 4,
+      "sequential": false,
+      "models": 134
+    }
+  ],
+  "actual_workers_by_outcome": {
+    "agree": [
+      {
+        "used": 0,
+        "sequential": false,
+        "models": 2
+      },
+      {
+        "used": 1,
+        "sequential": true,
+        "models": 14
+      },
+      {
+        "used": 4,
+        "sequential": false,
+        "models": 128
+      }
+    ],
+    "unsupported": [
+      {
+        "used": 0,
+        "sequential": false,
+        "models": 6
+      },
+      {
+        "used": 4,
+        "sequential": false,
+        "models": 3
+      }
+    ],
+    "expected-divergence": [
+      {
+        "used": 4,
+        "sequential": false,
+        "models": 3
+      }
+    ]
+  },
+  "worker_comparison_changes_from_w1": [
+    {
+      "id": "examples:specifications/FiniteMonotonic/MCReplicatedLog.cfg",
+      "w1_outcome": "expected-divergence",
+      "w4_outcome": "agree"
+    },
+    {
+      "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+      "w1_outcome": "expected-divergence",
+      "w4_outcome": "agree"
+    }
+  ],
+  "checks": {
+    "all156_raw_native_reports_present": true,
+    "all_requested_width4": true,
+    "no_recorder_censor": true,
+    "no_harness_findings": true,
+    "outer_exit": 0,
+    "remaining_native_processes_after_cleanup": 0,
+    "native_harness_and_launcher_hashes_match_before_run_provenance": true
+  },
+  "qualification": "Requested-worker parity observation, not throughput/scaling evidence. The harness preserves its maintained multi-worker comparison rules, so two expected-divergence classifications at w1 become agreement at w4; this is not additional one-worker parity credit. Used1/0 rows receive no parallel-scaling credit. All raw reports/progress and original selection remain external.",
+  "models": [
+    {
+      "id": "configured-temporal-operators:specifications/ConfiguredReplyFails/ConfiguredReplyFails.cfg",
+      "outcome": "agree",
+      "verdict": "liveness-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 13,
+      "raw_report_sha256": "e4535e74bd8fc50aa925bbbcdc822aa992e28f7fd7179a8cab38837df891342e"
+    },
+    {
+      "id": "configured-temporal-operators:specifications/ConfiguredReplyHolds/ConfiguredReplyHolds.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "519115f0c73be3255f73ee626e6a726c6bd7f06f327f2429ff2ab119678a131e"
+    },
+    {
+      "id": "examples:specifications/Bakery-Boulangerie/MCBakery.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "830399d4528526ef9f0fcfa3f0736ee3611851cfcab62796f6c8370db4f942a8"
+    },
+    {
+      "id": "examples:specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "22707436979353159a88e28cad825ee583719cfe91d083a1f31e7c1186ba8dd0",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "a59b56661a99b3c6535503e079a5bd09b9905741a013a235248ce4f4e9b814a6",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/Chameneos/Chameneos.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "ca365d6ca7851cabe24272a1462132892b0eee4ec298d0b4785329065d4202d3"
+    },
+    {
+      "id": "examples:specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "2a1c705ae578d894c532059c177a47f78f15a7ea2c56b61613e261cd9e28980f"
+    },
+    {
+      "id": "examples:specifications/CigaretteSmokers/CigaretteSmokers.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "bf39ce840e4b6ff88d3d2f02521ff49334ed1a0d8136aabe26a72cc172398e7d"
+    },
+    {
+      "id": "examples:specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+      "outcome": "unsupported",
+      "verdict": "resource-limit",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "fcb529eecd2ed07129094b40f2023af032296a8d808dafd31cc1fa60386e962e",
+      "detail": "resource limit: temporal product resource limit: vertices"
+    },
+    {
+      "id": "examples:specifications/CoffeeCan/CoffeeCan100Beans.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "8af2c663592ffbd776505797bd39478f7f4ecb611d4ba664965eb03a42d74785"
+    },
+    {
+      "id": "examples:specifications/DieHard/DieHard.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "cb443a5ed24700c1805dcbb7c2e58506e0370bc144fd17f776ed79bfd296a7cb"
+    },
+    {
+      "id": "examples:specifications/DieHard/MCDieHarder.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "f14574a85ded5bb0f98ae83752af9c9462032668ea7e761f93c3a3623ae96397"
+    },
+    {
+      "id": "examples:specifications/DieHard/MCDieHardest.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 12,
+      "raw_report_sha256": "4cb0582a043966de9ef18d84ac0c139b5fdd5b54166a69d75956448d928f7e6b",
+      "sequential_reason": "sequential mode: the specification uses TLC!TLCSet (writes TLC's registers)"
+    },
+    {
+      "id": "examples:specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "7c1118df3c59419612437cccb462afceb79d7f3bb5b79604a4391a2c208964c8"
+    },
+    {
+      "id": "examples:specifications/Disruptor/MCDisruptor_MPMC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "044e3a9a7a612c3fbaba9858adb4a2f083a2bda281c4e0f88c2eccccf3c86775"
+    },
+    {
+      "id": "examples:specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "fc5ed960d037ae47c7ee38394bdcabb9866e6328a2b7d603f1f3bce788a16b33"
+    },
+    {
+      "id": "examples:specifications/Disruptor/MCDisruptor_SPMC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "447e38dc886188c8471ede734e008a6c416b201c42f26f323eefc8a3ab5d219c"
+    },
+    {
+      "id": "examples:specifications/FiniteMonotonic/MCCRDT.cfg",
+      "outcome": "unsupported",
+      "verdict": "resource-limit",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "e0f14b3cdeac18221376b2a15bc41080cddb8c94f9fe035324a57d33abf20593",
+      "detail": "resource limit: liveness analysis resource limit: atom cells"
+    },
+    {
+      "id": "examples:specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "outcome": "unsupported",
+      "verdict": "unsupported",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "703c307cc64a4f88bc3d8f494f3b54cb7e745cd0d9cd5bb00eb3f50859d96735",
+      "detail": "unsupported: graph capture with VIEW or SYMMETRY"
+    },
+    {
+      "id": "examples:specifications/FiniteMonotonic/MCReplicatedLog.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "1f99339b1caac5434f675a362dfbb31e482f407004e8eb4dd17da38771a79631"
+    },
+    {
+      "id": "examples:specifications/FlashProtocol/MCFlashWithMutex.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "16b5eaad4a64933bddfbedcd7a0ba8e8e8b80b8bbb00ab8223617cd4104c7934"
+    },
+    {
+      "id": "examples:specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e1968e38d6c74e18e8ceff62db8d4058611ff5f8058a75e0ea842bde2056e0c9"
+    },
+    {
+      "id": "examples:specifications/GameOfLife/GameOfLife.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "a823b73a7e28d46896de3fdf8fa323f92d9e041d47ef7e4712e856423b51602a"
+    },
+    {
+      "id": "examples:specifications/GermanProtocol/MCGermanCMPWithMutex.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "045e0329cad4065b29f781557d65887b024a9d9bec7e9e1fb72157853a793daf"
+    },
+    {
+      "id": "examples:specifications/GermanProtocol/MCGermanControl.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "511bc7a346b8b8e6a94da7aa597479ff3039b4e82792acf3999ca829e7f360de"
+    },
+    {
+      "id": "examples:specifications/GermanProtocol/MCGermanData.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "f502d58b6c10a592f4421882e496ea9bc8bbc620d5b4f5678925fda3061174d0"
+    },
+    {
+      "id": "examples:specifications/LearnProofs/MCFindHighest.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e53686c2da25e16ec4a04d3905d4661e8f2080a64b6d8aa56b1d6ad23e18fd53"
+    },
+    {
+      "id": "examples:specifications/LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "57d5c70355edea77a0c3e226e8152d22bc7af6e8e32805ab0f896051c67b681f"
+    },
+    {
+      "id": "examples:specifications/LoopInvariance/MCBinarySearch.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "446747341d96c994fe84e3ccba0bb1ce9696484592f1c911c61057350c745624"
+    },
+    {
+      "id": "examples:specifications/LoopInvariance/MCQuicksort.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "a6159af6d242440463fb28c75c6283ff2a7a5f175b1cc9c8851e7d23cb475650"
+    },
+    {
+      "id": "examples:specifications/Majority/MCMajority.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "52a216b29d5a3b01daa593ac9b4da847d07bb429815701adac9a7e05720d2f59"
+    },
+    {
+      "id": "examples:specifications/MisraReachability/MCParReach.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "92d638c1792ce7477fde2ec822aab8f84dfad0bddd860a693ef6fd92428a8778"
+    },
+    {
+      "id": "examples:specifications/MisraReachability/MCReachabilityTestAllGraphs.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "42efcb140a940f726fe54b47153b9f206090ae33786f81deeb7c8e48700e645e",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/MisraReachability/MCReachabilityTestRandomGraphs.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "f58b471e709e358aabdcccaea477c6a8ea1831ccdc1c878af2569d470037d2a6",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "5543809ac9a86be5409ff6972adfbe264d458afa3f0f6482fbb24fde5f9412d5"
+    },
+    {
+      "id": "examples:specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "6b735b8a1e4a51dbb45d01ce5e513ac798673b97eb13fd16c0022a1bc718108d"
+    },
+    {
+      "id": "examples:specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "d56ee816d66050c28aa1e85f50c8f2771b3766a22d9c8b89a29bab18c798304f"
+    },
+    {
+      "id": "examples:specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e5bcd3dd6f083c585e2762cedbad866c2f96118ec71c1ccc6cad642c7c2a6b3b"
+    },
+    {
+      "id": "examples:specifications/MultiCarElevator/ElevatorSafetySmall.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e9ee4263775565fb1da98dd76d06473204f8460e216d00334b166bd785714ae0"
+    },
+    {
+      "id": "examples:specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "fc9625aff15c4a52dc4a4db1e17355a6b25c10548a189ab0c33c30aaccaa84b2"
+    },
+    {
+      "id": "examples:specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "748fe9233da2a8ad3977c89394a47de39a046d788cba5ac268077b0b3209c1c2"
+    },
+    {
+      "id": "examples:specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "5a10aeb8fecd504ef6407dfcc06d1b05b2119f3b3f90ed2d5377741062b4524c"
+    },
+    {
+      "id": "examples:specifications/NanoBlockchain/MCNanoMedium.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "c3bf8b5d2f74e1c9bb2a650fad1b1d5b75fa637109486f27c9a58566729be725"
+    },
+    {
+      "id": "examples:specifications/NanoBlockchain/MCNanoSmall.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "227f8361fd88029932fb823019d775e441472115e1a94bd280b7f6e6fd9f461d"
+    },
+    {
+      "id": "examples:specifications/Paxos/MCConsensus.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "9b0d3fa96e8afcaa345433c7a963564fb1a0c7a12485ab924b03f0f546cff67b"
+    },
+    {
+      "id": "examples:specifications/Paxos/MCPaxos.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "5e1394e303973549da46b416369b1efb391a40320cf5db65079ecd8d4b09b05c"
+    },
+    {
+      "id": "examples:specifications/Paxos/MCVoting.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "b708d6434b6693bd9623e8e960d3d0a0640309d210483f65b48bc78d2835aee7"
+    },
+    {
+      "id": "examples:specifications/PaxosHowToWinATuringAward/MCConsensus.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "0eb68763247f6aed53d57b8a90990b31d76e5dd4a0f175238ba7abb9a4924954"
+    },
+    {
+      "id": "examples:specifications/PaxosHowToWinATuringAward/MCPaxosTiny.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "d43879f748bf8852fbfdc431700d318024846492e2ecd5fcbdbbff959aa0902d"
+    },
+    {
+      "id": "examples:specifications/PaxosHowToWinATuringAward/MCVoting.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "aeb9fdf7b2c31a71df6ab625b85463662ca45533067aac09ddab56999446424b"
+    },
+    {
+      "id": "examples:specifications/Prisoners/Prisoners.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "b5cb30bead6bc1aac8716b91857dd2cac2ae7eb75a83b74c45d45ad26e18381d"
+    },
+    {
+      "id": "examples:specifications/Prisoners_Single_Switch/Prisoner.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "f19d4d12f39d0de9c4e00ff9ad8a61e531ebe298acd1791ecfdc3e69e7560f4a"
+    },
+    {
+      "id": "examples:specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "7402a10c1a340f08c0788e1054a1e1bd983bfa64390ca6df50b676a58d020905"
+    },
+    {
+      "id": "examples:specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "b6bdcc37867f435219aa8d5be906d95966badba13802bb1da16eb1d1b685cc79"
+    },
+    {
+      "id": "examples:specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "2b78ed3131df3252a618ae887ecb6e2000f89d7c2dabbc5da7b9047173507f1c"
+    },
+    {
+      "id": "examples:specifications/ReadersWriters/MC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "2832f00d9a15499736f2aae18799222aea427f714e9df16abc26969bf1d67a69"
+    },
+    {
+      "id": "examples:specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "5e6eaabf3dba5f816f9e08fa74abcdc1a5f196c20004f01d82d681dd1f998409"
+    },
+    {
+      "id": "examples:specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "fc24c22bb2b02829fde47b4c922fa285ef27cc91ca61ef125f6a445fdf45d484"
+    },
+    {
+      "id": "examples:specifications/SimplifiedFastPaxos/FastPaxos.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "341d01619d265a6da9a3656ebd33cf12b8042ed6e1db70557e82e3c562608b24"
+    },
+    {
+      "id": "examples:specifications/SimplifiedFastPaxos/Paxos.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "0bfd4e9efdee4767d40a4ce5dbbb98a064d74a5f01bd746707ac39a926b3e58d"
+    },
+    {
+      "id": "examples:specifications/SingleLaneBridge/MC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "1bc9af7151d59b565e338d021349b8abf6fc0196e8054616d6e3e6fa9f435423"
+    },
+    {
+      "id": "examples:specifications/SlidingPuzzles/SlidingPuzzles.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "58c606d794328b9b62b233845e915812c44a6cd906ddfd028bdbfd95a4a08336"
+    },
+    {
+      "id": "examples:specifications/SlidingPuzzles/SlidingPuzzles_anim.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "1aeb7fad06fac5adfbc85892c01b5ae6ae100ee487e66fa7e47420d07d7a5b84"
+    },
+    {
+      "id": "examples:specifications/SlushProtocol/SlushSmall.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "d02e4775b7517bf1ce6f104e321dbf16bd0bef86f43b7b1d2269170f86a8b3c2"
+    },
+    {
+      "id": "examples:specifications/SpanningTree/SpanTree.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "75eeb22b30535089b49193ae0d6f3fa5b4e4583617ea1058f27cd96a9262cba5"
+    },
+    {
+      "id": "examples:specifications/SpanningTree/SpanTreeRandom.cfg",
+      "outcome": "unsupported",
+      "verdict": "unsupported",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "d315ea65818fbcaefe05b758b2d8ab0be1ae3b286019349988002c09f9aabdab",
+      "sequential_reason": "no search ran",
+      "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 66, col 34 to line 66, col 46 of module SpanTreeRandom: effects or dynamic bindings in temporal planning (at line 66, col 34 to line 66, col 46 of module SpanTreeRandom)"
+    },
+    {
+      "id": "examples:specifications/SpanningTree/SpanTreeTest4Nodes.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "08b368d5914e7857ac699fb266dbc3b08dc2e94d750b1d08051b2526226c46e4"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "374662222b625f69a48467e51295563423641420f1a83952bad8bbd8ae871d85"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "2e7990ed1fd0a3d40b585592a68e81e71c6e0a0bac753f0c732e00d61ec54a0f"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "12cbb25bc0839955898d4f21eb65defcda9aeaefe8e1f853ef81efa79d8d2fbd"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "8bbbc511833c95fee9bf57fdd44f3a07bf7093bd0a76b7d26fcf62bddc959e53",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "a124f46caf2e61acfeecd94bf3dff3c6fa7001e6259b5db8aa4598b57a8dad07"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "46a53e8364aff853ad42bcb9ca5474fcbe3106629129d0b75da2cff0b0e9178d"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "b6843858171ae4a7d2fc3c30eeabaad8c445547c9954fd54ad74ecddb902fded"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/HourClock/HourClock.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "f2c4c1481664ca435937870f241a791d1ab1a74fd68d2eae3988ef12416a216a"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/HourClock/HourClock2.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "716442c0bae04928f68b9fd226f052b41a113af815b6d6326dc8832c544f13cd"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "abfe07a84a5500e6bc77c0df61578a53b155924e6b625e48cdccfd53d2478d27"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "9a5eabae80434511567bf5824d16f432476f499263d547d59e54925f06aa45f0"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "87d1beb6ec5aeeadb535a1dc58035d852dae06a340a4b492566beb8019403558"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+      "outcome": "agree",
+      "verdict": "liveness-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 13,
+      "raw_report_sha256": "afedca36574e449d2a12b98dcd6f8ffa24b02bd9ef5dc4866c092aa0e0d8655f"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "7ce3cb0d16aac15713a739e39f4a38d1c48829ccf9c5474575b103da4975fcf0",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/TLC/ABCorrectness.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "3e74a91019fd9fa55a07d659c01b41969dc60573ac9ad3d0b2d215f6c8dbe1e9"
+    },
+    {
+      "id": "examples:specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "1d04ff9d6ed17c6062c72ce6a6e84eb3725a5dfdc291392876630c76d2bb3f1a"
+    },
+    {
+      "id": "examples:specifications/Stones/Stones.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "1cefbcff62cbd3dd2d070d397cf20acddd6cd796145fe526821a67a5f2e55a49",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/TLC/TestGraphs.cfg",
+      "outcome": "unsupported",
+      "verdict": "unsupported",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "fe612f945608e9f144a4ebea935e007c5e448e019610324e50ca4c59d59a9896",
+      "sequential_reason": "no search ran",
+      "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 315, col 12 to line 315, col 24 of module TLCMC: unsupported: effects in finite binding preflight (at line 61, col 22 to line 61, col 59 of module TLCMC)"
+    },
+    {
+      "id": "examples:specifications/TeachingConcurrency/Simple.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "523426ab28ac8edb0c11def2dc07aa5461fd304e7bf606c6a7f9d4603f207c9c"
+    },
+    {
+      "id": "examples:specifications/TeachingConcurrency/SimpleRegular.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "64477c8546d31166b643bd1b9d4581e2c61b2ed43bd2030bab86694858e0965f"
+    },
+    {
+      "id": "examples:specifications/TransitiveClosure/TransitiveClosure.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "b581e6f6f7b806c54e851b3ea2b7fb935cf6f91a83b0bd2595e0e063dbec9ff4",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/TwoPhase/MCTwoPhase.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "133832a3cc42f3675adef1f5e9d0aee1a407ceac821eebf5b51c3f71c70b78b0"
+    },
+    {
+      "id": "examples:specifications/YoYo/MCYoYoNoPruning.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "2bb6d4f898ab0ab46575c2321c114c5f1aa8ebb4c81b4b10fdf229860e5e5a1c"
+    },
+    {
+      "id": "examples:specifications/YoYo/MCYoYoPruning.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "d8f2b0472f7dcdb95db564a0aa263adb8a1e18b1fa856d741bb30477b8386494"
+    },
+    {
+      "id": "examples:specifications/YoYo/YoYoAllGraphs.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "1abe17705f10230da7869f3440c029587f76e636a1bf97ad133ef7931d250000"
+    },
+    {
+      "id": "examples:specifications/acp/ACP_NB_TLC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "844ee56d1e8081f4de70d7124bd438c71457f91a97362cbc0652f4952aa22386"
+    },
+    {
+      "id": "examples:specifications/acp/ACP_NB_WRONG_TLC.cfg",
+      "outcome": "expected-divergence",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "d70558fdb068cd39c67d910a57d41c406d7af527442a9fbd898d72489324fd32",
+      "detail": "expected divergence `d010-acp-nb-wrong-tlc` (docs/divergences.md#registry)"
+    },
+    {
+      "id": "examples:specifications/acp/ACP_SB_TLC.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "6cd506d64818dc88e9435f07e2af8a02399fd6016434ba66cb029d4d7e97961f"
+    },
+    {
+      "id": "examples:specifications/allocator/AllocatorImplementation.cfg",
+      "outcome": "unsupported",
+      "verdict": "resource-limit",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "89938bedafbe37e99dc21ab794885b07d838f4dfff215c4eb7e2ee963120ed53",
+      "detail": "resource limit: temporal formula resource limit: TLC planning terms"
+    },
+    {
+      "id": "examples:specifications/allocator/AllocatorRefinement.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "c07ed3770926afb3cd0cdffa7a48db1b879a7a509b4f9fddddacc4422fdd7c41"
+    },
+    {
+      "id": "examples:specifications/allocator/SchedulingAllocator.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "f442e247dd4dc5ef0c63239886f30469c784c598d49b01f7958a7155a7f357c6"
+    },
+    {
+      "id": "examples:specifications/allocator/SimpleAllocator.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "5efd7556834288a804f1795026399e75c1761ef880c51ee7a126b7f5ed7b8fd4"
+    },
+    {
+      "id": "examples:specifications/barriers/Barrier.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e5cbb1c94270c1b8810937cd4ee97833b2ec97798d626860bf27be9f7ba3adc7"
+    },
+    {
+      "id": "examples:specifications/barriers/Barriers.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "ace32830df98c1c4548f94d41f6e461b51d6cbd41310c2502553ec10a52f968b"
+    },
+    {
+      "id": "examples:specifications/bcastByz/bcastByz.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "7b6d09ad8697cf50ad6c7dd1ca099573ceb677faa2a4fea29d50b2c3f476788c"
+    },
+    {
+      "id": "examples:specifications/bcastByz/bcastByzNoBcast.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "f6fcdae8101d1800d5b62eb83876a71e5421c8ab2ae9ba8247e9ee2254316255"
+    },
+    {
+      "id": "examples:specifications/braf/BufferedRandomAccessFile.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "869f72c8062c16c5fc0a48ebd877d1b18c04305c60dd6d23ee1ef9427b543cfc"
+    },
+    {
+      "id": "examples:specifications/btree/MCbtree.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "d4f48b39e2e2fb194697a7db5d1077e6ba9b8904ce86cfc4c02a41d92e5e6a20"
+    },
+    {
+      "id": "examples:specifications/btree/kvstore.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "4c2b5c253f036a187095c88361958ca06897d6eeebed3d719538d3c2a6b3b7c9"
+    },
+    {
+      "id": "examples:specifications/byihive/VoucherCancel.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "dbb71ce00597ac05e183586c9750ace4f4594248210780bc814db0dddec4b9ef"
+    },
+    {
+      "id": "examples:specifications/byihive/VoucherIssue.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "35d75f5793d227c4997f1eacca2fb52063d056bc2b205bb48706d39456acd3bb"
+    },
+    {
+      "id": "examples:specifications/byihive/VoucherLifeCycle.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "3fb7f55001c396f91e4b219da2ace26403c37c76bf62d3ce43fd7ce6dd6e8dd0"
+    },
+    {
+      "id": "examples:specifications/byihive/VoucherRedeem.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "5d5330b69037adda71db34f94b8dc4d0dbde7fe283f6a3e63e077fb341c68d2a"
+    },
+    {
+      "id": "examples:specifications/byihive/VoucherTransfer.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "ba18e3b311ee01052ccdf4d1b8b0d20b68b763af342aab5386453c6b437a75be"
+    },
+    {
+      "id": "examples:specifications/byzpaxos/Consensus.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "22a84b2e044a872a0295ced90cddf7d17a9d071b1ea1adc142239c39c4b71cc4"
+    },
+    {
+      "id": "examples:specifications/byzpaxos/VoteProof.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e3b2dd4f3b258b604b5a2a6f9dbe54ec89b384ccaa083fc89568c5964f9f4228"
+    },
+    {
+      "id": "examples:specifications/chang_roberts/MCChangRoberts.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "01f34a41bd234ca039d4603220db5bb48dd428163daca7714e269fc91e6d0ce2"
+    },
+    {
+      "id": "examples:specifications/dag-consensus/BlockDagTest.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "458ddf877a95e5991e334533744352a4b9f77fb4f6c89606b1b25160fdc0566b",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/dag-consensus/TLCSailfish1.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "509407779336613a337e2efaebb410734890632f238822bac17935769ccdd1b1"
+    },
+    {
+      "id": "examples:specifications/echo/MCEcho.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "80d4a82595a13f740439221324d0cd1764149b68bed6fcf15ac950ac18a45532"
+    },
+    {
+      "id": "examples:specifications/ewd426/TokenRing.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "767e056cb79500afd4c42d347cb7242b5239e9c622ce77ef22b5a11f04c002b0"
+    },
+    {
+      "id": "examples:specifications/ewd840/EWD840.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "c7de33c23fc9714a596623ab3328da3367061fef487746fa16e0773f2b2b9880"
+    },
+    {
+      "id": "examples:specifications/ewd840/EWD840_json.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "9eb98ae122e6f690dd110a03a4454b847565d265cd997a818dbf1b4ead797007",
+      "sequential_reason": "sequential mode: the specification uses Json!JsonSerialize (an operator that performs file, process or environment I/O) (and 2 more)"
+    },
+    {
+      "id": "examples:specifications/ewd840/SyncTerminationDetection.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "2244df4f8420cd351dbcdcb4525df493b10e70bacf097579471a00fad43e954d"
+    },
+    {
+      "id": "examples:specifications/ewd998/AsyncTerminationDetection.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "de32b4dbb3911819cd5ce47c26c96294e89445f71314249b0e1dfb6766dc79e5"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998ChanID.cfg",
+      "outcome": "unsupported",
+      "verdict": "unsupported",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "b29b76b923d63cb85973d6561f340b9d1cdf680dd92c5844b542198cde928df5",
+      "sequential_reason": "no search ran",
+      "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 265, col 15 to line 265, col 39 of module EWD998ChanID: unsupported: SelectSeq binder/provider/action callback (at line 185, col 42 to line 186, col 69 of module EWD998Chan)"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998ChanTrace.cfg",
+      "outcome": "unsupported",
+      "verdict": "unsupported",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "b34f8093e28d6a65b7c62490fd7f178aeea50e99190a8d7a2b4fd355a123bb76",
+      "detail": "unsupported: splitting the next-state relation: IOUtils!IOEnv (an operator that performs file, process or environment I/O)"
+    },
+    {
+      "id": "examples:specifications/ewd998/EWD998PCal.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "a8810ec9b8d9d34c82f242afc97304e5824dcb8a0d06d2c5849ca04e7b04bac0"
+    },
+    {
+      "id": "examples:specifications/glowingRaccoon/clean.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "21dbcd2a4c41cf8b66dceac993c77fcc501f7405f90a707973b389e4ff3cc4e1"
+    },
+    {
+      "id": "examples:specifications/glowingRaccoon/product.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "969c23b8c1605702f2fd493e4fd44d4d83de392926cae672db81bd5baaf7d6f6"
+    },
+    {
+      "id": "examples:specifications/glowingRaccoon/stages.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "4ab2dd023093f9a2d0d47d4b2d78845183eeb512e28a4ba777612408c2d67503"
+    },
+    {
+      "id": "examples:specifications/lamport_mutex/MCLamportMutex.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "2e393d5aa156d1d06a455d0b61537fdde6418da091856dda071a68321063104e"
+    },
+    {
+      "id": "examples:specifications/locks_auxiliary_vars/Lock.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "130cff53648575211b9eab51fb2294c0032f9726e5b4b6153e20bacfcf3ba147"
+    },
+    {
+      "id": "examples:specifications/locks_auxiliary_vars/LockHS.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "15fb97d08a41c9df1945b29766d523ffb8ec3e15fe67fce9d18763ccba81aa35"
+    },
+    {
+      "id": "examples:specifications/locks_auxiliary_vars/Peterson.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "6a081a0b60e463b42d3a6cb28ee1f41672203e8517536c43736de754f883ce61"
+    },
+    {
+      "id": "examples:specifications/nbacc_ray97/nbacc_ray97.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "20ad5a2cf55f8906f59caa57f61678b03cf00a96e5d870efa2e8e77ac23dce7e"
+    },
+    {
+      "id": "examples:specifications/nbacg_guer01/nbacg_guer01.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "e6cc4e80f4926179b0d7d7e5f4a47bf3a4f3d69b78bf4129e3fbcf184fe8d2f7"
+    },
+    {
+      "id": "examples:specifications/spanning/MC_spanning.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "8293c3fc8b2c0999cc34e472cbf0c463a2a2918d57324256022380f0d55b5046"
+    },
+    {
+      "id": "examples:specifications/sums_even/MC_sums_even.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 0,
+      "raw_report_sha256": "f4d07f71dd9c25929d6bc80726e1d2fcb01d6767eebfca80e9e6610c8ea03088",
+      "sequential_reason": "no actions: the search ends after Init"
+    },
+    {
+      "id": "examples:specifications/tcp/MCtcp.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "c428cf8c97e6641b91613d1b26c4e5de01c21761cc065cab431ea5a77de6eb9e"
+    },
+    {
+      "id": "examples:specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "c1628a66c295500e786e7c7080446cc8dfd943414d484e5692f29c8bf51a1e30"
+    },
+    {
+      "id": "examples:specifications/tower_of_hanoi/Hanoi_anim.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "d4e279bf40d05645bf1b3ed40ed58e4d84705d767e293cbb25909ef64704b8d7"
+    },
+    {
+      "id": "examples:specifications/transaction_commit/2PCwithBTM.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "c7d2a6430c8fb61dc482ea11e449c1caf8ddceff98e2decb4f61b88f986d3fb6"
+    },
+    {
+      "id": "examples:specifications/transaction_commit/TCommit.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "a43e17ee6a1484c95d97ec910f9a753d4ba9e4d61fc76fe7183bd892616b5fcf"
+    },
+    {
+      "id": "examples:specifications/transaction_commit/TwoPhase.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "3ba5a28270b56539a35f1a1fa49d865c0e71afad7fa07fcded97fade2d82277e"
+    },
+    {
+      "id": "probes:specifications/M1Syntax/M1Syntax.cfg",
+      "outcome": "agree",
+      "verdict": "rejected",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 150,
+      "raw_report_sha256": "6ca11a7ddc7fc56f2abe84165e6c5070d65881bb56f431e4963776bbb4893da5",
+      "sequential_reason": "no search ran"
+    },
+    {
+      "id": "probes:specifications/M2Undefined/M2Undefined.cfg",
+      "outcome": "agree",
+      "verdict": "rejected",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 150,
+      "raw_report_sha256": "592157ac1792eace4ca7bba32bd8c423144d711ed2065c0234b387d0036d0451",
+      "sequential_reason": "no search ran"
+    },
+    {
+      "id": "probes:specifications/P1Overflow/P1Overflow.cfg",
+      "outcome": "expected-divergence",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "6832f2fe73a1cc9afe817d115969b7865433fea43c0dc347d75f580c1dbf8ef3",
+      "detail": "expected divergence `d004-p1-overflow` (docs/divergences.md#registry)"
+    },
+    {
+      "id": "probes:specifications/P2Choose/P2Choose_seq.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "b54a0cc133e1e9c9eb11585faa91ebd601daafec69bb40d5583e2019f1fbda97"
+    },
+    {
+      "id": "probes:specifications/P2Choose/P2Choose_set.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "cc34d33ff969ba4ed249bac13020efbc6b040ebe36151d448147e3a49466f33b"
+    },
+    {
+      "id": "probes:specifications/P2Choose/P2Choose_str.cfg",
+      "outcome": "expected-divergence",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "ce75f31061f65dd231819d95090a56da932382b722a20292bf1588df29a47387",
+      "detail": "expected divergence `d006-p2-choose-str` (docs/divergences.md#registry)"
+    },
+    {
+      "id": "probes:specifications/P3ActionConstraint/P3ActionConstraint.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "73af79b2cac128ee9c88e3bd47cf1b1a53f93f91feeb2f8d12cec653dee97b5b"
+    },
+    {
+      "id": "probes:specifications/P3JavaOverride/P3JavaOverride.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "ad3cac7a6f6f4ce7f67acf40ad5615f82e637e567ead5e4b74e44b9fe0208ca5"
+    },
+    {
+      "id": "probes:specifications/P4SymLive/P4SymLive.cfg",
+      "outcome": "unsupported",
+      "verdict": "unsupported",
+      "workers_used": 0,
+      "sequential": false,
+      "native_exit": 3,
+      "raw_report_sha256": "19f8f022007ce35b092c7006d5a20328c0fbbf59ca7d049683ef410b2169a3bf",
+      "detail": "unsupported: graph capture with VIEW or SYMMETRY"
+    },
+    {
+      "id": "probes:specifications/P5TLCGetSet/P5TLCGetSet.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 12,
+      "raw_report_sha256": "8a053d8fd2e89c3ae6777709b0ad3d77adf91cc54d44db8e96432e92be906d60",
+      "sequential_reason": "sequential mode: the specification uses TLC!TLCGet(1) (reads a register) (and 1 more)"
+    },
+    {
+      "id": "probes:specifications/P6IntDiv/P6IntDiv.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "05e5497e11bf7de3a599e9208f4462d832726820b5c930e99bf41b824e0e9de4"
+    },
+    {
+      "id": "probes:specifications/P7ChooseIntern/P7ChooseIntern.cfg",
+      "outcome": "agree",
+      "verdict": "success",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 0,
+      "raw_report_sha256": "bcf73163d384917068bfa0111ca6613d606d703af2bc707a35f30f837a953ec6"
+    },
+    {
+      "id": "probes:specifications/P8ParallelDet/P8ParallelDet.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 4,
+      "sequential": false,
+      "native_exit": 12,
+      "raw_report_sha256": "76f1d211fe1d39046ec6212bfb4ae8e895f86a639ed8601aaeeba3f947dfd714"
+    },
+    {
+      "id": "probes:specifications/P9Random/P9Random.cfg",
+      "outcome": "agree",
+      "verdict": "invariant-violation",
+      "workers_used": 1,
+      "sequential": true,
+      "native_exit": 12,
+      "raw_report_sha256": "d10cf3d0b83fd25ad2f097d920acc5bea87d23c4bc31fee3dc5458cf5bc3527e",
+      "sequential_reason": "sequential mode: the specification uses TLC!RandomElement (draws from the expanded state's random stream)"
+    }
+  ],
+  "frozen_binary_archive_sha256": "df636d9b3de1cefb27bbeb7e2939c9b3c03decf22989738c2339fb66d00eef5a"
+}
