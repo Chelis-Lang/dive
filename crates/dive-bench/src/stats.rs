@@ -29,6 +29,11 @@ pub(crate) fn positive(value: f64) -> bool {
     value.is_finite() && value > 0.0
 }
 
+/// Native resource stops and external timeouts are incomplete observations.
+pub(crate) fn incomplete(run: &Run) -> bool {
+    matches!(run.verdict.as_str(), "timeout" | "stopped")
+}
+
 /// Duplicate keys are errors even if only one duplicate succeeded.
 pub(crate) fn validate(runs: &[Run]) -> Result<(), String> {
     let mut keys = BTreeSet::new();
@@ -78,7 +83,7 @@ pub(crate) fn pair(
         if !scaling && a.workers != b.workers {
             return Err("throughput pairing requires matching requested workers".to_owned());
         }
-        if a.verdict == "timeout" || b.verdict == "timeout" {
+        if incomplete(a) || incomplete(b) {
             p.censored += 1;
         } else if a.verdict == "unsupported" || b.verdict == "unsupported" {
             p.refused += 1;

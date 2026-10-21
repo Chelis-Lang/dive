@@ -38,8 +38,8 @@ usage: dive-bench [options]
   --filter <name>     run only this benchmark (repeatable)
   --workers <list>    matched worker counts, e.g. 1,4,8 (default: 1)
   --tlc               also time pinned TLC at every selected worker count
-  --xmx <size>        TLC heap (default: 3g, as the harness)
-  --timeout <secs>    per run (default: 1800)
+  --xmx <size>        TLC heap and dive process-memory ceiling (default: 3g)
+  --timeout <secs>    external per-run backstop (default: 900)
   --runs <file>       append every run as a JSON line to <file>
   --set <file>        the benchmark set (default: crates/dive-bench/benchmarks.toml)
   --list              list the benchmark set and exit
@@ -81,7 +81,7 @@ fn parse_args() -> Result<Opts, String> {
         filters: Vec::new(),
         tlc: false,
         xmx: "3g".to_owned(),
-        timeout: Duration::from_mins(30),
+        timeout: Duration::from_mins(15),
         runs: None,
         set: None,
         list: false,
@@ -141,6 +141,11 @@ fn parse_args() -> Result<Opts, String> {
     if o.timeout.is_zero() {
         return Err("--timeout must be positive".to_owned());
     }
+    if memory_bytes(&o.xmx).is_none() {
+        return Err(
+            "--xmx expects positive bytes with an optional binary k, m, g or t suffix".to_owned(),
+        );
+    }
     if o.baseline_bin.is_some() != o.baseline_revision.is_some() {
         return Err("--baseline-bin and --baseline-revision must be supplied together".to_owned());
     }
@@ -199,6 +204,7 @@ struct Prepared {
     corpus_root: PathBuf,
     module: String,
     expected: Expected,
+    golden_elapsed_ms: u64,
     provenance: Value,
     _scratch: Option<TempDir>,
 }
@@ -352,6 +358,7 @@ fn run(opts: &Opts) -> Result<bool, String> {
             corpus_root: root,
             module,
             expected,
+            golden_elapsed_ms: g.provenance.elapsed_ms,
             provenance,
             _scratch: own,
         });
@@ -424,6 +431,11 @@ fn run(opts: &Opts) -> Result<bool, String> {
     provenance["benchmark_set_sha256"] =
         json!(dive_conformance::hash::sha256_file(&set_path).map_err(err)?);
     provenance["timeout_seconds"] = json!(opts.timeout.as_secs());
+    provenance["native_budget_policy"] = json!({
+        "time": "max(60s, 10 x pinned TLC elapsed), capped below the external backstop",
+        "cleanup_reserve": "10% of the external backstop, at most 30s",
+        "memory": "--xmx is also the explicit whole-process memory ceiling for both dive profiles",
+    });
     provenance["xmx"] = json!(opts.xmx);
     provenance["schedule"] = json!(
         "model order fixed; worker/arm blocks reversed on odd repetitions; one process at a time"
@@ -650,12 +662,22 @@ fn run_dive(
     let file = module.file_name().ok_or("module without file name")?;
     let mut args: Vec<OsString> = time_args(time_out);
     args.push(bin.as_os_str().to_owned());
+    let max_memory = memory_bytes(&opts.xmx).ok_or("invalid finite --xmx memory ceiling")?;
     let (profile, workers) = parse_impl(imp);
     for a in ["check", "--output", "json", "--seed", "0", "--fp", "0"] {
         args.push(a.into());
     }
     args.push("--workers".into());
     args.push(workers.to_string().into());
+    let time_limit = native_time_limit(p.golden_elapsed_ms, opts.timeout);
+    let time_limit_ms = u64::try_from(time_limit.as_millis())
+        .map_err(|_| "native time budget exceeds the reportable millisecond range")?;
+    args.extend([
+        "--time-limit".into(),
+        format!("{time_limit_ms}ms").into(),
+        "--max-memory".into(),
+        opts.xmx.clone().into(),
+    ]);
     if profile == "tlc" {
         args.push("--compat=tlc".into());
     }
@@ -712,9 +734,19 @@ fn run_dive(
         error_class: v["tlc"]["name"].as_str().map(str::to_owned),
         exit_code: outcome.exit_code,
         property: v["property"].as_str().map(str::to_owned),
-        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"reported_options":v["options"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
+        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"requested_native_budget":{"reference_tlc_elapsed_ms":p.golden_elapsed_ms,"time_limit_ms":time_limit_ms,"max_memory":opts.xmx,"max_memory_bytes":max_memory},"reported_options":v["options"],"reported_stopped":v["stopped"],"reported_resources":v["resources"],"reported_execution":v["execution"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
     };
     (r.correct, r.note) = check(p, &r);
+    let budget = &v["options"]["budget"];
+    if budget["time_limit_ms"].as_u64() != Some(time_limit_ms)
+        || budget["max_memory_bytes"].as_u64() != Some(max_memory)
+        || budget["time_limit_source"] != "explicit"
+        || budget["max_memory_source"] != "explicit"
+    {
+        r.correct = false;
+        r.note
+            .push_str("; native report does not match the requested explicit time/memory budgets");
+    }
     if v["tlc"]["verified"] != true
         || v["tlc"]["code"].as_i64() != Some(2193)
         || v["tlc"]["exit_status"].as_i64() != Some(0)
@@ -724,6 +756,35 @@ fn run_dive(
             .push_str("; dive did not report verified TLC success");
     }
     Ok(r)
+}
+
+/// Reserve cleanup time so a native stop can publish its structured report
+/// before the independent external backstop kills an unresponsive process.
+fn native_time_limit(golden_elapsed_ms: u64, external_timeout: Duration) -> Duration {
+    let reserve = (external_timeout / 10).min(Duration::from_secs(30));
+    Duration::from_millis(golden_elapsed_ms)
+        .saturating_mul(10)
+        .max(Duration::from_secs(60))
+        .min(external_timeout.saturating_sub(reserve))
+}
+
+/// Binary memory units accepted by both native budget flags and JVM-style
+/// heap settings; automatic, unlimited and overflowing ceilings are excluded.
+fn memory_bytes(text: &str) -> Option<u64> {
+    let split = text
+        .find(|c: char| !c.is_ascii_digit())
+        .unwrap_or(text.len());
+    let (digits, unit) = text.split_at(split);
+    let number: u64 = digits.parse().ok().filter(|n| *n > 0)?;
+    let shift = match unit.to_ascii_lowercase().as_str() {
+        "" => 0,
+        "k" => 10,
+        "m" => 20,
+        "g" => 30,
+        "t" => 40,
+        _ => return None,
+    };
+    number.checked_mul(1 << shift)
 }
 
 fn run_tlc(
@@ -872,7 +933,7 @@ fn summarise(runs: &[&Run], intended: usize) -> Summary {
         .filter(valid)
         .filter_map(|r| r.usage.map(|u| u.max_rss_bytes as f64 / f64::from(1 << 20)))
         .collect();
-    let censored = runs.iter().filter(|r| r.verdict == "timeout").count();
+    let censored = runs.iter().filter(|r| stats::incomplete(r)).count();
     let refused = runs.iter().filter(|r| r.verdict == "unsupported").count();
     Summary {
         cpu_s: median(&cpu),
@@ -1008,7 +1069,7 @@ fn report(
 ) -> Result<Value, String> {
     println!("\n## Current runs (whole-process wall time; CPU = user + sys)\n");
     println!(
-        "| Model | arm | wall s | CPU s | distinct/wall s | peak RSS MiB | completed/intended | timeout/refused/failed/missing |"
+        "| Model | arm | wall s | CPU s | distinct/wall s | peak RSS MiB | completed/intended | incomplete/refused/failed/missing |"
     );
     println!("|---|---|---|---|---|---|---|---|");
     let mut rows = Vec::new();
@@ -1042,7 +1103,7 @@ fn report(
         "Partial-pair medians are descriptive only. Missing, failed, refused or censored pairs prevent the complete-suite geometric mean. Scaling also requires requested workers to be used.\n"
     );
     println!(
-        "| Model | profile | workers | comparison | ratio | pairs/intended | timeout/refused/failed/missing/unused-workers |"
+        "| Model | profile | workers | comparison | ratio | pairs/intended | incomplete/refused/failed/missing/unused-workers |"
     );
     println!("|---|---|---|---|---|---|---|");
     let mut comparisons = Vec::new();
@@ -1369,6 +1430,7 @@ mod tests {
                 exit_code: Some(0),
                 property: None,
             },
+            golden_elapsed_ms: 0,
             provenance: json!({}),
             _scratch: None,
         }
@@ -1538,5 +1600,214 @@ mod tests {
     #[test]
     fn wrapper_arguments_quote_apostrophes_and_shell_syntax() {
         assert_eq!(shell_quote("it's $(a)"), "'it'\\''s $(a)'");
+    }
+
+    #[test]
+    fn native_budgets_use_tlc_time_and_leave_external_cleanup_room() {
+        let backstop = Duration::from_mins(15);
+        for (reference_ms, expected_s) in [(0, 60), (500, 60), (20_000, 200), (u64::MAX, 870)] {
+            assert_eq!(
+                native_time_limit(reference_ms, backstop),
+                Duration::from_secs(expected_s)
+            );
+        }
+        assert_eq!(
+            native_time_limit(20_000, Duration::from_secs(1)),
+            Duration::from_millis(900)
+        );
+    }
+
+    #[test]
+    fn memory_settings_require_a_finite_nonoverflowing_binary_size() {
+        for (text, expected) in [("3g", 3 << 30), ("512M", 512 << 20), ("1048576", 1 << 20)] {
+            assert_eq!(memory_bytes(text), Some(expected));
+        }
+        for text in [
+            "",
+            "auto",
+            "none",
+            "0",
+            "0g",
+            "1.5g",
+            "3gb",
+            "18446744073709551615g",
+        ] {
+            assert_eq!(memory_bytes(text), None, "{text}");
+        }
+    }
+
+    fn native_test_options(bin: &Path) -> Opts {
+        Opts {
+            dive_bin: bin.to_path_buf(),
+            dive_revision: None,
+            baseline_bin: Some(bin.to_path_buf()),
+            baseline_revision: Some("test".to_owned()),
+            summary: None,
+            reps: 1,
+            profiles: vec!["tlc", "default"],
+            workers: vec![1, 8],
+            filters: Vec::new(),
+            tlc: false,
+            xmx: "3g".to_owned(),
+            timeout: Duration::from_secs(1),
+            runs: None,
+            set: None,
+            list: false,
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "exercise the real child-process boundary for all native arms"
+    )]
+    fn native_arms_receive_budgets_and_stops_never_become_completed_timings() -> Result<(), String>
+    {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = TempDir::new_in(&std::env::temp_dir(), "bench-native-budgets").map_err(err)?;
+        let bin = dir.path().join("native");
+        // The child refuses an invocation missing either guard. Its report
+        // deliberately retains the expected full counts: stopped must still
+        // be incomplete, even if counters happen to match the successful run.
+        std::fs::write(&bin, r#"#!/bin/sh
+limit=missing
+memory=missing
+workers=missing
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --time-limit) shift; limit="$1" ;;
+        --max-memory) shift; memory="$1" ;;
+        --workers) shift; workers="$1" ;;
+    esac
+    shift
+done
+[ "$limit" = 900ms ] && [ "$memory" = 3g ] || exit 64
+printf '{"verdict":"stopped","statistics":{"distinct":1,"generated":2,"depth":1},"stopped":{"resource":"time","phase":"safety-search","limit":900,"observed":901},"options":{"workers":{"used":%s},"budget":{"time_limit_ms":900,"max_memory_bytes":3221225472,"time_limit_source":"explicit","max_memory_source":"explicit"}},"resources":{"checking_started":true},"execution":null}\n' "$workers"
+exit 5
+"#).map_err(err)?;
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
+        let opts = native_test_options(&bin);
+        let mut p = prepared();
+        p.corpus_root = dir.path().to_path_buf();
+        let output = dir.path().join("time.txt");
+        let rows = dir.path().join("rows.jsonl");
+        for arm in implementations(&opts) {
+            let stopped = run_dive(&bin, &[], &p, &arm, 0, &output, &opts)?;
+            assert_eq!(stopped.verdict, "stopped");
+            assert_eq!(stopped.exit_code, Some(5));
+            assert!(!stopped.correct);
+            assert!(
+                !stopped
+                    .note
+                    .contains("requested explicit time/memory budgets")
+            );
+            assert_eq!(stopped.used_workers, Some(stopped.workers));
+            assert_eq!(
+                stopped.metadata["requested_native_budget"]["time_limit_ms"],
+                900
+            );
+            assert_eq!(
+                stopped.metadata["reported_stopped"]["phase"],
+                "safety-search"
+            );
+            assert_eq!(
+                stopped.metadata["reported_resources"]["checking_started"],
+                true
+            );
+            append_json(&rows, &stopped, &json!({}))?;
+            let aggregate = summarise(&[&stopped], 1);
+            assert_eq!(
+                (aggregate.completed, aggregate.censored, aggregate.failed),
+                (0, 1, 0)
+            );
+            assert!(aggregate.wall_s.is_none());
+            let mut reference = sample("tlc-w1", 0, 1.0);
+            reference.workers = stopped.workers;
+            let pair = stats::pair(&[reference, stopped], "model", "tlc-w1", &arm, 1, false)?;
+            assert_eq!((pair.paired, pair.censored), (0, 1));
+            assert!(pair.median.is_none());
+            assert!(stats::geometric_mean(&[pair]).is_none());
+        }
+        let raw = std::fs::read_to_string(rows).map_err(err)?;
+        assert_eq!(raw.lines().count(), 8);
+        for row in raw.lines() {
+            let row: Value = serde_json::from_str(row).map_err(err)?;
+            assert_eq!(row["verdict"], "stopped");
+            assert_eq!(row["run"]["reported_stopped"]["observed"], 901);
+        }
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn native_success_requires_the_exact_requested_explicit_budgets() -> Result<(), String> {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = TempDir::new_in(&std::env::temp_dir(), "bench-budget-contract").map_err(err)?;
+        let bin = dir.path().join("native");
+        let opts = native_test_options(&bin);
+        let mut p = prepared();
+        p.corpus_root = dir.path().to_path_buf();
+        let output = dir.path().join("time.txt");
+        for case in [
+            "matching",
+            "missing",
+            "unlimited",
+            "wrong-time",
+            "wrong-memory",
+            "implicit",
+        ] {
+            let mut report = json!({
+                "verdict":"success", "statistics":{"distinct":1,"generated":2,"depth":1},
+                "tlc":{"name":"TLC_SUCCESS","verified":true,"code":2193,"exit_status":0},
+                "options":{"workers":{"used":1},"budget":{
+                    "time_limit_ms":900,"time_limit_source":"explicit",
+                    "max_memory_bytes":3_221_225_472_u64,"max_memory_source":"explicit"
+                }},
+            });
+            match case {
+                "missing" => {
+                    report["options"]
+                        .as_object_mut()
+                        .expect("options")
+                        .remove("budget");
+                }
+                "unlimited" => {
+                    report["options"]["budget"]["time_limit_ms"] = Value::Null;
+                    report["options"]["budget"]["max_memory_bytes"] = Value::Null;
+                }
+                "wrong-time" => report["options"]["budget"]["time_limit_ms"] = json!(901),
+                "wrong-memory" => report["options"]["budget"]["max_memory_bytes"] = json!(1 << 30),
+                "implicit" => report["options"]["budget"]["max_memory_source"] = json!("default"),
+                _ => {}
+            }
+            let script = format!("#!/bin/sh\ncat <<'BENCH_REPORT'\n{report}\nBENCH_REPORT\n");
+            std::fs::write(&bin, script).map_err(err)?;
+            std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
+            for arm in [
+                "dive-tlc-w1",
+                "dive-default-w1",
+                "baseline-tlc-w1",
+                "baseline-default-w1",
+            ] {
+                let run = run_dive(&bin, &[], &p, arm, 0, &output, &opts)?;
+                assert_eq!(run.correct, case == "matching", "{case}: {}", run.note);
+                let pairs = stats::pair(
+                    &[sample("tlc-w1", 0, 1.0), run],
+                    "model",
+                    "tlc-w1",
+                    arm,
+                    1,
+                    false,
+                )?;
+                assert_eq!(pairs.paired, usize::from(case == "matching"));
+                if case != "matching" {
+                    assert_eq!(pairs.failed, 1);
+                    assert!(pairs.median.is_none());
+                    assert!(stats::geometric_mean(&[pairs]).is_none());
+                }
+            }
+        }
+        Ok(())
     }
 }

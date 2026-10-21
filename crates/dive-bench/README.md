@@ -14,7 +14,7 @@ harness, a campaign can use:
 
 ```sh
 target/release/dive-bench --profile both --workers 1,4,8 --reps 5 --tlc \
-  --dive-revision <candidate-commit> --timeout 1800 --xmx 3g \
+  --dive-revision <candidate-commit> --timeout 900 --xmx 3g \
   --runs <external-run-directory>/runs.jsonl \
   --summary <external-run-directory>/summary.json
 ```
@@ -30,7 +30,21 @@ consolidated kernel baseline.
 
 TLC runs at every selected worker count, with the same effective cfg as both
 dive profiles and the previous binary. The default is one worker, three
-repetitions, both profiles, a 1800-second per-process timeout and TLC heap 3g.
+repetitions, both profiles, a 900-second external per-process backstop and TLC
+heap 3g. Both native profiles and previous/current binaries receive an explicit
+`--time-limit` derived from the pinned golden's TLC time: `max(60 s, 10 × TLC
+elapsed)`, capped below the external backstop. Cleanup reserves 10% of that
+backstop, at most 30 seconds; an explicitly short backstop can therefore cap the
+native budget below 60 seconds. `--xmx` also supplies dive's explicit whole-process
+`--max-memory` ceiling. These are recorded host budgets, not equal claims about
+TLC heap and native resident memory. An explicit time budget labels the native
+TLC profile `tlc+overrides` while retaining its semantic profile.
+
+Use budget-aware native binaries for new campaigns. To reproduce older frozen
+campaigns, use their pinned runner and preserve their recorded budget limitations;
+the new runner does not silently omit guards for an older executable. Each native
+report must confirm the exact requested time and memory limits with explicit
+sources; missing, disabled or mismatched guards fail the observation.
 `--tlc` enables the oracle arm; without it the TLC comparisons remain missing
 and no TLC speed-up is reported. The default cfg is the original pinned input.
 `--set <file>` selects another set; duplicate model IDs/names and duplicate
@@ -68,8 +82,10 @@ matched requested workers, reported for each profile. Scaling pairs the same
 profile's one-worker and N-worker runs before taking the median; it requires
 actual use of the requested workers. Requested/used workers and sequential
 reasons remain visible. Missing, censored, refused and failed pairs have explicit
-counts. A timeout is an incomplete observation, never a completed timing or
-ratio. Partial-pair medians are labeled descriptive, and the equal-model-weight
+counts. A timeout or native `stopped` result is an incomplete observation, never a
+completed timing or ratio. Native stop details, resource observations and actual
+execution metadata remain in the raw row, including when partial counters match
+the successful golden. Partial-pair medians are labeled descriptive, and the equal-model-weight
 geometric mean is absent unless every selected model has every planned pair.
 Historical survey/golden timings never enter these denominators. CPU seconds
 (user + sys), whole-process wall time, state rates, spreads and RSS are separate
