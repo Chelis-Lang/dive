@@ -84,6 +84,11 @@ that touch `dive-eval`, `dive-check`, `dive-value`, `dive-store`,
 `cargo-deny` when the dependency policy inputs change. On a shared machine,
 set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
+Repository tasks resolve the Cargo workspace from the invocation directory at
+runtime. A shared `CARGO_TARGET_DIR` may reuse a driver compiled in another
+worktree; the gate still checks the invoking worktree. Invoking it outside a
+Cargo workspace fails instead of falling back to the driver's build directory.
+
 `.github/workflows/conformance.yml` runs the small or deep tier, including the
 TLC self-checks, on manual dispatch. Its `baseline` job runs nightly (and on a
 small-tier dispatch): the same two corpus runs as the full gate, against the
