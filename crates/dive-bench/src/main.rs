@@ -1649,7 +1649,9 @@ mod tests {
             filters: Vec::new(),
             tlc: false,
             xmx: "3g".to_owned(),
-            timeout: Duration::from_secs(1),
+            // These finite report fixtures test the real time/shell wrapper,
+            // not startup latency. Leave headroom before its outer backstop.
+            timeout: Duration::from_secs(5),
             runs: None,
             set: None,
             list: false,
@@ -1682,8 +1684,8 @@ while [ "$#" -gt 0 ]; do
     esac
     shift
 done
-[ "$limit" = 900ms ] && [ "$memory" = 3g ] || exit 64
-printf '{"verdict":"stopped","statistics":{"distinct":1,"generated":2,"depth":1},"stopped":{"resource":"time","phase":"safety-search","limit":900,"observed":901},"options":{"workers":{"used":%s},"budget":{"time_limit_ms":900,"max_memory_bytes":3221225472,"time_limit_source":"explicit","max_memory_source":"explicit"}},"resources":{"checking_started":true},"execution":null}\n' "$workers"
+[ "$limit" = 4500ms ] && [ "$memory" = 3g ] || exit 64
+printf '{"verdict":"stopped","statistics":{"distinct":1,"generated":2,"depth":1},"stopped":{"resource":"time","phase":"safety-search","limit":4500,"observed":4501},"options":{"workers":{"used":%s},"budget":{"time_limit_ms":4500,"max_memory_bytes":3221225472,"time_limit_source":"explicit","max_memory_source":"explicit"}},"resources":{"checking_started":true},"execution":null}\n' "$workers"
 exit 5
 "#).map_err(err)?;
         std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
@@ -1705,7 +1707,7 @@ exit 5
             assert_eq!(stopped.used_workers, Some(stopped.workers));
             assert_eq!(
                 stopped.metadata["requested_native_budget"]["time_limit_ms"],
-                900
+                4500
             );
             assert_eq!(
                 stopped.metadata["reported_stopped"]["phase"],
@@ -1734,7 +1736,7 @@ exit 5
         for row in raw.lines() {
             let row: Value = serde_json::from_str(row).map_err(err)?;
             assert_eq!(row["verdict"], "stopped");
-            assert_eq!(row["run"]["reported_stopped"]["observed"], 901);
+            assert_eq!(row["run"]["reported_stopped"]["observed"], 4501);
         }
         Ok(())
     }
@@ -1761,7 +1763,7 @@ exit 5
                 "verdict":"success", "statistics":{"distinct":1,"generated":2,"depth":1},
                 "tlc":{"name":"TLC_SUCCESS","verified":true,"code":2193,"exit_status":0},
                 "options":{"workers":{"used":1},"budget":{
-                    "time_limit_ms":900,"time_limit_source":"explicit",
+                    "time_limit_ms":4500,"time_limit_source":"explicit",
                     "max_memory_bytes":3_221_225_472_u64,"max_memory_source":"explicit"
                 }},
             });
@@ -1776,7 +1778,7 @@ exit 5
                     report["options"]["budget"]["time_limit_ms"] = Value::Null;
                     report["options"]["budget"]["max_memory_bytes"] = Value::Null;
                 }
-                "wrong-time" => report["options"]["budget"]["time_limit_ms"] = json!(901),
+                "wrong-time" => report["options"]["budget"]["time_limit_ms"] = json!(4501),
                 "wrong-memory" => report["options"]["budget"]["max_memory_bytes"] = json!(1 << 30),
                 "implicit" => report["options"]["budget"]["max_memory_source"] = json!("default"),
                 _ => {}
