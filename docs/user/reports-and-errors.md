@@ -8,6 +8,9 @@ family, not execution or proof: final/short safety stops remain temporal-family
 reports with their actual `capture_completed: false` evidence. Ordinary safety
 reports carry no temporal capture or exhaustive-temporal claim.
 Use its result fields; do not interpret all commands through safety-check keys.
+Nested configuration and diagnostic objects inherit their enclosing operation's
+report version; the Rust `ConfigReport::to_json` helper emits such a fragment,
+not an independent CLI operation envelope.
 
 | Operation | What to inspect |
 | --- | --- |

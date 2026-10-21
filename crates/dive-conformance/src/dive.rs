@@ -407,6 +407,14 @@ fn read_report(outcome: &ProcessOutcome, command: &str) -> std::result::Result<V
             "dive {command} reported schema_version {schema:?}; the harness reads 1 and {DIVE_JSON_SCHEMA}"
         ));
     }
+    // Version 2 is shared by every operation. Its tag must match the command
+    // we requested before overlapping fields such as `accepted` are read.
+    // Historical version-1 fixtures may omit the tag; a present tag is checked.
+    if (schema != Some(1) || v.get("command").is_some()) && v["command"] != command {
+        return Err(format!(
+            "dive {command}'s report names a different operation"
+        ));
+    }
     let Some(accepted) = v.get("accepted").and_then(Value::as_bool) else {
         return Err(format!("dive {command}'s report has no boolean `accepted`"));
     };
@@ -1254,6 +1262,28 @@ mod tests {
             stopped("disk", 5),
             CheckMapping::Result(r) if r.verdict == Verdict::Unclassified
         ));
+    }
+
+    #[test]
+    fn frontend_v2_reports_require_the_requested_operation() {
+        use serde_json::json;
+        for command in ["parse", "analyze"] {
+            for version in [1, 2] {
+                let document = json!({"schema_version":version,"command":command,
+                    "accepted":true,"diagnostics":[]});
+                assert!(read_report(&outcome(0, &document.to_string()), command).is_ok());
+                for wrong in [json!("translate"), json!("check"), json!(null), json!([])] {
+                    let mut forged = document.clone();
+                    forged["command"] = wrong;
+                    assert!(read_report(&outcome(0, &forged.to_string()), command).is_err());
+                }
+            }
+            let legacy = json!({"schema_version":1,"accepted":true,"diagnostics":[]});
+            assert!(read_report(&outcome(0, &legacy.to_string()), command).is_ok());
+            let mut current = legacy;
+            current["schema_version"] = json!(2);
+            assert!(read_report(&outcome(0, &current.to_string()), command).is_err());
+        }
     }
 
     #[test]
