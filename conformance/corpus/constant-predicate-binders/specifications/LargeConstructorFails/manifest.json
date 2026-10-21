@@ -1,0 +1,15 @@
+{
+  "sources": ["docs/user/temporal.md"],
+  "authors": ["dive"],
+  "tags": ["probe", "liveness"],
+  "modules": [{
+    "path": "specifications/LargeConstructorFails/LargeConstructorFails.tla",
+    "features": [],
+    "models": [{
+      "path": "specifications/LargeConstructorFails/LargeConstructorFails.cfg",
+      "runtime": "00:00:01",
+      "mode": "exhaustive search",
+      "result": "safety failure"
+    }]
+  }]
+}

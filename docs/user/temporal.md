@@ -309,6 +309,19 @@ Malformed public model metadata returns a planning refusal without graph capture
 Its diagnostic does not resolve an unadmitted location through the evaluator.
 Valid configured wrappers keep their original native callbacks and typed errors.
 
+Constant-domain predicate binders are inspected once, without enumerating their
+values during temporal admission. This includes quantifiers, set maps and
+filters, and nonrecursive function constructors. There is no predicate-binding
+count limit in either value profile: for example, `[]<>(\A i \in 1..5000 :
+i >= 1 /\ x)` no longer refuses solely because the domain has over 4,096
+values. The predicate still evaluates its concrete domains and bodies in each
+state; static analysis never supplies a sample value or proves a verdict.
+Nested dependent domains and pure helper calls retain their lexical bindings.
+Existing refusals for effects, unsupported action/temporal captures and opaque
+operators remain, including behind empty domains. Actual temporal quantifiers, such as `\A i
+\in S : []P(i)`, still expand concrete formulas and retain formula/storage
+limits. Recursive functions retain their separate admission rules.
+
 Finite predicate binders support structurally bounded deferred filters. Their
 global configured-redirect preflight can resolve scalar constants supplied with
 `=`, such as a bounded `LimitedSeq` helper reading `Max=1`, without calling the

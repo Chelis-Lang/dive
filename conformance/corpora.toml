@@ -123,3 +123,11 @@ id = "enabled-false-prefix"
 path = "conformance/corpus/enabled-false-prefix"
 license = "MIT"
 layout = "examples-manifest"
+
+# Predicate-analysis capacity controls: pure constant constructors above the
+# former 4096-binding admission limit, with holding and violated properties.
+[[corpus]]
+id = "constant-predicate-binders"
+path = "conformance/corpus/constant-predicate-binders"
+license = "MIT"
+layout = "examples-manifest"
