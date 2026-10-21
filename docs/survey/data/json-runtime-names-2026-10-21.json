@@ -37,7 +37,29 @@
         "depth": 3,
         "left_on_queue": 0
       },
-      "harness_classification": null
+      "harness_classification": {
+        "counts": {
+          "depth": 3,
+          "distinct_states": 3,
+          "states_generated": 3,
+          "states_left_on_queue": 0
+        },
+        "error_class": "TLC_SUCCESS",
+        "error_codes": [],
+        "exit_code": 0,
+        "exit_status": "SUCCESS",
+        "fingerprint_collision": {
+          "observed": null,
+          "optimistic": "val = 0.0"
+        },
+        "note": null,
+        "trace": null,
+        "unresolved_modules": [],
+        "verdict": "success",
+        "verdict_code": 2193,
+        "violated_property": null,
+        "warning_codes": []
+      }
     },
     {
       "id": "native-dive-w1",
@@ -137,5 +159,25 @@
     }
   ],
   "interpretation": "All observations complete success with3generated/3distinct/depth3. Compat requested4 actually used4 with no sequential reason before the guard correction. This is a missing conservative name-order guard observation; no result disagreement demonstrated. Default width4 is unchanged. Actual worker count is pool admission, not utilization/scaling.",
-  "provenance": "Original raw transcripts, before/after source/binary/tool/JRE/input identities, owned-group receipts and immutable failed/tag-collision preparation remain external. This compact record never relabels historical66aa as the later source."
+  "provenance": "Original raw transcripts, before/after source/binary/tool/JRE/input identities, owned-group receipts and immutable failed/tag-collision preparation remain external. This compact record never relabels historical66aa as the later source.",
+  "original_transcript_harness_classification": {
+    "source": "4ea1a317e270b210a56d53f6b694c27718e55db9",
+    "classifier_source_sha256": "309fe9bd45e5dc44394b78381a528d8ba38c8acdb7f797c9f6fbfc829e12780e",
+    "classifier_binary_sha256": "98b25452388ffb4c33ab5008f2be27500eeca9215024cb95345b61292e5fdcb4",
+    "output_sha256": "2193ce77d8c519c4d80d3a6deeb927471b8c9070c934ceee10b09aea0076578d",
+    "anomalies": [],
+    "extra_model_or_oracle_invocation": false
+  },
+  "generated_golden": {
+    "path": "conformance/golden/tlc-2026.10.06.014338/json-runtime-names/specifications/JsonRuntimeNames/JsonRuntimeNames.cfg.json",
+    "sha256": "45d4e4adbd3789cb6b60334f938c18dc3b3304d27555d5ead2961d117732b16d",
+    "harness_source": "4ea1a317e270b210a56d53f6b694c27718e55db9",
+    "harness_binary_sha256": "fa79a7be2762b5790c0484127a88a392b53de805f423af027d174a46bf21384b",
+    "corpus_identity": "sha256:0b15f64e52f8f45cb0c82388b803fd5c2af00927c596ae2453fcd51ba1472726",
+    "reason": "Issue #407: record state-time Json conversion before correcting the native name-order guard",
+    "timeout_seconds": 15,
+    "workers": 1,
+    "heap": "1g",
+    "qualification": "Official pinned harness generation; original primary transcript independently classified with same harness source, exact result objects match. Never manually edited."
+  }
 }
