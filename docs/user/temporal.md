@@ -640,3 +640,26 @@ reached lexical binding's lifetime across precisely the branches it encloses.
 These primary-first fixtures and generated goldens establish the required
 behavior before its implementation. They remain separate from the established
 156-model population; no native or independent replay support is implied.
+
+
+## Fairness with shared temporal memory
+
+Both profiles separate pure Boolean recurrence (`[]<>B`) and persistence
+(`<>[]B`) obligations from the temporal memory needed by a property. Multiple
+strong-fairness alternatives share that memory. A finite prefix may violate a
+persistence condition; its recurrent cycle must satisfy it. Recurrence may be
+fulfilled on the closing transition, including an actual stuttering edge.
+This reduces memory for models with many fairness conditions without changing
+verdicts, state counts or counterexample validation.
+
+The existing formula, graph, atom and product bounds still apply. An exhausted
+bound remains an explicit non-verdict result; this change introduces no new
+flag or profile divergence. The checked strong-fairness fixture in
+`crates/dive-liveness/tests/fixtures/solutions/Solutions.tla` has 8 states and
+25 generated states for three independent toggles. Its holding and failing
+properties, including multiple-property attribution, are exercised in both
+profiles by:
+
+```sh
+cargo test -p dive-liveness --test solutions
+```

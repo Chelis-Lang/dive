@@ -119,7 +119,7 @@ pub struct PeriodicFailure {
 
 struct Observe<'a> {
     model: &'a Model,
-    plans: &'a [(super::Plan, super::Tableau, Vec<super::Recurrence>)],
+    plans: &'a [super::PreparedProperty],
     limits: Limits,
     policy: AcceptancePolicy,
     checks: Checks,

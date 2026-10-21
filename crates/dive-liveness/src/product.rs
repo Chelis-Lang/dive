@@ -5,7 +5,7 @@
 //! loop closure. These APIs do not enumerate states or evaluate predicates.
 
 use crate::Graph;
-use crate::formula::{AtomKind, Recurrence, Tableau};
+use crate::formula::{AtomKind, CycleConditions, Recurrence, Tableau};
 use crate::search::{
     Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso, find_lasso_view,
 };
@@ -495,6 +495,26 @@ fn set_bit(words: &mut [u64], index: usize, value: bool) {
 }
 
 impl CompactAcceptance {
+    // Exact exposed capacities of the covered acceptance columns and offsets.
+    // Search-only Boolean scratch remains live beside these same buffers.
+    fn buffer_bytes(&self) -> Option<usize> {
+        let headers = self
+            .states
+            .capacity()
+            .checked_add(self.actions.capacity())?
+            .checked_mul(std::mem::size_of::<Vec<u64>>())?;
+        let offsets = self
+            .edge_offsets
+            .capacity()
+            .checked_mul(std::mem::size_of::<usize>())?;
+        self.states.iter().chain(&self.actions).try_fold(
+            headers.checked_add(offsets)?,
+            |bytes, words| {
+                bytes.checked_add(words.capacity().checked_mul(std::mem::size_of::<u64>())?)
+            },
+        )
+    }
+
     fn new(
         input: &Ordered<'_>,
         tableau: &Tableau,
@@ -559,6 +579,8 @@ impl CompactAcceptance {
 /// guards run before materializing acceptance, just as for public owned products.
 pub(crate) struct CompactProduct {
     parts: Parts<CompactAcceptance>,
+    limits: Limits,
+    policy: AcceptancePolicy,
 }
 
 impl CompactProduct {
@@ -625,11 +647,84 @@ impl CompactProduct {
                 ),
             },
         )?;
-        Ok(Self { parts })
+        Ok(Self {
+            parts,
+            limits,
+            policy,
+        })
     }
 
     pub(crate) fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
         let lasso = find_lasso_view(&self.parts.graph, self).map_err(ProductError::Search)?;
+        Ok(lasso.map(|lasso| {
+            project_lasso(
+                &lasso,
+                &self.parts.behavior_states,
+                &self.parts.original_edges,
+            )
+        }))
+    }
+
+    pub(crate) fn find_lasso_with_conditions(
+        &self,
+        labels: &Labels,
+        conditions: &CycleConditions,
+    ) -> Result<Option<Lasso>, ProductError> {
+        if conditions.always.is_empty() && conditions.recurring.is_empty() {
+            return self.find_lasso();
+        }
+        let scratch_len = conditions
+            .always
+            .iter()
+            .chain(&conditions.recurring)
+            .map(Recurrence::scratch_len)
+            .max()
+            .unwrap_or(0);
+        let check_bytes = |scratch: usize| -> Result<(), ProductError> {
+            if let AcceptancePolicy::Buffers { bytes, .. } = self.policy {
+                self.parts
+                    .acceptance
+                    .buffer_bytes()
+                    .and_then(|held| held.checked_add(scratch))
+                    .filter(|needed| *needed <= bytes)
+                    .ok_or(ProductError::Limit("acceptance buffer bytes"))?;
+            }
+            Ok(())
+        };
+        if self.policy == AcceptancePolicy::Legacy {
+            let edges = self
+                .parts
+                .graph
+                .edges
+                .iter()
+                .try_fold(0_usize, |n, row| n.checked_add(row.len()))
+                .ok_or(ProductError::Limit("acceptance cells"))?;
+            self.state_count()
+                .checked_mul(self.parts.graph.edges.len())
+                .and_then(|states| {
+                    self.action_count()
+                        .checked_add(conditions.recurring.len())
+                        .and_then(|actions| actions.checked_add(1))
+                        .and_then(|actions| actions.checked_mul(edges))
+                        .and_then(|actions| states.checked_add(actions))
+                })
+                .filter(|cells| *cells <= self.limits.acceptance_cells)
+                .ok_or(ProductError::Limit("acceptance cells"))?;
+        }
+        check_bytes(scratch_len)?;
+        let mut scratch = Vec::new();
+        scratch
+            .try_reserve_exact(scratch_len)
+            .map_err(|_| ProductError::Limit("solution scratch allocation"))?;
+        check_bytes(scratch.capacity())?;
+        let conditioned = Conditioned {
+            product: self,
+            labels,
+            conditions,
+            scratch: std::cell::RefCell::new(scratch),
+        };
+        let lasso =
+            find_lasso_view(&self.parts.graph, &conditioned).map_err(ProductError::Search)?;
         Ok(lasso.map(|lasso| {
             project_lasso(
                 &lasso,
@@ -671,6 +766,65 @@ impl AcceptanceAccess for CompactProduct {
             &labels.actions[condition],
             labels.edge_offsets[source] + edge,
         )
+    }
+}
+
+// One possible-error model borrows its group's shared temporal product. FG
+// conditions restrict only the recurring walk; GF conditions add visit duties.
+struct Conditioned<'a> {
+    product: &'a CompactProduct,
+    labels: &'a Labels,
+    conditions: &'a CycleConditions,
+    scratch: std::cell::RefCell<Vec<bool>>,
+}
+
+impl Conditioned<'_> {
+    fn truth(&self, condition: &Recurrence, source: usize, edge: usize) -> bool {
+        let state = self.product.parts.behavior_states[source];
+        let edge = self.product.parts.original_edges[source][edge];
+        condition.evaluate_with_scratch(
+            |atom| match atom.kind {
+                AtomKind::State => self.labels.states[atom.index][state],
+                AtomKind::Action => self.labels.actions[atom.index][state][edge],
+            },
+            &mut self.scratch.borrow_mut(),
+        )
+    }
+}
+
+impl AcceptanceAccess for Conditioned<'_> {
+    fn state_count(&self) -> usize {
+        self.product.state_count()
+    }
+
+    fn action_count(&self) -> usize {
+        self.product.action_count() + self.conditions.recurring.len()
+    }
+
+    fn recurrent(&self, source: usize, edge: usize) -> bool {
+        self.product.recurrent(source, edge)
+            && self
+                .conditions
+                .always
+                .iter()
+                .all(|condition| self.truth(condition, source, edge))
+    }
+
+    fn state(&self, condition: usize, vertex: usize) -> bool {
+        self.product.state(condition, vertex)
+    }
+
+    fn action(&self, condition: usize, source: usize, edge: usize) -> bool {
+        let ordinary = self.product.action_count();
+        if condition < ordinary {
+            self.product.action(condition, source, edge)
+        } else {
+            self.truth(
+                &self.conditions.recurring[condition - ordinary],
+                source,
+                edge,
+            )
+        }
     }
 }
 

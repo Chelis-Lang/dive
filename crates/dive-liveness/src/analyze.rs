@@ -11,7 +11,7 @@ use dive_eval::{St, next::StateVals};
 use dive_model::Model;
 
 use crate::Graph;
-use crate::formula::{self, AtomKind, Recurrence, Tableau};
+use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
 use crate::product::{self, AcceptancePolicy, CompactProduct, Labels};
 
@@ -445,13 +445,14 @@ fn labels(
 
 fn attribute(
     model: &Model,
-    plans: &[(Plan, Tableau, Vec<Recurrence>)],
+    plans: &[PreparedProperty],
     states: &[StateVals],
     back: usize,
     cells: usize,
 ) -> Result<Vec<String>, AnalysisError> {
     let mut violated = Vec::new();
-    for (p, (plan, _, _)) in model.property_claims().iter().zip(plans) {
+    for (p, prepared) in model.property_claims().iter().zip(plans) {
+        let plan = &prepared.plan;
         states
             .len()
             .checked_mul(plan.atoms.len())
@@ -697,10 +698,17 @@ fn analyze_unbudgeted(
     Ok(final_analysis(word, captured))
 }
 
-fn prepare(
-    model: &Model,
-    limits: Limits,
-) -> Result<Vec<(Plan, Tableau, Vec<Recurrence>)>, AnalysisError> {
+struct PreparedProperty {
+    plan: Plan,
+    groups: Vec<PreparedGroup>,
+}
+
+struct PreparedGroup {
+    tableau: Tableau,
+    alternatives: Vec<CycleConditions>,
+}
+
+fn prepare(model: &Model, limits: Limits) -> Result<Vec<PreparedProperty>, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
     }
@@ -718,13 +726,19 @@ fn prepare(
         .map(|p| {
             let plan = plan::lower_violation(model, &p.pred, limits.formula)
                 .map_err(AnalysisError::Planning)?;
-            let (core, conditions) = plan
-                .formula
-                .factor_recurrences(limits.formula.formula_nodes)
-                .map_err(AnalysisError::Tableau)?;
-            let tableau =
-                formula::compile(&core, limits.formula).map_err(AnalysisError::Tableau)?;
-            Ok((plan, tableau, conditions))
+            let groups = formula::decompose(&plan.formula, limits.formula)
+                .map_err(AnalysisError::Tableau)?
+                .into_iter()
+                .map(|group| {
+                    let tableau = formula::compile_residual(&group.core, limits.formula)
+                        .map_err(AnalysisError::Tableau)?;
+                    Ok(PreparedGroup {
+                        tableau,
+                        alternatives: group.alternatives,
+                    })
+                })
+                .collect::<Result<_, AnalysisError>>()?;
+            Ok(PreparedProperty { plan, groups })
         })
         .collect::<Result<_, AnalysisError>>()?;
     Ok(plans)
@@ -763,7 +777,7 @@ struct CandidateWord {
 )]
 fn analyze_captured(
     model: &Model,
-    plans: &[(Plan, Tableau, Vec<Recurrence>)],
+    plans: &[PreparedProperty],
     searched: usize,
     captured: &capture::BehaviorGraph,
     limits: Limits,
@@ -781,8 +795,8 @@ fn analyze_captured(
         captured.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans).take(searched)
-    {
+    for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
+        let plan = &prepared.plan;
         *stage = Stage::Atoms;
         let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
             crate::tlc_plan::active_actions(&plan.formula, limits.formula)
@@ -800,40 +814,47 @@ fn analyze_captured(
             action_error,
         )?;
         *stage = Stage::Product;
-        let product = CompactProduct::with_policy_and_edges(
-            &graph,
-            tableau,
-            &labels,
-            conditions,
-            limits.product,
-            policy,
-            behavior_edges,
-        )
-        .map_err(AnalysisError::Product)?;
-        if let Some(lasso) = product.find_lasso().map_err(AnalysisError::Product)? {
-            let steps = lasso.prefix.iter().chain(&lasso.cycle);
-            let states: Vec<StateVals> = steps
-                .clone()
-                .map(|s| captured.states[s.from].clone())
-                .collect();
-            let edges = steps
-                .map(|s| captured.edges[s.from][s.edge].clone())
-                .collect();
-            *stage = Stage::Attribution;
-            let properties =
-                attribute(model, plans, &states, lasso.prefix.len(), limits.atom_cells)?;
-            if !properties.contains(&p.name) {
-                return Err(AnalysisError::Inconsistent(
-                    "accepting candidate failed target-property attribution",
-                ));
+        for group in &prepared.groups {
+            let product = CompactProduct::with_policy_and_edges(
+                &graph,
+                &group.tableau,
+                &labels,
+                &[],
+                limits.product,
+                policy,
+                behavior_edges,
+            )
+            .map_err(AnalysisError::Product)?;
+            for conditions in &group.alternatives {
+                if let Some(lasso) = product
+                    .find_lasso_with_conditions(&labels, conditions)
+                    .map_err(AnalysisError::Product)?
+                {
+                    let steps = lasso.prefix.iter().chain(&lasso.cycle);
+                    let states: Vec<StateVals> = steps
+                        .clone()
+                        .map(|s| captured.states[s.from].clone())
+                        .collect();
+                    let edges = steps
+                        .map(|s| captured.edges[s.from][s.edge].clone())
+                        .collect();
+                    *stage = Stage::Attribution;
+                    let properties =
+                        attribute(model, plans, &states, lasso.prefix.len(), limits.atom_cells)?;
+                    if !properties.contains(&p.name) {
+                        return Err(AnalysisError::Inconsistent(
+                            "accepting candidate failed target-property attribution",
+                        ));
+                    }
+                    return Ok(Some(CandidateWord {
+                        target_property: p.name.clone(),
+                        properties,
+                        states,
+                        back_to: lasso.prefix.len(),
+                        edges,
+                    }));
+                }
             }
-            return Ok(Some(CandidateWord {
-                target_property: p.name.clone(),
-                properties,
-                states,
-                back_to: lasso.prefix.len(),
-                edges,
-            }));
         }
     }
     Ok(None)

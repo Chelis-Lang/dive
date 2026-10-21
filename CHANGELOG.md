@@ -43,6 +43,13 @@
   and independent trace replay retain concrete bindings. Formula/storage limits
   still bound actual temporal expansion.
 
+- Liveness checking separates pure recurrence and persistence conditions
+  from temporal memory, sharing a tableau/product across strong-fairness
+  alternatives. Every alternative remains part of the check, finite prefixes
+  remain unrestricted, and counterexamples retain independent validation.
+  Both profiles use the same semantic decomposition; existing count bounds
+  are unchanged.
+
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that
   first walked every binder domain (issue #322, ADR 0103 follow-up). On the
