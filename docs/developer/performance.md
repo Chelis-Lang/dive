@@ -482,3 +482,52 @@ workload performance, quiet wall time, TLC throughput or a new agreement. Raw
 outputs remain external. Generic control covers supplied native words; binding,
 serialization, quiet/bulk/native units, foreign deferred providers and legacy
 TLC/session/standalone validation retain their documented limitations.
+
+
+## Persistent function domains
+
+ADR 0110 shares immutable general-function keys and conservative
+facts across same-domain EXCEPT updates. Borrowed checked views and exact dense
+integer/Cartesian indices reuse those facts; tuple/record kinds, literal flags,
+eager native hashes, fresh fingerprint caches and unknown-key/error-order
+fallbacks stay intact. Auxiliary metadata adds no range or evaluator ownership
+beyond the original keys, which may themselves retain provider contexts. Such
+keys keep the original fallbacks, and deep domain keys use iterative destruction.
+
+A fresh complete screen measured **5.365455% fewer instructions**, geometric
+mean over all eight cells, against main `510dce00` using candidate `239db53f`.
+All 16 native arms completed with identical verdicts, distinct/generated counts
+and depths. Every cell improved; no historical arm or favorable repetition was
+substituted. The exact `239db53f` full checker gate passed in 35m16s with all
+2,188 tests, cm1 and independent validation at 1/4/8 workers, 147 TLC-profile
+and 142 default agreements, 458 SANY agreements and no disagreements, timeouts
+or baseline changes. ADR 0110 is accepted; final delivery review and required
+PR checks are separate from this exact-source gate.
+
+| Reduced model | Default Ir reduction | TLC-profile Ir reduction |
+|---|---:|---:|
+| SimpleRegular | 7.472831% | 7.816672% |
+| MCbtree | 12.868712% | 2.627899% |
+| GameOfLife | 6.478926% | 3.658053% |
+| EWD998PCal | 0.769651% | 0.574490% |
+
+[Compact evidence](../survey/data/persistent-function-domains-2026-10-21.json)
+records actual source trees, profiling binaries, tool/input identities, every
+arm and raw hash. This dedicated c7i.8xlarge campaign ran two sequential locked
+profiling builds and 16 sequential Cachegrind arms with explicit 900-second,
+8-GiB native budgets and a 930-second external backstop. Original source/build/
+library/manifest receipts were uploaded before the first arm; each arm retained
+before/after identities. Collection timestamps are recorded separately.
+
+The delivery retains the measured owned runtime and tests exactly. Main's later
+PR #399 changes only benchmark fake-child test headroom and corresponding expected
+values; its production prefix is unchanged and its fast gate qualified separately.
+The whole later delivery tree is therefore not claimed identical to measured
+`239db53f`. The full gate remains labelled with its actual measured pin.
+
+These are instruction counts for four reduced safety models at one worker,
+including CLI startup. They establish no quiet wall-clock gain, full-model or
+eight-worker scaling, TLC throughput, new corpus agreement or release milestone.
+Construction and metadata acquisition still add costs. The complete checker
+gate and both small-profile baseline comparisons qualify the actual measured
+source; later source transfer and PR checks are recorded independently.

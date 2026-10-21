@@ -44,6 +44,7 @@ mod depth;
 mod enumerate;
 mod error;
 pub mod fp64;
+mod function_domain;
 mod int;
 pub mod json;
 mod names;
@@ -63,5 +64,6 @@ pub use error::{ErrorKind, Result, ValueError};
 pub use int::Int;
 pub use names::NameError;
 pub use value::{
-    DeferredKind, DeferredSet, Fcn, FcnKind, Set, SetKind, Value, quiet_operation_active,
+    DeferredKind, DeferredSet, DomainLookup, Fcn, FcnKind, Set, SetKind, Value,
+    quiet_operation_active,
 };
