@@ -21,7 +21,9 @@
   pilot and other strict consumers: the new keys are additive, and `stopped`
   appears as a verdict only when a budget runs out; Oyster's runs under its
   own short wall-clock limits are unaffected unless they exceed half of
-  physical memory or, in the dive profile, 30 minutes.
+  physical memory or, in the dive profile, 30 minutes. Both `run` and
+  `study final` count time and memory stops as resource findings, rather
+  than unsupported features.
 
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that

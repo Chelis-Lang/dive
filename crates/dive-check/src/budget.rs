@@ -218,6 +218,14 @@ pub struct Budget {
 }
 
 impl Budget {
+    /// Trips an armed budget deterministically while a test expansion is in flight.
+    #[cfg(test)]
+    pub(crate) fn trip_for_test(&self) {
+        if let Some(inner) = &self.signal {
+            inner.trip(Resource::Time, millis(inner.started.elapsed()));
+        }
+    }
+
     /// No limit at all.
     #[must_use]
     pub const fn unlimited() -> Self {

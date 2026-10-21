@@ -73,6 +73,10 @@ pub struct CheckOptions {
     /// Unlimited here; `dive_api` resolves the profile's defaults. TLC
     /// setting: no time limit, memory bounded by its heap.
     pub budget: crate::budget::Budget,
+    /// Synchronizes the budget/event race in unit tests; absent from release builds.
+    #[cfg(test)]
+    pub(crate) parallel_budget_test:
+        Option<std::sync::Arc<crate::parallel::budget_cut_tests::Pause>>,
 }
 
 impl CheckOptions {
@@ -96,6 +100,8 @@ impl CheckOptions {
             sequential: false,
             chaos: None,
             budget: crate::budget::Budget::unlimited(),
+            #[cfg(test)]
+            parallel_budget_test: None,
         }
     }
 
@@ -119,6 +125,8 @@ impl CheckOptions {
             sequential: false,
             chaos: None,
             budget: crate::budget::Budget::unlimited(),
+            #[cfg(test)]
+            parallel_budget_test: None,
         }
     }
 }

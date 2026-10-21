@@ -38,7 +38,7 @@ pub enum Outcome {
     Disagree,
     /// Contradictory, malformed or unrecognized process output.
     MalformedReport,
-    /// Harness time limit, never a model verdict.
+    /// Harness timeout or exhausted run budget, never a model verdict.
     Timeout,
     /// Missing/stale/unusable pinned evidence.
     OracleError,
@@ -291,15 +291,14 @@ fn assess(
         return (Outcome::Unsupported, format!("{kind}: {message}"), Some(v));
     }
     if kind == "stopped" {
-        // A run its own budget stopped (ADR 0107): out of time is the
-        // study's timeout, out of memory a named resource limitation.
+        // Both resources are findings, just as in the strict harness. A
+        // memory blowup must not be hidden among unsupported features.
         if outcome.exit_code != Some(5) {
             return bad("budget stop has a contradictory exit code".into());
         }
         let message = v["message"].as_str().unwrap_or_default().to_owned();
         return match v["stopped"]["resource"].as_str() {
-            Some("time") => (Outcome::Timeout, format!("stopped: {message}"), Some(v)),
-            Some("memory") => (Outcome::Unsupported, format!("stopped: {message}"), Some(v)),
+            Some("time" | "memory") => (Outcome::Timeout, format!("stopped: {message}"), Some(v)),
             _ => bad("budget stop must name its resource".into()),
         };
     }
@@ -708,7 +707,7 @@ mod tests {
         v
     }
     #[test]
-    fn budget_stops_are_timeouts_or_limitations_never_observations() {
+    fn budget_stops_are_findings_never_observations_or_refusals() {
         let g = golden(Verdict::Success);
         let stopped = |resource: &str| {
             let mut v = success();
@@ -723,8 +722,11 @@ mod tests {
             })
             .0
         };
-        assert_eq!(assess_at(&stopped("time"), 5), Outcome::Timeout);
-        assert_eq!(assess_at(&stopped("memory"), 5), Outcome::Unsupported);
+        for resource in ["time", "memory"] {
+            let outcome = assess_at(&stopped(resource), 5);
+            assert_eq!(outcome, Outcome::Timeout);
+            assert!(outcome.finding());
+        }
         assert_eq!(assess_at(&stopped("time"), 3), Outcome::MalformedReport);
         assert_eq!(assess_at(&stopped("disk"), 5), Outcome::MalformedReport);
     }
