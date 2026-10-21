@@ -197,3 +197,24 @@ budgets. Whole-CLI instructions changed by -1.031% in the default profile and
 not the evaluator performance acceptance campaign and earns no throughput
 credit. Both measurements are preserved in the compact
 [machine-readable summary](../survey/data/packed-atom-truth-2026-10-21.json).
+
+## Search-budget overhead qualification
+
+Optional state/depth budgets were measured with both ceilings unset, comparing
+`9be2ba41` against `c82dd72c`. All eight ADR 0104 model/profile instruction cells
+retain their distinct/generated counts and depth. Whole-CLI Cachegrind deltas
+range from −0.0155% to +0.0953%, with geometric mean +0.0225%.
+
+A separate genuine eight-worker `SimpleRegular` Callgrind run used three
+interleaved baseline/candidate pairs per profile. Both arms report eight workers
+and execute the parallel candidate-publication path. Paired-median instruction
+deltas are −0.0679% (default) and +0.0144% (TLC); every pair lies between
+−0.1355% and +0.0833%. Counts and depth remain identical. These satisfy the
+one-percent normal-input instruction overhead bar. Cachegrind and Callgrind
+totals are not pooled. The shared host and reduced diagnostic workloads make
+no wall-clock, quiet-host or TLC throughput claim; this campaign executes no
+TLC oracle.
+
+The [compact evidence](../survey/data/search-budget-overhead-2026-10-21.json)
+retains all cells/pairs, exact source/binary and workload hashes, reductions,
+machine/toolchain, constraints and archive identity. Raw outputs stay external.
