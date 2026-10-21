@@ -669,10 +669,21 @@ same armed run budget, including atom evaluation and property attribution.
 Value-only allocation, sorting and native operations may finish before the next
 poll, so the time limit is not a hard real-time deadline. Binding, assumptions
 and diagnostic reconstruction of an already deciding error remain outside this
-interruption scope (#349, #379). Fresh independent witness-validation evaluators
-also do not yet inherit this loop control and can outlast the run budget (#349).
-The diagnostic exclusion does not add a pause to that validation path; its
-missing control registration remains a separate limitation. The checked
+interruption scope (#349, #379). Fresh independent replay of native temporal
+candidates inherits the same armed run control. Both the supplied word and its
+native serialized round trip must validate before a violation is certified.
+Interruption returns `stopped` at `trace-validation`, with the actual capture
+completion flag and optional `resources.validation` progress; it publishes no
+uncertified counterexample. Validation progress counts completed checks and
+records a zero-based supplied state and check only when known.
+
+Fresh validation binding and `ASSUME`, native document encoding/decoding, and
+quiet value units remain uninterruptible (#349). A supplied deferred value can
+retain a different evaluator that this fresh control does not govern; the
+serialized native pass reconstructs its values independently. General TLC
+JSON interpretation/session reconstruction and standalone `validate-trace`
+budgeting are separate follow-ups. The diagnostic exclusion never pauses
+independent candidate certification. The checked
 strong-fairness fixture in
 `crates/dive-liveness/tests/fixtures/solutions/Solutions.tla` has 8 states and
 25 generated states for three independent toggles. Its holding and failing

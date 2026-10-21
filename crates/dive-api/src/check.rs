@@ -898,7 +898,7 @@ impl CheckReport {
                 "max_memory_requested_source": self.memory_requested_source,
                 "max_states": o.max_states,
                 "max_depth": o.max_depth,
-                "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+                "scope": "the check after loading: safety search, graph capture, temporal analysis and fresh native temporal-candidate validation, including amortized predicate-loop checkpoints; binding, ASSUME, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
             },
         });
         if let Some(disk) = &o.seen_disk {
@@ -1121,6 +1121,13 @@ impl CheckReport {
                 }
             }
             Phase::TemporalError(e) => {
+                if let Some(progress) = e.validation_progress() {
+                    doc["resources"]["validation"] = json!({
+                        "checks_passed": progress.checks_passed,
+                        "state": progress.state,
+                        "check": progress.check.map(dive_trace::Check::name),
+                    });
+                }
                 doc["message"] = json!(e.to_string());
                 doc["diagnostics"] = json!([crate::diagnostics::temporal_failure(e)]);
                 doc["execution"] =
