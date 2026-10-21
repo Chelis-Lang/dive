@@ -18,7 +18,10 @@ use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate
 use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
-use dive_trace::{Ending, Report as ValidationReport, Trace, TraceDoc, Validation};
+use dive_trace::{
+    Ending, Report as ValidationReport, Trace, TraceDoc, Validation, ValidationProgress,
+    ValidationRunError,
+};
 
 /// The outcome of a bounded temporal run, distinguishing real prefixes.
 #[derive(Clone, Debug)]
@@ -285,6 +288,7 @@ pub struct Failure {
     exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
     elapsed: Duration,
     action_evaluation: Option<Box<dive_liveness::analyze::ActionEvaluation>>,
+    validation_progress: Option<ValidationProgress>,
     incomplete: bool,
     periodic: Option<Box<Checks>>,
 }
@@ -296,6 +300,7 @@ impl Failure {
             exploration: None,
             elapsed: Duration::ZERO,
             action_evaluation: None,
+            validation_progress: None,
             incomplete: false,
             periodic: None,
         }
@@ -307,6 +312,7 @@ impl Failure {
             exploration: Some(Box::new(capture.into())),
             elapsed: Duration::ZERO,
             action_evaluation: None,
+            validation_progress: None,
             incomplete: false,
             periodic: None,
         }
@@ -316,6 +322,11 @@ impl Failure {
     #[must_use]
     pub fn action_evaluation(&self) -> Option<&dive_liveness::analyze::ActionEvaluation> {
         self.action_evaluation.as_deref()
+    }
+    /// Actual progress from an interrupted independent validation invocation.
+    #[must_use]
+    pub fn validation_progress(&self) -> Option<&ValidationProgress> {
+        self.validation_progress.as_ref()
     }
     /// Original diagnostic, preserving its code and classification.
     #[must_use]
@@ -454,6 +465,261 @@ fn run_bound(
     )
 }
 
+fn validation_control(
+    options: &CheckOptions,
+) -> Result<Arc<dive_check::budget::EvaluationControl>, Error> {
+    dive_check::budget::EvaluationControl::new(
+        &options.budget,
+        dive_check::budget::Phase::Validation,
+    )
+    .map_err(|_| Error::Analysis(AnalysisError::Inconsistent("validation control identity")))
+}
+
+fn validation_checkpoint(
+    control: &dive_check::budget::EvaluationControl,
+) -> Result<(), ValidationRunError> {
+    dive_eval::HostControl::check(control).map_err(|interrupted| ValidationRunError::Interrupted {
+        error: dive_eval::EvalError::interrupted(interrupted),
+        progress: ValidationProgress {
+            checks_passed: 0,
+            state: None,
+            check: None,
+        },
+    })
+}
+
+fn validation_run_error(
+    control: &dive_check::budget::EvaluationControl,
+    error: ValidationRunError,
+) -> (Error, Option<ValidationProgress>) {
+    let ValidationRunError::Interrupted { error, progress } = error else {
+        return (
+            Error::Analysis(AnalysisError::Inconsistent(
+                "validation control ownership conflict",
+            )),
+            None,
+        );
+    };
+    let error = match control.verdict(&error) {
+        Some(dive_check::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
+        Some(dive_check::Verdict::BudgetMeasurement { error }) => {
+            AnalysisError::BudgetMeasurement(error)
+        }
+        _ => {
+            AnalysisError::Inconsistent("validation interruption lacks matching resource authority")
+        }
+    };
+    (Error::Analysis(error), Some(progress))
+}
+
+fn final_validation_run_failure(
+    control: &dive_check::budget::EvaluationControl,
+    error: ValidationRunError,
+    capture: &capture::Complete,
+) -> Failure {
+    let (error, progress) = validation_run_error(control, error);
+    let mut failure = Failure::after(error, Stage::Validation, capture);
+    failure.validation_progress = progress;
+    failure
+}
+
+// The API creates native documents itself. Keep this deliberately separate
+// from TLC's ambiguous document/session reader, which is not controlled yet.
+fn validate_native_document(
+    model: &Model,
+    document: &TraceDoc,
+    control: &Arc<dive_check::budget::EvaluationControl>,
+) -> Result<ValidationReport, ValidationRunError> {
+    validation_checkpoint(control)?;
+    let trace = match Trace::decode(model, document) {
+        Ok(trace) => trace,
+        Err(error) => {
+            return Ok(ValidationReport {
+                validation: if model.has_runtime_names() {
+                    Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.into())
+                } else {
+                    Validation::Invalid(dive_trace::Failure {
+                        state: error.state.unwrap_or(0),
+                        check: dive_trace::Check::Shape,
+                        detail: error.detail,
+                    })
+                },
+                notes: Vec::new(),
+                length: document.states.len(),
+            });
+        }
+    };
+    dive_trace::validate_controlled(model, &trace, control.clone())
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "actual candidate control evidence"
+)]
+mod validation_controls {
+    use super::*;
+
+    fn input() -> (Arc<Ir>, ModelConfig) {
+        let source = "---- MODULE ValidationBudget ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nP == <>(x=3)\n====\n";
+        let analysis = dive_sema::analyze_source(
+            "ValidationBudget.tla",
+            source,
+            &dive_sema::Options::default(),
+        );
+        assert!(analysis.accepted());
+        (
+            Arc::new(dive_ir::lower(&analysis).expect("IR")),
+            dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+                .into_config()
+                .expect("configuration"),
+        )
+    }
+
+    fn assert_validation_stop(failure: &Failure, complete: bool, actual: dive_check::Stats) {
+        assert_eq!(failure.stage(), Stage::Validation);
+        assert_eq!(failure.capture_completed(), Some(complete));
+        assert_eq!(failure.exploration().expect("actual capture").stats, actual);
+        let Error::Analysis(AnalysisError::Stopped(stopped)) = failure.error() else {
+            panic!("typed stop")
+        };
+        assert_eq!(stopped.phase, dive_check::budget::Phase::Validation);
+        assert_eq!(stopped.resource, dive_check::budget::Resource::Time);
+        let progress = failure
+            .validation_progress()
+            .expect("actual validation admission");
+        assert_eq!(progress.checks_passed, 0);
+        assert_eq!(progress.state, None);
+        assert_eq!(progress.check, None);
+    }
+
+    #[test]
+    fn an_uncertified_final_candidate_stops_with_real_capture_and_no_violation() {
+        let (ir, config) = input();
+        for mut options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let model = bind(&ir, &config, &options).expect("model");
+            let Analysis::Candidate(candidate) = dive_liveness::analyze::analyze_final_with_policy(
+                &model,
+                &options,
+                Limits::default(),
+                AcceptancePolicy::compact_default(),
+            )
+            .expect("real analysis") else {
+                panic!("real candidate")
+            };
+            let actual = candidate.exploration.stats;
+            let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+                .start()
+                .expect("thread")
+                .expect("watchdog");
+            options.budget = watchdog.budget().clone();
+            let failure = finish_final(&ir, &config, &options, Ok(Analysis::Candidate(candidate)))
+                .expect_err("uncertified candidate cannot become violation");
+            assert_validation_stop(&failure, true, actual);
+        }
+    }
+
+    #[test]
+    fn an_uncertified_prefix_candidate_keeps_actual_incomplete_evidence() {
+        let (ir, config) = input();
+        for mut options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let model = bind(&ir, &config, &options).expect("model");
+            let (PeriodicAnalysis::Prefix(candidate), _) =
+                dive_liveness::analyze::periodic::analyze_periodic(
+                    &model,
+                    &options,
+                    Limits::default(),
+                    AcceptancePolicy::compact_default(),
+                    Schedule {
+                        min_states: 2,
+                        growth_factor: 1,
+                    },
+                )
+                .expect("real periodic analysis")
+            else {
+                panic!("real prefix candidate")
+            };
+            let actual = candidate.exploration.stats;
+            let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+                .start()
+                .expect("thread")
+                .expect("watchdog");
+            options.budget = watchdog.budget().clone();
+            let failure = validate_prefix(&ir, &config, &options, candidate)
+                .expect_err("uncertified prefix cannot become violation");
+            assert_validation_stop(&failure, false, actual);
+        }
+    }
+
+    #[test]
+    fn decoded_native_shape_errors_keep_the_independent_validation_class() {
+        let (ir, config) = input();
+        let options = CheckOptions::tlc(0, 0);
+        let model = bind(&ir, &config, &options).expect("model");
+        let document = TraceDoc::behavior(vec![serde_json::json!({"wrong":0})]).expect("document");
+        let legacy = dive_trace::validate_doc(&model, &document, &config.model_values).0;
+        let control = validation_control(&options).expect("control");
+        let controlled =
+            validate_native_document(&model, &document, &control).expect("shape report");
+        assert_eq!(controlled, legacy);
+        assert!(
+            matches!(controlled.validation,Validation::Invalid(ref e) if e.check==dive_trace::Check::Shape)
+        );
+    }
+
+    #[test]
+    fn an_unarmed_validation_identity_is_not_resource_authority() {
+        let mut options = CheckOptions::tlc(0, 0);
+        options.budget = dive_check::budget::Budget::new(Some(Duration::from_secs(3600)), None);
+        let control = validation_control(&options).expect("unarmed control");
+        assert!(dive_eval::HostControl::check(control.as_ref()).is_ok());
+        // Unarmed contexts carry the public no-owner identity zero. A matching
+        // payload still cannot prove that any run resource was exhausted.
+        let (error, _) = validation_run_error(
+            &control,
+            ValidationRunError::Interrupted {
+                error: dive_eval::EvalError::interrupted(dive_eval::Interrupted::new(0)),
+                progress: ValidationProgress {
+                    checks_passed: 0,
+                    state: None,
+                    check: None,
+                },
+            },
+        );
+        assert!(matches!(
+            error,
+            Error::Analysis(AnalysisError::Inconsistent(_))
+        ));
+    }
+
+    #[test]
+    fn foreign_interruption_cannot_borrow_an_exhausted_validation_budget() {
+        let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+            .start()
+            .expect("thread")
+            .expect("watchdog");
+        let mut options = CheckOptions::tlc(0, 0);
+        options.budget = watchdog.budget().clone();
+        let control = validation_control(&options).expect("control");
+        let (error, _) = validation_run_error(
+            &control,
+            ValidationRunError::Interrupted {
+                error: dive_eval::EvalError::interrupted(dive_eval::Interrupted::new(0)),
+                progress: ValidationProgress {
+                    checks_passed: 0,
+                    state: None,
+                    check: None,
+                },
+            },
+        );
+        assert!(matches!(
+            error,
+            Error::Analysis(AnalysisError::Inconsistent(_))
+        ));
+    }
+}
+
 fn finish_final(
     ir: &Arc<Ir>,
     config: &ModelConfig,
@@ -463,6 +729,12 @@ fn finish_final(
     match analysis {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
+            let control = validation_control(options).map_err(|error| {
+                Failure::after(error, Stage::Validation, &candidate.exploration)
+            })?;
+            validation_checkpoint(&control).map_err(|error| {
+                final_validation_run_failure(&control, error, &candidate.exploration)
+            })?;
             // Rebind separately: validation cannot inspect the checker's graph
             // or depend on its mutable evaluator/host state.
             let validation_model = bind(ir, config, options).map_err(|error| {
@@ -479,7 +751,11 @@ fn finish_final(
                 length: Some(candidate.states.len()),
                 properties: candidate.properties.clone(),
             };
-            let report = dive_trace::validate(&validation_model, &trace);
+            let report =
+                dive_trace::validate_controlled(&validation_model, &trace, control.clone())
+                    .map_err(|error| {
+                        final_validation_run_failure(&control, error, &candidate.exploration)
+                    })?;
             if report.validation != Validation::Valid {
                 return Err(final_validation_failure(candidate, report));
             }
@@ -492,8 +768,9 @@ fn finish_final(
             })?;
             // Validate the serialized form too; a conversion bug must not turn
             // a certified in-memory word into an incorrect user-facing trace.
-            let report =
-                dive_trace::validate_doc(&validation_model, &document, &config.model_values).0;
+            let report = validate_native_document(&validation_model, &document, &control).map_err(
+                |error| final_validation_run_failure(&control, error, &candidate.exploration),
+            )?;
             if report.validation != Validation::Valid {
                 return Err(final_validation_failure(candidate, report));
             }
@@ -514,6 +791,7 @@ fn finish_final(
                     exploration: failure.exploration,
                     elapsed: Duration::ZERO,
                     action_evaluation,
+                    validation_progress: None,
                     incomplete: false,
                     periodic: None,
                 })
@@ -533,6 +811,7 @@ fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> F
         exploration,
         elapsed: Duration::ZERO,
         action_evaluation: None,
+        validation_progress: None,
         incomplete: false,
         periodic: None,
     }
@@ -545,6 +824,7 @@ fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failu
         exploration: Some(Box::new(prefix.into())),
         elapsed: Duration::ZERO,
         action_evaluation: None,
+        validation_progress: None,
         incomplete: true,
         periodic: None,
     }
@@ -561,9 +841,21 @@ fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationRepor
         exploration,
         elapsed: Duration::ZERO,
         action_evaluation: None,
+        validation_progress: None,
         incomplete: true,
         periodic: None,
     }
+}
+
+fn prefix_validation_run_failure(
+    control: &dive_check::budget::EvaluationControl,
+    error: ValidationRunError,
+    prefix: &capture::Prefix,
+) -> Failure {
+    let (error, progress) = validation_run_error(control, error);
+    let mut failure = prefix_failure(error, Stage::Validation, prefix);
+    failure.validation_progress = progress;
+    failure
 }
 
 fn validate_prefix(
@@ -573,6 +865,10 @@ fn validate_prefix(
     candidate: PrefixCandidate,
 ) -> Result<Outcome, Failure> {
     // Same independent checks as final candidates, with distinct prefix evidence.
+    let control = validation_control(options)
+        .map_err(|error| prefix_failure(error, Stage::Validation, &candidate.exploration))?;
+    validation_checkpoint(&control)
+        .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
     let model = bind(ir, config, options)
         .map_err(|error| prefix_failure(error, Stage::Validation, &candidate.exploration))?;
     let trace = Trace {
@@ -584,7 +880,8 @@ fn validate_prefix(
         length: Some(candidate.states.len()),
         properties: candidate.properties.clone(),
     };
-    let report = dive_trace::validate(&model, &trace);
+    let report = dive_trace::validate_controlled(&model, &trace, control.clone())
+        .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
     if report.validation != Validation::Valid {
         return Err(prefix_validation_failure(candidate, report));
     }
@@ -595,7 +892,8 @@ fn validate_prefix(
             &candidate.exploration,
         )
     })?;
-    let report = dive_trace::validate_doc(&model, &document, &config.model_values).0;
+    let report = validate_native_document(&model, &document, &control)
+        .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
     if report.validation != Validation::Valid {
         return Err(prefix_validation_failure(candidate, report));
     }
@@ -630,6 +928,7 @@ fn run_periodic(
                 exploration: detail.exploration.or(failure.prefix),
                 elapsed: Duration::ZERO,
                 action_evaluation,
+                validation_progress: None,
                 incomplete: failure.capture_completed == Some(false),
                 periodic: Some(Box::new(failure.checks)),
             });

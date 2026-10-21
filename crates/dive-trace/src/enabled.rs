@@ -17,6 +17,8 @@ use crate::State;
 /// Why `ENABLED` could not be decided. A refusal is never a decision.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EnabledError {
+    /// A cooperative caller interruption, whose authority belongs to the driver.
+    Interrupted(dive_eval::EvalError),
     /// A named feature or context the validator does not decide.
     Unsupported(String),
     /// A malformed state, or a TLC evaluation error raised by the search.
@@ -30,6 +32,7 @@ impl EnabledError {
         match self {
             Self::Unsupported(_) => "DIVE-T0020",
             Self::Invalid(_) => "DIVE-T0021",
+            Self::Interrupted(_) => "DIVE-T0022",
         }
     }
 }
@@ -40,6 +43,7 @@ impl std::fmt::Display for EnabledError {
         match self {
             Self::Unsupported(s) => write!(f, "unsupported {s}"),
             Self::Invalid(s) => write!(f, "invalid {s}"),
+            Self::Interrupted(error) => error.fmt(f),
         }
     }
 }
@@ -78,7 +82,13 @@ pub fn enabled(
     nonstuttering: Option<dive_ir::ExprId>,
     state: &State,
 ) -> Result<bool, EnabledError> {
-    let unsupported = |e: dive_eval::EvalError| EnabledError::Unsupported(e.to_string());
+    let unsupported = |e: dive_eval::EvalError| {
+        if e.class() == dive_eval::ErrorClass::Interrupted {
+            EnabledError::Interrupted(e)
+        } else {
+            EnabledError::Unsupported(e.to_string())
+        }
+    };
     model.validate_context().map_err(unsupported)?;
     model
         .evaluator
@@ -120,6 +130,11 @@ pub fn enabled(
             .enabled_scoped(&action.scope, action.expr, nonstuttering, state.clone());
     let composed = guard.composed();
     drop(guard);
+    if let Err(error) = &result
+        && error.class() == dive_eval::ErrorClass::Interrupted
+    {
+        return Err(EnabledError::Interrupted(error.clone()));
+    }
     // Composition is refused whatever the search did with the refusal, as
     // replay refuses it: `[][A]_x` and `validate_doc` refuse the same action.
     if composed {

@@ -150,6 +150,44 @@ pub struct Report {
     pub length: usize,
 }
 
+/// Actual progress before cooperative validation interruption.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ValidationProgress {
+    /// Completed checks in this validation invocation, not exploration work.
+    pub checks_passed: u64,
+    /// Zero-based supplied state position, when known.
+    pub state: Option<usize>,
+    /// The check that was interrupted, when known.
+    pub check: Option<Check>,
+}
+
+/// A controlled validation did not produce a validation report.
+///
+/// The driver interprets the opaque evaluator interruption. This crate knows
+/// neither resource budgets nor the authority that requested interruption.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ValidationRunError {
+    /// A typed host interruption, never an invalid or unsupported trace.
+    Interrupted {
+        /// Original evaluator transport, retaining its opaque owner identity.
+        error: EvalError,
+        /// Actual progress in this invocation.
+        progress: ValidationProgress,
+    },
+    /// Another thread owns the evaluator's control registration.
+    ControlConflict(dive_eval::HostControlConflict),
+}
+
+impl std::fmt::Display for ValidationRunError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Interrupted { error, .. } => error.fmt(f),
+            Self::ControlConflict(error) => error.fmt(f),
+        }
+    }
+}
+impl std::error::Error for ValidationRunError {}
+
 /// The reason given for a deadlock ending (ADR 0016, amendment 1).
 pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0103)";
 
@@ -171,6 +209,25 @@ pub const COMPOSITION_UNSUPPORTED: &str = "action composition: independent valid
 pub(crate) enum Stop {
     Invalid(Failure),
     Unsupported(String),
+    Interrupted {
+        error: EvalError,
+        state: Option<usize>,
+        check: Option<Check>,
+    },
+    ControlConflict(dive_eval::HostControlConflict),
+}
+
+impl Stop {
+    fn at(self, state: Option<usize>, check: Check) -> Self {
+        match self {
+            Self::Interrupted { error, .. } => Self::Interrupted {
+                error,
+                state,
+                check: Some(check),
+            },
+            other => other,
+        }
+    }
 }
 
 impl From<Stop> for Validation {
@@ -178,6 +235,11 @@ impl From<Stop> for Validation {
         match s {
             Stop::Invalid(f) => Self::Invalid(f),
             Stop::Unsupported(u) => Self::Unsupported(u),
+            Stop::Interrupted { .. } => Self::Unsupported(
+                "the caller interrupted validation; use validate_controlled for typed transport"
+                    .into(),
+            ),
+            Stop::ControlConflict(error) => Self::Unsupported(error.to_string()),
         }
     }
 }
@@ -204,6 +266,7 @@ pub(crate) struct Run<'a> {
     pub(crate) notes: BTreeSet<String>,
     private_init: bool,
     pub(crate) init_incomplete: bool,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
 }
 
 impl<'a> Run<'a> {
@@ -232,6 +295,7 @@ impl<'a> Run<'a> {
             notes: BTreeSet::new(),
             private_init: false,
             init_incomplete: false,
+            control: None,
         }
     }
 
@@ -245,17 +309,41 @@ impl<'a> Run<'a> {
             notes: BTreeSet::new(),
             private_init: initial,
             init_incomplete: false,
+            control: None,
         }
     }
 
     /// Validates `trace`.
+    // Legacy document/session callers have a closed result type. Controlled
+    // callers bypass this conversion through validate_result, including label,
+    // ENABLED/fairness and final refusal handling.
     pub(crate) fn validate(&mut self, trace: &Trace) -> Validation {
+        self.validate_result(trace).unwrap_or_else(Validation::from)
+    }
+
+    fn validate_result(&mut self, trace: &Trace) -> Result<Validation, Stop> {
         let v = match self.run(trace) {
             Ok(None) => Validation::Valid,
             Ok(Some(why)) => Validation::Unsupported(why),
+            Err(stop @ (Stop::Interrupted { .. } | Stop::ControlConflict(_))) => return Err(stop),
             Err(stop) => stop.into(),
         };
-        self.refusal().map_or(v, Validation::Unsupported)
+        let v = self.refusal().map_or(v, Validation::Unsupported);
+        if v == Validation::Valid {
+            self.poll(None, None)?;
+        }
+        Ok(v)
+    }
+
+    fn poll(&self, state: Option<usize>, check: Option<Check>) -> Result<(), Stop> {
+        if let Some(control) = &self.control {
+            control.check().map_err(|interrupted| Stop::Interrupted {
+                error: EvalError::interrupted(interrupted),
+                state,
+                check,
+            })?;
+        }
+        Ok(())
     }
 
     /// Why the run's verdict cannot stand, whatever it is: a check drew a
@@ -295,6 +383,7 @@ impl<'a> Run<'a> {
         reason = "the checks of ADR 0016 §1, in the order the search makes them"
     )]
     fn run(&mut self, trace: &Trace) -> Result<Option<String>, Stop> {
+        self.poll(None, None)?;
         let m = self.model;
         let n = trace.states.len();
         if n == 0 {
@@ -318,6 +407,9 @@ impl<'a> Run<'a> {
         }
         let vars = m.ir.vars().len();
         for (k, s) in trace.states.iter().enumerate() {
+            if k.is_multiple_of(1024) {
+                self.poll(Some(k), Some(Check::Shape))?;
+            }
             if s.len() != vars || s.iter().any(Option::is_none) {
                 return Err(invalid(
                     k,
@@ -346,6 +438,9 @@ impl<'a> Run<'a> {
         let full_last = !matches!(goal, Goal::Invariant(_));
         let behavior = matches!(goal, Goal::Behavior);
         for k in 0..n {
+            if k.is_multiple_of(1024) {
+                self.poll(Some(k), None)?;
+            }
             let here = St::state(trace.states[k].clone());
             let step =
                 (k > 0).then(|| St::action(trace.states[k - 1].clone(), trace.states[k].clone()));
@@ -512,6 +607,9 @@ impl<'a> Run<'a> {
                             ));
                         }
                         Err(e) => {
+                            if let crate::enabled::EnabledError::Interrupted(error) = e {
+                                return Err(refused(&error).at(Some(last), Check::Ending));
+                            }
                             self.notes.insert(e.to_string());
                             Some(DEADLOCK_UNSUPPORTED.to_owned())
                         }
@@ -574,8 +672,10 @@ impl<'a> Run<'a> {
             }
         }
         let check = |pred: &Pred| {
-            crate::temporal::check_periodic_context(self.model, pred)
-                .map_err(|e| Stop::Unsupported(e.to_string()))
+            crate::temporal::check_periodic_context(self.model, pred).map_err(|error| match error {
+                crate::temporal::TemporalError::Interrupted(error) => refused(&error),
+                other => Stop::Unsupported(other.to_string()),
+            })
         };
         for init in &self.model.init {
             check(&init.pred)?;
@@ -597,10 +697,13 @@ impl<'a> Run<'a> {
         for &d in &self.model.assumptions {
             check(&Pred::new(
                 self.model.ir.def(d).body,
-                self.model
-                    .evaluator
-                    .scope(d)
-                    .map_err(|e| Stop::Unsupported(e.to_string()))?,
+                self.model.evaluator.scope(d).map_err(|error| {
+                    if error.class() == ErrorClass::Interrupted {
+                        refused(&error).at(None, Check::Assumption)
+                    } else {
+                        Stop::Unsupported(error.to_string())
+                    }
+                })?,
             ))?;
         }
         Ok(())
@@ -672,6 +775,9 @@ impl<'a> Run<'a> {
                 .ok_or_else(|| Stop::Unsupported("internal empty temporal truth vector".into())),
             Err(TemporalError::Invalid(detail)) => Err(invalid(0, Check::Temporal, detail)),
             Err(TemporalError::Unsupported(detail)) => Err(Stop::Unsupported(detail)),
+            Err(TemporalError::Interrupted(error)) => {
+                Err(refused(&error).at(None, Check::Temporal))
+            }
         }
     }
 
@@ -718,6 +824,19 @@ impl<'a> Run<'a> {
     }
 
     fn assumptions(&mut self) -> Result<(), Stop> {
+        // Binding and ASSUME remain explicit uninterruptible units. This
+        // thread-owned frame restores control on every return/unwind without
+        // disabling another evaluator or any worker's installed capability.
+        let _assumptions = if self.control.is_some() {
+            Some(
+                self.model
+                    .evaluator
+                    .host_control(None)
+                    .map_err(Stop::ControlConflict)?,
+            )
+        } else {
+            None
+        };
         match self.model.check_assumptions() {
             AssumptionOutcome::AllTrue => {
                 self.passed += 1;
@@ -726,7 +845,7 @@ impl<'a> Run<'a> {
             AssumptionOutcome::False { message, .. } => Err(invalid(0, Check::Assumption, message)),
             AssumptionOutcome::Error { error, message, .. } => match error.class() {
                 ErrorClass::Eval => Err(invalid(0, Check::Assumption, message)),
-                _ => Err(refused(&error)),
+                _ => Err(refused(&error).at(None, Check::Assumption)),
             },
         }
     }
@@ -778,6 +897,9 @@ impl<'a> Run<'a> {
                 Check::Label,
                 format!("the step is labelled `{name}`, but `{name}` is false on it"),
             )),
+            Err(error) if error.class() == ErrorClass::Interrupted => {
+                Err(refused(&error).at(Some(k), Check::Label))
+            }
             _ => {
                 self.notes.insert(format!(
                     "label `{name}` could not be evaluated on its own; not checked"
@@ -863,7 +985,7 @@ impl<'a> Run<'a> {
                     check,
                     format!("evaluating {} fails: {}", m.location(pred), e.message()),
                 )),
-                _ => Err(refused(&e)),
+                _ => Err(refused(&e).at(Some(k), check)),
             },
         }
     }
@@ -878,6 +1000,13 @@ fn invalid(state: usize, check: Check, detail: impl Into<String>) -> Stop {
 }
 
 fn refused(e: &EvalError) -> Stop {
+    if e.class() == ErrorClass::Interrupted {
+        return Stop::Interrupted {
+            error: e.clone(),
+            state: None,
+            check: None,
+        };
+    }
     Stop::Unsupported(match e.class() {
         ErrorClass::Unsupported => format!("the evaluator refuses: {}", e.message()),
         ErrorClass::ResourceLimit => format!("resource limit: {}", e.message()),
@@ -1081,6 +1210,90 @@ pub fn validate(model: &Model, trace: &Trace) -> Report {
         notes: std::mem::take(&mut run.notes).into_iter().collect(),
         length: trace.states.len(),
     }
+}
+
+/// Validates supplied states with a generic cooperative host capability.
+///
+/// Interruption is returned outside [`Validation`]: it is neither an invalid
+/// trace nor an unsupported feature. Only the owning driver can interpret its
+/// opaque identity. Binding, `ASSUME`, quiet value units and pure bulk/native
+/// work retain their interruption limitations. Supplied deferred values may
+/// retain a different evaluator, whose work this control does not govern.
+/// This does not control TLC JSON
+/// interpretation or private [`crate::Session`] reconstruction.
+///
+/// ```
+/// # fn run(model: &dive_model::Model, trace: &dive_trace::Trace,
+/// #        control: std::sync::Arc<dyn dive_eval::HostControl>)
+/// #        -> Result<dive_trace::Report, dive_trace::ValidationRunError> {
+/// dive_trace::validate_controlled(model, trace, control)
+/// # }
+/// ```
+///
+/// # Errors
+/// Typed host interruption with actual validation progress, or a conflicting
+/// control registration owned by another thread. Ordinary invalid/unsupported
+/// trace reports remain ordinary reports.
+pub fn validate_controlled(
+    model: &Model,
+    trace: &Trace,
+    control: Arc<dyn dive_eval::HostControl>,
+) -> Result<Report, ValidationRunError> {
+    let _scope = model
+        .evaluator
+        .host_control(Some(control.clone()))
+        .map_err(ValidationRunError::ControlConflict)?;
+    let admitted = model.validate_context().and_then(|()| {
+        for &def in &model.assumptions {
+            model.evaluator.scope(def)?;
+        }
+        Ok(())
+    });
+    if let Err(error) = admitted {
+        if error.class() == ErrorClass::Interrupted {
+            return Err(ValidationRunError::Interrupted {
+                error,
+                progress: ValidationProgress {
+                    checks_passed: 0,
+                    state: None,
+                    check: None,
+                },
+            });
+        }
+        return Ok(Report {
+            validation: Validation::Unsupported(error.to_string()),
+            notes: Vec::new(),
+            length: trace.states.len(),
+        });
+    }
+    let mut run = Run::new(model);
+    run.control = Some(control);
+    let validation = match run.validate_result(trace) {
+        Ok(validation) => validation,
+        Err(Stop::Interrupted {
+            error,
+            state,
+            check,
+        }) => {
+            return Err(ValidationRunError::Interrupted {
+                error,
+                progress: ValidationProgress {
+                    checks_passed: run.passed,
+                    state,
+                    check,
+                },
+            });
+        }
+        Err(Stop::ControlConflict(error)) => {
+            return Err(ValidationRunError::ControlConflict(error));
+        }
+        Err(other) => other.into(),
+    };
+    Ok(Report {
+        validation,
+        notes: std::mem::take(&mut run.notes).into_iter().collect(),
+        length: trace.states.len(),
+    })
 }
 
 /// `report`, refused if a name was created after the model was bound

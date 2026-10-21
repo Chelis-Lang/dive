@@ -254,6 +254,8 @@ pub enum Phase {
     Capture,
     /// Temporal analysis after capture: planning, labelling, product, search.
     Temporal,
+    /// Independent validation of supplied counterexample states.
+    Validation,
 }
 
 impl Phase {
@@ -266,6 +268,7 @@ impl Phase {
             Self::Search => "safety-search",
             Self::Capture => "graph-capture",
             Self::Temporal => "temporal-analysis",
+            Self::Validation => "trace-validation",
         }
     }
 }
