@@ -3,7 +3,7 @@
 
 use super::*;
 use crate::Graph;
-use crate::formula::{Atom, Formula, Node, TableauNode};
+use crate::formula::{Atom, CycleConditions, Formula, Node, TableauNode};
 use crate::product::{CompactProduct, Product};
 use crate::search::AcceptanceAccess;
 
@@ -351,6 +351,110 @@ fn covered_bytes(product: &CompactProduct, scratch: usize) -> usize {
             .sum::<usize>()
         + a.edge_offsets.capacity() * size_of::<usize>()
         + scratch
+}
+
+#[test]
+fn solution_setup_shares_the_base_buffers_and_materialization_work_budget() {
+    let graph = Graph::new(vec![vec![0, 0]], vec![0]).expect("graph");
+    let labels = Labels {
+        states: vec![],
+        actions: vec![vec![vec![true, true]]],
+    };
+    let cs = conditions();
+    assert_eq!(cs[0].scratch_len(), 2);
+    let solution = CycleConditions {
+        always: cs.clone(),
+        recurring: cs.clone(),
+    };
+    for promises in [0, 1] {
+        for base_conditions in [false, true] {
+            let t = tableau(promises);
+            let base = if base_conditions { &cs[..] } else { &[] };
+            let probe = CompactProduct::with_policy(
+                &graph,
+                &t,
+                &labels,
+                base,
+                Limits::default(),
+                policy(1000, 1000),
+            )
+            .expect("probe actual setup");
+            // Each promise: header, one word and one assignment. An existing
+            // condition: four metadata inspections, eleven initialized/row/
+            // projection/write entries, and six executed Boolean operations.
+            let base_work = 3 * promises + usize::from(base_conditions) * 21;
+            assert_eq!(probe.parts.acceptance.materialization_work, base_work);
+            // Two inspected solution conditions and two initialized scratch
+            // entries. Searching their truth does not spend materialization.
+            let needed_work = base_work + 4;
+            let promise_bytes = size_of::<Vec<u64>>() + size_of::<u64>();
+            let condition_bytes = promise_bytes + 2 * size_of::<usize>();
+            let needed_bytes =
+                promise_bytes * promises + usize::from(base_conditions) * condition_bytes + 2;
+            assert_eq!(covered_bytes(&probe, 2), needed_bytes);
+            let search = |bytes, work| {
+                CompactProduct::with_policy(
+                    &graph,
+                    &t,
+                    &labels,
+                    base,
+                    Limits::default(),
+                    policy(bytes, work),
+                )
+                .and_then(|p| p.find_lasso_with_conditions(&labels, &solution))
+            };
+            for bytes in [0, needed_bytes - 1] {
+                assert_eq!(search(bytes, needed_work), Err(BYTES));
+            }
+            for work in [0, needed_work - 1] {
+                assert_eq!(search(needed_bytes, work), Err(WORK));
+            }
+            assert_eq!(search(0, 0), Err(BYTES), "bytes retain priority");
+            assert!(
+                search(needed_bytes, needed_work)
+                    .expect("exact setup")
+                    .is_some()
+            );
+        }
+    }
+}
+
+#[test]
+fn sequential_alternatives_share_bytes_but_accumulate_actual_setup_work() {
+    let graph = Graph::new(vec![vec![0, 0]], vec![0]).expect("graph");
+    let labels = Labels {
+        states: vec![],
+        actions: vec![vec![vec![false, false]]],
+    };
+    let cs = conditions();
+    let solution = CycleConditions {
+        always: cs.clone(),
+        recurring: cs.clone(),
+    };
+    let bytes = 2 * (size_of::<Vec<u64>>() + size_of::<u64>()) + 2 * size_of::<usize>() + 2;
+    // The residual core and existing recurrence spend 24 actual setup units.
+    // Each alternative then inspects 2 conditions and initializes 2 scratch cells.
+    let product = CompactProduct::with_policy(
+        &graph,
+        &tableau(1),
+        &labels,
+        &cs,
+        Limits::default(),
+        policy(bytes, 24 + 2 * 4),
+    )
+    .expect("shared base");
+    for _ in 0..2 {
+        assert_eq!(
+            product.find_lasso_with_conditions(&labels, &solution),
+            Ok(None),
+            "sequential scratch fits the same live-byte ceiling"
+        );
+    }
+    assert_eq!(
+        product.find_lasso_with_conditions(&labels, &solution),
+        Err(WORK),
+        "a third alternative cannot reuse spent materialization work"
+    );
 }
 
 #[test]

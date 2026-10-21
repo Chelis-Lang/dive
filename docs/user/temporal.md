@@ -654,7 +654,12 @@ verdicts, state counts or counterexample validation.
 
 The existing formula, graph, atom and product bounds still apply. An exhausted
 bound remains an explicit non-verdict result; this change introduces no new
-flag or profile divergence. Run budgets interrupt decomposition, graph search
+flag or profile divergence. Shared Boolean scratch consumes covered bytes;
+condition inspections and scratch initialization share the materialization
+work budget with the base buffers. Scratch bytes are reused across sequential
+alternatives; setup work accumulates. Boolean evaluation during lasso search
+remains outside the materialization work bound.
+Run budgets interrupt decomposition, graph search
 and SCC traversal through an explicit stopped path; acceptance truth is never
 changed to signal budget exhaustion. Completed-level prefix analysis receives
 the same armed budget on its capture thread. Polling occurs between bounded work

@@ -491,6 +491,8 @@ struct CompactAcceptance {
     actions: Vec<Vec<u64>>,
     edge_offsets: Vec<usize>,
     behavior_actions: bool,
+    /// Actual covered work already spent by the buffer-policy materializer.
+    materialization_work: usize,
 }
 
 fn bit(words: &[u64], index: usize) -> bool {
@@ -580,6 +582,7 @@ impl CompactAcceptance {
             actions,
             edge_offsets,
             behavior_actions: false,
+            materialization_work: 0,
         }
     }
 }
@@ -590,6 +593,8 @@ pub(crate) struct CompactProduct {
     parts: Parts<CompactAcceptance>,
     limits: Limits,
     policy: AcceptancePolicy,
+    /// Setup work is cumulative; alternative scratch buffers live sequentially.
+    solution_setup_work: std::cell::Cell<usize>,
 }
 
 impl CompactProduct {
@@ -660,6 +665,7 @@ impl CompactProduct {
             parts,
             limits,
             policy,
+            solution_setup_work: std::cell::Cell::new(0),
         })
     }
 
@@ -721,11 +727,37 @@ impl CompactProduct {
                 .ok_or(ProductError::Limit("acceptance cells"))?;
         }
         check_bytes(scratch_len)?;
+        let next_setup_work = if let AcceptancePolicy::Buffers { work, .. } = self.policy {
+            // Each condition's scratch metadata was inspected above. The
+            // scratch entries are initialized below and coexist with the
+            // base acceptance buffers, so both setup costs share its budget.
+            // Boolean evaluation during lasso search is not materialization.
+            let setup = self
+                .solution_setup_work
+                .get()
+                .checked_add(conditions.always.len())
+                .and_then(|used| used.checked_add(conditions.recurring.len()))
+                .and_then(|used| used.checked_add(scratch_len))
+                .ok_or(ProductError::Limit("acceptance materialization work"))?;
+            self.parts
+                .acceptance
+                .materialization_work
+                .checked_add(setup)
+                .filter(|used| *used <= work)
+                .ok_or(ProductError::Limit("acceptance materialization work"))?;
+            Some(setup)
+        } else {
+            None
+        };
         let mut scratch = Vec::new();
         scratch
             .try_reserve_exact(scratch_len)
             .map_err(|_| ProductError::Limit("solution scratch allocation"))?;
         check_bytes(scratch.capacity())?;
+        scratch.resize(scratch_len, false);
+        if let Some(work) = next_setup_work {
+            self.solution_setup_work.set(work);
+        }
         let conditioned = Conditioned {
             product: self,
             labels,

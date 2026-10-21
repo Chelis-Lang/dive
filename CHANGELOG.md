@@ -50,6 +50,8 @@
   Both profiles use the same semantic decomposition; existing count bounds
   are unchanged. Due completed-level checks inherit the armed run budget on
   their capture thread, preserving stopped outcomes and incomplete progress.
+  Explicit acceptance policies count shared scratch bytes, condition inspections
+  and scratch initialization alongside the base acceptance buffers and work.
 
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that
