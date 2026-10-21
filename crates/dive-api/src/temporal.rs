@@ -99,8 +99,17 @@ pub struct Report {
     options: CheckOptions,
     elapsed: Duration,
     periodic: Option<Checks>,
+    memory_samples: Option<dive_check::budget::MemorySamples>,
 }
 impl Report {
+    /// Actual observations when this temporal call returned. Nested already-armed
+    /// calls return a snapshot; the enclosing file report includes its owner's
+    /// later terminal observation.
+    #[must_use]
+    pub const fn memory_samples(&self) -> Option<dive_check::budget::MemorySamples> {
+        self.memory_samples
+    }
+
     /// The temporal outcome or the complete safety stop.
     #[must_use]
     pub fn outcome(&self) -> &Outcome {
@@ -129,6 +138,44 @@ impl Report {
     #[must_use]
     pub fn elapsed(&self) -> Duration {
         self.elapsed
+    }
+}
+
+/// Applies the outer owner's terminal observation after independent replay.
+pub(crate) fn finish_report(
+    report: &mut Report,
+    finished: Result<Option<dive_check::budget::Exhausted>, dive_check::budget::MeasurementError>,
+    elapsed: Duration,
+) -> Option<Failure> {
+    report.elapsed = elapsed;
+    let error = match finished {
+        Ok(Some(exhausted)) => Error::Analysis(AnalysisError::Stopped(Box::new(
+            exhausted.during(dive_check::budget::Phase::Finalization),
+        ))),
+        Err(error) => Error::Analysis(AnalysisError::BudgetMeasurement(error)),
+        Ok(None) => return None,
+    };
+    match &mut report.outcome {
+        Outcome::Holds(capture) => {
+            let mut failure = Failure::after(
+                error,
+                Stage::Analysis(dive_liveness::analyze::Stage::Finalization),
+                capture,
+            );
+            failure.elapsed = report.elapsed;
+            failure.periodic = report.periodic.map(Box::new);
+            Some(failure)
+        }
+        Outcome::Safety(result) => {
+            dive_check::budget::finish_result(
+                result,
+                finished,
+                dive_check::budget::Phase::Finalization,
+            );
+            None
+        }
+        // These witnesses already passed fresh independent validation.
+        Outcome::Violation(_) | Outcome::PrefixViolation(_) => None,
     }
 }
 
@@ -200,6 +247,8 @@ impl std::error::Error for Error {}
 /// Stage reached by a temporal run that produced no verdict.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Stage {
+    /// Budget admission before model binding or capture starts.
+    Startup,
     /// Initial model binding; no capture started.
     Binding,
     /// A known stage of final temporal analysis.
@@ -216,6 +265,7 @@ impl Stage {
     #[must_use]
     pub const fn name(self) -> &'static str {
         match self {
+            Self::Startup => "check-startup",
             Self::Binding => "binding",
             Self::Analysis(stage) => stage.name(),
             Self::Validation => "validation",
@@ -298,7 +348,9 @@ impl Failure {
             Some(true)
         } else if matches!(
             self.stage,
-            Stage::Binding | Stage::Analysis(dive_liveness::analyze::Stage::Planning)
+            Stage::Startup
+                | Stage::Binding
+                | Stage::Analysis(dive_liveness::analyze::Stage::Planning)
         ) {
             Some(false)
         } else {
@@ -661,6 +713,7 @@ pub(crate) fn check_ordinary_final(
                     options: options.clone(),
                     elapsed: started.elapsed(),
                     periodic,
+                    memory_samples: options.budget.memory_samples(),
                 })
                 .map_err(|mut failure| {
                     failure.elapsed = started.elapsed();
@@ -761,44 +814,183 @@ pub fn check_final_with_policy(
     policy: AcceptancePolicy,
 ) -> Result<Report, Failure> {
     let started = Instant::now();
-    if config.properties.is_empty() {
-        // No temporal claim was requested. Enter the ordinary checker before
-        // temporal binding so startup effects run once under its real host.
-        return Ok(Report {
-            outcome: Outcome::Safety(Box::new(dive_check::check(ir, config, options))),
-            options: options.clone(),
-            elapsed: started.elapsed(),
-            periodic: None,
-        });
-    }
-    let outcome = std::thread::scope(|s| {
-        std::thread::Builder::new()
-            .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(s, || run(ir, config, options, limits, policy))
-            .map_err(|e| Failure::before(Error::Thread(e.to_string()), Stage::Unknown))?
-            .join()
-            .map_err(|_| {
-                Failure::before(
-                    Error::Thread("the evaluation thread panicked".into()),
-                    Stage::Unknown,
-                )
-            })?
-    })
-    .map_err(|mut failure| {
-        failure.elapsed = started.elapsed();
-        failure
+    let report_options = options.clone();
+    let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
+        Failure::before(
+            Error::Analysis(match error {
+                dive_check::budget::StartError::Measurement(error) => {
+                    AnalysisError::BudgetMeasurement(error)
+                }
+                error @ dive_check::budget::StartError::Thread(_) => {
+                    AnalysisError::BudgetStartup(error.to_string())
+                }
+            }),
+            Stage::Startup,
+        )
     })?;
-    Ok(Report {
+    let options = armed.as_ref();
+    match options.budget.poll() {
+        Ok(Some(exhausted)) => {
+            return Err(Failure::before(
+                Error::Analysis(AnalysisError::Stopped(Box::new(
+                    exhausted.during(dive_check::budget::Phase::Startup),
+                ))),
+                Stage::Startup,
+            ));
+        }
+        Err(error) => {
+            return Err(Failure::before(
+                Error::Analysis(AnalysisError::BudgetMeasurement(error)),
+                Stage::Startup,
+            ));
+        }
+        Ok(None) => {}
+    }
+    let outcome = if config.properties.is_empty() {
+        // No temporal claim requested; retain the ordinary startup host.
+        Outcome::Safety(Box::new(dive_check::check(ir, config, options)))
+    } else {
+        std::thread::scope(|s| {
+            std::thread::Builder::new()
+                .stack_size(dive_eval::RECOMMENDED_STACK)
+                .spawn_scoped(s, || run(ir, config, options, limits, policy))
+                .map_err(|e| Failure::before(Error::Thread(e.to_string()), Stage::Unknown))?
+                .join()
+                .map_err(|_| {
+                    Failure::before(
+                        Error::Thread("the evaluation thread panicked".into()),
+                        Stage::Unknown,
+                    )
+                })?
+        })
+        .map_err(|mut failure| {
+            failure.elapsed = started.elapsed();
+            failure
+        })?
+    };
+    let mut report = Report {
         outcome,
-        options: options.clone(),
+        options: report_options,
         elapsed: started.elapsed(),
         periodic: None,
-    })
+        memory_samples: None,
+    };
+    if let Some(watchdog) = &mut watchdog {
+        let finished = watchdog.finish();
+        if let Some(failure) = finish_report(&mut report, finished, started.elapsed()) {
+            return Err(failure);
+        }
+    }
+    report.memory_samples = options.budget.memory_samples();
+    report.elapsed = started.elapsed();
+    Ok(report)
 }
 
 #[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "test setup and assertions"
+)]
 mod evidence_controls {
     use super::*;
+
+    fn sampled_report(property: &str) -> Report {
+        let source = format!(
+            "---- MODULE Boundaries ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == {property}\n====\n"
+        );
+        let analysis =
+            dive_sema::analyze_source("Boundaries.tla", &source, &dive_sema::Options::default());
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+            .into_config()
+            .expect("cfg");
+        check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
+            .expect("real temporal result")
+    }
+
+    #[test]
+    fn a_terminal_measurement_failure_never_publishes_holds() {
+        let mut report = sampled_report("[]<>(x \\/ ~x)");
+        assert!(matches!(report.outcome(), Outcome::Holds(_)));
+        let failure = finish_report(
+            &mut report,
+            Err(dive_check::budget::MeasurementError::unavailable(
+                dive_check::budget::SamplePoint::Final,
+            )),
+            Duration::from_millis(2),
+        )
+        .expect("holding cannot escape");
+        assert_eq!(
+            failure.error().code(),
+            dive_check::budget::MEASUREMENT_FAILURE_CODE
+        );
+        assert_eq!(failure.capture_completed(), Some(true));
+        assert_eq!(failure.stage().name(), "finalization");
+        assert_eq!(failure.elapsed(), Duration::from_millis(2));
+        let evidence = failure.exploration().expect("actual complete capture");
+        assert_eq!(
+            (
+                evidence.stats.distinct,
+                evidence.stats.generated,
+                evidence.stats.depth
+            ),
+            (2, 3, 2)
+        );
+    }
+
+    #[test]
+    fn terminal_memory_excess_has_completed_capture_at_finalization() {
+        let mut report = sampled_report(r"[]<>(x \/ ~x)");
+        let stop = dive_check::budget::Exhausted {
+            resource: dive_check::budget::Resource::Memory,
+            limit: 100,
+            observed: 101,
+            elapsed_ms: 2,
+        };
+        let failure = finish_report(&mut report, Ok(Some(stop)), Duration::from_millis(2))
+            .expect("no holding verdict");
+        assert_eq!(failure.stage().name(), "finalization");
+        assert_eq!(failure.capture_completed(), Some(true));
+        let Error::Analysis(AnalysisError::Stopped(stopped)) = failure.error() else {
+            panic!("actual resource stop");
+        };
+        assert_eq!(stopped.phase, dive_check::budget::Phase::Finalization);
+        let evidence = failure.exploration().expect("actual completed capture");
+        assert_eq!(
+            (
+                evidence.stats.distinct,
+                evidence.stats.generated,
+                evidence.stats.depth
+            ),
+            (2, 3, 2)
+        );
+    }
+
+    #[test]
+    fn a_terminal_failure_keeps_an_already_validated_witness() {
+        let mut report = sampled_report("<>[]x");
+        let Outcome::Violation(before) = report.outcome() else {
+            panic!("real validated witness");
+        };
+        let document = before.document().to_json();
+        assert!(
+            finish_report(
+                &mut report,
+                Err(dive_check::budget::MeasurementError::unavailable(
+                    dive_check::budget::SamplePoint::Final
+                )),
+                Duration::from_millis(2),
+            )
+            .is_none()
+        );
+        let Outcome::Violation(after) = report.outcome() else {
+            panic!("witness retained");
+        };
+        assert_eq!(after.document().to_json(), document);
+        assert_eq!(after.validation().validation, Validation::Valid);
+    }
 
     #[test]
     fn lost_thread_evidence_is_unknown_not_zero() {

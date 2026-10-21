@@ -1,5 +1,8 @@
 //! Pure runtime names retain recovery order, not an independent TLC certificate.
 #![allow(clippy::expect_used, reason = "bounded recovery regression assertions")]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use std::path::{Path, PathBuf};
@@ -15,6 +18,7 @@ fn directory() -> PathBuf {
     p
 }
 fn observable(mut v: serde_json::Value) -> serde_json::Value {
+    memory_observations::normalize(&mut v);
     let obj = v.as_object_mut().expect("report");
     for field in [
         "elapsed_ms",

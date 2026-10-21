@@ -42,7 +42,7 @@ pub(crate) fn enter(budget: &Budget) -> Scope {
 /// Whether this thread's budget is exhausted.
 #[inline]
 pub(crate) fn exhausted() -> bool {
-    BUDGET.with(|b| b.borrow().poll().is_some())
+    BUDGET.with(|b| !matches!(b.borrow().poll(), Ok(None)))
 }
 
 #[cfg(test)]
@@ -54,9 +54,14 @@ pub(crate) fn expired_for_test() -> dive_check::budget::Watchdog {
         .expect("watchdog starts")
         .expect("limited budget");
     let started = Instant::now();
-    while watchdog.budget().poll().is_none() && started.elapsed() < Duration::from_secs(10) {
+    while watchdog.budget().poll().expect("measurement").is_none()
+        && started.elapsed() < Duration::from_secs(10)
+    {
         std::thread::sleep(Duration::from_millis(1));
     }
-    assert!(watchdog.budget().poll().is_some(), "watchdog must expire");
+    assert!(
+        watchdog.budget().poll().expect("measurement").is_some(),
+        "watchdog must expire"
+    );
     watchdog
 }

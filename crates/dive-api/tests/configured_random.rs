@@ -1,5 +1,8 @@
 //! Configured RNG soundness repair reaches the public API before effects.
 #![allow(clippy::expect_used, reason = "test assertions")]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::{CheckRequest, Store, check_file};
 #[test]
 fn configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports() {
@@ -46,10 +49,11 @@ fn configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports
                             j["output"],
                             serde_json::json!(["\"must not print\"", "\"must not print\""])
                         );
-                        // Only elapsed time and source action location differ: the
-                        // direct spelling lengthens the Next expression. Preserve
+                        // Elapsed time and process observations vary between runs; the
+                        // direct spelling lengthens the Next action location. Preserve
                         // all concrete states, certification, metadata and messages.
                         for doc in [&mut j, &mut counterpart] {
+                            memory_observations::normalize(doc);
                             doc["elapsed_ms"] = serde_json::json!(0);
                             if let Some(states) = doc["counterexample"]["states"].as_array_mut() {
                                 for state in states {

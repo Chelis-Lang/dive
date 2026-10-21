@@ -88,9 +88,11 @@ than TLC, and 30-minute runaway jobs in any regular loop.
    `unsupported`.
 4. **Zero overhead.** A watchdog thread checks elapsed time every 50 ms and
    memory every 100 ms on Linux (`/proc/self/status`) or every 500 ms on
-   macOS (`/bin/ps`). The first memory sample waits a full period, so short
-   runs never sample. Physical memory is read once per process, and stopping
-   the watchdog never waits for a sample in flight. When either limit is
+   macOS. ADR 0109 supersedes the original delayed-only `ps` sampler with
+   safe native initial/terminal observations plus these periodic samples.
+   Short runs are observed, unavailable measurements fail closed, and physical
+   RAM is still read once per process. Stopping the watchdog does not wait for
+   a sample in flight. When either limit is
    exceeded it sets a flag. Engines read the flag at points they already
    pass:
    - each initial state and each expanded state in the inline engine;

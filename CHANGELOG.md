@@ -1,5 +1,13 @@
 # Changelog
 
+- Finite memory budgets sample before binding and before a holding result,
+  including short checks in both profiles (ADR 0109). macOS uses safe native
+  RSS observations. Initial known exhaustion stops at `check-startup`; unknown
+  RSS or default-ceiling RAM is a typed `DIVE-R0002` error, never silently
+  unlimited or zero memory. Add truthful sampling metadata without changing
+  report schema-2 verdict tags. Rust `Budget::poll` is now fallible; owners
+  finalise their watchdog once and preserve earlier errors/validated witnesses.
+
 - `dive check` and `dive tlc` accept opt-in `--max-states N|none` and
   `--max-depth N|none`. Initial states have BFS depth one; both defaults and
   TLC-equivalent settings are `none`. The first new in-model identity that

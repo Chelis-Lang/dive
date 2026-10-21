@@ -114,12 +114,15 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         );
     }
     let started = Instant::now();
-    let (_watchdog, armed) = match budget::arm(opts) {
+    let (mut watchdog, armed) = match budget::arm(opts) {
         Ok(armed) => armed,
         Err(error) => {
             return bare(
-                Verdict::InternalError {
-                    message: error.to_string(),
+                match error {
+                    error @ budget::StartError::Thread(_) => Verdict::InternalError {
+                        message: error.to_string(),
+                    },
+                    budget::StartError::Measurement(error) => Verdict::BudgetMeasurement { error },
                 },
                 opts,
                 ir,
@@ -127,6 +130,17 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         }
     };
     let opts = armed.as_ref();
+    match opts.budget.poll() {
+        Ok(Some(exhausted)) => {
+            return bare(
+                Verdict::Stopped(Box::new(exhausted.during(budget::Phase::Startup))),
+                opts,
+                ir,
+            );
+        }
+        Err(error) => return bare(Verdict::BudgetMeasurement { error }, opts, ir),
+        Ok(None) => {}
+    }
     let run = || run_check(ir, cfg, opts);
     let outcome = std::thread::scope(|s| {
         std::thread::Builder::new()
@@ -139,6 +153,9 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         Ok(r) => r,
         Err(message) => bare(Verdict::InternalError { message }, opts, ir),
     };
+    if let Some(watchdog) = &mut watchdog {
+        budget::finish_result(&mut result, watchdog.finish(), budget::Phase::Finalization);
+    }
     result.elapsed = started.elapsed();
     result
 }

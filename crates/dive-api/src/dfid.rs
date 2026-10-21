@@ -150,7 +150,9 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
                 crate::ApiError::Unsupported { .. } => ("unsupported", 3),
                 crate::ApiError::Rejected { .. } => ("rejected", 1),
                 crate::ApiError::Io { .. } => ("input-error", 2),
-                crate::ApiError::BudgetStartup(_) => ("internal-error", 4),
+                crate::ApiError::BudgetStartup(_) | crate::ApiError::BudgetMeasurement(_) => {
+                    ("internal-error", 4)
+                }
             };
             document["result"] = json!(kind);
             document["message"] = json!(e.to_string());

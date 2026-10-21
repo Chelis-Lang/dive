@@ -863,14 +863,18 @@ impl<S: Keyed> Search<'_, '_, S> {
 
     /// The stop for an exhausted budget, in this search's phase.
     pub(crate) fn budget_stop(&self) -> Option<Stop> {
-        let exhausted = self.budget.poll()?;
+        let polled = self.budget.poll();
         let phase = if self.capture.is_some() {
             crate::budget::Phase::Capture
         } else {
             crate::budget::Phase::Search
         };
         Some(Stop {
-            verdict: Verdict::Stopped(Box::new(exhausted.during(phase))),
+            verdict: match polled {
+                Ok(Some(exhausted)) => Verdict::Stopped(Box::new(exhausted.during(phase))),
+                Err(error) => Verdict::BudgetMeasurement { error },
+                Ok(None) => return None,
+            },
             in_init: false,
             path: None,
             then: None,
@@ -1319,7 +1323,10 @@ impl<S: Keyed> Search<'_, '_, S> {
             // (fixtures `ErInit*`, `ErInvInitState`, `ErConstrInitState`).
             // After a violation it prints none.
             let mut stats = self.stats(self.seen_len());
-            stats.depth = if matches!(s.verdict, Verdict::Stopped(_)) {
+            stats.depth = if matches!(
+                s.verdict,
+                Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. }
+            ) {
                 self.depth
             } else {
                 u64::from(self.generated > 0)
@@ -1438,8 +1445,11 @@ impl<S: Keyed> Search<'_, '_, S> {
                         if resumes {
                             resume = Some(succ.ordinal);
                         }
-                        let path =
-                            (!matches!(&verdict, Verdict::Stopped(_))).then(|| (id, s0.clone()));
+                        let path = (!matches!(
+                            &verdict,
+                            Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. }
+                        ))
+                        .then(|| (id, s0.clone()));
                         stop = Some(Stop {
                             verdict,
                             in_init: false,
