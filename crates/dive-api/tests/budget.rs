@@ -323,3 +323,62 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
     }
     Ok(())
 }
+
+#[test]
+fn a_large_interval_reaches_the_initial_state_budget_without_materialization()
+-> Result<(), Box<dyn std::error::Error>> {
+    let scratch = scratch()?;
+    let file = scratch.0.join("WideInterval.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE WideInterval ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..50000000\nNext == x' = x\n====\n",
+    )?;
+    std::fs::write(scratch.0.join("WideInterval.cfg"), "INIT Init\nNEXT Next\n")?;
+    for compat_tlc in [false, true] {
+        let report = check_file(&CheckRequest {
+            time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+            max_memory: BudgetSetting::Explicit(1 << 30),
+            ..request(&file, compat_tlc, 1)
+        })?;
+        let json = report.to_json();
+        assert_stopped(&json, "time", "safety-search");
+        assert!(
+            json["stopped"]["elapsed_ms"].as_u64() < Some(1500),
+            "{json}"
+        );
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), exit::STOPPED);
+    }
+    Ok(())
+}
+
+#[test]
+fn a_large_interval_reaches_the_successor_budget_at_each_worker_width()
+-> Result<(), Box<dyn std::error::Error>> {
+    let scratch = scratch()?;
+    let file = scratch.0.join("WideNextInterval.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE WideNextInterval ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' \\in 0..50000000\n====\n",
+    )?;
+    std::fs::write(
+        scratch.0.join("WideNextInterval.cfg"),
+        "INIT Init\nNEXT Next\n",
+    )?;
+    for compat_tlc in [false, true] {
+        for workers in [1, 4] {
+            let report = check_file(&CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                max_memory: BudgetSetting::Explicit(1 << 30),
+                ..request(&file, compat_tlc, workers)
+            })?;
+            let json = report.to_json();
+            assert_stopped(&json, "time", "safety-search");
+            assert!(
+                json["stopped"]["elapsed_ms"].as_u64() < Some(1500),
+                "{json}"
+            );
+            assert_eq!(report.exit_code_for(ExitConvention::Tlc), exit::STOPPED);
+        }
+    }
+    Ok(())
+}

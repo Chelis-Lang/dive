@@ -218,3 +218,20 @@ TLC oracle.
 The [compact evidence](../survey/data/search-budget-overhead-2026-10-21.json)
 retains all cells/pairs, exact source/binary and workload hashes, reductions,
 machine/toolchain, constraints and archive identity. Raw outputs stay external.
+
+## Interval-streaming overhead qualification
+
+Comparing `c82dd72c` against `f299eb07`, all eight ADR 0104 model/profile
+Cachegrind cells retain their distinct/generated counts and depth. Whole-CLI
+instruction deltas range from −0.0023% to +0.0462%, geometric mean +0.0112%.
+Separate genuine eight-worker SimpleRegular Callgrind runs use three interleaved
+pairs per profile, actual eight-worker reports and positive parallel-publication
+call evidence. Their paired-median deltas are −0.0209% default / −0.0428% TLC,
+with identical counts/depth. Every measured cell and pair satisfies the
+one-percent normal-input overhead bar. The two instrument totals are not pooled.
+
+The [compact evidence](../survey/data/interval-streaming-overhead-2026-10-21.json)
+retains all rows/pairs, exact source/binary/workload/library identities, machine,
+toolchain, constraints and archive hash. The shared host and reduced diagnostic
+workloads earn no wall-clock or TLC throughput credit; no TLC oracle executes
+in this paired instruction campaign. Raw output remains external.

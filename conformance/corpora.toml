@@ -131,3 +131,10 @@ id = "constant-predicate-binders"
 path = "conformance/corpus/constant-predicate-binders"
 license = "MIT"
 layout = "examples-manifest"
+
+# Bounded first-state interval controls; separate from established populations.
+[[corpus]]
+id = "interval-streaming"
+path = "conformance/corpus/interval-streaming"
+license = "MIT"
+layout = "examples-manifest"
