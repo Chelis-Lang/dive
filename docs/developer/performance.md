@@ -87,3 +87,82 @@ taskset -c 0-15 numactl --membind=0 target/release/dive-bench \
 Do not certify a quiet window by changing metadata after the run. Record the
 reservation, CPU/thermal controls and absence of interfering work for the next
 campaign; retain all original measurements when repeating a declared block.
+
+## Substitution-cache probe
+
+On 2026-10-21, a small paired probe confirmed that caching every forced
+`INSTANCE` substitution would change the pinned TLC's evaluation behavior.
+`Core::force` already reuses unprimed substitution thunks. Primed references
+pass a null successor and bypass the cache, matching the explicitly retained
+branch in pinned `Tool.java` at commit `94d0c507`.
+
+Use these two modules in an external scratch directory:
+
+```tla
+---- MODULE Inner ----
+VARIABLE a
+Repeated == a = a
+PrimedRepeated == a' = a'
+====
+```
+
+```tla
+---- MODULE Outer ----
+EXTENDS Naturals, TLC
+VARIABLE x
+I == INSTANCE Inner WITH a <- Print(<<"force",x>>,x)
+Init == x = 0
+Next == x' = IF x < 1 THEN x+1 ELSE x
+Unprimed == [][I!Repeated]_x
+Primed == [][I!PrimedRepeated]_x
+====
+```
+
+Each config selects `INIT Init`, `NEXT Next`, and either `PROPERTY Unprimed`
+or `PROPERTY Primed`. Run both with pinned TLC (`-workers 1 -lncheck final
+-seed 0 -fp 0`) and `dive check --compat=tlc --workers 1 --seed 0 --fp 0`.
+Both implementations succeed with two distinct, three generated and depth two.
+Unprimed emits two `Print` lines, while Primed emits four. This is a control on
+cache semantics, not a timing benchmark. The current paired dive executable
+was the run-budget branch debug binary (SHA-256
+`3b0cff81cd88dfb68a198fd4f52e97e92fd78f8c3242912387180a4381400eb8`);
+the relevant cache implementation is unchanged from main. No evaluator change
+or performance improvement follows from the probe. Investigate cache misses within the existing TLC rule before
+claiming that ADR 0104 item 6 offers new memoization savings.
+
+
+## Discarded evaluator prototypes
+
+A factorized instruction experiment on 2026-10-21 compared the run-budget
+source `d1eb36e3912a88032c24de025e9b11f125a72943` with two local candidates:
+stack arrays for strict unary/binary native operands (`a2a9461f`), and those
+arrays plus evaluator-private compact dispatch (`48d323e6`). Both preserve the
+original expression error wrapper, left-to-right forcing, host checks and lazy
+semantics. The compact candidate retains IR fallback and differential controls;
+it does not change `INSTANCE` caching.
+
+| Reduced model / profile | Baseline instructions | Stack arrays | Arrays + compact dispatch |
+|---|---:|---:|---:|
+| GameOfLife / dive | 1,224,031,470 | −1.697% | −0.834% |
+| GameOfLife / TLC | 1,179,946,797 | −1.759% | −0.864% |
+| SimpleRegular / dive | 2,793,329,298 | −0.985% | −1.141% |
+| SimpleRegular / TLC | 2,872,622,761 | −0.908% | −1.079% |
+
+All twelve measurements completed successfully with identical counts and
+depth: GameOfLife 512 distinct / 1,024 generated / depth 1; SimpleRegular
+12,097 / 47,584 / depth 19. Measurements used the ADR 0104 reduced inputs,
+Rust 1.99.0's profiling build, Valgrind 3.22.0
+`--tool=cachegrind --cache-sim=no`, one worker, seed/fingerprint zero and a
+330-second external backstop. The c7i.8xlarge Xeon 8488C host also ran gates;
+these are instruction comparisons, with no quiet-host wall-time claim.
+
+**Neither candidate met the 5% bar, and neither runtime change was landed.**
+The experiment stopped after these two models; it is not evidence for an
+improvement across the complete benchmark population. In particular, a second
+plan representation added little beyond the smaller operand-storage change.
+The shared IR already provides typed variable IDs and resolved locals, and
+`Core::eval_inner` borrows its expression. Further work should profile remaining
+activation and context ownership costs before introducing more dispatch
+scaffolding. Raw observations, source overlays, binary hashes and callgrind
+profiles are retained externally; the quick comparison archive SHA-256 is
+`d90b2ea46d7f95761cfa8b96521af44ee0a9012f15dbafdf17d80632f7677665`.
