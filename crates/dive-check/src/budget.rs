@@ -27,9 +27,9 @@
 //! use std::time::Duration;
 //! use dive_check::budget::Budget;
 //! let budget = Budget::new(Some(Duration::from_secs(3600)), None);
-//! let watchdog = budget.start().expect("a limited budget starts a watchdog");
+//! let watchdog = budget.start().expect("watchdog thread starts").expect("a limited budget starts a watchdog");
 //! assert!(watchdog.budget().poll().is_none());
-//! assert!(Budget::unlimited().start().is_none());
+//! assert!(Budget::unlimited().start().expect("unlimited").is_none());
 //! ```
 
 use std::process::Command;
@@ -37,6 +37,30 @@ use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU64, Ordering};
 use std::sync::{Arc, Condvar, Mutex, OnceLock, PoisonError};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
+
+/// Stable code for failure to start a requested budget's watchdog.
+pub const START_FAILURE_CODE: &str = "DIVE-R0001";
+
+/// The requested time/memory budget could not be armed. No check may run
+/// with that budget silently disabled.
+#[derive(Debug)]
+pub struct StartError(std::io::Error);
+
+impl std::fmt::Display for StartError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{START_FAILURE_CODE}: cannot start the budget watchdog: {}; free host resources and retry, or pass --time-limit none --max-memory none",
+            self.0
+        )
+    }
+}
+
+impl std::error::Error for StartError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.0)
+    }
+}
 
 /// The dive profile's default wall-clock limit. Provisional: the release
 /// value is chosen from the benchmark campaign before release (ADR 0107).
@@ -260,13 +284,25 @@ impl Budget {
     }
 
     /// Arms the budget: starts the watchdog thread and returns it. The
-    /// watchdog stops when dropped. `None` for an unlimited or already armed
-    /// budget, or if the thread cannot start (the run then goes unguarded,
-    /// as without limits).
-    #[must_use]
-    pub fn start(&self) -> Option<Watchdog> {
+    /// watchdog stops when dropped. `None` means unlimited or already armed.
+    ///
+    /// # Errors
+    /// Returns [`StartError`] when the thread cannot start. Callers must abort
+    /// the run rather than treating a finite budget as unlimited.
+    pub fn start(&self) -> Result<Option<Watchdog>, StartError> {
+        self.start_with(|watched, time, memory| {
+            std::thread::Builder::new()
+                .name("dive-budget".into())
+                .spawn(move || watch(&watched, time, memory))
+        })
+    }
+
+    fn start_with(
+        &self,
+        spawn: impl FnOnce(Arc<Inner>, Option<Duration>, Option<u64>) -> std::io::Result<JoinHandle<()>>,
+    ) -> Result<Option<Watchdog>, StartError> {
         if self.is_unlimited() || self.is_armed() {
-            return None;
+            return Ok(None);
         }
         let inner = Arc::new(Inner {
             tripped: AtomicU8::new(0),
@@ -277,19 +313,15 @@ impl Budget {
             wake: Condvar::new(),
         });
         let (time, memory) = (self.time, self.memory);
-        let watched = inner.clone();
-        let thread = std::thread::Builder::new()
-            .name("dive-budget".into())
-            .spawn(move || watch(&watched, time, memory))
-            .ok()?;
-        Some(Watchdog {
+        let thread = spawn(inner.clone(), time, memory).map_err(StartError)?;
+        Ok(Some(Watchdog {
             budget: Self {
                 time,
                 memory,
                 signal: Some(inner),
             },
             thread: Some(thread),
-        })
+        }))
     }
 
     /// What is exhausted, if anything. One relaxed load while the budget
@@ -346,24 +378,26 @@ fn millis(d: Duration) -> u64 {
 ///     budget: Budget::new(Some(Duration::from_secs(60)), None),
 ///     ..CheckOptions::dive(0)
 /// };
-/// let (watchdog, armed) = arm(&opts);
+/// let (watchdog, armed) = arm(&opts).expect("watchdog thread starts");
 /// assert!(watchdog.is_some() && armed.budget.is_armed());
-/// let (again, _) = arm(&armed);
+/// let (again, _) = arm(&armed).expect("already armed");
 /// assert!(again.is_none());
 /// ```
-#[must_use]
+///
+/// # Errors
+/// Returns [`StartError`] if a requested budget cannot be enforced.
 pub fn arm(
     opts: &crate::CheckOptions,
-) -> (Option<Watchdog>, std::borrow::Cow<'_, crate::CheckOptions>) {
-    match opts.budget.start() {
+) -> Result<(Option<Watchdog>, std::borrow::Cow<'_, crate::CheckOptions>), StartError> {
+    match opts.budget.start()? {
         Some(watchdog) => {
             let armed = crate::CheckOptions {
                 budget: watchdog.budget().clone(),
                 ..opts.clone()
             };
-            (Some(watchdog), std::borrow::Cow::Owned(armed))
+            Ok((Some(watchdog), std::borrow::Cow::Owned(armed)))
         }
-        None => (None, std::borrow::Cow::Borrowed(opts)),
+        None => Ok((None, std::borrow::Cow::Borrowed(opts))),
     }
 }
 
@@ -551,9 +585,40 @@ mod tests {
     }
 
     #[test]
+    fn a_spawn_failure_is_distinct_from_an_unlimited_budget() {
+        let limited = Budget::new(Some(Duration::from_secs(60)), None);
+        let error = limited
+            .start_with(|_, _, _| Err(std::io::Error::other("injected thread exhaustion")))
+            .expect_err("a requested watchdog must not disappear");
+        assert!(error.to_string().contains(START_FAILURE_CODE));
+        assert!(error.to_string().contains("injected thread exhaustion"));
+        assert!(
+            error
+                .to_string()
+                .contains("--time-limit none --max-memory none")
+        );
+        assert!(std::error::Error::source(&error).is_some());
+        assert!(!limited.is_armed());
+        assert!(!limited.is_unlimited());
+
+        let attempted = std::cell::Cell::new(false);
+        let unlimited = Budget::unlimited()
+            .start_with(|_, _, _| {
+                attempted.set(true);
+                Err(std::io::Error::other(
+                    "must not attempt an unlimited watchdog",
+                ))
+            })
+            .expect("unlimited needs no host resource");
+        assert!(unlimited.is_none());
+        assert!(!attempted.get());
+    }
+
+    #[test]
     fn an_expired_time_limit_trips_with_the_elapsed_time() {
         let watchdog = Budget::new(Some(Duration::from_millis(20)), None)
             .start()
+            .expect("watchdog thread starts")
             .expect("watchdog");
         let e = wait_for(watchdog.budget()).expect("trips");
         assert_eq!(e.resource, Resource::Time);
@@ -566,7 +631,10 @@ mod tests {
         if resident_bytes().is_none() {
             return;
         }
-        let watchdog = Budget::new(None, Some(1)).start().expect("watchdog");
+        let watchdog = Budget::new(None, Some(1))
+            .start()
+            .expect("watchdog thread starts")
+            .expect("watchdog");
         let e = wait_for(watchdog.budget()).expect("trips");
         assert_eq!((e.resource, e.limit), (Resource::Memory, 1));
         assert!(e.observed > 1);
@@ -576,13 +644,14 @@ mod tests {
     fn generous_limits_and_unarmed_budgets_never_trip() {
         let watchdog = Budget::new(Some(Duration::from_secs(3600)), Some(u64::MAX))
             .start()
+            .expect("watchdog thread starts")
             .expect("watchdog");
         std::thread::sleep(Duration::from_millis(150));
         assert!(watchdog.budget().poll().is_none());
         assert!(Budget::new(Some(Duration::ZERO), None).poll().is_none());
-        assert!(Budget::unlimited().start().is_none());
+        assert!(Budget::unlimited().start().expect("unlimited").is_none());
         // An armed budget is not armed twice.
-        assert!(watchdog.budget().start().is_none());
+        assert!(watchdog.budget().start().expect("armed").is_none());
     }
 
     #[test]

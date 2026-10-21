@@ -22,6 +22,7 @@ fn an_exhausted_budget_stops_the_analysis_and_a_generous_one_changes_nothing() {
 
     let watchdog = Budget::new(Some(Duration::from_millis(1)), None)
         .start()
+        .expect("watchdog thread starts")
         .expect("watchdog");
     let started = Instant::now();
     while watchdog.budget().poll().is_none() && started.elapsed() < Duration::from_secs(10) {

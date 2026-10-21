@@ -74,6 +74,8 @@ pub struct Candidate {
 /// A named refusal or error, never evidence that a property holds.
 #[derive(Clone, Debug)]
 pub enum AnalysisError {
+    /// A requested run budget could not be armed; no capture or analysis ran.
+    BudgetStartup(String),
     /// Pure predicate planning failed.
     Planning(PlanningError),
     /// Tableau construction failed.
@@ -119,6 +121,7 @@ impl AnalysisError {
             Self::Unsupported(_) => "DIVE-L0035",
             Self::Inconsistent(_) => "DIVE-L0036",
             Self::CaptureThread(_) => "DIVE-L0037",
+            Self::BudgetStartup(_) => dive_check::budget::START_FAILURE_CODE,
             Self::Stopped(_) => "DIVE-L0038",
         }
     }
@@ -145,6 +148,7 @@ impl std::fmt::Display for AnalysisError {
             Self::Unsupported(s) => write!(f, "unsupported liveness analysis: {s}"),
             Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
             Self::CaptureThread(s) => write!(f, "liveness capture thread failure: {s}"),
+            Self::BudgetStartup(s) => f.write_str(s),
             Self::Stopped(s) => write!(f, "{}: {s}", self.code()),
         }
     }
@@ -623,7 +627,8 @@ fn analyze_observed(
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
-    let (_watchdog, armed) = dive_check::budget::arm(opts);
+    let (_watchdog, armed) = dive_check::budget::arm(opts)
+        .map_err(|error| AnalysisError::BudgetStartup(error.to_string()))?;
     let _scope = crate::budget::enter(&armed.budget);
     analyze_unbudgeted(
         model,

@@ -682,6 +682,10 @@ fn check_command(
     };
     let report = match checked {
         Ok(r) => r,
+        Err(dive_api::ApiError::BudgetStartup(error)) => {
+            let _ = writeln!(err, "{error}; no verdict produced");
+            return ExitCode::from(4);
+        }
         Err(e @ dive_api::ApiError::Unsupported { .. }) => {
             let _ = writeln!(err, "{e}; no verdict produced");
             return ExitCode::from(EXIT_UNSUPPORTED);
