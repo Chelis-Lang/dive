@@ -466,6 +466,7 @@ pub(super) fn materialize(
         actions,
         edge_offsets,
         behavior_actions: layout.domain.behavior,
+        materialization_work: work - remaining,
     })
 }
 

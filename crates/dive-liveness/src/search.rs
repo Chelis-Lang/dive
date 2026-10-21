@@ -24,7 +24,7 @@ pub struct Acceptance {
     pub actions: Vec<Vec<Vec<bool>>>,
 }
 
-/// A malformed label table or an internal search inconsistency.
+/// Malformed labels, a search inconsistency or an exhausted run budget.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SearchError {
     /// Label dimensions do not match the graph.
@@ -32,6 +32,8 @@ pub enum SearchError {
     /// An accepting component failed to provide its promised witness.
     /// This is a bug, never an absence-of-violation result.
     Invariant(&'static str),
+    /// The installed run budget expired during search; no verdict is implied.
+    Budget,
 }
 
 impl std::fmt::Display for SearchError {
@@ -39,11 +41,46 @@ impl std::fmt::Display for SearchError {
         match self {
             Self::Shape(s) => write!(f, "invalid acceptance labels: {s}"),
             Self::Invariant(s) => write!(f, "lasso search invariant: {s}"),
+            Self::Budget => f.write_str("lasso search stopped by its run budget"),
         }
     }
 }
 
 impl std::error::Error for SearchError {}
+
+// Poll at amortized work boundaries. A budget is control flow, never an
+// acceptance label: exhaustion propagates as an error through every phase.
+#[derive(Default)]
+pub(crate) struct Poll {
+    remaining: usize,
+}
+
+impl Poll {
+    fn step(&mut self) -> Result<(), SearchError> {
+        if self.remaining == 0 {
+            if crate::budget::exhausted() {
+                return Err(SearchError::Budget);
+            }
+            self.remaining = 1024;
+        }
+        self.remaining -= 1;
+        Ok(())
+    }
+
+    fn any<T>(
+        &mut self,
+        values: impl IntoIterator<Item = T>,
+        mut predicate: impl FnMut(T) -> bool,
+    ) -> Result<bool, SearchError> {
+        for value in values {
+            self.step()?;
+            if predicate(value) {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
+}
 
 /// One edge of a witness. Its position distinguishes parallel edges with
 /// different action labels, even when they have the same destination.
@@ -109,15 +146,34 @@ pub(crate) trait AcceptanceAccess {
     fn state(&self, condition: usize, vertex: usize) -> bool;
     fn action(&self, condition: usize, source: usize, edge: usize) -> bool;
 
-    fn accepts(&self, graph: &Graph, component: &[usize], members: &[usize], stamp: usize) -> bool {
-        (0..self.state_count()).all(|condition| component.iter().any(|&v| self.state(condition, v)))
-            && (0..self.action_count()).all(|condition| {
-                component.iter().any(|&v| {
-                    graph.edges[v].iter().enumerate().any(|(e, t)| {
-                        members[*t] == stamp && self.recurrent(v, e) && self.action(condition, v, e)
-                    })
-                })
-            })
+    fn accepts(
+        &self,
+        graph: &Graph,
+        component: &[usize],
+        members: &[usize],
+        stamp: usize,
+        poll: &mut Poll,
+    ) -> Result<bool, SearchError> {
+        for condition in 0..self.state_count() {
+            if !poll.any(component, |&v| self.state(condition, v))? {
+                return Ok(false);
+            }
+        }
+        for condition in 0..self.action_count() {
+            let mut found = false;
+            for &v in component {
+                if poll.any(graph.edges[v].iter().enumerate(), |(e, t)| {
+                    members[*t] == stamp && self.recurrent(v, e) && self.action(condition, v, e)
+                })? {
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                return Ok(false);
+            }
+        }
+        Ok(true)
     }
 }
 
@@ -167,7 +223,8 @@ impl AcceptanceAccess for Acceptance {
 /// ```
 ///
 /// # Errors
-/// Malformed label dimensions or an internal witness-construction bug.
+/// Malformed labels, an internal witness-construction bug or an exhausted
+/// installed run budget. A budget error makes no claim about acceptance.
 pub fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, SearchError> {
     labels.validate(graph)?;
     find_lasso_view(graph, labels)
@@ -177,41 +234,54 @@ pub(crate) fn find_lasso_view(
     graph: &Graph,
     labels: &impl AcceptanceAccess,
 ) -> Result<Option<Lasso>, SearchError> {
-    let prefix = Paths::new(graph, &graph.roots, |_, _, _| true);
-    let restricted = Graph {
-        edges: graph
-            .edges
-            .iter()
-            .enumerate()
-            .map(|(v, targets)| {
-                targets
-                    .iter()
-                    .enumerate()
-                    .filter_map(|(e, t)| labels.recurrent(v, e).then_some(*t))
-                    .collect()
-            })
-            .collect(),
-        // A finite prefix may cross edges that fail EA. Such destinations
-        // must remain candidates for a recurrent component.
-        roots: prefix
-            .distance
-            .iter()
-            .enumerate()
-            .filter_map(|(v, d)| d.is_some().then_some(v))
-            .collect(),
-    };
+    let mut poll = Poll::default();
+    poll.step()?;
+    let prefix = Paths::new(graph, &graph.roots, |_, _, _| true, &mut poll)?;
+    let mut edges = Vec::with_capacity(graph.edges.len());
+    for (v, targets) in graph.edges.iter().enumerate() {
+        let mut row = Vec::new();
+        for (e, &target) in targets.iter().enumerate() {
+            poll.step()?;
+            if labels.recurrent(v, e) {
+                row.push(target);
+            }
+        }
+        edges.push(row);
+    }
+    // A finite prefix may cross edges that fail EA. Such destinations must
+    // remain candidates for a recurrent component.
+    let mut roots = Vec::new();
+    for (v, distance) in prefix.distance.iter().enumerate() {
+        poll.step()?;
+        if distance.is_some() {
+            roots.push(v);
+        }
+    }
+    let restricted = Graph { edges, roots };
     let mut selected: Option<(usize, usize, Vec<usize>)> = None;
     let mut membership = vec![0; graph.edges.len()];
-    for (i, component) in restricted.cyclic_components().into_iter().enumerate() {
+    for (i, component) in restricted
+        .try_components(|| poll.step())?
+        .into_iter()
+        .enumerate()
+    {
+        poll.step()?;
+        if component.len() == 1
+            && !poll.any(&restricted.edges[component[0]], |&to| to == component[0])?
+        {
+            continue;
+        }
         let stamp = i + 1;
         for &v in &component {
+            poll.step()?;
             membership[v] = stamp;
         }
-        if !labels.accepts(graph, &component, &membership, stamp) {
+        if !labels.accepts(graph, &component, &membership, stamp, &mut poll)? {
             continue;
         }
         let mut best = None;
         for &v in &component {
+            poll.step()?;
             let Some(d) = prefix.distance[v] else {
                 return Err(SearchError::Invariant("component is not reachable"));
             };
@@ -228,15 +298,23 @@ pub(crate) fn find_lasso_view(
         }
     }
     let Some((_, entry, component)) = selected else {
+        if crate::budget::exhausted() {
+            return Err(SearchError::Budget);
+        }
         return Ok(None);
     };
     let mut inside = vec![false; graph.edges.len()];
     for v in component {
+        poll.step()?;
         inside[v] = true;
     }
-    let steps = prefix.path(entry)?;
+    let steps = prefix.path(entry, &mut poll)?;
     let root = steps.first().map_or(entry, |s| s.from);
-    let cycle = covering_cycle(graph, labels, &inside, entry)?;
+    let cycle = covering_cycle(graph, labels, &inside, entry, &mut poll)?;
+    // Catch a trip during the final bounded unit before returning a witness.
+    if crate::budget::exhausted() {
+        return Err(SearchError::Budget);
+    }
     Ok(Some(Lasso {
         root,
         entry,
@@ -255,13 +333,15 @@ impl Paths {
         graph: &Graph,
         roots: &[usize],
         mut keep: impl FnMut(usize, usize, usize) -> bool,
-    ) -> Self {
+        poll: &mut Poll,
+    ) -> Result<Self, SearchError> {
         let mut distance = vec![None; graph.edges.len()];
         let mut parent = vec![None; graph.edges.len()];
         let mut frontier = roots.to_vec();
         frontier.sort_unstable();
         frontier.dedup();
         for &v in &frontier {
+            poll.step()?;
             distance[v] = Some(0);
         }
         let mut depth = 0;
@@ -269,6 +349,7 @@ impl Paths {
             let mut next = Vec::new();
             for v in frontier {
                 for (edge, &to) in graph.edges[v].iter().enumerate() {
+                    poll.step()?;
                     if keep(v, edge, to) && distance[to].is_none() {
                         distance[to] = Some(depth + 1);
                         parent[to] = Some(Step { from: v, edge, to });
@@ -280,16 +361,17 @@ impl Paths {
             frontier = next;
             depth += 1;
         }
-        Self { distance, parent }
+        Ok(Self { distance, parent })
     }
 
-    fn path(&self, target: usize) -> Result<Vec<Step>, SearchError> {
+    fn path(&self, target: usize, poll: &mut Poll) -> Result<Vec<Step>, SearchError> {
         if self.distance[target].is_none() {
             return Err(SearchError::Invariant("witness target is unreachable"));
         }
         let mut path = Vec::new();
         let mut v = target;
         while let Some(step) = self.parent[v] {
+            poll.step()?;
             path.push(step);
             v = step.from;
         }
@@ -304,19 +386,33 @@ struct Outstanding {
 }
 
 impl Outstanding {
-    fn visit(&mut self, labels: &impl AcceptanceAccess, v: usize) {
+    fn visit(
+        &mut self,
+        labels: &impl AcceptanceAccess,
+        v: usize,
+        poll: &mut Poll,
+    ) -> Result<(), SearchError> {
         for (condition, missing) in self.states.iter_mut().enumerate() {
+            poll.step()?;
             *missing &= !labels.state(condition, v);
         }
+        Ok(())
     }
 
-    fn traverse(&mut self, labels: &impl AcceptanceAccess, steps: &[Step]) {
+    fn traverse(
+        &mut self,
+        labels: &impl AcceptanceAccess,
+        steps: &[Step],
+        poll: &mut Poll,
+    ) -> Result<(), SearchError> {
         for s in steps {
-            self.visit(labels, s.to);
+            self.visit(labels, s.to, poll)?;
             for (condition, missing) in self.actions.iter_mut().enumerate() {
+                poll.step()?;
                 *missing &= !labels.action(condition, s.from, s.edge);
             }
         }
+        Ok(())
     }
 
     fn done(&self) -> bool {
@@ -333,14 +429,20 @@ fn covering_cycle(
     labels: &impl AcceptanceAccess,
     inside: &[bool],
     entry: usize,
+    poll: &mut Poll,
 ) -> Result<Vec<Step>, SearchError> {
     // A self-loop that discharges everything is the canonical first choice.
     // The caller decides whether it projects to physical stuttering.
     for (edge, &to) in graph.edges[entry].iter().enumerate() {
+        poll.step()?;
         if to == entry
             && labels.recurrent(entry, edge)
-            && (0..labels.state_count()).all(|condition| labels.state(condition, entry))
-            && (0..labels.action_count()).all(|condition| labels.action(condition, entry, edge))
+            && !poll.any(0..labels.state_count(), |condition| {
+                !labels.state(condition, entry)
+            })?
+            && !poll.any(0..labels.action_count(), |condition| {
+                !labels.action(condition, entry, edge)
+            })?
         {
             return Ok(vec![Step {
                 from: entry,
@@ -353,36 +455,33 @@ fn covering_cycle(
         states: vec![true; labels.state_count()],
         actions: vec![true; labels.action_count()],
     };
-    missing.visit(labels, entry);
+    missing.visit(labels, entry, poll)?;
     let mut current = entry;
     let mut cycle = Vec::new();
     let keep = |v: usize, edge: usize, to: usize| inside[to] && labels.recurrent(v, edge);
     while !missing.done() {
-        let paths = Paths::new(graph, &[current], keep);
+        let paths = Paths::new(graph, &[current], keep, poll)?;
         // (distance to discharge, source/node id, optional edge position).
         let mut best = None;
         for (v, distance) in paths.distance.iter().enumerate() {
+            poll.step()?;
             let Some(distance) = distance else {
                 continue;
             };
-            if missing
-                .states
-                .iter()
-                .enumerate()
-                .any(|(condition, m)| *m && labels.state(condition, v))
-            {
+            if poll.any(missing.states.iter().enumerate(), |(condition, m)| {
+                *m && labels.state(condition, v)
+            })? {
                 let candidate = (*distance, v, None);
                 if best.is_none_or(|b| candidate < b) {
                     best = Some(candidate);
                 }
             }
             for (edge, &to) in graph.edges[v].iter().enumerate() {
+                poll.step()?;
                 if keep(v, edge, to)
-                    && missing
-                        .actions
-                        .iter()
-                        .enumerate()
-                        .any(|(condition, m)| *m && labels.action(condition, v, edge))
+                    && poll.any(missing.actions.iter().enumerate(), |(condition, m)| {
+                        *m && labels.action(condition, v, edge)
+                    })?
                 {
                     let candidate = (*distance + 1, v, Some(edge));
                     if best.is_none_or(|b| candidate < b) {
@@ -396,7 +495,7 @@ fn covering_cycle(
                 "component cannot discharge a condition",
             ));
         };
-        let mut steps = paths.path(v)?;
+        let mut steps = paths.path(v, poll)?;
         if let Some(edge) = edge {
             steps.push(Step {
                 from: v,
@@ -405,7 +504,7 @@ fn covering_cycle(
             });
         }
         current = steps.last().map_or(v, |s| s.to);
-        missing.traverse(labels, &steps);
+        missing.traverse(labels, &steps, poll)?;
         cycle.extend(steps);
     }
     if cycle.is_empty() {
@@ -418,22 +517,30 @@ fn covering_cycle(
             roots: vec![entry],
         };
         for (v, targets) in graph.edges.iter().enumerate() {
+            poll.step()?;
             if !inside[v] {
                 continue;
             }
             for (edge, &to) in targets.iter().enumerate() {
+                poll.step()?;
                 if keep(v, edge, to) {
                     reverse.edges[to].push(v);
                 }
             }
         }
-        let back = Paths::new(&reverse, &[entry], |_, _, _| true);
-        let best = graph.edges[entry]
-            .iter()
-            .enumerate()
-            .filter(|(edge, to)| keep(entry, *edge, **to))
-            .filter_map(|(edge, to)| back.distance[*to].map(|d| (d, edge, *to)))
-            .min();
+        let back = Paths::new(&reverse, &[entry], |_, _, _| true, poll)?;
+        let mut best = None;
+        for (edge, &to) in graph.edges[entry].iter().enumerate() {
+            poll.step()?;
+            if keep(entry, edge, to)
+                && let Some(distance) = back.distance[to]
+            {
+                let candidate = (distance, edge, to);
+                if best.is_none_or(|old| candidate < old) {
+                    best = Some(candidate);
+                }
+            }
+        }
         let Some((_, edge, to)) = best else {
             return Err(SearchError::Invariant(
                 "cyclic component has no closed walk",
@@ -444,9 +551,80 @@ fn covering_cycle(
             edge,
             to,
         }];
-        steps.extend(Paths::new(graph, &[to], keep).path(entry)?);
+        steps.extend(Paths::new(graph, &[to], keep, poll)?.path(entry, poll)?);
         return Ok(steps);
     }
-    cycle.extend(Paths::new(graph, &[current], keep).path(entry)?);
+    cycle.extend(Paths::new(graph, &[current], keep, poll)?.path(entry, poll)?);
     Ok(cycle)
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "finite graph controls")]
+mod tests {
+    use super::*;
+    use std::cell::{Cell, RefCell};
+
+    #[test]
+    fn a_budget_trip_during_labelled_search_is_control_flow() {
+        struct InstallsBudget<'a> {
+            budget: &'a dive_check::budget::Budget,
+            scope: RefCell<Option<crate::budget::Scope>>,
+            accesses: Cell<usize>,
+        }
+        impl AcceptanceAccess for InstallsBudget<'_> {
+            fn state_count(&self) -> usize {
+                0
+            }
+            fn action_count(&self) -> usize {
+                0
+            }
+            fn recurrent(&self, _: usize, _: usize) -> bool {
+                self.accesses.set(self.accesses.get() + 1);
+                if self.scope.borrow().is_none() {
+                    self.scope.replace(Some(crate::budget::enter(self.budget)));
+                }
+                true
+            }
+            fn state(&self, _: usize, _: usize) -> bool {
+                true
+            }
+            fn action(&self, _: usize, _: usize, _: usize) -> bool {
+                true
+            }
+        }
+        let watchdog = crate::budget::expired_for_test();
+        let graph = Graph::new((0..4096).map(|v| vec![(v + 1) % 4096]).collect(), vec![0])
+            .expect("one large accepting SCC");
+        let labels = InstallsBudget {
+            budget: watchdog.budget(),
+            scope: RefCell::new(None),
+            accesses: Cell::new(0),
+        };
+        // The budget changes during recurrent-edge construction, after prefix
+        // BFS has succeeded. Truth remains TRUE for every inspected edge.
+        assert_eq!(find_lasso_view(&graph, &labels), Err(SearchError::Budget));
+        assert!((1..=1024).contains(&labels.accesses.get()));
+        assert!(matches!(
+            crate::product::ProductError::search(SearchError::Budget),
+            crate::product::ProductError::Limit(crate::budget::EXHAUSTED)
+        ));
+    }
+
+    #[test]
+    fn a_single_large_scc_has_fallible_poll_points() {
+        let graph =
+            Graph::new((0..4096).map(|v| vec![(v + 1) % 4096]).collect(), vec![0]).expect("cycle");
+        let mut steps = 0;
+        let result = graph.try_components(|| {
+            steps += 1;
+            if steps == 2048 {
+                Err("stopped inside SCC")
+            } else {
+                Ok(())
+            }
+        });
+        assert_eq!(result, Err("stopped inside SCC"));
+        assert_eq!(steps, 2048);
+        assert_eq!(graph.components().len(), 1);
+    }
 }

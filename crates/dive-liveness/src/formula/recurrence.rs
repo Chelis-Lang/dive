@@ -112,7 +112,7 @@ impl Recurrence {
         Some(values[self.root])
     }
 
-    fn condition(formula: &Formula, roots: &[usize]) -> Option<Self> {
+    pub(super) fn condition(formula: &Formula, roots: &[usize]) -> Option<Self> {
         let reachable = reachable(&formula.nodes, roots, true)?;
         let mut mapped = vec![0; formula.nodes.len()];
         let mut nodes = Vec::new();
