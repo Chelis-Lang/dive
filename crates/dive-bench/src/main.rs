@@ -38,8 +38,8 @@ usage: dive-bench [options]
   --filter <name>     run only this benchmark (repeatable)
   --workers <list>    matched worker counts, e.g. 1,4,8 (default: 1)
   --tlc               also time pinned TLC at every selected worker count
-  --xmx <size>        TLC heap (default: 3g, as the harness)
-  --timeout <secs>    per run (default: 1800)
+  --xmx <size>        TLC heap and dive process-memory ceiling (default: 3g)
+  --timeout <secs>    external per-run backstop (default: 900)
   --runs <file>       append every run as a JSON line to <file>
   --set <file>        the benchmark set (default: crates/dive-bench/benchmarks.toml)
   --list              list the benchmark set and exit
@@ -81,7 +81,7 @@ fn parse_args() -> Result<Opts, String> {
         filters: Vec::new(),
         tlc: false,
         xmx: "3g".to_owned(),
-        timeout: Duration::from_mins(30),
+        timeout: Duration::from_mins(15),
         runs: None,
         set: None,
         list: false,
@@ -199,6 +199,7 @@ struct Prepared {
     corpus_root: PathBuf,
     module: String,
     expected: Expected,
+    golden_elapsed_ms: u64,
     provenance: Value,
     _scratch: Option<TempDir>,
 }
@@ -352,6 +353,7 @@ fn run(opts: &Opts) -> Result<bool, String> {
             corpus_root: root,
             module,
             expected,
+            golden_elapsed_ms: g.provenance.elapsed_ms,
             provenance,
             _scratch: own,
         });
@@ -424,6 +426,11 @@ fn run(opts: &Opts) -> Result<bool, String> {
     provenance["benchmark_set_sha256"] =
         json!(dive_conformance::hash::sha256_file(&set_path).map_err(err)?);
     provenance["timeout_seconds"] = json!(opts.timeout.as_secs());
+    provenance["native_budget_policy"] = json!({
+        "time": "max(60s, 10 x pinned TLC elapsed), capped below the external backstop",
+        "cleanup_reserve": "10% of the external backstop, at most 30s",
+        "memory": "--xmx is also the explicit whole-process memory ceiling for both dive profiles",
+    });
     provenance["xmx"] = json!(opts.xmx);
     provenance["schedule"] = json!(
         "model order fixed; worker/arm blocks reversed on odd repetitions; one process at a time"
@@ -656,6 +663,13 @@ fn run_dive(
     }
     args.push("--workers".into());
     args.push(workers.to_string().into());
+    let time_limit = native_time_limit(p.golden_elapsed_ms, opts.timeout);
+    args.extend([
+        "--time-limit".into(),
+        format!("{}ms", time_limit.as_millis()).into(),
+        "--max-memory".into(),
+        opts.xmx.clone().into(),
+    ]);
     if profile == "tlc" {
         args.push("--compat=tlc".into());
     }
@@ -712,7 +726,7 @@ fn run_dive(
         error_class: v["tlc"]["name"].as_str().map(str::to_owned),
         exit_code: outcome.exit_code,
         property: v["property"].as_str().map(str::to_owned),
-        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"reported_options":v["options"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
+        metadata: json!({"argv":invocation_args,"cwd":dir,"environment_removed":["DIVE_COMPAT","DIVE_CHAOS"],"requested_native_budget":{"reference_tlc_elapsed_ms":p.golden_elapsed_ms,"time_limit_ms":time_limit.as_millis(),"max_memory":opts.xmx},"reported_options":v["options"],"reported_stopped":v["stopped"],"reported_resources":v["resources"],"reported_execution":v["execution"],"load_before":load_before,"load_after":load_after,"inputs":p.provenance}),
     };
     (r.correct, r.note) = check(p, &r);
     if v["tlc"]["verified"] != true
@@ -724,6 +738,16 @@ fn run_dive(
             .push_str("; dive did not report verified TLC success");
     }
     Ok(r)
+}
+
+/// Reserve cleanup time so a native stop can publish its structured report
+/// before the independent external backstop kills an unresponsive process.
+fn native_time_limit(golden_elapsed_ms: u64, external_timeout: Duration) -> Duration {
+    let reserve = (external_timeout / 10).min(Duration::from_secs(30));
+    Duration::from_millis(golden_elapsed_ms)
+        .saturating_mul(10)
+        .max(Duration::from_secs(60))
+        .min(external_timeout.saturating_sub(reserve))
 }
 
 fn run_tlc(
@@ -872,7 +896,7 @@ fn summarise(runs: &[&Run], intended: usize) -> Summary {
         .filter(valid)
         .filter_map(|r| r.usage.map(|u| u.max_rss_bytes as f64 / f64::from(1 << 20)))
         .collect();
-    let censored = runs.iter().filter(|r| r.verdict == "timeout").count();
+    let censored = runs.iter().filter(|r| stats::incomplete(r)).count();
     let refused = runs.iter().filter(|r| r.verdict == "unsupported").count();
     Summary {
         cpu_s: median(&cpu),
@@ -1008,7 +1032,7 @@ fn report(
 ) -> Result<Value, String> {
     println!("\n## Current runs (whole-process wall time; CPU = user + sys)\n");
     println!(
-        "| Model | arm | wall s | CPU s | distinct/wall s | peak RSS MiB | completed/intended | timeout/refused/failed/missing |"
+        "| Model | arm | wall s | CPU s | distinct/wall s | peak RSS MiB | completed/intended | incomplete/refused/failed/missing |"
     );
     println!("|---|---|---|---|---|---|---|---|");
     let mut rows = Vec::new();
@@ -1042,7 +1066,7 @@ fn report(
         "Partial-pair medians are descriptive only. Missing, failed, refused or censored pairs prevent the complete-suite geometric mean. Scaling also requires requested workers to be used.\n"
     );
     println!(
-        "| Model | profile | workers | comparison | ratio | pairs/intended | timeout/refused/failed/missing/unused-workers |"
+        "| Model | profile | workers | comparison | ratio | pairs/intended | incomplete/refused/failed/missing/unused-workers |"
     );
     println!("|---|---|---|---|---|---|---|");
     let mut comparisons = Vec::new();
@@ -1369,6 +1393,7 @@ mod tests {
                 exit_code: Some(0),
                 property: None,
             },
+            golden_elapsed_ms: 0,
             provenance: json!({}),
             _scratch: None,
         }
@@ -1538,5 +1563,115 @@ mod tests {
     #[test]
     fn wrapper_arguments_quote_apostrophes_and_shell_syntax() {
         assert_eq!(shell_quote("it's $(a)"), "'it'\\''s $(a)'");
+    }
+
+    #[test]
+    fn native_budgets_use_tlc_time_and_leave_external_cleanup_room() {
+        let backstop = Duration::from_mins(15);
+        for (reference_ms, expected_s) in [(0, 60), (500, 60), (20_000, 200), (u64::MAX, 870)] {
+            assert_eq!(
+                native_time_limit(reference_ms, backstop),
+                Duration::from_secs(expected_s)
+            );
+        }
+        assert_eq!(
+            native_time_limit(20_000, Duration::from_secs(1)),
+            Duration::from_millis(900)
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    #[allow(
+        clippy::too_many_lines,
+        reason = "exercise the real child-process boundary for all native arms"
+    )]
+    fn native_arms_receive_budgets_and_stops_never_become_completed_timings() -> Result<(), String>
+    {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = TempDir::new_in(&std::env::temp_dir(), "bench-native-budgets").map_err(err)?;
+        let bin = dir.path().join("native");
+        // The child refuses an invocation missing either guard. Its report
+        // deliberately retains the expected full counts: stopped must still
+        // be incomplete, even if counters happen to match the successful run.
+        std::fs::write(&bin, r#"#!/bin/sh
+limit=missing
+memory=missing
+workers=missing
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --time-limit) shift; limit="$1" ;;
+        --max-memory) shift; memory="$1" ;;
+        --workers) shift; workers="$1" ;;
+    esac
+    shift
+done
+[ "$limit" = 900ms ] && [ "$memory" = 3g ] || exit 64
+printf '{"verdict":"stopped","statistics":{"distinct":1,"generated":2,"depth":1},"stopped":{"resource":"time","phase":"safety-search","limit":900,"observed":901},"options":{"workers":{"used":%s},"budget":{"time_limit_ms":900,"max_memory_bytes":3221225472}},"resources":{"checking_started":true},"execution":null}\n' "$workers"
+exit 5
+"#).map_err(err)?;
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
+        let opts = Opts {
+            dive_bin: bin.clone(),
+            dive_revision: None,
+            baseline_bin: Some(bin.clone()),
+            baseline_revision: Some("test".to_owned()),
+            summary: None,
+            reps: 1,
+            profiles: vec!["tlc", "default"],
+            workers: vec![1, 8],
+            filters: Vec::new(),
+            tlc: false,
+            xmx: "3g".to_owned(),
+            timeout: Duration::from_secs(1),
+            runs: None,
+            set: None,
+            list: false,
+        };
+        let mut p = prepared();
+        p.corpus_root = dir.path().to_path_buf();
+        let output = dir.path().join("time.txt");
+        let rows = dir.path().join("rows.jsonl");
+        for arm in implementations(&opts) {
+            let stopped = run_dive(&bin, &[], &p, &arm, 0, &output, &opts)?;
+            assert_eq!(stopped.verdict, "stopped");
+            assert_eq!(stopped.exit_code, Some(5));
+            assert!(!stopped.correct);
+            assert_eq!(stopped.used_workers, Some(stopped.workers));
+            assert_eq!(
+                stopped.metadata["requested_native_budget"]["time_limit_ms"],
+                900
+            );
+            assert_eq!(
+                stopped.metadata["reported_stopped"]["phase"],
+                "safety-search"
+            );
+            assert_eq!(
+                stopped.metadata["reported_resources"]["checking_started"],
+                true
+            );
+            append_json(&rows, &stopped, &json!({}))?;
+            let aggregate = summarise(&[&stopped], 1);
+            assert_eq!(
+                (aggregate.completed, aggregate.censored, aggregate.failed),
+                (0, 1, 0)
+            );
+            assert!(aggregate.wall_s.is_none());
+            let reference = sample("tlc-w1", 0, 1.0);
+            let mut reference = reference;
+            reference.workers = stopped.workers;
+            let pair = stats::pair(&[reference, stopped], "model", "tlc-w1", &arm, 1, false)?;
+            assert_eq!((pair.paired, pair.censored), (0, 1));
+            assert!(pair.median.is_none());
+            assert!(stats::geometric_mean(&[pair]).is_none());
+        }
+        let raw = std::fs::read_to_string(rows).map_err(err)?;
+        assert_eq!(raw.lines().count(), 8);
+        for row in raw.lines() {
+            let row: Value = serde_json::from_str(row).map_err(err)?;
+            assert_eq!(row["verdict"], "stopped");
+            assert_eq!(row["run"]["reported_stopped"]["observed"], 901);
+        }
+        Ok(())
     }
 }
