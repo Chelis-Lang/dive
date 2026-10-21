@@ -63,6 +63,10 @@ pub enum SlotView {
     /// A pure unknown value for conservative state-level analysis only.
     /// Forcing it is an explicit error; it is never a guessed runtime value.
     AnalysisBound,
+    /// A pure unknown value of a binder over a constant domain, for
+    /// constant-level analysis only. Forcing it is the explicit
+    /// [`EvalError::is_analysis_only`] error; it is never a guessed value.
+    AnalysisConstant,
     /// A lazy argument (`LazyValue`): the expression and the scope it is
     /// evaluated in.
     Lazy(ExprId, Scope),
@@ -439,7 +443,7 @@ impl Evaluator {
                         (self.core.ir.def(def).body, source)
                     }
                     Sv::Fcn(_) => return Ok(None),
-                    Sv::Unset | Sv::Val(_) | Sv::AnalysisBound => continue,
+                    Sv::Unset | Sv::Val(_) | Sv::AnalysisBound | Sv::AnalysisConstant => continue,
                 };
                 self.validate_scope(&source)?;
                 Self::operator_capture_step(work)?;
@@ -949,6 +953,7 @@ impl Evaluator {
                 Sv::Unset => SlotView::Unset,
                 Sv::Val(value) => SlotView::Value(value.clone()),
                 Sv::AnalysisBound => SlotView::AnalysisBound,
+                Sv::AnalysisConstant => SlotView::AnalysisConstant,
                 Sv::Thunk(thunk) => SlotView::Lazy(
                     thunk.expr,
                     Scope {
@@ -976,6 +981,7 @@ impl Evaluator {
             None | Some(Sv::Unset) => SlotView::Unset,
             Some(Sv::Val(v)) => SlotView::Value(v.clone()),
             Some(Sv::AnalysisBound) => SlotView::AnalysisBound,
+            Some(Sv::AnalysisConstant) => SlotView::AnalysisConstant,
             Some(Sv::Thunk(t)) => SlotView::Lazy(
                 t.expr,
                 Scope {
@@ -1003,6 +1009,7 @@ impl Evaluator {
             None | Some(Sv::Unset) => SlotView::Unset,
             Some(Sv::Val(v)) => SlotView::Value(v.clone()),
             Some(Sv::AnalysisBound) => SlotView::AnalysisBound,
+            Some(Sv::AnalysisConstant) => SlotView::AnalysisConstant,
             Some(Sv::Thunk(t)) => SlotView::Lazy(
                 t.expr,
                 Scope {
@@ -1172,6 +1179,33 @@ impl Evaluator {
     /// # Errors
     /// A non-binder expression or an unbounded domain.
     pub fn scope_binder_analysis(&self, scope: &Scope, expr: ExprId) -> Result<Scope> {
+        self.binder_analysis(scope, expr, &Sv::AnalysisBound)
+    }
+
+    /// Binds each variable of a finite non-recursive binder over a constant
+    /// domain to a pure constant-level unknown ([`SlotView::AnalysisConstant`]).
+    ///
+    /// Static level and purity analysis visits the body once in this context
+    /// instead of once per binding: a bound value is a constant that cannot
+    /// change the body's effects or the level of anything but itself. The
+    /// domain is not evaluated, assumed finite or sampled; forcing a slot is
+    /// the [`EvalError::is_analysis_only`] refusal. The caller must have
+    /// established that every domain is constant level and pure. Runtime
+    /// evaluation must use the original scope with concrete bindings.
+    ///
+    /// # Errors
+    /// A non-binder or recursive-function expression, or an unbounded domain.
+    pub fn scope_constant_binder_analysis(&self, scope: &Scope, expr: ExprId) -> Result<Scope> {
+        self.admit_scoped_expr(scope, expr)?;
+        if matches!(self.core.ir.expr(expr), Expr::RecFcn { .. }) {
+            return Err(EvalError::bug(
+                "constant binder analysis of a recursive function",
+            ));
+        }
+        self.binder_analysis(scope, expr, &Sv::AnalysisConstant)
+    }
+
+    fn binder_analysis(&self, scope: &Scope, expr: ExprId, unknown: &Sv) -> Result<Scope> {
         self.admit_scoped_expr(scope, expr)?;
         self.validate_scope(scope)?;
         let bounds: &[dive_ir::Bound] = match self.core.ir.expr(expr) {
@@ -1191,7 +1225,7 @@ impl Evaluator {
                 return Err(EvalError::unsupported("unbounded analysis domain"));
             }
             for slot in &bound.vars {
-                result.env.bind(slot.index(), Sv::AnalysisBound);
+                result.env.bind(slot.index(), unknown.clone());
             }
         }
         Ok(result)

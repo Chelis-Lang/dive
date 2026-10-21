@@ -608,9 +608,7 @@ impl Core {
     ) -> Result<Ev> {
         match sv {
             Sv::Val(v) => Ok(Ev::V(v.clone())),
-            Sv::AnalysisBound => Err(EvalError::unsupported(
-                "analysis-only binder has no runtime value",
-            )),
+            Sv::AnalysisBound | Sv::AnalysisConstant => Err(EvalError::analysis_only()),
             Sv::Fcn(f) => Ok(Ev::F(f.clone())),
             Sv::Thunk(t) => {
                 let _g = self.enter(e)?;

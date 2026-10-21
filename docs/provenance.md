@@ -158,7 +158,19 @@ bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
 
 | Component | Reference | License | Evidence |
 |---|---|---|---|
+| Constant-domain predicate analysis (`scope_constant_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original static level/purity analysis with non-evaluable constant binder slots; runtime semantics remain the existing TLC-compatible evaluator | Original implementation | Large-domain, dependent-domain, callback, effect, concrete-error and independent-word controls in `constant_binder_analysis.rs`; no domain enumeration or sampled values during admission |
 | State-dependent finite predicate preflight (`dive-eval::finite`, `scope_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original conservative scoped analysis and bounded concrete walks; TLA+ quantifier/constructor truth compared with TLC `ContextEnumerator`, `SetOfAllValue`, `SetPredValue`, `FcnLambdaValue` at `94d0c50` | Original implementation; MIT reference | Eight `Df*` pinned truth/count probes, independent periodic validation and exhaustive short words; no sample values, frozen domains or validator successor enumeration |
+
+The two original `constant-predicate-binders` corpus controls pin actual TLC
+outcomes before replacing the former 4,096-binding refusal assertion. At
+`94d0c5070852b37b801bb8998c436383ab7ee37b`, the holding 5,000-element set
+constructor generates three states, retains two distinct states and has depth
+two. The false `[]` state predicate becomes an initial invariant failure:
+`TLC_INVARIANT_VIOLATED_INITIAL` (2107), property `P`, physical exit 12, with
+unreported counts. The regression checks planner and independent periodic
+truth, both profiles and stores, exact reported class/status and holding counts,
+and fresh validation of native and oracle finite witnesses plus forged Init
+controls. This adds primary observations, not a ported algorithm.
 
 Finite CHOOSE predicate scopes extend the original conservative analysis in
 `dive-liveness::plan` and `dive-trace::temporal`; evaluation continues to use

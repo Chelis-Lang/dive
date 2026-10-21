@@ -221,7 +221,12 @@ struct Inner {
     /// Whether TLC raises this as an `EvalException` (not wrapped by a Java
     /// override) rather than as a `TLCRuntimeException`.
     eval_exception: bool,
+    /// Static-analysis binders are not runtime values. Keep this typed so an
+    /// unrelated refusal with the same text can never authorize lazy retry.
+    analysis_only: bool,
 }
+
+const ANALYSIS_ONLY: &str = "analysis-only binder has no runtime value";
 
 /// An evaluation error: its class, TLC's code and message, and the node it was
 /// raised at.
@@ -236,6 +241,7 @@ impl EvalError {
             message,
             origin: None,
             eval_exception,
+            analysis_only: false,
         }))
     }
 
@@ -265,6 +271,23 @@ impl EvalError {
     pub fn unsupported(feature: impl Into<String>) -> Self {
         let feature = feature.into();
         Self::make(ErrorClass::Unsupported, Ec::General, feature, false)
+    }
+
+    /// The refusal raised when evaluation forces a static-analysis binder,
+    /// which has no runtime value. See [`Self::is_analysis_only`].
+    #[must_use]
+    pub fn analysis_only() -> Self {
+        let mut error = Self::unsupported(ANALYSIS_ONLY);
+        error.0.analysis_only = true;
+        error
+    }
+
+    /// Whether this is the [`Self::analysis_only`] refusal: the evaluated
+    /// expression depends on a static-analysis binder. Planners use it to
+    /// keep such an argument lazy instead of freezing a value.
+    #[must_use]
+    pub fn is_analysis_only(&self) -> bool {
+        self.0.analysis_only
     }
 
     /// A resource limit.

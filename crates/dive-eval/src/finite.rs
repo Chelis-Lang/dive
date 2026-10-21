@@ -535,7 +535,9 @@ impl Guard<'_> {
             }
             Expr::Local(local) => {
                 return match ev.scope_slot(scope, *local) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => Ok(()),
+                    SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant => {
+                        Ok(())
+                    }
                     SlotView::Function(_) if self.configured_depth != 0 => Err(
                         EvalError::unsupported("recursive function in configured finite context"),
                     ),
@@ -547,7 +549,7 @@ impl Guard<'_> {
                 return match ev.scope_substitution(scope, *decl, &St::constant(), false)? {
                     Some(SlotView::Value(value)) => self.native_storage(None, Some(&value)),
                     Some(SlotView::Lazy(body, sc)) => self.walk(&sc, body, depth + 1),
-                    Some(SlotView::AnalysisBound) => Ok(()),
+                    Some(SlotView::AnalysisBound | SlotView::AnalysisConstant) => Ok(()),
                     None if ev.ir().decl(*decl).variable => Ok(()),
                     None => match ev
                         .ir()

@@ -1,5 +1,30 @@
 # Conformance corpora
 
+## Constant predicate binding capacity
+
+`constant-predicate-binders` contains two finite Boolean models with a pure
+5,000-element set constructor inside an always property. The pinned TLC oracle
+accepts the holding property (generated 3, distinct 2, depth 2); it normalizes
+the false property to an initial invariant failure of `P` (code 2107, physical
+exit 12, counts unreported). This distinguishes admission capacity from actual
+predicate truth and preserves the oracle's safety classification.
+
+Generate these model goldens with:
+
+```sh
+target/release/dive-conformance golden generate \
+  --corpus constant-predicate-binders --tier all --no-sany \
+  --workers 1 --jobs 1 --xmx 512m --timeout 30 \
+  --reason 'Requalify pure constructor capacity against the pinned TLC oracle'
+```
+
+The API controls additionally compare admitted planner and independent lasso
+truth in both profiles, check exact class/status and holding counts, and validate
+native and oracle witnesses against a fresh model. Forged initial states fail
+independent validation. Effectful, checker-reading and infinite constructor
+domains retain separate refusal controls. These two models are an explicit
+local corpus; they do not enlarge the existing small-tier examples denominator.
+
 ## Generated ValidationTestSuite coverage
 
 ValidationTestSuite at `fe99cff1ca48535bdbfc99fd95bd2706f056c12f` is a Python

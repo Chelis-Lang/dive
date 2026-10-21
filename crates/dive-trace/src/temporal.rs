@@ -717,19 +717,27 @@ impl Word<'_> {
             constant &= level == Level::Constant;
         }
         if constant {
-            let values = args
-                .iter()
-                .map(|arg| match arg {
-                    Arg::Expr { expr, .. } => {
-                        ev.eval_scoped(scope, *expr, &St::constant()).map_err(|e| {
-                            TemporalError::Unsupported(format!("constant temporal argument: {e}"))
-                        })
-                    }
-                    Arg::Op { .. } => Err(TemporalError::Unsupported(
+            let mut values = Vec::with_capacity(args.len());
+            for arg in args {
+                let Arg::Expr { expr, .. } = arg else {
+                    return Err(TemporalError::Unsupported(
                         "operator temporal argument".into(),
-                    )),
-                })
-                .collect::<Result<Vec<_>, _>>()?;
+                    ));
+                };
+                match ev.eval_scoped(scope, *expr, &St::constant()) {
+                    Ok(value) => values.push(value),
+                    Err(e) if e.is_analysis_only() => {
+                        return ev
+                            .scope_apply(scope, def, args)
+                            .map_err(|e| TemporalError::Unsupported(e.to_string()));
+                    }
+                    Err(e) => {
+                        return Err(TemporalError::Unsupported(format!(
+                            "constant temporal argument: {e}"
+                        )));
+                    }
+                }
+            }
             ev.scope_call_values(scope, def, values)
                 .map_err(|e| TemporalError::Unsupported(e.to_string()))
         } else {
@@ -917,7 +925,9 @@ impl Word<'_> {
                     ));
                 }
                 Expr::Local(r) => match ev.scope_slot(&sc, *r) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
+                    SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant => {
+                        continue;
+                    }
                     SlotView::Lazy(body, inner) => {
                         todo.push((body, inner, depth + 1));
                         continue;
@@ -932,7 +942,9 @@ impl Word<'_> {
                     .scope_substitution(&sc, *decl, &St::constant(), *primed)
                     .map_err(|error| TemporalError::Unsupported(error.to_string()))?
                 {
-                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => continue,
+                    Some(
+                        SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
+                    ) => continue,
                     Some(SlotView::Lazy(body, inner)) => {
                         todo.push((body, inner, depth + 1));
                         continue;
@@ -1194,7 +1206,7 @@ impl Word<'_> {
                     .scope_substitution(scope, *decl, &St::constant(), *primed)
                     .map_err(|error| TemporalError::Unsupported(error.to_string()))?
                 {
-                    Some(SlotView::Value(_)) => Level::Constant,
+                    Some(SlotView::Value(_) | SlotView::AnalysisConstant) => Level::Constant,
                     Some(SlotView::AnalysisBound) => Level::State,
                     Some(SlotView::Lazy(e, sc)) => {
                         self.scoped_level_mode(e, &sc, depth + 1, steps, query_state)?
@@ -1230,7 +1242,7 @@ impl Word<'_> {
             }
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
-                    SlotView::Value(_) => Ok(Level::Constant),
+                    SlotView::Value(_) | SlotView::AnalysisConstant => Ok(Level::Constant),
                     SlotView::AnalysisBound => Ok(Level::State),
                     SlotView::Lazy(e, sc) => {
                         self.scoped_level_mode(e, &sc, depth + 1, steps, query_state)
@@ -1405,8 +1417,11 @@ impl Word<'_> {
             && !matches!(self.model.ir.expr(expr), Expr::RecFcn { .. })
         {
             return self
-                .finite_scopes(expr, scope, depth + 1, steps)
-                .map(|sc| (sc, domain_level));
+                .model
+                .evaluator
+                .scope_constant_binder_analysis(scope, expr)
+                .map(|sc| (vec![sc], domain_level))
+                .map_err(|e| TemporalError::Unsupported(e.to_string()));
         }
         if matches!(self.model.ir.expr(expr), Expr::RecFcn { .. }) {
             domain_level = domain_level.max(Level::State);
@@ -1465,7 +1480,7 @@ impl Word<'_> {
         self.model
             .evaluator
             .scope_bindings_bounded(scope, expr, &St::constant(), 4096)
-            .map_err(|e| TemporalError::Unsupported(format!("predicate quantifier bindings: {e}")))
+            .map_err(|e| TemporalError::Unsupported(format!("temporal quantifier bindings: {e}")))
     }
 
     fn check_native(op: Option<StdOp>) -> Result<(), TemporalError> {
@@ -1595,7 +1610,7 @@ impl Word<'_> {
                             "recursive function in configured temporal context".into(),
                         ));
                     }
-                    SlotView::Value(_) | SlotView::AnalysisBound => {}
+                    SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant => {}
                     SlotView::Lazy(e, sc) => {
                         todo.push((e, sc, depth + 1));
                         continue;
@@ -1633,7 +1648,9 @@ impl Word<'_> {
                     .scope_substitution(&scope, *decl, &St::constant(), *primed)
                     .map_err(|error| TemporalError::Unsupported(error.to_string()))?
                 {
-                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => {}
+                    Some(
+                        SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
+                    ) => {}
                     Some(SlotView::Lazy(body, sc)) => {
                         todo.push((body, sc, depth + 1));
                         continue;

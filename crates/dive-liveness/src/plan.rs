@@ -440,17 +440,25 @@ impl Lower<'_> {
             constant &= level == Level::Constant;
         }
         if constant {
-            let values = args
-                .iter()
-                .map(|arg| match arg {
-                    Arg::Expr { expr: arg, .. } => {
-                        ev.eval_scoped(scope, *arg, &St::constant()).map_err(|e| {
-                            self.refused(*arg, format!("constant temporal argument: {e}"))
-                        })
+            let mut values = Vec::with_capacity(args.len());
+            for arg in args {
+                let Arg::Expr { expr: arg, .. } = arg else {
+                    return Err(self.refused(expr, "operator argument in temporal call"));
+                };
+                match ev.eval_scoped(scope, *arg, &St::constant()) {
+                    Ok(value) => values.push(value),
+                    // A constant argument over a static-analysis binder has
+                    // no value; analysis keeps it lazy, as for state level.
+                    Err(e) if e.is_analysis_only() => {
+                        return ev
+                            .scope_apply(scope, def, args)
+                            .map_err(|e| self.refused(expr, e.to_string()));
                     }
-                    Arg::Op { .. } => Err(self.refused(expr, "operator argument in temporal call")),
-                })
-                .collect::<Result<Vec<_>, _>>()?;
+                    Err(e) => {
+                        return Err(self.refused(*arg, format!("constant temporal argument: {e}")));
+                    }
+                }
+            }
             ev.scope_call_values(scope, def, values)
                 .map_err(|e| self.refused(expr, e.to_string()))
         } else {
@@ -686,7 +694,9 @@ impl Lower<'_> {
                     return Err(self.refused(e, "unbound/unevaluable operator capture"));
                 }
                 Expr::Local(r) => match ev.scope_slot(&sc, *r) {
-                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
+                    SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant => {
+                        continue;
+                    }
                     SlotView::Lazy(body, inner) => {
                         todo.push((body, inner, depth + 1));
                         continue;
@@ -697,7 +707,9 @@ impl Lower<'_> {
                     .scope_substitution(&sc, *decl, &St::constant(), *primed)
                     .map_err(|error| self.refused(e, error.to_string()))?
                 {
-                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => continue,
+                    Some(
+                        SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
+                    ) => continue,
                     Some(SlotView::Lazy(body, inner)) => {
                         todo.push((body, inner, depth + 1));
                         continue;
@@ -942,7 +954,7 @@ impl Lower<'_> {
                     .scope_substitution(scope, *decl, &St::constant(), *primed)
                     .map_err(|error| self.refused(expr, error.to_string()))?
                 {
-                    Some(SlotView::Value(_)) => Level::Constant,
+                    Some(SlotView::Value(_) | SlotView::AnalysisConstant) => Level::Constant,
                     Some(SlotView::AnalysisBound) => Level::State,
                     Some(SlotView::Lazy(e, sc)) => {
                         self.scoped_level_mode(e, &sc, depth + 1, query_state)?
@@ -970,7 +982,7 @@ impl Lower<'_> {
             }
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
-                    SlotView::Value(_) => Ok(Level::Constant),
+                    SlotView::Value(_) | SlotView::AnalysisConstant => Ok(Level::Constant),
                     SlotView::AnalysisBound => Ok(Level::State),
                     SlotView::Lazy(e, sc) => self.scoped_level_mode(e, &sc, depth + 1, query_state),
                     _ => Err(self.refused(expr, "opaque scoped level")),
@@ -1101,12 +1113,19 @@ impl Lower<'_> {
             self.pure_scoped(dom, scope, depth + 1)?;
             domain_level = domain_level.max(level);
         }
+        // A constant-domain binder is analysed once, under constant-level
+        // unknowns, not once per binding: a bound value cannot change effects
+        // or any level but its own. The domain itself was checked pure above;
+        // truth and concrete evaluation errors remain runtime obligations.
         if domain_level == Level::Constant
             && !matches!(self.model.ir.expr(expr), Expr::RecFcn { .. })
         {
             return self
-                .finite_scopes(expr, scope, depth + 1)
-                .map(|sc| (sc, domain_level));
+                .model
+                .evaluator
+                .scope_constant_binder_analysis(scope, expr)
+                .map(|sc| (vec![sc], domain_level))
+                .map_err(|e| self.refused(expr, e.to_string()));
         }
         if matches!(self.model.ir.expr(expr), Expr::RecFcn { .. }) {
             domain_level = domain_level.max(Level::State);
@@ -1152,18 +1171,29 @@ impl Lower<'_> {
             }
             self.pure_scoped(dom, scope, depth + 1)?;
         }
+        // Temporal binders still need concrete contexts, unlike the predicate
+        // analysis above. Bound their domain storage and Cartesian contexts
+        // before allocation using the remaining formula capacity. Every
+        // lowered body consumes at least one node. The bounded evaluator also
+        // retains its conservative guard on domain materialization; this is
+        // not a claim that every rejected domain has a large final formula.
         self.model
             .evaluator
-            .scope_bindings_bounded(scope, expr, &St::constant(), self.limits.formula_nodes)
+            .scope_bindings_bounded(
+                scope,
+                expr,
+                &St::constant(),
+                self.limits.formula_nodes.saturating_sub(self.nodes.len()),
+            )
             .map_err(|e| {
-                if e.class() == dive_eval::ErrorClass::ResourceLimit {
+                if e.class() == ErrorClass::ResourceLimit {
                     PlanningError::formula(
                         self.model,
                         self.root_expr,
-                        FormulaError::Limit("predicate quantifier bindings"),
+                        FormulaError::Limit("temporal quantifier expansion storage"),
                     )
                 } else {
-                    self.refused(expr, format!("predicate quantifier bindings: {e}"))
+                    self.refused(expr, format!("temporal quantifier bindings: {e}"))
                 }
             })
     }
@@ -1334,7 +1364,7 @@ impl Lower<'_> {
                             self.refused(e, "recursive function in configured predicate context")
                         );
                     }
-                    SlotView::Value(_) | SlotView::AnalysisBound => {}
+                    SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant => {}
                     SlotView::Lazy(body, _)
                         if inside_query && ir.node(body).level > Level::State =>
                     {
@@ -1372,7 +1402,9 @@ impl Lower<'_> {
                     .scope_substitution(&scope, *decl, &St::constant(), *primed)
                     .map_err(|error| self.refused(e, error.to_string()))?
                 {
-                    Some(SlotView::Value(_) | SlotView::AnalysisBound) => {}
+                    Some(
+                        SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
+                    ) => {}
                     Some(SlotView::Lazy(body, sc)) => {
                         todo.push((body, sc, depth + 1, false, inside_query));
                         continue;

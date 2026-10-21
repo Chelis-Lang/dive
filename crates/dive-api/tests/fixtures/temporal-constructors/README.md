@@ -22,7 +22,11 @@ arguments that retain captured state lazily.
 BcStateDomain succeeds in both TLC and final/short dive. Its state-dependent
 domain is evaluated at each actual state, never frozen as constant data.
 See `../temporal-state-domains/` for the expanded bounded controls.
-Effects, checker reads and oversized domains refuse without executing an
-effectful preflight. Recursive constructors and opaque independent ENABLED
+Effects, checker reads and infinite domains refuse without executing an
+effectful preflight. Pure constant-domain predicate constructors are inspected
+without enumerating bindings; the two `constant-predicate-binders` corpus
+controls cover holding and false 5,000-element constructors against the pinned
+oracle, including fresh genuine and forged word validation.
+Recursive constructors and opaque independent ENABLED
 covers remain unsupported. This does not prove TLC-exact planning, temporal
 stopping, lasso selection or parallel graph capture.
