@@ -124,9 +124,13 @@ or `PROPERTY Primed`. Run both with pinned TLC (`-workers 1 -lncheck final
 Both implementations succeed with two distinct, three generated and depth two.
 Unprimed emits two `Print` lines, while Primed emits four. This is a control on
 cache semantics, not a timing benchmark. The current paired dive executable
-was the run-budget branch debug binary (SHA-256
-`3b0cff81cd88dfb68a198fd4f52e97e92fd78f8c3242912387180a4381400eb8`);
-the relevant cache implementation is unchanged from main. No evaluator change
+was a debug binary (SHA-256
+`3b0cff81cd88dfb68a198fd4f52e97e92fd78f8c3242912387180a4381400eb8`)
+with recorded source context `d1eb36e3912a88032c24de025e9b11f125a72943`;
+a complete clean-build attestation was not captured. The relevant cache source
+blobs are identical at that context and integrated main `39f4e483`:
+`eval.rs` blob `022d85c523c1de4ca6696a411365673de0db627d`, and `env.rs`
+blob `2bad80a1ae4d265e5d0c27ab0b56bb1e0b984a4e`. No evaluator change
 or performance improvement follows from the probe. Investigate cache misses within the existing TLC rule before
 claiming that ADR 0104 item 6 offers new memoization savings.
 
