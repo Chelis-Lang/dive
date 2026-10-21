@@ -75,8 +75,10 @@ fn opts(models: bool) -> GenerateOptions {
         limits: Limits {
             jobs: 1,
             xmx: "1g".into(),
-            timeout: Some(Duration::from_secs(5)),
-            timeout_cap: Duration::from_secs(5),
+            // These synthetic fixtures test classification and golden admission,
+            // not child-process latency. Keep timeout/kill semantics in process tests.
+            timeout: Some(Duration::from_secs(30)),
+            timeout_cap: Duration::from_secs(30),
             budget_cap: None,
         },
         models,
