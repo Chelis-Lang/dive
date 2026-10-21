@@ -116,9 +116,13 @@ Zero is a valid explicit budget. TLC's simulation `-depth` option does not set
 an exhaustive BFS discovery bound.
 
 ```sh
-dive check Spec.tla --max-states 100000 --max-depth 200 --output json
-dive tlc --max-states 100000 --max-depth 200 Spec
+dive check docs/user/examples/Counter.tla --max-states 3 --output json
+dive tlc --max-depth 3 --output json docs/user/examples/Counter
 ```
+
+Both examples stop with exit 5 before discovering the fourth state; neither
+returns a counterexample. Raise the ceiling to five to finish this finite
+counter normally.
 
 The first new identity that would exceed either ceiling is left unadmitted.
 Duplicate identities do not consume the state budget. States at the depth
