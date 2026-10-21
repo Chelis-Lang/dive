@@ -1039,7 +1039,7 @@ impl CheckReport {
             }
             Phase::TemporalError(e) => {
                 doc["message"] = json!(e.to_string());
-                doc["diagnostics"] = json!([{"code": e.error().code(), "message": e.to_string()}]);
+                doc["diagnostics"] = json!([crate::diagnostics::temporal_failure(e)]);
                 doc["execution"] =
                     json!({"stage": e.stage().name(), "capture_completed": e.capture_completed()});
                 if let Some(checks) = e.periodic() {
@@ -1324,6 +1324,9 @@ impl CheckReport {
                     temporal_failure_kind(e)
                 );
                 let _ = writeln!(out, "Execution stage: {}", e.stage().name());
+                if let Some(explanation) = crate::diagnostics::explain(e.error().code()) {
+                    let _ = writeln!(out, "Help: {}", explanation.remediation);
+                }
                 if let Some(capture) = e.exploration() {
                     for (_, warning) in &capture.warnings {
                         let _ = writeln!(out, "Warning: {warning}");
