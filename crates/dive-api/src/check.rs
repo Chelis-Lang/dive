@@ -1082,8 +1082,10 @@ impl CheckReport {
                 doc["message"] = json!(stopped.to_string());
                 doc["stopped"] = stopped_json(stopped);
                 doc["elapsed_ms"] = json!(stopped.elapsed_ms);
-                doc["execution"] =
-                    json!({"stage": "check-startup", "capture_completed": false, "started": false});
+                doc["resources"]["checking_started"] = json!(false);
+                if self.temporal_schema() {
+                    doc["execution"] = json!({"stage": "check-startup", "capture_completed": false, "started": false});
+                }
             }
             Phase::SpecRejected(a) => {
                 doc["diagnostics"] = a.to_json()["diagnostics"].clone();

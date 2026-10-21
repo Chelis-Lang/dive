@@ -186,7 +186,8 @@ fn a_memory_ceiling_below_the_footprint_stops_the_run() -> Result<(), Box<dyn st
         let json = report.to_json();
         assert_stopped(&json, "memory", "check-startup");
         assert!(json["statistics"].is_null());
-        assert_eq!(json["execution"]["started"], false);
+        assert_eq!(json["resources"]["checking_started"], false);
+        assert!(json["execution"].is_null());
         assert_eq!(json["stopped"]["limit"], 1 << 20);
         assert_eq!(json["options"]["budget"]["max_memory_source"], "explicit");
     }
@@ -424,9 +425,19 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
                 assert_eq!(json["stopped"]["limit"], 1);
                 assert!(json["stopped"]["observed"].as_u64() > Some(1));
                 assert!(json["statistics"].is_null(), "no search began: {json}");
-                assert_eq!(json["execution"]["stage"], "check-startup");
-                assert_eq!(json["execution"]["started"], false);
-                assert_eq!(json["execution"]["capture_completed"], false);
+                assert_eq!(json["resources"]["checking_started"], false);
+                if temporal == dive_api::TemporalMode::FinalShort {
+                    assert_eq!(json["check_kind"], "temporal");
+                    assert_eq!(json["execution"]["stage"], "check-startup");
+                    assert_eq!(json["execution"]["started"], false);
+                    assert_eq!(json["execution"]["capture_completed"], false);
+                } else {
+                    assert_eq!(json["check_kind"], "safety");
+                    assert!(
+                        json["execution"].is_null(),
+                        "safety envelope cannot claim temporal execution"
+                    );
+                }
                 assert_eq!(json["resources"]["memory"]["initial_sampled"], true);
                 assert_eq!(json["resources"]["memory"]["final_sampled"], true);
                 assert!(json["resources"]["memory"]["samples"].as_u64() >= Some(2));

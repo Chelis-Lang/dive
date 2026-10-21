@@ -155,8 +155,10 @@ unavailable observations. Disabled means an explicit unlimited memory setting;
 it never means an unknown measurement was replaced by zero.
 
 A known initial excess uses the existing `stopped` outcome and exit 5, phase
-`check-startup`, no statistics and `execution.started: false`; binding and graph
-capture have not started. An unavailable observation or default/auto RAM lookup
+`check-startup`, no statistics and `resources.checking_started: false`; binding
+and graph capture have not started. Safety envelopes omit `execution`; temporal
+envelopes also report `execution.started: false` and `capture_completed: false`.
+An unavailable observation or default/auto RAM lookup
 fails with `DIVE-R0002` using the existing internal-error/no-verdict transport,
 exit 4. It has no invented `stopped.observed` byte count or TLC class.
 Terminal excess uses phase/stage `finalization`, retaining actual capture

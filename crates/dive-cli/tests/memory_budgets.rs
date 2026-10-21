@@ -31,6 +31,9 @@ fn explicit_one_byte_ceiling_is_enforced_in_native_and_tlc_transports()
         assert_eq!(json["stopped"]["phase"], "check-startup");
         assert_eq!(json["stopped"]["resource"], "memory");
         assert_eq!(json["stopped"]["limit"], 1);
+        assert_eq!(json["check_kind"], "safety");
+        assert!(json["execution"].is_null());
+        assert_eq!(json["resources"]["checking_started"], false);
         assert!(json["statistics"].is_null());
         assert!(json["counterexample"].is_null());
         assert!(json["tlc"].is_null());
