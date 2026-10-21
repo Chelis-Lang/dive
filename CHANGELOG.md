@@ -8,6 +8,10 @@
 - Requested run budgets now fail explicitly with `DIVE-R0001` and exit 4 if
   their watchdog cannot start. No check runs with the limit silently disabled.
   Rust callers must handle the new `Result` from `Budget::start` and `budget::arm`.
+- Liveness atom labels pack truth by its actual state or action domain,
+  sharing original-edge offsets instead of allocating unused false rows.
+  Both profiles retain the same predicate evaluation order, source errors,
+  count bounds and independently validated counterexamples.
 
 - `dive check` runs under a wall-clock and a memory budget (ADR 0107, D-026):
   `--time-limit DURATION|none` (30 minutes by default in the dive profile,

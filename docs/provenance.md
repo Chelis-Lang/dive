@@ -1889,3 +1889,19 @@ The short-word matrix compares all decomposition alternatives with direct
 infinite-word truth, including pointwise persistence disjunctions and closing
 edges. Raw output stays outside the repository and is regenerated from the
 pinned source, configuration and oracle.
+
+
+## Packed atomic truth in original domains
+
+The internal `dive-liveness::product::truth` storage follows the state/action
+separation described by pinned MIT `OrderOfSolution.java` (`checkState` and
+`checkAction`) and `GraphNode.java` (`checks` bit vector and
+`addTransition`'s state/action offsets), revision
+`94d0c5070852b37b801bb8998c436383ab7ee37b`. The native implementation keeps
+global atom identities, uses one bit column per actual domain and shares
+original-edge offsets across action columns. It does not reproduce Java's
+per-node layout, allocation hints or graph fingerprints. Public owned labels,
+predicate evaluation/error order and independent original-formula validation
+remain unchanged. Exhaustive two-vertex truth assignments compare products
+and conditioned witnesses with owned labels in both acceptance policies;
+word-boundary and malformed-capacity controls cover the native buffer layout.

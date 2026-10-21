@@ -1,8 +1,8 @@
 //! Requested acceptance-buffer layouts; excludes every other product owner.
 
-use super::{CompactAcceptance, Labels, Limits, Ordered, ProductError, set_bit};
+use super::{CompactAcceptance, Limits, Ordered, ProductError, set_bit};
 use crate::Graph;
-use crate::formula::{AtomKind, Recurrence, Tableau};
+use crate::formula::{Recurrence, Tableau};
 use std::mem::size_of;
 
 /// Admission policy for the coordinator's compact acceptance buffers.
@@ -390,7 +390,7 @@ fn promise_columns(
 pub(super) fn materialize(
     input: &Ordered<'_>,
     tableau: &Tableau,
-    labels: &Labels,
+    labels: &impl super::TruthAccess,
     conditions: &[Recurrence],
     bytes: usize,
     work: usize,
@@ -448,10 +448,7 @@ pub(super) fn materialize(
                 };
                 let truth = condition
                     .evaluate_bounded(
-                        |atom| match atom.kind {
-                            AtomKind::State => labels.states[atom.index][v],
-                            AtomKind::Action => labels.actions[atom.index][v][e],
-                        },
+                        |atom| labels.truth(atom, v, e),
                         &mut scratch,
                         &mut remaining,
                     )

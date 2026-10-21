@@ -13,7 +13,7 @@ use dive_model::Model;
 use crate::Graph;
 use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
-use crate::product::{self, AcceptancePolicy, CompactProduct, Labels};
+use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
 
 /// Combined bounds on planning, exploration and explicit product construction.
 #[derive(Clone, Copy, Debug)]
@@ -363,15 +363,20 @@ fn selected_targets(
     Ok(selected)
 }
 
+#[allow(
+    clippy::too_many_arguments,
+    reason = "concrete values and validated original-edge shape have separate owners"
+)]
 fn labels(
     model: &Model,
     plan: &Plan,
     graph: &capture::BehaviorGraph,
+    shape: &Graph,
     property: &str,
     limit: usize,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     action_error: &mut Option<Box<ActionEvaluation>>,
-) -> Result<(Labels, usize), AnalysisError> {
+) -> Result<(PackedTruth, usize), AnalysisError> {
     let edges = graph
         .edges
         .iter()
@@ -384,28 +389,26 @@ fn labels(
         .and_then(|n| n.checked_mul(plan.atoms.len()))
         .filter(|n| *n <= limit)
         .ok_or(AnalysisError::Limit("atom cells"))?;
-    let mut states = Vec::new();
-    let mut actions = Vec::new();
+    let kinds = plan.atoms.iter().map(|atom| atom.kind).collect::<Vec<_>>();
+    let mut labels = PackedTruth::new(shape, &kinds).map_err(AnalysisError::Product)?;
     for (index, pred) in plan.atoms.iter().enumerate() {
-        let mut state_row = Vec::new();
-        let mut action_rows = Vec::new();
         for (v, vals) in graph.states.iter().enumerate() {
             if crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
-            state_row.push(if pred.kind == AtomKind::State {
-                atom(model, plan, index, &St::state(vals.clone()), property)?
-            } else {
-                false
-            });
-            let mut row = Vec::new();
-            let targets = if pred.kind == AtomKind::Action && active.0.contains(&index) {
-                selected_targets(graph, v)?
-            } else {
-                std::collections::BTreeMap::new()
-            };
+            if pred.kind == AtomKind::State {
+                let value = atom(model, plan, index, &St::state(vals.clone()), property)?;
+                labels
+                    .set_state(index, v, value)
+                    .map_err(AnalysisError::Product)?;
+                continue;
+            }
+            if !active.0.contains(&index) {
+                continue; // The actual action-domain column is already FALSE.
+            }
+            let targets = selected_targets(graph, v)?;
             let mut evaluated = std::collections::BTreeMap::new();
-            for edge in &graph.edges[v] {
+            for (position, edge) in graph.edges[v].iter().enumerate() {
                 let value = if let Some(target) = targets.get(&edge.to) {
                     if let Some(value) = evaluated.get(&edge.to) {
                         *value
@@ -437,14 +440,13 @@ fn labels(
                 } else {
                     false
                 };
-                row.push(value);
+                labels
+                    .set_action(index, v, position, value)
+                    .map_err(AnalysisError::Product)?;
             }
-            action_rows.push(row);
         }
-        states.push(state_row);
-        actions.push(action_rows);
     }
-    Ok((Labels { states, actions }, edges))
+    Ok((labels, edges))
 }
 
 fn attribute(
@@ -813,6 +815,7 @@ fn analyze_captured(
             model,
             plan,
             captured,
+            &graph,
             &p.name,
             limits.atom_cells,
             &active,

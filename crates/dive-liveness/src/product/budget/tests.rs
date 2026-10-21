@@ -3,8 +3,8 @@
 
 use super::*;
 use crate::Graph;
-use crate::formula::{Atom, CycleConditions, Formula, Node, TableauNode};
-use crate::product::{CompactProduct, Product};
+use crate::formula::{Atom, AtomKind, CycleConditions, Formula, Node, TableauNode};
+use crate::product::{CompactProduct, Labels, Product};
 use crate::search::AcceptanceAccess;
 
 fn tableau(promises: usize) -> Tableau {
