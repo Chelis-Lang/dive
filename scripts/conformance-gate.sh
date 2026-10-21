@@ -37,7 +37,8 @@ done <"$list"
 start=$(date +%s)
 set +e
 "$harness" run --impl dive --impl-profile tlc --corpus "$corpus" --tier all \
-  --no-sany --no-summary --report-dir "$out" "${filters[@]}" "$@" \
+  --no-sany --no-summary --tlc-budgets --budget-cap 900 \
+  --report-dir "$out" "${filters[@]}" "$@" \
   2>&1 | tee "$out/log"
 status=${PIPESTATUS[0]}
 set -e

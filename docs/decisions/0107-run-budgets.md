@@ -112,14 +112,16 @@ than TLC, and 30-minute runaway jobs in any regular loop.
    part of this change.
 6. **Development loops use explicit budgets derived from TLC.** With
    `--tlc-budgets`, a model with a golden gets a harness budget of
-   `max(60 s, 10 × the golden's TLC time)`, capped by `--budget-cap` (default
-   900 s) but never below twice TLC's time. The harness passes the budget as
-   `--time-limit` (dive profile; the TLC profile keeps the harness timeout,
-   since TLC has no time limit) and `--xmx` as `--max-memory`, and kills the
+   `max(60 s, 10 × the golden's TLC time)`, hard-capped by `--budget-cap` (default
+   900 s). The harness passes the budget as
+   `--time-limit` in both profiles (an explicit host budget, labelled
+   `tlc+overrides` under compat) and `--xmx` as `--max-memory`, and kills the
    process only 30 s later. A run over either budget is a timeout finding (a
-   performance issue), never agreement. Without `--tlc-budgets`, which is
-   the default and what the gate uses until the follow-up switches it, the
-   harness keeps its historical timeouts and runs `dive check` with
+   performance issue), never agreement. Long TLC reference times do not bypass
+   this development cap; an explicitly requested long campaign can select
+   a larger `--budget-cap` or override it with `--timeout`. Without
+   `--tlc-budgets`, the harness
+   keeps its historical timeouts and runs `dive check` with
    `--time-limit none --max-memory none`. The harness and the gate never
    depend on the default time limit; library tests that keep the default
    finish far below it.
@@ -137,9 +139,12 @@ than TLC, and 30-minute runaway jobs in any regular loop.
   value `stopped`, a `stopped` block, and `options.budget`. Consumers that
   pin the verdict vocabulary, such as Oyster's pilot, see `stopped` only when
   a budget is exhausted.
-- The gate still passes `--timeout 1800`. By owner decision (2026-10-20), a
-  follow-up PR opened right after this one merges moves the gate to the
-  TLC-derived budgets.
+- The gate, smoke/cm1 scripts and nightly model checks select
+  `--tlc-budgets --budget-cap 900` explicitly (owner, 2026-10-20). Each model
+  uses its recorded TLC time, independent of the release-time default. A
+  budget-only compatibility override preserves semantic comparison after the
+  harness verifies the requested limit and TLC settings; other overrides
+  remain ineligible for strict temporal transport.
 - Not covered yet: `dive dfid` and `dive simulate`, the `dive tlc` adapter's
   `-Dtlc2.TLC.stopAfter` property, environment-variable or configuration
   spellings of these options, and `dive-bench`, which still runs `dive check`

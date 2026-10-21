@@ -274,9 +274,9 @@ pub struct Limits {
     /// Cap on derived timeouts.
     pub timeout_cap: Duration,
     /// `--tlc-budgets`: derive each model's budget from its golden's TLC
-    /// time (ADR 0107), with this cap, never below twice that time. `None`
+    /// time (ADR 0107), with this hard cap. `None`
     /// keeps the historical timeouts and runs `dive check` without budgets of
-    /// its own, as the gate does until it switches (a follow-up of ADR 0107).
+    /// its own; development workflows select the explicit budgets.
     pub budget_cap: Option<Duration>,
 }
 
@@ -294,8 +294,8 @@ impl Limits {
     ///   cap, since that run is evidence of what the model needs.
     /// - With `--tlc-budgets` (`budget_cap`), a model with a golden instead
     ///   gets a budget derived from TLC's recorded time (ADR 0107):
-    ///   `max(60 s, 10 × golden elapsed)`, capped by `budget_cap` but never
-    ///   below twice TLC's time. A run that needs more is a performance
+    ///   `max(60 s, 10 × golden elapsed)`, hard-capped by `budget_cap`.
+    ///   A run that needs more is a performance
     ///   finding, not a long job.
     /// - `--timeout` overrides all of these.
     #[must_use]
@@ -305,10 +305,7 @@ impl Limits {
         }
         if let (Some(cap), Some(ms)) = (self.budget_cap, golden_elapsed_ms) {
             let tlc = Duration::from_millis(ms);
-            return tlc
-                .saturating_mul(10)
-                .max(Duration::from_secs(60))
-                .min(cap.max(tlc.saturating_mul(2)));
+            return tlc.saturating_mul(10).max(Duration::from_secs(60)).min(cap);
         }
         let cap = self.timeout_cap;
         let derived = m.expected.runtime_seconds.map_or(cap, |s| {
@@ -319,7 +316,9 @@ impl Limits {
         let from_golden = golden_elapsed_ms.map_or(Duration::ZERO, |ms| {
             Duration::from_millis(ms.saturating_mul(4)).saturating_add(Duration::from_secs(60))
         });
-        derived.max(from_golden)
+        let historical = derived.max(from_golden);
+        self.budget_cap
+            .map_or(historical, |cap| historical.min(cap))
     }
 
     /// The SANY timeout.
@@ -334,7 +333,7 @@ impl Limits {
         self.timeout.map_or_else(
             || match self.budget_cap {
                 Some(cap) => format!(
-                    "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed) [cap {} s, at least 2 x golden elapsed]; otherwise 20 x recorded runtime + 120 s [min 300 s, cap {} s, cap when unknown]",
+                    "TLC-derived budgets: with a golden max(60 s, 10 x golden elapsed); otherwise historical timeout; hard cap {} s (historical cap {} s, cap when unknown)",
                     cap.as_secs(),
                     self.timeout_cap.as_secs()
                 ),
@@ -1686,7 +1685,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn budgets_derive_from_tlc_time_with_a_floor_and_a_cap_never_below_twice_tlc() {
+    fn tlc_budgets_respect_a_hard_cap_even_for_long_or_missing_references() {
         let m = crate::corpus::ModelEntry {
             id: "M.cfg".to_owned(),
             module: "M.tla".to_owned(),
@@ -1716,8 +1715,26 @@ mod tests {
         assert_eq!(secs(Some(2_000)), 60, "floor");
         assert_eq!(secs(Some(30_000)), 300, "ten times TLC");
         assert_eq!(secs(Some(240_000)), 900, "cap");
-        assert_eq!(secs(Some(4_077_000)), 8_154, "never below twice TLC");
+        assert_eq!(
+            secs(Some(4_077_000)),
+            900,
+            "long TLC runs cannot bypass the cap"
+        );
         assert_eq!(secs(None), 320, "no golden: manifest-derived");
+        let short_cap = Limits {
+            budget_cap: Some(Duration::from_secs(30)),
+            ..limits.clone()
+        };
+        assert_eq!(
+            short_cap.timeout_for(&m, None).as_secs(),
+            30,
+            "missing goldens cannot bypass the cap"
+        );
+        assert_eq!(
+            short_cap.timeout_for(&m, Some(2_000)).as_secs(),
+            30,
+            "cap overrides the floor"
+        );
         let fixed = Limits {
             timeout: Some(Duration::from_mins(30)),
             ..limits.clone()

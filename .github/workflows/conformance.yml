@@ -133,7 +133,7 @@ jobs:
           target/release/dive-conformance run \
             --impl dive --impl-profile tlc \
             --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators \
-            --tier small --workers 1 --jobs 2 --timeout 1800 \
+            --tier small --workers 1 --jobs 2 --tlc-budgets --budget-cap 900 \
             --baseline conformance/baselines/small-tlc-w1.json \
             --report-dir "$RUNNER_TEMP/baseline" --no-summary
       - name: dive (default profile) against its baseline
@@ -142,7 +142,7 @@ jobs:
           target/release/dive-conformance run \
             --impl dive --impl-profile dive \
             --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators \
-            --tier small --workers 1 --no-sany --jobs 2 --timeout 1800 \
+            --tier small --workers 1 --no-sany --jobs 2 --tlc-budgets --budget-cap 900 \
             --baseline conformance/baselines/small-dive-w1.json \
             --report-dir "$RUNNER_TEMP/baseline" --no-summary
       - name: Upload reports
@@ -216,7 +216,7 @@ jobs:
             --corpus examples --corpus probes --corpus validation-smoke --corpus tlaplus-tests --corpus community-modules \
             --tier "$TIER" \
             --jobs 2 \
-            --timeout 600 \
+            --tlc-budgets --budget-cap 900 \
             --report-dir "$RUNNER_TEMP/conformance" \
             --summary "$RUNNER_TEMP/conformance/conformance-dive.md"
       # dive's default profile (ADR 0010) on the tier's models only: modules
@@ -235,7 +235,7 @@ jobs:
             --tier "$TIER" \
             --no-sany \
             --jobs 2 \
-            --timeout 600 \
+            --tlc-budgets --budget-cap 900 \
             --report-dir "$RUNNER_TEMP/conformance" \
             --summary "$RUNNER_TEMP/conformance/conformance-dive-default.md"
       - name: Run dive (modules, SANY parse phase) against committed goldens

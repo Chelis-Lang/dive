@@ -1,5 +1,10 @@
 # Changelog
 
+- The model gates and nightly conformance checks use explicit TLC-derived time
+  and memory budgets in both profiles (ADR 0107), replacing fixed per-model
+  timeouts. The harness retains strict comparison for its exact budget-only
+  compat override; exhausted budgets remain resource findings.
+
 - `dive check` runs under a wall-clock and a memory budget (ADR 0107, D-026):
   `--time-limit DURATION|none` (30 minutes by default in the dive profile,
   provisional until release; none under `--compat=tlc`) and `--max-memory
