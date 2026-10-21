@@ -94,9 +94,11 @@ provides counted-success expectations, not credit for the original temporal
 properties. Its timings cannot be compared with the historical full-liveness
 survey, and the original CoffeeCan remains part of liveness/conformance work.
 
-This runner repair has only synthetic and list/option validation; no new
-performance baseline or target credit is claimed. Startup, liveness, compiled
-tier, memory and the remaining roadmap require their own measurements.
+The recovered 2026-10-20 AWS campaign completed all 300 planned runs. Its
+[provisional measurements](../../docs/developer/performance.md) retain every
+model, actual worker use and the missing quiet-window certification; no target
+acceptance credit is claimed. Startup, liveness, compiled tier, memory and the
+remaining roadmap require their own measurements.
 
 ## Historical parallel scaling (WP-D3, 2026-10-09, indicative)
 
