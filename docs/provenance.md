@@ -1235,6 +1235,20 @@ x=777 rejection is historical producer-sample mismatch evidence. Corrected
 producer reproduction. Multiple/cached/correlated calls remain unsupported.
 
 
+### Primary SelectSeq capture controls
+
+Before changing capture admission, the pinned TLC harness generated all 19
+models in `conformance/corpus/selectseq-captures`, with a recorded reason,
+512 MiB heap, one worker and a 30-second per-model budget. Eight holds/fails
+pairs cover direct selection, quantified and function-valued callback bodies,
+INSTANCE function/filter/recursive/nested-selection captures, and forwarded
+lexical callbacks. Three holding controls retain unused empty-domain effects,
+a configured primed source, or an unused effectful actual. TLC leaves these
+unused sources lazy; they are not permission for dive to ignore its existing
+capture effect checks. Every completed reference has two distinct states,
+three generated states and depth two. These references establish source
+semantics, not native checker or validator credit.
+
 ### SelectSeq callbacks in pure temporal predicates
 
 The native selection loop in `crates/dive-eval/src/std.rs` continues the existing

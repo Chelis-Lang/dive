@@ -146,3 +146,10 @@ id = "json-runtime-names"
 path = "conformance/corpus/json-runtime-names"
 license = "MIT"
 layout = "examples-manifest"
+
+# Primary-first source-only SelectSeq binder and retained-capture controls.
+[[corpus]]
+id = "selectseq-captures"
+path = "conformance/corpus/selectseq-captures"
+license = "MIT"
+layout = "examples-manifest"

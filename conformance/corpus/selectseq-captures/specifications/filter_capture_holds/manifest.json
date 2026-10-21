@@ -1,0 +1,27 @@
+{
+  "sources": [
+    "docs/user/temporal.md"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe",
+    "selectseq",
+    "capture"
+  ],
+  "modules": [
+    {
+      "path": "specifications/filter_capture_holds/CallbackCapture.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/filter_capture_holds/CallbackCapture.cfg",
+          "runtime": "00:00:30",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    }
+  ]
+}
