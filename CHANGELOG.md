@@ -1,5 +1,11 @@
 # Changelog
 
+- Live action-membership metadata uses iterative summaries of the original
+  formula DAG instead of retaining copied normalization trees. Preserve original
+  action IDs, Boolean simplification and exact direct atomic GF/FG classification,
+  including repeated junction operands. Input/depth/work budgets remain enforced;
+  no default limits, classifier rules or tableau algorithms change (#387).
+
 - Benchmark campaigns pass explicit TLC-derived time budgets and process-memory
   ceilings to every native arm. The external backstop defaults to 900 seconds;
   native resource stops retain their details and never earn completed timings.

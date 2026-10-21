@@ -290,9 +290,38 @@ published after that refusal. Action-only constant simplification excludes
 eliminated temporal operands only at graph labeling. Existing eager candidate
 attribution and independent validation can still refuse eliminated-action
 candidates; those refusals emit no model error or counterexample. The additional
-bounded normalization uses the existing formula-node and work limits and can
-itself refuse when they are exhausted. Predicate-local lazy Boolean guards
-retain their existing evaluation.
+action-membership pass summarizes the original formula DAG and its negative
+polarity without retaining copied normalization trees. It preserves original
+action occurrence IDs, plain Boolean constant simplification and exact direct
+atomic GF/FG classification. Repeated conjunction/disjunction operands remain
+multiple operands even when their action IDs coincide. Input-term, depth and
+actual-work limits still apply; all references are validated before constant
+pruning. This pass neither classifies TLC formulas nor changes tableau rules,
+limit defaults or predicate-local lazy Boolean guards. A model can reach a
+separate existing graph/product bound after this temporary-copy refusal is
+removed; new corpus agreement is claimed only after bounded qualification.
+
+The [source-specific Allocator observations](../survey/data/active-action-membership-2026-10-21.json)
+preserve the prior `dd2f0907` measurements separately from fresh integrated
+`85592819` results. Both profiles at the integrated source use the unchanged
+pinned configuration, one worker, seed/fingerprint zero, and explicit
+361.620-second / 4 GiB budgets. They complete capture with 17,701 distinct
+states, 64,414 generated states and depth 16, then report `DIVE-L0034`,
+`atom cells`, at stage `atoms`. The report does not identify a graph-label,
+attribution or word-cell sub-bound or give its dimensions. These results remove
+the temporary-copy refusal but prove no property, improve no agreement count
+and justify no further count removal. Early refusal timing is not compared
+with TLC's completed check; sampled process memory is neither a true peak nor
+a projected allocation lower bound.
+
+The exact integrated source also passes the full gate: 2,178 tests with no
+skips, 458 SANY modules, and the small corpus at 147/156 in the TLC profile and
+142/156 plus five expected divergences in the default profile. Both profiles
+retain nine unsupported models, with no baseline changes, disagreements,
+timeouts or pending trace validation. The compact evidence keeps the original
+before-run identities, producer archive and report hashes. A documentation-only
+delivery preserves that qualified runtime, test and harness source; it does
+not rename either native observation's measured pin.
 
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
