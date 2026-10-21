@@ -70,6 +70,15 @@ impl std::fmt::Display for ProductError {
 }
 impl std::error::Error for ProductError {}
 
+impl ProductError {
+    pub(crate) fn search(error: SearchError) -> Self {
+        match error {
+            SearchError::Budget => Self::Limit(crate::budget::EXHAUSTED),
+            other => Self::Search(other),
+        }
+    }
+}
+
 /// An explicit product, in `(behavior vertex, tableau node)` order.
 /// Input graph edge positions are retained for witness projection.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -405,7 +414,7 @@ impl Product {
     /// An internal acceptance or witness-construction inconsistency.
     pub fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
         let Some(lasso) =
-            find_lasso(&self.graph, &self.acceptance).map_err(ProductError::Search)?
+            find_lasso(&self.graph, &self.acceptance).map_err(ProductError::search)?
         else {
             return Ok(None);
         };
@@ -655,7 +664,7 @@ impl CompactProduct {
     }
 
     pub(crate) fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
-        let lasso = find_lasso_view(&self.parts.graph, self).map_err(ProductError::Search)?;
+        let lasso = find_lasso_view(&self.parts.graph, self).map_err(ProductError::search)?;
         Ok(lasso.map(|lasso| {
             project_lasso(
                 &lasso,
@@ -724,7 +733,7 @@ impl CompactProduct {
             scratch: std::cell::RefCell::new(scratch),
         };
         let lasso =
-            find_lasso_view(&self.parts.graph, &conditioned).map_err(ProductError::Search)?;
+            find_lasso_view(&self.parts.graph, &conditioned).map_err(ProductError::search)?;
         Ok(lasso.map(|lasso| {
             project_lasso(
                 &lasso,

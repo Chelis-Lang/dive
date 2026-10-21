@@ -256,3 +256,14 @@ fn pushing_atomic_negations_does_not_double_charge_the_original_input_limit() {
     assert_eq!(actual.nodes, prior.nodes);
     assert_eq!(actual.promise_count, prior.promise_count);
 }
+
+#[test]
+fn an_expired_run_budget_cannot_produce_decomposition_results() {
+    let formula = cases().pop().expect("formula");
+    let watchdog = crate::budget::expired_for_test();
+    let _scope = crate::budget::enter(watchdog.budget());
+    assert!(matches!(
+        decompose(&formula, Limits::default()),
+        Err(FormulaError::Limit(crate::budget::EXHAUSTED))
+    ));
+}

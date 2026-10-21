@@ -654,7 +654,9 @@ verdicts, state counts or counterexample validation.
 
 The existing formula, graph, atom and product bounds still apply. An exhausted
 bound remains an explicit non-verdict result; this change introduces no new
-flag or profile divergence. The checked strong-fairness fixture in
+flag or profile divergence. Run budgets interrupt decomposition, graph search
+and SCC traversal through an explicit stopped path; acceptance truth is never
+changed to signal budget exhaustion. The checked strong-fairness fixture in
 `crates/dive-liveness/tests/fixtures/solutions/Solutions.tla` has 8 states and
 25 generated states for three independent toggles. Its holding and failing
 properties, including multiple-property attribution, are exercised in both

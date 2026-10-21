@@ -28,6 +28,9 @@ struct Budget {
 
 impl Budget {
     fn step(&mut self) -> Result<(), FormulaError> {
+        if crate::budget::exhausted() {
+            return Err(FormulaError::Limit(crate::budget::EXHAUSTED));
+        }
         self.remaining = self
             .remaining
             .checked_sub(1)
@@ -48,6 +51,9 @@ fn normalized(formula: &Formula, limits: Limits) -> Result<Formula, FormulaError
     let mut mapped = vec![0; normalize.nodes.len()];
     let mut nodes = Vec::new();
     for (index, source) in normalize.nodes.iter().enumerate() {
+        if crate::budget::exhausted() {
+            return Err(FormulaError::Limit(crate::budget::EXHAUSTED));
+        }
         let node = match source {
             Nnf::Bool(b) => Node::Bool(*b),
             Nnf::Lit(literal) => {
@@ -130,6 +136,9 @@ pub(crate) fn decompose(
     struct Branch {
         pending: Vec<usize>,
         conjuncts: Vec<usize>,
+    }
+    if crate::budget::exhausted() {
+        return Err(FormulaError::Limit(crate::budget::EXHAUSTED));
     }
     if formula.terms() > limits.formula_nodes {
         return Err(FormulaError::Limit("formula nodes"));

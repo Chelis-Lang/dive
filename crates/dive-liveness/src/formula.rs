@@ -325,6 +325,9 @@ impl Normalizer<'_> {
     }
 
     fn normalize(&mut self, i: usize, negative: bool, depth: usize) -> Result<usize, FormulaError> {
+        if crate::budget::exhausted() {
+            return Err(FormulaError::Limit(crate::budget::EXHAUSTED));
+        }
         if depth > 256 {
             return Err(FormulaError::Limit("normalization depth"));
         }

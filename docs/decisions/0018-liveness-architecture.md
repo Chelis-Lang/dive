@@ -98,7 +98,11 @@ truth columns per alternative. Its live scratch is checked together with the
 existing acceptance-buffer capacities, and legacy logical-cell bounds retain
 their original units. The original complete formula remains the
 property-attribution authority, and candidates still require independent trace
-validation. This implements the decomposition in §2 and the acceptance in §5;
+validation. Decomposition and normalization poll the run budget; BFS, SCC,
+condition scanning and witness construction poll at amortized work boundaries.
+Exhaustion propagates as a typed search error into `stopped`, without changing
+predicate truth or manufacturing an acceptance result. This implements the
+decomposition in §2 and the acceptance in §5;
 TLC's arbitrary tableau numbering and SCC/lasso choices are outside observable
 parity (ADR 0086). No count default is raised by the decomposition itself.
 
