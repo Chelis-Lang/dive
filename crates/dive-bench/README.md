@@ -42,7 +42,9 @@ TLC profile `tlc+overrides` while retaining its semantic profile.
 
 Use budget-aware native binaries for new campaigns. To reproduce older frozen
 campaigns, use their pinned runner and preserve their recorded budget limitations;
-the new runner does not silently omit guards for an older executable.
+the new runner does not silently omit guards for an older executable. Each native
+report must confirm the exact requested time and memory limits with explicit
+sources; missing, disabled or mismatched guards fail the observation.
 `--tlc` enables the oracle arm; without it the TLC comparisons remain missing
 and no TLC speed-up is reported. The default cfg is the original pinned input.
 `--set <file>` selects another set; duplicate model IDs/names and duplicate
