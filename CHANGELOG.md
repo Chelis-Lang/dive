@@ -48,7 +48,8 @@
   alternatives. Every alternative remains part of the check, finite prefixes
   remain unrestricted, and counterexamples retain independent validation.
   Both profiles use the same semantic decomposition; existing count bounds
-  are unchanged.
+  are unchanged. Due completed-level checks inherit the armed run budget on
+  their capture thread, preserving stopped outcomes and incomplete progress.
 
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that

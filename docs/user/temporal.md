@@ -656,7 +656,8 @@ The existing formula, graph, atom and product bounds still apply. An exhausted
 bound remains an explicit non-verdict result; this change introduces no new
 flag or profile divergence. Run budgets interrupt decomposition, graph search
 and SCC traversal through an explicit stopped path; acceptance truth is never
-changed to signal budget exhaustion. Polling occurs between bounded work
+changed to signal budget exhaustion. Completed-level prefix analysis receives
+the same armed budget on its capture thread. Polling occurs between bounded work
 units; allocation, sorting and one predicate evaluation may finish before the
 next poll, so the time limit is not a hard real-time deadline. The checked
 strong-fairness fixture in

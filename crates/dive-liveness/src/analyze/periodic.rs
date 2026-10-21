@@ -118,6 +118,7 @@ pub struct PeriodicFailure {
 }
 
 struct Observe<'a> {
+    budget: &'a dive_check::budget::Budget,
     model: &'a Model,
     plans: &'a [super::PreparedProperty],
     limits: Limits,
@@ -145,6 +146,10 @@ impl capture::Observer for Observe<'_> {
         self.checks.prefixes += 1;
         self.checks.last_level = Some(level);
         self.checks.last_size = stats.distinct;
+        // Capture invokes this callback on its own thread. Thread-local run
+        // budgets do not cross that boundary; install the same armed signal
+        // only while a due prefix analysis runs.
+        let _scope = crate::budget::enter(self.budget);
         // Only the first property can decide a prefix: a word for it on a
         // subgraph is a word on the complete graph, which the final search
         // would also report first. Later properties wait for the final check.
@@ -231,17 +236,23 @@ pub fn analyze_periodic(
     // budget's own limit becomes a stop.
     let (_watchdog, armed) = dive_check::budget::arm(options);
     let _scope = crate::budget::enter(&armed.budget);
-    periodic_unbudgeted(model, &armed, limits, policy, schedule).map_err(|mut failure| {
-        if let Some(exhausted) = armed.budget.poll()
-            && super::budget_limit(&failure.failure.failure.error)
-        {
-            failure.failure.failure.error = AnalysisError::Stopped(Box::new(
-                exhausted.during(dive_check::budget::Phase::Temporal),
-            ));
-            failure.failure.action = None;
-        }
-        failure
-    })
+    periodic_unbudgeted(model, &armed, limits, policy, schedule)
+        .map_err(|failure| budget_failure(failure, &armed.budget))
+}
+
+fn budget_failure(
+    mut failure: PeriodicFailure,
+    budget: &dive_check::budget::Budget,
+) -> PeriodicFailure {
+    if let Some(exhausted) = budget.poll()
+        && super::budget_limit(&failure.failure.failure.error)
+    {
+        failure.failure.failure.error = AnalysisError::Stopped(Box::new(
+            exhausted.during(dive_check::budget::Phase::Temporal),
+        ));
+        failure.failure.action = None;
+    }
+    failure
 }
 
 #[allow(
@@ -265,6 +276,7 @@ fn periodic_unbudgeted(
     let plans = prepare(model, limits)
         .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?;
     let mut observer = Observe {
+        budget: &options.budget,
         model,
         plans: &plans,
         limits,
@@ -353,3 +365,6 @@ fn periodic_unbudgeted(
         }
     }
 }
+
+#[cfg(test)]
+mod budget_tests;
