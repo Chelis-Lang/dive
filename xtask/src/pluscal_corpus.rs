@@ -126,21 +126,19 @@ fn parse_args(args: &[String]) -> Result<Config> {
         },
         PathBuf::from,
     );
-    parse_args_with_workspace(args, &cwd, target, cache, workspace_root)
+    parse_args_with_workspace(args, &cwd, target.as_deref(), cache, workspace_root)
 }
 
 fn parse_args_with_workspace(
     args: &[String],
     cwd: &Path,
-    target: Option<PathBuf>,
+    target: Option<&Path>,
     cache: PathBuf,
     resolve_workspace: impl FnOnce() -> Result<PathBuf>,
 ) -> Result<Config> {
     // Parse before workspace discovery so genuine help never runs children.
     // Only the parser knows whether "--help" is an option or another option's value.
-    let provisional = target
-        .as_ref()
-        .map_or_else(|| cwd.join("target"), Clone::clone);
+    let provisional = target.map_or_else(|| cwd.join("target"), Path::to_path_buf);
     let config = parse_args_at(args, cwd, &provisional, cache.clone())?;
     if config.help || target.is_some() {
         return Ok(config);
@@ -912,7 +910,7 @@ mod tests {
         let explicit = parse_args_with_workspace(
             &[],
             cwd,
-            Some(PathBuf::from("/shared-target")),
+            Some(Path::new("/shared-target")),
             cache,
             no_discovery,
         )?;
