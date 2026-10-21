@@ -63,6 +63,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             assert!(report.result().is_none());
             assert!(report.temporal_result().is_some());
             assert_eq!(value["schema_version"], 2);
+            assert_eq!(value["check_kind"], "temporal");
             assert_eq!(value["options"]["profile"], "tlc");
             assert_eq!(value["options"]["lncheck"], "final");
             assert_eq!(value["options"]["lasso"], "short");
@@ -186,14 +187,15 @@ fn configured_initial_invariant_action_and_mixed_safety_roles_keep_the_full_tail
                 format!("{:?}", actual.counterexample),
                 format!("{:?}", expected.counterexample)
             );
-            assert_eq!(report.to_json()["schema_version"], 1);
+            assert_eq!(report.to_json()["schema_version"], 2);
+            assert_eq!(report.to_json()["check_kind"], "safety");
         }
     }
     Ok(())
 }
 
 #[test]
-fn configured_safety_roles_keep_schema_one_and_the_original_print_rng_stream() -> TestResult {
+fn configured_safety_roles_keep_safety_family_and_the_original_print_rng_stream() -> TestResult {
     let spec = Spec::new(
         "VARIABLE x\nBoot == Print(\"one-startup\",RandomElement(1..32))\nInit == x=RandomElement(1..32)\nNext == x'=IF x<Boot THEN x+1 ELSE x\nP == [](x<=32)",
         CONFIG,
@@ -214,7 +216,7 @@ fn configured_safety_roles_keep_schema_one_and_the_original_print_rng_stream() -
         assert_eq!(actual.output.len(), 1);
         later_draw |= actual.stats.ok_or("counts")?.distinct > 1;
         let value = report.to_json();
-        assert_eq!(value["schema_version"], 1);
+        assert_eq!(value["schema_version"], 2);
         assert!(value.get("execution").is_none());
         assert!(value["options"].get("lncheck").is_none());
     }
@@ -237,7 +239,8 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     assert_eq!(actual.verdict, expected.verdict);
     assert_eq!(actual.output, expected.output);
     assert_eq!(actual.binding_model_error, expected.binding_model_error);
-    assert_eq!(report.to_json()["schema_version"], 1);
+    assert_eq!(report.to_json()["schema_version"], 2);
+    assert_eq!(report.to_json()["check_kind"], "safety");
     let temporal = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
     let mut requests = Vec::new();
     let mut request = temporal.request(1);
@@ -265,7 +268,8 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
         let report = dive_api::check_file(&request)?;
         assert_eq!(report.verdict(), "unsupported");
         assert!(report.result().is_some());
-        assert_eq!(report.to_json()["schema_version"], 1);
+        assert_eq!(report.to_json()["schema_version"], 2);
+        assert_eq!(report.to_json()["check_kind"], "safety");
         assert!(
             report.to_json()["message"]
                 .as_str()
@@ -398,7 +402,8 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
             assert_eq!(actual.stats, expected.stats);
             assert_eq!(actual.output, expected.output);
             assert_eq!(actual.workers, expected.workers);
-            assert_eq!(report.to_json()["schema_version"], 1);
+            assert_eq!(report.to_json()["schema_version"], 2);
+            assert_eq!(report.to_json()["check_kind"], "safety");
         }
     }
     let spec = Spec::new(
@@ -414,7 +419,8 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
         dive_check::Verdict::InvariantViolated { initial: true, .. }
     ));
     assert_eq!(actual.output.len(), 1);
-    assert_eq!(report.to_json()["schema_version"], 1);
+    assert_eq!(report.to_json()["schema_version"], 2);
+    assert_eq!(report.to_json()["check_kind"], "safety");
     assert!(report.temporal_result().is_none());
     Ok(())
 }

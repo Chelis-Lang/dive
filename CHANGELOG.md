@@ -504,6 +504,13 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- All public JSON operation reports now use schema 2, including ordinary safety
+  checks and trace validation. Check reports add `check_kind` to distinguish
+  safety/temporal report families without claiming execution. Consumers must
+  accept validation report 2 before updating their pin; native dive-trace remains
+  version 1. Report/trace compatibility and migration guarantees are documented
+  in the reports guide (advance consumer notice: Oyster #61).
+
 - Finite predicate preflight streams non-tuple quantifier bindings through one
   copy-on-write context, while retaining all domain, visit and error checks.
   Tuple patterns, analysis scopes and public eager binding APIs are unchanged.

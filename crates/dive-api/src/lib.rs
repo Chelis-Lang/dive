@@ -71,10 +71,23 @@ use dive_syntax::{Diagnostic, Parse, Severity, SyntaxElement, SyntaxNode};
 use serde_json::{Value, json};
 use std::path::Path;
 
+/// Version of every public operation's JSON report.
+///
+/// Reports use `command` to identify the operation; check reports also carry
+/// `check_kind` to distinguish safety and temporal report families. Neither
+/// discriminator establishes execution or proof. The native `dive-trace`
+/// payload has its own independent format version.
+///
+/// Incompatible field, type or outcome changes require a new version, a
+/// CHANGELOG entry and advance notice to known consumers. Optional fields and
+/// diagnostic codes may be added; readers must reject unknown outcomes and
+/// versions. See `docs/user/reports-and-errors.md` for the compatibility policy.
+pub const REPORT_SCHEMA_VERSION: u32 = 2;
+
 /// Version of the JSON document produced by [`ParseReport::to_json`].
 ///
 /// Bump it on any incompatible change to the document's shape.
-pub const PARSE_SCHEMA_VERSION: u32 = 1;
+pub const PARSE_SCHEMA_VERSION: u32 = REPORT_SCHEMA_VERSION;
 
 /// The outcome of parsing one file.
 #[derive(Debug, Clone)]
@@ -246,10 +259,10 @@ impl ParseReport {
     /// The versioned JSON report. With `cst`, the whole concrete syntax tree
     /// is included under `"cst"`.
     ///
-    /// Shape (schema version 1):
+    /// Shape (schema version 2):
     ///
     /// ```text
-    /// { "schema_version": 1, "command": "parse", "file": "...",
+    /// { "schema_version": 2, "command": "parse", "file": "...",
     ///   "accepted": bool, "module": "Name" | null, "modules": ["Name", ...],
     ///   "diagnostics": [ { "code", "severity", "message", "help",
     ///                      "span": { "start", "end", "line", "column",

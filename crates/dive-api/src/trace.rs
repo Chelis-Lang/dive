@@ -48,7 +48,7 @@ use serde_json::{Value, json};
 use crate::ApiError;
 
 /// Version of the JSON document produced by [`report_json`].
-pub const TRACE_SCHEMA_VERSION: u32 = 1;
+pub const TRACE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
 /// How the specification is bound.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]

@@ -84,6 +84,7 @@ surfaces.
 | Checkpoint and recovery | partial |
 | Distributed checking and recovery | missing |
 | PlusCal translation and translation validation | partial |
+| Versioned JSON reports and trace compatibility policy | implemented |
 | Public Rust APIs and cargo-test integration | partial |
 | Complete corpus, harness and release certification | partial |
 | Global TLC profile and approved better defaults | partial |

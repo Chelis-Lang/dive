@@ -159,7 +159,7 @@ fn parse_json_reports_diagnostics() {
         Ok(v) => v,
         Err(e) => unreachable!("invalid JSON: {e}"),
     };
-    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["schema_version"], 2);
     assert_eq!(v["accepted"], false);
     assert_eq!(v["module"], "Bad");
     assert_eq!(v["diagnostics"][0]["code"], "DIVE-S0012");
@@ -249,7 +249,7 @@ fn analyze_accepts_and_reports_levels() {
         Ok(v) => v,
         Err(e) => unreachable!("invalid JSON: {e}"),
     };
-    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["schema_version"], 2);
     assert_eq!(v["command"], "analyze");
     assert_eq!(v["accepted"], true);
     assert_eq!(v["module"], "Counter");
@@ -331,7 +331,7 @@ fn check_reports_a_violation_with_each_profiles_exit_code() {
         Ok(v) => v,
         Err(e) => unreachable!("not JSON: {e}"),
     };
-    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["schema_version"], 2);
     assert_eq!(v["verdict"], "invariant-violation");
     assert_eq!(v["property"], "Inv");
     assert_eq!(v["tlc"]["code"], 2110);

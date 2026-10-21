@@ -41,7 +41,7 @@ fn report(
     status: u8,
     details: Value,
 ) -> OriginalAstReport {
-    let mut document = json!({"schema_version":2,"command":"original-ast","file":file,
+    let mut document = json!({"schema_version":crate::REPORT_SCHEMA_VERSION,"command":"original-ast","file":file,
         "profile":if request.compat_tlc {"tlc"} else {"dive"},"exit_code":status,
         "stage":"original-ast","result":match status { 0=>"ast-artifact", 1=>"rejected", 3=>"unsupported", _=>"internal-error" },
         "artifact_available":status==0,"accepted":false,

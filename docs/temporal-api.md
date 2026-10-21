@@ -3,8 +3,10 @@
 Eligible ordinary `dive_api::check_file` requests use deterministic completed-level
 checks in the dive profile and final analysis in the TLC profile.
 `TemporalMode::Ordinary` remains the request default. The actual bound role split
-retains an ordinary safety result on schema 1 or performs temporal analysis on
-schema 2, with one startup binding and separate independent validation.
+retains an ordinary safety result or performs temporal analysis, with one
+startup binding and separate independent validation. Both use report schema 2;
+`check_kind` distinguishes the safety/temporal report family without claiming
+that checking ran or that capture completed.
 A deciding prefix returns `Outcome::PrefixViolation` with actual incomplete
 capture evidence; only exhaustion can return `Outcome::Holds`. Both typed and
 serialized words must pass fresh independent validation.
@@ -202,8 +204,9 @@ checking returns success or independently validated periodic counterexamples;
 unsupported formulas, missing independent covers and limits return no verdict.
 Safety violations found during exploration retain their full original report.
 
-Explicit final requests and actual ordinary temporal analysis use JSON schema 2.
-Ordinary safety results retain schema 1. A temporal
+All operation reports use JSON schema 2. Explicit final requests retain the
+`temporal` report family even when they stop at a safety failure; ordinary safety
+reports use the `safety` family and carry no temporal capture claim. A temporal
 violation includes `properties`, an independently admitted tagged `counterexample.trace`, a 1-based
 `counterexample.back_to`, and `counterexample.validation: "valid"`. The trace
 document itself retains its own schema and 0-based back edge. Save the trace

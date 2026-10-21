@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 /// It follows the conventions of [`crate::PARSE_SCHEMA_VERSION`]: the same
 /// diagnostic and span shapes, with a `file` on every diagnostic because an
 /// analysis spans several files. Bump it on any incompatible change.
-pub const ANALYZE_SCHEMA_VERSION: u32 = 1;
+pub const ANALYZE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
 /// Where `dive analyze` looks for modules besides the root file's directory.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -210,10 +210,10 @@ impl AnalyzeReport {
 
     /// The versioned JSON report.
     ///
-    /// Shape (schema version 1):
+    /// Shape (schema version 2):
     ///
     /// ```text
-    /// { "schema_version": 1, "command": "analyze", "file": "...",
+    /// { "schema_version": 2, "command": "analyze", "file": "...",
     ///   "accepted": bool, "module": "Root" | null, "modules": ["Dep", ..., "Root"],
     ///   "files": [ { "id", "path", "origin": "file"|"standard"|"monolith"|"text" } ],
     ///   "diagnostics": [ { "code", "severity", "message", "help", "sany_code",

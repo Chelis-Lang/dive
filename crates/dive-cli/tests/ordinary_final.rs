@@ -93,7 +93,7 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
         assert_eq!(excluded.status.code(), Some(3));
         assert_eq!(
             serde_json::from_slice::<serde_json::Value>(&excluded.stdout)?["schema_version"],
-            1
+            2
         );
     }
     Ok(())
@@ -153,7 +153,7 @@ fn existing_tlc_composition_option_keeps_counts_and_safe_validation_refusal()
             let output = run(&file, "tlc", 1, &extra)?;
             let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
             assert_eq!(output.status.code(), Some(3));
-            assert_eq!(value["schema_version"], 1);
+            assert_eq!(value["schema_version"], 2);
             assert_eq!(value["verdict"], "unsupported");
         }
     }
