@@ -426,3 +426,35 @@ medians were 3.735→3.761 ms (default) and 3.795→3.812 ms (TLC). Warm same-pr
 API diagnostics and nine initial one-byte memory-stop controls are recorded
 alongside them. Shared-host sub-millisecond differences are diagnostic; they
 do not establish quiet-machine speedups or replace instruction qualification.
+
+
+## Cooperative evaluator interruption overhead
+
+The [compact 2026-10-21 campaign](../survey/data/evaluator-loop-overhead-2026-10-21.json)
+qualifies normal-input instruction overhead for typed interruption in nested
+quantifier, CHOOSE and filter loops. On the four reduced ADR 0104 workloads in
+both semantic profiles, whole-CLI Cachegrind instructions at one worker rose
+0.255% geometrically; all eight cells were between 0.049% and 0.536%. Counts
+and depth were identical. Three paired genuine eight-worker SimpleRegular
+observations per profile used Callgrind and retained nonzero parallel commit
+work: paired median instruction changes were 0.223% in the default profile
+and 0.131% in the TLC profile. Both medians and every single-worker cell stay
+within the 1% overhead bar. Cachegrind and Callgrind totals are not pooled.
+
+Measured sources are `ca2d6e96` and `4255be6b`; full-gate source `1338630b`
+differs only by the reviewed parent test normalizer for nondeterministic memory
+observations. The summary records exact source-transfer proof, binary/input
+hashes, raw archive identity, all 28 arms and native three-second stop controls.
+The original campaign identity text contained a stale block, retained externally
+unchanged and invalid. Clean source heads, binary hashes and original filesystem
+metadata preceding the first arm support the separately recorded collection-time
+attestation; it is not an original before-run or continuous tamper audit.
+
+The shared c7i.8xlarge host used Valgrind 3.22.0 and rustc 1.99.0, explicit
+900-second/8 GiB native budgets and 930-second external backstops. Startup is
+included. This establishes neither quiet wall time nor an ADR 0104 optimization
+win, corpus agreement increase or release throughput acceptance. The bounded
+MCInnerSerial probes stop with actual incomplete capture in both profiles;
+their distinct outer report and stopped elapsed fields are retained separately.
+Binding/ASSUME, diagnostic reconstruction and quiet/bulk/native value units
+remain interruption limitations; the fresh-validation follow-up is separate.

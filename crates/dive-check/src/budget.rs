@@ -1209,3 +1209,182 @@ mod tests {
         assert!(success.verdict.tlc().is_none());
     }
 }
+
+/// The run evidence used to classify cooperative evaluator interruption.
+///
+/// This is passed explicitly through checker classification helpers. Its opaque
+/// identity prevents another driver's interruption becoming this run's stop.
+#[derive(Debug)]
+pub struct EvaluationControl {
+    budget: Budget,
+    phase: Phase,
+    identity: u64,
+}
+
+impl dive_eval::HostControl for EvaluationControl {
+    fn check(&self) -> Result<(), dive_eval::Interrupted> {
+        match self.budget.poll() {
+            Ok(None) => Ok(()),
+            Ok(Some(_)) | Err(_) => Err(dive_eval::Interrupted::new(self.identity)),
+        }
+    }
+}
+
+impl EvaluationControl {
+    /// Makes an explicit context from the already armed budget and actual phase.
+    ///
+    /// # Errors
+    /// The native identity representation is exhausted.
+    pub fn new(budget: &Budget, phase: Phase) -> Result<Arc<Self>, dive_eval::HostControlConflict> {
+        // Pointer identity is opaque and never dereferenced. Retaining this
+        // budget retains its signal, so another live run cannot reuse it.
+        let identity = budget
+            .signal
+            .as_ref()
+            .map_or(Ok(0), |signal| u64::try_from(Arc::as_ptr(signal) as usize))
+            .map_err(|_| dive_eval::HostControlConflict)?;
+        Ok(Arc::new(Self {
+            budget: budget.clone(),
+            phase,
+            identity,
+        }))
+    }
+
+    /// Installs this context for evaluator loop checkpoints, after startup.
+    /// Unlimited and unarmed budgets install a no-op owner scope, so another
+    /// driver cannot replace control while this evaluator is in use.
+    ///
+    /// # Errors
+    /// Another driver owns the evaluator's control registration.
+    pub fn enter(
+        self: &Arc<Self>,
+        evaluator: &dive_eval::Evaluator,
+    ) -> Result<dive_eval::HostControlScope, dive_eval::HostControlConflict> {
+        evaluator.host_control(Some(self.clone()))
+    }
+
+    /// Matches this context's interruption to actual exhaustion or measurement failure.
+    /// A genuine evaluation error or another owner's interruption returns `None`.
+    #[must_use]
+    pub fn verdict(&self, error: &dive_eval::EvalError) -> Option<crate::Verdict> {
+        if !self.owns(error) {
+            return None;
+        }
+        match self.budget.poll() {
+            Ok(Some(exhausted)) => Some(crate::Verdict::Stopped(Box::new(
+                exhausted.during(self.phase),
+            ))),
+            Err(error) => Some(crate::Verdict::BudgetMeasurement { error }),
+            Ok(None) => None,
+        }
+    }
+
+    /// Whether this typed interruption belongs to the same armed run.
+    /// Identity alone is not proof that a resource was exhausted.
+    #[must_use]
+    pub fn owns(&self, error: &dive_eval::EvalError) -> bool {
+        self.identity != 0
+            && self.budget.is_armed()
+            && !self.budget.is_unlimited()
+            && error
+                .interruption()
+                .is_some_and(|interruption| interruption.token() == self.identity)
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "deterministic armed-control evidence")]
+mod evaluator_controls {
+    use super::*;
+    use dive_eval::HostControl;
+
+    #[test]
+    fn measurement_failure_interrupts_only_its_owner_and_never_fabricates_exhaustion() {
+        let watchdog = Budget::new(None, Some(100))
+            .start_with_sampler(
+                |_, _, _| std::thread::Builder::new().spawn(|| {}),
+                Sampler::Injected(Arc::new(|| Some(10))),
+            )
+            .expect("initial measurement")
+            .expect("finite budget");
+        let control = EvaluationControl::new(watchdog.budget(), Phase::Search).expect("control");
+        assert_eq!(control.check(), Ok(()));
+        let failure = MeasurementError::unavailable(SamplePoint::Periodic);
+        assert_eq!(
+            watchdog
+                .budget()
+                .signal
+                .as_ref()
+                .expect("armed")
+                .record_sample(SamplePoint::Periodic, None, 100),
+            Err(failure)
+        );
+        let error = dive_eval::EvalError::interrupted(control.check().expect_err("interrupt"));
+        assert_eq!(
+            control.verdict(&error),
+            Some(crate::Verdict::BudgetMeasurement { error: failure })
+        );
+        let temporal =
+            EvaluationControl::new(watchdog.budget(), Phase::Temporal).expect("same run");
+        assert_eq!(
+            temporal.verdict(&error),
+            Some(crate::Verdict::BudgetMeasurement { error: failure })
+        );
+        let genuine = dive_eval::EvalError::general("host interrupted evaluation");
+        assert!(control.verdict(&genuine).is_none());
+        let other = Budget::new(Some(Duration::from_secs(3600)), None)
+            .start()
+            .expect("thread")
+            .expect("watchdog");
+        let other = EvaluationControl::new(other.budget(), Phase::Search).expect("other owner");
+        assert!(other.verdict(&error).is_none());
+    }
+
+    #[test]
+    fn contexts_require_actual_exhaustion_of_the_same_signal_and_keep_the_current_phase() {
+        let watchdog = Budget::new(Some(Duration::from_secs(3600)), None)
+            .start()
+            .expect("thread")
+            .expect("watchdog");
+        let budget = watchdog.budget();
+        let search = EvaluationControl::new(budget, Phase::Search).expect("search control");
+        let temporal = EvaluationControl::new(budget, Phase::Temporal).expect("temporal control");
+        let fake = dive_eval::EvalError::interrupted(dive_eval::Interrupted::new(search.identity));
+        assert!(search.owns(&fake));
+        assert!(
+            search.verdict(&fake).is_none(),
+            "identity alone is not exhaustion"
+        );
+        budget.trip_for_test();
+        let error = std::thread::scope(|scope| {
+            scope
+                .spawn(|| {
+                    dive_eval::EvalError::interrupted(search.check().expect_err("interrupted"))
+                })
+                .join()
+                .expect("worker")
+        });
+        assert!(
+            matches!(search.verdict(&error),Some(crate::Verdict::Stopped(stop)) if stop.phase==Phase::Search)
+        );
+        assert!(
+            matches!(temporal.verdict(&error),Some(crate::Verdict::Stopped(stop)) if stop.phase==Phase::Temporal)
+        );
+        let other_watchdog = Budget::new(Some(Duration::from_secs(3600)), None)
+            .start()
+            .expect("thread")
+            .expect("watchdog");
+        other_watchdog.budget().trip_for_test();
+        let other =
+            EvaluationControl::new(other_watchdog.budget(), Phase::Capture).expect("other run");
+        assert!(!other.owns(&error));
+        assert!(other.verdict(&error).is_none());
+        for unarmed in [Budget::unlimited(), Budget::new(Some(Duration::ZERO), None)] {
+            let control = EvaluationControl::new(&unarmed, Phase::Search).expect("control");
+            assert!(!control.owns(&error));
+            assert!(control.verdict(&error).is_none());
+        }
+        let genuine = dive_eval::EvalError::general("host interrupted evaluation");
+        assert!(search.verdict(&genuine).is_none());
+    }
+}

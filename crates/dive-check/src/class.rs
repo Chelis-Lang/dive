@@ -119,6 +119,9 @@ fn not_eval(e: &EvalError) -> Option<Verdict> {
         ErrorClass::ResourceLimit => Some(Verdict::ResourceLimit {
             message: e.message().to_owned(),
         }),
+        ErrorClass::Interrupted => Some(Verdict::InternalError {
+            message: "host interruption has no matching explicit run context".into(),
+        }),
         ErrorClass::Bug => Some(Verdict::InternalError {
             message: e.message().to_owned(),
         }),

@@ -1,0 +1,1316 @@
+{
+  "format_version": 1,
+  "date": "2026-10-21",
+  "purpose": "Normal-input instruction overhead for cooperative predicate-loop interruption; no throughput or capacity acceptance claim.",
+  "identity": {
+    "schema_version": 1,
+    "campaign": "eval374-fixed-overhead normal-input overhead",
+    "base_source": "ca2d6e96ff6765518f59f9dcd32c8b306fe82eb7",
+    "candidate_source": "4255be6b8141f7308e3a169638141a04dbe4e7af",
+    "base_binary_sha256": "902312a61d78dcae8fe7ad0a5504130a38ebffc86202644a8eb12d7e544ded0d",
+    "candidate_binary_sha256": "85e34032f164e2900c6b7bfe1dfccdc868cca3478a81ee60d6fd84d490319b2d",
+    "raw_archive_sha256": "215cbc55efc9d37b37e862c2609f801a35e8cb991238b2419e0c5e77feb23fd1",
+    "machine": {
+      "instance_id": "i-0aa864e1e40c45c02",
+      "instance_type": "c7i.8xlarge",
+      "cpu": "Intel Xeon Platinum 8488C",
+      "logical_cpus": 32,
+      "physical_cores": 16,
+      "memory_bytes": 66320338944,
+      "kernel": "7.0.0-1014-aws",
+      "os": "Ubuntu 24.04.5",
+      "shared_with_gates": true,
+      "quiet_wall_clock_claim": false
+    },
+    "toolchain": {
+      "rustc": "1.99.0 (b940084d7 2026-09-28)",
+      "build": "profiling --locked",
+      "valgrind": "3.22.0",
+      "w1_instrumentation": "Cachegrind --cache-sim=no",
+      "w8_instrumentation": "Callgrind --cache-sim=no",
+      "workers": [
+        1,
+        8
+      ],
+      "seed": 0,
+      "fingerprint_polynomial": 0,
+      "native_time_limit_seconds": 900,
+      "native_memory_bytes": 8589934592,
+      "external_backstop_seconds": 930,
+      "max_states_and_max_depth_flags": "omitted in both arms; null fields verified in both reports",
+      "w8_repetitions": 3,
+      "whole_process_startup_included": true
+    },
+    "workload": {
+      "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "reductions": {
+        "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+        "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+        "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+        "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+      },
+      "models": {
+        "SimpleRegular": {
+          "module": {
+            "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+            "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+          },
+          "config": {
+            "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+            "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+          },
+          "expected": {
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19
+          }
+        },
+        "MCbtree": {
+          "module": {
+            "path": "specifications/btree/MCbtree.tla",
+            "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+          },
+          "config": {
+            "path": "specifications/btree/R1MCbtree.cfg",
+            "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+          },
+          "expected": {
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24
+          }
+        },
+        "GameOfLife": {
+          "module": {
+            "path": "specifications/GameOfLife/GameOfLife.tla",
+            "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+          },
+          "config": {
+            "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+            "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+          },
+          "expected": {
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1
+          }
+        },
+        "EWD998PCal": {
+          "module": {
+            "path": "specifications/ewd998/EWD998PCal.tla",
+            "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+          },
+          "config": {
+            "path": "specifications/ewd998/R1EWD998PCal.cfg",
+            "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+          },
+          "expected": {
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28
+          }
+        }
+      }
+    },
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "workload_archive_manifest": {
+      "specifications/TeachingConcurrency/Simple.cfg": "95943595ab1f09d64d8ca3b99222cdc1b8c9ddb626da96a06d68ae5f89bdf751",
+      "specifications/TeachingConcurrency/Simple.tla": "dd859866e8be0ee36b0005b0393becd788fe51aae7ebcd7deaa14c259a3c0bab",
+      "specifications/TeachingConcurrency/SimpleRegular.cfg": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "specifications/TeachingConcurrency/SimpleRegular.tla": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "specifications/TeachingConcurrency/SimpleRegular_proof.tla": "0bebedcf4a56e72ee29bf71aa6bc97f7e48ccc3bac18aca3db39829b3b789386",
+      "specifications/TeachingConcurrency/Simple_proof.tla": "f2e5348593cd1b4e4107c591442c1b625146f6907189013c822440d67c84d1af",
+      "specifications/btree/MCbtree.cfg": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "specifications/btree/MCbtree.tla": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "specifications/btree/btree.tla": "5f763508e82ac3173f8bd59c77dfa87da265d84a39444b5ef4d60d7985bf2fec",
+      "specifications/btree/kvstore.cfg": "7b0120df31cb29eb12fa2a8a6f3b7e355921e58268b4d27384c1a94978e7246a",
+      "specifications/btree/kvstore.tla": "c1131a8591f91c110f2a739dc91d20564542ac6f201d5b76be581e485cfbb376",
+      "specifications/GameOfLife/GameOfLife.cfg": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "specifications/GameOfLife/GameOfLife.tla": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "specifications/ewd998/AsyncTerminationDetection.cfg": "6affac15002d814a67775f16affa001d9e01c2a758a9d35dbfbaccdd1fc9f5c6",
+      "specifications/ewd998/AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+      "specifications/ewd998/AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+      "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+      "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+      "specifications/ewd998/EWD998Chan.cfg": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+      "specifications/ewd998/EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+      "specifications/ewd998/EWD998ChanID.cfg": "69ec430deca39d7af5e2bfb1f6e43b5c941d29f4362a70048d534a52b8a54146",
+      "specifications/ewd998/EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+      "specifications/ewd998/EWD998ChanID_export.cfg": "a02a94fce512a1c7f8c47f0c35bbad7813dfedbafec7212d2404c585541b078a",
+      "specifications/ewd998/EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+      "specifications/ewd998/EWD998ChanID_shiviz.cfg": "4dab15b9fea40413c96361139310ee2502b305c9b69980f5ba3c39aa5c30719f",
+      "specifications/ewd998/EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+      "specifications/ewd998/EWD998ChanTrace.cfg": "e9e662c8672fff1a2affafb90efebbf1201f084e8f0e33698e2a42a9721bff64",
+      "specifications/ewd998/EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+      "specifications/ewd998/EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+      "specifications/ewd998/EWD998PCal.cfg": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "specifications/ewd998/EWD998PCal.tla": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4",
+      "specifications/ewd998/EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+      "specifications/ewd998/EWD998Small.cfg": "f0869ebeddcdec5b0208014218a946532c01fdb34130579acff081ed6e883f2a",
+      "specifications/ewd998/EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+      "specifications/ewd998/EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+      "specifications/ewd998/EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+      "specifications/ewd998/EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+      "specifications/ewd998/Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+      "specifications/ewd998/SmokeEWD998.cfg": "1b14807465007ef613790a0d2f83fe75455580a533c5a79f6b7ba0e690c6eeb7",
+      "specifications/ewd998/SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+      "specifications/ewd998/SmokeEWD998_SC.cfg": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "specifications/ewd998/SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+      "specifications/ewd998/Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b",
+      "specifications/btree/R1MCbtree.cfg": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa",
+      "specifications/TeachingConcurrency/R1SimpleRegular.cfg": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff",
+      "specifications/GameOfLife/R1GameOfLife.cfg": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9",
+      "specifications/ewd998/R1EWD998PCal.cfg": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+    },
+    "module_roots": {
+      "module_path_order": [
+        "library",
+        "modules"
+      ],
+      "recovered_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+      "library_origin": {
+        "id": "tlapm-library-d8b9747",
+        "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      },
+      "modules_origin": {
+        "id": "community-modules-202610040242",
+        "jar_sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      "ancestry_verification": "All 49 TLA files byte-match their pinned local cache roots: 15 TLAPS and 34 community modules. The archive also contains 19 Java source files not executed by the native instruction campaign.",
+      "matching_tla_files": [
+        "library/FiniteSetTheorems_proofs.tla",
+        "library/FiniteSetTheorems.tla",
+        "library/BagsTheorems_proofs.tla",
+        "library/FiniteSets.tla",
+        "library/RealTime.tla",
+        "library/WellFoundedInduction_proofs.tla",
+        "library/TLAPS.tla",
+        "library/Bags.tla",
+        "library/SequenceTheorems.tla",
+        "library/NaturalsInduction_proofs.tla",
+        "library/NaturalsInduction.tla",
+        "library/WellFoundedInduction.tla",
+        "library/SequenceTheorems_proofs.tla",
+        "library/BagsTheorems.tla",
+        "modules/GraphTheorems.tla",
+        "modules/CSV.tla",
+        "modules/SVG.tla",
+        "modules/GraphViz.tla",
+        "modules/Quorum.tla",
+        "modules/FoldsTheorems.tla",
+        "modules/BagsExt.tla",
+        "modules/VectorClocks.tla",
+        "modules/FiniteSetsExtTheorems.tla",
+        "modules/DifferentialEquations.tla",
+        "modules/Graphs.tla",
+        "modules/QuorumTheorems_proofs.tla",
+        "modules/HTML.tla",
+        "modules/FunctionTheorems.tla",
+        "modules/Statistics.tla",
+        "modules/SequencesExt.tla",
+        "modules/ShiViz.tla",
+        "modules/IOUtils.tla",
+        "modules/QuorumTheorems.tla",
+        "modules/UndirectedGraphs.tla",
+        "modules/FoldsTheorems_proofs.tla",
+        "modules/SequencesExtTheorems.tla",
+        "modules/FiniteSetsExtTheorems_proofs.tla",
+        "modules/Folds.tla",
+        "modules/DyadicRationals.tla",
+        "modules/Combinatorics.tla",
+        "modules/FunctionTheorems_proofs.tla",
+        "modules/Json.tla",
+        "modules/FiniteSetsExt.tla",
+        "modules/Relation.tla",
+        "modules/Bitwise.tla",
+        "modules/Functions.tla",
+        "modules/GraphTheorems_proofs.tla",
+        "modules/SequencesExtTheorems_proofs.tla"
+      ],
+      "non_tla_archive_extras": [
+        "library/dune",
+        "modules/tlc2/overrides/AbstractGraphs.java",
+        "modules/tlc2/overrides/IOUtils.java",
+        "modules/tlc2/overrides/BagsExt.java",
+        "modules/tlc2/overrides/TLCOverrides.java",
+        "modules/tlc2/overrides/Functions.java",
+        "modules/tlc2/overrides/FiniteSetsExt.java",
+        "modules/tlc2/overrides/CommunityModules.java",
+        "modules/tlc2/overrides/GraphViz.java",
+        "modules/tlc2/overrides/DyadicRationals.java",
+        "modules/tlc2/overrides/Json.java",
+        "modules/tlc2/overrides/Combinatorics.java",
+        "modules/tlc2/overrides/UndirectedGraphs.java",
+        "modules/tlc2/overrides/SequencesExt.java",
+        "modules/tlc2/overrides/Bitwise.java",
+        "modules/tlc2/overrides/SVG.java",
+        "modules/tlc2/overrides/Graphs.java",
+        "modules/tlc2/overrides/Statistics.java",
+        "modules/tlc2/overrides/CSV.java",
+        "modules/tlc2/overrides/VectorClocks.java"
+      ],
+      "archive_manifest": {
+        "library/FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+        "library/FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+        "library/dune": "1a64487faf00c1d6c2a4d9e8785f3a329146ffccafc4d8b4209ba9f230965292",
+        "library/BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+        "library/FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+        "library/RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+        "library/WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c",
+        "library/TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+        "library/Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+        "library/SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+        "library/NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+        "library/NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+        "library/WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+        "library/SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+        "library/BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+        "modules/GraphTheorems.tla": "bf34f1eda4f2f5daed418028f98de0228a19da4bf37ee9185c551d12a467e56f",
+        "modules/CSV.tla": "ecb845154f558670d1e432fcb46ee013c6a64eedea8d8656ebbfbca06e63a7a3",
+        "modules/SVG.tla": "a4d127c92ebc756b9f5c4bee354fd474f83a612e188915989212d197ab17747a",
+        "modules/GraphViz.tla": "8a09439b36a7ae7820b587f5ca883b91af280d61c875e3d6596d91eeef12d03d",
+        "modules/Quorum.tla": "1ebfb8e2a58c9ed2b2074e1ac620d315ed96290bedb4267f9f7d822d86f96b11",
+        "modules/FoldsTheorems.tla": "099de628fdd243f6f3b35c143b04e243e9fe817745948a9c9e83d367b88473e5",
+        "modules/BagsExt.tla": "f33833f1c20ca97aee90129996180e179fd41cab4362b5a0333fcbb617b4b03c",
+        "modules/VectorClocks.tla": "69cc7f09a0b1048495843778ba34afd3e1cb11881cd8e1ce7b725b376aeb9a6a",
+        "modules/FiniteSetsExtTheorems.tla": "89e3578d8014645100c6b1ba0405c759c47f56ac2c793f2b97a86184b36b3635",
+        "modules/DifferentialEquations.tla": "29d2de28dc7e8856d16ddf698aeef78a6191b053b0e6e7a74b85a1fae9d540fe",
+        "modules/Graphs.tla": "df8e76bd5841dec1e578c68f7b41e65c88e30b2670b188c6f09bd1b534eba135",
+        "modules/QuorumTheorems_proofs.tla": "6edfd8170d23c8f4ec6c0710e68d9449bf862877240edddc1eacebeee617412b",
+        "modules/HTML.tla": "9f95c172147c19ff3795e3b47dbe80ecbb10237925c1757e79cd506c1dc2020f",
+        "modules/FunctionTheorems.tla": "f89871fb5b35d2fc54f583b12adb489dd6660be7aced67ab295fba0d4999c116",
+        "modules/Statistics.tla": "0edfb2849a7ce326c49c668d88d6c123d693bfdd7271aa0e6f24f8f927f43005",
+        "modules/SequencesExt.tla": "8b96d0ff74836cca2adfb7da3b32846ca64c4d466d543b55c8d05c32b64aa0f6",
+        "modules/ShiViz.tla": "59b3af020731a856ab48d2e497e302f22f6059d5c18059358117fb32e3f63cf7",
+        "modules/IOUtils.tla": "c107b97b6fa302f0c84855eaa8b6b6cd536710302e7e2e5ebbbbbd47accad4ad",
+        "modules/QuorumTheorems.tla": "e01d0f6f5bf7950d03deb1d77e5089e8383ff91520b0355ecd25b33191720c13",
+        "modules/UndirectedGraphs.tla": "396a93b959795f3057bed9ee88ffbb76e5f8364bc5c474e01f5a8ce3e1d73875",
+        "modules/FoldsTheorems_proofs.tla": "61e4c97ba1bba2dd5b71af1846a0d473469fbc897911a2f87fe80d2d0394378e",
+        "modules/SequencesExtTheorems.tla": "165541b28e8fb7cee588bac97639b74df0f74c50a42e47529b13b9ea4ab7b042",
+        "modules/FiniteSetsExtTheorems_proofs.tla": "2511f68881282f97914f7468fe879cceeadcef30e7f37488f1c15a38989dacde",
+        "modules/Folds.tla": "aa59063fd600bb640b2ae24dc85ef770277ef5bf7955092b76b8b471790086da",
+        "modules/DyadicRationals.tla": "ba382ab4c561af6f575649a93e050d57d6395a8314925950d0285715763223af",
+        "modules/Combinatorics.tla": "c07c9ab36bb543332573258d57b5e5a1be9d96c982319aa0b92cd218025afc35",
+        "modules/FunctionTheorems_proofs.tla": "bf6c7b9f7bf4d7f7ca1f5ddf72ac8b230fbf3ca338e86cf70ea4f9c280191396",
+        "modules/Json.tla": "2c148bc47f20e6d2585029dcbeb9cdfc75fd423c7ce13fee2933cee84154c6cb",
+        "modules/FiniteSetsExt.tla": "dc5d6944395dd18e2f8acf696296808a9460cbbf1b9888f88c5ac4c83a5237f9",
+        "modules/Relation.tla": "89807adef4e91e63d1cb54bc91199063ec50c39106aa27373cf49e475dd828af",
+        "modules/Bitwise.tla": "35e2ba7cd18f83232f1f5b5c6e6b2030aa7927eef5abd64ffffddbde12b3d66a",
+        "modules/Functions.tla": "b54ff63b7c76c327525c17c188d5f9f5e53d92f3fd701f5e2ba54f0f54391063",
+        "modules/GraphTheorems_proofs.tla": "aca4d832c2b9f6ceda08b99178fd23293c91abd098db6434f9d8efef94621e21",
+        "modules/SequencesExtTheorems_proofs.tla": "942aa61eb4384720430f74f81da6f09678c6c992c94c2a228e713ba226a88fc1",
+        "modules/tlc2/overrides/AbstractGraphs.java": "f0b17565d34306cff6fcbccf19c3706b3405abea8ede76f46fbe1ef92e3cc395",
+        "modules/tlc2/overrides/IOUtils.java": "249ae8bd3b0ed1cca3af59118d47a53a02ff87bd2f6d718c5fd450086e73041c",
+        "modules/tlc2/overrides/BagsExt.java": "f60ee54d15ab03ea4266fd0fe6140fd83acbda523906579dcfbbade25378c15f",
+        "modules/tlc2/overrides/TLCOverrides.java": "ad99573c77b60084da24066006fe35c7c8ed670604987d02695326dec7505bee",
+        "modules/tlc2/overrides/Functions.java": "2d435825b09fc27f3d2f3d122e0cfb7256302236ae1bcff698066e0d49263d23",
+        "modules/tlc2/overrides/FiniteSetsExt.java": "82789fc3fafd9e726be5c9aa9525cff3bfdeade61c841a669beaf644dfe84df9",
+        "modules/tlc2/overrides/CommunityModules.java": "30004351430cc3e21b7bf5f4cf09c9e29e932850930cb8d1d9b0f321169ce6d8",
+        "modules/tlc2/overrides/GraphViz.java": "1d7cef1b279c3d152649b60efb14ab2d28b01a08368b38f696fbf099de4acca2",
+        "modules/tlc2/overrides/DyadicRationals.java": "496581189e02444fcb8f0724cfbdfe54c3207824df8607fa28bd74faeebb7667",
+        "modules/tlc2/overrides/Json.java": "3db84e88abf7b1874714c26e0c6e2bae009e29ff399f3ab453beac5f0f80fd9a",
+        "modules/tlc2/overrides/Combinatorics.java": "857ac3a910cc650b3e5abaa02e6db981d15715cd5d2ea72d09bdd2cc69cd1be9",
+        "modules/tlc2/overrides/UndirectedGraphs.java": "73d13947dd742603ed3d80965832a570d47c8c4dd8cda4eda9f02a91d071440e",
+        "modules/tlc2/overrides/SequencesExt.java": "683a3616c9b89018da22dff77e76cb021efcf7a4976c7cee54e424010561a17e",
+        "modules/tlc2/overrides/Bitwise.java": "1cb08783354de9f8bc3350d140ceb915be9edd7e29732268d6c4490f992938dc",
+        "modules/tlc2/overrides/SVG.java": "ca0f378586af5494077e0f6664d0db26cdd50304225ebbe21cba4542f75dd749",
+        "modules/tlc2/overrides/Graphs.java": "a8b4c308d5a23216bf5c40747822accf3ae23ece84d073ac2279d5ef0d5195ed",
+        "modules/tlc2/overrides/Statistics.java": "06cbf0e7f5e9a887c90fba125bddab13d122be588d02ebdc198ef8be0b93c99d",
+        "modules/tlc2/overrides/CSV.java": "ba085e7186cf2fbb632709d9737d63eae7f6a639640b89cf9bff0f9046f94345",
+        "modules/tlc2/overrides/VectorClocks.java": "c6b9c35f3a1a17daf9020357e4fca3dba048ae1287cf8d12f27e5dc0d485052d"
+      }
+    },
+    "oracle": {
+      "executed_in_instruction_campaign": false,
+      "role": "Context for separate conformance gates and existing expected observations; no paired TLC run in this instruction experiment.",
+      "id": "tlc-2026.10.06.014338",
+      "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b"
+    },
+    "qualification": "Hash manifests describe the exact reused input archives. They are provenance metadata, not a new execution or raw outputs. Duplicate archive member paths are resolved in extraction order (last member wins), matching the reduced EWD overlay.",
+    "identity_derivation": {
+      "previous_input_identity_sha256": "3d29bdebcaeed6ead0be3774601c4036b594f48024b22eedaddc1049081666a7",
+      "qualification": "Identical immutable native input/module archives and same host/toolchain protocol as the earlier E2 campaign. Source/binary pins and all observations are new for this campaign; no earlier measurement is reused."
+    },
+    "fresh_observed_input_manifest_sha256": "1837253ddfcf2b85e64084c509d6f19e47158a3495c3728c3bb566c4cc13fe3b",
+    "provenance_sha256": "73f71698ef468448745c4fa8fa2cd362aa9d86bc899fc03c5425b3074fad5dba",
+    "runner_sha256": "7161cb13f20e28825941ccf8f273fb32bb785e8b0a6354597dc5ea3bc26173ff",
+    "source_bundle_sha256": "ff2c6cee4da34f657d926b948dd0d765fe3840c1a9763800bd03c1eb2099157f",
+    "original_staging_command_sha256": {
+      "ssm-eval374-corrected-stage-only.json": "8e9f26d814287e2c7dac501137f14c481664c08de63cc9e2d3906ba473f0f044",
+      "ssm-eval374-corrected-launch.json": "b368fd4906157c8fd8066c53afe517ab7782479147acb36fa3837326db83d4c4"
+    },
+    "build_log_sha256": "50fcc713a5b5865613bf4f4007fbaa34a9517b0141b0b68223f0a0bc4b2fe531",
+    "provenance_correction": {
+      "original_identity_block_valid": false,
+      "original_provenance_preserved_unchanged": true,
+      "reason": "Template source/hash lines name unrelated old e2-base/e2-candidate trees. Actual build and all executed commands use the named frozen campaign trees. Those stale lines are not relabelled as this campaign identity. Machine/toolchain/protocol lines remain separately supported.",
+      "runtime_attestation_sha256": "593e824f174b12906ddc4f38b69457fce3bfda6a844dffe82fe29ff4baf29dd4",
+      "source_chain_attestation_sha256": "bd61d4fa9e398f63939397ecc76e0a1b8d3dd5b2a9cba45638e3dff813c5946b",
+      "collection_attestation_at": "2026-10-21T17:26:03.895532+00:00",
+      "first_arm_stderr_birth_epoch_seconds": 1792600762,
+      "before_or_during_execution_evidence": [
+        "Pinned source bundle and original staging/runner commands",
+        "Builder checks exact HEAD and clean tracked tree before each locked profiling build",
+        "Original build output records checkout/build paths",
+        "Every Valgrind stderr records actual executed path and arguments",
+        "Fresh input/module hashes are timestamped separately"
+      ],
+      "collection_time_evidence": [
+        "Frozen actual binaries with matching hashes and source/status files",
+        "Fresh actual HEAD/status/binary attestation",
+        "Actual executable and all tracked source ctime/mtime precede first-arm stderr creation"
+      ],
+      "no_rebuild_or_source_mutation_check": "Archived runner builds before the measurement loop and contains no subsequent build/source mutation. Collection-time filesystem timestamps are earlier than the first arm for actual binaries and all tracked source; actual hashes and clean HEADs match frozen artifacts. This is controlled-chain evidence, not a continuous filesystem or adversarial tamper audit.",
+      "executed_paths_verified": 28
+    }
+  },
+  "results": {
+    "single_worker_rows": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2795567570,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "741996f6075b2458001a594ff317d928ca3f109818fb698aa7e3697de67568d4"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2801706863,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "1feeb0d7c2e07110e667a37a3b46544c72abe819ee908f8119f6ec9e3dcfa09b"
+          }
+        },
+        "instruction_delta_pct": 0.21960810627088545,
+        "identical_counts": true
+      },
+      {
+        "model": "MCbtree",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 16453290184,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "ef74a6f653b6ad20ea118f31987cf6443623597768a4881ecaa13bca3e022584"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 16541468793,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "27633edd365e891350e2c9d948784650c71a31eccb861a4e985bfa2da6530160"
+          }
+        },
+        "instruction_delta_pct": 0.5359329837004267,
+        "identical_counts": true
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1224201258,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "5bc7e363b86df4b26b4000e62ab91341f5af369b7d20214fd10d5d4a7e1a7dd5"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1224795925,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "229751e8249cd847fab0c84bab5ca9042c36cd627c0a62c61fbecef4a5983e4c"
+          }
+        },
+        "instruction_delta_pct": 0.048575918061999346,
+        "identical_counts": true
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 47270600447,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "e2761fd9dfefb4de270f8fd118d99df04969e39fe881b479fbe49f9c31b237fb"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 47446909119,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "b0c502258f65cfaeb352feacd76b7825e78ffea9c93d87c4bc4824258a6b1a45"
+          }
+        },
+        "instruction_delta_pct": 0.37297743276538675,
+        "identical_counts": true
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2876387202,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "dae01ffbaf6f849841395727ce4e0e2b782d7e6fa344bfcef4034f54c0098538"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2880774101,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "db75a792330b7857081b8c9bddba269eb815c58f398a80941fea88d0fe8b25f0"
+          }
+        },
+        "instruction_delta_pct": 0.15251420243247438,
+        "identical_counts": true
+      },
+      {
+        "model": "MCbtree",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 18635701670,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": true,
+            "report_sha256": "f33949ae2c50e5f777fdc75c78cc729583381a03ae9a9f9ca7d6c9d167ca61a1"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 18699852392,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": true,
+            "report_sha256": "8c50e5f5dc84c1aedcc08f9dcaf63e9fb431079244a22cabd71090f8d96945f7"
+          }
+        },
+        "instruction_delta_pct": 0.3442356136408309,
+        "identical_counts": true
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1179983473,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "a092e0ad662a7fa4101c6b4c1b95a8b1c0b2a895faafc3914639e40a756b4531"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1180568728,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "18c0808965fc5b4e83e26ab7a8d297987edaac06316f2a54dd958605a0ec34e7"
+          }
+        },
+        "instruction_delta_pct": 0.049598576030218666,
+        "identical_counts": true
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 48183868112,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "41dfe4263197597b1f9e094a26e86a81bb051745080b0614e609ad36b1dd9f16"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 48336858417,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "002bfe98cbbc206a88539d1dedfea80ae0767720c677cc6f7e8ca017f475d8ad"
+          }
+        },
+        "instruction_delta_pct": 0.3175135392708306,
+        "identical_counts": true
+      }
+    ],
+    "eight_worker_rows": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "instrumentation": "callgrind-cache-sim-no",
+        "workers": 8,
+        "pairs": [
+          {
+            "repetition": 1,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2815593676,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "bd0aec0a187fd1730be2103d1d46ae8a219de7323405226573d94f17fd75269c",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2174239823,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2821649543,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "57f256965d4d1b64e8ffa37d299145b184eae7dd51fd1013945b56eb87112cf5",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2048074129,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.21508312977187583
+          },
+          {
+            "repetition": 2,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2816705501,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "236c00ba0f559aa8315be41530e5eb7435823eaca4d21f4911ad14e51d478f84",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2216590006,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2822975171,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "98b30aa9d5b6e9efe8f3d7ccd79701fe9cafe543ae60b0ec9a65caa2abfb23fb",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2143099517,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.22258876541314532
+          },
+          {
+            "repetition": 3,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2815222356,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "63cabd53f921c47ed87b9c5934cc4f6f9892aef80cbb1379c81656afa898a32d",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2132841999,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2822166413,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "2c094f623a71e8c22d4ef9d48ed3e04a7c7b175581e07bc9adeec3b3661224e9",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2146846444,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.24666104917787646
+          }
+        ],
+        "paired_median_instruction_delta_pct": 0.22258876541314532,
+        "arm_instruction_medians": {
+          "base": 2815593676,
+          "candidate": 2822166413
+        },
+        "arm_instruction_spread": {
+          "base": {
+            "min": 2815222356,
+            "max": 2816705501
+          },
+          "candidate": {
+            "min": 2821649543,
+            "max": 2822975171
+          }
+        },
+        "identical_counts": true
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "instrumentation": "callgrind-cache-sim-no",
+        "workers": 8,
+        "pairs": [
+          {
+            "repetition": 1,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2897340115,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "c6db1ec80da1ebcbcee2640946b0d3d8babd464844bfe7e43f170fe01046c0f3",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2122473881,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2903256266,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "fc1604519993d2f0dd15ec3c1e488c0556c698aabcf0c26ffd909a74aec01ba4",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2077319064,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.20419249260281713
+          },
+          {
+            "repetition": 2,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2899663232,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "757f6abcb2385c5aca6ed6c14ed5b65e2b4f81f14ce4a61b3c97468498c9d084",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2066316143,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2903465131,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "99816da69c95fcac779a00e16a557696c4923346726cb02f26c65a4de6c60bb6",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2174890232,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.13111519151751683
+          },
+          {
+            "repetition": 3,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2899259000,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "d4673763a04caf94c164972ab611a36141456853aa8db851f268a2cbe9f635fc",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2156838901,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2902653939,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "90bc6d8949106cee111cd135cddc31eb02d611a5cd85ee19159a087ec5910ed5",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2154478551,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.11709678231575094
+          }
+        ],
+        "paired_median_instruction_delta_pct": 0.13111519151751683,
+        "arm_instruction_medians": {
+          "base": 2899259000,
+          "candidate": 2903256266
+        },
+        "arm_instruction_spread": {
+          "base": {
+            "min": 2897340115,
+            "max": 2899663232
+          },
+          "candidate": {
+            "min": 2902653939,
+            "max": 2903465131
+          }
+        },
+        "identical_counts": true
+      }
+    ],
+    "single_worker_geomean_instruction_delta_pct": 0.2549940983565202,
+    "eight_worker_geomean_paired_median_instruction_delta_pct": 0.1768415376611543,
+    "all_single_worker_cells_at_most_one_percent": true,
+    "both_eight_worker_medians_at_most_one_percent": true,
+    "qualification": "Whole CLI instructions including startup; shared host, no wall-clock claim. Cachegrind and Callgrind totals are not pooled. W8 uses three paired interleaved observations per profile with genuine parallel-path proof; all counts/depth and null optional caps checked."
+  },
+  "independent_validation": {
+    "root_review": {
+      "source": {
+        "base": "ca2d6e96ff6765518f59f9dcd32c8b306fe82eb7",
+        "candidate": "4255be6b8141f7308e3a169638141a04dbe4e7af"
+      },
+      "base_binary_sha256": "902312a61d78dcae8fe7ad0a5504130a38ebffc86202644a8eb12d7e544ded0d",
+      "candidate_binary_sha256": "85e34032f164e2900c6b7bfe1dfccdc868cca3478a81ee60d6fd84d490319b2d",
+      "original_provenance_block_invalid_and_preserved": true,
+      "identity_qualification": "Archived runner builds before the measurement loop and contains no subsequent build/source mutation. Collection-time filesystem timestamps are earlier than the first arm for actual binaries and all tracked source; actual hashes and clean HEADs match frozen artifacts. This is controlled-chain evidence, not a continuous filesystem or adversarial tamper audit.",
+      "all28_raw_arms_independently_verified": [
+        {
+          "tag": "base-SimpleRegular-dive-w1",
+          "instructions": 2795567570,
+          "report_sha256": "741996f6075b2458001a594ff317d928ca3f109818fb698aa7e3697de67568d4",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-SimpleRegular-dive-w1",
+          "instructions": 2801706863,
+          "report_sha256": "1feeb0d7c2e07110e667a37a3b46544c72abe819ee908f8119f6ec9e3dcfa09b",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-MCbtree-dive-w1",
+          "instructions": 16453290184,
+          "report_sha256": "ef74a6f653b6ad20ea118f31987cf6443623597768a4881ecaa13bca3e022584",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-MCbtree-dive-w1",
+          "instructions": 16541468793,
+          "report_sha256": "27633edd365e891350e2c9d948784650c71a31eccb861a4e985bfa2da6530160",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-GameOfLife-dive-w1",
+          "instructions": 1224201258,
+          "report_sha256": "5bc7e363b86df4b26b4000e62ab91341f5af369b7d20214fd10d5d4a7e1a7dd5",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-GameOfLife-dive-w1",
+          "instructions": 1224795925,
+          "report_sha256": "229751e8249cd847fab0c84bab5ca9042c36cd627c0a62c61fbecef4a5983e4c",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-EWD998PCal-dive-w1",
+          "instructions": 47270600447,
+          "report_sha256": "e2761fd9dfefb4de270f8fd118d99df04969e39fe881b479fbe49f9c31b237fb",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-EWD998PCal-dive-w1",
+          "instructions": 47446909119,
+          "report_sha256": "b0c502258f65cfaeb352feacd76b7825e78ffea9c93d87c4bc4824258a6b1a45",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-SimpleRegular-tlc-w1",
+          "instructions": 2876387202,
+          "report_sha256": "dae01ffbaf6f849841395727ce4e0e2b782d7e6fa344bfcef4034f54c0098538",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-SimpleRegular-tlc-w1",
+          "instructions": 2880774101,
+          "report_sha256": "db75a792330b7857081b8c9bddba269eb815c58f398a80941fea88d0fe8b25f0",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-MCbtree-tlc-w1",
+          "instructions": 18635701670,
+          "report_sha256": "f33949ae2c50e5f777fdc75c78cc729583381a03ae9a9f9ca7d6c9d167ca61a1",
+          "used_workers": 1,
+          "sequential": true
+        },
+        {
+          "tag": "candidate-MCbtree-tlc-w1",
+          "instructions": 18699852392,
+          "report_sha256": "8c50e5f5dc84c1aedcc08f9dcaf63e9fb431079244a22cabd71090f8d96945f7",
+          "used_workers": 1,
+          "sequential": true
+        },
+        {
+          "tag": "base-GameOfLife-tlc-w1",
+          "instructions": 1179983473,
+          "report_sha256": "a092e0ad662a7fa4101c6b4c1b95a8b1c0b2a895faafc3914639e40a756b4531",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-GameOfLife-tlc-w1",
+          "instructions": 1180568728,
+          "report_sha256": "18c0808965fc5b4e83e26ab7a8d297987edaac06316f2a54dd958605a0ec34e7",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-EWD998PCal-tlc-w1",
+          "instructions": 48183868112,
+          "report_sha256": "41dfe4263197597b1f9e094a26e86a81bb051745080b0614e609ad36b1dd9f16",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "candidate-EWD998PCal-tlc-w1",
+          "instructions": 48336858417,
+          "report_sha256": "002bfe98cbbc206a88539d1dedfea80ae0767720c677cc6f7e8ca017f475d8ad",
+          "used_workers": 1,
+          "sequential": false
+        },
+        {
+          "tag": "base-SimpleRegular-dive-w8-r1",
+          "instructions": 2815593676,
+          "report_sha256": "bd0aec0a187fd1730be2103d1d46ae8a219de7323405226573d94f17fd75269c",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1078203906
+        },
+        {
+          "tag": "candidate-SimpleRegular-dive-w8-r1",
+          "instructions": 2821649543,
+          "report_sha256": "57f256965d4d1b64e8ffa37d299145b184eae7dd51fd1013945b56eb87112cf5",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 948458845
+        },
+        {
+          "tag": "base-SimpleRegular-dive-w8-r2",
+          "instructions": 2816705501,
+          "report_sha256": "236c00ba0f559aa8315be41530e5eb7435823eaca4d21f4911ad14e51d478f84",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1120718379
+        },
+        {
+          "tag": "candidate-SimpleRegular-dive-w8-r2",
+          "instructions": 2822975171,
+          "report_sha256": "98b30aa9d5b6e9efe8f3d7ccd79701fe9cafe543ae60b0ec9a65caa2abfb23fb",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1041917719
+        },
+        {
+          "tag": "base-SimpleRegular-dive-w8-r3",
+          "instructions": 2815222356,
+          "report_sha256": "63cabd53f921c47ed87b9c5934cc4f6f9892aef80cbb1379c81656afa898a32d",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1037257633
+        },
+        {
+          "tag": "candidate-SimpleRegular-dive-w8-r3",
+          "instructions": 2822166413,
+          "report_sha256": "2c094f623a71e8c22d4ef9d48ed3e04a7c7b175581e07bc9adeec3b3661224e9",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1047088693
+        },
+        {
+          "tag": "base-SimpleRegular-tlc-w8-r1",
+          "instructions": 2897340115,
+          "report_sha256": "c6db1ec80da1ebcbcee2640946b0d3d8babd464844bfe7e43f170fe01046c0f3",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1048961858
+        },
+        {
+          "tag": "candidate-SimpleRegular-tlc-w8-r1",
+          "instructions": 2903256266,
+          "report_sha256": "fc1604519993d2f0dd15ec3c1e488c0556c698aabcf0c26ffd909a74aec01ba4",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1002742200
+        },
+        {
+          "tag": "base-SimpleRegular-tlc-w8-r2",
+          "instructions": 2899663232,
+          "report_sha256": "757f6abcb2385c5aca6ed6c14ed5b65e2b4f81f14ce4a61b3c97468498c9d084",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 993826422
+        },
+        {
+          "tag": "candidate-SimpleRegular-tlc-w8-r2",
+          "instructions": 2903465131,
+          "report_sha256": "99816da69c95fcac779a00e16a557696c4923346726cb02f26c65a4de6c60bb6",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1100012591
+        },
+        {
+          "tag": "base-SimpleRegular-tlc-w8-r3",
+          "instructions": 2899259000,
+          "report_sha256": "d4673763a04caf94c164972ab611a36141456853aa8db851f268a2cbe9f635fc",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1084251517
+        },
+        {
+          "tag": "candidate-SimpleRegular-tlc-w8-r3",
+          "instructions": 2902653939,
+          "report_sha256": "90bc6d8949106cee111cd135cddc31eb02d611a5cd85ee19159a087ec5910ed5",
+          "used_workers": 8,
+          "sequential": false,
+          "exact_parallel_function_calls": 19,
+          "exact_parallel_function_inclusive_Ir": 1079265934
+        }
+      ],
+      "w1_geomean_instruction_delta_pct": 0.2549940983565202,
+      "w8_paired_median_instruction_delta_pct": {
+        "dive": 0.22258876541314532,
+        "tlc": 0.13111519151751683
+      },
+      "all_w1_cells_and_w8_pairs_at_most_one_percent": true,
+      "no_quiet_wall_clock_or_throughput_claim": true
+    },
+    "independent_second_review": {
+      "raw_arms_checked": 28,
+      "all_counts_depth_exits_commands_budgets_and_actual_workers_match": true,
+      "all_eight_worker_arms_have_nonzero_parallel_commit_sources": true,
+      "original_incorrect_provenance_retained": true,
+      "qualification": "A second independent audit recomputed the same deltas and checked frozen identities. Corrected metadata was collected afterward, not before execution; ordinary filesystem continuity is not continuous or adversarial auditing."
+    }
+  },
+  "source_transfer": {
+    "measured_runtime_candidate": "4255be6b8141f7308e3a169638141a04dbe4e7af",
+    "qualified_test_source": "1338630bfe652b2d1e6b217b07fe41118686ec82",
+    "test_only_parent_correction": "ca2d6e96ff6765518f59f9dcd32c8b306fe82eb7 to 4e660058a13692613b2dff4b777902685d99dd20",
+    "qualification": "Measured runtime/build/harness/corpus inputs are byte-identical; only nine inherited memory-observation comparison test paths changed. The old aborted gate is not credited.",
+    "test_delta_sha256": "ee07c624d52776d21e5f2bccce2dd3a84fed904a3ebd29d1fb0af7fa271e96cb"
+  },
+  "full_gate": {
+    "source": "1338630bfe652b2d1e6b217b07fe41118686ec82",
+    "passed": true,
+    "whole_suite_passed": 2154,
+    "whole_suite_skipped": 0,
+    "duration": "35m21s",
+    "report_sha256": "1eff22372826dfba94f4acbb47841da3aa3a5e85dcb0bb6efdbc7a75c3e60909",
+    "archive_sha256": "4021a10560599663d301d1253e4d12be9982800472178c827c1d95d9236683e3",
+    "small_tlc_agree": 147,
+    "small_default_agree": 142,
+    "expected_default_divergences": 5,
+    "unsupported_each_profile": 9,
+    "sany_agree": 458,
+    "disagreements_timeouts_pending_regressions": 0,
+    "cm1_and_validation_smoke_workers": [
+      1,
+      4,
+      8
+    ]
+  },
+  "semantic_controls": {
+    "typed_authority": "Only matching armed-budget identity plus an actual exhausted or unavailable measurement repoll can become stopped or DIVE-R0002; foreign, stale, duplicate and unexhausted interruption payloads fail closed.",
+    "owner_and_workers": "Scoped controls are thread-owned and restore prior registrations; worker capabilities remain active during owner-only diagnostic reconstruction.",
+    "catch_boundaries": "BagIn, Copies, AntiFunction, default enumerated membership and provider conversion preserve typed non-evaluation errors rather than swallowing interruption.",
+    "quiet_operations": "Existing infallible equality/ordering/hash normalization units defer interruption. They must not poison deferred-set equality or structural hash caches with partial false results.",
+    "diagnostic_precedence": "A genuine deciding invariant/error keeps its existing reconstruction priority, while ordinary predicate evaluation remains controlled.",
+    "remaining_gaps": [
+      "binding and ASSUME",
+      "value-only bulk allocation, sorting and native work",
+      "quiet equality, ordering and hash units",
+      "diagnostic count/error and predecessor replay after a deciding event",
+      "fresh independent certification, addressed separately",
+      "DFID and simulation budgets, tracked separately"
+    ],
+    "no_limit_removal": true,
+    "no_new_corpus_agreement_claim": true
+  },
+  "bounded_native_control": {
+    "source": "4255be6b8141f7308e3a169638141a04dbe4e7af",
+    "source_tree": "e47ab3f7929eec034d8bb041680a4cfafc73b1b5",
+    "binary_sha256": "731e261a3879694f423376162fb2d08748f166030eaba1029d7a1fc45b3bae27",
+    "build": "dev unoptimized+debuginfo, jobs2",
+    "machine": {
+      "os": "Darwin25.5.0",
+      "cpu": "Apple M3",
+      "architecture": "arm64",
+      "ram_bytes": 25769803776,
+      "rustc": "1.99.0 b940084d7"
+    },
+    "model": "examples:specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg",
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "workers": 1,
+    "seed": 0,
+    "fingerprint_polynomial_index": 0,
+    "lncheck": "final",
+    "lasso": "short",
+    "time_limit_ms": 3000,
+    "max_memory_bytes": 4294967296,
+    "qualification": "Shared-host functional stop controls, not agreement, throughput, true-peak or quiet-wall-clock observations. Stopped.elapsed_ms and outer report elapsed_ms are distinct observed fields.",
+    "rows": [
+      {
+        "profile": "tlc",
+        "wall_seconds": 3.554,
+        "exit_code": 5,
+        "external_stop": false,
+        "statistics": {
+          "depth": 4,
+          "distinct": 154,
+          "exhaustive": false,
+          "generated": 550,
+          "initial_generated": 4,
+          "left_on_queue": 92,
+          "reported_by_tlc": false
+        },
+        "report_elapsed_ms": 3027,
+        "stopped": {
+          "elapsed_ms": 3026,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 3000,
+          "observed": 3022,
+          "phase": "graph-capture",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "execution": {
+          "capture_completed": false,
+          "stage": "capture"
+        },
+        "raw_report_sha256": "9cec3cc0d14f571553629501c46e1da011817ca3344a681eb5895443df7b68c0"
+      },
+      {
+        "profile": "dive",
+        "wall_seconds": 3.078,
+        "exit_code": 5,
+        "external_stop": false,
+        "statistics": {
+          "depth": 4,
+          "distinct": 137,
+          "exhaustive": false,
+          "generated": 494,
+          "initial_generated": 4,
+          "left_on_queue": 82,
+          "reported_by_tlc": false
+        },
+        "report_elapsed_ms": 3050,
+        "stopped": {
+          "elapsed_ms": 3048,
+          "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+          "limit": 3000,
+          "observed": 3048,
+          "phase": "graph-capture",
+          "resource": "time",
+          "unit": "ms"
+        },
+        "execution": {
+          "capture_completed": false,
+          "stage": "capture"
+        },
+        "raw_report_sha256": "dc686736df2411455a869d376cf840d2c7653841e389b6deb14195ab9b56469c"
+      }
+    ]
+  }
+}

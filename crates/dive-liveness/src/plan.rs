@@ -300,7 +300,7 @@ impl Lower<'_> {
                 }
                 let scope = ev
                     .scope_enter(scope, def)
-                    .map_err(|error| self.refused(expr, error.to_string()))?;
+                    .map_err(|error| self.refused_evaluation(expr, error, ""))?;
                 Ok(Some(Pred::new(target.body, scope)))
             }
             None => Err(self.refused(expr, "unbound predicate constant")),
@@ -370,11 +370,24 @@ impl Lower<'_> {
                     v.kind_name()
                 ),
             )),
-            Err(error) if error.class() == ErrorClass::Eval => Err(PlanningError::Evaluation {
+            Err(error) if matches!(error.class(), ErrorClass::Eval | ErrorClass::Interrupted) => {
+                Err(PlanningError::Evaluation {
+                    error,
+                    source: Box::new(Source::new(self.model, expr)),
+                })
+            }
+            Err(e) => Err(self.refused(expr, format!("constant temporal operand: {e}"))),
+        }
+    }
+
+    fn refused_evaluation(&self, expr: ExprId, error: EvalError, context: &str) -> PlanningError {
+        if error.class() == ErrorClass::Interrupted {
+            PlanningError::Evaluation {
                 error,
                 source: Box::new(Source::new(self.model, expr)),
-            }),
-            Err(e) => Err(self.refused(expr, format!("constant temporal operand: {e}"))),
+            }
+        } else {
+            self.refused(expr, format!("{context}{error}"))
         }
     }
 
@@ -452,18 +465,22 @@ impl Lower<'_> {
                     Err(e) if e.is_analysis_only() => {
                         return ev
                             .scope_apply(scope, def, args)
-                            .map_err(|e| self.refused(expr, e.to_string()));
+                            .map_err(|e| self.refused_evaluation(expr, e, ""));
                     }
                     Err(e) => {
-                        return Err(self.refused(*arg, format!("constant temporal argument: {e}")));
+                        return Err(self.refused_evaluation(
+                            *arg,
+                            e,
+                            "constant temporal argument: ",
+                        ));
                     }
                 }
             }
             ev.scope_call_values(scope, def, values)
-                .map_err(|e| self.refused(expr, e.to_string()))
+                .map_err(|e| self.refused_evaluation(expr, e, ""))
         } else {
             ev.scope_apply(scope, def, args)
-                .map_err(|e| self.refused(expr, e.to_string()))
+                .map_err(|e| self.refused_evaluation(expr, e, ""))
         }
     }
 
@@ -490,7 +507,7 @@ impl Lower<'_> {
         ev.validate_model_context(&self.model.ir, &self.model.names)
             .map_err(|e| self.refused(expr, e.to_string()))?;
         ev.validate_predicate(scope, expr)
-            .map_err(|e| self.refused(expr, e.to_string()))?;
+            .map_err(|e| self.refused_evaluation(expr, e, ""))?;
         let Some(ConstBinding::Def(def)) = ev.constant_binding(constant) else {
             return Err(self.refused(expr, "unbound/value-bound predicate operator"));
         };
@@ -516,7 +533,7 @@ impl Lower<'_> {
         }
         let called = ev
             .scope_apply(scope, def, args)
-            .map_err(|e| self.refused(expr, e.to_string()))?;
+            .map_err(|e| self.refused_evaluation(expr, e, ""))?;
         for arg in args {
             let Arg::Expr { expr: actual, .. } = arg else {
                 return Err(self.refused(expr, "higher-order configured predicate argument"));
@@ -546,7 +563,7 @@ impl Lower<'_> {
                 .scope_native_operator_analysis(scope, operator, &mut remaining);
         self.steps = self.limits.expansion_steps - remaining;
         let (def, analysis) = if native
-            .map_err(|e| self.refused(expr, e.to_string()))?
+            .map_err(|e| self.refused_evaluation(expr, e, ""))?
             .is_some()
         {
             (None, scope.clone())
@@ -555,7 +572,7 @@ impl Lower<'_> {
                 .model
                 .evaluator
                 .scope_operator_analysis(scope, operator)
-                .map_err(|e| self.refused(expr, e.to_string()))?
+                .map_err(|e| self.refused_evaluation(expr, e, ""))?
                 .ok_or_else(|| {
                     self.refused(expr, "opaque/recursive/higher-order operator capture")
                 })?;
@@ -568,7 +585,7 @@ impl Lower<'_> {
             .scope_operator_captures(&analysis, &mut remaining);
         self.steps = self.limits.expansion_steps - remaining;
         let captures = captures
-            .map_err(|e| self.refused(expr, e.to_string()))?
+            .map_err(|e| self.refused_evaluation(expr, e, ""))?
             .ok_or_else(|| self.refused(expr, "opaque captured operator context"))?;
         for (body, captured) in captures {
             self.forwarded_context(body, &captured, depth + 1)?;
@@ -596,7 +613,7 @@ impl Lower<'_> {
             &mut remaining,
         );
         self.steps = self.limits.expansion_steps - remaining;
-        let Some(native) = native.map_err(|e| self.refused(expr, e.to_string()))? else {
+        let Some(native) = native.map_err(|e| self.refused_evaluation(expr, e, ""))? else {
             return Ok(None);
         };
         if i32::try_from(args.len()).ok() != Some(native.java_arity()) {
@@ -637,7 +654,7 @@ impl Lower<'_> {
             .evaluator
             .scope_apply_param(scope, local, args)
             .ok_or_else(|| self.refused(expr, "opaque operator parameter"))?
-            .map_err(|e| self.refused(expr, e.to_string()))
+            .map_err(|e| self.refused_evaluation(expr, e, ""))
     }
 
     fn forwarded_context(
@@ -705,7 +722,7 @@ impl Lower<'_> {
                 },
                 Expr::SubstRef { decl, primed } => match ev
                     .scope_substitution(&sc, *decl, &St::constant(), *primed)
-                    .map_err(|error| self.refused(e, error.to_string()))?
+                    .map_err(|error| self.refused_evaluation(e, error, ""))?
                 {
                     Some(
                         SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
@@ -726,7 +743,7 @@ impl Lower<'_> {
                     todo.push((
                         *body,
                         ev.scope_let(&sc, e)
-                            .map_err(|err| self.refused(e, err.to_string()))?,
+                            .map_err(|err| self.refused_evaluation(e, err, ""))?,
                         depth + 1,
                     ));
                     continue;
@@ -735,7 +752,7 @@ impl Lower<'_> {
                     todo.push((
                         *body,
                         ev.scope_subst(&sc, e)
-                            .map_err(|err| self.refused(e, err.to_string()))?,
+                            .map_err(|err| self.refused_evaluation(e, err, ""))?,
                         depth + 1,
                     ));
                     continue;
@@ -746,7 +763,7 @@ impl Lower<'_> {
                 | Expr::SetFilter { pred: body, .. } => {
                     let inner = ev
                         .scope_binder_analysis(&sc, e)
-                        .map_err(|err| self.refused(e, err.to_string()))?;
+                        .map_err(|err| self.refused_evaluation(e, err, ""))?;
                     for c in n.expr.children() {
                         todo.push((
                             c,
@@ -797,7 +814,7 @@ impl Lower<'_> {
                             todo.push((
                                 def.body,
                                 ev.scope_apply(&sc, d, args)
-                                    .map_err(|err| self.refused(e, err.to_string()))?,
+                                    .map_err(|err| self.refused_evaluation(e, err, ""))?,
                                 depth + 1,
                             ));
                             continue;
@@ -946,13 +963,13 @@ impl Lower<'_> {
             Expr::Subst { body, .. } => {
                 let sc = ev
                     .scope_subst(scope, expr)
-                    .map_err(|e| self.refused(expr, e.to_string()))?;
+                    .map_err(|e| self.refused_evaluation(expr, e, ""))?;
                 return self.scoped_level_mode(*body, &sc, depth + 1, query_state);
             }
             Expr::SubstRef { decl, primed } => {
                 let level = match ev
                     .scope_substitution(scope, *decl, &St::constant(), *primed)
-                    .map_err(|error| self.refused(expr, error.to_string()))?
+                    .map_err(|error| self.refused_evaluation(expr, error, ""))?
                 {
                     Some(SlotView::Value(_) | SlotView::AnalysisConstant) => Level::Constant,
                     Some(SlotView::AnalysisBound) => Level::State,
@@ -977,7 +994,7 @@ impl Lower<'_> {
             Expr::Let { body, .. } => {
                 let sc = ev
                     .scope_let(scope, expr)
-                    .map_err(|e| self.refused(expr, e.to_string()))?;
+                    .map_err(|e| self.refused_evaluation(expr, e, ""))?;
                 return self.scoped_level_mode(*body, &sc, depth + 1, query_state);
             }
             Expr::Local(r) => {
@@ -1057,7 +1074,7 @@ impl Lower<'_> {
             let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
             if let Some((sequence, bodies)) = ev
                 .scope_selectseq_call(scope, callee, args, &mut work)
-                .map_err(|error| self.refused(expr, error.to_string()))?
+                .map_err(|error| self.refused_evaluation(expr, error, ""))?
             {
                 self.steps = self.limits.expansion_steps - work;
                 let mut level = node.level.max(self.scoped_level_mode(
@@ -1125,7 +1142,7 @@ impl Lower<'_> {
                 .evaluator
                 .scope_constant_binder_analysis(scope, expr)
                 .map(|sc| (vec![sc], domain_level))
-                .map_err(|e| self.refused(expr, e.to_string()));
+                .map_err(|e| self.refused_evaluation(expr, e, ""));
         }
         if matches!(self.model.ir.expr(expr), Expr::RecFcn { .. }) {
             domain_level = domain_level.max(Level::State);
@@ -1135,7 +1152,7 @@ impl Lower<'_> {
                 .model
                 .evaluator
                 .scope_binder_analysis(scope, expr)
-                .map_err(|e| self.refused(expr, e.to_string()))?;
+                .map_err(|e| self.refused_evaluation(expr, e, ""))?;
             if self.scoped_level(*body, &analysis, depth + 1)? > Level::State {
                 return Err(self.refused(expr, "action/temporal recursive function capture"));
             }
@@ -1144,7 +1161,7 @@ impl Lower<'_> {
             .evaluator
             .scope_binder_analysis(scope, expr)
             .map(|sc| (vec![sc], domain_level))
-            .map_err(|e| self.refused(expr, e.to_string()))
+            .map_err(|e| self.refused_evaluation(expr, e, ""))
     }
 
     fn finite_scopes(
@@ -1193,7 +1210,7 @@ impl Lower<'_> {
                         FormulaError::Limit("temporal quantifier expansion storage"),
                     )
                 } else {
-                    self.refused(expr, format!("temporal quantifier bindings: {e}"))
+                    self.refused_evaluation(expr, e, "temporal quantifier bindings: ")
                 }
             })
     }
@@ -1309,7 +1326,7 @@ impl Lower<'_> {
                 Expr::Let { body, .. } => {
                     let sc = ev
                         .scope_let(&scope, e)
-                        .map_err(|error| self.refused(e, error.to_string()))?;
+                        .map_err(|error| self.refused_evaluation(e, error, ""))?;
                     todo.push((*body, sc, depth + 1, query_allowed, inside_query));
                     continue;
                 }
@@ -1320,7 +1337,7 @@ impl Lower<'_> {
                     if inspect_only {
                         let sc = ev
                             .scope_binder_analysis(&scope, e)
-                            .map_err(|error| self.refused(e, error.to_string()))?;
+                            .map_err(|error| self.refused_evaluation(e, error, ""))?;
                         todo.extend(n.expr.children().into_iter().map(|child| {
                             (
                                 child,
@@ -1394,13 +1411,13 @@ impl Lower<'_> {
                     }
                     let sc = ev
                         .scope_subst(&scope, e)
-                        .map_err(|error| self.refused(e, error.to_string()))?;
+                        .map_err(|error| self.refused_evaluation(e, error, ""))?;
                     todo.push((*body, sc, depth + 1, false, inside_query));
                     continue;
                 }
                 Expr::SubstRef { decl, primed } => match ev
                     .scope_substitution(&scope, *decl, &St::constant(), *primed)
-                    .map_err(|error| self.refused(e, error.to_string()))?
+                    .map_err(|error| self.refused_evaluation(e, error, ""))?
                 {
                     Some(
                         SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
@@ -1462,7 +1479,7 @@ impl Lower<'_> {
                                     Arg::Op { .. } => None,
                                 }));
                                 ev.scope_apply(&scope, d, args)
-                                    .map_err(|error| self.refused(e, error.to_string()))?
+                                    .map_err(|error| self.refused_evaluation(e, error, ""))?
                             } else if leaf {
                                 // A state-level recursive operator is an
                                 // evaluation leaf; only its actuals are checked.
@@ -1534,7 +1551,7 @@ impl Lower<'_> {
                     let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
                     let (sequence, bodies) = ev
                         .scope_selectseq_call(&scope, &op, args, &mut work)
-                        .map_err(|error| self.refused(e, error.to_string()))?
+                        .map_err(|error| self.refused_evaluation(e, error, ""))?
                         .ok_or_else(|| self.refused(e, "SelectSeq callback context/level"))?;
                     self.steps = self.limits.expansion_steps - work;
                     for (body, captured) in bodies {
@@ -1602,7 +1619,7 @@ impl Lower<'_> {
         if let Expr::Subst { body, .. } = &node.expr {
             let sc = ev
                 .scope_subst(scope, expr)
-                .map_err(|e| self.refused(expr, e.to_string()))?;
+                .map_err(|e| self.refused_evaluation(expr, e, ""))?;
             return self.expr(*body, &sc, depth + 1);
         }
         if let Expr::SubstRef {
@@ -1616,7 +1633,7 @@ impl Lower<'_> {
         if let Expr::Let { body, .. } = &node.expr {
             let sc = ev
                 .scope_let(scope, expr)
-                .map_err(|e| self.refused(expr, e.to_string()))?;
+                .map_err(|e| self.refused_evaluation(expr, e, ""))?;
             return self.expr(*body, &sc, depth + 1);
         }
         if let Expr::Local(r) = &node.expr
@@ -1687,7 +1704,7 @@ impl Lower<'_> {
                         return self.expr(if chosen { *then } else { *other }, scope, depth + 1);
                     }
                     Err(error) if error.class() != ErrorClass::Eval => {
-                        return Err(self.refused(*cond, format!("conditional guard: {error}")));
+                        return Err(self.refused_evaluation(*cond, error, "conditional guard: "));
                     }
                     _ => {}
                 }
@@ -1808,7 +1825,7 @@ impl Lower<'_> {
                 }
                 let sc = ev
                     .scope_enter(scope, d)
-                    .map_err(|e| self.refused(expr, e.to_string()))?;
+                    .map_err(|e| self.refused_evaluation(expr, e, ""))?;
                 return self.expr(ir.def(d).body, &sc, depth);
             }
             Expr::Selected(c) | Expr::Label { body: c, .. } => return self.expr(*c, scope, depth),

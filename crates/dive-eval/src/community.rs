@@ -610,7 +610,7 @@ impl Core {
         for (d, c) in f.iter() {
             let eq = match self.equals(x, &d) {
                 Ok(eq) => eq,
-                Err(err) if known => return Err(err),
+                Err(err) if known || !err.is_eval() => return Err(err),
                 Err(_) => {
                     return Err(refuse_case(
                         op,
@@ -1213,7 +1213,10 @@ impl Core {
                 }
             }
         });
-        if failed.is_some() {
+        if let Some(error) = failed {
+            if !error.is_eval() {
+                return Err(error);
+            }
             return Err(refuse_case(
                 op,
                 "values TLC cannot compare (TLC's error depends on its sort's order of comparisons)",

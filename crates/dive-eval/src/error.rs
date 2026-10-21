@@ -198,6 +198,9 @@ impl Ec {
 /// What kind of failure an [`EvalError`] is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ErrorClass {
+    /// A cooperative host interruption, classified by the driver, never a
+    /// specification failure or an arbitrary resource refusal.
+    Interrupted,
     /// An evaluation error that TLC raises in the same situation, with TLC's
     /// code and message.
     Eval,
@@ -224,6 +227,7 @@ struct Inner {
     /// Static-analysis binders are not runtime values. Keep this typed so an
     /// unrelated refusal with the same text can never authorize lazy retry.
     analysis_only: bool,
+    interruption: Option<crate::host::Interrupted>,
 }
 
 const ANALYSIS_ONLY: &str = "analysis-only binder has no runtime value";
@@ -242,6 +246,7 @@ impl EvalError {
             origin: None,
             eval_exception,
             analysis_only: false,
+            interruption: None,
         }))
     }
 
@@ -288,6 +293,25 @@ impl EvalError {
     #[must_use]
     pub fn is_analysis_only(&self) -> bool {
         self.0.analysis_only
+    }
+
+    /// Cooperative host control flow. The driver retains the stop evidence.
+    #[must_use]
+    pub fn interrupted(interruption: crate::host::Interrupted) -> Self {
+        let mut error = Self::make(
+            ErrorClass::Interrupted,
+            Ec::General,
+            "host interrupted evaluation".into(),
+            false,
+        );
+        error.0.interruption = Some(interruption);
+        error
+    }
+
+    /// The typed host interruption, including its opaque driver identity.
+    #[must_use]
+    pub fn interruption(&self) -> Option<crate::host::Interrupted> {
+        self.0.interruption
     }
 
     /// A resource limit.
@@ -390,6 +414,7 @@ impl fmt::Display for EvalError {
                 self.0.ec.code(),
                 self.0.message
             ),
+            ErrorClass::Interrupted => write!(f, "evaluation interrupted by its host"),
             ErrorClass::Unsupported => write!(f, "unsupported: {}", self.0.message),
             ErrorClass::ResourceLimit => write!(f, "resource limit: {}", self.0.message),
             ErrorClass::Bug => write!(f, "internal error: {}", self.0.message),
@@ -399,48 +424,111 @@ impl fmt::Display for EvalError {
 
 impl std::error::Error for EvalError {}
 
+#[derive(Debug)]
+struct Stashed {
+    receipt: Option<u32>,
+    error: EvalError,
+}
+
 thread_local! {
-    /// An evaluation error raised inside a lazy set while `dive-value` was
-    /// enumerating it or testing membership, waiting to be recovered when the
-    /// value layer hands the error back.
-    static STASH: std::cell::RefCell<Option<EvalError>> = const { std::cell::RefCell::new(None) };
+    /// A deferred provider's error, recovered only by the matching transport.
+    static STASH: std::cell::RefCell<Option<Stashed>> = const { std::cell::RefCell::new(None) };
+}
+
+// Process uniqueness is necessary: a ValueError can cross a worker boundary.
+// Zero marks exhausted identity space, never a receipt. Only interruption takes
+// this cold path; successful evaluation and ordinary errors do not touch it.
+static NEXT_RECEIPT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
+
+fn receipt(counter: &std::sync::atomic::AtomicU32) -> Option<u32> {
+    use std::sync::atomic::Ordering;
+    counter
+        .try_update(Ordering::Relaxed, Ordering::Relaxed, |next| {
+            (next != 0).then(|| next.checked_add(1).unwrap_or(0))
+        })
+        .ok()
 }
 
 /// Passes an evaluation error through `dive-value` (which only knows
 /// [`ValueError`]), so that [`EvalError::from`] can recover it intact.
-pub(crate) fn stash(e: EvalError) -> ValueError {
-    let kind = match (e.class(), e.ec()) {
-        (ErrorClass::Eval, Ec::General) => ErrorKind::NotEnumerable,
-        (ErrorClass::Eval, _) => ErrorKind::Argument,
+pub(crate) fn stash(error: EvalError) -> ValueError {
+    stash_with_counter(error, &NEXT_RECEIPT)
+}
+
+fn stash_with_counter(error: EvalError, counter: &std::sync::atomic::AtomicU32) -> ValueError {
+    let (error, receipt) = if error.class() == ErrorClass::Interrupted {
+        match receipt(counter) {
+            Some(receipt) => (error, Some(receipt)),
+            None => (
+                EvalError::bug("deferred interruption receipt identity space exhausted"),
+                None,
+            ),
+        }
+    } else {
+        (error, None)
+    };
+    let kind = match (error.class(), error.ec(), receipt) {
+        (ErrorClass::Interrupted, _, Some(receipt)) => ErrorKind::Interrupted { receipt },
+        (ErrorClass::Eval, Ec::General, _) => ErrorKind::NotEnumerable,
+        (ErrorClass::Eval, _, _) => ErrorKind::Argument,
         _ => ErrorKind::DiveLimit,
     };
-    let ve = ValueError::new(kind, e.message().to_owned());
-    STASH.with(|s| *s.borrow_mut() = Some(e));
-    ve
+    let value_error = ValueError::new(kind, error.message().to_owned());
+    STASH.with(|stash| *stash.borrow_mut() = Some(Stashed { receipt, error }));
+    value_error
 }
 
 impl From<ValueError> for EvalError {
-    fn from(e: ValueError) -> Self {
-        if let Some(stashed) = STASH.with(|s| s.borrow_mut().take())
-            && stashed.message() == e.message()
+    fn from(error: ValueError) -> Self {
+        if let ErrorKind::Interrupted { receipt } = error.kind() {
+            return STASH
+                .with(|stash| {
+                    let mut stash = stash.borrow_mut();
+                    if stash.as_ref().is_some_and(|pending| {
+                        pending.receipt == Some(receipt)
+                            && pending.error.class() == ErrorClass::Interrupted
+                    }) {
+                        stash.take().map(|pending| pending.error)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or_else(|| {
+                    Self::bug("value-layer interruption has no matching typed evaluator receipt")
+                });
+        }
+        let recovered = STASH.with(|stash| {
+            let mut stash = stash.borrow_mut();
+            // An ordinary value error cannot consume a pending interruption,
+            // even when its text happens to equal the provider's message.
+            if stash
+                .as_ref()
+                .is_some_and(|pending| pending.receipt.is_some())
+            {
+                return None;
+            }
+            stash.take().map(|pending| pending.error)
+        });
+        if let Some(stashed) = recovered
+            && stashed.message() == error.message()
         {
             return stashed;
         }
-        match e.kind() {
-            ErrorKind::DiveLimit => Self::resource_limit(e.message().to_owned()),
+        match error.kind() {
+            ErrorKind::DiveLimit => Self::resource_limit(error.message().to_owned()),
             kind => {
                 let ec = Ec::from_code(kind.tlc_code());
-                // TLC raises the value layer's coded errors as `EvalException`s
-                // (`Naturals`, `Integers`, the `member`/`compareTo` of the module
-                // sets), and its `GENERAL` ones with `Assert.fail`.
-                // The size overflow of a set (`Overflow when computing the
-                // number of elements in: ...`) is an `Assert.fail`, so a Java
-                // override wraps it.
+                // Preserve the existing TLC module/override wrapping contract.
                 let eval_exception = ec != Ec::General
-                    && !e
+                    && !error
                         .message()
                         .starts_with("Overflow when computing the number of elements");
-                Self::make(ErrorClass::Eval, ec, e.message().to_owned(), eval_exception)
+                Self::make(
+                    ErrorClass::Eval,
+                    ec,
+                    error.message().to_owned(),
+                    eval_exception,
+                )
             }
         }
     }
@@ -448,3 +536,61 @@ impl From<ValueError> for EvalError {
 
 /// Result alias for evaluation.
 pub type Result<T, E = EvalError> = std::result::Result<T, E>;
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "typed interruption transport controls")]
+mod interruption_transport {
+    use super::*;
+    use crate::Interrupted;
+
+    #[test]
+    fn stale_receipts_and_ordinary_errors_do_not_consume_another_interruption() {
+        let stale = stash(EvalError::interrupted(Interrupted::new(10)));
+        let current = stash(EvalError::interrupted(Interrupted::new(20)));
+        assert_ne!(stale.kind(), current.kind());
+        assert_eq!(EvalError::from(stale).class(), ErrorClass::Bug);
+        let ordinary = ValueError::new(ErrorKind::Argument, "host interrupted evaluation");
+        assert_eq!(EvalError::from(ordinary).class(), ErrorClass::Eval);
+        let duplicate = current.clone();
+        let recovered = EvalError::from(current);
+        assert_eq!(recovered.interruption(), Some(Interrupted::new(20)));
+        assert_eq!(EvalError::from(duplicate).class(), ErrorClass::Bug);
+    }
+
+    #[test]
+    fn transport_to_another_thread_fails_closed_without_consuming_either_owner() {
+        let original = stash(EvalError::interrupted(Interrupted::new(10)));
+        let moved = original.clone();
+        std::thread::spawn(move || {
+            let local = stash(EvalError::interrupted(Interrupted::new(20)));
+            assert_ne!(moved.kind(), local.kind());
+            assert_eq!(EvalError::from(moved).class(), ErrorClass::Bug);
+            assert_eq!(
+                EvalError::from(local).interruption(),
+                Some(Interrupted::new(20))
+            );
+        })
+        .join()
+        .expect("worker");
+        assert_eq!(
+            EvalError::from(original).interruption(),
+            Some(Interrupted::new(10))
+        );
+    }
+
+    #[test]
+    fn receipt_ids_never_wrap_or_reuse_and_transport_layout_stays_small() {
+        let counter = std::sync::atomic::AtomicU32::new(u32::MAX - 1);
+        assert_eq!(receipt(&counter), Some(u32::MAX - 1));
+        assert_eq!(receipt(&counter), Some(u32::MAX));
+        assert_eq!(receipt(&counter), None);
+        assert_eq!(receipt(&counter), None);
+        let exhausted = stash_with_counter(EvalError::interrupted(Interrupted::new(10)), &counter);
+        assert_eq!(EvalError::from(exhausted).class(), ErrorClass::Bug);
+        #[cfg(target_pointer_width = "64")]
+        {
+            assert_eq!(std::mem::size_of::<ValueError>(), 32);
+            assert_eq!(std::mem::size_of::<ErrorKind>(), 8);
+        }
+    }
+}

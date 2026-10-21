@@ -42,6 +42,10 @@ impl capture::Observer for FreshCaptureThread<'_, '_> {
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "actual capture-thread callback and parent serialization remain one end-to-end control"
+)]
 fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
     let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>(x = TRUE)\n====\n";
     let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
@@ -51,10 +55,16 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
         .expect("config");
     let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
     let limits = Limits::default();
-    let plans = prepare(&model, limits).expect("plans before the budget expires");
+    let planning = super::super::evaluator_control(&CheckOptions::tlc(0, 0)).expect("control");
+    let plans = prepare(&model, limits, &planning).expect("plans before the budget expires");
     let watchdog = crate::budget::expired_for_test();
     let mut observer = Observe {
         budget: watchdog.budget(),
+        control: dive_check::budget::EvaluationControl::new(
+            watchdog.budget(),
+            dive_check::budget::Phase::Temporal,
+        )
+        .expect("control"),
         model: &model,
         plans: &plans,
         limits,

@@ -62,4 +62,6 @@ pub use enumerate::MAX_ENUMERATION;
 pub use error::{ErrorKind, Result, ValueError};
 pub use int::Int;
 pub use names::NameError;
-pub use value::{DeferredKind, DeferredSet, Fcn, FcnKind, Set, SetKind, Value};
+pub use value::{
+    DeferredKind, DeferredSet, Fcn, FcnKind, Set, SetKind, Value, quiet_operation_active,
+};

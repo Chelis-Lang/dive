@@ -106,7 +106,7 @@ impl Model {
                     ErrorClass::Unsupported | ErrorClass::ResourceLimit => {
                         BindError::unsupported(format!("SYMMETRY {name}: {}", error.message()))
                     }
-                    ErrorClass::Bug => {
+                    ErrorClass::Bug | ErrorClass::Interrupted => {
                         BindError::bug(format!("SYMMETRY {name}: {}", error.message()))
                     }
                     ErrorClass::Eval

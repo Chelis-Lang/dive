@@ -469,16 +469,24 @@ pub(crate) fn action_name(ev: &Evaluator, a: &Action) -> Option<String> {
 
 /// The verdict for an error raised at `site` while exploring, classified as
 /// TLC classifies it (`class.rs`).
-pub(crate) fn error_verdict(e: &EvalError, site: ErrorSite) -> Verdict {
-    class::search_error(e, site, None)
+pub(crate) fn error_verdict(
+    e: &EvalError,
+    site: ErrorSite,
+    control: &crate::budget::EvaluationControl,
+) -> Verdict {
+    control
+        .verdict(e)
+        .unwrap_or_else(|| class::search_error(e, site, None))
 }
 
-pub(crate) fn store_verdict(e: &StoreError) -> Verdict {
+pub(crate) fn store_verdict(e: &StoreError, control: &crate::budget::EvaluationControl) -> Verdict {
     match e {
         StoreError::Predecessor { .. } => Verdict::ResourceLimit {
             message: e.to_string(),
         },
-        StoreError::Value(v) => error_verdict(&EvalError::from(v.clone()), ErrorSite::Fingerprint),
+        StoreError::Value(v) => {
+            error_verdict(&EvalError::from(v.clone()), ErrorSite::Fingerprint, control)
+        }
         other => Verdict::InternalError {
             message: other.to_string(),
         },
@@ -527,7 +535,13 @@ pub(crate) fn role_boolean(m: &Model, c: &Named, st: &St) -> Result<Option<bool>
 /// Evaluates a check as a boolean. A value that is not a boolean is TLC's
 /// `TLC_EXPECTED_VALUE` at the check's location (`Tool.isValid`; fixtures
 /// `ErInvNonBool`, `ErConstrNonBool`, `ErActConstrNonBool`).
-pub(crate) fn holds(m: &Model, c: &Named, st: &St, site: ErrorSite) -> Result<bool, Verdict> {
+pub(crate) fn holds(
+    m: &Model,
+    c: &Named,
+    st: &St,
+    site: ErrorSite,
+    control: &crate::budget::EvaluationControl,
+) -> Result<bool, Verdict> {
     match role_boolean(m, c, st) {
         Ok(Some(v)) => Ok(v),
         Ok(None) => {
@@ -540,7 +554,9 @@ pub(crate) fn holds(m: &Model, c: &Named, st: &St, site: ErrorSite) -> Result<bo
             );
             Err(class::search_error(&e, site, Some(&c.name)))
         }
-        Err(e) => Err(class::search_error(&e, site, Some(&c.name))),
+        Err(e) => Err(control
+            .verdict(&e)
+            .unwrap_or_else(|| class::search_error(&e, site, Some(&c.name)))),
     }
 }
 
@@ -650,10 +666,11 @@ pub(crate) fn in_model(
     st1: &St,
     step: Option<&St>,
     levels: &Levels<'_>,
+    control: &crate::budget::EvaluationControl,
 ) -> Result<bool, Verdict> {
     levels.here();
     for c in &m.constraints {
-        if !holds(m, c, st1, ErrorSite::Constraint)? {
+        if !holds(m, c, st1, ErrorSite::Constraint, control)? {
             return Ok(false);
         }
     }
@@ -661,7 +678,7 @@ pub(crate) fn in_model(
         levels.from();
         let r = (|| {
             for c in &m.action_constraints {
-                if !holds(m, c, st, ErrorSite::ActionConstraint)? {
+                if !holds(m, c, st, ErrorSite::ActionConstraint, control)? {
                     return Ok(false);
                 }
             }
@@ -680,6 +697,7 @@ pub(crate) fn state_key_of<S: Keyed>(
     ctx: Ctx,
     t: &StateVals,
     st1: &St,
+    control: &crate::budget::EvaluationControl,
 ) -> Result<S::Key, Verdict> {
     let concrete = complete_values(t)?;
     let vals = &concrete;
@@ -711,7 +729,7 @@ pub(crate) fn state_key_of<S: Keyed>(
     };
     match &m.view {
         None => {
-            let key = S::key(keyer, vals, false, ctx).map_err(|e| store_verdict(&e))?;
+            let key = S::key(keyer, vals, false, ctx).map_err(|e| store_verdict(&e, control))?;
             if canonical
                 .as_ref()
                 .is_some_and(|image| image.as_slice() != concrete.as_slice())
@@ -727,8 +745,8 @@ pub(crate) fn state_key_of<S: Keyed>(
             dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
                 .map_err(|error| crate::model_error(&error))?;
             match m.eval(&v.pred, st1) {
-                Ok(x) => S::key(keyer, &[x], true, ctx).map_err(|e| store_verdict(&e)),
-                Err(e) => Err(error_verdict(&e, ErrorSite::View)),
+                Ok(x) => S::key(keyer, &[x], true, ctx).map_err(|e| store_verdict(&e, control)),
+                Err(e) => Err(error_verdict(&e, ErrorSite::View, control)),
             }
         }
     }
@@ -738,9 +756,14 @@ pub(crate) fn state_key_of<S: Keyed>(
 /// invariant that fails to evaluate is classified as on a new state, which
 /// TLC's replay does not check again; the caller applies
 /// [`class::recurring`] for a state outside the model.
-pub(crate) fn check_invariants(m: &Model, st1: &St, initial: bool) -> Option<Verdict> {
+pub(crate) fn check_invariants(
+    m: &Model,
+    st1: &St,
+    initial: bool,
+    control: &crate::budget::EvaluationControl,
+) -> Option<Verdict> {
     for c in &m.invariants {
-        match holds(m, c, st1, ErrorSite::Invariant) {
+        match holds(m, c, st1, ErrorSite::Invariant, control) {
             Ok(true) => {}
             Ok(false) => {
                 return Some(Verdict::InvariantViolated {
@@ -755,9 +778,13 @@ pub(crate) fn check_invariants(m: &Model, st1: &St, initial: bool) -> Option<Ver
 }
 
 /// The first implied action the step violates, as the verdict.
-pub(crate) fn check_implied_actions(m: &Model, step: &St) -> Option<Verdict> {
+pub(crate) fn check_implied_actions(
+    m: &Model,
+    step: &St,
+    control: &crate::budget::EvaluationControl,
+) -> Option<Verdict> {
     for c in &m.implied_actions {
-        match holds(m, c, step, ErrorSite::ImpliedAction) {
+        match holds(m, c, step, ErrorSite::ImpliedAction, control) {
             Ok(true) => {}
             Ok(false) => {
                 return Some(Verdict::ActionPropertyViolated {
@@ -802,6 +829,7 @@ pub(crate) struct AdmissionLimits {
 pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) m: &'a Model,
     pub(crate) host: &'a RunHost,
+    pub(crate) control: std::sync::Arc<crate::budget::EvaluationControl>,
     /// TLC's state fingerprint, which seeds each expanded state's random
     /// stream.
     seeder: StateFingerprinter,
@@ -1129,7 +1157,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         let t: StateVals = succ.state.into();
         let st1 = St::state(t.clone());
         let st_step = parent.map(|(s0, _)| St::action(s0.clone(), t.clone()));
-        let in_model = match in_model(m, &st1, st_step.as_ref(), &levels) {
+        let in_model = match in_model(m, &st1, st_step.as_ref(), &levels, &self.control) {
             Ok(b) => b,
             Err(v) => return Some((v, true, false)),
         };
@@ -1139,7 +1167,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             // A state TLC cannot fingerprint (or whose `VIEW` fails) is not
             // printed: the trace ends at its predecessor (fixtures `ErView*`,
             // `ErFpInfinite`).
-            let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1) {
+            let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1, &self.control) {
                 Ok(k) => k,
                 Err(v) => return Some((v, false, false)),
             };
@@ -1198,7 +1226,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                             return Some((verdict, false, false));
                         }
                     }
-                    Err(e) => return Some((store_verdict(&e), false, false)),
+                    Err(e) => return Some((store_verdict(&e, &self.control), false, false)),
                 }
                 self.depth = self.depth.max(new_level);
             } else {
@@ -1212,7 +1240,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             }
         }
         if fresh {
-            if let Some(v) = check_invariants(m, &st1, initial) {
+            if let Some(v) = check_invariants(m, &st1, initial, &self.control) {
                 // TLC's replay checks a state outside the model again, and
                 // goes on past a new one (`Search::replay_after`).
                 if !in_model {
@@ -1223,7 +1251,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             }
             if initial {
                 for c in &m.implied_inits {
-                    match holds(m, c, &st1, ErrorSite::ImpliedInit) {
+                    match holds(m, c, &st1, ErrorSite::ImpliedInit, &self.control) {
                         Ok(true) => {}
                         Ok(false) => {
                             return Some((
@@ -1241,7 +1269,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         }
         if let Some(st) = &st_step {
             levels.from();
-            if let Some(v) = check_implied_actions(m, st) {
+            if let Some(v) = check_implied_actions(m, st, &self.control) {
                 return Some((v, true, false));
             }
         }
@@ -1310,7 +1338,10 @@ impl<S: Keyed> Search<'_, '_, S> {
         self.initial_generated = self.generated;
         if let Err(e) = r {
             stop = Some(Stop {
-                verdict: class::init_error(error_verdict(&e.error, ErrorSite::Init), None),
+                verdict: class::init_error(
+                    error_verdict(&e.error, ErrorSite::Init, &self.control),
+                    None,
+                ),
                 in_init: true,
                 path: None,
                 then: None,
@@ -1475,9 +1506,10 @@ impl<S: Keyed> Search<'_, '_, S> {
                     // The counterexample ends at the state being expanded
                     // (probe `EvalErrorMidLevel`).
                     stop = Some(Stop {
-                        verdict: error_verdict(&e.error, ErrorSite::Next),
+                        verdict: error_verdict(&e.error, ErrorSite::Next, &self.control),
                         in_init: false,
-                        path: Some((id, s0.clone())),
+                        path: (e.error.class() != dive_eval::ErrorClass::Interrupted)
+                            .then(|| (id, s0.clone())),
                         then: None,
                     });
                 }
@@ -1564,7 +1596,7 @@ impl<S: Keyed> Search<'_, '_, S> {
         let fp = self
             .seeder
             .fingerprint(&vals, self.ctx)
-            .map_err(|e| store_verdict(&e))?;
+            .map_err(|e| store_verdict(&e, &self.control))?;
         self.host.expand(fp);
         Ok(())
     }
@@ -1598,6 +1630,22 @@ impl<S: Keyed> Search<'_, '_, S> {
         level: u64,
         unseen: &BTreeSet<S::Key>,
     ) -> Replayed {
+        // Diagnostic reconstruction follows an already deciding genuine event.
+        // It must retain that event's class/count semantics if the budget trips.
+        // This pause affects only this thread; worker control remains active.
+        // The inline caller has no workers; parallel commit invokes this only
+        // after both expansion and invariant pool barriers completed.
+        let _diagnostic = match self.m.evaluator.host_control(None) {
+            Ok(scope) => scope,
+            Err(error) => {
+                return Replayed {
+                    error: Some(Verdict::InternalError {
+                        message: error.to_string(),
+                    }),
+                    ..Replayed::default()
+                };
+            }
+        };
         if self.disk.is_some() {
             // Defensive admission for every caller, including future pool
             // integrations: never use Boolean resident membership on disk.
@@ -1645,7 +1693,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                 Err(e) => {
                     // The search reached `t` without this error, so it lies
                     // in `t`'s action or a later one.
-                    out.error = Some(error_verdict(&e.error, ErrorSite::Next));
+                    out.error = Some(error_verdict(&e.error, ErrorSite::Next, &self.control));
                     return out;
                 }
             }
@@ -1661,13 +1709,13 @@ impl<S: Keyed> Search<'_, '_, S> {
                 let step = St::action(s0.clone(), t.clone());
                 if o == ordinal {
                     levels.from();
-                    if let Some(v) = check_implied_actions(m, &step) {
+                    if let Some(v) = check_implied_actions(m, &step, &self.control) {
                         record_error(v, &mut out);
                         return out;
                     }
                     continue;
                 }
-                let inside = match in_model(m, &st1, Some(&step), &levels) {
+                let inside = match in_model(m, &st1, Some(&step), &levels, &self.control) {
                     Ok(b) => b,
                     Err(v) => {
                         out.error = Some(v);
@@ -1676,13 +1724,14 @@ impl<S: Keyed> Search<'_, '_, S> {
                 };
                 let mut new = true;
                 if inside {
-                    let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1) {
-                        Ok(k) => k,
-                        Err(v) => {
-                            out.error = Some(v);
-                            return out;
-                        }
-                    };
+                    let key =
+                        match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1, &self.control) {
+                            Ok(k) => k,
+                            Err(v) => {
+                                out.error = Some(v);
+                                return out;
+                            }
+                        };
                     new = (!set.contains(&key) || unseen.contains(&key)) && !added.contains(&key);
                     if new {
                         if self.admission.is_some()
@@ -1702,12 +1751,12 @@ impl<S: Keyed> Search<'_, '_, S> {
                         out.distinct += 1;
                     }
                 }
-                if new && let Some(v) = check_invariants(m, &st1, false) {
+                if new && let Some(v) = check_invariants(m, &st1, false, &self.control) {
                     record_error(v, &mut out);
                     return out;
                 }
                 levels.from();
-                if let Some(v) = check_implied_actions(m, &step) {
+                if let Some(v) = check_implied_actions(m, &step, &self.control) {
                     record_error(v, &mut out);
                     return out;
                 }
@@ -1729,6 +1778,20 @@ impl<S: Keyed> Search<'_, '_, S> {
         level: u64,
         original: &Verdict,
     ) -> Replayed {
+        // As above, this is diagnostic replay of an existing deciding error,
+        // never ordinary search or independent candidate certification.
+        let _diagnostic = match self.m.evaluator.host_control(None) {
+            Ok(scope) => scope,
+            Err(error) => {
+                return Replayed {
+                    error: Some(Verdict::InternalError {
+                        message: error.to_string(),
+                    }),
+                    ..Replayed::default()
+                };
+            }
+        };
+
         let Some(mut disk) = self.disk.take() else {
             return Replayed {
                 error: Some(Verdict::InternalError {
@@ -1810,7 +1873,7 @@ impl<S: Keyed> Search<'_, '_, S> {
                 Err(e) => {
                     // The search reached `t` without this error, so it lies
                     // in `t`'s action or a later one.
-                    out.error = Some(error_verdict(&e.error, ErrorSite::Next));
+                    out.error = Some(error_verdict(&e.error, ErrorSite::Next, &self.control));
                     return out;
                 }
             }
@@ -1826,13 +1889,13 @@ impl<S: Keyed> Search<'_, '_, S> {
                 let step = St::action(s0.clone(), t.clone());
                 if o == ordinal {
                     levels.from();
-                    if let Some(v) = check_implied_actions(m, &step) {
+                    if let Some(v) = check_implied_actions(m, &step, &self.control) {
                         record_error(v, &mut out);
                         return out;
                     }
                     continue;
                 }
-                let inside = match in_model(m, &st1, Some(&step), &levels) {
+                let inside = match in_model(m, &st1, Some(&step), &levels, &self.control) {
                     Ok(b) => b,
                     Err(v) => {
                         out.error = Some(v);
@@ -1841,13 +1904,14 @@ impl<S: Keyed> Search<'_, '_, S> {
                 };
                 let mut new = true;
                 if inside {
-                    let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1) {
-                        Ok(k) => k,
-                        Err(v) => {
-                            out.error = Some(v);
-                            return out;
-                        }
-                    };
+                    let key =
+                        match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1, &self.control) {
+                            Ok(k) => k,
+                            Err(v) => {
+                                out.error = Some(v);
+                                return out;
+                            }
+                        };
                     let present =
                         match disk.replay_contains(S::disk_key(&key), self.generated, source, o) {
                             Ok(present) => present,
@@ -1882,12 +1946,12 @@ impl<S: Keyed> Search<'_, '_, S> {
                         }
                     }
                 }
-                if new && let Some(v) = check_invariants(m, &st1, false) {
+                if new && let Some(v) = check_invariants(m, &st1, false, &self.control) {
                     record_error(v, &mut out);
                     return out;
                 }
                 levels.from();
-                if let Some(v) = check_implied_actions(m, &step) {
+                if let Some(v) = check_implied_actions(m, &step, &self.control) {
                     record_error(v, &mut out);
                     return out;
                 }
@@ -1911,6 +1975,15 @@ impl<S: Keyed> Search<'_, '_, S> {
 
     /// Rebuilds the path to state `id` by replay (ADR 0015 §4).
     fn replay(&self, id: StateId) -> Result<Vec<TraceState>, String> {
+        // This only reconstructs a path after search selected its deciding
+        // event and joined every worker phase. Preserve that event if the
+        // budget trips while regenerating its predecessors. This thread-owned
+        // scope does not pause independent witness certification or workers.
+        let _diagnostic = self
+            .m
+            .evaluator
+            .host_control(None)
+            .map_err(|error| error.to_string())?;
         let ev = &self.m.evaluator;
         let path = self.log.path(id).map_err(|e| e.to_string())?;
         let mut out: Vec<TraceState> = Vec::new();
@@ -2002,7 +2075,10 @@ pub(crate) struct Outcome {
 /// TLC's `checkPostCondition` after a complete search (`ModelChecker.java:283-288`,
 /// `Tool.checkPostConditionWithContext`): each postcondition in order, in the
 /// empty context; the first that is not `TRUE` decides.
-pub(crate) fn postconditions(m: &Model) -> Option<Verdict> {
+pub(crate) fn postconditions(
+    m: &Model,
+    control: &crate::budget::EvaluationControl,
+) -> Option<Verdict> {
     let list = match &m.postconditions {
         Ok(list) => list,
         Err(e) => {
@@ -2051,7 +2127,13 @@ pub(crate) fn postconditions(m: &Model) -> Option<Verdict> {
                 );
                 return Some(class::postcondition_error(&e, &pc.name, &location));
             }
-            Err(e) => return Some(class::postcondition_error(&e, &pc.name, &location)),
+            Err(e) => {
+                return Some(
+                    control
+                        .verdict(&e)
+                        .unwrap_or_else(|| class::postcondition_error(&e, &pc.name, &location)),
+                );
+            }
         }
     }
     None
@@ -2121,6 +2203,57 @@ fn search_in<S: Keyed>(
     host: &RunHost,
     hooks: SearchHooks<'_, '_>,
 ) -> Outcome {
+    let control = match crate::budget::EvaluationControl::new(
+        &opts.budget,
+        if hooks.capture.is_some() {
+            crate::budget::Phase::Capture
+        } else {
+            crate::budget::Phase::Search
+        },
+    ) {
+        Ok(control) => control,
+        Err(error) => {
+            return Outcome {
+                seen: None,
+                graph: None,
+                prefix_level: None,
+                frontier: crate::FrontierUsage::default(),
+                predecessor: crate::result::PredecessorUsage::default(),
+                verdict: Verdict::InternalError {
+                    message: error.to_string(),
+                },
+                stats: None,
+                tlc_prints_stats: false,
+                counterexample: None,
+                collision: None,
+                output: m.take_output(),
+                notes: vec![],
+                workers: plan_workers(m, opts),
+            };
+        }
+    };
+    let _control_scope = match control.enter(&m.evaluator) {
+        Ok(scope) => scope,
+        Err(error) => {
+            return Outcome {
+                seen: None,
+                graph: None,
+                prefix_level: None,
+                frontier: crate::FrontierUsage::default(),
+                predecessor: crate::result::PredecessorUsage::default(),
+                verdict: Verdict::InternalError {
+                    message: error.to_string(),
+                },
+                stats: None,
+                tlc_prints_stats: false,
+                counterexample: None,
+                collision: None,
+                output: m.take_output(),
+                notes: vec![],
+                workers: plan_workers(m, opts),
+            };
+        }
+    };
     let SearchHooks {
         capture,
         checkpoint,
@@ -2249,6 +2382,7 @@ fn search_in<S: Keyed>(
         observer,
         prefix_level: None,
         budget: opts.budget.clone(),
+        control: control.clone(),
         admission: (opts.max_states.is_some() || opts.max_depth.is_some()).then(|| {
             Box::new(AdmissionLimits {
                 max_states: opts.max_states,
@@ -2383,7 +2517,7 @@ fn search_in<S: Keyed>(
         let verdict = if no_actions || s.prefix_level.is_some() {
             Verdict::Success
         } else {
-            postconditions(m).unwrap_or(Verdict::Success)
+            postconditions(m, &control).unwrap_or(Verdict::Success)
         };
         output.extend(m.take_output());
         return crate::seen::finish(
@@ -2542,6 +2676,106 @@ fn finalize_predecessor(log: &mut PredecessorLog, mut outcome: Outcome) -> Outco
 #[allow(clippy::unwrap_used, reason = "storage-failure regression controls")]
 mod predecessor_tests {
     use super::*;
+
+    #[derive(Debug)]
+    struct TripDuringPathReplay {
+        visits: std::sync::atomic::AtomicUsize,
+        budget: crate::budget::Budget,
+    }
+
+    impl dive_eval::Host for TripDuringPathReplay {
+        fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), dive_eval::HostError> {
+            if key == "level"
+                && !write
+                && self
+                    .visits
+                    .fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+                    == 1
+            {
+                // Init alone calls TLCGet. The first call is ordinary search;
+                // the second trips during predecessor-path regeneration,
+                // before the long state-dependent predicate loop.
+                self.budget.trip_for_test();
+            }
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn deciding_violation_path_regeneration_preserves_control_and_the_original_event() {
+        use std::sync::Arc;
+        use std::time::Duration;
+
+        for width in [1, 4] {
+            let source = "---- MODULE ReplayBudget ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0 /\\ TLCGet(\"level\")=0 /\\ \\A k \\in 1..4096: k+x=k\nNext == x'=x+1\nInv == x<2\n====\n";
+            let analyzed = dive_sema::analyze_source(
+                "ReplayBudget.tla",
+                source,
+                &dive_sema::Options::default(),
+            );
+            assert!(analyzed.accepted());
+            let ir = Arc::new(dive_ir::lower(&analyzed).unwrap());
+            let cfg =
+                dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n")
+                    .into_config()
+                    .unwrap();
+            let watchdog = crate::budget::Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .unwrap()
+                .unwrap();
+            let mut opts = CheckOptions::tlc(0, 0);
+            opts.workers = width;
+            opts.budget = watchdog.budget().clone();
+            let host = Arc::new(run_host(&opts));
+            let model = dive_model::bind(
+                ir,
+                &cfg,
+                &dive_model::BindOptions {
+                    eval: opts.eval,
+                    no_deadlock: opts.no_deadlock,
+                    host: Some(Arc::new(TripDuringPathReplay {
+                        visits: std::sync::atomic::AtomicUsize::new(0),
+                        budget: opts.budget.clone(),
+                    })),
+                },
+            )
+            .unwrap();
+            let control =
+                crate::budget::EvaluationControl::new(&opts.budget, crate::budget::Phase::Search)
+                    .unwrap();
+            let _outer = control.enter(&model.evaluator).unwrap();
+            let result = search(&model, &opts, &host, SearchHooks::default());
+            assert_eq!(
+                result.verdict,
+                Verdict::InvariantViolated {
+                    property: "Inv".into(),
+                    initial: false,
+                }
+            );
+            assert!(opts.budget.poll().unwrap().is_some());
+            let word = result.counterexample.unwrap();
+            assert_eq!(word.states.len(), 3);
+            assert_eq!(
+                word.states
+                    .iter()
+                    .map(|state| state.values.clone())
+                    .collect::<Vec<_>>(),
+                vec![
+                    vec![Value::int(0.into())],
+                    vec![Value::int(1.into())],
+                    vec![Value::int(2.into())]
+                ]
+            );
+            // Search and diagnostic scopes restored the exact outer owner:
+            // ordinary regeneration still observes its exhausted budget.
+            let interrupted = model
+                .evaluator
+                .init_states(&model.init_actions, &mut |_| Flow::Continue)
+                .unwrap_err();
+            assert!(control.owns(&interrupted.error));
+        }
+    }
+
     #[test]
     fn diagnostic_text_never_creates_storage_failure_evidence() {
         let mut log = PredecessorLog::new(None, None);
