@@ -1,0 +1,2524 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-21",
+  "campaign_id": "5776-1792584813046936347",
+  "prior_campaign_comparison": "Different source, turbo policy and controls; timing changes from the provisional campaign are not isolated code effects.",
+  "source_commit": "39f4e483031464031664f341b65e9fe2ef164b55",
+  "source_clean": true,
+  "binary_sha256": "3b9859b2fe99b77a3393b74a460b573547e5cde61c9410ca1e9cdaa8ea9131ce",
+  "benchmark_set_sha256": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",
+  "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "java": {
+    "platform": "linux-x86_64",
+    "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62",
+    "source": "pinned",
+    "version": "17.0.20.1+1",
+    "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+  },
+  "module_path": [
+    {
+      "id": "community-modules-202610040242",
+      "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+    },
+    {
+      "id": "community-modules-deps-202610040242",
+      "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+    },
+    {
+      "id": "apalache-modules-v0.62.3",
+      "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+    },
+    {
+      "id": "tlapm-library-d8b9747",
+      "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+    }
+  ],
+  "host": {
+    "instance_type": "c7i.metal-24xl",
+    "ami": "ami-02a9cdd4e98bc3c78",
+    "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+    "kernel": "7.0.0-1014-aws",
+    "os": "Ubuntu 24.04.5",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "smt": "off",
+    "governor": "performance",
+    "turbo": "disabled; intel_pstate/no_turbo=1",
+    "affinity": "physical CPUs 0-15, socket 0, NUMA node 0; housekeeping 32-47",
+    "frequency_policy": "performance, selected-core min=max=2400000kHz; observed samples include idle transitions",
+    "memory_gib": 188
+  },
+  "policy": {
+    "workers": [
+      1,
+      8
+    ],
+    "profiles": [
+      "tlc",
+      "default"
+    ],
+    "repetitions": 5,
+    "seed": 0,
+    "fp": 0,
+    "xmx": "3g",
+    "xmx_scope": "TLC Java heap only; native whole-process budget is recorded from each arm report",
+    "timeout_seconds": 900,
+    "native_time_limit_forwarded_by_frozen_runner": false,
+    "external_per_process_backstop_seconds": 900,
+    "schedule": "model order fixed; worker/arm blocks reversed on odd repetitions; one process at a time",
+    "quiet_window_certified": false,
+    "target_acceptance": false,
+    "qualifications": [
+      "The frozen runner retains quiet_window_certified=false. Separate before/after CPU controls, passive five-second telemetry and hardware throttle counters are audited independently; passive sampling cannot attribute every short-lived process between samples.",
+      "Four TLC-profile requested-8-worker models actually use one worker; they receive no scaling credit.",
+      "All-model throughput is descriptive and includes small/initial-only graphs; acceptance population unchanged."
+    ]
+  },
+  "independent_control_audit": {
+    "smt": "off",
+    "turbo": "off",
+    "selected_frequency_policy": "performance min=max2400000kHz",
+    "numa_memory_binding": 0,
+    "telemetry": {
+      "samples": 2788,
+      "window_seconds": 14042.492168188095,
+      "sampling_interval_median_s": 5.038205862045288,
+      "sampling_gap_max_s": 5.0422632694244385,
+      "selected_steal_cpu_seconds": 0.0,
+      "all_cpu_observed_unrelated_process_seconds_upper_bound_on_selected_interference": 138.23,
+      "all_core_temperature_max_c": 52.0,
+      "clock_ticks_per_second": 100,
+      "cpu_temperature_sensor_groups": [
+        "hwmon1"
+      ],
+      "qualification": "Passive five-second telemetry; unrelated-process CPU is an all-core bound for observed processes, not a claim that short-lived processes between samples are individually attributed. Kernel busy/steal counters include all selected-core work. Frequency readings include idle transitions; control min/max and turbo/SMT attestation are separate."
+    },
+    "artifact_hashes": {
+      "controls-before.txt": "6ea4a31d6636e0474764c3439f33810cb3356d78a51cb2074123fac2738a9708",
+      "controls-after.txt": "5dfa1f95117d7a34967a186c4d316d80221145f74dc6ca41c912aa7b21a6211a",
+      "independent-controls-after.txt": "3c72841bfe5a839accab6276bf4948b900db043da150599053937f3f64cd7295",
+      "throttle-counters-during.txt": "13a437b0486827ce8f6568a50af336e1fa1d16228cd5fa6da00b8883d2b5e0eb",
+      "throttle-counters-after.txt": "c6b2d205eafe4c828fc35e062465089944660a89e3f2633bf529f91630223759",
+      "monitor.jsonl": "9e8da694738fa8279a0f4ede5672020801125228479a65717888c865718a3712",
+      "measurement-times.txt": "ef739d4d1d04bccec01e56032c9d279bb0bea9c8c178f681fc66b957b7781444",
+      "clock-ticks-per-second.txt": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012",
+      "hardware-monitor-identities.json": "357ac324b79a1e65f2b66849f6bf26958a88e982ee23da4a888fb10eedad503e"
+    }
+  },
+  "checks": {
+    "planned_rows": 300,
+    "rows": 300,
+    "correct_rows": 300,
+    "failed_rows": 0,
+    "censored_rows": 0,
+    "ratios_independently_recomputed": true
+  },
+  "raw_sha256": "7c68a2c800aa46d6d970b27ba813843c2a72dfcd7152baaf37778b184c5465d0",
+  "aggregates": [
+    {
+      "comparison": "TLC throughput",
+      "complete_models": 10,
+      "geometric_mean": 0.3213781018054587,
+      "profile": "tlc",
+      "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+      "selected_models": 10,
+      "workers": 1
+    },
+    {
+      "comparison": "TLC throughput",
+      "complete_models": 10,
+      "geometric_mean": 0.15009682853151324,
+      "profile": "tlc",
+      "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+      "selected_models": 10,
+      "workers": 8
+    },
+    {
+      "comparison": "1-worker scaling",
+      "complete_models": 6,
+      "geometric_mean": null,
+      "profile": "tlc",
+      "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+      "selected_models": 10,
+      "workers": 8
+    },
+    {
+      "comparison": "TLC throughput",
+      "complete_models": 10,
+      "geometric_mean": 0.32798372720599833,
+      "profile": "default",
+      "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+      "selected_models": 10,
+      "workers": 1
+    },
+    {
+      "comparison": "TLC throughput",
+      "complete_models": 10,
+      "geometric_mean": 0.2336227299624979,
+      "profile": "default",
+      "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+      "selected_models": 10,
+      "workers": 8
+    },
+    {
+      "comparison": "1-worker scaling",
+      "complete_models": 10,
+      "geometric_mean": 2.479269278047278,
+      "profile": "default",
+      "purpose": "descriptive all-selected-model aggregate; no performance-target acceptance assessment",
+      "selected_models": 10,
+      "workers": 8
+    }
+  ],
+  "comparisons": [
+    {
+      "bench": "GameOfLife",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.2340229389421452,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "TLCSailfish1",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.35473020215113804,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "EWD998PCal",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.24104823544732887,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "MCBakery",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3380899600646226,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "MCLamportMutex",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3223666974074641,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "SimpleRegular",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3000506029042842,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "MCbtree",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.43469744501561003,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.427254463851483,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3877650542073749,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.24939224756085876,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 1
+    },
+    {
+      "bench": "GameOfLife",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.12369066011666081,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "TLCSailfish1",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.056112919968211696,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "EWD998PCal",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.17534223370995997,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCBakery",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.35358039314917367,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCLamportMutex",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.08182993218730338,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "SimpleRegular",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3993760937107032,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCbtree",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.08324423572674622,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3530837732354631,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3547890623665959,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.03957712711009661,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "GameOfLife",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 2.437742734798359,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "TLCSailfish1",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": null,
+        "missing": 0,
+        "paired": 0,
+        "refused": 0,
+        "unused_workers": 5
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "EWD998PCal",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 4.082582116975344,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCBakery",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 1.5111471182434557,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCLamportMutex",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": null,
+        "missing": 0,
+        "paired": 0,
+        "refused": 0,
+        "unused_workers": 5
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "SimpleRegular",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 3.089511777248757,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCbtree",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": null,
+        "missing": 0,
+        "paired": 0,
+        "refused": 0,
+        "unused_workers": 5
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 1.1138160843606861,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 2.550733452970707,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": null,
+        "missing": 0,
+        "paired": 0,
+        "refused": 0,
+        "unused_workers": 5
+      },
+      "profile": "tlc",
+      "workers": 8
+    },
+    {
+      "bench": "GameOfLife",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.22530971025329993,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "TLCSailfish1",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.352358138790222,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "EWD998PCal",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.24557225421716233,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "MCBakery",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.36025719039207,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "MCLamportMutex",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3094229314419483,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "SimpleRegular",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.31080597084886885,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "MCbtree",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.6116282458906566,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3578272679205065,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.38858848049105765,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.2507691224557354,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 1
+    },
+    {
+      "bench": "GameOfLife",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.15203297335071353,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "TLCSailfish1",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.2646491619675142,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "EWD998PCal",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.17535455834003544,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCBakery",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3635802442272897,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCLamportMutex",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.21092364443136205,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "SimpleRegular",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.39770169088673474,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCbtree",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.5728712263954457,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3144439299071838,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.3382491494339096,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "comparison": "TLC throughput",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.036940745328642964,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "GameOfLife",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 3.0091278277632556,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "TLCSailfish1",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 4.7584443672275425,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "EWD998PCal",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 4.022174132941444,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCBakery",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 1.4546818833824127,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCLamportMutex",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 2.6855534194260313,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "SimpleRegular",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 2.96973478005968,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCbtree",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 4.901430101701792,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 1.155051447685502,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 2.462937990993397,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "comparison": "1-worker scaling",
+      "pairs": {
+        "censored": 0,
+        "failed": 0,
+        "intended": 5,
+        "median": 0.9418318558906873,
+        "missing": 0,
+        "paired": 5,
+        "refused": 0,
+        "unused_workers": 0
+      },
+      "profile": "default",
+      "workers": 8
+    }
+  ],
+  "arms": [
+    {
+      "bench": "BufferedRandomAccessFile",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 201.812992121,
+      "wall_s_min": 201.65512401,
+      "wall_s_max": 201.885380829,
+      "rss_bytes_median": 33533952,
+      "distinct": 3316,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+      "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 214.353952424,
+      "wall_s_min": 208.388089128,
+      "wall_s_max": 221.04369891,
+      "rss_bytes_median": 43991040,
+      "distinct": 3316,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+      "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+      "repetitions": 5,
+      "wall_s_median": 203.041615687,
+      "wall_s_min": 202.836589108,
+      "wall_s_max": 203.137930708,
+      "rss_bytes_median": 31764480,
+      "distinct": 3316,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+      "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!SubSeq (runtime names require TLC encounter order) (and 1 more)",
+      "repetitions": 5,
+      "wall_s_median": 202.816706015,
+      "wall_s_min": 202.618146313,
+      "wall_s_max": 202.972675809,
+      "rss_bytes_median": 31801344,
+      "distinct": 3316,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+      "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 50.596118326,
+      "wall_s_min": 50.094596388,
+      "wall_s_max": 50.670695582,
+      "rss_bytes_median": 1152364544,
+      "distinct": 3316,
+      "reported_native_budget": null,
+      "cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+      "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "BufferedRandomAccessFile",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 8.02356628,
+      "wall_s_min": 7.69801133,
+      "wall_s_max": 8.149967836,
+      "rss_bytes_median": 1216077824,
+      "distinct": 3316,
+      "reported_native_budget": null,
+      "cfg_sha256": "3b82f9554bc28097581d0a35fa1ccf9c3856308b500003c32c0a15e1cec61798",
+      "module_sha256": "e374d8b6dfd2e435c1936e49985e8164b7d1f0fc572c13c6fe27561250d54e40",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 6.170133717,
+      "wall_s_min": 6.1448968409999996,
+      "wall_s_max": 6.170349417,
+      "rss_bytes_median": 310489088,
+      "distinct": 501500,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 5.341869169,
+      "wall_s_min": 5.141256343,
+      "wall_s_max": 6.294650148,
+      "rss_bytes_median": 318844928,
+      "distinct": 501500,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 5.167312496,
+      "wall_s_min": 5.166994375,
+      "wall_s_max": 5.16769153,
+      "rss_bytes_median": 234942464,
+      "distinct": 501500,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 4.639627316,
+      "wall_s_min": 4.213586119,
+      "wall_s_max": 5.216364568,
+      "rss_bytes_median": 231100416,
+      "distinct": 501500,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 2.207919274,
+      "wall_s_min": 2.182289047,
+      "wall_s_max": 2.232598297,
+      "rss_bytes_median": 837582848,
+      "distinct": 501500,
+      "reported_native_budget": null,
+      "cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "CoffeeCan1000BeansSafety",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 1.655771208,
+      "wall_s_min": 1.6324667819999998,
+      "wall_s_max": 1.681485884,
+      "rss_bytes_median": 831967232,
+      "distinct": 501500,
+      "reported_native_budget": null,
+      "cfg_sha256": "96cf1b07de37ad01772f00c2b2b6de266d9b5bbd3e4690c7620d31d1242cae86",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "EWD998PCal",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 170.614358762,
+      "wall_s_min": 170.434762199,
+      "wall_s_max": 171.33326888,
+      "rss_bytes_median": 141586432,
+      "distinct": 321370,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "EWD998PCal",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 42.473963942,
+      "wall_s_min": 39.389750402,
+      "wall_s_max": 45.006063112,
+      "rss_bytes_median": 160731136,
+      "distinct": 321370,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "EWD998PCal",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 173.917572378,
+      "wall_s_min": 173.846302086,
+      "wall_s_max": 174.198982069,
+      "rss_bytes_median": 138743808,
+      "distinct": 321370,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "EWD998PCal",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 42.599895702,
+      "wall_s_min": 40.843774514,
+      "wall_s_max": 45.532860162,
+      "rss_bytes_median": 165535744,
+      "distinct": 321370,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "EWD998PCal",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 41.922523935,
+      "wall_s_min": 41.793604976,
+      "wall_s_max": 42.098331385,
+      "rss_bytes_median": 1274740736,
+      "distinct": 321370,
+      "reported_native_budget": null,
+      "cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "EWD998PCal",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 7.502670358,
+      "wall_s_min": 7.448003188,
+      "wall_s_max": 7.754295852,
+      "rss_bytes_median": 1510019072,
+      "distinct": 321370,
+      "reported_native_budget": null,
+      "cfg_sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892",
+      "module_sha256": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "GameOfLife",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 53.440882896,
+      "wall_s_min": 53.391884725,
+      "wall_s_max": 53.447613414,
+      "rss_bytes_median": 71536640,
+      "distinct": 65536,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "GameOfLife",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 17.751948569,
+      "wall_s_min": 16.498522082,
+      "wall_s_max": 20.961473145,
+      "rss_bytes_median": 75931648,
+      "distinct": 65536,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "GameOfLife",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 51.464723269,
+      "wall_s_min": 51.409540883,
+      "wall_s_max": 51.566422984,
+      "rss_bytes_median": 73715712,
+      "distinct": 65536,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "GameOfLife",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 21.111630253,
+      "wall_s_min": 19.984077533,
+      "wall_s_max": 24.471165282,
+      "rss_bytes_median": 76025856,
+      "distinct": 65536,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "GameOfLife",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 12.035567614,
+      "wall_s_min": 11.960154515,
+      "wall_s_max": 12.160819391,
+      "rss_bytes_median": 1160474624,
+      "distinct": 65536,
+      "reported_native_budget": null,
+      "cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "GameOfLife",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 2.633585156,
+      "wall_s_min": 2.533341808,
+      "wall_s_max": 2.733650059,
+      "rss_bytes_median": 1170436096,
+      "distinct": 65536,
+      "reported_native_budget": null,
+      "cfg_sha256": "89b3dd94f35fb6cee4b093fa2b9a2e0f44e6cf0d3e43707b82c801690eeb9bf3",
+      "module_sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCBakery",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 30.897375466,
+      "wall_s_min": 30.895713156,
+      "wall_s_max": 30.971452611,
+      "rss_bytes_median": 237211648,
+      "distinct": 655200,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+      "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCBakery",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 21.290876696,
+      "wall_s_min": 21.116381277,
+      "wall_s_max": 21.542884213,
+      "rss_bytes_median": 241360896,
+      "distinct": 655200,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+      "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCBakery",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 33.004050854,
+      "wall_s_min": 32.976974223,
+      "wall_s_max": 33.053567745,
+      "rss_bytes_median": 237064192,
+      "distinct": 655200,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+      "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCBakery",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 21.842112749,
+      "wall_s_min": 21.71830366,
+      "wall_s_max": 22.569800711,
+      "rss_bytes_median": 241324032,
+      "distinct": 655200,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+      "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCBakery",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 11.1576885,
+      "wall_s_min": 11.031192738,
+      "wall_s_max": 11.182606154,
+      "rss_bytes_median": 1329283072,
+      "distinct": 655200,
+      "reported_native_budget": null,
+      "cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+      "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCBakery",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 7.798145719,
+      "wall_s_min": 7.7229428129999995,
+      "wall_s_max": 7.7982369590000005,
+      "rss_bytes_median": 1353752576,
+      "distinct": 655200,
+      "reported_native_budget": null,
+      "cfg_sha256": "27204f5e0a0a6dc62748f1148d7aa65ed0a8d7e1cb0bf9daf59beee57246c8f5",
+      "module_sha256": "e30e4fc5558357406b890b3249eda6ec0ec7d5e191b1469adc3774990c1fbe25",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 11.358947503,
+      "wall_s_min": 11.333058493,
+      "wall_s_max": 11.359160717,
+      "rss_bytes_median": 58368000,
+      "distinct": 112929,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+      "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 4.611950258,
+      "wall_s_min": 4.53790717,
+      "wall_s_max": 4.88963295,
+      "rss_bytes_median": 66392064,
+      "distinct": 112929,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+      "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 11.383927719,
+      "wall_s_min": 11.358687785,
+      "wall_s_max": 11.384468484,
+      "rss_bytes_median": 65249280,
+      "distinct": 112929,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+      "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 4.462719521,
+      "wall_s_min": 4.212638121,
+      "wall_s_max": 4.488757365,
+      "rss_bytes_median": 67837952,
+      "distinct": 112929,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+      "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 4.413873007,
+      "wall_s_min": 4.388869292,
+      "wall_s_max": 4.438775901,
+      "rss_bytes_median": 1093586944,
+      "distinct": 112929,
+      "reported_native_budget": null,
+      "cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+      "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCDisruptor_MPMC",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 1.5599882520000001,
+      "wall_s_min": 1.555741617,
+      "wall_s_max": 1.583424186,
+      "rss_bytes_median": 1116139520,
+      "distinct": 112929,
+      "reported_native_budget": null,
+      "cfg_sha256": "536a5a14deb08f933d9091a213991d634bd2f2cccf0f92e25f22fefe273b1b44",
+      "module_sha256": "def6ddaeb2a8bb3995421722e007e1d9b889502a8d8bd92a55f51289a1633e75",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCLamportMutex",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 54.833083492,
+      "wall_s_min": 54.758057282,
+      "wall_s_max": 54.93608726,
+      "rss_bytes_median": 282853376,
+      "distinct": 724274,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+      "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCLamportMutex",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 20.45615137,
+      "wall_s_min": 19.430625718,
+      "wall_s_max": 20.986545749,
+      "rss_bytes_median": 321916928,
+      "distinct": 724274,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+      "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCLamportMutex",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+      "repetitions": 5,
+      "wall_s_median": 52.702704099,
+      "wall_s_min": 52.627856671,
+      "wall_s_max": 52.804688443,
+      "rss_bytes_median": 158277632,
+      "distinct": 724274,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+      "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCLamportMutex",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!Tail (runtime names require TLC encounter order)",
+      "repetitions": 5,
+      "wall_s_median": 52.654441686,
+      "wall_s_min": 52.604036815,
+      "wall_s_max": 52.754675697,
+      "rss_bytes_median": 158355456,
+      "distinct": 724274,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+      "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCLamportMutex",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 16.975002344,
+      "wall_s_min": 16.900129539,
+      "wall_s_max": 17.023792209,
+      "rss_bytes_median": 1332903936,
+      "distinct": 724274,
+      "reported_native_budget": null,
+      "cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+      "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCLamportMutex",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 4.314685998,
+      "wall_s_min": 4.268223553,
+      "wall_s_max": 4.368223955,
+      "rss_bytes_median": 1385598976,
+      "distinct": 724274,
+      "reported_native_budget": null,
+      "cfg_sha256": "b91d46fb0a2f3af22fa65147c4c971d5cb9e42d141f63ad9035aa30cad51d118",
+      "module_sha256": "2ebf6f863f504f76cfcb4a3bc8228aae1c5a896e7f2f8d046f8ab763656ccca8",
+      "acceptance_population_at_least_400000_distinct": true
+    },
+    {
+      "bench": "MCbtree",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 66.683355664,
+      "wall_s_min": 66.574532522,
+      "wall_s_max": 66.807965381,
+      "rss_bytes_median": 136642560,
+      "distinct": 374727,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCbtree",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 13.615562988,
+      "wall_s_min": 13.263906981,
+      "wall_s_max": 13.888031107,
+      "rss_bytes_median": 171163648,
+      "distinct": 374727,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCbtree",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+      "repetitions": 5,
+      "wall_s_median": 93.745555858,
+      "wall_s_min": 93.570680946,
+      "wall_s_max": 93.89854511,
+      "rss_bytes_median": 94748672,
+      "distinct": 374727,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCbtree",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+      "repetitions": 5,
+      "wall_s_median": 93.64949679,
+      "wall_s_min": 93.57049655,
+      "wall_s_max": 93.699752288,
+      "rss_bytes_median": 94806016,
+      "distinct": 374727,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCbtree",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 40.81745765,
+      "wall_s_min": 40.638908792,
+      "wall_s_max": 41.118232947,
+      "rss_bytes_median": 1202614272,
+      "distinct": 374727,
+      "reported_native_budget": null,
+      "cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "MCbtree",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 7.798828356,
+      "wall_s_min": 7.527744891,
+      "wall_s_max": 8.129061674999999,
+      "rss_bytes_median": 1366048768,
+      "distinct": 374727,
+      "reported_native_budget": null,
+      "cfg_sha256": "e7122e42b7ee004fcf7b9f80602143b0e72909b45df6e797ea89017d8a16079c",
+      "module_sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "SimpleRegular",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 17.427406971,
+      "wall_s_min": 17.426760996,
+      "wall_s_max": 17.45185074,
+      "rss_bytes_median": 238284800,
+      "distinct": 277726,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "SimpleRegular",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 5.868120316,
+      "wall_s_min": 5.818588259,
+      "wall_s_max": 6.019086315,
+      "rss_bytes_median": 276090880,
+      "distinct": 277726,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "SimpleRegular",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 18.053859021,
+      "wall_s_min": 18.028646942,
+      "wall_s_max": 18.078990011,
+      "rss_bytes_median": 240709632,
+      "distinct": 277726,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "SimpleRegular",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 5.843517949,
+      "wall_s_min": 5.542490208,
+      "wall_s_max": 6.069200315,
+      "rss_bytes_median": 279527424,
+      "distinct": 277726,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "SimpleRegular",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 5.417071284,
+      "wall_s_min": 5.392067876,
+      "wall_s_max": 5.441957717,
+      "rss_bytes_median": 1198133248,
+      "distinct": 277726,
+      "reported_native_budget": null,
+      "cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "SimpleRegular",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 2.333425584,
+      "wall_s_min": 2.308059483,
+      "wall_s_max": 2.383054755,
+      "rss_bytes_median": 1248927744,
+      "distinct": 277726,
+      "reported_native_budget": null,
+      "cfg_sha256": "8520b95eddae24778e6f099010d8da0b25ab6667c32a0284b2e16e9528924960",
+      "module_sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "TLCSailfish1",
+      "impl": "dive-default-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 145.800962045,
+      "wall_s_min": 145.65479632,
+      "wall_s_max": 145.86525745,
+      "rss_bytes_median": 641974272,
+      "distinct": 109604,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "TLCSailfish1",
+      "impl": "dive-default-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 30.640467933,
+      "wall_s_min": 28.333104046,
+      "wall_s_max": 32.971447463,
+      "rss_bytes_median": 657186816,
+      "distinct": 109604,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": 1800000,
+        "time_limit_source": "default"
+      },
+      "cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "TLCSailfish1",
+      "impl": "dive-tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+      "repetitions": 5,
+      "wall_s_median": 145.239622615,
+      "wall_s_min": 144.825998205,
+      "wall_s_max": 145.424150976,
+      "rss_bytes_median": 272420864,
+      "distinct": 109604,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "TLCSailfish1",
+      "impl": "dive-tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": "sequential mode: the specification uses Sequences!\\o (runtime names require TLC encounter order)",
+      "repetitions": 5,
+      "wall_s_median": 144.914096693,
+      "wall_s_min": 144.804571088,
+      "wall_s_max": 145.255194602,
+      "rss_bytes_median": 272482304,
+      "distinct": 109604,
+      "reported_native_budget": {
+        "max_memory_bytes": 101187454976,
+        "max_memory_source": "default",
+        "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+        "time_limit_ms": null,
+        "time_limit_source": "none"
+      },
+      "cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "TLCSailfish1",
+      "impl": "tlc-w1",
+      "workers_requested": 1,
+      "workers_used": [
+        1
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 51.37415562,
+      "wall_s_min": 51.244751665,
+      "wall_s_max": 52.024225081,
+      "rss_bytes_median": 892424192,
+      "distinct": 109604,
+      "reported_native_budget": null,
+      "cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "acceptance_population_at_least_400000_distinct": false
+    },
+    {
+      "bench": "TLCSailfish1",
+      "impl": "tlc-w8",
+      "workers_requested": 8,
+      "workers_used": [
+        8
+      ],
+      "sequential_reason": null,
+      "repetitions": 5,
+      "wall_s_median": 8.13155311,
+      "wall_s_min": 8.049324328,
+      "wall_s_max": 8.325086291,
+      "rss_bytes_median": 1425764352,
+      "distinct": 109604,
+      "reported_native_budget": null,
+      "cfg_sha256": "52b3ce7ce5ca649d44a38ff98e6f5772ad39b33e22e0af6df6d1174e9aff9e16",
+      "module_sha256": "065bcdb952c4d2b94d2a58d7f9d3009206f1c79f80437d83c6c7142b6f0333d0",
+      "acceptance_population_at_least_400000_distinct": false
+    }
+  ],
+  "external_archive_sha256": {
+    "complete_raw": "8095e13291f47b8bd9928ff7b216662c9854787c86537bb9c53d9f06cb0e27af",
+    "frozen_binaries": "c3c6e6b1de022f5fe858b16038f1ef6e6539ea7c7549dadc9de7b4f91ac5bed2"
+  }
+}

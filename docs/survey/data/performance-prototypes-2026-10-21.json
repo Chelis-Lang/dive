@@ -1,0 +1,1959 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "purpose": "Whole-process instruction comparisons on reduced ADR0104 inputs; no wall-clock or release-target claim.",
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "kernel": "7.0.0-1014-aws",
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "valgrind": "3.22.0",
+    "shared_with_gates": true
+  },
+  "method": {
+    "build_profile": "profiling",
+    "instrumentation": [
+      "--tool=cachegrind",
+      "--cache-sim=no"
+    ],
+    "whole_cli_including_startup": true,
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "native_time_limit_seconds": 900,
+    "native_max_memory_bytes": 8589934592,
+    "external_timeout_seconds": 930,
+    "counterbalancing": "base then candidate in dive profile; candidate then base in TLC profile",
+    "acceptance": "At least 5% fewer instructions geometrically across all eight complete cells, with identical observable counts/depth and no meaningful individual regression."
+  },
+  "inputs": {
+    "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "reductions": {
+      "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+      "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+      "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+      "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+    },
+    "models": {
+      "SimpleRegular": {
+        "module": {
+          "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+          "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+        },
+        "config": {
+          "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+          "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+        },
+        "expected": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19
+        }
+      },
+      "MCbtree": {
+        "module": {
+          "path": "specifications/btree/MCbtree.tla",
+          "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+        },
+        "config": {
+          "path": "specifications/btree/R1MCbtree.cfg",
+          "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+        },
+        "expected": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24
+        }
+      },
+      "GameOfLife": {
+        "module": {
+          "path": "specifications/GameOfLife/GameOfLife.tla",
+          "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+        },
+        "config": {
+          "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+          "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+        },
+        "expected": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1
+        }
+      },
+      "EWD998PCal": {
+        "module": {
+          "path": "specifications/ewd998/EWD998PCal.tla",
+          "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+        },
+        "config": {
+          "path": "specifications/ewd998/R1EWD998PCal.cfg",
+          "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+        },
+        "expected": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28
+        }
+      }
+    }
+  },
+  "experiments": {
+    "boxed_value_errors": {
+      "base": "d1eb36e3912a88032c24de025e9b11f125a72943",
+      "candidate": "c391868a254c395d71563093e92a78cdd33e661a",
+      "base_binary_sha256": "f9a4e15e02a11149e74a36976cccc6c3666b864d9e3018a99c16c4df891c9a78",
+      "candidate_binary_sha256": "99eeca402e7616ec7053036449bb5ed159de75b0f54415d7155567fb950f05bf",
+      "description": "Box private cold ValueError details: ValueError32\u21928bytes and both Result<Value,ValueError>/Result<bool,ValueError>32\u219216bytes, preserving public behavior.",
+      "result": "Rejected; no runtime change landed.",
+      "raw_archive_sha256": "181976544e145ed91ae56ca369c2d7e4fc4f34281789689f1ac2a7ba9c6ff92a",
+      "rows": [
+        {
+          "model": "SimpleRegular",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 2793322885,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 2796962906,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.13031150174391826
+        },
+        {
+          "model": "MCbtree",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 16452526467,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 16475486981,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.13955615902550011
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 1224021396,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 1232095937,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.6596731908761422
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 47273153357,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 47395357562,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.2585065651896201
+        },
+        {
+          "model": "SimpleRegular",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 2874275853,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 2880792050,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.2267074328721419
+        },
+        {
+          "model": "MCbtree",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 18652689101,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 18594131417,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": -0.31393695398515
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 1179960431,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 1190693171,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.9095847384394284
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 48174266442,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 48366639972,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.3993284054083279
+        }
+      ],
+      "complete_cells": 8,
+      "geomean_instruction_ratio": 1.0030062492654266
+    },
+    "four_byte_fingerprint_extension": {
+      "base": "90174cdfb9eee6bc0802eb6630433832dfa6b797",
+      "candidate": "e38cf3958379441c646ba21489bcee2aadbead22",
+      "base_binary_sha256": "b7542ced14659e9cceb5712a2be2eea7290b2903e4492baeceffc42647bef157",
+      "candidate_binary_sha256": "2b4d5bd6d2cd2afca36ce83d6d878b4bfa39485a40f9fb2194c10316d2c26a45",
+      "description": "Four-byte GF(2) table extension preserving the fingerprint byte stream, plus skipping the initial traversal-stack allocation for scalars.",
+      "tradeoffs": {
+        "immutable_table_bytes_before": 2048,
+        "immutable_table_bytes_after": 8192,
+        "extra_construction_reductions": 768,
+        "fp64_clone_bytes_before": 2056,
+        "fp64_clone_bytes_after": 8200,
+        "two_keyer_copies_additional_bytes": 12288,
+        "startup_and_clone_costs_included": true
+      },
+      "correctness_controls": "Existing pinned TLC64-bit dumps, lazy/deep traversal tests, and independent GF(2) basis/zero/arbitrary controls for all131polynomials passed; these controls do not imply a performance win.",
+      "result": "Rejected; no runtime change landed.",
+      "raw_archive_sha256": "2002af42afa43a72a11a200cd9d68f570f3f88bb61790ddb1ad2b2037de9628a",
+      "rows": [
+        {
+          "model": "SimpleRegular",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 2794008748,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 2818059559,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.8607994165092059
+        },
+        {
+          "model": "MCbtree",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 16452551318,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 16392059780,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": -0.36767268997252023
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 1224029421,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 1226903113,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.2347731149838106
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 47277075099,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 47385723450,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.22981191364417342
+        },
+        {
+          "model": "SimpleRegular",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 2872654962,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 2907541791,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 1.2144455029054813
+        },
+        {
+          "model": "MCbtree",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 18659877274,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 18875615746,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 1.1561623307169366
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 1179914799,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 1182667511,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.23329752303582474
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 48180552730,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 48292567666,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.23248993557156705
+        }
+      ],
+      "complete_cells": 8,
+      "geomean_instruction_ratio": 1.0047295461996861
+    },
+    "inline_settled_leaves": {
+      "base": "773490db7d060aef940aa02528d772b89d9fccc0",
+      "candidate": "b7c22ccd35d527f109c94e7548793f05064a3276",
+      "base_binary_sha256": "8a54fb9e4d645af0d525e731585a56e0d36786d8b38ce3f7470f19b358a3eca4",
+      "candidate_binary_sha256": "fce13614f872a55b987cfecf43ed471b9e47ffa4a0550597e0419c417ba41c0d",
+      "description": "Inline settled literal values, assigned typed state values and direct local value/function reads before the large evaluator dispatch; fallback and errors unchanged.",
+      "result": "Rejected; all eight cells increased instructions and no runtime change landed.",
+      "raw_archive_sha256": "36acdad33db6da19776c5e02386b7e5029564a95da41253520bbe7556018722b",
+      "rows": [
+        {
+          "model": "SimpleRegular",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 2794859869,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 2800496425,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.2016758000112917
+        },
+        {
+          "model": "MCbtree",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 16444774015,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 16748708119,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 1.848210888898616
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 1224238403,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 1276029114,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 4.230443259506211
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "dive",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 47268794504,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 48612311992,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 2.8422926839953844
+        },
+        {
+          "model": "SimpleRegular",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 2875672392,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 2881481013,
+              "verdict": "success",
+              "distinct": 12097,
+              "generated": 47584,
+              "depth": 19
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 0.20199175038713157
+        },
+        {
+          "model": "MCbtree",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 18634958925,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 18955840176,
+              "verdict": "success",
+              "distinct": 21364,
+              "generated": 127825,
+              "depth": 24
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 1.72193162481038
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 1180024130,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 1231832675,
+              "verdict": "success",
+              "distinct": 512,
+              "generated": 1024,
+              "depth": 1
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 4.390464879730893
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "tlc",
+          "arms": {
+            "base": {
+              "exit": 0,
+              "instructions": 48182518572,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            },
+            "candidate": {
+              "exit": 0,
+              "instructions": 49511160488,
+              "verdict": "success",
+              "distinct": 20870,
+              "generated": 168292,
+              "depth": 28
+            }
+          },
+          "identical_counts": true,
+          "complete": true,
+          "delta_pct": 2.7575186091914006
+        }
+      ],
+      "complete_cells": 8,
+      "geomean_instruction_ratio": 1.0226334978498066,
+      "matched_causal_diagnostic": {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "instrumentation": "Valgrind3.22.0 Callgrind, default cache simulation disabled",
+        "native_time_limit_seconds": 900,
+        "native_max_memory_bytes": 8589934592,
+        "external_timeout_seconds": 930,
+        "workers": 1,
+        "seed": 0,
+        "fp": 0,
+        "expected": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1
+        },
+        "both_arms_success_with_expected_counts": true,
+        "exclusive_cost_sums_match_whole_process": true,
+        "wrapper_symbol_bytes": {
+          "base": 57,
+          "candidate": 595
+        },
+        "hot_eval_inner_calls": {
+          "base": 2170366,
+          "candidate": 1415827
+        },
+        "hot_wrapper_calls": {
+          "base": 394540,
+          "candidate": 2170366
+        },
+        "hot_wrapper_exclusive_instructions": {
+          "base": 4734480,
+          "candidate": 105639222
+        },
+        "hot_interpreter_exclusive_instructions": {
+          "base": 152516375,
+          "candidate": 104930496
+        },
+        "additional_local_slot_check_instructions": 7455744,
+        "all_wrapper_interpreter_variants_exclusive_instruction_delta": 53151540,
+        "whole_process_instruction_delta": 51792443,
+        "assembly_observation": "Expanded inline-marked wrapper remained out of line, with larger register-save prologue, fallback call and repeated IR-node fetch/discriminant check.",
+        "qualification": "This diagnostic explains the observed failed pair. It does not establish that forced inlining, another dispatch layer or another cache would improve the full matrix. Inclusive recursive costs were not added.",
+        "raw_archive_sha256": "d09fc8be6bc36774b62edb9370643b37197bb3a8b71f5c345727cfdc7b9f0da4",
+        "whole_process_instructions": {
+          "base": 1223232069,
+          "candidate": 1275024512
+        }
+      }
+    }
+  },
+  "profile_context": {
+    "instrumentation": "Callgrind3.22.0, separate from Cachegrind paired instruction experiments; never compare raw counts across tools.",
+    "source": "d1eb36e3912a88032c24de025e9b11f125a72943",
+    "models": {
+      "MCbtree": {
+        "dive": {
+          "source_commit": "d1eb36e3912a88032c24de025e9b11f125a72943",
+          "model": "MCbtree MaxKey3",
+          "total": 16424626866,
+          "self_sum_verified": true,
+          "qualification": "Inclusive direct means self plus recorded outgoing call costs; recursive cost overlaps and may exceed the total. Do not add inclusive rows.",
+          "top_self": [
+            {
+              "name": "<dive_eval::core::Core>::eval_inner'2",
+              "self": 1714292640,
+              "self_pct": 10.437330808097032,
+              "inclusive_direct": 61123011899,
+              "inclusive_direct_pct": 372.14246873107624,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "mi_free",
+              "self": 561012890,
+              "self_pct": 3.4156811876276567,
+              "inclusive_direct": 573256932,
+              "inclusive_direct_pct": 3.490228037914685,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "mi_theap_malloc_aligned",
+              "self": 530278870,
+              "self_pct": 3.2285596155472502,
+              "inclusive_direct": 1199015141,
+              "inclusive_direct_pct": 7.300105815384068,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::equals",
+              "self": 410718965,
+              "self_pct": 2.5006288931300706,
+              "inclusive_direct": 521585393,
+              "inclusive_direct_pct": 3.1756300904449417,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "dive_eval::tla_cmp::member'2",
+              "self": 361664734,
+              "self_pct": 2.201966211778415,
+              "inclusive_direct": 738074431,
+              "inclusive_direct_pct": 4.49370592721263,
+              "source_files": [
+                "crates/dive-eval/src/tla_cmp.rs"
+              ]
+            },
+            {
+              "name": "<dive_value::value::Set>::from_sorted",
+              "self": 329117200,
+              "self_pct": 2.003803207738576,
+              "inclusive_direct": 1090255464,
+              "inclusive_direct_pct": 6.637931399567418,
+              "source_files": [
+                "crates/dive-value/src/value.rs"
+              ]
+            },
+            {
+              "name": "core::ptr::drop_glue::<dive_value::value::Value>",
+              "self": 314311063,
+              "self_pct": 1.9136572511771544,
+              "inclusive_direct": 853936420,
+              "inclusive_direct_pct": 5.199122189909237,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "dive_value::order::join",
+              "self": 309452575,
+              "self_pct": 1.8840767435672228,
+              "inclusive_direct": 888517231,
+              "inclusive_direct_pct": 5.409664634995672,
+              "source_files": [
+                "crates/dive-value/src/order.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env>::bind",
+              "self": 298095432,
+              "self_pct": 1.8149297054478364,
+              "inclusive_direct": 521840088,
+              "inclusive_direct_pct": 3.1771807801627534,
+              "source_files": [
+                "crates/dive-eval/src/env.rs"
+              ]
+            },
+            {
+              "name": "_mi_page_malloc_zero",
+              "self": 297685013,
+              "self_pct": 1.812430902867124,
+              "inclusive_direct": 302214829,
+              "inclusive_direct_pct": 1.840010317833177,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::eval_builtin",
+              "self": 269006272,
+              "self_pct": 1.6378227292143832,
+              "inclusive_direct": 9172524552,
+              "inclusive_direct_pct": 55.84616702001125,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "<std::sys::sync::once::futex::Once>::call",
+              "self": 265273552,
+              "self_pct": 1.6150963681807151,
+              "inclusive_direct": 347027732,
+              "inclusive_direct_pct": 2.1128500198587097,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_value::order::Shape as core::cmp::PartialEq>::eq",
+              "self": 240423454,
+              "self_pct": 1.4637985749173488,
+              "inclusive_direct": 240423454,
+              "inclusive_direct_pct": 1.4637985749173488,
+              "source_files": [
+                "crates/dive-value/src/order.rs"
+              ]
+            },
+            {
+              "name": "dive_value::order::scalar_cmp",
+              "self": 227503682,
+              "self_pct": 1.3851375976823364,
+              "inclusive_direct": 229384392,
+              "inclusive_direct_pct": 1.3965881470028398,
+              "source_files": [
+                "crates/dive-value/src/order.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::state_variable",
+              "self": 219107392,
+              "self_pct": 1.334017471371395,
+              "inclusive_direct": 219107392,
+              "inclusive_direct_pct": 1.334017471371395,
+              "source_files": [
+                "crates/dive-eval/src/named_state.rs"
+              ]
+            }
+          ],
+          "relevant": [
+            {
+              "name": "<dive_eval::core::Core>::member",
+              "self": 502456,
+              "self_pct": 0.003059162342616837,
+              "inclusive_direct": 2333566077,
+              "inclusive_direct_pct": 14.207726580569249,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "dive_eval::tla_cmp::member",
+              "self": 59108655,
+              "self_pct": 0.35987822117504903,
+              "inclusive_direct": 2333091071,
+              "inclusive_direct_pct": 14.204834545311003,
+              "source_files": [
+                "crates/dive-eval/src/tla_cmp.rs"
+              ]
+            },
+            {
+              "name": "mi_malloc_aligned",
+              "self": 170323510,
+              "self_pct": 1.0370007878387806,
+              "inclusive_direct": 1369338651,
+              "inclusive_direct_pct": 8.337106603222848,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "dive_eval::tla_cmp::member'2",
+              "self": 361664734,
+              "self_pct": 2.201966211778415,
+              "inclusive_direct": 738074431,
+              "inclusive_direct_pct": 4.49370592721263,
+              "source_files": [
+                "crates/dive-eval/src/tla_cmp.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::equals",
+              "self": 4457424,
+              "self_pct": 0.02713866218310959,
+              "inclusive_direct": 654280074,
+              "inclusive_direct_pct": 3.983530824401256,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "dive_eval::tla_cmp::equals",
+              "self": 83890484,
+              "self_pct": 0.5107603642044284,
+              "inclusive_direct": 649822650,
+              "inclusive_direct_pct": 3.9563921622181466,
+              "source_files": [
+                "crates/dive-eval/src/tla_cmp.rs"
+              ]
+            },
+            {
+              "name": "mi_free",
+              "self": 561012890,
+              "self_pct": 3.4156811876276567,
+              "inclusive_direct": 573256932,
+              "inclusive_direct_pct": 3.490228037914685,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env>::bind",
+              "self": 298095432,
+              "self_pct": 1.8149297054478364,
+              "inclusive_direct": 521840088,
+              "inclusive_direct_pct": 3.1771807801627534,
+              "source_files": [
+                "crates/dive-eval/src/env.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::equals",
+              "self": 410718965,
+              "self_pct": 2.5006288931300706,
+              "inclusive_direct": 521585393,
+              "inclusive_direct_pct": 3.1756300904449417,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "core::ptr::drop_glue::<dive_eval::env::Env>",
+              "self": 122626990,
+              "self_pct": 0.7466044190863508,
+              "inclusive_direct": 412093382,
+              "inclusive_direct_pct": 2.5089969188466554,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::callee_env",
+              "self": 100023976,
+              "self_pct": 0.6089878133369097,
+              "inclusive_direct": 311650462,
+              "inclusive_direct_pct": 1.8974583991623934,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::member",
+              "self": 56724590,
+              "self_pct": 0.34536303602381024,
+              "inclusive_direct": 139662486,
+              "inclusive_direct_pct": 0.8503236459460156,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::equals'2",
+              "self": 71384760,
+              "self_pct": 0.43462028442040834,
+              "inclusive_direct": 103507902,
+              "inclusive_direct_pct": 0.6301994124095921,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env>::new",
+              "self": 43769460,
+              "self_pct": 0.2664867844919236,
+              "inclusive_direct": 97569997,
+              "inclusive_direct_pct": 0.5940469625034586,
+              "source_files": [
+                "crates/dive-eval/src/env.rs"
+              ]
+            },
+            {
+              "name": "_mi_malloc_generic",
+              "self": 47806701,
+              "self_pct": 0.2910671967773152,
+              "inclusive_direct": 95758114,
+              "inclusive_direct_pct": 0.5830154607543947,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "dive_value::order::normalize_set",
+              "self": 21056776,
+              "self_pct": 0.1282024618993862,
+              "inclusive_direct": 81351345,
+              "inclusive_direct_pct": 0.49530102366223216,
+              "source_files": [
+                "crates/dive-value/src/order.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env as core::clone::Clone>::clone",
+              "self": 15660750,
+              "self_pct": 0.0953491980534348,
+              "inclusive_direct": 15660750,
+              "inclusive_direct_pct": 0.0953491980534348,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<num_bigint::big_digit::BigDigits>::normalize",
+              "self": 6993504,
+              "self_pct": 0.04257937825349925,
+              "inclusive_direct": 6993504,
+              "inclusive_direct_pct": 0.04257937825349925,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "mi_free_try_collect_mt",
+              "self": 19609,
+              "self_pct": 0.0001193877958992898,
+              "inclusive_direct": 145644,
+              "inclusive_direct_pct": 0.0008867416056890288,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::lazy::SetOp as dive_value::value::DeferredSet>::member",
+              "self": 59,
+              "self_pct": 3.5921668407660253e-07,
+              "inclusive_direct": 291,
+              "inclusive_direct_pct": 1.7717297468862938e-06,
+              "source_files": [
+                "crates/dive-eval/src/lazy.rs"
+              ]
+            }
+          ],
+          "hot_relevant_edges": [
+            {
+              "caller": "<dive_eval::core::Core>::eval_builtin",
+              "callee": "<dive_eval::core::Core>::member",
+              "calls": 251228,
+              "instructions": 2333566077,
+              "pct": 14.207726580569249
+            },
+            {
+              "caller": "<dive_eval::core::Core>::member",
+              "callee": "dive_eval::tla_cmp::member",
+              "calls": 251228,
+              "instructions": 2333063621,
+              "pct": 14.204667418226633
+            },
+            {
+              "caller": "dive_eval::tla_cmp::member",
+              "callee": "<dive_value::value::Fcn>::domain_equals",
+              "calls": 106820,
+              "instructions": 1529826013,
+              "pct": 9.314220806847278
+            },
+            {
+              "caller": "dive_eval::tla_cmp::member",
+              "callee": "dive_eval::tla_cmp::member'2",
+              "calls": 1547537,
+              "instructions": 722466631,
+              "pct": 4.3986791109121075
+            },
+            {
+              "caller": "<dive_eval::core::Core>::equals",
+              "callee": "dive_eval::tla_cmp::equals",
+              "calls": 2228712,
+              "instructions": 649822650,
+              "pct": 3.9563921622181466
+            },
+            {
+              "caller": "dive_eval::tla_cmp::equals",
+              "callee": "dive_value::order::semantic_eq",
+              "calls": 1413944,
+              "instructions": 531188720,
+              "pct": 3.234099163004998
+            },
+            {
+              "caller": "dive_eval::tla_cmp::member'2",
+              "callee": "dive_value::tlc::equals",
+              "calls": 7669032,
+              "instructions": 284131468,
+              "pct": 1.7299112504538525
+            },
+            {
+              "caller": "<dive_eval::core::Core>::call_def'2",
+              "callee": "<dive_eval::core::Core>::callee_env",
+              "calls": 283740,
+              "instructions": 190882079,
+              "pct": 1.1621699570852217
+            },
+            {
+              "caller": "<dive_eval::core::Core>::call_def",
+              "callee": "<dive_eval::core::Core>::callee_env",
+              "calls": 288040,
+              "instructions": 120768383,
+              "pct": 0.7352884420771717
+            },
+            {
+              "caller": "<dive_eval::core::Core>::callee_env",
+              "callee": "<dive_eval::env::Env>::new",
+              "calls": 571780,
+              "instructions": 97451316,
+              "pct": 0.5933243829223925
+            },
+            {
+              "caller": "dive_value::ops::intersect",
+              "callee": "dive_value::tlc::member",
+              "calls": 404226,
+              "instructions": 51107103,
+              "pct": 0.3111614249562947
+            },
+            {
+              "caller": "dive_value::tlc::member",
+              "callee": "dive_value::tlc::binary_search",
+              "calls": 511586,
+              "instructions": 49322080,
+              "pct": 0.30029345812476127
+            },
+            {
+              "caller": "<dive_eval::core::Core>::callee_env",
+              "callee": "<dive_eval::env::Env>::bind",
+              "calls": 690668,
+              "instructions": 47961815,
+              "pct": 0.29201159570500773
+            },
+            {
+              "caller": "dive_value::order::normalize_set",
+              "callee": "dive_value::order::total_cmp",
+              "calls": 715333,
+              "instructions": 42752407,
+              "pct": 0.26029454031920896
+            },
+            {
+              "caller": "<dive_value::value::Value>::set",
+              "callee": "dive_value::order::normalize_set",
+              "calls": 133084,
+              "instructions": 41748408,
+              "pct": 0.25418177435995093
+            }
+          ]
+        },
+        "tlc": {
+          "source_commit": "d1eb36e3912a88032c24de025e9b11f125a72943",
+          "model": "MCbtree MaxKey3",
+          "total": 18637274722,
+          "self_sum_verified": true,
+          "qualification": "Inclusive direct means self plus recorded outgoing call costs; recursive cost overlaps and may exceed the total. Do not add inclusive rows.",
+          "top_self": [
+            {
+              "name": "<dive_value::fp64::TlcFingerprint as dive_value::fp64::Fingerprinter>::extend",
+              "self": 3477899838,
+              "self_pct": 18.66098928023303,
+              "inclusive_direct": 4394524106,
+              "inclusive_direct_pct": 23.57922052204645,
+              "source_files": [
+                "crates/dive-value/src/fp64.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::eval_inner'2",
+              "self": 1714292640,
+              "self_pct": 9.198193757247122,
+              "inclusive_direct": 56248435776,
+              "inclusive_direct_pct": 301.80612034227653,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::equals",
+              "self": 747240376,
+              "self_pct": 4.0093864963955,
+              "inclusive_direct": 1281774625,
+              "inclusive_direct_pct": 6.877478838077944,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "mi_free",
+              "self": 515006271,
+              "self_pct": 2.763313191880308,
+              "inclusive_direct": 538153039,
+              "inclusive_direct_pct": 2.887509289996933,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "mi_theap_malloc_aligned",
+              "self": 427804258,
+              "self_pct": 2.2954228253930657,
+              "inclusive_direct": 1046775770,
+              "inclusive_direct_pct": 5.616571014883171,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "core::ptr::drop_glue::<dive_value::value::Value>",
+              "self": 337154634,
+              "self_pct": 1.809033987152706,
+              "inclusive_direct": 876846869,
+              "inclusive_direct_pct": 4.704801973890225,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_value::value::Set>::from_sorted",
+              "self": 329117200,
+              "self_pct": 1.7659084008216082,
+              "inclusive_direct": 1096579854,
+              "inclusive_direct_pct": 5.883799377092211,
+              "source_files": [
+                "crates/dive-value/src/value.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env>::bind",
+              "self": 298095432,
+              "self_pct": 1.5994582708389182,
+              "inclusive_direct": 521074604,
+              "inclusive_direct_pct": 2.7958733869223265,
+              "source_files": [
+                "crates/dive-eval/src/env.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::eval_builtin",
+              "self": 269006272,
+              "self_pct": 1.4433777256202427,
+              "inclusive_direct": 7670136592,
+              "inclusive_direct_pct": 41.15481853656393,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "<std::sys::sync::once::futex::Once>::call",
+              "self": 265273552,
+              "self_pct": 1.4233494754834681,
+              "inclusive_direct": 347025358,
+              "inclusive_direct_pct": 1.8619962584463103,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "_mi_page_malloc_zero",
+              "self": 245269902,
+              "self_pct": 1.316018064113612,
+              "inclusive_direct": 250076765,
+              "inclusive_direct_pct": 1.3418097266377786,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "_mi_theap_realloc_zero",
+              "self": 234080798,
+              "self_pct": 1.255981904498537,
+              "inclusive_direct": 547839733,
+              "inclusive_direct_pct": 2.9394841315147513,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::state_variable",
+              "self": 219107392,
+              "self_pct": 1.175640726813771,
+              "inclusive_direct": 219107392,
+              "inclusive_direct_pct": 1.175640726813771,
+              "source_files": [
+                "crates/dive-eval/src/named_state.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::apply_fcn",
+              "self": 210321997,
+              "self_pct": 1.1285018874123778,
+              "inclusive_direct": 712521841,
+              "inclusive_direct_pct": 3.823101025381773,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::member'2",
+              "self": 208706771,
+              "self_pct": 1.1198352447615973,
+              "inclusive_direct": 730360812,
+              "inclusive_direct_pct": 3.9188176538378765,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            }
+          ],
+          "relevant": [
+            {
+              "name": "dive_value::tlc::member",
+              "self": 66026937,
+              "self_pct": 0.3542735619068802,
+              "inclusive_direct": 1282588936,
+              "inclusive_direct_pct": 6.881848098134184,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::equals",
+              "self": 747240376,
+              "self_pct": 4.0093864963955,
+              "inclusive_direct": 1281774625,
+              "inclusive_direct_pct": 6.877478838077944,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "mi_malloc_aligned",
+              "self": 137796883,
+              "self_pct": 0.7393617632160587,
+              "inclusive_direct": 1184572653,
+              "inclusive_direct_pct": 6.35593277809923,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::member",
+              "self": 5275788,
+              "self_pct": 0.028307722447060896,
+              "inclusive_direct": 1167249650,
+              "inclusive_direct_pct": 6.262984623079808,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::member_fcn_set",
+              "self": 38882480,
+              "self_pct": 0.20862749827957383,
+              "inclusive_direct": 1121700598,
+              "inclusive_direct_pct": 6.018587023755736,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::member'2",
+              "self": 208706771,
+              "self_pct": 1.1198352447615973,
+              "inclusive_direct": 730360812,
+              "inclusive_direct_pct": 3.9188176538378765,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "mi_free",
+              "self": 515006271,
+              "self_pct": 2.763313191880308,
+              "inclusive_direct": 538153039,
+              "inclusive_direct_pct": 2.887509289996933,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env>::bind",
+              "self": 298095432,
+              "self_pct": 1.5994582708389182,
+              "inclusive_direct": 521074604,
+              "inclusive_direct_pct": 2.7958733869223265,
+              "source_files": [
+                "crates/dive-eval/src/env.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::equals",
+              "self": 46802952,
+              "self_pct": 0.2511255143154186,
+              "inclusive_direct": 437995829,
+              "inclusive_direct_pct": 2.350106630573925,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "core::ptr::drop_glue::<dive_eval::env::Env>",
+              "self": 122626990,
+              "self_pct": 0.6579663165840841,
+              "inclusive_direct": 415018068,
+              "inclusive_direct_pct": 2.226817354954264,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::core::Core>::callee_env",
+              "self": 100023976,
+              "self_pct": 0.5366877802253389,
+              "inclusive_direct": 306082634,
+              "inclusive_direct_pct": 1.6423143327854197,
+              "source_files": [
+                "crates/dive-eval/src/eval.rs"
+              ]
+            },
+            {
+              "name": "_mi_malloc_generic",
+              "self": 95021741,
+              "self_pct": 0.5098478313883171,
+              "inclusive_direct": 147909748,
+              "inclusive_direct_pct": 0.7936232641642765,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "dive_value::tlc::equals'2",
+              "self": 71384760,
+              "self_pct": 0.3830214506401801,
+              "inclusive_direct": 103507902,
+              "inclusive_direct_pct": 0.5553811034282612,
+              "source_files": [
+                "crates/dive-value/src/tlc.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env>::new",
+              "self": 43769460,
+              "self_pct": 0.23484903588577363,
+              "inclusive_direct": 98022833,
+              "inclusive_direct_pct": 0.5259504646582845,
+              "source_files": [
+                "crates/dive-eval/src/env.rs"
+              ]
+            },
+            {
+              "name": "dive_value::order::normalize_set",
+              "self": 20842996,
+              "self_pct": 0.11183499900549462,
+              "inclusive_direct": 78487094,
+              "inclusive_direct_pct": 0.42112967250169614,
+              "source_files": [
+                "crates/dive-value/src/order.rs"
+              ]
+            },
+            {
+              "name": "<dive_eval::env::Env as core::clone::Clone>::clone",
+              "self": 15660750,
+              "self_pct": 0.08402918470431506,
+              "inclusive_direct": 15660750,
+              "inclusive_direct_pct": 0.08402918470431506,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<num_bigint::big_digit::BigDigits>::normalize",
+              "self": 4600736,
+              "self_pct": 0.024685669276362347,
+              "inclusive_direct": 4600736,
+              "inclusive_direct_pct": 0.024685669276362347,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "mi_free_try_collect_mt",
+              "self": 13984,
+              "self_pct": 7.50324294114357e-05,
+              "inclusive_direct": 90160,
+              "inclusive_direct_pct": 0.00048376171594215125,
+              "source_files": [
+                "external-toolchain"
+              ]
+            },
+            {
+              "name": "<dive_eval::lazy::SetOp as dive_value::value::DeferredSet>::member",
+              "self": 59,
+              "self_pct": 3.1656988953623475e-07,
+              "inclusive_direct": 291,
+              "inclusive_direct_pct": 1.5613870822888867e-06,
+              "source_files": [
+                "crates/dive-eval/src/lazy.rs"
+              ]
+            }
+          ],
+          "hot_relevant_edges": [
+            {
+              "caller": "<dive_eval::core::Core>::eval_builtin",
+              "callee": "<dive_eval::core::Core>::member",
+              "calls": 251228,
+              "instructions": 1167249650,
+              "pct": 6.262984623079808
+            },
+            {
+              "caller": "<dive_eval::core::Core>::member",
+              "callee": "dive_value::tlc::member",
+              "calls": 251228,
+              "instructions": 1161973862,
+              "pct": 6.2346769006327465
+            },
+            {
+              "caller": "dive_value::tlc::member",
+              "callee": "dive_value::tlc::member_fcn_set",
+              "calls": 106820,
+              "instructions": 1121700598,
+              "pct": 6.018587023755736
+            },
+            {
+              "caller": "dive_value::tlc::member_fcn_set",
+              "callee": "dive_value::tlc::member'2",
+              "calls": 1538208,
+              "instructions": 716802404,
+              "pct": 3.846068777179449
+            },
+            {
+              "caller": "dive_value::tlc::member'2",
+              "callee": "dive_value::tlc::equals",
+              "calls": 7760563,
+              "instructions": 475532809,
+              "pct": 2.551514725694668
+            },
+            {
+              "caller": "dive_value::tlc::member_fcn_set",
+              "callee": "dive_value::tlc::product_pairwise",
+              "calls": 42728,
+              "instructions": 316432368,
+              "pct": 1.6978467759906641
+            },
+            {
+              "caller": "<dive_eval::core::Core>::call_def'2",
+              "callee": "<dive_eval::core::Core>::callee_env",
+              "calls": 283740,
+              "instructions": 184761122,
+              "pct": 0.9913526776632338
+            },
+            {
+              "caller": "<dive_eval::core::Core>::call_def",
+              "callee": "<dive_eval::core::Core>::callee_env",
+              "calls": 288040,
+              "instructions": 121321512,
+              "pct": 0.6509616551221861
+            },
+            {
+              "caller": "<dive_eval::core::Core>::callee_env",
+              "callee": "<dive_eval::env::Env>::new",
+              "calls": 571780,
+              "instructions": 97904152,
+              "pct": 0.5253136709115039
+            },
+            {
+              "caller": "dive_value::tlc::member",
+              "callee": "dive_value::tlc::binary_search",
+              "calls": 549171,
+              "instructions": 54233843,
+              "pct": 0.29099663877348303
+            },
+            {
+              "caller": "dive_value::ops::intersect",
+              "callee": "dive_value::tlc::member",
+              "calls": 404226,
+              "instructions": 51107103,
+              "pct": 0.2742198296818131
+            },
+            {
+              "caller": "<dive_eval::core::Core>::callee_env",
+              "callee": "<dive_eval::env::Env>::bind",
+              "calls": 690668,
+              "instructions": 47961815,
+              "pct": 0.25734349960181907
+            },
+            {
+              "caller": "<dive_value::value::Value>::set",
+              "callee": "dive_value::order::normalize_set",
+              "calls": 133084,
+              "instructions": 41748408,
+              "pct": 0.22400489676057048
+            },
+            {
+              "caller": "dive_value::order::normalize_set",
+              "callee": "dive_value::order::total_cmp",
+              "calls": 715327,
+              "instructions": 40101936,
+              "pct": 0.21517060084252806
+            },
+            {
+              "caller": "<dive_value::value::Set>::cached_elements",
+              "callee": "dive_value::order::normalize_set",
+              "calls": 108153,
+              "instructions": 36737737,
+              "pct": 0.19711968379493633
+            }
+          ]
+        }
+      }
+    },
+    "raw_archive_sha256": "bf58c13321d6edcec431b1bcd80acfc404ebc03870883971098ac48f6664f15b",
+    "native_time_limit_seconds": 300,
+    "native_max_memory_bytes": 8589934592,
+    "external_timeout_seconds": 330,
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "all_profile_arms_completed": true,
+    "cross_matrix_constraints": {
+      "source_commit": "d1eb36e3912a88032c24de025e9b11f125a72943",
+      "complete_cells": 8,
+      "callee_env_inclusive_pct_range": [
+        0.108,
+        2.879
+      ],
+      "qualification": "Parentless empty-frame allocation is a subset; dominant GameOfLife Sum/score frames have arguments/captures. Function-domain comparison is material in MCbtree/default but absent or small elsewhere. These shares do not establish a five-percent geometric opportunity; recursive inclusive costs overlap."
+    },
+    "foreign_thunk_cache_hypothesis": {
+      "hypothesis": "Box only the cold foreign-domain cache slot, preserving ordinary cached/store semantics.",
+      "decision": "Not implemented; retained costs provide no credible five-percent matrix case. No new profile or native workload executed.",
+      "source": "d1eb36e3912a88032c24de025e9b11f125a72943",
+      "named_costs": [
+        {
+          "model": "SimpleRegular",
+          "profile": "dive",
+          "total_instructions": 2789601120,
+          "cached": {
+            "self_instructions": 0,
+            "inclusive_direct_instructions": 0
+          },
+          "store": {
+            "self_instructions": 0,
+            "inclusive_direct_instructions": 0
+          },
+          "drop_slow": {
+            "self_instructions": 0,
+            "inclusive_direct_instructions": 0
+          },
+          "callee_env": {
+            "self_instructions": 1076633,
+            "inclusive_direct_instructions": 3107228
+          },
+          "direct_thunk_free_calls": 0,
+          "direct_thunk_free_instructions": 0,
+          "optimistic_named_self_and_direct_free_pct": 0.038594514186314925
+        },
+        {
+          "model": "MCbtree",
+          "profile": "dive",
+          "total_instructions": 16424626866,
+          "cached": {
+            "self_instructions": 78448511,
+            "inclusive_direct_instructions": 117783929
+          },
+          "store": {
+            "self_instructions": 64294030,
+            "inclusive_direct_instructions": 70377990
+          },
+          "drop_slow": {
+            "self_instructions": 17492572,
+            "inclusive_direct_instructions": 275846613
+          },
+          "callee_env": {
+            "self_instructions": 100023976,
+            "inclusive_direct_instructions": 311650462
+          },
+          "direct_thunk_free_calls": 668788,
+          "direct_thunk_free_instructions": 14713940,
+          "optimistic_named_self_and_direct_free_pct": 1.6741508421674485
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "dive",
+          "total_instructions": 1223067890,
+          "cached": {
+            "self_instructions": 16427520,
+            "inclusive_direct_instructions": 25182720
+          },
+          "store": {
+            "self_instructions": 12344832,
+            "inclusive_direct_instructions": 13588992
+          },
+          "drop_slow": {
+            "self_instructions": 3350016,
+            "inclusive_direct_instructions": 85404672
+          },
+          "callee_env": {
+            "self_instructions": 11612160,
+            "inclusive_direct_instructions": 33226293
+          },
+          "direct_thunk_free_calls": 129024,
+          "direct_thunk_free_instructions": 2838528,
+          "optimistic_named_self_and_direct_free_pct": 3.8078880478171984
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "dive",
+          "total_instructions": 47228340072,
+          "cached": {
+            "self_instructions": 326608676,
+            "inclusive_direct_instructions": 512375138
+          },
+          "store": {
+            "self_instructions": 240916656,
+            "inclusive_direct_instructions": 301186376
+          },
+          "drop_slow": {
+            "self_instructions": 79435837,
+            "inclusive_direct_instructions": 771417863
+          },
+          "callee_env": {
+            "self_instructions": 435678353,
+            "inclusive_direct_instructions": 1359641497
+          },
+          "direct_thunk_free_calls": 3025070,
+          "direct_thunk_free_instructions": 66551604,
+          "optimistic_named_self_and_direct_free_pct": 2.4332659675272272
+        },
+        {
+          "model": "SimpleRegular",
+          "profile": "tlc",
+          "total_instructions": 2870814615,
+          "cached": {
+            "self_instructions": 0,
+            "inclusive_direct_instructions": 0
+          },
+          "store": {
+            "self_instructions": 0,
+            "inclusive_direct_instructions": 0
+          },
+          "drop_slow": {
+            "self_instructions": 0,
+            "inclusive_direct_instructions": 0
+          },
+          "callee_env": {
+            "self_instructions": 1076633,
+            "inclusive_direct_instructions": 3097707
+          },
+          "direct_thunk_free_calls": 0,
+          "direct_thunk_free_instructions": 0,
+          "optimistic_named_self_and_direct_free_pct": 0.03750270025708365
+        },
+        {
+          "model": "MCbtree",
+          "profile": "tlc",
+          "total_instructions": 18637274722,
+          "cached": {
+            "self_instructions": 78448511,
+            "inclusive_direct_instructions": 117783929
+          },
+          "store": {
+            "self_instructions": 64294030,
+            "inclusive_direct_instructions": 70377990
+          },
+          "drop_slow": {
+            "self_instructions": 17492572,
+            "inclusive_direct_instructions": 278773573
+          },
+          "callee_env": {
+            "self_instructions": 100023976,
+            "inclusive_direct_instructions": 306082634
+          },
+          "direct_thunk_free_calls": 668788,
+          "direct_thunk_free_instructions": 17639292,
+          "optimistic_named_self_and_direct_free_pct": 1.491089148736754
+        },
+        {
+          "model": "GameOfLife",
+          "profile": "tlc",
+          "total_instructions": 1179195921,
+          "cached": {
+            "self_instructions": 16427520,
+            "inclusive_direct_instructions": 25182720
+          },
+          "store": {
+            "self_instructions": 12344832,
+            "inclusive_direct_instructions": 13588992
+          },
+          "drop_slow": {
+            "self_instructions": 3350016,
+            "inclusive_direct_instructions": 85404672
+          },
+          "callee_env": {
+            "self_instructions": 11612160,
+            "inclusive_direct_instructions": 33225175
+          },
+          "direct_thunk_free_calls": 129024,
+          "direct_thunk_free_instructions": 2838528,
+          "optimistic_named_self_and_direct_free_pct": 3.9495604734202603
+        },
+        {
+          "model": "EWD998PCal",
+          "profile": "tlc",
+          "total_instructions": 48129390057,
+          "cached": {
+            "self_instructions": 326608676,
+            "inclusive_direct_instructions": 512375138
+          },
+          "store": {
+            "self_instructions": 240916656,
+            "inclusive_direct_instructions": 301191236
+          },
+          "drop_slow": {
+            "self_instructions": 79435837,
+            "inclusive_direct_instructions": 771482910
+          },
+          "callee_env": {
+            "self_instructions": 435678353,
+            "inclusive_direct_instructions": 1358630968
+          },
+          "direct_thunk_free_calls": 3025070,
+          "direct_thunk_free_instructions": 66551604,
+          "optimistic_named_self_and_direct_free_pct": 2.387711800708474
+        }
+      ],
+      "visible_cost_elimination_scenario": {
+        "geometric_instruction_reduction_pct": 1.9873302606588483,
+        "qualification": "Optimistically deletes all cached/store/callee_env/Thunk-drop exclusive instructions and direct Thunk mi_free call costs, including required ordinary-domain work. This is an intentionally overgenerous scenario for these named costs, not a rigorous global upper bound: constructors are inlined into multiple callers and source-line allocator costs can be conflated. It cannot justify a five-percent whole-matrix claim."
+      },
+      "constructor_attribution": "No named Thunk::new symbol and no separately charged foreign-field constructor lines. Constructor code is inlined into multiple callers and generic allocator/source locations; source annotation cannot assign a rigorous total constructor saving. Absence of a named symbol does not mean zero cost.",
+      "inclusive_qualification": "Ordinary-domain cached/store work and captured-value destruction remain required. Inclusive destruction reaches over seven percent in GameOfLife but includes required recursive captured values; do not add overlapping inclusive rows or attribute INSTANCE forcing cost to cache construction.",
+      "analysis_archive_sha256": {
+        "env_source_annotation": "edf7078b89c74adfdffe547f41dde3624ab9f1a737e2e40e3cbbbe05b68f5478",
+        "constructor_callsite_annotation": "0080cf9d49d64278933e91a56f82c4bc98be5ded81a3ee7d3d88df28f55c5c49"
+      }
+    }
+  }
+}
