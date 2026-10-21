@@ -589,6 +589,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Explain five semantic argument-shape families: operator/function argument
+  counts, required operator arguments, and operator/LAMBDA arity. Analysis reports
+  fill absent help while retaining producer suggestions and diagnostic evidence;
+  semantic acceptance and the report version are unchanged.
+
 - Parser reports now supply concrete help for every assigned syntax diagnostic,
   preserving more specific parser suggestions. `dive explain DIVE-S...` covers
   the same codes without changing parser acceptance, spans or report versions.

@@ -138,7 +138,7 @@ impl AnalyzeReport {
                 code: d.code.as_str().to_owned(),
                 severity: d.severity,
                 message: d.message.clone(),
-                help: d.help.clone(),
+                help: crate::diagnostics::semantic_help(d.code, d.help.as_deref()),
                 sany: d.sany,
                 file: d.span.map(|s| s.file),
                 range: d.span.map(|s| s.range),
