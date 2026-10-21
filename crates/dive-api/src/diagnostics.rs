@@ -1,4 +1,4 @@
-//! Explanations for stable temporal and command diagnostic codes.
+//! Explanations for stable syntax, temporal and command diagnostic codes.
 //!
 //! Explanations describe a diagnostic family. A concrete report's message and
 //! source remain authoritative for the particular failure. An explanation is
@@ -54,6 +54,54 @@ explanations! {
     "DIVE-X0004" => ("A requested specification or configuration file could not be read.", "Check the reported path, working directory and read permissions, then retry with the intended file.");
 }
 
+// The typed match is deliberately exhaustive: a newly assigned syntax code
+// must receive a concrete explanation before this crate can compile.
+macro_rules! syntax_explanations {
+    ($($variant:ident => ($code:literal, $cause:literal, $help:literal);)*) => {
+        const SYNTAX_CODES: &[dive_syntax::Code] = &[$(dive_syntax::Code::$variant,)*];
+
+        pub(crate) fn syntax_explanation(code: dive_syntax::Code) -> &'static Explanation {
+            match code {
+                $(dive_syntax::Code::$variant => &Explanation {
+                    code: $code,
+                    cause: $cause,
+                    remediation: $help,
+                },)*
+            }
+        }
+    };
+}
+
+syntax_explanations! {
+    UnexpectedCharacter => ("DIVE-S0001", "The source contains a character that cannot begin a TLA+ token.", "Inspect the highlighted character; replace it with the intended TLA+ symbol or put literal text inside a quoted string or comment.");
+    BadString => ("DIVE-S0002", "A string literal has an invalid escape or no closing quote.", "Close the string with a double quote and use valid TLA+ string escapes; escape embedded quotes and backslashes.");
+    UnterminatedComment => ("DIVE-S0003", "A block comment remains open at the end of the source.", "Close each open (* block comment with *), including any nested comment.");
+    NoModule => ("DIVE-S0004", "The source has no TLA+ module header.", "Start the module with ---- MODULE Name ---- and finish it with ====; use the file's base name for Name.");
+    MissingModuleEnd => ("DIVE-S0005", "The module ends before its closing delimiter.", "Add ==== after the module's final definition or proof; close any preceding nested module first.");
+    ModuleNameMismatch => ("DIVE-S0006", "The top-level module name differs from its file name.", "Rename the file to match the declared module name, or change the MODULE name to match the file's base name.");
+    InvalidUtf8 => ("DIVE-S0007", "The file contains invalid UTF-8 bytes, which were decoded as replacement characters.", "Save the file as UTF-8 and restore any characters replaced during decoding, then parse it again.");
+    UnexpectedToken => ("DIVE-S0010", "The grammar does not allow this token at the reported position.", "Inspect the highlighted token and its preceding construct; complete missing delimiters or keywords before changing the token.");
+    MissingExpression => ("DIVE-S0011", "A construct requires an expression at this position.", "Supply the missing expression, or remove the operator or separator that requires it; check the preceding definition and delimiters.");
+    PrecedenceConflict => ("DIVE-S0012", "Adjacent operators have overlapping precedence without an explicit grouping.", "Add parentheses around the intended subexpressions so their grouping is explicit.");
+    MissingOperator => ("DIVE-S0013", "Two expressions occur together without an operator between them.", "Insert the intended operator between the expressions, or add the missing delimiter that separates them.");
+    MisplacedOperator => ("DIVE-S0014", "An operator appears where its prefix, infix or postfix form cannot be used.", "Move the operator to its declared position and supply its operands; parenthesize the surrounding expression if needed.");
+    JunctionIndentation => ("DIVE-S0015", "A conjunction or disjunction list item extends left of its bullet's allowed indentation.", "Indent each list item's continuation to the right of its /\\ or \\/ bullet, and align sibling bullets.");
+    StepLevel => ("DIVE-S0020", "A proof step number has the wrong nesting level.", "Make the step's level consistent with its containing proof and sibling steps; use a deeper level only inside a nested proof.");
+    StepNumberMisuse => ("DIVE-S0021", "A proof step number occurs outside a proof or in an expression that cannot contain it.", "Move the numbered step into its proof, or replace the step-number token with the intended expression or reference.");
+    UnexpectedProof => ("DIVE-S0022", "A proof is attached to a construct that cannot take one.", "Attach the proof to a theorem or a proof step that admits a subproof; remove an accidental PROOF keyword.");
+    ProofTooDeep => ("DIVE-S0023", "Proof nesting exceeds SANY's 100-level limit.", "Restructure the proof into shallower subproofs or separate lemmas; increasing a run budget does not change this syntax limit.");
+    BadLabel => ("DIVE-S0030", "The label separator :: does not follow a valid label.", "Place a valid label before ::, or remove the separator if no expression label was intended.");
+    LabelChangesParse => ("DIVE-S0031", "Removing an expression label would change how its expression parses.", "Parenthesize the labeled expression so it has the same grouping with and without the label.");
+    TimesAsArgument => ("DIVE-S0032", "Cartesian product syntax is being used as an operator argument.", "Define a named operator that takes the required arguments and returns their Cartesian product, then pass that operator by name.");
+    SetMapWithIn => ("DIVE-S0033", "A mapped set's result is an unparenthesized membership expression.", "Parenthesize the result expression, for example {(a \\in b) : c \\in d}; keep the bound variables after the colon.");
+    AtInExcept => ("DIVE-S0034", "An EXCEPT selector uses @ as a field name.", "Use the intended field name after !.; use @ only in the replacement expression to refer to the previous value.");
+    BadFairness => ("DIVE-S0035", "A WF_ or SF_ fairness expression has an invalid structure.", "Use WF_vars(Action) or SF_vars(Action), with the state-variable expression after the underscore and the action in parentheses.");
+    NewWithArguments => ("DIVE-S0036", "A NEW declaration gives arguments to a symbol before a set-membership constraint.", "Declare a set-constrained NEW symbol without arguments; put any required operator constraint in a separate assumption.");
+    BadStructuralSelector => ("DIVE-S0037", "A structural selector uses a decimal number as a single selector.", "Separate structural selectors with !, for example Op!1!2; do not write Op!1.2.");
+    NestingTooDeep => ("DIVE-S0040", "Expression nesting exceeds the parser's supported depth.", "Split deeply nested expressions into named operator definitions, then parse the restructured module again.");
+    InputTooLarge => ("DIVE-S0041", "The input exceeds the parser's 4 GiB source-size capacity.", "Split the source into smaller modules and import their definitions; time and memory budgets do not change the source-offset capacity.");
+}
+
 /// Looks up an explicitly documented code. Unknown codes return `None`;
 /// guessing an explanation from a code prefix would hide new failure classes.
 ///
@@ -65,7 +113,16 @@ explanations! {
 /// ```
 #[must_use]
 pub fn explain(code: &str) -> Option<&'static Explanation> {
-    CATALOGUE.iter().find(|entry| entry.code == code)
+    CATALOGUE
+        .iter()
+        .find(|entry| entry.code == code)
+        .or_else(|| {
+            SYNTAX_CODES
+                .iter()
+                .copied()
+                .find(|syntax| syntax.as_str() == code)
+                .map(syntax_explanation)
+        })
 }
 
 /// A versioned informational report. `known` establishes catalogue coverage
@@ -126,6 +183,89 @@ pub(crate) fn temporal_failure(failure: &crate::temporal::Failure) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn syntax_codes_have_exact_explanations_without_prefix_guessing() {
+        for (index, &code) in SYNTAX_CODES.iter().enumerate() {
+            let entry = syntax_explanation(code);
+            assert_eq!(entry.code, code.as_str());
+            assert!(!entry.cause.is_empty() && !entry.remediation.is_empty());
+            assert!(!SYNTAX_CODES[..index].contains(&code));
+            assert_eq!(explain(code.as_str()), Some(entry));
+            let report = explanation_json(code.as_str());
+            assert_eq!(report["known"], true);
+            assert_eq!(report["schema_version"], crate::REPORT_SCHEMA_VERSION);
+            assert!(report.get("verdict").is_none());
+        }
+        for code in [
+            "DIVE-S0000",
+            "DIVE-S0008",
+            "DIVE-S0038",
+            "dive-s0011",
+            "DIVE-S0011 extra",
+        ] {
+            assert!(explain(code).is_none());
+        }
+    }
+
+    #[test]
+    fn parse_help_preserves_messages_spans_acceptance_and_specific_remediation() {
+        let mut specific = 0;
+        let mut fallback = 0;
+        for source in [
+            "---- MODULE Help ----\nA == \"λ\" /\\\n====\n",
+            "---- MODULE Help ----\nA == 1\n",
+            "---- MODULE Help ----\nA == {1 \\in {1} : c \\in {1}}\n====\n",
+        ] {
+            let raw = dive_syntax::parse_module(source);
+            assert_ne!(raw.diagnostics(), []);
+            let report = crate::parse_source("Help.tla", source);
+            assert_eq!(
+                report.accepted(),
+                !raw.diagnostics()
+                    .iter()
+                    .any(dive_syntax::Diagnostic::is_error)
+            );
+            assert_eq!(report.diagnostics().len(), raw.diagnostics().len());
+            let json = report.to_json(false);
+            for (index, (original, enriched)) in raw
+                .diagnostics()
+                .iter()
+                .zip(report.diagnostics())
+                .enumerate()
+            {
+                assert_eq!(original.code, enriched.code);
+                assert_eq!(original.message, enriched.message);
+                assert_eq!(original.severity, enriched.severity);
+                assert_eq!(original.range, enriched.range);
+                if original.help.is_some() {
+                    specific += 1;
+                } else {
+                    fallback += 1;
+                }
+                let expected = original
+                    .help
+                    .as_deref()
+                    .unwrap_or_else(|| syntax_explanation(original.code).remediation);
+                assert_eq!(enriched.help.as_deref(), Some(expected));
+                assert_eq!(json["diagnostics"][index]["help"], expected);
+                assert_eq!(
+                    json["diagnostics"][index]["span"]["start"],
+                    u32::from(original.range.start())
+                );
+                assert_eq!(
+                    json["diagnostics"][index]["span"]["end"],
+                    u32::from(original.range.end())
+                );
+                let (line, column) =
+                    dive_syntax::diagnostics::line_col(source, original.range.start());
+                assert_eq!(json["diagnostics"][index]["span"]["line"], line);
+                assert_eq!(json["diagnostics"][index]["span"]["column"], column);
+                assert!(report.render_human().contains(expected));
+            }
+        }
+        assert!(specific > 0 && fallback > 0);
+    }
 
     #[test]
     fn codes_are_unique_and_unknown_codes_never_borrow_an_explanation() {

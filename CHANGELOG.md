@@ -578,6 +578,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Parser reports now supply concrete help for every assigned syntax diagnostic,
+  preserving more specific parser suggestions. `dive explain DIVE-S...` covers
+  the same codes without changing parser acceptance, spans or report versions.
+
 - Repository tasks select the invoking Cargo workspace at runtime, so a cached
   gate driver cannot silently check another worktree (#402).
 

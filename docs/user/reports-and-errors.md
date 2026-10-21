@@ -54,11 +54,16 @@ user commands. Keep profile and schema version in any automation protocol.
 
 Use `dive explain DIVE-L0020` or
 `dive explain DIVE-L0020 --output json` for a cause and a next action. This
-initial catalogue covers temporal `DIVE-L0020`–`DIVE-L0038` codes that are
+catalogue covers every assigned parser `DIVE-S` code, temporal `DIVE-L0020`–`DIVE-L0038` codes that are
 currently assigned, temporal API `DIVE-A0030`–`DIVE-A0034`, watchdog startup
 `DIVE-R0001`, memory observation `DIVE-R0002`, and command adapter
 `DIVE-X0001`–`DIVE-X0004`. It does not yet
-cover every frontend, evaluation or storage diagnostic. An unknown code exits
+cover semantic-analysis, evaluation or storage diagnostics. `dive parse` supplies
+a code-specific `help` action when the parser has no more specific suggestion;
+messages, severity, real source spans and acceptance are preserved. For example,
+`dive explain DIVE-S0012` explains how to resolve overlapping operator precedence
+with parentheses. These suggestions require checking the intended expression;
+they do not automatically edit the source. An unknown code exits
 2; JSON reports `known: false` and `explanation: null`. Explanations have
 `command: "explain"` and the common report schema version. They are
 informational and contain no model verdict.
