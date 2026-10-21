@@ -338,6 +338,7 @@ fn evaluator_interruption(
 ) -> Option<AnalysisError> {
     control.verdict(error).map(|verdict| match verdict {
         dive_check::Verdict::Stopped(stopped) => AnalysisError::Stopped(stopped),
+        dive_check::Verdict::BudgetMeasurement { error } => AnalysisError::BudgetMeasurement(error),
         _ => AnalysisError::Inconsistent("unexpected evaluator interruption classification"),
     })
 }

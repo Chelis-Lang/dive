@@ -2752,7 +2752,7 @@ mod predecessor_tests {
                     initial: false,
                 }
             );
-            assert!(opts.budget.poll().is_some());
+            assert!(opts.budget.poll().unwrap().is_some());
             let word = result.counterexample.unwrap();
             assert_eq!(word.states.len(), 3);
             assert_eq!(
