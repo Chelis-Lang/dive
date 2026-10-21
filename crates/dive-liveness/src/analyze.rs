@@ -325,12 +325,42 @@ impl std::fmt::Display for DetailedFailure {
 }
 impl std::error::Error for DetailedFailure {}
 
+fn evaluator_control(
+    opts: &CheckOptions,
+) -> Result<std::sync::Arc<dive_check::budget::EvaluationControl>, AnalysisError> {
+    dive_check::budget::EvaluationControl::new(&opts.budget, dive_check::budget::Phase::Temporal)
+        .map_err(|_| AnalysisError::Inconsistent("evaluator control identity is unrepresentable"))
+}
+
+fn evaluator_interruption(
+    control: &dive_check::budget::EvaluationControl,
+    error: &dive_eval::EvalError,
+) -> Option<AnalysisError> {
+    control.verdict(error).map(|verdict| match verdict {
+        dive_check::Verdict::Stopped(stopped) => AnalysisError::Stopped(stopped),
+        _ => AnalysisError::Inconsistent("unexpected evaluator interruption classification"),
+    })
+}
+
+fn planning_failure(
+    control: &dive_check::budget::EvaluationControl,
+    error: plan::PlanningError,
+) -> AnalysisError {
+    if let plan::PlanningError::Evaluation { error: cause, .. } = &error
+        && let Some(interruption) = evaluator_interruption(control, cause)
+    {
+        return interruption;
+    }
+    AnalysisError::Planning(error)
+}
+
 fn atom(
     model: &Model,
     plan: &Plan,
     index: usize,
     st: &St,
     property: &str,
+    control: &dive_check::budget::EvaluationControl,
 ) -> Result<bool, AnalysisError> {
     let pred = &plan.atoms[index].pred;
     let failure = |detail| AnalysisError::Atom {
@@ -340,7 +370,7 @@ fn atom(
     };
     plan.atoms[index]
         .evaluate(model, st)
-        .map_err(|e| failure(e.to_string()))
+        .map_err(|e| evaluator_interruption(control, &e).unwrap_or_else(|| failure(e.to_string())))
 }
 
 fn selected_targets(
@@ -391,6 +421,7 @@ fn labels(
     limit: usize,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     action_error: &mut Option<Box<ActionEvaluation>>,
+    control: &dive_check::budget::EvaluationControl,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
     let edges = graph
         .edges
@@ -419,7 +450,14 @@ fn labels(
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
             if pred.kind == AtomKind::State {
-                let value = atom(model, plan, index, &St::state(vals.clone()), property)?;
+                let value = atom(
+                    model,
+                    plan,
+                    index,
+                    &St::state(vals.clone()),
+                    property,
+                    control,
+                )?;
                 labels
                     .set_state(index, v, value)
                     .map_err(AnalysisError::Product)?;
@@ -440,6 +478,10 @@ fn labels(
                             .map_err(|failure| {
                                 let core = matches!(&failure, plan::AtomError::Core(_));
                                 let cause = failure.into_error();
+                                if let Some(interruption) = evaluator_interruption(control, &cause)
+                                {
+                                    return interruption;
+                                }
                                 let source = Box::new(plan::Source::new(model, pred.pred.location));
                                 let error = AnalysisError::Atom {
                                     property: property.into(),
@@ -477,6 +519,7 @@ fn attribute(
     states: &[StateVals],
     back: usize,
     cells: usize,
+    control: &dive_check::budget::EvaluationControl,
 ) -> Result<Vec<String>, AnalysisError> {
     let mut violated = Vec::new();
     for (p, prepared) in model.property_claims().iter().zip(plans) {
@@ -491,7 +534,7 @@ fn attribute(
             let next = if i + 1 == states.len() { back } else { i + 1 };
             let st = St::action(state.clone(), states[next].clone());
             let row = (0..plan.atoms.len())
-                .map(|a| atom(model, plan, a, &st, &p.name))
+                .map(|a| atom(model, plan, a, &st, &p.name, control))
                 .collect::<Result<_, _>>()?;
             rows.push(row);
         }
@@ -730,7 +773,13 @@ fn analyze_unbudgeted(
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
     validate_analysis_context(model)?;
-    let plans = prepare(model, limits)?;
+    let control = evaluator_control(opts)?;
+    let plans = {
+        let _control = control
+            .enter(&model.evaluator)
+            .map_err(|_| AnalysisError::Inconsistent("another driver owns evaluator control"))?;
+        prepare(model, limits, &control)?
+    };
     *stage = Stage::Capture;
     let captured =
         match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
@@ -740,6 +789,9 @@ fn analyze_unbudgeted(
             capture::Exploration::Complete(c) => *c,
             capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
         };
+    let _control = control
+        .enter(&model.evaluator)
+        .map_err(|_| AnalysisError::Inconsistent("another driver owns evaluator control"))?;
     let word = analyze_captured(
         model,
         &plans,
@@ -749,6 +801,7 @@ fn analyze_unbudgeted(
         policy,
         stage,
         action_error,
+        &control,
     )
     .inspect_err(|_| {
         *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
@@ -766,7 +819,11 @@ struct PreparedGroup {
     alternatives: Vec<CycleConditions>,
 }
 
-fn prepare(model: &Model, limits: Limits) -> Result<Vec<PreparedProperty>, AnalysisError> {
+fn prepare(
+    model: &Model,
+    limits: Limits,
+    control: &dive_check::budget::EvaluationControl,
+) -> Result<Vec<PreparedProperty>, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
     }
@@ -783,7 +840,7 @@ fn prepare(model: &Model, limits: Limits) -> Result<Vec<PreparedProperty>, Analy
         .iter()
         .map(|p| {
             let plan = plan::lower_violation(model, &p.pred, limits.formula)
-                .map_err(AnalysisError::Planning)?;
+                .map_err(|error| planning_failure(control, error))?;
             let groups = formula::decompose(&plan.formula, limits.formula)
                 .map_err(AnalysisError::Tableau)?
                 .into_iter()
@@ -842,6 +899,7 @@ fn analyze_captured(
     policy: AcceptancePolicy,
     stage: &mut Stage,
     action_error: &mut Option<Box<ActionEvaluation>>,
+    control: &dive_check::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
     let graph = Graph::new(
@@ -871,6 +929,7 @@ fn analyze_captured(
             limits.atom_cells,
             &active,
             action_error,
+            control,
         )?;
         *stage = Stage::Product;
         for group in &prepared.groups {
@@ -898,8 +957,14 @@ fn analyze_captured(
                         .map(|s| captured.edges[s.from][s.edge].clone())
                         .collect();
                     *stage = Stage::Attribution;
-                    let properties =
-                        attribute(model, plans, &states, lasso.prefix.len(), limits.atom_cells)?;
+                    let properties = attribute(
+                        model,
+                        plans,
+                        &states,
+                        lasso.prefix.len(),
+                        limits.atom_cells,
+                        control,
+                    )?;
                     if !properties.contains(&p.name) {
                         return Err(AnalysisError::Inconsistent(
                             "accepting candidate failed target-property attribution",

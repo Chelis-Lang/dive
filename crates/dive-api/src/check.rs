@@ -1582,7 +1582,7 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
             }
             dive_eval::ErrorClass::Eval | dive_eval::ErrorClass::Unsupported => "unsupported",
             dive_eval::ErrorClass::ResourceLimit => "resource-limit",
-            dive_eval::ErrorClass::Bug => "internal-error",
+            dive_eval::ErrorClass::Bug | dive_eval::ErrorClass::Interrupted => "internal-error",
         };
     }
     match failure.error() {

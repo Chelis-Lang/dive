@@ -70,7 +70,10 @@ use dive_value::{Interner, Value};
 pub use crate::core::{CollectSink, PrintSink};
 pub use crate::env::{St, StateRef};
 pub use crate::error::{Ec, ErrorClass, EvalError, Result};
-pub use crate::host::{Counter, Host, HostError, RunConfig, TLCGET_NAMES};
+pub use crate::host::{
+    Counter, Host, HostControl, HostControlConflict, HostControlScope, HostError, Interrupted,
+    RunConfig, TLCGET_NAMES,
+};
 pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
 pub use crate::named_state::NamedState;
 pub use crate::options::{
@@ -370,6 +373,32 @@ impl Evaluator {
     #[must_use = "the previous host must be restored or dropped deliberately"]
     pub fn replace_host(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
         self.core.host.replace(host)
+    }
+
+    /// Installs cooperative host control until the returned scope drops.
+    ///
+    /// Only evaluator loop checkpoints invoke it; ordinary host operations and
+    /// expression cache domains are unchanged. Replacing the specification-visible
+    /// host does not discard this control. The driver must own the evaluator's
+    /// control scope exclusively and classify interruption using its own evidence.
+    #[must_use = "the scope must live until evaluation finishes"]
+    /// Nested scopes on the owning thread restore the remaining innermost
+    /// control, including when guards are dropped out of order. Worker threads
+    /// may evaluate under that control, but cannot install a competing scope.
+    /// `None` suspends control only on this owning thread (for diagnostic replay
+    /// of an earlier deciding failure); other workers retain the underlying control.
+    ///
+    /// # Errors
+    /// [`HostControlConflict`] if another thread owns an active scope.
+    pub fn host_control(
+        &self,
+        control: Option<Arc<dyn HostControl>>,
+    ) -> Result<HostControlScope, HostControlConflict> {
+        Ok(HostControlScope {
+            core: self.core.clone(),
+            token: self.core.host.push_control(control)?,
+            _thread: ::std::marker::PhantomData,
+        })
     }
 
     /// The installed host, if any.

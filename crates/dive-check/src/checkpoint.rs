@@ -681,11 +681,15 @@ impl Session {
             // belong to the same key path as live discovery, never the payload.
             let state: StateVals = state.into_iter().map(Some).collect::<Vec<_>>().into();
             let st = St::state(state.clone());
-            let key =
-                crate::engine::state_key_of::<S>(search.m, search.keyer, search.ctx, &state, &st)
-                    .map_err(|verdict| {
-                    failure(format!("configured state/key admission: {verdict:?}"))
-                })?;
+            let key = crate::engine::state_key_of::<S>(
+                search.m,
+                search.keyer,
+                search.ctx,
+                &state,
+                &st,
+                &search.control,
+            )
+            .map_err(|verdict| failure(format!("configured state/key admission: {verdict:?}")))?;
             if S::checkpoint_key(&key) != discovery.key || !search.set.insert(key) {
                 return Err(failure(
                     "discovery state/key mismatch or duplicate visited key",

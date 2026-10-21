@@ -1220,6 +1220,7 @@ impl Core {
         }
         let mut idx = vec![0usize; columns.len()];
         loop {
+            self.loop_work()?;
             for (k, b) in binders.iter().enumerate() {
                 let x = &columns[k][idx[k]];
                 if b.tuple {
@@ -1353,6 +1354,7 @@ impl Core {
         let elems = s.elements(self.ctx)?;
         let slots: Vec<usize> = b.vars.iter().map(|s| s.index()).collect();
         for x in elems.iter() {
+            self.loop_work()?;
             if b.tuple {
                 let ok = matches!(x, Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == slots.len()));
                 if !ok {
@@ -1410,6 +1412,7 @@ impl Core {
             let elems = self.explore(s)?;
             let mut out = Vec::new();
             for x in elems.iter() {
+                self.loop_work()?;
                 if bound.tuple && !matches!(x, Value::Fcn(f) if f.as_tuple().is_some()) {
                     return Err(EvalError::unsupported(format!(
                         "a set filter with a tuple pattern over a set containing the non-tuple {}",
@@ -1500,6 +1503,7 @@ impl Core {
         let mut env = f.env.clone();
         let mut out = Vec::new();
         for x in elems {
+            self.loop_work()?;
             if f.tuple {
                 match x {
                     Value::Fcn(t) if t.as_tuple().is_some_and(|t| t.len() == f.slots.len()) => {

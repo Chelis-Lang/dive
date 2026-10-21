@@ -85,8 +85,17 @@ Every `dive check` runs under two budgets (ADR 0107):
 
 The clock starts after the specification and configuration are loaded.
 dive polls the budget for each initial state, each expanded state, and during
-graph capture and temporal analysis. Binding, `ASSUME` evaluation and a single
-long evaluation are not interrupted. Memory is the whole process's: resident
+graph capture and temporal analysis. After startup, nested quantifier, CHOOSE
+and filter predicate loops also poll at amortized work checkpoints, including
+when no complete successor is emitted (issue #374). Binding and `ASSUME`
+evaluation, value-only allocation/sorting/native operations, and diagnostic
+error/count reconstruction after an already deciding error are not interrupted
+(#349, #379). This diagnostic exclusion affects only the reconstructing thread;
+other workers retain control. It does not suspend ordinary checking. Fresh
+independent validation evaluators do not yet inherit this loop control, so
+counterexample certification can also outlast the run budget (#349). Diagnostic
+suppression is not applied to certification; the fresh evaluator's interruption
+support is a separate missing path. No universal wall-clock deadline is promised. Memory is the whole process's: resident
 plus swapped pages on Linux, resident pages on macOS. Where it cannot be
 measured, checking fails with diagnostic `DIVE-R0002`; it never substitutes
 zero memory or silently disables the requested ceiling. An unavailable physical

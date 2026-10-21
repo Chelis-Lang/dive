@@ -107,7 +107,28 @@ impl std::fmt::Debug for Core {
     }
 }
 
+thread_local! {
+    // One counter across nested short loops, not one counter per invocation.
+    // It contains no run state; the active core owns each actual control check.
+    static LOOP_WORK: Cell<u16> = const { Cell::new(1024) };
+}
+
 impl Core {
+    /// Amortized cooperative checkpoint for evaluator-owned loop work.
+    #[inline]
+    pub(crate) fn loop_work(&self) -> Result<()> {
+        let due = LOOP_WORK.with(|counter| {
+            let remaining = counter.get() - 1;
+            counter.set(if remaining == 0 { 1024 } else { remaining });
+            remaining == 0
+        });
+        if due {
+            self.host.check_control()
+        } else {
+            Ok(())
+        }
+    }
+
     pub(crate) fn new(model: Model, opts: Options, sink: Arc<dyn PrintSink>) -> Self {
         let ir = model.ir;
         let names = model.names;

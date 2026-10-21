@@ -664,8 +664,15 @@ Run budgets interrupt decomposition, graph search
 and SCC traversal through an explicit stopped path; acceptance truth is never
 changed to signal budget exhaustion. Completed-level prefix analysis receives
 the same armed budget on its capture thread. Polling occurs between bounded work
-units; allocation, sorting and one predicate evaluation may finish before the
-next poll, so the time limit is not a hard real-time deadline. The checked
+units; nested evaluator quantifier, CHOOSE and filter loops also observe the
+same armed run budget, including atom evaluation and property attribution.
+Value-only allocation, sorting and native operations may finish before the next
+poll, so the time limit is not a hard real-time deadline. Binding, assumptions
+and diagnostic reconstruction of an already deciding error remain outside this
+interruption scope (#349, #379). Fresh independent witness-validation evaluators
+also do not yet inherit this loop control and can outlast the run budget (#349).
+The diagnostic exclusion does not add a pause to that validation path; its
+missing control registration remains a separate limitation. The checked
 strong-fairness fixture in
 `crates/dive-liveness/tests/fixtures/solutions/Solutions.tla` has 8 states and
 25 generated states for three independent toggles. Its holding and failing

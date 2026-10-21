@@ -573,7 +573,7 @@ fn classify(error: &EvalError, wrapper: Option<(u32, String)>) -> Outcome {
     match error.class() {
         ErrorClass::Unsupported => Outcome::Unsupported(error.message().to_owned()),
         ErrorClass::ResourceLimit => Outcome::Limit(error.message().to_owned()),
-        ErrorClass::Bug => Outcome::Internal(error.message().to_owned()),
+        ErrorClass::Bug | ErrorClass::Interrupted => Outcome::Internal(error.message().to_owned()),
         ErrorClass::Eval => match wrapper {
             Some((code, message)) => Outcome::Error { code, message },
             None => Outcome::Unsupported(format!(

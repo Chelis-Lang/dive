@@ -496,3 +496,74 @@ fn loading_errors_remain_before_initial_memory_sampling() -> Result<(), Box<dyn 
     assert!(rejected.get("stopped").is_none());
     Ok(())
 }
+
+#[test]
+fn evaluator_loops_stop_next_even_when_no_successor_is_emitted()
+-> Result<(), Box<dyn std::error::Error>> {
+    let scratch = scratch()?;
+    let file = scratch.0.join("LoopNext.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE LoopNext ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..31\nNext == /\\ x' = x\n        /\\ (\\A y \\in 1..1000 : \\A z \\in 1..1000 : x+y+z >= 0)\n        /\\ FALSE\n====\n",
+    )?;
+    std::fs::write(scratch.0.join("LoopNext.cfg"), "INIT Init\nNEXT Next\n")?;
+    for compat_tlc in [false, true] {
+        for workers in [1, 4] {
+            let report = check_file(&CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                max_memory: BudgetSetting::Unlimited,
+                ..request(&file, compat_tlc, workers)
+            })?;
+            let json = report.to_json();
+            assert_stopped(&json, "time", "safety-search");
+            assert!(
+                json["stopped"]["elapsed_ms"].as_u64() < Some(1500),
+                "{json}"
+            );
+            assert_eq!(json["statistics"]["generated"], 32, "{json}");
+            assert_eq!(json["statistics"]["initial_generated"], 32, "{json}");
+            assert_eq!(json["statistics"]["distinct"], 32, "{json}");
+            assert_eq!(json["statistics"]["depth"], 1, "{json}");
+            assert_eq!(json["statistics"]["left_on_queue"], 32, "{json}");
+            assert_ne!(json["execution"]["capture_completed"], true, "{json}");
+            assert_eq!(report.exit_code(), exit::STOPPED);
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
+-> Result<(), Box<dyn std::error::Error>> {
+    let scratch = scratch()?;
+    let file = scratch.0.join("LoopAtom.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE LoopAtom ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x\nP == []<>(\\A y \\in 1..1000 : \\A z \\in 1..1000 : x+y+z >= 0)\n====\n",
+    )?;
+    std::fs::write(
+        scratch.0.join("LoopAtom.cfg"),
+        "INIT Init\nNEXT Next\nPROPERTY P\n",
+    )?;
+    for compat_tlc in [false, true] {
+        let report = check_file(&CheckRequest {
+            temporal: dive_api::TemporalMode::FinalShort,
+            time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+            max_memory: BudgetSetting::Unlimited,
+            ..request(&file, compat_tlc, 1)
+        })?;
+        let json = report.to_json();
+        assert_stopped(&json, "time", "temporal-analysis");
+        assert_eq!(json["execution"]["stage"], "atoms", "{json}");
+        assert_eq!(json["execution"]["capture_completed"], true, "{json}");
+        assert_eq!(json["statistics"]["generated"], 2, "{json}");
+        assert_eq!(json["statistics"]["distinct"], 1, "{json}");
+        assert_eq!(json["statistics"]["initial_generated"], 1, "{json}");
+        assert_eq!(json["statistics"]["depth"], 1, "{json}");
+        assert!(
+            json["stopped"]["elapsed_ms"].as_u64() < Some(1500),
+            "{json}"
+        );
+    }
+    Ok(())
+}

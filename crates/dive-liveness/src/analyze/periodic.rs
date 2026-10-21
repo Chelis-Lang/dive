@@ -119,6 +119,7 @@ pub struct PeriodicFailure {
 
 struct Observe<'a> {
     budget: &'a dive_check::budget::Budget,
+    control: std::sync::Arc<dive_check::budget::EvaluationControl>,
     model: &'a Model,
     plans: &'a [super::PreparedProperty],
     limits: Limits,
@@ -162,6 +163,7 @@ impl capture::Observer for Observe<'_> {
             self.policy,
             &mut self.stage,
             &mut self.action,
+            &self.control,
         ) {
             Ok(None) => {}
             Ok(Some(word)) => self.decision = Some(Ok(word)),
@@ -340,10 +342,25 @@ fn periodic_unbudgeted(
     // Before lowering, touching bound scopes or starting a capture host.
     validate_analysis_context(model)
         .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?;
-    let plans = prepare(model, limits)
+    let control = super::evaluator_control(options)
         .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?;
+    let plans = {
+        let _scope = control.enter(&model.evaluator).map_err(|_| {
+            failure(
+                AnalysisError::Inconsistent("another driver owns evaluator control"),
+                Stage::Planning,
+                None,
+                None,
+                Some(false),
+                checks,
+            )
+        })?;
+        prepare(model, limits, &control)
+            .map_err(|error| failure(error, Stage::Planning, None, None, Some(false), checks))?
+    };
     let mut observer = Observe {
         budget: &options.budget,
+        control: control.clone(),
         model,
         plans: &plans,
         limits,
@@ -405,6 +422,16 @@ fn periodic_unbudgeted(
             ))
         }
         capture::ControlledExploration::Complete(complete) => {
+            let _control = control.enter(&model.evaluator).map_err(|_| {
+                failure(
+                    AnalysisError::Inconsistent("another driver owns evaluator control"),
+                    Stage::Product,
+                    Some(Box::new((&*complete).into())),
+                    None,
+                    Some(true),
+                    observer.checks,
+                )
+            })?;
             observer.checks.exhausted = true;
             observer.checks.final_check = true;
             let word = analyze_captured(
@@ -416,6 +443,7 @@ fn periodic_unbudgeted(
                 policy,
                 &mut observer.stage,
                 &mut observer.action,
+                &control,
             )
             .map_err(|error| {
                 failure(

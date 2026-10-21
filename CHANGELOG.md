@@ -1,5 +1,14 @@
 # Changelog
 
+- Post-startup evaluator quantifier, CHOOSE and filter loops cooperatively
+  observe run budgets across nested evaluation (issue #374). Interrupted
+  evaluation retains typed control through deferred sets and reports `stopped`
+  with actual search/capture/analysis progress; it is never a false predicate
+  or a capacity refusal. Binding, assumptions, diagnostic reconstruction of an
+  already deciding error, fresh independent validation, and value-only
+  bulk/native work retain their explicit interruption limitations (#349, #379). Rust callers matching evaluation or
+  value error classes must handle the additive `Interrupted` variants.
+
 - Finite memory budgets sample before binding and before a holding result,
   including short checks in both profiles (ADR 0109). macOS uses safe native
   RSS observations. Initial known exhaustion stops at `check-startup`; unknown
