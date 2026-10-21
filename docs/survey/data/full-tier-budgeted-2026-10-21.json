@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "measured_at": "2026-10-21",
+  "native_source_commit": "39f4e483031464031664f341b65e9fe2ef164b55",
+  "harness_source_commit": "0ee2a2dd0d82bd78a6aa51f3bdf4b6a74bf4706e",
+  "native_binary_sha256": "dcd7855a035669f7d0e0925d971fa6d1791ca32a2b5bcf7003cdee125729b852",
+  "harness_binary_sha256": "cb86f544507172f540e6dd6f075f46f7d00edaeab2cfbf41738247d0a43b1cc5",
+  "report": "20261021T141221299-dive-all",
+  "report_sha256": "02831d9d2b4ae8054d28b4bf90b060aad3c150fcfedf08637174070129e67334",
+  "raw_archive_sha256": "ed1bb40e43b999f6be488c19906c65afe98fe8ca448056ca04276d3e0f795a06",
+  "historical_report": "20261020T234025016-dive-all",
+  "historical_report_sha256": "93735865886ff804b1e7395a22667e43fe12ba4315dfafa154a061fb4ca9f8f3",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "memory_bytes": 66320338944,
+    "kernel": "7.0.0-1014-aws",
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "shared_with_gates_and_instruction_profiling": true,
+    "quiet_wall_time_claim": false
+  },
+  "settings": {
+    "profile": "tlc",
+    "tier": "all",
+    "workers": 1,
+    "jobs": 2,
+    "native_memory_bytes": 17179869184,
+    "time_budget": "max(60s,10*goldenTLCduration), capped900s",
+    "budget_cap_seconds": 900,
+    "timeout_cap_seconds": 900,
+    "cleanup_grace_seconds": 30,
+    "sany": false,
+    "filters": []
+  },
+  "selection": {
+    "exact_historical_ids_preserved": true,
+    "selected": 265,
+    "in_scope": 217,
+    "out_of_scope": 48,
+    "by_corpus": {
+      "configured-temporal-operators": 2,
+      "examples": 233,
+      "probes": 14,
+      "validation-smoke": 16
+    },
+    "sorted_corpus_model_ids_sha256": "5dda09e76884ee97f98b2fc282a44d0debfd821f5525774395670be03cc1b601",
+    "missing_references": [
+      "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg",
+      "specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
+      "specifications/TLC/TestMCReachability.cfg",
+      "specifications/byzpaxos/BPConProof.cfg",
+      "specifications/c1cs/c1cs.cfg",
+      "specifications/dag-consensus/TLCSailfish2.cfg",
+      "specifications/detector_chan96/EnvironmentController.cfg",
+      "specifications/diskpaxos/MC_HDiskSynod.cfg",
+      "specifications/ewd998/EWD998.cfg"
+    ]
+  },
+  "old_outcomes": {
+    "agree": 174,
+    "oracle-error": 9,
+    "out-of-scope": 48,
+    "unsupported": 28,
+    "timeout": 5,
+    "disagree": 1,
+    "agree-pending-trace-validation": 0
+  },
+  "outcomes": {
+    "agree": 171,
+    "oracle-error": 9,
+    "out-of-scope": 48,
+    "unsupported": 27,
+    "timeout": 10,
+    "disagree": 0,
+    "agree-pending-trace-validation": 0
+  },
+  "changes": [
+    {
+      "corpus": "examples",
+      "model": "specifications/MultiCarElevator/ElevatorSafetyMedium.cfg",
+      "old_outcome": "agree",
+      "new_outcome": "timeout"
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/NanoBlockchain/MCNanoLarge.cfg",
+      "old_outcome": "disagree",
+      "new_outcome": "timeout"
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/bosco/bosco.cfg",
+      "old_outcome": "agree",
+      "new_outcome": "timeout"
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg",
+      "old_outcome": "agree",
+      "new_outcome": "timeout"
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/ewd998/EWD998Chan.cfg",
+      "old_outcome": "unsupported",
+      "new_outcome": "timeout"
+    }
+  ],
+  "budget_findings": [
+    {
+      "corpus": "examples",
+      "model": "specifications/KeyValueStore/MCKVSSafetyMedium.cfg",
+      "old_outcome": "timeout",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900028,
+      "harness_elapsed_including_cleanup_ms": 916476,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/361",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/MultiCarElevator/ElevatorSafetyLarge.cfg",
+      "old_outcome": "timeout",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900037,
+      "harness_elapsed_including_cleanup_ms": 907093,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/360",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/MultiCarElevator/ElevatorSafetyMedium.cfg",
+      "old_outcome": "agree",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900044,
+      "harness_elapsed_including_cleanup_ms": 902332,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/359",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg",
+      "old_outcome": "timeout",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900015,
+      "harness_elapsed_including_cleanup_ms": 901822,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/363",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/NanoBlockchain/MCNanoLarge.cfg",
+      "old_outcome": "disagree",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900002,
+      "harness_elapsed_including_cleanup_ms": 911337,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/351",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/SlushProtocol/SlushLarge.cfg",
+      "old_outcome": "timeout",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "memory",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": null,
+      "harness_elapsed_including_cleanup_ms": 829782,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/364",
+      "completion_counts_available": false,
+      "observed_memory_bytes_at_stop": 17187119104
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/bosco/bosco.cfg",
+      "old_outcome": "agree",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900014,
+      "harness_elapsed_including_cleanup_ms": 901469,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/366",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/byzpaxos/PConProof.cfg",
+      "old_outcome": "timeout",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900006,
+      "harness_elapsed_including_cleanup_ms": 901333,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/367",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg",
+      "old_outcome": "agree",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "safety-search",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900011,
+      "harness_elapsed_including_cleanup_ms": 903329,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/368",
+      "completion_counts_available": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/ewd998/EWD998Chan.cfg",
+      "old_outcome": "unsupported",
+      "new_harness_outcome": "timeout",
+      "native_outcome": "stopped",
+      "resource": "time",
+      "phase": "graph-capture",
+      "native_exit_code": 5,
+      "native_elapsed_at_stop_ms": 900038,
+      "harness_elapsed_including_cleanup_ms": 902519,
+      "issue": "https://github.com/Chelis-Lang/dive/issues/369",
+      "completion_counts_available": false
+    }
+  ],
+  "baseline_generation": {
+    "command": "dive-conformance report baseline <controlled-report.json> --out conformance/baselines/full-tlc-w1.json",
+    "producer_source": "0ee2a2dd0d82bd78a6aa51f3bdf4b6a74bf4706e",
+    "generated_file_sha256": "d4e7e3313bcc733f030fe7b4d06b25140317ee12bbba6cd3a54350fd1aeafac2",
+    "gate_consumes_digest": false
+  },
+  "qualifications": [
+    "Historical source39f4 was frozen at campaign start; these are not measurements of later main.",
+    "Three historical agreements now exhaust the stated development budget. Their model-specific findings remain open; no clean release-acceptance claim.",
+    "Historical MCNanoLarge kernel-OOM disagreement remains unchanged in its original report. Its new stopped observation earns no agreement or fix credit.",
+    "EWD998Chan stops before its historical graph-capture count refusal; no limit removal or capacity improvement is claimed.",
+    "Native resource stops normalize to harness timeout, never unsupported or agreement. Harness normalization does not retain native progress; no completion counts are inferred.",
+    "All48 exclusions and9 missing-reference models remain selected. No resizing, new filters, or changed golden semantics."
+  ]
+}

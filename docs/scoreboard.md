@@ -41,6 +41,47 @@ Expected divergence never counts as agreement. The per-model outcomes are in
 [docs/conformance.md](conformance.md); earlier measurements are in the history
 of this file.
 
+## Full-tier measurement
+
+The controlled 2026-10-21 campaign measured frozen native source `39f4e483`
+with harness `0ee2a2dd`, TLC profile, one worker: **171 agree of 217 in-scope
+models**. This is a historical source measurement, separate from the newer
+small-tier main results above. All 265 historical model IDs remain selected,
+including 48 exclusions and nine missing references; no population was filtered
+or resized. Report: `20261021T141221299-dive-all`.
+
+| Campaign | Agree | Unsupported | Budget stop / timeout | Missing reference | Disagree |
+|----------|------:|------------:|----------------------:|------------------:|---------:|
+| Historical `652a5334`, 16 jobs, 3,600 s/model | 174 | 28 | 5 | 9 | 1 |
+| Controlled `39f4e483`, 2 jobs, explicit budgets | 171 | 27 | 10 | 9 | 0 |
+
+The controlled run used a 64 GiB c7i.8xlarge, a 16 GiB whole-process ceiling per
+model and TLC-derived time budgets capped at 900 seconds, with 30 seconds of
+cleanup grace. Gates and instruction profiling shared the host, so there is no
+quiet-host throughput claim. All ten incomplete runs returned native `stopped`
+(exit 5); the harness records these resource findings as `timeout`, never as
+unsupported or agreement. Nine stopped on time and one on memory.
+
+Three historical agreements are now budget stops: ElevatorSafetyMedium
+([#359](https://github.com/Chelis-Lang/dive/issues/359)), bosco
+([#366](https://github.com/Chelis-Lang/dive/issues/366)), and DijkstraMutex's
+Safety-4-processors configuration
+([#368](https://github.com/Chelis-Lang/dive/issues/368)). The count falls from
+174 to 171; those findings are explicit and unresolved, not erased by a new
+digest. The historical `MCNanoLarge` OOM remains a disagreement in its original
+report ([#351](https://github.com/Chelis-Lang/dive/issues/351)); the new timed
+stop earns no agreement or fix credit. EWD998Chan now stops before reaching its
+old graph-capture count refusal, which earns no capacity credit
+([#369](https://github.com/Chelis-Lang/dive/issues/369)).
+
+`conformance/baselines/full-tlc-w1.json` is generated only through `report
+baseline`; no gate consumes this full-tier observation digest. This remains
+**an incomplete full-tier result, not clean release acceptance**. The
+[compact summary](survey/data/full-tier-budgeted-2026-10-21.json) retains exact
+pins, hashes, selection counts and every model-specific resource finding.
+The accepted small-tier baselines above are unchanged; the backlog remains
+[#338](https://github.com/Chelis-Lang/dive/issues/338).
+
 ## Roadmap feature checklist
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means

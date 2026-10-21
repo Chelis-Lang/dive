@@ -226,3 +226,36 @@ configuration, including the new violation's property name.
 Twenty-five directories of the pinned Examples checkout have no
 `manifest.json`, and four (`BlockingQueue`, `CCF`, `azure-cosmos-tla`,
 `microwave`) are unfetched submodules; neither contributes models.
+
+## Full-tier implementation measurement
+
+The controlled 2026-10-21 campaign compares frozen native source `39f4e483`
+against the references above through harness `0ee2a2dd`. It is not a measurement
+of later main: 171/217 in-scope models agree in the TLC profile at one worker.
+All 265 historical `(corpus, model)` IDs are identical to the recovered
+`652a5334` campaign: Examples 233, validation-smoke 16, probes 14 and configured
+operators 2. The 48 exclusions and nine missing references remain selected.
+
+The policy is explicit: two concurrent models, native whole-process memory
+ceiling 16 GiB each, and `max(60 s, 10 × golden TLC duration)` capped at 900 s,
+with 30 s cleanup grace. On the shared 64 GiB host this produces 171 agreements,
+27 named refusals, ten structured resource stops, nine missing references and
+zero new disagreements. Stops normalize to harness `timeout`; they never earn
+agreement or become unsupported. The harness does not retain native progress
+fields for stops, so no completion counts are inferred.
+
+The historical campaign recorded 174 agreements, 28 refusals, five timeouts,
+nine missing references and one kernel-OOM disagreement. Its original report
+and classification remain intact. The new stop for `MCNanoLarge` is a different
+observation, with no agreement or bug-fix credit. The three prior agreements
+that now exceed the time budget, and EWD998Chan's refusal-to-stop change, are
+listed with their issues in [the scoreboard](scoreboard.md#full-tier-measurement).
+No model was dropped to improve the denominator and no golden changed.
+
+The generated digest `conformance/baselines/full-tlc-w1.json` comes from
+`report baseline` on report `20261021T141221299-dive-all`; no gate consumes it.
+The [compact evidence](survey/data/full-tier-budgeted-2026-10-21.json) records
+both source pins, binary and report hashes, the exact selection hash, all ten
+resource findings and the budget policy. Existing accepted small-tier baselines
+remain unchanged. This incomplete result is not release acceptance; resource
+and performance findings remain open.
