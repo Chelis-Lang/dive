@@ -233,7 +233,8 @@ fn actual_finite_safety_words_keep_strict_length_and_ending_comparisons() -> Tes
     let source = std::fs::read_to_string(&spec.0)?.replace("P == <>(x=3)", "P == [](x<2)");
     std::fs::write(&spec.0, source)?;
     let report = spec.report()?;
-    assert_eq!(report["schema_version"], 1);
+    assert_eq!(report["schema_version"], 2);
+    assert_eq!(report["check_kind"], "safety");
     let CheckMapping::Result(result) = mapped(&report, Some(12), true) else {
         return Err("finite safety result".into());
     };

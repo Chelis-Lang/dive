@@ -65,7 +65,7 @@ use std::time::Duration;
 mod ordinary_final;
 
 /// The `dive analyze` / `dive parse` JSON schema version the harness reads.
-pub const DIVE_JSON_SCHEMA: u64 = 1;
+pub const DIVE_JSON_SCHEMA: u64 = 2;
 
 /// Exit code `dive` uses for a recognised but unimplemented request.
 const DIVE_EXIT_UNSUPPORTED: i32 = 3;
@@ -402,9 +402,17 @@ fn read_report(outcome: &ProcessOutcome, command: &str) -> std::result::Result<V
         )
     })?;
     let schema = v.get("schema_version").and_then(Value::as_u64);
-    if schema != Some(DIVE_JSON_SCHEMA) {
+    if !matches!(schema, Some(1 | DIVE_JSON_SCHEMA)) {
         return Err(format!(
-            "dive {command} reported schema_version {schema:?}; the harness reads {DIVE_JSON_SCHEMA}"
+            "dive {command} reported schema_version {schema:?}; the harness reads 1 and {DIVE_JSON_SCHEMA}"
+        ));
+    }
+    // Version 2 is shared by every operation. Its tag must match the command
+    // we requested before overlapping fields such as `accepted` are read.
+    // Historical version-1 fixtures may omit the tag; a present tag is checked.
+    if (schema != Some(1) || v.get("command").is_some()) && v["command"] != command {
+        return Err(format!(
+            "dive {command}'s report names a different operation"
         ));
     }
     let Some(accepted) = v.get("accepted").and_then(Value::as_bool) else {
@@ -646,13 +654,37 @@ fn check_result_with_budget(
         );
     }
     let temporal = match v.get("schema_version").and_then(Value::as_u64) {
-        Some(DIVE_JSON_SCHEMA) => None,
-        Some(2) => {
-            match ordinary_final::read(&v, tlc_profile, outcome.exit_code, budget_override) {
-                Ok(fields) => Some(fields),
-                Err(error) => return unclassified(outcome.exit_code, error),
+        Some(1) if v.get("check_kind").is_none() => None,
+        Some(2) => match v.get("check_kind").and_then(Value::as_str) {
+            Some("safety") => {
+                if !v["properties"].is_null()
+                    || !v["execution"].is_null()
+                    || !v["options"]["lncheck"].is_null()
+                    || !v["options"]["lasso"].is_null()
+                    || v["verdict"] == "liveness-violation"
+                {
+                    return unclassified(
+                        outcome.exit_code,
+                        "safety report carries contradictory temporal fields".into(),
+                    );
+                }
+                None
             }
-        }
+            Some("temporal") => {
+                match ordinary_final::read(&v, tlc_profile, outcome.exit_code, budget_override) {
+                    Ok(fields) => Some(fields),
+                    Err(error) => return unclassified(outcome.exit_code, error),
+                }
+            }
+            // Before report unification, schema 2 always meant temporal.
+            None if v.get("check_kind").is_none() => {
+                match ordinary_final::read(&v, tlc_profile, outcome.exit_code, budget_override) {
+                    Ok(fields) => Some(fields),
+                    Err(error) => return unclassified(outcome.exit_code, error),
+                }
+            }
+            _ => return unclassified(outcome.exit_code, "unknown check report kind".into()),
+        },
         _ => {
             return unclassified(
                 outcome.exit_code,
@@ -660,6 +692,27 @@ fn check_result_with_budget(
             );
         }
     };
+    map_check_document(outcome, tlc_profile, &v, temporal.as_ref())
+}
+
+/// Maps safety facts after the study has validated its final/short mode and
+/// options. This supplies a study observation, not temporal completion evidence,
+/// and does not alter the document's version or report family.
+pub(crate) fn safety_result(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    value: &Value,
+) -> CheckMapping {
+    map_check_document(outcome, tlc_profile, value, None)
+}
+
+#[allow(clippy::too_many_lines, reason = "one mapping, field by field")]
+fn map_check_document(
+    outcome: &ProcessOutcome,
+    tlc_profile: bool,
+    v: &Value,
+    temporal: Option<&ordinary_final::Fields>,
+) -> CheckMapping {
     let s = |k: &str| v.get(k).and_then(Value::as_str).map(str::to_owned);
     let verdict = s("verdict").unwrap_or_default();
     let message = s("message").unwrap_or_default();
@@ -720,7 +773,7 @@ fn check_result_with_budget(
             };
         }
         "rejected" => {
-            let errs = errors(&v);
+            let errs = errors(v);
             let verdict = if errs.iter().any(|(c, _)| c.starts_with("DIVE-C")) {
                 Verdict::ConfigError
             } else if errs.iter().any(|(c, _)| is_parse_phase_code(c)) {
@@ -1125,6 +1178,60 @@ mod tests {
     }
 
     #[test]
+    fn safety_v2_is_explicit_and_cannot_bypass_temporal_transport() {
+        let legacy = serde_json::json!({
+            "schema_version":1, "command":"check", "verdict":"success",
+            "tlc":{"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true},
+            "statistics":{"reported_by_tlc":true,"distinct":2,"generated":3,"depth":2,"left_on_queue":0}
+        });
+        let mut current = legacy.clone();
+        current["schema_version"] = 2.into();
+        current["check_kind"] = "safety".into();
+        for document in [&legacy, &current] {
+            assert!(
+                matches!(check_result(&outcome(0, &document.to_string()), true),
+                CheckMapping::Result(r) if r.verdict == Verdict::Success
+                    && r.counts.distinct_states == Some(2)
+                    && r.counts.states_generated == Some(3))
+            );
+        }
+        let changes = [
+            ("check_kind", Value::from("temporal")),
+            ("check_kind", Value::from("unknown")),
+            ("check_kind", Value::Null),
+            ("execution", serde_json::json!({"capture_completed":true})),
+            ("properties", serde_json::json!([])),
+            (
+                "options",
+                serde_json::json!({"lncheck":"final","lasso":"short"}),
+            ),
+            ("verdict", Value::from("liveness-violation")),
+            ("schema_version", Value::from(99)),
+            ("schema_version", Value::from(1)),
+        ];
+        for (key, value) in changes {
+            let mut forged = current.clone();
+            forged[key] = value;
+            assert!(
+                matches!(check_result(&outcome(0, &forged.to_string()), true),
+                CheckMapping::Result(r) if r.verdict == Verdict::Unclassified),
+                "{forged}"
+            );
+        }
+        // Missing metadata on version 2 retains the old strict temporal route.
+        assert_eq!(
+            current
+                .as_object_mut()
+                .and_then(|object| object.remove("check_kind")),
+            Some(Value::from("safety"))
+        );
+        assert!(
+            matches!(check_result(&outcome(0, &current.to_string()), true),
+            CheckMapping::Result(r) if r.verdict == Verdict::Unclassified)
+        );
+    }
+
+    #[test]
     fn budget_stops_map_to_timeout_or_refusal_never_to_a_result() {
         let stopped = |resource: &str, exit: i32| {
             check_result(
@@ -1155,6 +1262,28 @@ mod tests {
             stopped("disk", 5),
             CheckMapping::Result(r) if r.verdict == Verdict::Unclassified
         ));
+    }
+
+    #[test]
+    fn frontend_v2_reports_require_the_requested_operation() {
+        use serde_json::json;
+        for command in ["parse", "analyze"] {
+            for version in [1, 2] {
+                let document = json!({"schema_version":version,"command":command,
+                    "accepted":true,"diagnostics":[]});
+                assert!(read_report(&outcome(0, &document.to_string()), command).is_ok());
+                for wrong in [json!("translate"), json!("check"), json!(null), json!([])] {
+                    let mut forged = document.clone();
+                    forged["command"] = wrong;
+                    assert!(read_report(&outcome(0, &forged.to_string()), command).is_err());
+                }
+            }
+            let legacy = json!({"schema_version":1,"accepted":true,"diagnostics":[]});
+            assert!(read_report(&outcome(0, &legacy.to_string()), command).is_ok());
+            let mut current = legacy;
+            current["schema_version"] = json!(2);
+            assert!(read_report(&outcome(0, &current.to_string()), command).is_err());
+        }
     }
 
     #[test]
@@ -1190,7 +1319,7 @@ mod tests {
             outcome(101, "thread 'main' panicked"),
             outcome(
                 0,
-                r#"{"schema_version":2,"accepted":true,"diagnostics":[]}"#,
+                r#"{"schema_version":99,"accepted":true,"diagnostics":[]}"#,
             ),
         ] {
             assert_eq!(analyze_result(&bad).verdict, SanyVerdict::Unclassified);

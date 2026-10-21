@@ -132,6 +132,9 @@ impl ConfigReport {
     /// A name object is `{ "text", "span" }`; a value is `{ "int" }`,
     /// `{ "string" }`, `{ "bool" }`, `{ "model_value" }` or `{ "set": [...] }`,
     /// each with a `span`.
+    /// This is a nested configuration fragment. Its wire contract inherits
+    /// the enclosing `parse` or `check` report's version; it is not an
+    /// independently versioned operation envelope.
     #[must_use]
     pub fn to_json(&self) -> Value {
         let diagnostics: Vec<Value> = self

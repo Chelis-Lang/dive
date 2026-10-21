@@ -6,7 +6,7 @@ use std::io::Read as _;
 use std::path::Path;
 
 /// Version of native translation report documents.
-pub const TRANSLATE_SCHEMA_VERSION: u32 = 2;
+pub const TRANSLATE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 /// Translation mode and explicit resource/module resolution settings.
 #[derive(Clone, Debug, Default)]
 pub struct TranslationRequest {

@@ -64,7 +64,7 @@ fn report(
     stage: &str,
     details: Value,
 ) -> RewriteReport {
-    let mut document = json!({"schema_version":2,"command":"translate-rewrite","file":file,
+    let mut document = json!({"schema_version":crate::REPORT_SCHEMA_VERSION,"command":"translate-rewrite","file":file,
         "result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},
         "stage":stage,"accepted":status==0,"exit_code":status,
         "profile":if request.translation.compat_tlc {"tlc"} else {"dive"},

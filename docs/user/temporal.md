@@ -106,7 +106,8 @@ Rust custom-limit APIs keep legacy logical acceptance cells; the additive
 [covered allocations and exclusions](../temporal-api.md) and ADR 0098.
 
 Binding happens once under the ordinary startup host. If the configured roles
-are all safety obligations, their complete ordinary result stays on schema 1,
+are all safety obligations, their complete ordinary result uses schema 2 with
+`check_kind: "safety"`,
 including startup Print output, randomness and error ordering. Genuine temporal
 analysis uses schema 2. A completed holding result or violation reports actual
 generated/distinct/queue/depth counters and `execution.exhausted: true`, even
@@ -249,7 +250,7 @@ for invariants. An enabledness atom runs the evaluator's `ENABLED` search
 Both value profiles use this same subset.
 
 Schema 2 reports explicit final requests and actual ordinary temporal analysis;
-ordinary safety results retain schema 1.
+ordinary safety results also use schema 2 with `check_kind: "safety"`.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
@@ -674,3 +675,11 @@ profiles by:
 ```sh
 cargo test -p dive-liveness --test solutions
 ```
+
+All operation reports use schema 2. A check's top-level `check_kind: "temporal"`
+identifies its request/report family; it is not capture, completion or proof
+evidence. Final/short requests that encounter a safety failure keep this family
+and the actual incomplete-capture facts. Read the required `execution`, property,
+options, physical status and independently validated witness fields together.
+Ordinary safety-family reports have no temporal capture claims. See the
+[report and trace versioning policy](reports-and-errors.md).

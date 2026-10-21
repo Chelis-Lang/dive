@@ -143,12 +143,13 @@ class CampaignTests(unittest.TestCase):
     def test_parser_protocol_rejects_contradictory_and_unrecognized_results(self):
         base = {"schema_version": 1, "command": "parse", "accepted": True, "diagnostics": []}
         self.assertEqual(CAMPAIGN.parse_document(base, 0), "accept")
+        self.assertEqual(CAMPAIGN.parse_document({**base, "schema_version": 2}, 0), "accept")
         mismatch = {**base, "accepted": False, "diagnostics": [{"severity": "error", "code": "DIVE-S0006"}]}
         self.assertEqual(CAMPAIGN.parse_document(mismatch, 1), "name-mismatch")
         reject = {**mismatch, "diagnostics": [{"severity": "error", "code": "DIVE-S0001"}]}
         self.assertEqual(CAMPAIGN.parse_document(reject, 1), "reject")
         for doc, status in [(base, 1), (mismatch, 0), ({**base, "accepted": False}, 0),
-                            ({**reject, "accepted": True}, 1), ({**base, "schema_version": 2}, 0),
+                            ({**reject, "accepted": True}, 1), ({**base, "schema_version": 99}, 0),
                             ({**base, "command": "analyze"}, 0), ({**base, "diagnostics": None}, 0),
                             ({**mismatch, "diagnostics": [{"severity": "error", "code": "DIVE-E0009"}]}, 1)]:
             with self.assertRaises(ValueError):
