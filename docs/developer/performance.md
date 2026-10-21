@@ -458,3 +458,27 @@ MCInnerSerial probes stop with actual incomplete capture in both profiles;
 their distinct outer report and stopped elapsed fields are retained separately.
 Binding/ASSUME, diagnostic reconstruction and quiet/bulk/native value units
 remain interruption limitations; the fresh-validation follow-up is separate.
+
+
+## Controlled native validation overhead
+
+The [compact validation-control campaign](../survey/data/validation-control-overhead-2026-10-21.json)
+compares exact sources `1338630b` and `8f0731ac`. All eight reduced ADR 0104
+model/profile cells retain success, counts and depth. Whole-CLI Cachegrind
+instructions at one worker have geometric mean change −0.000512%, with cells
+from −0.03655% to +0.03359%. Three paired genuine eight-worker SimpleRegular
+observations per profile use Callgrind, actual eight-worker reports and nonzero
+parallel commit work. Paired-median deltas are +0.002206% default / −0.070326%
+TLC. Every single-worker cell and parallel median stays within the 1% overhead
+bar; Cachegrind and Callgrind totals are not pooled.
+
+The correct source/binary/bundle/runner identity was captured after locked builds
+before executing any measured arm. Final clean-source, original timestamp and
+frozen-binary hash checks retain that chain, without claiming a continuous
+filesystem audit. Workload/library hashes, all 28 arms and semantic controls are
+recorded in the compact summary. The shared host and successful reduced safety
+models establish normal-input overhead only: they do not measure validation-heavy
+workload performance, quiet wall time, TLC throughput or a new agreement. Raw
+outputs remain external. Generic control covers supplied native words; binding,
+serialization, quiet/bulk/native units, foreign deferred providers and legacy
+TLC/session/standalone validation retain their documented limitations.

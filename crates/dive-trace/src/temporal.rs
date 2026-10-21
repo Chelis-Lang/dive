@@ -17,6 +17,8 @@ use crate::enabled::enabled;
 /// Why temporal evaluation cannot establish a truth value.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TemporalError {
+    /// A typed cooperative interruption, never a temporal truth value/refusal.
+    Interrupted(dive_eval::EvalError),
     /// The word or a predicate is malformed.
     Invalid(String),
     /// A named feature cannot be decided independently yet.
@@ -28,11 +30,28 @@ impl std::fmt::Display for TemporalError {
         match self {
             Self::Invalid(s) => write!(f, "invalid temporal word: {s}"),
             Self::Unsupported(s) => write!(f, "unsupported temporal validation: {s}"),
+            Self::Interrupted(error) => error.fmt(f),
         }
     }
 }
 
 impl std::error::Error for TemporalError {}
+
+impl From<dive_eval::EvalError> for TemporalError {
+    fn from(error: dive_eval::EvalError) -> Self {
+        Self::evaluation(error, "")
+    }
+}
+
+impl TemporalError {
+    fn evaluation(error: dive_eval::EvalError, context: &str) -> Self {
+        if error.class() == dive_eval::ErrorClass::Interrupted {
+            Self::Interrupted(error)
+        } else {
+            Self::Unsupported(format!("{context}{error}"))
+        }
+    }
+}
 
 /// Evaluates `formula` at every position of an ultimately periodic word.
 /// The last position is followed by `back_to`; setting it to the last
@@ -73,11 +92,11 @@ pub fn evaluate_lasso(
     model
         .evaluator
         .validate_model_context(&model.ir, &model.names)
-        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
     model
         .evaluator
         .validate_predicate(&formula.scope, formula.expr)
-        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        .map_err(TemporalError::from)?;
     if model.has_runtime_names() {
         return Err(TemporalError::Unsupported(
             crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
@@ -104,6 +123,9 @@ pub fn evaluate_lasso(
         cells: 0,
     };
     let truth = cx.eval(formula.expr, &formula.scope, 0);
+    if matches!(truth, Err(TemporalError::Interrupted(_))) {
+        return truth;
+    }
     if model.has_runtime_names() {
         return Err(TemporalError::Unsupported(
             crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
@@ -118,11 +140,11 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
     model
         .evaluator
         .validate_model_context(&model.ir, &model.names)
-        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
     model
         .evaluator
         .validate_predicate(&pred.scope, pred.expr)
-        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+        .map_err(TemporalError::from)?;
     let node = model.ir.nodes().get(pred.expr.index()).ok_or_else(|| {
         TemporalError::Unsupported("missing periodic predicate expression".into())
     })?;
@@ -147,6 +169,9 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
 /// alike ([`crate::COMPOSITION_UNSUPPORTED`]).
 fn enabled_refusal(e: &crate::enabled::EnabledError, context: &str) -> TemporalError {
     match e {
+        crate::enabled::EnabledError::Interrupted(error) => {
+            TemporalError::Interrupted(error.clone())
+        }
         crate::enabled::EnabledError::Unsupported(feature)
             if feature == crate::COMPOSITION_UNSUPPORTED =>
         {
@@ -228,9 +253,7 @@ impl Word<'_> {
         }
         if let Expr::Subst { body, bindings } = &node.expr {
             substitution_is_pure(self.model, scope, bindings)?;
-            let sc = ev
-                .scope_subst(scope, expr)
-                .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            let sc = ev.scope_subst(scope, expr).map_err(TemporalError::from)?;
             return self.eval(*body, &sc, depth + 1);
         }
         if let Expr::SubstRef {
@@ -242,9 +265,7 @@ impl Word<'_> {
             return self.eval(body, &sc, depth + 1);
         }
         if let Expr::Let { body, .. } = &node.expr {
-            let sc = ev
-                .scope_let(scope, expr)
-                .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            let sc = ev.scope_let(scope, expr).map_err(TemporalError::from)?;
             return self.eval(*body, &sc, depth + 1);
         }
         if let Expr::Local(r) = &node.expr
@@ -389,9 +410,7 @@ impl Word<'_> {
                         "overridden or recursive temporal definition".into(),
                     ));
                 }
-                let scope = ev
-                    .scope_enter(scope, d)
-                    .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                let scope = ev.scope_enter(scope, d).map_err(TemporalError::from)?;
                 self.eval(self.model.ir.def(d).body, &scope, child)
             }
             Expr::Selected(e) | Expr::Label { body: e, .. } => self.eval(*e, scope, child),
@@ -471,7 +490,7 @@ impl Word<'_> {
                 ev.equal_values(&before, &after)
             })()
             .map_err(|e: dive_eval::EvalError| {
-                TemporalError::Unsupported(format!("temporal subscript at position {i}: {e}"))
+                TemporalError::evaluation(e, &format!("temporal subscript at position {i}: "))
             })?;
             if same {
                 out.push(boxed);
@@ -487,9 +506,10 @@ impl Word<'_> {
                     )));
                 }
                 Err(e) => {
-                    return Err(TemporalError::Unsupported(format!(
-                        "temporal action at position {i}: {e}"
-                    )));
+                    return Err(TemporalError::evaluation(
+                        e,
+                        &format!("temporal action at position {i}: "),
+                    ));
                 }
             }
         }
@@ -515,9 +535,10 @@ impl Word<'_> {
                     )));
                 }
                 Err(e) => {
-                    return Err(TemporalError::Unsupported(format!(
-                        "temporal atom at position {i}: {e}"
-                    )));
+                    return Err(TemporalError::evaluation(
+                        e,
+                        &format!("temporal atom at position {i}: "),
+                    ));
                 }
             }
         }
@@ -561,9 +582,7 @@ impl Word<'_> {
                 if !ev.is_value_override(def) {
                     Self::check_native(target.std)?;
                 }
-                let scope = ev
-                    .scope_enter(scope, def)
-                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                let scope = ev.scope_enter(scope, def).map_err(TemporalError::from)?;
                 Ok(Some(Pred::new(target.body, scope)))
             }
             None => Err(TemporalError::Unsupported(
@@ -614,9 +633,9 @@ impl Word<'_> {
         }
         let ev = &self.model.evaluator;
         ev.validate_model_context(&self.model.ir, &self.model.names)
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
         ev.validate_predicate(scope, expr)
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            .map_err(TemporalError::from)?;
         let Some(ConstBinding::Def(def)) = ev.constant_binding(constant) else {
             return Err(TemporalError::Unsupported(
                 "unbound/value-bound temporal atom operator".into(),
@@ -648,7 +667,7 @@ impl Word<'_> {
         }
         let called = ev
             .scope_apply(scope, def, args)
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            .map_err(TemporalError::from)?;
         for arg in args {
             let Arg::Expr { expr: actual, .. } = arg else {
                 return Err(TemporalError::Unsupported(
@@ -729,20 +748,18 @@ impl Word<'_> {
                     Err(e) if e.is_analysis_only() => {
                         return ev
                             .scope_apply(scope, def, args)
-                            .map_err(|e| TemporalError::Unsupported(e.to_string()));
+                            .map_err(TemporalError::from);
                     }
                     Err(e) => {
-                        return Err(TemporalError::Unsupported(format!(
-                            "constant temporal argument: {e}"
-                        )));
+                        return Err(TemporalError::evaluation(e, "constant temporal argument: "));
                     }
                 }
             }
             ev.scope_call_values(scope, def, values)
-                .map_err(|e| TemporalError::Unsupported(e.to_string()))
+                .map_err(TemporalError::from)
         } else {
             ev.scope_apply(scope, def, args)
-                .map_err(|e| TemporalError::Unsupported(e.to_string()))
+                .map_err(TemporalError::from)
         }
     }
 
@@ -760,17 +777,14 @@ impl Word<'_> {
                 .evaluator
                 .scope_native_operator_analysis(scope, operator, &mut remaining);
         *steps = 100_000 - remaining;
-        let (def, analysis) = if native
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))?
-            .is_some()
-        {
+        let (def, analysis) = if native.map_err(TemporalError::from)?.is_some() {
             (None, scope.clone())
         } else {
             let (def, analysis) = self
                 .model
                 .evaluator
                 .scope_operator_analysis(scope, operator)
-                .map_err(|e| TemporalError::Unsupported(e.to_string()))?
+                .map_err(TemporalError::from)?
                 .ok_or_else(|| {
                     TemporalError::Unsupported(
                         "opaque/recursive/higher-order operator capture".into(),
@@ -785,7 +799,7 @@ impl Word<'_> {
             .scope_operator_captures(&analysis, &mut remaining);
         *steps = 100_000 - remaining;
         let captures = captures
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))?
+            .map_err(TemporalError::from)?
             .ok_or_else(|| TemporalError::Unsupported("opaque captured operator context".into()))?;
         for (body, captured) in captures {
             self.forwarded_context(body, &captured, depth + 1, steps)?;
@@ -813,7 +827,7 @@ impl Word<'_> {
             &mut remaining,
         );
         *steps = 100_000 - remaining;
-        let Some(native) = native.map_err(|e| TemporalError::Unsupported(e.to_string()))? else {
+        let Some(native) = native.map_err(TemporalError::from)? else {
             return Ok(None);
         };
         if i32::try_from(args.len()).ok() != Some(native.java_arity()) {
@@ -862,7 +876,7 @@ impl Word<'_> {
             .evaluator
             .scope_apply_param(scope, local, args)
             .ok_or_else(|| TemporalError::Unsupported("opaque operator parameter".into()))?
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))
+            .map_err(TemporalError::from)
     }
 
     fn forwarded_context(
@@ -940,7 +954,7 @@ impl Word<'_> {
                 },
                 Expr::SubstRef { decl, primed } => match ev
                     .scope_substitution(&sc, *decl, &St::constant(), *primed)
-                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                    .map_err(TemporalError::from)?
                 {
                     Some(
                         SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
@@ -964,8 +978,7 @@ impl Word<'_> {
                 Expr::Let { body, .. } => {
                     todo.push((
                         *body,
-                        ev.scope_let(&sc, e)
-                            .map_err(|err| TemporalError::Unsupported(err.to_string()))?,
+                        ev.scope_let(&sc, e).map_err(TemporalError::from)?,
                         depth + 1,
                     ));
                     continue;
@@ -974,8 +987,7 @@ impl Word<'_> {
                     substitution_is_pure(self.model, &sc, bindings)?;
                     todo.push((
                         *body,
-                        ev.scope_subst(&sc, e)
-                            .map_err(|err| TemporalError::Unsupported(err.to_string()))?,
+                        ev.scope_subst(&sc, e).map_err(TemporalError::from)?,
                         depth + 1,
                     ));
                     continue;
@@ -986,7 +998,7 @@ impl Word<'_> {
                 | Expr::SetFilter { pred: body, .. } => {
                     let inner = ev
                         .scope_binder_analysis(&sc, e)
-                        .map_err(|err| TemporalError::Unsupported(err.to_string()))?;
+                        .map_err(TemporalError::from)?;
                     for c in n.expr.children() {
                         todo.push((
                             c,
@@ -1037,8 +1049,7 @@ impl Word<'_> {
                         if def.std.is_none() {
                             todo.push((
                                 def.body,
-                                ev.scope_apply(&sc, d, args)
-                                    .map_err(|err| TemporalError::Unsupported(err.to_string()))?,
+                                ev.scope_apply(&sc, d, args).map_err(TemporalError::from)?,
                                 depth + 1,
                             ));
                             continue;
@@ -1196,15 +1207,13 @@ impl Word<'_> {
             }
             Expr::Subst { body, bindings } => {
                 substitution_is_pure(self.model, scope, bindings)?;
-                let sc = ev
-                    .scope_subst(scope, expr)
-                    .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                let sc = ev.scope_subst(scope, expr).map_err(TemporalError::from)?;
                 return self.scoped_level_mode(*body, &sc, depth + 1, steps, query_state);
             }
             Expr::SubstRef { decl, primed } => {
                 let level = match ev
                     .scope_substitution(scope, *decl, &St::constant(), *primed)
-                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                    .map_err(TemporalError::from)?
                 {
                     Some(SlotView::Value(_) | SlotView::AnalysisConstant) => Level::Constant,
                     Some(SlotView::AnalysisBound) => Level::State,
@@ -1235,9 +1244,7 @@ impl Word<'_> {
                 });
             }
             Expr::Let { body, .. } => {
-                let sc = ev
-                    .scope_let(scope, expr)
-                    .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                let sc = ev.scope_let(scope, expr).map_err(TemporalError::from)?;
                 return self.scoped_level_mode(*body, &sc, depth + 1, steps, query_state);
             }
             Expr::Local(r) => {
@@ -1348,7 +1355,7 @@ impl Word<'_> {
             let mut work = 100_000_usize.saturating_sub(*steps);
             if let Some((sequence, bodies)) = ev
                 .scope_selectseq_call(scope, callee, args, &mut work)
-                .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                .map_err(TemporalError::from)?
             {
                 *steps = 100_000 - work;
                 let mut level = node.level.max(self.scoped_level_mode(
@@ -1421,7 +1428,7 @@ impl Word<'_> {
                 .evaluator
                 .scope_constant_binder_analysis(scope, expr)
                 .map(|sc| (vec![sc], domain_level))
-                .map_err(|e| TemporalError::Unsupported(e.to_string()));
+                .map_err(TemporalError::from);
         }
         if matches!(self.model.ir.expr(expr), Expr::RecFcn { .. }) {
             domain_level = domain_level.max(Level::State);
@@ -1431,7 +1438,7 @@ impl Word<'_> {
                 .model
                 .evaluator
                 .scope_binder_analysis(scope, expr)
-                .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                .map_err(TemporalError::from)?;
             if self.scoped_level(*body, &analysis, depth + 1, steps)? > Level::State {
                 return Err(TemporalError::Unsupported(
                     "action/temporal recursive function capture".into(),
@@ -1442,7 +1449,7 @@ impl Word<'_> {
             .evaluator
             .scope_binder_analysis(scope, expr)
             .map(|sc| (vec![sc], domain_level))
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))
+            .map_err(TemporalError::from)
     }
 
     fn finite_scopes(
@@ -1480,7 +1487,7 @@ impl Word<'_> {
         self.model
             .evaluator
             .scope_bindings_bounded(scope, expr, &St::constant(), 4096)
-            .map_err(|e| TemporalError::Unsupported(format!("temporal quantifier bindings: {e}")))
+            .map_err(|e| TemporalError::evaluation(e, "temporal quantifier bindings: "))
     }
 
     fn check_native(op: Option<StdOp>) -> Result<(), TemporalError> {
@@ -1563,9 +1570,7 @@ impl Word<'_> {
                     ));
                 }
                 Expr::Let { body, .. } => {
-                    let sc = ev
-                        .scope_let(&scope, e)
-                        .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                    let sc = ev.scope_let(&scope, e).map_err(TemporalError::from)?;
                     todo.push((*body, sc, depth + 1));
                     continue;
                 }
@@ -1576,7 +1581,7 @@ impl Word<'_> {
                     if inspect_only {
                         let sc = ev
                             .scope_binder_analysis(&scope, e)
-                            .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                            .map_err(TemporalError::from)?;
                         todo.extend(meta.expr.children().into_iter().map(|child| {
                             (
                                 child,
@@ -1638,15 +1643,13 @@ impl Word<'_> {
                         ));
                     }
                     substitution_is_pure(self.model, &scope, bindings)?;
-                    let sc = ev
-                        .scope_subst(&scope, e)
-                        .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                    let sc = ev.scope_subst(&scope, e).map_err(TemporalError::from)?;
                     todo.push((*body, sc, depth + 1));
                     continue;
                 }
                 Expr::SubstRef { decl, primed } => match ev
                     .scope_substitution(&scope, *decl, &St::constant(), *primed)
-                    .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                    .map_err(TemporalError::from)?
                 {
                     Some(
                         SlotView::Value(_) | SlotView::AnalysisBound | SlotView::AnalysisConstant,
@@ -1700,9 +1703,8 @@ impl Word<'_> {
                                     }
                                     Arg::Op { .. } => None,
                                 }));
-                                ev.scope_apply(&scope, d, args).map_err(|error| {
-                                    TemporalError::Unsupported(error.to_string())
-                                })?
+                                ev.scope_apply(&scope, d, args)
+                                    .map_err(TemporalError::from)?
                             } else if leaf {
                                 // A state-level recursive operator is an
                                 // evaluation leaf; only its actuals are checked.
@@ -1767,7 +1769,7 @@ impl Word<'_> {
                     let mut work = 100_000_usize.saturating_sub(*steps);
                     let (sequence, bodies) = ev
                         .scope_selectseq_call(&scope, &op, args, &mut work)
-                        .map_err(|error| TemporalError::Unsupported(error.to_string()))?
+                        .map_err(TemporalError::from)?
                         .ok_or_else(|| {
                             TemporalError::Unsupported("SelectSeq callback context/level".into())
                         })?;

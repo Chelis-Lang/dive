@@ -88,7 +88,8 @@ pub use session::Session;
 pub use trace::{ShapeError, State, Trace, variables};
 pub use validate::{
     COMPOSITION_UNSUPPORTED, Check, DEADLOCK_UNSUPPORTED, Failure, RANDOM_UNSUPPORTED,
-    REGISTERS_UNSUPPORTED, RUNTIME_NAMES_UNSUPPORTED, Report, Validation, validate,
+    REGISTERS_UNSUPPORTED, RUNTIME_NAMES_UNSUPPORTED, Report, Validation, ValidationProgress,
+    ValidationRunError, validate, validate_controlled,
 };
 
 /// Reads a document in either format against `model` and validates it.

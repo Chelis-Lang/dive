@@ -45,6 +45,24 @@ The lower-level `dive_trace` API exposes `validate(&model, &trace)` and
 `validate_doc(&model, &document, &model_values)`. Neither takes a random replay
 token; a random draw during validation remains explicitly unsupported.
 
+For supplied native `Trace` values, `dive_trace::validate_controlled` accepts a
+generic `dive_eval::HostControl` and returns `Result<Report, ValidationRunError>`.
+An interrupted Init, Next, label, deadlock/`ENABLED`, or temporal/fairness check
+returns a typed interruption with actual completed-check progress; it cannot
+become `valid`, `invalid`, or `unsupported`. The owning driver interprets its
+opaque identity. Ordinary feature refusals and invalid words keep their existing
+reports. The control scope restores the caller's evaluator host and control on
+return or unwind, and refuses a registration owned by a different thread.
+
+This API does not add a resource policy to `validate`, `validate_doc`, private
+session reconstruction, TLC interpretation scoring, `SpecModel`, or standalone
+`dive validate-trace`. Their closed report tags are unchanged. Binding, `ASSUME`,
+quiet value work, and pure bulk/native operations retain their cooperative
+interruption limitations. Supplied deferred values can retain another
+evaluator, whose work this control does not govern; document encoding and
+decoding are also not controlled. Callers must retain the documented
+`dive_eval::RECOMMENDED_STACK` contract.
+
 `SpecModel::controls` and `SpecModel::mutants` require a known valid shortest
 BFS counterexample. For simulation, DFID, multi-worker or liveness words, use
 `controls_with_mode` or `mutants_with_mode` with `ControlMode::Counterexample`.

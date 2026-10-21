@@ -1,5 +1,15 @@
 # Changelog
 
+- Native temporal candidate certification registers the owning run control on
+  fresh independent replay, including labels, `ENABLED` and fairness. Both the
+  supplied word and native serialized round trip must validate; interruption
+  reports `stopped` at `trace-validation` with real capture and optional
+  validation progress, never an uncertified violation or feature refusal.
+  Add generic `dive_trace::validate_controlled` with typed interruption outside
+  the unchanged validation verdict tags. General TLC interpretation/session and
+  standalone CLI budgeting, binding/assumptions, serialization, quiet value
+  units and deferred providers from other evaluators remain outside this scope.
+
 - Post-startup evaluator quantifier, CHOOSE and filter loops cooperatively
   observe run budgets across nested evaluation (issue #374). Interrupted
   evaluation retains typed control through deferred sets and reports `stopped`

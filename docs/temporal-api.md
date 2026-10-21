@@ -82,6 +82,19 @@ properties they falsify. Their trace documents preserve exact values and
 include the closing edge. Both the in-memory word and its serialized form must
 pass validation before the API returns a violation.
 
+The two native validation passes register the same armed run budget on their
+fresh evaluator. Interruption is handled outside the validator's verdict type
+and is classified only by the matching owning budget: exhaustion becomes a
+stopped error at `Stage::Validation` / `trace-validation`, and unavailable memory
+sampling remains `DIVE-R0002`. The failure retains actual capture statistics,
+its completion flag, and optional `Failure::validation_progress()`; it contains
+no uncertified word. Unknown state/check positions remain absent. A previously
+fully certified witness retains the existing terminal-sampling priority.
+Native document shape errors retain their independent validation class.
+This does not control fresh binding/`ASSUME`, encoding/decoding, quiet value
+units, or deferred providers owned by a different evaluator. General TLC
+session/scoring and standalone trace-validation budgets remain follow-ups.
+
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
 zero-arity definitions, pure constant/state-argument operators, finite constant-domain quantifiers with explicit sets
 or intervals (including tuple bindings), direct `ENABLED`, and weak/strong fairness over supported
