@@ -67,7 +67,7 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
         println!("{USAGE}");
         return Ok(());
     }
-    let root = workspace_root();
+    let root = workspace_root()?;
     let inputs = pins::load(&root, &config.cache)?;
     let java = inputs.java;
     let jar = inputs.jar;
@@ -117,8 +117,12 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
 fn parse_args(args: &[String]) -> Result<Config> {
     let cwd =
         std::env::current_dir().map_err(|e| format!("cannot resolve invocation directory: {e}"))?;
-    let target = std::env::var_os("CARGO_TARGET_DIR")
-        .map_or_else(|| workspace_root().join("target"), PathBuf::from);
+    let target = match std::env::var_os("CARGO_TARGET_DIR") {
+        Some(target) => PathBuf::from(target),
+        // Help parses options but never uses the target or invokes Cargo.
+        None if args.iter().any(|arg| arg == "--help") => cwd.join("target"),
+        None => workspace_root()?.join("target"),
+    };
     let cache = std::env::var_os("DIVE_CACHE_DIR").map_or_else(
         || {
             std::env::var_os("HOME")

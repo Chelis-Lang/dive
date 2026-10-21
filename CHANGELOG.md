@@ -578,6 +578,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Repository tasks select the invoking Cargo workspace at runtime, so a cached
+  gate driver cannot silently check another worktree (#402).
+
 - `dive explain <CODE>` provides human/JSON causes and concrete remediation for
   the assigned temporal, temporal API, watchdog and command-adapter codes.
   Temporal failure reports retain their actual cause spans and add help;

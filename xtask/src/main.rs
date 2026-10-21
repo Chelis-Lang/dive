@@ -43,11 +43,38 @@ fn main() -> ExitCode {
     }
 }
 
-fn workspace_root() -> PathBuf {
-    // xtask lives one level below the workspace root.
-    Path::new(env!("CARGO_MANIFEST_DIR"))
+fn workspace_root() -> Result<PathBuf> {
+    let invocation =
+        std::env::current_dir().map_err(|e| format!("cannot resolve invocation directory: {e}"))?;
+    workspace_root_at(&invocation)
+}
+
+fn workspace_root_at(invocation: &Path) -> Result<PathBuf> {
+    // A shared target directory can reuse an xtask compiled in another worktree.
+    // Ask Cargo about the invocation directory; the binary's build-time paths
+    // cannot identify the workspace that the caller intends to validate.
+    let manifest = run_capture(
+        Command::new(std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into()))
+            .current_dir(invocation)
+            .args([
+                "locate-project",
+                "--workspace",
+                "--message-format",
+                "plain",
+                "--offline",
+            ]),
+    )?;
+    let manifest = PathBuf::from(manifest.trim());
+    if !manifest.is_absolute() || manifest.file_name() != Some(std::ffi::OsStr::new("Cargo.toml")) {
+        return Err(format!(
+            "Cargo returned an invalid workspace manifest: {}",
+            manifest.display()
+        ));
+    }
+    manifest
         .parent()
-        .map_or_else(|| PathBuf::from("."), Path::to_path_buf)
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Cargo returned a workspace manifest without a parent".to_owned())
 }
 
 fn run_capture(cmd: &mut Command) -> Result<String> {
@@ -68,7 +95,7 @@ fn run_capture(cmd: &mut Command) -> Result<String> {
 /// `core.hooksPath`, which would silently disable hooks on branches that
 /// predate the tracked hook files.
 fn install_hooks() -> Result<()> {
-    let root = workspace_root();
+    let root = workspace_root()?;
     let common = run_capture(Command::new("git").arg("-C").arg(&root).args([
         "rev-parse",
         "--path-format=absolute",
@@ -107,7 +134,7 @@ fn set_executable(_path: &Path) -> Result<()> {
 /// Checks every workspace member's direct `dive-*` dependencies (normal and
 /// build; dev-dependencies are exempt) against [`layering::ALLOWED`].
 fn check_layering() -> Result<()> {
-    let root = workspace_root();
+    let root = workspace_root()?;
     let raw = run_capture(
         Command::new(std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_owned()))
             .current_dir(&root)
@@ -216,5 +243,58 @@ fn protect_main() -> Result<()> {
         Ok(())
     } else {
         Err(format!("gh api exited with {status}"))
+    }
+}
+
+#[cfg(test)]
+mod workspace_tests {
+    use super::*;
+
+    struct Scratch(PathBuf);
+
+    impl Drop for Scratch {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    #[test]
+    fn one_driver_resolves_each_invocation_workspace_and_fails_outside() -> Result<()> {
+        let scratch = Scratch(std::env::temp_dir().join(format!(
+            "xtask-invocation-workspaces-{}",
+            std::process::id()
+        )));
+        std::fs::create_dir(&scratch.0).map_err(|e| e.to_string())?;
+        for name in ["first", "second"] {
+            let root = scratch.0.join(name);
+            let member = root.join("member");
+            let nested = member.join("nested");
+            std::fs::create_dir_all(&nested).map_err(|e| e.to_string())?;
+            std::fs::write(
+                root.join("Cargo.toml"),
+                "[workspace]\nmembers = [\"member\"]\nresolver = \"3\"\n",
+            )
+            .map_err(|e| e.to_string())?;
+            std::fs::write(
+                member.join("Cargo.toml"),
+                format!(
+                    "[package]\nname = \"{name}-workspace-probe\"\nversion = \"0.0.0\"\nedition = \"2024\"\n[lib]\npath = \"lib.rs\"\n"
+                ),
+            )
+            .map_err(|e| e.to_string())?;
+            std::fs::write(member.join("lib.rs"), "").map_err(|e| e.to_string())?;
+            for invocation in [&root, &member, &nested] {
+                let actual = std::fs::canonicalize(workspace_root_at(invocation)?)
+                    .map_err(|e| e.to_string())?;
+                let expected = std::fs::canonicalize(&root).map_err(|e| e.to_string())?;
+                assert_eq!(actual, expected);
+            }
+        }
+        // An invocation without a workspace must fail, even though this driver
+        // was compiled in a valid workspace. Never fall back to its build tree.
+        let outside = scratch.0.join("outside");
+        std::fs::create_dir(&outside).map_err(|e| e.to_string())?;
+        assert!(workspace_root_at(&outside).is_err());
+        Ok(())
     }
 }

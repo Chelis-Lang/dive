@@ -199,7 +199,7 @@ pub fn gate(args: &[String]) -> Result<()> {
     if skip_corpus && mode == Mode::Fast {
         return Err(GATE_USAGE.to_owned());
     }
-    let root = crate::workspace_root();
+    let root = crate::workspace_root()?;
     let target = std::env::var_os("CARGO_TARGET_DIR")
         .map(PathBuf::from)
         .map_or_else(|| root.join("target"), |t| root.join(t));
