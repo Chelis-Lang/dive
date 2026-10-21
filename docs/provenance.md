@@ -1827,3 +1827,27 @@ source binding and reachability semantics. LET/application contexts are
 created when reached, not during cover inspection. The query memo's weak
 function capture follows ADR0101; lazy functions retain the originally forced
 partial states and shared work without retaining the memo itself.
+
+## State-level recursive temporal evaluation leaves
+
+`dive_eval::Evaluator::recursive_leaf` and the temporal planners in
+`dive-liveness` and independent `dive-trace` follow
+`tlc2/tool/liveness/Liveness.java::astToLiveAppl` at pinned MIT revision
+`94d0c5070852b37b801bb8998c436383ab7ee37b`: recursive calls at most action
+level are left to `Tool.eval` rather than recursively expanded. This increment
+admits the pure state-level subset, with caller arguments checked separately.
+The conservative level/effect/binding proof is native analysis; no TLC code
+structure or termination heuristic is copied. Dynamic substitutions,
+operator-valued bindings, callbacks and runtime effects remain unproved.
+
+Pinned TLC was run on the consumed `recursive-temporal/Rec.tla` API fixture
+with worker 1, seed 0, fingerprint 0, `-Xmx1g` and the jar SHA-256 recorded in
+`conformance/oracles.toml`. `Done`, `Enumerates`, `Direct`, `ZeroProperty` and
+`Shapes` and `ActionActual` all succeed (2193, exit 0); `Never`,
+`DirectFalse` and `ActionActualFalse` violate (2116, exit 13). Every control generates 7 states, finds 3 distinct states,
+and finishes at depth 3. `Opaque` reaches the existing unbounded-CHOOSE error;
+it does not gain an agreement claim. API tests consume the same source and
+assert the primary counts and independently validated violations in both
+profiles; evaluator controls cover hidden semantic dependencies and unused
+local definitions. Raw process output is regenerated from these pinned inputs
+and is not committed.

@@ -15,18 +15,19 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-Measured 2026-10-20 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
-comparison rules). The one-worker rows are from `main` at `559f267d` plus
-liveness atom evaluation with the core evaluator (issue #322); the four-worker
-row is from `main` at `1f5ae5fa`.
+Measured 2026-10-21 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
+comparison rules). The one-worker rows are from `e87693d6`, adding pure
+state-level recursive temporal atoms: `examples` model
+`specifications/glowingRaccoon/product.cfg` changes from unsupported to agree
+in both profiles. The four-worker row is from `main` at `1f5ae5fa`.
 The selection is the small tier of `examples`, `probes`, `validation-smoke` and
 `configured-temporal-operators`: 156 models, plus 458 SANY module comparisons in
 the TLC profile.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
-| TLC | 1 | 156 | 143 | 13 | 0 | 0 |
-| default | 1 | 156 | 138 | 13 | 5 | 0 |
+| TLC | 1 | 156 | 144 | 12 | 0 | 0 |
+| default | 1 | 156 | 139 | 12 | 5 | 0 |
 | default | 4 | 156 | 93 | 60 | 3 | 0 |
 
 The one-worker rows are committed as baselines in `conformance/baselines/`.

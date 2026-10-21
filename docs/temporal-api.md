@@ -394,3 +394,18 @@ exhaustive checking can still establish Holds for these formulas. Supported
 action-valued lazy formal guards retain their independent Boolean paths. Periodic optional labels
 use the same check; refusal skips only that metadata evaluation and adds its
 existing note. Original Next and property checks remain required.
+
+
+### State-level recursive operator leaves
+
+Temporal planning and independent periodic-word validation share the core
+`Evaluator::recursive_leaf` proof for pure top-level `RECURSIVE` definitions
+whose bodies and reached definitions are at most state level. The proof checks
+levels, fixed-point effects and binding scope, rather than excluding binder or
+value-constructor syntax. Calls retain their caller's argument context and are
+computed by the ordinary evaluator. Recursive action/temporal bodies,
+`ENABLED`, effects, operator arguments and dynamic/configured operator bindings
+retain explicit refusals. Value-bound constants are permitted. Admission does
+not prove termination or suppress ordinary evaluation errors/resource limits.
+See [the temporal user guide](user/temporal.md#state-level-recursive-operators)
+for the checked CLI fixture and both-profile success/validated-violation tests.

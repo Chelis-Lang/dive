@@ -257,8 +257,10 @@ impl Word<'_> {
             args,
         } = &node.expr
         {
+            let leaf = self.recursive_leaf(scope, *d);
             let d = self.checked_definition(*d)?;
-            if self.model.ir.def(d).std.is_none() && !ev.is_value_override(d) {
+            // A state-level recursive leaf is an atom below, as in TLC.
+            if self.model.ir.def(d).std.is_none() && !ev.is_value_override(d) && !leaf {
                 let sc = self.scoped_call(scope, d, args, depth + 1, &mut 0)?;
                 return self.eval(self.model.ir.def(d).body, &sc, depth + 1);
             }
@@ -568,6 +570,14 @@ impl Word<'_> {
                 "unbound temporal constant".into(),
             )),
         }
+    }
+
+    /// Whether a call of `def` in `scope` is a state-level recursive leaf
+    /// ([`dive_eval::Evaluator::recursive_leaf`]) outside any INSTANCE
+    /// substitution: TLC leaves such a call to evaluation
+    /// (`Liveness.astToLive`), so only its actuals carry the caller's context.
+    fn recursive_leaf(&self, scope: &Scope, def: DefId) -> bool {
+        !scope.has_substitutions() && self.model.evaluator.recursive_leaf(def)
     }
 
     fn checked_definition(&self, def: DefId) -> Result<DefId, TemporalError> {
@@ -1234,7 +1244,28 @@ impl Word<'_> {
                 callee: OpRef::Def(d),
                 args,
             } => {
+                let leaf = self.recursive_leaf(scope, *d);
                 let d = self.checked_definition(*d)?;
+                if leaf {
+                    // Its body reaches no substitution, so its own level is
+                    // static; the actuals carry the caller's context.
+                    let mut level = ir.def(d).level;
+                    for arg in args {
+                        let Arg::Expr { expr: actual, .. } = arg else {
+                            return Err(TemporalError::Unsupported(
+                                "operator argument in recursive call".into(),
+                            ));
+                        };
+                        level = level.max(self.scoped_level_mode(
+                            *actual,
+                            scope,
+                            depth + 1,
+                            steps,
+                            query_state,
+                        )?);
+                    }
+                    return Ok(level);
+                }
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(scope, d, args, depth + 1, steps)?;
                     return self.scoped_level_mode(
@@ -1247,7 +1278,11 @@ impl Word<'_> {
                 }
             }
             Expr::Def(d) => {
+                let leaf = self.recursive_leaf(scope, *d);
                 let d = self.checked_definition(*d)?;
+                if leaf {
+                    return Ok(ir.def(d).level);
+                }
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(scope, d, &[], depth + 1, steps)?;
                     return self.scoped_level_mode(
@@ -1630,6 +1665,7 @@ impl Word<'_> {
                 let standard = match op.clone() {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
+                        let leaf = self.recursive_leaf(&scope, d);
                         let d = self.checked_definition(d)?;
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
@@ -1650,6 +1686,18 @@ impl Word<'_> {
                                 ev.scope_apply(&scope, d, args).map_err(|error| {
                                     TemporalError::Unsupported(error.to_string())
                                 })?
+                            } else if leaf {
+                                // A state-level recursive operator is an
+                                // evaluation leaf; only its actuals are checked.
+                                for arg in args {
+                                    let Arg::Expr { expr, .. } = arg else {
+                                        return Err(TemporalError::Unsupported(
+                                            "operator argument in recursive call".into(),
+                                        ));
+                                    };
+                                    todo.push((*expr, scope.clone(), depth + 1));
+                                }
+                                continue;
                             } else {
                                 self.scoped_call(&scope, d, args, depth + 1, steps)?
                             };

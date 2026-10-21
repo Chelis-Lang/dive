@@ -29,6 +29,13 @@
   physical memory or, in the dive profile, 30 minutes. Both `run` and
   `study final` count time and memory stops as resource findings, rather
   than unsupported features.
+- Temporal atoms and fair-action binder domains can call pure state-level
+  top-level `RECURSIVE` operators. Admission checks semantic levels, effects
+  and binding scope; bounded binders, `LET` and recursive function values use
+  ordinary evaluation. Independent counterexample validation supports the
+  same atoms. Action/temporal bodies, `ENABLED`, effects and unproved dynamic
+  bindings retain named refusals. Both profiles match TLC's evaluation-leaf
+  rule; the checked three-state fixture produces 7 generated states.
 
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that
