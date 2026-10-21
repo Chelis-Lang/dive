@@ -1,5 +1,8 @@
 //! Pure VIEW normalization keeps concrete recovery and independent witness semantics.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use std::path::Path;
@@ -37,6 +40,7 @@ fn case(
     std::fs::remove_dir_all(directory).expect("cleanup");
 }
 fn observables(mut report: serde_json::Value) -> serde_json::Value {
+    memory_observations::normalize(&mut report);
     let object = report.as_object_mut().expect("report object");
     object.remove("elapsed_ms");
     object.remove("checkpoint");

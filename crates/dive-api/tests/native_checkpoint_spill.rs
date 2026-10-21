@@ -4,6 +4,9 @@
     clippy::panic,
     reason = "native checkpoint regression controls"
 )]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use std::path::Path;
@@ -38,6 +41,7 @@ fn directory() -> std::path::PathBuf {
     }
 }
 fn observable(mut value: serde_json::Value) -> serde_json::Value {
+    memory_observations::normalize(&mut value);
     let object = value.as_object_mut().expect("object");
     object.remove("elapsed_ms");
     object.remove("checkpoint");

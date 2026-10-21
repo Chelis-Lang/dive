@@ -1,5 +1,8 @@
 //! Native actual recovery preserves safety output and independently checked witnesses.
 #![allow(clippy::expect_used, reason = "captured safety regression controls")]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, TemporalMode, check_file, check_file_checkpoint, checkpoint};
 use std::path::Path;
@@ -27,6 +30,7 @@ fn dir() -> std::path::PathBuf {
     p
 }
 fn observable(mut j: serde_json::Value) -> serde_json::Value {
+    memory_observations::normalize(&mut j);
     let object = j.as_object_mut().expect("object");
     object.remove("elapsed_ms");
     object.remove("checkpoint");

@@ -1918,3 +1918,17 @@ primary corpus pins first-state failures, the constant-invariant validation
 priority and complete small-range order/counts before the native streaming
 change. No new policy count or model-shape admission rule follows from these
 controls.
+
+
+## Native process-memory observations
+
+ADR 0109 uses `memory-stats` 1.2.0 (MIT OR Apache-2.0), crates.io SHA-256
+`c73f5c649995a115e1a0220b35e4df0a1294500477f97a91d0660fb5abeb574a`,
+through its safe `memory_stats()` interface on macOS only. The dependency's
+Darwin implementation queries `MACH_TASK_BASIC_INFO` for the current task and
+checks `KERN_SUCCESS`; the consumed field is current `resident_size`, not
+virtual size, compressed memory or physical footprint. Linux retains the
+native safe `/proc/self/status` parser and checked RSS-plus-swap sum. No FFI or
+unsafe implementation is copied into the workspace. The narrow dependency and
+its conditional graph are recorded in ADR 0109; sampling failures have their
+own typed diagnostic rather than an invented memory observation.

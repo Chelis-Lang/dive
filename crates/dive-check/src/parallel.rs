@@ -344,7 +344,7 @@ impl<S: Keyed> Expand<'_, S> {
             if range.start as u64 > self.cut.load(Ordering::Relaxed) {
                 continue;
             }
-            if self.budget.poll().is_some() {
+            if !matches!(self.budget.poll(), Ok(None)) {
                 self.exhausted.store(true, Ordering::Relaxed);
                 #[cfg(test)]
                 if let Some(pause) = &self.pause {
@@ -482,7 +482,7 @@ impl<S: Keyed> Expand<'_, S> {
                     // the same armed signal at amortized emission boundaries.
                     if generated != 0
                         && generated.is_multiple_of(EMISSION_BUDGET_INTERVAL)
-                        && let Some(exhausted) = self.budget.poll()
+                        && !matches!(self.budget.poll(), Ok(None))
                     {
                         let pos = (state, ua, u32::try_from(succ.ordinal).unwrap_or(u32::MAX));
                         flush(cap, lines, (pos, PH_ENUM));
@@ -496,7 +496,13 @@ impl<S: Keyed> Expand<'_, S> {
                             key: (pos, PH_ENUM),
                             unit,
                             c: generated,
-                            verdict: Verdict::Stopped(Box::new(exhausted.during(phase))),
+                            verdict: match self.budget.poll() {
+                                Ok(Some(exhausted)) => {
+                                    Verdict::Stopped(Box::new(exhausted.during(phase)))
+                                }
+                                Err(error) => Verdict::BudgetMeasurement { error },
+                                Ok(None) => return Flow::Stop,
+                            },
                             then: None,
                             resume: false,
                             stutter: false,
@@ -1587,7 +1593,11 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             stats.left_on_queue += r.queued;
             verdict = r.apply(verdict);
         }
-        let no_path = e.stutter || matches!(&verdict, Verdict::Stopped(_));
+        let no_path = e.stutter
+            || matches!(
+                &verdict,
+                Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. }
+            );
         let stop = Stop {
             verdict,
             in_init: false,
@@ -1868,7 +1878,7 @@ pub(crate) mod budget_cut_tests {
                 pause.trip(&opts.budget);
                 check.join().expect("check returns")
             });
-            assert!(opts.budget.poll().is_some());
+            assert!(opts.budget.poll().expect("measurement").is_some());
             assert!(
                 pause
                     .state

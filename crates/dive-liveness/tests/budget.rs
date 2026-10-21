@@ -25,7 +25,9 @@ fn an_exhausted_budget_stops_the_analysis_and_a_generous_one_changes_nothing() {
         .expect("watchdog thread starts")
         .expect("watchdog");
     let started = Instant::now();
-    while watchdog.budget().poll().is_none() && started.elapsed() < Duration::from_secs(10) {
+    while watchdog.budget().poll().expect("measurement").is_none()
+        && started.elapsed() < Duration::from_secs(10)
+    {
         std::thread::sleep(Duration::from_millis(1));
     }
     let exhausted = CheckOptions {

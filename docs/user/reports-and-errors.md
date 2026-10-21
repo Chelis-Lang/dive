@@ -56,7 +56,8 @@ Use `dive explain DIVE-L0020` or
 `dive explain DIVE-L0020 --output json` for a cause and a next action. This
 initial catalogue covers temporal `DIVE-L0020`–`DIVE-L0038` codes that are
 currently assigned, temporal API `DIVE-A0030`–`DIVE-A0034`, watchdog startup
-`DIVE-R0001`, and command adapter `DIVE-X0001`–`DIVE-X0004`. It does not yet
+`DIVE-R0001`, memory observation `DIVE-R0002`, and command adapter
+`DIVE-X0001`–`DIVE-X0004`. It does not yet
 cover every frontend, evaluation or storage diagnostic. An unknown code exits
 2; JSON reports `known: false` and `explanation: null`. Explanations have
 `command: "explain"` and the common report schema version. They are
@@ -138,3 +139,33 @@ not report completed temporal capture. Parse/analysis and translation acceptance
 simulation samples, DFID bounds and trace validation retain their operation's
 original proof qualifications. This wire policy does not promise a stable Rust
 library API; that interface has its own delivery milestone.
+
+
+## Memory observations
+
+Check reports add `resources.memory` without changing schema-2 verdict tags.
+The configured ceiling remains in `options.budget.max_memory_bytes`; its
+requested source is retained separately from enforcement observations.
+`metric` is `rss+swap` on Linux or `rss` on macOS. `samples` and
+`observed_max_bytes` describe successful observations, with `null` maximum when
+none succeeded; they are not a true process-peak measurement.
+`initial_sampled`, `final_sampled` and `unavailable_at` describe the boundaries
+actually reached. `status` distinguishes sampled, not-started, disabled and
+unavailable observations. Disabled means an explicit unlimited memory setting;
+it never means an unknown measurement was replaced by zero.
+
+A known initial excess uses the existing `stopped` outcome and exit 5, phase
+`check-startup`, no statistics and `resources.checking_started: false`; binding
+and graph capture have not started. Safety envelopes omit `execution`; temporal
+envelopes also report `execution.started: false` and `capture_completed: false`.
+An unavailable observation or default/auto RAM lookup
+fails with `DIVE-R0002` using the existing internal-error/no-verdict transport,
+exit 4. It has no invented `stopped.observed` byte count or TLC class.
+Terminal excess uses phase/stage `finalization`, retaining actual capture
+completion and progress. Stops and measurement failures mark retained statistics
+`exhaustive: false`; completed capture alone does not prove the checked claim.
+`DIVE-R0001` remains the separate watchdog-thread startup failure. A genuine
+earlier error or already validated witness keeps its actual precedence; a later
+sampling failure is still reported as unavailable rather than an enforced
+ceiling. Optional diagnostic identifiers and resource metadata are additive
+under ADR 0108; the `dive-trace` payload remains version 1.

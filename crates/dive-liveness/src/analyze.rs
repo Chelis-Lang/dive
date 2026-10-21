@@ -76,6 +76,8 @@ pub struct Candidate {
 pub enum AnalysisError {
     /// A requested run budget could not be armed; no capture or analysis ran.
     BudgetStartup(String),
+    /// Process-memory measurement failed; no invented exhaustion is reported.
+    BudgetMeasurement(dive_check::budget::MeasurementError),
     /// Pure predicate planning failed.
     Planning(PlanningError),
     /// Tableau construction failed.
@@ -115,6 +117,14 @@ impl AnalysisError {
             Self::Planning(e) => e.code(),
             Self::Tableau(_) => "DIVE-L0030",
             Self::Product(_) => "DIVE-L0031",
+            Self::Exploration(result)
+                if matches!(
+                    result.verdict,
+                    dive_check::Verdict::BudgetMeasurement { .. }
+                ) =>
+            {
+                dive_check::budget::MEASUREMENT_FAILURE_CODE
+            }
             Self::Exploration(_) => "DIVE-L0032",
             Self::Atom { .. } => "DIVE-L0033",
             Self::Limit(_) => "DIVE-L0034",
@@ -122,6 +132,7 @@ impl AnalysisError {
             Self::Inconsistent(_) => "DIVE-L0036",
             Self::CaptureThread(_) => "DIVE-L0037",
             Self::BudgetStartup(_) => dive_check::budget::START_FAILURE_CODE,
+            Self::BudgetMeasurement(_) => dive_check::budget::MEASUREMENT_FAILURE_CODE,
             Self::Stopped(_) => "DIVE-L0038",
         }
     }
@@ -149,6 +160,7 @@ impl std::fmt::Display for AnalysisError {
             Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
             Self::CaptureThread(s) => write!(f, "liveness capture thread failure: {s}"),
             Self::BudgetStartup(s) => f.write_str(s),
+            Self::BudgetMeasurement(error) => error.fmt(f),
             Self::Stopped(s) => write!(f, "{}: {s}", self.code()),
         }
     }
@@ -168,6 +180,8 @@ pub enum Stage {
     Product,
     /// Determining the complete false-property set on a candidate.
     Attribution,
+    /// Resource sampling after the analysis completed.
+    Finalization,
     /// A capture thread failure prevented recovery of actual execution facts.
     Unknown,
 }
@@ -181,6 +195,7 @@ impl Stage {
             Self::Atoms => "atoms",
             Self::Product => "product",
             Self::Attribution => "attribution",
+            Self::Finalization => "finalization",
             Self::Unknown => "unknown",
         }
     }
@@ -636,10 +651,16 @@ fn analyze_observed(
     exploration: &mut Option<Box<ExplorationEvidence>>,
     action_error: &mut Option<Box<ActionEvaluation>>,
 ) -> Result<Analysis, AnalysisError> {
-    let (_watchdog, armed) = dive_check::budget::arm(opts)
-        .map_err(|error| AnalysisError::BudgetStartup(error.to_string()))?;
+    let (mut watchdog, armed) = dive_check::budget::arm(opts).map_err(|error| match error {
+        dive_check::budget::StartError::Measurement(error) => {
+            AnalysisError::BudgetMeasurement(error)
+        }
+        error @ dive_check::budget::StartError::Thread(_) => {
+            AnalysisError::BudgetStartup(error.to_string())
+        }
+    })?;
     let _scope = crate::budget::enter(&armed.budget);
-    analyze_unbudgeted(
+    let result = analyze_unbudgeted(
         model,
         &armed,
         limits,
@@ -651,14 +672,37 @@ fn analyze_observed(
     .map_err(|error| match armed.budget.poll() {
         // Only the budget's own limit is a stop; every other failure,
         // including one raised just as the budget ran out, keeps its class.
-        Some(exhausted) if budget_limit(&error) => {
+        Ok(Some(exhausted)) if budget_limit(&error) => {
             *action_error = None;
             AnalysisError::Stopped(Box::new(
                 exhausted.during(dive_check::budget::Phase::Temporal),
             ))
         }
+        Err(measurement) if budget_limit(&error) => AnalysisError::BudgetMeasurement(measurement),
         _ => error,
-    })
+    });
+    if let Some(watchdog) = &mut watchdog {
+        let finished = watchdog.finish();
+        if let Ok(analysis) = &result {
+            let error = match finished {
+                Err(error) => Some(AnalysisError::BudgetMeasurement(error)),
+                Ok(Some(exhausted)) => Some(AnalysisError::Stopped(Box::new(
+                    exhausted.during(dive_check::budget::Phase::Finalization),
+                ))),
+                Ok(None) => None,
+            };
+            if let Some(error) = error {
+                *stage = Stage::Finalization;
+                let capture = match analysis {
+                    Analysis::Holds(capture) => capture,
+                    Analysis::Candidate(candidate) => &candidate.exploration,
+                };
+                *exploration = Some(Box::new(capture.into()));
+                return Err(error);
+            }
+        }
+    }
+    result
 }
 
 /// Whether `error` is the limit a stage reports for an exhausted budget.

@@ -47,6 +47,7 @@ explanations! {
     "DIVE-L0037" => ("The behavior-graph capture thread failed and lost execution evidence.", "Free host thread/memory resources and retry --workers 1; retain the report and file an issue if the failure repeats.");
     "DIVE-L0038" => ("The run budget stopped temporal analysis before a verdict.", "Follow the stopped block's resource and hint: raise --time-limit or --max-memory only when the host can support it; --time-limit=none disables the time budget. Retain the original progress for comparison.");
     "DIVE-R0001" => ("The run-budget watchdog could not start, so the requested limits cannot be enforced.", "Free host thread resources and retry. If deliberately running without both guards, pass --time-limit=none --max-memory=none explicitly; no model checking ran before this startup failure.");
+    "DIVE-R0002" => ("A required process-memory observation or physical-RAM lookup was unavailable, so the requested memory guard could not be established.", "Retry on a supported host; if deliberately accepting unlimited memory, pass --max-memory=none explicitly. For an unavailable auto ceiling, an explicit --max-memory value avoids physical-RAM lookup but still requires working process-memory observations. No unavailable reading is zero memory or a model verdict.");
     "DIVE-X0001" => ("Command arguments are invalid or cannot be decoded as UTF-8.", "Run dive --help (or dive tlc -help), correct the named argument, and provide UTF-8 command arguments.");
     "DIVE-X0002" => ("The TLC command adapter refused an option or could not transport or independently certify a generated counterexample.", "Read the particular refusal. Use the pinned TLC for an unsupported option; for trace transport, missing run metadata or validation refusal, retain the source/configuration, seed, report and trace and file an issue. An uncertified candidate is not a violation.");
     "DIVE-X0003" => ("Independent validation rejected a generated TLC-adapter counterexample; this is an internal failure.", "Retain the source, configuration, seed, report and candidate trace and file a dive issue. Do not treat the independently rejected candidate as a property violation.");
@@ -142,7 +143,7 @@ mod tests {
             "DIVE-L9999",
             "DIVE-L0020 extra",
             "dive-l0020",
-            "DIVE-R0002",
+            "DIVE-R9999",
         ] {
             let report = explanation_json(unknown);
             assert_eq!(report["known"], false);

@@ -1,5 +1,8 @@
 //! Separate predecessor budgets preserve ordered safety results and witnesses.
 #![allow(clippy::expect_used, reason = "regression assertions")]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, TemporalMode, check_file};
 use std::path::Path;
@@ -23,6 +26,7 @@ fn request(corpus: &str, name: &str) -> CheckRequest {
 }
 
 fn observable(mut json: serde_json::Value) -> serde_json::Value {
+    memory_observations::normalize(&mut json);
     let fields = json.as_object_mut().expect("document");
     fields.remove("elapsed_ms");
     fields.remove("predecessor_storage");
@@ -174,6 +178,7 @@ fn early_admission_and_failed_creation_never_certify_success() {
 #[test]
 fn combined_frontier_and_predecessor_spill_preserves_order_and_witnesses() {
     fn observed(mut j: serde_json::Value) -> serde_json::Value {
+        memory_observations::normalize(&mut j);
         let f = j.as_object_mut().expect("document");
         for key in ["elapsed_ms", "frontier_storage", "predecessor_storage"] {
             f.remove(key);

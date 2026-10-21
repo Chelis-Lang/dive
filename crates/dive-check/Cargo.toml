@@ -21,6 +21,9 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 sha2.workspace = true
 
+[target.'cfg(target_os = "macos")'.dependencies]
+memory-stats.workspace = true
+
 [dev-dependencies]
 serde_json.workspace = true
 # The probe tests load their specifications; dev-dependencies are outside the

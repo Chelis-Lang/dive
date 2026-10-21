@@ -1,5 +1,8 @@
 //! Structural storage keeps function diagnostics and independently checked words.
 #![allow(clippy::expect_used, reason = "captured storage regression assertions")]
+#[path = "support/memory_observations.rs"]
+mod memory_observations;
+
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use serde_json::Value;
@@ -32,6 +35,7 @@ fn directory() -> PathBuf {
 // Only request-specific accounting differs; every remaining concrete observable
 // is compared, within each store/profile. Store/fingerprint metadata is retained.
 fn observable(mut j: Value) -> Value {
+    memory_observations::normalize(&mut j);
     let fields = j.as_object_mut().expect("report");
     for key in [
         "elapsed_ms",

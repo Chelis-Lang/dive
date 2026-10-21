@@ -80,8 +80,7 @@ Every `dive check` runs under two budgets (ADR 0107):
   Durations are seconds by default, or take a unit: `500ms`, `90s`, `10m`,
   `2h`. The default profile defaults to 30 minutes, a provisional value until
   release; `--compat=tlc` has no time limit, as TLC has none.
-- `--max-memory BYTES|auto|none` bounds the resident memory of the whole
-  process. Sizes take `-Xmx` units: `512m`, `8g`. `auto`, the default in both
+- `--max-memory BYTES|auto|none` guards sampled memory of the whole process. Sizes take `-Xmx` units: `512m`, `8g`. `auto`, the default in both
   profiles, is half of physical memory.
 
 The clock starts after the specification and configuration are loaded.
@@ -89,8 +88,30 @@ dive polls the budget for each initial state, each expanded state, and during
 graph capture and temporal analysis. Binding, `ASSUME` evaluation and a single
 long evaluation are not interrupted. Memory is the whole process's: resident
 plus swapped pages on Linux, resident pages on macOS. Where it cannot be
-measured, `options.budget.max_memory_source` is `unavailable` and no ceiling
-applies. `dive tlc` accepts the JVM spelling `-Xmx8g`, or `--max-memory`.
+measured, checking fails with diagnostic `DIVE-R0002`; it never substitutes
+zero memory or silently disables the requested ceiling. An unavailable physical
+RAM lookup also fails when resolving `auto`. `--max-memory none` explicitly
+disables memory enforcement. `dive tlc` accepts the JVM spelling `-Xmx8g`, or
+`--max-memory`.
+
+A finite memory budget takes a native observation before model binding and a
+terminal observation before publishing a holding result, plus periodic samples.
+An initial known excess returns `stopped` at `check-startup`, with no search
+statistics or capture claim. Source/configuration loading errors remain earlier;
+future binding effects, assumptions and initial predicates are not evaluated
+after that cut. A terminal resource excess reports phase `finalization`,
+retaining completed capture and progress without publishing a holding result.
+The owner checks its elapsed clock at that boundary even if the watchdog was
+delayed. macOS uses a native RSS query instead of launching `ps`.
+
+`resources.memory` reports the platform metric (`rss+swap` on Linux, `rss` on
+macOS), successful sample count, observed maximum, initial/final sample flags,
+and unavailable status. The observed maximum is **not** the true process peak.
+Sampling is not an allocation-time hard cap: excursions between observations
+remain possible. macOS RSS does not claim swapped/compressed-memory or physical
+footprint accounting. Earlier genuine errors and independently validated
+counterexamples retain precedence if a later terminal observation fails.
+See [ADR 0109](../decisions/0109-native-memory-budget-sampling.md).
 
 When either runs out, dive stops and reports `verdict: "stopped"` with a
 `stopped` block (resource, limit, observed value, elapsed time, unit, phase and
