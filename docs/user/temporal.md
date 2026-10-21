@@ -656,7 +656,10 @@ The existing formula, graph, atom and product bounds still apply. An exhausted
 bound remains an explicit non-verdict result; this change introduces no new
 flag or profile divergence. Run budgets interrupt decomposition, graph search
 and SCC traversal through an explicit stopped path; acceptance truth is never
-changed to signal budget exhaustion. The checked strong-fairness fixture in
+changed to signal budget exhaustion. Polling occurs between bounded work
+units; allocation, sorting and one predicate evaluation may finish before the
+next poll, so the time limit is not a hard real-time deadline. The checked
+strong-fairness fixture in
 `crates/dive-liveness/tests/fixtures/solutions/Solutions.tla` has 8 states and
 25 generated states for three independent toggles. Its holding and failing
 properties, including multiple-property attribution, are exercised in both

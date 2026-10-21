@@ -247,6 +247,24 @@ fn pushing_atomic_negations_does_not_double_charge_the_original_input_limit() {
     nodes.push(Node::Not(1200));
     let original = Formula::new(nodes, 1201).expect("wide negated disjunction");
     let limits = Limits::default();
+    assert!(matches!(
+        decompose(
+            &original,
+            Limits {
+                formula_nodes: original.terms() - 1,
+                ..limits
+            }
+        ),
+        Err(FormulaError::Limit("formula nodes"))
+    ));
+    decompose(
+        &original,
+        Limits {
+            formula_nodes: original.terms(),
+            ..limits
+        },
+    )
+    .expect("exact original-input bound");
     let prior =
         crate::formula::compile(&original, limits).expect("original guard permits this input");
     let groups = decompose(&original, limits).expect("decompose within same input guard");
@@ -255,6 +273,24 @@ fn pushing_atomic_negations_does_not_double_charge_the_original_input_limit() {
         .expect("same normalized-node guard");
     assert_eq!(actual.nodes, prior.nodes);
     assert_eq!(actual.promise_count, prior.promise_count);
+    assert!(matches!(
+        crate::formula::compile_residual(
+            &groups[0].core,
+            Limits {
+                formula_nodes: 1200,
+                ..limits
+            }
+        ),
+        Err(FormulaError::Limit("formula nodes"))
+    ));
+    crate::formula::compile_residual(
+        &groups[0].core,
+        Limits {
+            formula_nodes: 1201,
+            ..limits
+        },
+    )
+    .expect("exact normalized-node bound is retained");
 }
 
 #[test]
