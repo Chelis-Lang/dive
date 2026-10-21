@@ -683,3 +683,10 @@ and the actual incomplete-capture facts. Read the required `execution`, property
 options, physical status and independently validated witness fields together.
 Ordinary safety-family reports have no temporal capture claims. See the
 [report and trace versioning policy](reports-and-errors.md).
+
+Liveness atom truth is stored as bit columns in the atom's actual state or
+action domain, with one shared index of original outgoing edges. Unused false
+rows for the other domain are not allocated. Atom identities and predicate
+evaluation order are unchanged, including first source errors, parallel
+transitions and closing edges. The existing `atom_cells` guard still applies
+to labelling and attribution; compact storage does not remove that bound.

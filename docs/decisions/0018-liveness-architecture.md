@@ -567,3 +567,18 @@ configured/substituted and primed contexts remain outside this extension. This
 adds no callback framework, admission certificate or dependency edge. Two tiny
 primary references precede the implementation; original model qualification and
 full gates remain separate obligations.
+
+
+### Increment: packed atomic truth in original domains
+
+The coordinator's atom labels retain global atom identities but store one
+packed column only in each atom's actual state or action domain. An internal
+truth-access interface shares product construction and conditioned search
+with the unchanged public owned `Labels` representation. Action columns use
+shared original-edge offsets, preserving duplicate edges and loop closure.
+Predicate evaluation and first-error order remain unchanged; the unused
+false domain has no evaluations to preserve. All buffer lengths and their
+combined minimum bytes are checked before fallible allocation, with budget
+polling during construction. The `atom_cells` bound remains unchanged,
+including its attribution and direct-word-evaluation uses. Its removal needs
+separate evidence for all those workspaces and the run's memory ceiling.
