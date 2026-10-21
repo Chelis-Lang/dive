@@ -7,6 +7,81 @@ evaluator work. Instruction counts assess individual optimizations; wall time
 against the pinned TLC assesses the release goal. Neither substitutes for the
 other, and incomplete or refused runs earn no credit.
 
+## Controlled AWS baseline, 2026-10-21
+
+A dedicated bare-metal campaign at clean source
+`39f4e483031464031664f341b65e9fe2ef164b55` completed all **300 planned runs**:
+ten models, five repetitions, TLC and both dive profiles, at requested worker
+counts 1 and 8. Every run passed the pinned-golden checks. All arm summaries, including actual
+worker use, remain in the compact
+[controlled summary](../survey/data/aws-benchmark-controlled-2026-10-21.json).
+All 300 individual raw rows are retained in the external archive identified by
+the summary's raw-row and archive hashes.
+This is a historical source baseline; later parity and budget changes are not
+measured by this campaign.
+
+Paired TLC/dive wall-time ratios, including process startup, parsing and
+reporting, are **0.321× / 0.150×** in the TLC profile and **0.328× / 0.234×**
+in the default profile at 1 / requested 8 workers. Each entry below is the
+median of five within-repetition ratios. Every model remains slower than TLC.
+
+| Model | TLC profile, 1 | TLC profile, requested 8 | Default, 1 | Default, 8 |
+|-------|---------------:|------------------------:|-----------:|-----------:|
+| GameOfLife | 0.234 | 0.124 | 0.225 | 0.152 |
+| TLCSailfish1 | 0.355 | 0.056 | 0.352 | 0.265 |
+| EWD998PCal | 0.241 | 0.175 | 0.246 | 0.175 |
+| MCBakery | 0.338 | 0.354 | 0.360 | 0.364 |
+| MCLamportMutex | 0.322 | 0.082 | 0.309 | 0.211 |
+| SimpleRegular | 0.300 | 0.399 | 0.311 | 0.398 |
+| MCbtree | 0.435 | 0.083 | 0.612 | 0.573 |
+| CoffeeCan1000BeansSafety | 0.427 | 0.353 | 0.358 | 0.314 |
+| MCDisruptor_MPMC | 0.388 | 0.355 | 0.389 | 0.338 |
+| BufferedRandomAccessFile | 0.249 | 0.040 | 0.251 | 0.037 |
+
+TLCSailfish1, MCLamportMutex, MCbtree and BufferedRandomAccessFile still used
+one worker under the TLC profile when eight were requested. Those observations
+receive no scaling credit, and the all-ten-model TLC scaling aggregate remains
+absent. Default-profile scaling is **2.479×** across all ten models. These are
+descriptive aggregates, including small and initial-state-only graphs; the
+ADR 0006 acceptance population and targets remain unchanged. CoffeeCan's
+explicit safety configuration earns no original-liveness parity credit.
+
+The c7i.metal-24xl host used a pinned AMI, Xeon Platinum 8488C, Ubuntu 24.04.5,
+Linux 7.0.0-1014-aws and Rust 1.99.0. SMT and turbo were disabled. Physical
+CPUs 0–15 on NUMA node 0 used the performance governor with minimum and maximum
+set to 2.4 GHz; memory was bound to node 0. Housekeeping ran on CPUs 32–47,
+and no gate, build or profiling workload ran on this host during measurement.
+The runner executed one process at a time with seed/fingerprint zero and
+counterbalanced worker/arm blocks. All selected-core and package hardware
+throttle counters were zero during and after the campaign; controls were
+unchanged at completion.
+
+Independent five-second telemetry covers 14,042 seconds in 2,788 samples,
+with a maximum gap of 5.043 seconds, no selected-core steal time and a maximum
+CPU sensor temperature of 52 °C. Observed unrelated processes consumed 138.23
+CPU seconds across all cores, including monitoring and housekeeping. This is
+an all-core bound for observed processes; sampling cannot individually attribute
+every short-lived process. The runner's original
+`quiet_window_certified=false` remains intact. The separate control audit
+supports this controlled baseline without claiming absolute absence of noise
+or release-target acceptance.
+
+The external per-process backstop was 900 seconds. The frozen runner did not
+forward a native time-limit flag: dive-profile runs retained their 30-minute
+default, TLC-profile runs retained no native time limit, and native memory
+ceilings were half the host RAM. TLC's heap was 3 GiB. The summary records each
+arm's actual native budget, rather than treating the TLC heap as a native
+whole-process ceiling. Different turbo settings and source pins prevent
+attributing differences from the older campaign to a code optimization.
+
+The native binary SHA-256 is
+`3b9859b2fe99b77a3393b74a460b573547e5cde61c9410ca1e9cdaa8ea9131ce`.
+All paired medians and geometric means were independently recomputed. Complete
+raw evidence and frozen binaries were downloaded and hash-verified before the
+instance was terminated. Their archive hashes, exact workload/oracle/runtime
+pins and control-artifact hashes are retained with the compact summary. No raw
+run outputs are committed.
+
 ## AWS baseline, 2026-10-20
 
 The recovered campaign at clean source `73259029b7689a55ddfe77ed648cb5dd14519274`
@@ -170,6 +245,92 @@ activation and context ownership costs before introducing more dispatch
 scaffolding. Raw observations, source overlays, binary hashes and callgrind
 profiles are retained externally; the quick comparison archive SHA-256 is
 `d90b2ea46d7f95761cfa8b96521af44ee0a9012f15dbafdf17d80632f7677665`.
+
+Boxing `ValueError`'s private cold details reduced its size from 32 to 8 bytes,
+and reduced `Result<Value, ValueError>` and `Result<bool, ValueError>` from
+32 to 16 bytes. The complete four-model, two-profile instruction matrix still
+increased by **0.301% geometrically** (individual deltas −0.314% to +0.910%).
+All sixteen arms completed with the expected verdict, distinct/generated counts
+and depth. The experiment was rejected; no runtime change was landed.
+
+The paired source pins, binary hashes, all eight instruction pairs and exact
+reduced-input hashes are in the compact
+[experiment summary](../survey/data/performance-prototypes-2026-10-21.json).
+Both arms included CLI startup and used the same profiling build, Valgrind
+3.22.0 Cachegrind with cache simulation disabled, one worker, seed/fingerprint
+zero, a 900-second native budget, an 8 GiB memory ceiling and a 930-second
+external backstop. The shared c7i.8xlarge host also ran gates; these are
+instruction comparisons with no quiet-host wall-time claim. Smaller Rust
+layouts alone do not establish fewer instructions across the measured workload.
+
+A separate four-byte GF(2) fingerprint extension, combined with skipping the
+initial traversal-stack allocation for scalars, also failed the complete matrix:
+**0.473% more instructions geometrically**, with individual deltas −0.368% to
++1.214%. All sixteen arms completed with the expected counts and depth. The
+larger private table grew from 2 to 8 KiB, added 768 construction reductions,
+and grew an `Fp64` clone from 2,056 to 8,200 bytes (12 KiB more for the two
+keyer copies). Those construction and clone costs remained inside the measured
+CLI process. The compact summary records the exact `90174cdf` / `e38cf395`
+source and binary pins; no runtime change was landed.
+
+The hot `TlcFingerprint::extend` symbol includes iterative value traversal and
+inlined byte arithmetic. Its whole exclusive share does not measure the byte
+arithmetic alone. Correct algebra and smaller or faster-looking inner loops
+therefore do not establish a workload improvement; the complete paired matrix
+remains the acceptance evidence.
+
+A complete Callgrind profile of reduced MCbtree at `d1eb36e3` also corrects the
+older cost estimates in ADR 0104. Direct `normalize_set` costs only 0.495%
+inclusive in the default profile and 0.421% in the TLC profile. Default-profile
+membership costs 14.208% inclusive, with the function-domain comparison edge
+accounting for 9.314%; TLC function-set membership costs 6.019%. The compact
+summary retains top self costs, direct inclusive costs and call edges, with
+source locations. Recursive inclusive costs overlap and must not be added.
+These single-model measurements guide investigation; they do not establish a
+saving across the eight-cell acceptance population.
+
+Inlining already settled literal, typed-state and local-value leaves ahead of
+the large evaluator dispatch also failed the complete matrix: **2.263% more
+instructions geometrically**, with all eight cells increasing (0.202–4.390%).
+All sixteen arms completed with the expected counts and depth. The compact
+summary records the frozen `773490db` / `b7c22ccd` pair and full matrix. The
+experiment was rejected; its function-level appearance did not establish a
+whole-process saving.
+
+A separately approved GameOfLife/default Callgrind pair retained exactly
+512 distinct states, 1,024 generated states and depth 1. The expanded
+`#[inline]` wrapper remained out of line: its symbol grew from 57 to 595 bytes,
+with a larger register-save prologue and a call to the original interpreter
+on fallback. Hot interpreter calls fell from 2,170,366 to 1,415,827, while hot
+wrapper calls rose from 394,540 to 2,170,366. Wrapper exclusive instructions
+rose from 4.734 million to 105.639 million; interpreter exclusive instructions
+fell from 152.516 million to 104.930 million. Extra local-slot checks added
+7.456 million instructions.
+
+Across all wrapper/interpreter variants, exclusive instructions increased by
+53.152 million, exceeding the whole-process increase of 51.792 million; other
+small reductions offset part of it. Each arm's exclusive function costs sum
+to its whole-process count. Assembly also shows repeated IR-node retrieval
+and discriminant checks on fallback. These observations explain this failed
+pair; they do not establish that forced inlining or another dispatch layer
+would improve the complete matrix. The compact summary retains the exact
+causal counts and archive identity.
+
+The complete earlier eight-cell Callgrind profiles bound another proposed
+cache: `callee_env` costs only 0.108–2.879% inclusive, and parentless empty-frame
+allocation is a smaller subset. The dominant GameOfLife `Sum`/`score` frames
+have arguments and captures. That cache was not implemented. Remaining
+ownership and allocation changes need current evidence across the full matrix.
+
+A retained-profile investigation of boxing only the unused foreign-domain
+`Thunk` cache also found no credible 5% matrix case. Even deleting all named
+`cached`, `store`, `callee_env` and thunk-drop exclusive work, plus direct
+thunk frees, gives only a 1.987% geometric reduction; much of that work is
+required for ordinary evaluation. This deliberately generous scenario is not
+a rigorous global bound: constructor code is inlined into several callers and
+allocator/source positions, so the profiles do not isolate its total cost.
+No implementation or additional profiling workload was attempted. The compact
+summary retains the narrow cost inventory and its attribution limitations.
 
 ## Packed temporal atom truth
 
