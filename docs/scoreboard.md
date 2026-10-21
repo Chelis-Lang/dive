@@ -16,20 +16,21 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 ## Corpus scoreboard
 
 Measured 2026-10-21 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
-comparison rules). The one-worker rows are from `94c4c980`, combining pure
-state-level recursive temporal atoms with structural constant-domain predicate
-analysis. `examples` models `specifications/glowingRaccoon/product.cfg` and
-`specifications/MisraReachability/MCParReach.cfg` each change from unsupported
-to agree in both profiles. MCParReach matches 393 distinct states, 747 generated
-states and depth 18. The four-worker row is from `main` at `1f5ae5fa`.
+comparison rules). The one-worker rows are from `11b4eefb`, separating pure
+Boolean recurrence and persistence conditions from shared temporal memory.
+`examples` models `specifications/MultiCarElevator/ElevatorLivenessMedium.cfg`
+and `specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg`
+each change from unsupported to agree in both profiles. They match 4,122 / 14,296
+and 5,196 / 28,170 distinct/generated states, with depths 36 and 18 respectively.
+The four-worker row is from `main` at `1f5ae5fa`.
 The selection is the small tier of `examples`, `probes`, `validation-smoke` and
 `configured-temporal-operators`: 156 models, plus 458 SANY module comparisons in
 the TLC profile.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
-| TLC | 1 | 156 | 145 | 11 | 0 | 0 |
-| default | 1 | 156 | 140 | 11 | 5 | 0 |
+| TLC | 1 | 156 | 147 | 9 | 0 | 0 |
+| default | 1 | 156 | 142 | 9 | 5 | 0 |
 | default | 4 | 156 | 93 | 60 | 3 | 0 |
 
 The one-worker rows are committed as baselines in `conformance/baselines/`.

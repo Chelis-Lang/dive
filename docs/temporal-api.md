@@ -104,10 +104,14 @@ retain their entry/work counts and custom logical `acceptance_cells` limits.
 They do not bound the preceding binding stage. Fingerprint mode retains the
 safety engine's collision qualifications; exact mode stores full states.
 
-The coordinator stores acceptance in private flat `u64` bit columns for promises
-and recurrence truth, with optional shared edge offsets. Recurrence truth is
-computed once from existing labels; search reads bits. Public owned `Product`,
-`Labels`, `Acceptance` and lasso-search representations remain unchanged.
+The coordinator stores base acceptance in private flat `u64` bit columns for
+promises and recurrence truth, with optional shared edge offsets. Those
+recurrence columns are computed once from existing labels; search reads their
+bits. Extracted Boolean persistence (`<>[]B`) and recurrence (`[]<>B`) conditions
+share the base product and evaluate Boolean truth over the original state/action
+labels during lasso search. They do not re-evaluate specification predicates.
+Public owned `Product`, `Labels`, `Acceptance` and lasso-search representations
+remain unchanged.
 
 File-based ordinary eligible TLC requests and explicit final/short requests use
 **8,000,000 acceptance-buffer bytes** and **32,000,000 materialization work units**,
@@ -138,7 +142,12 @@ checked layout and work metadata before evaluation; a product-domain fallback
 avoids expanding a sparse reachable product to a large behavior graph. It does
 not evaluate a candidate mode and retry another. Word/offset storage for the
 selected domain and all temporary Boolean scratch remain inside the same byte
-allowance. Search performs constant-time indexing without predicate recomputation.
+allowance. Base acceptance columns provide constant-time truth lookup. Extracted
+conditions reuse maximum-sized Boolean scratch; its live bytes share the
+acceptance byte ceiling. Condition inspections and scratch initialization consume
+the remaining materialization work cumulatively across sequential alternatives.
+Boolean evaluation during search remains outside that work bound. No specification
+predicate is recomputed.
 All state/action labels and their original admission/error checks are still
 computed before this representation choice.
 
