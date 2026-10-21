@@ -228,10 +228,19 @@ when `x=0` and `<<1>>` when `x=1`; duplicate positions and order are preserved.
 The planner and independent trace evaluator resolve the captured scopes
 separately, so a forwarded state callback is not folded as a constant.
 
-This subset excludes callback binders, deferred functions/providers, action or
-temporal callbacks, recursive/higher-order callbacks, native/configured
-predicate targets and retained dynamic callback contexts. Unused captured
-bodies and stored values are checked too. These combinations report a named
+Pure bounded callback binders and captured function, filter and map sources are
+inspected without enumerating their domains. Nested authoritative `SelectSeq`
+calls and finite local recursive-function captures retain their original
+scopes and share the same admission work budget. For example,
+`SelectSeq(<<0,1,0>>, LAMBDA y: \E z \in {y}: z=0)` returns `<<0,0>>`.
+The reference corpus `selectseq-captures` pairs holding and violating models
+with independent replay controls.
+
+This subset excludes opaque stored functions/providers, action or temporal
+callbacks, recursive user-operator callbacks, native/configured predicate
+targets and retained dynamic callback contexts. Unused captured bodies and
+stored values are checked too; even an empty domain cannot hide effects or a
+primed source. These combinations report a named
 `unsupported` result. Other higher-order standard operators remain refused.
 This includes direct and negated `ENABLED` and WF/SF enabledness atoms when the
 independent validator can derive complete finite successor covers. Ordinary

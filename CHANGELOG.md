@@ -166,6 +166,12 @@
   Explicit acceptance policies count shared scratch bytes, condition inspections
   and scratch initialization alongside the base acceptance buffers and work.
 
+- Temporal SelectSeq admission inspects pure bounded callback binders and
+  INSTANCE captures without enumerating domains. Nested selections share one
+  source-inspection budget, and local recursive-function captures retain their
+  self bindings. Runtime evaluation and independent replay keep original scopes;
+  unsafe or opaque unused captures still refuse.
+
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that
   first walked every binder domain (issue #322, ADR 0103 follow-up). On the

@@ -1775,7 +1775,8 @@ impl Word<'_> {
                         })?;
                     *steps = 100_000 - work;
                     for (body, captured) in bodies {
-                        self.forwarded_context(body, &captured, depth + 1, steps)?;
+                        // Each original captured body is checked for its actual
+                        // level and queued for the ordinary pure-source walk.
                         if self.scoped_level(body, &captured, depth + 1, steps)? > Level::State {
                             return Err(TemporalError::Unsupported(
                                 "SelectSeq callback context/level".into(),
