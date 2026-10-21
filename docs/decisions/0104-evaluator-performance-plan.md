@@ -9,8 +9,10 @@ ADR 0006 targets a geometric-mean speed-up of at least 2x over TLC, and at
 least 1x on every benchmark model. Before ADR 0102 dive ran at about 0.22x TLC
 at one worker; ADR 0102 (fat LTO, mimalloc) removed 15–17% of instructions.
 ADR 0014 §1 planned a specialized evaluation plan (resolved slots, typed
-variable reads, fast paths). It was never built: `Core::eval_inner` still
-interprets the IR directly, one `match` over every construct.
+variable reads, fast paths). Inspection on 2026-10-21 found that the shared IR
+already has resolved local slots and typed variable IDs; `Core::eval_inner`
+interprets borrowed IR without cloning each node. A separate evaluator-private
+dispatch plan remains an unproven optimization, rather than missing resolution.
 
 This ADR records where the time goes now and orders the structural changes
 that should follow, each with the saving it is expected to deliver.
@@ -100,9 +102,10 @@ baselines.
    2–3% of MCbtree and EWD998PCal, before their allocations; expected saving
    3–8%.
 
-3. **The resolved plan of ADR 0014 §1.** Compile the IR to evaluator-private
-   nodes with resolved slot offsets, typed reads of state variables, and
-   small specialized nodes for integer arithmetic and comparison, constant-key
+3. **Specialized dispatch from ADR 0014 §1.** Local slots and typed state
+   reads already exist in the shared IR. Measure evaluator-private dispatch
+   before adding another plan representation, and consider small specialized
+   nodes for integer arithmetic and comparison, constant-key
    function and record access, and boolean junctions that return `bool`.
    Target: the 7–16% of dispatch overhead above, plus variable lookup
    (`state_variable`, about 0.9%). Expected saving 5–10%; it also unblocks a
@@ -139,7 +142,37 @@ baselines.
    expected gain there is large (up to half its instructions), and it bears
    directly on ADR 0006's "at least 1x on every model".
 
+### Substitution-cache probe, 2026-10-21
+
+A two-state paired probe against pinned TLC commit `94d0c507` checks
+`INSTANCE Inner WITH a <- Print(<<"force",x>>,x)` with `Inner` defining
+`Repeated == a=a` and `PrimedRepeated == a'=a'`. From `x=0`, the next action
+sets `x'=IF x<1 THEN x+1 ELSE x`; each property is the corresponding action
+under `[][ ... ]_x`. Both TLC and dive complete with two distinct states,
+three generated states and depth two. Both print twice for `Repeated`
+(one substitution evaluation per edge) and four times for `PrimedRepeated`
+(two per edge). The compact reproducer and qualification are in
+[the performance guide](../developer/performance.md#substitution-cache-probe).
+
+`Core::force` already caches the unprimed thunk using the state/control/cache
+domain rule. `Tool.java`'s LazyValue branch explicitly bypasses the cache when
+`s1 == null`; `Core::eval_subst_ref` and `Core::force` match that primed path.
+Thus item 6's 52.6% inclusive cost does not establish missing memoization:
+primed work may be required by the pinned oracle. No speedup is claimed, and
+caching beyond the existing rule is not authorized by this evidence. Profile
+cache misses separately before attempting a narrower substitution optimization;
+investigate activation/context costs and specialized dispatch without
+duplicating the existing resolution. The first dispatch and operand-storage
+experiments did not meet the acceptance bar; see the performance guide.
+
 Measured and not pursued:
+
+- Native unary/binary operand arrays and a compact dispatch prototype: the
+  four reduced GameOfLife/SimpleRegular profile comparisons saved only
+  0.83–1.76% of instructions. Counts, verdict and depth matched, but neither
+  experiment met the 5% bar; no runtime change was landed. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  records the factorized comparison and its limited population.
 
 - `EXCEPT` replacing the value in place, without renormalizing the unchanged
   domain: 2.7% on SimpleRegular, 1.1% on EWD998PCal, nothing on MCbtree or

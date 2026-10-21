@@ -14,6 +14,7 @@
 | Reproduction, pins and reports | [Corpus guide](../conformance-corpora.md), [harness README](../../crates/dive-conformance/README.md) |
 | Bugs and unanswered scope | GitHub issues, [owner questions](../open-questions.md) |
 | CI jobs and the local full gate | [CI](ci.md) |
+| Benchmark method and measurements | [Performance](performance.md) |
 | Documentation acceptance | [Documentation policy](documentation-policy.md) |
 
 Parity means observable results (ADR 0086). Committed evidence is compact JSON or
