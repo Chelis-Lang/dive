@@ -170,3 +170,30 @@ activation and context ownership costs before introducing more dispatch
 scaffolding. Raw observations, source overlays, binary hashes and callgrind
 profiles are retained externally; the quick comparison archive SHA-256 is
 `d90b2ea46d7f95761cfa8b96521af44ee0a9012f15dbafdf17d80632f7677665`.
+
+## Packed temporal atom truth
+
+The native temporal label store keeps one bit per actual state/action observation.
+It retains global atom IDs and original-edge order while omitting false data for
+unused atom domains. Public owned labels remain supported, and existing temporal
+count limits are unchanged.
+
+A diagnostic campaign on ElevatorLivenessMedium compared baseline e2b9d9f8 with
+candidate c4fa21d2, using five alternating pairs per profile. Every run completed
+with 4,122 distinct states, 14,296 generated states and depth 36, under identical
+native 391,180 ms and 4 GiB limits. Median sampled resident memory changed from
+41,172,992 to 34,947,072 bytes in the TLC profile (-15.1%), and 40,878,080 to
+34,865,152 bytes in the default profile (-14.7%).
+
+These are sampled resident pages on a shared Mac15,13 host, polled every 500 ms;
+they are not an exact high-water mark or a quiet wall-clock benchmark. The compact
+summary records source/binary pins, all repetition ranges, host/kernel/toolchain
+and command settings. No temporal count limit is removed on this evidence.
+
+A separate single-pair profiling diagnostic on the same source pins used
+Valgrind 3.22.0 on a shared Xeon 8488C host, with native 900-second/4 GiB
+budgets. Whole-CLI instructions changed by -1.031% in the default profile and
+-1.017% in the TLC profile, with the same success, counts and depth. This is
+not the evaluator performance acceptance campaign and earns no throughput
+credit. Both measurements are preserved in the compact
+[machine-readable summary](../survey/data/packed-atom-truth-2026-10-21.json).

@@ -13,6 +13,9 @@ use std::collections::{BTreeMap, BTreeSet};
 
 mod budget;
 pub use budget::AcceptancePolicy;
+mod truth;
+pub(crate) use truth::PackedTruth;
+use truth::TruthAccess;
 
 /// Truth values of all supplied atomic predicates.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -107,10 +110,10 @@ struct Ordered<'a> {
     scratch_len: usize,
 }
 
-struct Builder<'a> {
+struct Builder<'a, T: TruthAccess> {
     graph: &'a Graph,
     tableau: &'a Tableau,
-    labels: &'a Labels,
+    labels: &'a T,
     conditions: &'a [Recurrence],
     limits: Limits,
     acceptance_policy: AcceptancePolicy,
@@ -124,7 +127,7 @@ struct Builder<'a> {
     steps: usize,
 }
 
-impl Builder<'_> {
+impl<T: TruthAccess> Builder<'_, T> {
     fn inspect(&mut self) -> Result<(), ProductError> {
         if crate::budget::exhausted() {
             return Err(ProductError::Limit(crate::budget::EXHAUSTED));
@@ -162,8 +165,7 @@ impl Builder<'_> {
 
     fn fits_state(&self, v: usize, n: usize) -> bool {
         self.tableau.nodes[n].literals.iter().all(|lit| {
-            lit.atom.kind != AtomKind::State
-                || self.labels.states[lit.atom.index][v] == lit.positive
+            lit.atom.kind != AtomKind::State || self.labels.state(lit.atom.index, v) == lit.positive
         })
     }
 
@@ -195,7 +197,7 @@ impl Builder<'_> {
             // outgoing edges when that pair is expanded.
             if !self.tableau.nodes[n].literals.iter().all(|lit| {
                 lit.atom.kind != AtomKind::Action
-                    || self.labels.actions[lit.atom.index][v][e] == lit.positive
+                    || self.labels.action(lit.atom.index, v, e) == lit.positive
             }) {
                 continue;
             }
@@ -272,7 +274,11 @@ impl Builder<'_> {
     }
 }
 
-fn validate(graph: &Graph, tableau: &Tableau, labels: &Labels) -> Result<(), ProductError> {
+fn validate(
+    graph: &Graph,
+    tableau: &Tableau,
+    labels: &impl TruthAccess,
+) -> Result<(), ProductError> {
     let bad = |s: &str| ProductError::Shape(s.into());
     let width = tableau.nodes.len();
     if tableau.roots.iter().any(|r| *r >= width) {
@@ -286,32 +292,12 @@ fn validate(graph: &Graph, tableau: &Tableau, labels: &Labels) -> Result<(), Pro
             return Err(bad("tableau promise dimensions"));
         }
         for literal in &node.literals {
-            let count = match literal.atom.kind {
-                AtomKind::State => labels.states.len(),
-                AtomKind::Action => labels.actions.len(),
-            };
-            if literal.atom.index >= count {
+            if !labels.contains(literal.atom) {
                 return Err(bad("atomic predicate outside label table"));
             }
         }
     }
-    if labels
-        .states
-        .iter()
-        .any(|row| row.len() != graph.edges.len())
-    {
-        return Err(bad("state predicate dimensions"));
-    }
-    if labels.actions.iter().any(|rows| {
-        rows.len() != graph.edges.len()
-            || rows
-                .iter()
-                .zip(&graph.edges)
-                .any(|(a, b)| a.len() != b.len())
-    }) {
-        return Err(bad("action predicate adjacency dimensions"));
-    }
-    Ok(())
+    labels.validate_dimensions(graph)
 }
 
 impl Product {
@@ -378,12 +364,7 @@ impl Product {
                                 let v = input.pairs[old].0;
                                 input.original_edges[id]
                                     .iter()
-                                    .map(|&e| {
-                                        condition.evaluate(|atom| match atom.kind {
-                                            AtomKind::State => labels.states[atom.index][v],
-                                            AtomKind::Action => labels.actions[atom.index][v][e],
-                                        })
-                                    })
+                                    .map(|&e| condition.evaluate(|atom| labels.truth(atom, v, e)))
                                     .collect()
                             })
                             .collect()
@@ -429,7 +410,7 @@ impl Product {
 fn build<A>(
     graph: &Graph,
     tableau: &Tableau,
-    labels: &Labels,
+    labels: &impl TruthAccess,
     conditions: &[Recurrence],
     limits: Limits,
     acceptance_budget: (AcceptancePolicy, usize),
@@ -437,11 +418,7 @@ fn build<A>(
 ) -> Result<Parts<A>, ProductError> {
     validate(graph, tableau, labels)?;
     for atom in conditions.iter().flat_map(Recurrence::atoms) {
-        let count = match atom.kind {
-            AtomKind::State => labels.states.len(),
-            AtomKind::Action => labels.actions.len(),
-        };
-        if atom.index >= count {
+        if !labels.contains(atom) {
             return Err(ProductError::Shape(
                 "recurrence predicate outside label table".into(),
             ));
@@ -529,7 +506,7 @@ impl CompactAcceptance {
     fn new(
         input: &Ordered<'_>,
         tableau: &Tableau,
-        labels: &Labels,
+        labels: &impl TruthAccess,
         conditions: &[Recurrence],
     ) -> Self {
         let states = (0..tableau.promise_count)
@@ -564,13 +541,8 @@ impl CompactAcceptance {
                 for (id, &old) in input.order.iter().enumerate() {
                     let v = input.pairs[old].0;
                     for (position, &e) in input.original_edges[id].iter().enumerate() {
-                        let truth = condition.evaluate_with_scratch(
-                            |atom| match atom.kind {
-                                AtomKind::State => labels.states[atom.index][v],
-                                AtomKind::Action => labels.actions[atom.index][v][e],
-                            },
-                            &mut scratch,
-                        );
+                        let truth = condition
+                            .evaluate_with_scratch(|atom| labels.truth(atom, v, e), &mut scratch);
                         set_bit(&mut words, edge_offsets[id] + position, truth);
                     }
                 }
@@ -633,7 +605,7 @@ impl CompactProduct {
     pub(crate) fn with_policy_and_edges(
         graph: &Graph,
         tableau: &Tableau,
-        labels: &Labels,
+        labels: &impl TruthAccess,
         conditions: &[Recurrence],
         limits: Limits,
         policy: AcceptancePolicy,
@@ -682,11 +654,23 @@ impl CompactProduct {
 
     pub(crate) fn find_lasso_with_conditions(
         &self,
-        labels: &Labels,
+        labels: &impl TruthAccess,
         conditions: &CycleConditions,
     ) -> Result<Option<Lasso>, ProductError> {
         if conditions.always.is_empty() && conditions.recurring.is_empty() {
             return self.find_lasso();
+        }
+        for atom in conditions
+            .always
+            .iter()
+            .chain(&conditions.recurring)
+            .flat_map(Recurrence::atoms)
+        {
+            if !labels.contains(atom) {
+                return Err(ProductError::Shape(
+                    "cycle predicate outside label table".into(),
+                ));
+            }
         }
         let scratch_len = conditions
             .always
@@ -812,28 +796,25 @@ impl AcceptanceAccess for CompactProduct {
 
 // One possible-error model borrows its group's shared temporal product. FG
 // conditions restrict only the recurring walk; GF conditions add visit duties.
-struct Conditioned<'a> {
+struct Conditioned<'a, T: TruthAccess> {
     product: &'a CompactProduct,
-    labels: &'a Labels,
+    labels: &'a T,
     conditions: &'a CycleConditions,
     scratch: std::cell::RefCell<Vec<bool>>,
 }
 
-impl Conditioned<'_> {
+impl<T: TruthAccess> Conditioned<'_, T> {
     fn truth(&self, condition: &Recurrence, source: usize, edge: usize) -> bool {
         let state = self.product.parts.behavior_states[source];
         let edge = self.product.parts.original_edges[source][edge];
         condition.evaluate_with_scratch(
-            |atom| match atom.kind {
-                AtomKind::State => self.labels.states[atom.index][state],
-                AtomKind::Action => self.labels.actions[atom.index][state][edge],
-            },
+            |atom| self.labels.truth(atom, state, edge),
             &mut self.scratch.borrow_mut(),
         )
     }
 }
 
-impl AcceptanceAccess for Conditioned<'_> {
+impl<T: TruthAccess> AcceptanceAccess for Conditioned<'_, T> {
     fn state_count(&self) -> usize {
         self.product.state_count()
     }
