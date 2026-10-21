@@ -152,6 +152,13 @@ pub fn parse_source(file: &str, source: &str) -> ParseReport {
         .and_then(|n| n.to_str())
         .unwrap_or(file);
     diagnostics.extend(parse.check_file_name(base));
+    for diagnostic in &mut diagnostics {
+        diagnostic.help.get_or_insert_with(|| {
+            diagnostics::syntax_explanation(diagnostic.code)
+                .remediation
+                .to_owned()
+        });
+    }
     ParseReport {
         file: file.to_owned(),
         source: source.to_owned(),
