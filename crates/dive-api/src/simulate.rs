@@ -8,7 +8,7 @@ use std::fmt::Write as _;
 use std::path::PathBuf;
 
 /// Version of simulation reports, separate from exhaustive checking reports.
-pub const SIMULATE_SCHEMA_VERSION: u32 = 1;
+pub const SIMULATE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
 /// A finite simulation request. The caller must choose a positive trace count.
 ///

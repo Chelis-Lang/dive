@@ -13,11 +13,11 @@ use serde_json::{Value, json};
 use crate::{AnalyzeReport, ConfigReport};
 
 /// Version of ordinary safety JSON documents produced by [`CheckReport::to_json`].
-pub const CHECK_SCHEMA_VERSION: u32 = 1;
+pub const CHECK_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
-/// Version of temporal JSON documents. Ordinary safety checks retain schema 1;
-/// version 2 includes temporal claims, words and final or prefix execution facts.
-pub const TEMPORAL_CHECK_SCHEMA_VERSION: u32 = 2;
+/// Version of temporal JSON documents, shared with all public reports.
+/// Temporal claims require their actual final or prefix execution facts.
+pub const TEMPORAL_CHECK_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
 /// Historical native exit codes, selected by `dive check --exit-codes native`
 /// and the dive profile's [`CheckReport::exit_code`]. The CLI default uses TLC's
@@ -920,11 +920,13 @@ impl CheckReport {
         }
     }
 
-    /// The JSON document (schema [`CHECK_SCHEMA_VERSION`] for ordinary safety;
-    /// [`TEMPORAL_CHECK_SCHEMA_VERSION`] for final temporal analysis):
+    /// The JSON document (schema [`CHECK_SCHEMA_VERSION`]). `check_kind` names
+    /// the safety or temporal request/report family; it does not assert that
+    /// checking ran or that capture completed. Final/short safety failures
+    /// retain the temporal family and their actual execution evidence:
     ///
     /// ```text
-    /// { "schema_version": 1, "command": "check", "file", "config",
+    /// { "schema_version": 2, "command": "check", "file", "config",
     ///   "verdict": "success" | "invariant-violation" | "property-violation"
     ///            | "action-property-violation" | "deadlock" | "assumption-failure"
     ///            | "postcondition-failure" | "assertion-failure" | "overflow"
@@ -970,7 +972,8 @@ impl CheckReport {
     #[allow(clippy::too_many_lines, reason = "one document")]
     pub fn to_json(&self) -> Value {
         let mut doc = json!({
-            "schema_version": if self.temporal_schema() { TEMPORAL_CHECK_SCHEMA_VERSION } else { CHECK_SCHEMA_VERSION },
+            "schema_version": CHECK_SCHEMA_VERSION,
+            "check_kind": if self.temporal_schema() { "temporal" } else { "safety" },
             "command": "check",
             "file": self.file,
             "config": self.config,

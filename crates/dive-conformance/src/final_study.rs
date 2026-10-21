@@ -152,7 +152,10 @@ pub struct Options {
 }
 
 fn mode(v: &Value, profile: &Profile, workers: u32) -> std::result::Result<(), String> {
-    if v["schema_version"].as_u64() != Some(2) || v["command"] != "check" {
+    if v["schema_version"].as_u64() != Some(2)
+        || v["command"] != "check"
+        || v.get("check_kind").is_some_and(|kind| kind != "temporal")
+    {
         return Err("expected a schema-2 check document".into());
     }
     let o = &v["options"];
@@ -360,11 +363,7 @@ fn assess(
             if expected_exit.is_some() && outcome.exit_code != expected_exit {
                 return bad("safety stop contradicts the default-profile exit code".into());
             }
-            let mut ordinary = v.clone();
-            ordinary["schema_version"] = Value::from(1);
-            let mut process = outcome.clone();
-            process.stdout = ordinary.to_string();
-            match crate::dive::check_result(&process, tlc) {
+            match crate::dive::safety_result(outcome, tlc, &v) {
                 crate::dive::CheckMapping::Refused(why) => {
                     return (Outcome::Unsupported, why, Some(v));
                 }
@@ -742,8 +741,21 @@ mod tests {
             .0,
             Outcome::MatchesTruthAndCounts
         );
+        let mut current = v.clone();
+        current["check_kind"] = json!("temporal");
+        assert_eq!(
+            assess(&process(&current, 0), &Profile::Tlc, 4, &g, |_| panic!(
+                "success has no witness"
+            ))
+            .0,
+            Outcome::MatchesTruthAndCounts
+        );
         for (field, replacement) in [
             ("schema_version", json!(1)),
+            ("schema_version", json!(99)),
+            ("check_kind", json!("safety")),
+            ("check_kind", json!("unknown")),
+            ("check_kind", Value::Null),
             ("verdict", json!("imaginary")),
             ("tlc", json!({"code":2116})),
         ] {

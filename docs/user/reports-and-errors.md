@@ -1,7 +1,12 @@
 # Reports, errors and automation
 
 Request `--output json` and retain the whole document, source/configuration,
-resolved options and replay seed. Every operation has its own versioned schema.
+resolved options and replay seed. Every public operation now emits report
+`schema_version: 2`, with `command` identifying the operation. `check` also emits
+`check_kind: "safety" | "temporal"`. The kind identifies the request/report
+family, not execution or proof: final/short safety stops remain temporal-family
+reports with their actual `capture_completed: false` evidence. Ordinary safety
+reports carry no temporal capture or exhaustive-temporal claim.
 Use its result fields; do not interpret all commands through safety-check keys.
 
 | Operation | What to inspect |
@@ -12,7 +17,7 @@ Use its result fields; do not interpret all commands through safety-check keys.
 | Final/short check | Schema 2, complete `properties`, execution and validated closing edge |
 | Simulation | `result`, `exhaustive: false`, `model_proved: false`, observed/pending validation |
 | DFID | `termination`, `model_proved`, iterations and validated counterexample |
-| Trace validation | `validation`; valid/invalid/refused is separate from search verdicts |
+| Trace validation | `result`; valid/invalid/unsupported is separate from search verdicts |
 | Checkpoint pause | `checkpoint.status: paused-incomplete`; incomplete execution |
 | Budget stop | `verdict: stopped` and `stopped` (resource, limit, observed, unit, phase, hint); progress statistics; exit 5 |
 
@@ -63,3 +68,45 @@ witness also remains required when verdicts match and its payload is unavailable
 provides no certification and cannot waive an observed word. Legitimate success, assumption, frontend and
 evaluation outcomes whose contract carries no witness need none. Numeric exit
 pairs cannot excuse absent, invalid, unconfirmed or refused required words.
+
+Report compatibility is a versioned contract. Within version 2, existing field
+names, types, required presence, null meanings, units and result meanings stay
+stable. The same applies to existing native `dive-trace` version 1 fields, tagged
+values, property endings and zero-based `ending.back_to` loop targets. The outer
+check report's `counterexample.back_to` summary is one-based. The trace payload version
+is independent of the report version: `validate-trace` emits report version 2
+while reading and validating native trace version 1.
+
+Readers select the operation and supported version before interpreting results.
+They may ignore unknown optional fields and preserve unfamiliar diagnostic codes,
+resource names or phase descriptions as data. They must reject unknown versions,
+check kinds, verdicts, result dispositions, trace tags and endings; none supplies
+a successful certificate. New optional fields and diagnostic codes may be added
+without a version bump. Existing fields are never removed, repurposed, made
+mandatory or changed in type within a version. Adding a new closed outcome also
+requires a new version. Human display text, timings and incidental JSON member
+order are not stable. Different valid lassos remain allowed by the observable
+parity contract; their independent validation requirements stay unchanged.
+
+An incompatible report or native trace change requires a new format version,
+a CHANGELOG entry describing migration, and advance notice to known consumers
+before it lands. Consumers update their readers before moving an immutable pin.
+The schema-2 migration was announced in
+[Oyster #61](https://github.com/Chelis-Lang/oyster/issues/61). The conformance
+harness retains version-1 safety/parse/analyze input support and legacy version-2
+temporal input support; current producers emit version 2 for every operation.
+A legacy version-2 check without `check_kind` still undergoes all strict temporal
+checks. Relabelling a temporal result as safety cannot bypass those checks.
+
+For example:
+
+```sh
+dive check docs/user/examples/Counter.tla --compat=tlc --seed 0 --fp 0 --workers 1 --output json
+```
+
+This reports schema 2, `command: "check"`,
+`check_kind: "safety"`, `verdict: "success"`, and five distinct states. It does
+not report completed temporal capture. Parse/analysis and translation acceptance,
+simulation samples, DFID bounds and trace validation retain their operation's
+original proof qualifications. This wire policy does not promise a stable Rust
+library API; that interface has its own delivery milestone.

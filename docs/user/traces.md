@@ -9,6 +9,12 @@ python3 -c 'import json; r=json.load(open("counter-result.json")); json.dump(r["
 dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --trace counter-trace.json --compat=tlc --seed 7 --fp 0 --output json
 ```
 
+The JSON validation report uses `schema_version: 2`, `command: "validate-trace"`
+and `result: "valid" | "invalid" | "unsupported"`. Its report version is
+independent of the native trace document's `format: "dive-trace", version: 1`.
+Existing trace tags, endings and loop indexing follow the compatibility policy
+in [reports and automation](reports-and-errors.md).
+
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states

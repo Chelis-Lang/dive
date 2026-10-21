@@ -19,7 +19,7 @@ use serde_json::{Value, json};
 use std::path::PathBuf;
 
 /// Version of the DFID JSON report.
-pub const DFID_SCHEMA_VERSION: u32 = 1;
+pub const DFID_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
 /// Finite DFID request. Depth exhaustion cannot establish model safety.
 #[derive(Clone, Debug, Default)]
