@@ -1,5 +1,9 @@
 # Changelog
 
+- Benchmark campaigns pass explicit TLC-derived time budgets and process-memory
+  ceilings to every native arm. The external backstop defaults to 900 seconds;
+  native resource stops retain their details and never earn completed timings.
+
 - Native temporal candidate certification registers the owning run control on
   fresh independent replay, including labels, `ENABLED` and fairness. Both the
   supplied word and native serialized round trip must validate; interruption
