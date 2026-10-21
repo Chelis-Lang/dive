@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "issue": 407,
+  "status": "Pre-fix primary observation; no verdict/count disagreement or performance claim",
+  "source": "66aa04c69712a297922de167fd8e12c3a0062746",
+  "source_tree": "78c262273480527a7738b4d4e02ef90fc48b51c0",
+  "native_binary_sha256": "5f3e6d5998a9b4a58b37b381c83c61a27d771858b6010dac75af61accd1a4eeb",
+  "java_binary_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "jre_archive_sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+  "jar_sha256": [
+    "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+    "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+  ],
+  "oracle_upstream": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "input_sha256": {
+    "JsonRuntimeNames.cfg": "34d1134ee8195f7db1f0a1d19eb263d03924e5ebf243abc9a1ce745e9aea90c2",
+    "JsonRuntimeNames.tla": "29331a475bc43cfc8acdf42ce4b8a061fdebb6fd966c9ec3c900f93369c5e239"
+  },
+  "exact_runner_sha256": "b436318cc5a9203ed021286cc7d92c706dd13b5e69706a8f05c7715b94040b56",
+  "manifest_sha256": "345a8b74ce1e8efa9a1588abdabd820ac40a7144b6f7fa4291bbf26ddb039295",
+  "rows": [
+    {
+      "id": "oracle-tlc-w1",
+      "raw_stdout_sha256": "76c2fbcd76c0fc29ed9815c5c906bfcb3390141cb715c476e2104ac68566a1b0",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "oracle": "tlc-2026.10.06.014338",
+      "raw_tool_observation": {
+        "success_message": 2193,
+        "stats_message": 2199,
+        "depth_message": 2194,
+        "finished_message": 2186,
+        "generated": 3,
+        "distinct": 3,
+        "depth": 3,
+        "left_on_queue": 0
+      },
+      "harness_classification": null
+    },
+    {
+      "id": "native-dive-w1",
+      "raw_stdout_sha256": "af92a6e8f5c5428747458eded5bda12a631da1b77c10b80be7c1f3cae02581ca",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "semantic_profile": "dive",
+      "verdict": "success",
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
+    },
+    {
+      "id": "native-dive-w4",
+      "raw_stdout_sha256": "bb9b3d949e294d94b921803f0ed869ea43467bcd0a4ce3f0b2e6b56fc52c4f05",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "semantic_profile": "dive",
+      "verdict": "success",
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 4,
+        "sequential": false,
+        "used": 4
+      }
+    },
+    {
+      "id": "native-tlc-w1",
+      "raw_stdout_sha256": "16a0d1fc048b1444a57102dbb7e852c6d5c1b96a85a47dab77db278252c68997",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "semantic_profile": "tlc",
+      "verdict": "success",
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
+    },
+    {
+      "id": "native-tlc-w4",
+      "raw_stdout_sha256": "7c3eff7e0584f1d6b4b052fbeef8264f700e7d92942bc282564ff0223f7c60a6",
+      "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_exit": 0,
+      "externally_censored": false,
+      "semantic_profile": "tlc",
+      "verdict": "success",
+      "statistics": {
+        "depth": 3,
+        "distinct": 3,
+        "generated": 3,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 4,
+        "sequential": false,
+        "used": 4
+      }
+    }
+  ],
+  "interpretation": "All observations complete success with3generated/3distinct/depth3. Compat requested4 actually used4 with no sequential reason before the guard correction. This is a missing conservative name-order guard observation; no result disagreement demonstrated. Default width4 is unchanged. Actual worker count is pool admission, not utilization/scaling.",
+  "provenance": "Original raw transcripts, before/after source/binary/tool/JRE/input identities, owned-group receipts and immutable failed/tag-collision preparation remain external. This compact record never relabels historical66aa as the later source."
+}

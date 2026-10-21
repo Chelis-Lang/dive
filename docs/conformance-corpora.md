@@ -275,3 +275,25 @@ with two distinct/two generated states and depth two. Complete enumeration of
 `-2..2` agrees on five distinct/thirty generated states and depth one. These are
 bounded semantic controls, not throughput measurements or a proof over a billion
 states. Initial-state errors deliberately have no reported TLC counts.
+
+## State-time Json runtime names
+
+`json-runtime-names` is one explicit validation model for #407, separate from
+all established parity populations. It stores `ToJson(<<n>>)` while a numeric
+state advances and checks the matching conversion. The reviewed pinned primary
+run completed with generated 3, distinct 3 and depth 3; pre-fix native runs
+matched those observations but omitted the TLC-order worker fallback. No
+observable result disagreement is claimed.
+
+Generate its golden only through the pinned harness:
+
+```sh
+target/debug/dive-conformance golden generate \
+  --corpus json-runtime-names --tier all --no-sany --workers 1 \
+  --jobs 1 --xmx 1g --timeout 15 \
+  --reason 'Issue #407: record state-time Json conversion before correcting the native name-order guard'
+```
+
+The raw primary observations stay external; compact source and producer hashes
+are recorded in [the primary evidence](survey/data/json-runtime-names-2026-10-21.json).
+The native Array/Object conversions remain named refusals.
