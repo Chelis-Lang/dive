@@ -285,3 +285,21 @@ The conformance harness requires whole counterexamples for safety, action-proper
 liveness and deadlock verdicts at every width. Missing or metadata-only words
 receive no agreement credit; present words must validate independently. This
 also holds when a worker-specific comparison omits witness shape.
+
+If the host cannot start a requested budget watchdog, checking does not begin.
+The CLI prints `DIVE-R0001` and exits 4; this is a runtime failure, not a verdict,
+a refusal or exhausted time/memory budget. It is an admission error on stderr,
+like an input-loading failure, rather than a completed JSON check report. Free
+host resources and retry, or explicitly choose `--time-limit none --max-memory none`.
+Managed `dive_api::check_file` callers receive `ApiError::BudgetStartup`;
+`dive_check::check` returns an internal-error result, and liveness analysis returns
+`AnalysisError::BudgetStartup`. Lower-level `Budget::start` and `budget::arm`
+return `Result` so this failure cannot look like an unlimited budget. Already
+armed or unlimited budgets still need no new thread.
+
+Low-level `capture::*` functions expect the caller to arm a budget and retain
+its watchdog through capture and analysis. Use the returned armed options from
+`budget::arm`, or clone `watchdog.budget()` into the options: `Budget::start`
+does not mutate the original budget. An unarmed budget has no running clock and
+its polls return no exhaustion. These low-level primitives do not resolve CLI
+defaults or arm a watchdog themselves.

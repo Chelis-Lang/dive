@@ -51,7 +51,8 @@ pub(crate) fn expired_for_test() -> dive_check::budget::Watchdog {
     use std::time::{Duration, Instant};
     let watchdog = Budget::new(Some(Duration::ZERO), None)
         .start()
-        .expect("watchdog");
+        .expect("watchdog starts")
+        .expect("limited budget");
     let started = Instant::now();
     while watchdog.budget().poll().is_none() && started.elapsed() < Duration::from_secs(10) {
         std::thread::sleep(Duration::from_millis(1));

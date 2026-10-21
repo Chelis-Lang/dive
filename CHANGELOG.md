@@ -5,6 +5,10 @@
   timeouts. The harness retains strict comparison for its exact budget-only
   compat override; exhausted budgets remain resource findings.
 
+- Requested run budgets now fail explicitly with `DIVE-R0001` and exit 4 if
+  their watchdog cannot start. No check runs with the limit silently disabled.
+  Rust callers must handle the new `Result` from `Budget::start` and `budget::arm`.
+
 - `dive check` runs under a wall-clock and a memory budget (ADR 0107, D-026):
   `--time-limit DURATION|none` (30 minutes by default in the dive profile,
   provisional until release; none under `--compat=tlc`) and `--max-memory

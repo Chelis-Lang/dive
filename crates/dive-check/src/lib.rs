@@ -114,7 +114,18 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         );
     }
     let started = Instant::now();
-    let (_watchdog, armed) = budget::arm(opts);
+    let (_watchdog, armed) = match budget::arm(opts) {
+        Ok(armed) => armed,
+        Err(error) => {
+            return bare(
+                Verdict::InternalError {
+                    message: error.to_string(),
+                },
+                opts,
+                ir,
+            );
+        }
+    };
     let opts = armed.as_ref();
     let run = || run_check(ir, cfg, opts);
     let outcome = std::thread::scope(|s| {

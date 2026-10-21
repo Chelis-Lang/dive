@@ -1679,6 +1679,7 @@ pub(crate) mod budget_cut_tests {
             assert_eq!(reference.workers.used, 4);
             let watchdog = crate::budget::Budget::new(Some(Duration::from_secs(3600)), None)
                 .start()
+                .expect("watchdog thread starts")
                 .expect("watchdog");
             let pause = Arc::new(Pause::default());
             opts.budget = watchdog.budget().clone();
