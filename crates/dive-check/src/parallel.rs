@@ -172,6 +172,16 @@ fn ranges(n: usize, size: usize) -> Vec<Range<usize>> {
     (0..n).step_by(size).map(|s| s..(s + size).min(n)).collect()
 }
 
+/// Whether an event at unit `cut` (`u64::MAX`: none) is decided by expanded
+/// blocks alone: every block starting at or before it has output (`done`).
+fn covers(blocks: &[Range<usize>], cut: u64, done: impl Fn(usize) -> bool) -> bool {
+    cut != u64::MAX
+        && blocks
+            .iter()
+            .enumerate()
+            .all(|(b, range)| range.start as u64 > cut || done(b))
+}
+
 /// ADR 0015 §2's block size: about 16 blocks per worker, 1 to 256 units.
 fn block_size(n: usize, threads: usize) -> usize {
     (n / (16 * threads.max(1))).clamp(1, 256)
@@ -228,6 +238,13 @@ struct Expand<'env, S: Keyed> {
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
     chaos: Option<u64>,
+    /// The run's armed budget, polled once per claimed block (ADR 0107).
+    budget: crate::budget::Budget,
+    /// Whether a block was left unexpanded because the budget ran out; the
+    /// wave is then not published.
+    exhausted: std::sync::atomic::AtomicBool,
+    #[cfg(test)]
+    pause: Option<Arc<budget_cut_tests::Pause>>,
 }
 
 /// The result of a successor's phase-1 checks that stops its block.
@@ -271,6 +288,19 @@ impl<S: Keyed> Expand<'_, S> {
         input
     }
 
+    /// Whether some block found an event and every block that starts at or
+    /// before the earliest one was expanded, so that the event is the wave's
+    /// first in reference order even though the budget left later blocks
+    /// unexpanded. Coverage is checked per block, whatever the claim order.
+    fn covers_first_event(&self) -> bool {
+        covers(&self.blocks, self.cut.load(Ordering::Relaxed), |b| {
+            self.outs[b]
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .is_some()
+        })
+    }
+
     fn actions(&self) -> usize {
         self.m.actions.len()
     }
@@ -302,8 +332,24 @@ impl<S: Keyed> Expand<'_, S> {
             let k = self.claim.fetch_add(1, Ordering::Relaxed);
             let Some(&b) = self.order.get(k) else { break };
             let range = self.blocks[b].clone();
+            #[cfg(test)]
+            if let Some(pause) = &self.pause {
+                pause.before_poll(range.start);
+            }
             if range.start as u64 > self.cut.load(Ordering::Relaxed) {
                 continue;
+            }
+            if self.budget.poll().is_some() {
+                self.exhausted.store(true, Ordering::Relaxed);
+                #[cfg(test)]
+                if let Some(pause) = &self.pause {
+                    pause.stopped();
+                }
+                break;
+            }
+            #[cfg(test)]
+            if let Some(pause) = &self.pause {
+                pause.after_poll(range.start);
             }
             let out = self.block(&set, range, &mut buf, &mut rng);
             *self.outs[b].lock().unwrap_or_else(PoisonError::into_inner) = Some(out);
@@ -989,6 +1035,9 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         initial_generated: search.initial_generated,
     };
     while !frontier.is_empty() {
+        if let Some(stop) = search.budget_stop() {
+            return (Some(stop), stats_now(search, frontier.len() as u64));
+        }
         if let Some(verdict) = search.checkpoint_boundary(&frontier, level) {
             return (
                 Some(Stop {
@@ -1095,6 +1144,10 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 cut: AtomicU64::new(u64::MAX),
                 buffers: Mutex::new(Vec::new()),
                 chaos: opts.chaos,
+                budget: search.budget.clone(),
+                exhausted: std::sync::atomic::AtomicBool::new(false),
+                #[cfg(test)]
+                pause: opts.parallel_budget_test.clone(),
             });
             let job: Job<'env> = {
                 let e = expand.clone();
@@ -1107,6 +1160,19 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 );
             }
             drop(job);
+            if expand.exhausted.load(Ordering::Relaxed)
+                && !expand.covers_first_event()
+                && let Some(stop) = search.budget_stop()
+            {
+                // The wave is incomplete before any event: report the
+                // published prefix only. An event every earlier block was
+                // expanded for is the first in reference order, and is
+                // published below as it would be without a budget.
+                return (
+                    Some(stop),
+                    stats_now(search, (len - wave_start + next_frontier.len()) as u64),
+                );
+            }
             let CommitInput {
                 gens,
                 done,
@@ -1514,6 +1580,146 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         }
     }
     (None, stats_now(search, next_frontier.len() as u64))
+}
+
+#[cfg(test)]
+pub(crate) mod budget_cut_tests {
+    use super::covers;
+    use std::sync::{Arc, Condvar, Mutex, PoisonError};
+    use std::time::Duration;
+
+    #[derive(Debug, Default)]
+    struct State {
+        entered: bool,
+        tripped: bool,
+        skipped: bool,
+    }
+
+    /// Holds the first expansion in flight until another worker observes a stop.
+    #[derive(Debug, Default)]
+    pub(crate) struct Pause {
+        state: Mutex<State>,
+        wake: Condvar,
+    }
+
+    impl Pause {
+        fn wait_for(&self, predicate: impl Fn(&State) -> bool) {
+            let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+            let (state, _) = self
+                .wake
+                .wait_timeout_while(state, Duration::from_secs(10), |s| !predicate(s))
+                .unwrap_or_else(PoisonError::into_inner);
+            assert!(
+                predicate(&state),
+                "parallel budget synchronization timed out"
+            );
+        }
+
+        pub(super) fn before_poll(&self, unit: usize) {
+            if unit != 0 {
+                self.wait_for(|s| s.tripped);
+            }
+        }
+
+        pub(super) fn after_poll(&self, unit: usize) {
+            if unit == 0 {
+                self.state
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .entered = true;
+                self.wake.notify_all();
+                self.wait_for(|s| s.skipped);
+            }
+        }
+
+        pub(super) fn stopped(&self) {
+            self.state
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .skipped = true;
+            self.wake.notify_all();
+        }
+
+        fn trip(&self, budget: &crate::budget::Budget) {
+            self.wait_for(|s| s.entered);
+            budget.trip_for_test();
+            self.state
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .tripped = true;
+            self.wake.notify_all();
+        }
+    }
+
+    #[test]
+    #[allow(
+        clippy::expect_used,
+        reason = "fixed model and synchronized worker controls"
+    )]
+    fn an_in_flight_violation_is_published_when_another_worker_stops() {
+        let source = "---- MODULE BudgetRace ----\nEXTENDS Naturals\nVARIABLE x\n\
+            Init == x \\in 0..127\nNext == x' = 128\n\
+            Safe == [][x' < 128]_x\n====\n";
+        let analysis =
+            dive_sema::analyze_source("BudgetRace.tla", source, &dive_sema::Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("valid IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Safe\n")
+            .into_config()
+            .expect("valid config");
+        for mut opts in [crate::CheckOptions::tlc(0, 0), crate::CheckOptions::dive(0)] {
+            opts.workers = 4;
+            let reference = crate::check(&ir, &cfg, &opts);
+            assert!(
+                matches!(
+                    reference.verdict,
+                    crate::Verdict::ActionPropertyViolated { .. }
+                ),
+                "{reference:?}"
+            );
+            assert_eq!(reference.workers.used, 4);
+            let watchdog = crate::budget::Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .expect("watchdog");
+            let pause = Arc::new(Pause::default());
+            opts.budget = watchdog.budget().clone();
+            opts.parallel_budget_test = Some(pause.clone());
+            let result = std::thread::scope(|scope| {
+                let check = scope.spawn(|| crate::check(&ir, &cfg, &opts));
+                pause.trip(&opts.budget);
+                check.join().expect("check returns")
+            });
+            assert!(opts.budget.poll().is_some());
+            assert!(
+                pause
+                    .state
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .skipped
+            );
+            assert_eq!(result.verdict, reference.verdict);
+            assert_eq!(result.stats, reference.stats);
+            assert_eq!(
+                format!("{:?}", result.counterexample),
+                format!("{:?}", reference.counterexample)
+            );
+        }
+    }
+
+    #[test]
+    fn an_event_survives_a_budget_stop_only_when_every_earlier_block_was_expanded() {
+        let blocks = [0..4, 4..8, 8..12, 12..16];
+        // Blocks 0 and 1 expanded, event at unit 5: decided.
+        assert!(covers(&blocks, 5, |b| b < 2));
+        // Chaos claimed block 1 first and block 0 was left unexpanded: an
+        // earlier event may hide in block 0, so the wave is not decided.
+        assert!(!covers(&blocks, 5, |b| b == 1));
+        // An event in block 2 with block 1 unexpanded is not decided either.
+        assert!(!covers(&blocks, 9, |b| b != 1));
+        // Later blocks never matter.
+        assert!(covers(&blocks, 3, |b| b == 0));
+        // No event: nothing to publish.
+        assert!(!covers(&blocks, u64::MAX, |_| true));
+    }
 }
 
 #[cfg(test)]

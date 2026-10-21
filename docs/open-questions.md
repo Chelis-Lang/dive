@@ -77,3 +77,23 @@ Rust `CheckReport::exit_code()` retains its historical profile contract. This
 is a new explicit decision, not an implication of ADR 0096 or the expert's
 earlier plan. See [ADR 0097](decisions/0097-check-exit-conventions.md). Actual
 new corpus measurements and all existing floors remain separate obligations.
+
+## Run-budget default values (ADR 0107, D-026)
+
+The owner approved shipping a default time limit in the dive profile, on
+condition that it never becomes a fixed overhead of the development loop.
+Tests, the gate and the harness pass explicit budgets.
+
+- **Default `--time-limit` (open, provisional):** 30 minutes in the dive
+  profile, none under `--compat=tlc`. Recommendation: set the release value
+  from the benchmark campaign, for example a multiple of the slowest in-scope
+  corpus model's runtime on the reference machine.
+- **Default `--max-memory` (answered by the owner, 2026-10-20):** half of
+  physical memory in both profiles, rather than the JVM's quarter. TLC's
+  default footprint is its heap plus off-heap fingerprint storage and its disk
+  queue, and dive must keep at least TLC's capacity.
+- **ADR 0107 status (answered by the owner, 2026-10-20):** accepted.
+- **Gate budgets (answered by the owner, 2026-10-20):** the gate's
+  `--timeout 1800` moves to the TLC-derived budgets in a follow-up PR opened
+  right after this policy merges. Each model that exceeds its budget is filed
+  as a performance issue.

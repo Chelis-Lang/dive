@@ -142,6 +142,7 @@ fn options(repo: &Path, filters: Vec<String>) -> RunOptions {
             xmx: "1g".to_owned(),
             timeout: Some(Duration::from_secs(5)),
             timeout_cap: Duration::from_secs(5),
+            budget_cap: None,
         },
         crosscheck_manifest: true,
         models: true,

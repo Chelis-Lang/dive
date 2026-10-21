@@ -40,6 +40,10 @@ pub struct ModelRequest<'a> {
     pub timeout: Duration,
     /// JVM heap limit, for JVM-based implementations.
     pub xmx: &'a str,
+    /// Whether `timeout` and `xmx` are the run's own budgets (`--tlc-budgets`,
+    /// ADR 0107). Otherwise `dive check` runs without budgets of its own and
+    /// only the harness timeout applies, as before.
+    pub budgets: bool,
 }
 
 /// One implementation option, as given with `--impl-option NAME[=VALUE]`

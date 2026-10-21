@@ -72,6 +72,40 @@ filenames must already include their extensions.
 Native commands retain their existing statuses and input ordering. These
 entrypoints implement a checking subset; full TLC toolchain parity remains open.
 
+## Time and memory budgets
+
+Every `dive check` runs under two budgets (ADR 0107):
+
+- `--time-limit DURATION|none` bounds wall-clock time for the whole check.
+  Durations are seconds by default, or take a unit: `500ms`, `90s`, `10m`,
+  `2h`. The default profile defaults to 30 minutes, a provisional value until
+  release; `--compat=tlc` has no time limit, as TLC has none.
+- `--max-memory BYTES|auto|none` bounds the resident memory of the whole
+  process. Sizes take `-Xmx` units: `512m`, `8g`. `auto`, the default in both
+  profiles, is half of physical memory.
+
+The clock starts after the specification and configuration are loaded.
+dive polls the budget for each initial state, each expanded state, and during
+graph capture and temporal analysis. Binding, `ASSUME` evaluation and a single
+long evaluation are not interrupted. Memory is the whole process's: resident
+plus swapped pages on Linux, resident pages on macOS. Where it cannot be
+measured, `options.budget.max_memory_source` is `unavailable` and no ceiling
+applies. `dive tlc` accepts the JVM spelling `-Xmx8g`, or `--max-memory`.
+
+When either runs out, dive stops and reports `verdict: "stopped"` with a
+`stopped` block (resource, limit, observed value, elapsed time, unit, phase and
+a hint),
+the statistics reached so far, and exit status 5. A stop proves nothing about
+the model: it is never a success, a violation or `unsupported`. Rust callers
+set `CheckRequest::time_limit` and `CheckRequest::max_memory`
+(`dive_api::BudgetSetting`). `options.budget` reports the resolved limits and
+whether each came from the default, an explicit setting, or none. See
+[D-026](../tlc-differences.md#d-026-run-budgets-stop-a-run-with-a-structured-result).
+
+```sh
+dive check docs/user/examples/Counter.tla --time-limit 2m --max-memory 4g --output json
+```
+
 ## Process statuses
 
 `dive check` uses TLC process statuses by default, with native semantic choices
@@ -79,7 +113,8 @@ still active unless `--compat=tlc` selects TLC evaluation. An invariant violatio
 exits 12 and a rejected specification 150. Configuration rejection exits 151;
 initial/action properties and supported cyclic liveness use 13. Deciding error
 classes determine other verdict statuses. Success is 0; usage 2, unsupported or
-resource limit 3 and internal error 4 mean their existing distinct outcomes.
+resource limit 3, internal error 4 and a stop by `--time-limit` or
+`--max-memory` 5 mean their existing distinct outcomes.
 These statuses do not prove an unverified error class or validate a missing trace.
 
 ```sh

@@ -220,11 +220,35 @@ fn failure(
 /// # Errors
 /// All existing planning, capture, atom, attribution and product errors are
 /// retained. Prefix failures explicitly report incomplete capture.
+pub fn analyze_periodic(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    schedule: Schedule,
+) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+    // One budget for capture and every level check (ADR 0107); only the
+    // budget's own limit becomes a stop.
+    let (_watchdog, armed) = dive_check::budget::arm(options);
+    let _scope = crate::budget::enter(&armed.budget);
+    periodic_unbudgeted(model, &armed, limits, policy, schedule).map_err(|mut failure| {
+        if let Some(exhausted) = armed.budget.poll()
+            && super::budget_limit(&failure.failure.failure.error)
+        {
+            failure.failure.failure.error = AnalysisError::Stopped(Box::new(
+                exhausted.during(dive_check::budget::Phase::Temporal),
+            ));
+            failure.failure.action = None;
+        }
+        failure
+    })
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "keep producer outcomes and their distinct failure evidence together"
 )]
-pub fn analyze_periodic(
+fn periodic_unbudgeted(
     model: &Model,
     options: &CheckOptions,
     limits: Limits,

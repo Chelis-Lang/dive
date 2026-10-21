@@ -151,7 +151,7 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
   - 20 × the manifest runtime + 120 s, at least 300 s, capped by `--timeout-cap` (default 3600); unknown runtimes get the cap;
   - in `run`, also at least 4 × the golden's recorded elapsed time + 60 s, even above the cap. Manifest runtimes were measured with several workers.
 
-  On timeout the whole process group is killed with `SIGKILL`. Ctrl-C (`SIGINT`) and `SIGTERM` kill every live oracle process group before the harness exits.
+  By default `dive check` runs with `--time-limit none --max-memory none`, so only this timeout applies, as before. `--tlc-budgets` (ADR 0107) instead gives a model with a golden a budget derived from TLC's recorded single-worker time, `max(60 s, 10 × golden elapsed)`, capped by `--budget-cap` (default 900) but never below twice TLC's time. dive receives it as `--time-limit` (dive profile only; TLC has no time limit) and `--xmx` as `--max-memory`, reports a structured `stopped` result, and is killed only 30 s after its limit. Either stop is recorded as `timeout`, a finding. The gate switches to `--tlc-budgets` in a follow-up. On timeout the whole process group is killed with `SIGKILL`. Ctrl-C (`SIGINT`) and `SIGTERM` kill every live oracle process group before the harness exits.
 - `--java PATH`: opts into a system Java. It is recorded in provenance as `source: system`, with the executable's SHA-256.
 - `--repo-root DIR` and `--cache-dir DIR`.
 
@@ -412,6 +412,9 @@ independently. See the study guide
 and `scripts/final-temporal-study.sh conformance/studies/lm1.txt`. Named refusals
 and all selected model/worker pairs remain visible; these observations never
 count as strict `agree` or alter the conformance gate.
+Time and memory budget stops are recorded as `timeout` findings, with the
+resource retained in the document; neither is an unsupported feature or a
+successful observation.
 
 ## Deep frontend campaigns
 

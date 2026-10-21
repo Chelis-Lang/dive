@@ -14,6 +14,7 @@ Use its result fields; do not interpret all commands through safety-check keys.
 | DFID | `termination`, `model_proved`, iterations and validated counterexample |
 | Trace validation | `validation`; valid/invalid/refused is separate from search verdicts |
 | Checkpoint pause | `checkpoint.status: paused-incomplete`; incomplete execution |
+| Budget stop | `verdict: stopped` and `stopped` (resource, limit, observed, unit, phase, hint); progress statistics; exit 5 |
 
 `unsupported` names a feature that was not checked. A resource limit, timeout,
 incomplete bound, failed storage or internal error supplies no successful model
@@ -25,11 +26,17 @@ CLI parse/analysis/translation use their own exit conventions. `dive check`
 uses TLC's deciding physical status in both semantic profiles: the included
 invariant example exits 12 and a cyclic final/short liveness violation exits 13.
 Both conventions keep 0 for success, 2 for usage/I/O, 3 for unsupported/resource
-limits and 4 for internal failure. `--exit-codes native` selects the historical
+limits, 4 for internal failure and 5 for a run stopped by `--time-limit` or
+`--max-memory` (ADR 0107). `--exit-codes native` selects the historical
 statuses: 1 for rejected input, 10 for property violation, 11 for deadlock,
 12 for assumption failure and 13 for evaluation error. `--compat=tlc` also
 selects TLC evaluation; it is independent of the chosen exit convention.
 DFID and simulation require their report qualifications even on exit zero.
+
+Schema stability for budgets: `options.budget` and the `stopped` block are
+additive within `dive check` schema versions 1 and 2, and `stopped` is a new
+`verdict` value that appears only when a budget runs out. Automation that pins
+the verdict vocabulary should treat an unknown verdict as "no result".
 
 Stable diagnostic codes and spans belong to the report; display text is intended
 for people. Full TLC deciding-error-class coverage is unfinished and tracked in

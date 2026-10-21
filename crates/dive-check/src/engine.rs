@@ -813,9 +813,27 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
     pub(crate) observer: Option<&'obs mut dyn crate::capture::Observer>,
     pub(crate) prefix_level: Option<u64>,
+    /// The run's armed budget (ADR 0107), polled once per expanded state.
+    pub(crate) budget: crate::budget::Budget,
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
+    /// The stop for an exhausted budget, in this search's phase.
+    pub(crate) fn budget_stop(&self) -> Option<Stop> {
+        let exhausted = self.budget.poll()?;
+        let phase = if self.capture.is_some() {
+            crate::budget::Phase::Capture
+        } else {
+            crate::budget::Phase::Search
+        };
+        Some(Stop {
+            verdict: Verdict::Stopped(Box::new(exhausted.during(phase))),
+            in_init: false,
+            path: None,
+            then: None,
+        })
+    }
+
     fn seen_len(&self) -> u64 {
         self.disk
             .as_ref()
@@ -1181,36 +1199,45 @@ impl<S: Keyed> Search<'_, '_, S> {
         // Initial states: `DoInitFunctor`, on the start-up stream that the
         // constant definitions and assumptions drew from.
         let ctx = self.ctx;
-        let r = ev.init_states(&m.init_actions, &mut |succ: &Successor<'_>| match self
-            .on_state(None, succ, 1, next)
-        {
-            None => Flow::Continue,
-            Some((verdict, with, _)) => {
-                // An error in a check of an initial state names the state
-                // (`DoInitFunctor` records it).
-                let verdict = class::init_error(verdict, Some(&state_text(m, succ.state, ctx)));
-                // doInit prints the recorded state for a RuntimeException,
-                // but not for an EvalException (reported as GENERAL).
-                let with = with
-                    && !matches!(
-                        verdict,
-                        Verdict::EvaluationError { reported: 1000, .. }
-                            | Verdict::EvaluationError {
-                                site: ErrorSite::ImpliedInit,
-                                ..
-                            }
-                    );
+        let r = ev.init_states(&m.init_actions, &mut |succ: &Successor<'_>| {
+            // One relaxed load per initial state: the budget can stop a
+            // long `Init` enumeration between its states (ADR 0107).
+            if let Some(budget) = self.budget_stop() {
                 stop = Some(Stop {
-                    verdict,
                     in_init: true,
-                    path: None,
-                    then: if with {
-                        Some(trace_state(m, succ, true))
-                    } else {
-                        None
-                    },
+                    ..budget
                 });
-                Flow::Stop
+                return Flow::Stop;
+            }
+            match self.on_state(None, succ, 1, next) {
+                None => Flow::Continue,
+                Some((verdict, with, _)) => {
+                    // An error in a check of an initial state names the state
+                    // (`DoInitFunctor` records it).
+                    let verdict = class::init_error(verdict, Some(&state_text(m, succ.state, ctx)));
+                    // doInit prints the recorded state for a RuntimeException,
+                    // but not for an EvalException (reported as GENERAL).
+                    let with = with
+                        && !matches!(
+                            verdict,
+                            Verdict::EvaluationError { reported: 1000, .. }
+                                | Verdict::EvaluationError {
+                                    site: ErrorSite::ImpliedInit,
+                                    ..
+                                }
+                        );
+                    stop = Some(Stop {
+                        verdict,
+                        in_init: true,
+                        path: None,
+                        then: if with {
+                            Some(trace_state(m, succ, true))
+                        } else {
+                            None
+                        },
+                    });
+                    Flow::Stop
+                }
             }
         });
         self.initial_generated = self.generated;
@@ -1313,6 +1340,10 @@ impl<S: Keyed> Search<'_, '_, S> {
                     first_id = id;
                 }
                 let s0 = &vals;
+                if let Some(stop) = self.budget_stop() {
+                    let left = (count - i) + next.len();
+                    return (Some(stop), self.stats(left as u64));
+                }
                 if self.host.exit_requested() {
                     // `TLCSet("exit", TRUE)`: TLC's `stop()` ends the search
                     // as a success once the state that asked is done.
@@ -2112,6 +2143,7 @@ fn search_in<S: Keyed>(
         checkpoint,
         observer,
         prefix_level: None,
+        budget: opts.budget.clone(),
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
