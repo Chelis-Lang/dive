@@ -1256,7 +1256,7 @@ impl CheckReport {
                     _ => Value::Null,
                 };
                 if let Verdict::BudgetMeasurement { error } = v {
-                    doc["diagnostics"] = json!([{"code": dive_check::budget::MEASUREMENT_FAILURE_CODE, "message": error.to_string()}]);
+                    doc["diagnostics"] = json!([{"code": dive_check::budget::MEASUREMENT_FAILURE_CODE, "message": error.to_string(), "cause": error.to_string(), "span": null, "help": crate::diagnostics::explain(dive_check::budget::MEASUREMENT_FAILURE_CODE).map(|entry| entry.remediation)}]);
                 }
                 if let Verdict::Stopped(stopped) = v {
                     doc["stopped"] = stopped_json(stopped);
@@ -1915,6 +1915,48 @@ mod evidence_controls {
                 assert_eq!(json["stopped"]["observed"], 101);
             }
         }
+    }
+
+    #[test]
+    fn a_safety_measurement_error_has_actionable_help_without_an_invented_span() {
+        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\n====\n";
+        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+            .into_config()
+            .expect("cfg");
+        let opts = CheckOptions::tlc(0, 0);
+        let result = dive_check::check(&ir, &cfg, &opts);
+        assert_eq!(result.verdict, Verdict::Success);
+        let mut report = limited_report(dive_liveness::analyze::Stage::Product);
+        report.temporal = TemporalMode::Ordinary;
+        report.opts = opts;
+        report.workers_requested = 1;
+        report.phase = Phase::Checked(Box::new(result));
+        report.finish_budget(
+            Err(dive_check::budget::MeasurementError::unavailable(
+                dive_check::budget::SamplePoint::Final,
+            )),
+            Duration::from_millis(2),
+        );
+        let json = report.to_json();
+        assert_eq!(json["verdict"], "internal-error");
+        assert_eq!(
+            json["diagnostics"][0]["code"],
+            dive_check::budget::MEASUREMENT_FAILURE_CODE
+        );
+        assert_eq!(json["diagnostics"][0]["cause"], json["message"]);
+        assert!(
+            json["diagnostics"][0]["help"]
+                .as_str()
+                .is_some_and(|help| help.contains("--max-memory=none"))
+        );
+        assert!(json["diagnostics"][0]["span"].is_null());
+        assert_eq!(json["statistics"]["exhaustive"], false);
+        assert_eq!(report.exit_code(), exit::INTERNAL);
+        assert!(json["tlc"].is_null());
+        assert!(json["stopped"].is_null());
+        assert!(json["counterexample"].is_null());
     }
 
     #[test]

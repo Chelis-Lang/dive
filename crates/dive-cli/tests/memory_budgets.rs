@@ -39,3 +39,24 @@ fn explicit_one_byte_ceiling_is_enforced_in_native_and_tlc_transports()
     }
     Ok(())
 }
+
+#[test]
+fn memory_measurement_diagnostic_has_a_registered_cli_explanation()
+-> Result<(), Box<dyn std::error::Error>> {
+    let binary =
+        std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
+    let output = Command::new(binary)
+        .args(["explain", "DIVE-R0002", "--output", "json"])
+        .output()?;
+    assert!(output.status.success(), "{output:?}");
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+    assert_eq!(json["known"], true);
+    assert_eq!(json["code"], "DIVE-R0002");
+    assert!(
+        json["explanation"]["remediation"]
+            .as_str()
+            .is_some_and(|help| help.contains("--max-memory=none"))
+    );
+    assert!(json.get("verdict").is_none());
+    Ok(())
+}

@@ -56,7 +56,8 @@ Use `dive explain DIVE-L0020` or
 `dive explain DIVE-L0020 --output json` for a cause and a next action. This
 initial catalogue covers temporal `DIVE-L0020`–`DIVE-L0038` codes that are
 currently assigned, temporal API `DIVE-A0030`–`DIVE-A0034`, watchdog startup
-`DIVE-R0001`, and command adapter `DIVE-X0001`–`DIVE-X0004`. It does not yet
+`DIVE-R0001`, memory observation `DIVE-R0002`, and command adapter
+`DIVE-X0001`–`DIVE-X0004`. It does not yet
 cover every frontend, evaluation or storage diagnostic. An unknown code exits
 2; JSON reports `known: false` and `explanation: null`. Explanations have
 `command: "explain"` and the common report schema version. They are
