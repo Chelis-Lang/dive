@@ -70,6 +70,84 @@ pub struct HostError {
     pub message: String,
 }
 
+/// A cooperative interruption requested by the evaluator's host.
+///
+/// This is control flow, never a specification error, a Boolean result or a
+/// resource refusal. The driver retains the resource and progress evidence.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Interrupted {
+    token: u64,
+}
+
+impl Interrupted {
+    /// Associates an interruption with the driver's opaque receipt identity.
+    /// The value is not a TLC code or a resource measurement.
+    #[must_use]
+    pub const fn new(token: u64) -> Self {
+        Self { token }
+    }
+
+    /// The opaque identity supplied by the driver.
+    #[must_use]
+    pub const fn token(self) -> u64 {
+        self.token
+    }
+}
+
+/// Optional run control, separate from specification-visible host operations.
+///
+/// Drivers install this after their uninterruptible startup phases. Calls are
+/// amortized across evaluator loop work; implementations should inspect an
+/// existing signal rather than sample the clock or resident memory.
+pub trait HostControl: Send + Sync + std::fmt::Debug {
+    /// Checks whether evaluation must return to its driver.
+    ///
+    /// # Errors
+    /// [`Interrupted`] when the driver has requested interruption.
+    fn check(&self) -> Result<(), Interrupted>;
+}
+
+/// Restores the evaluator's previous host control when dropped.
+///
+/// The installing driver owns this scope exclusively, just as it owns changes
+/// to the specification-visible host. Worker threads share the installed control.
+#[derive(Debug)]
+pub struct HostControlScope {
+    pub(crate) core: Arc<Core>,
+    pub(crate) token: u64,
+    pub(crate) _thread: std::marker::PhantomData<std::rc::Rc<()>>,
+}
+
+impl Drop for HostControlScope {
+    fn drop(&mut self) {
+        self.core.host.remove_control(self.token);
+    }
+}
+
+/// Another thread currently owns the evaluator's host control scope.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct HostControlConflict;
+
+impl std::fmt::Display for HostControlConflict {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("another driver owns the evaluator host control")
+    }
+}
+impl std::error::Error for HostControlConflict {}
+
+#[derive(Debug)]
+struct ControlFrame {
+    token: u64,
+    owner: std::thread::ThreadId,
+    control: Option<Arc<dyn HostControl>>,
+}
+
+#[derive(Debug, Default)]
+struct Controls {
+    next: u64,
+    frames: Vec<ControlFrame>,
+}
+
 /// The run hosting the evaluator: the model checker (or another driver).
 ///
 /// Every method has a default that provides nothing; an operator that needs
@@ -251,6 +329,9 @@ pub(crate) struct Registers {
 pub(crate) struct HostSlot {
     pub(crate) host: Mutex<Option<Arc<dyn Host>>>,
     pub(crate) registers: Mutex<Registers>,
+    /// Independent of host replacement: graph capture installs a search host
+    /// while the same outer run control remains active.
+    control: Mutex<Controls>,
     /// The installed host's [`Host::expression_cache_domain`], updated with
     /// the host so cache lookups need not lock it.
     pub(crate) cache_domain: AtomicU64,
@@ -265,6 +346,58 @@ impl HostSlot {
             Ordering::Release,
         );
         std::mem::replace(&mut *slot, host)
+    }
+
+    pub(crate) fn push_control(
+        &self,
+        control: Option<Arc<dyn HostControl>>,
+    ) -> Result<u64, HostControlConflict> {
+        let owner = std::thread::current().id();
+        let mut controls = self.control.lock().unwrap_or_else(PoisonError::into_inner);
+        if controls
+            .frames
+            .last()
+            .is_some_and(|frame| frame.owner != owner)
+        {
+            return Err(HostControlConflict);
+        }
+        let token = controls.next.checked_add(1).ok_or(HostControlConflict)?;
+        controls.next = token;
+        controls.frames.push(ControlFrame {
+            token,
+            owner,
+            control,
+        });
+        Ok(token)
+    }
+
+    pub(crate) fn remove_control(&self, token: u64) {
+        let mut controls = self.control.lock().unwrap_or_else(PoisonError::into_inner);
+        if let Some(index) = controls
+            .frames
+            .iter()
+            .position(|frame| frame.token == token)
+        {
+            controls.frames.remove(index);
+        }
+    }
+
+    pub(crate) fn check_control(&self) -> crate::Result<()> {
+        let controls = self.control.lock().unwrap_or_else(PoisonError::into_inner);
+        let control = match controls.frames.last() {
+            Some(frame) if frame.control.is_some() => frame.control.clone(),
+            Some(frame) if frame.owner != std::thread::current().id() => controls
+                .frames
+                .iter()
+                .rev()
+                .find_map(|frame| frame.control.clone()),
+            _ => None,
+        };
+        drop(controls);
+        match control {
+            Some(control) => control.check().map_err(EvalError::interrupted),
+            None => Ok(()),
+        }
     }
 
     /// The cache domain of the installed host.

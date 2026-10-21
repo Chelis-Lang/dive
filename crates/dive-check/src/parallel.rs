@@ -245,6 +245,7 @@ struct Expand<'env, S: Keyed> {
     chaos: Option<u64>,
     /// The run's armed budget, polled per block and amortized during emission.
     budget: crate::budget::Budget,
+    control: Arc<crate::budget::EvaluationControl>,
     /// Whether a block was left unexpanded because the budget ran out; the
     /// wave is then not published.
     exhausted: std::sync::atomic::AtomicBool,
@@ -593,11 +594,11 @@ impl<S: Keyed> Expand<'_, S> {
                         key,
                         unit,
                         c: generated,
-                        verdict: error_verdict(&e.error, ErrorSite::Next),
+                        verdict: error_verdict(&e.error, ErrorSite::Next, &self.control),
                         then: None,
                         resume: false,
                         stutter: false,
-                        partial: false,
+                        partial: e.error.class() == dive_eval::ErrorClass::Interrupted,
                     });
                     break;
                 }
@@ -668,9 +669,9 @@ impl<S: Keyed> Expand<'_, S> {
         // A constraint's error ends the counterexample with the successor; a
         // state TLC cannot fingerprint (or whose `VIEW` fails) is not
         // printed (fixtures `ErConstr*`, `ErView*`).
-        let checked = match in_model(m, &st1, Some(&step), &levels) {
+        let checked = match in_model(m, &st1, Some(&step), &levels, &self.control) {
             Err(v) => Err((v, true)),
-            Ok(true) => state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1)
+            Ok(true) => state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1, &self.control)
                 .map(Some)
                 .map_err(|v| (v, false)),
             Ok(false) => Ok(None),
@@ -711,7 +712,7 @@ impl<S: Keyed> Expand<'_, S> {
                 // Outside the model: checked on every occurrence, never
                 // inserted (probe `ConstrainedViolation`); TLC's replay checks
                 // it again.
-                let v = check_invariants(m, &st1, false);
+                let v = check_invariants(m, &st1, false, &self.control);
                 flush(cap, lines, (pos, PH_INV));
                 if let Some(verdict) = v {
                     return Some(Stopped {
@@ -724,7 +725,7 @@ impl<S: Keyed> Expand<'_, S> {
         }
         if !m.implied_actions.is_empty() {
             levels.from();
-            let v = check_implied_actions(m, &step);
+            let v = check_implied_actions(m, &step, &self.control);
             flush(cap, lines, (pos, PH_IMPLIED));
             if let Some(verdict) = v {
                 return Some(Stopped {
@@ -832,6 +833,7 @@ struct ChunkOut {
 /// One level's phase-3 job: the invariants of the new states.
 struct Check<'env, K> {
     m: &'env Model,
+    control: Arc<crate::budget::EvaluationControl>,
     level: u64,
     winners: Arc<Vec<Winner<K>>>,
     /// Winners at or after this key are not checked (phase 1 stopped
@@ -890,7 +892,7 @@ impl<K> Check<'_, K> {
                 break;
             }
             Rng::maybe_yield(rng);
-            let v = check_invariants(m, &St::state(w.vals.clone()), false);
+            let v = check_invariants(m, &St::state(w.vals.clone()), false, &self.control);
             flush(&cap, &mut out.lines, key);
             if let Some(verdict) = v {
                 self.cut.fetch_min(k, Ordering::Relaxed);
@@ -1203,6 +1205,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 buffers: Mutex::new(Vec::new()),
                 chaos: opts.chaos,
                 budget: search.budget.clone(),
+                control: search.control.clone(),
                 exhausted: std::sync::atomic::AtomicBool::new(false),
                 #[cfg(test)]
                 pause: opts.parallel_budget_test.clone(),
@@ -1506,6 +1509,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             };
         let check = Arc::new(Check {
             m,
+            control: search.control.clone(),
             level,
             winners: winners.clone(),
             limit,
@@ -1624,7 +1628,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         if let Err(e) = search.log.push(first_id + i, ordinal) {
             return (
                 Some(Stop {
-                    verdict: store_verdict(&e),
+                    verdict: store_verdict(&e, &search.control),
                     in_init: false,
                     path: None,
                     then: None,

@@ -69,9 +69,10 @@ impl Core {
                 let elements = set.elements(self.ctx).map_err(|error| {
                     let error = EvalError::from(error);
                     match error.class() {
-                        ErrorClass::ResourceLimit | ErrorClass::Unsupported | ErrorClass::Bug => {
-                            error
-                        }
+                        ErrorClass::ResourceLimit
+                        | ErrorClass::Unsupported
+                        | ErrorClass::Bug
+                        | ErrorClass::Interrupted => error,
                         ErrorClass::Eval => refuse(&format!("set conversion: {}", error.message())),
                     }
                 })?;

@@ -32,7 +32,8 @@ fn run(
     graph: &capture::BehaviorGraph,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     let limits = Limits::default();
-    let plans = prepare(model, limits).expect("plan");
+    let control = evaluator_control(&CheckOptions::tlc(0, 0)).expect("control");
+    let plans = prepare(model, limits, &control).expect("plan");
     let mut stage = Stage::Unknown;
     let mut action = None;
     analyze_captured(
@@ -44,6 +45,7 @@ fn run(
         AcceptancePolicy::Legacy,
         &mut stage,
         &mut action,
+        &control,
     )
 }
 

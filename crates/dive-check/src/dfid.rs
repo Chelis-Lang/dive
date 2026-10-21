@@ -674,7 +674,7 @@ fn classify(e: &EvalError, measured: Option<(u32, String)>) -> Outcome {
     match e.class() {
         ErrorClass::Unsupported => Outcome::Unsupported(e.message().to_owned()),
         ErrorClass::ResourceLimit => Outcome::Limit(e.message().to_owned()),
-        ErrorClass::Bug => Outcome::Internal(e.message().to_owned()),
+        ErrorClass::Bug | ErrorClass::Interrupted => Outcome::Internal(e.message().to_owned()),
         ErrorClass::Eval => match measured {
             Some((code, message)) => Outcome::Error { code, message },
             None => Outcome::Unsupported(format!(

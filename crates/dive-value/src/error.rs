@@ -4,11 +4,19 @@ use std::fmt;
 
 /// The class of a value-layer error.
 ///
-/// Each class maps to the TLC error code (`tlc2.output.EC`) that TLC reports for the
-/// same situation, see [`ErrorKind::tlc_code`].
+/// Specification error classes map to TLC's error codes (`tlc2.output.EC`), see
+/// [`ErrorKind::tlc_code`]. [`ErrorKind::Interrupted`] is instead typed host
+/// control flow; its legacy numeric accessor is not a TLC-error certificate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ErrorKind {
+    /// Typed cooperative host interruption transported through a deferred
+    /// evaluator provider. This is not a TLC error or a resource refusal.
+    Interrupted {
+        /// Process-unique, nonreused identity of the evaluator's pending
+        /// deferred-provider receipt. It is not a TLC error code.
+        receipt: u32,
+    },
     /// Two values that TLC refuses to compare or to test for equality
     /// (`Assert.fail` in a `compareTo`/`equals` method, `EC.GENERAL`).
     Incomparable,
@@ -59,7 +67,8 @@ impl ErrorKind {
             Self::DivisionByZero => 2179,
             Self::NullPowerNull => 2180,
             Self::Argument => 2169,
-            Self::Incomparable
+            Self::Interrupted { .. }
+            | Self::Incomparable
             | Self::Membership
             | Self::TooLarge
             | Self::NotEnumerable
@@ -90,6 +99,7 @@ impl ErrorKind {
     #[must_use]
     pub const fn dive_code(self) -> &'static str {
         match self {
+            Self::Interrupted { .. } => "DIVE-V0031",
             Self::Incomparable => "DIVE-V0001",
             Self::Membership => "DIVE-V0002",
             Self::ModuleMembership => "DIVE-V0003",
