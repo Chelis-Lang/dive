@@ -378,6 +378,13 @@ impl Lower<'_> {
         }
     }
 
+    /// Whether a call of `def` in `scope` is a state-level recursive leaf
+    /// ([`dive_eval::Evaluator::recursive_leaf`]) outside any INSTANCE
+    /// substitution, so that its arguments alone carry the caller's context.
+    fn recursive_leaf(&self, scope: &Scope, def: DefId) -> bool {
+        !scope.has_substitutions() && self.model.evaluator.recursive_leaf(def)
+    }
+
     // Constants remain value-bound. Pure state/action arguments stay lazy so priming
     // inside the callee still reads the caller's successor, not a frozen value.
     fn scoped_call(
@@ -973,14 +980,36 @@ impl Lower<'_> {
                 callee: OpRef::Def(d),
                 args,
             } => {
+                let leaf = self.recursive_leaf(scope, *d);
                 let d = self.checked_definition(expr, *d)?;
+                if leaf {
+                    // Its body reaches no substitution, so its own level is
+                    // static; the actuals carry the caller's context.
+                    let mut level = ir.def(d).level;
+                    for arg in args {
+                        let Arg::Expr { expr: actual, .. } = arg else {
+                            return Err(self.refused(expr, "operator argument in recursive call"));
+                        };
+                        level = level.max(self.scoped_level_mode(
+                            *actual,
+                            scope,
+                            depth + 1,
+                            query_state,
+                        )?);
+                    }
+                    return Ok(level);
+                }
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
                     return self.scoped_level_mode(ir.def(d).body, &sc, depth + 1, query_state);
                 }
             }
             Expr::Def(d) => {
+                let leaf = self.recursive_leaf(scope, *d);
                 let d = self.checked_definition(expr, *d)?;
+                if leaf {
+                    return Ok(ir.def(d).level);
+                }
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(expr, scope, d, &[], depth + 1)?;
                     return self.scoped_level_mode(ir.def(d).body, &sc, depth + 1, query_state);
@@ -1383,6 +1412,7 @@ impl Lower<'_> {
                 let standard = match op.clone() {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
+                        let leaf = self.recursive_leaf(&scope, d);
                         let d = self.checked_definition(e, d)?;
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
@@ -1401,6 +1431,24 @@ impl Lower<'_> {
                                 }));
                                 ev.scope_apply(&scope, d, args)
                                     .map_err(|error| self.refused(e, error.to_string()))?
+                            } else if leaf {
+                                // A state-level recursive operator is an
+                                // evaluation leaf; only its actuals are checked.
+                                for arg in args {
+                                    let Arg::Expr { expr, .. } = arg else {
+                                        return Err(
+                                            self.refused(e, "operator argument in recursive call")
+                                        );
+                                    };
+                                    todo.push((
+                                        *expr,
+                                        scope.clone(),
+                                        depth + 1,
+                                        false,
+                                        inside_query,
+                                    ));
+                                }
+                                continue;
                             } else {
                                 self.scoped_call(e, &scope, d, args, depth + 1)?
                             };
@@ -1549,8 +1597,11 @@ impl Lower<'_> {
             args,
         } = &node.expr
         {
+            let leaf = self.recursive_leaf(scope, *d);
             let d = self.checked_definition(expr, *d)?;
-            if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+            // TLC does not expand a recursive call at most action level
+            // (`Liveness.astToLive`); a state-level leaf is an atom below.
+            if ir.def(d).std.is_none() && !ev.is_value_override(d) && !leaf {
                 let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
                 let saved = (self.nodes.len(), self.atoms.len());
                 match self.expr(ir.def(d).body, &sc, depth + 1) {

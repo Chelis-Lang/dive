@@ -166,8 +166,8 @@ Real temporal property roles still require temporal analysis and independent
 periodic-word validation. A state-only `PROPERTY P` is checked in the initial state by the ordinary engine;
 `[]P` becomes an invariant. An evaluation resource limit in those safety roles
 stays a resource limit, including recursive calls. A genuinely temporal formula
-such as `[]<>P` still goes through temporal planning and retains its named
-recursive/opaque-operator refusal. These are different requested obligations.
+such as `[]<>P` still goes through temporal planning; recursive calls outside
+the state-level rule below retain their named refusal. These are different requested obligations.
 
 
 Pure supported boolean/temporal operators, finite quantification and WF/SF
@@ -333,6 +333,38 @@ lasso search (`product`, `search`), the coordinator (`analyze`), TLC's liveness
 formula classifier for `--compat=tlc` (`tlc_plan::classify`, TLC errors 2213
 and 2214), and the ordinary deterministic coordinator and its schedule
 (`analyze::periodic`, `analyze::periodic::Schedule`).
+
+## State-level recursive operators
+
+Temporal properties and fairness actions can call pure top-level `RECURSIVE`
+operators whose bodies and reached definitions are at most state level. For
+example, `Sum(s) == IF s = <<>> THEN 0 ELSE Head(s) + Sum(Tail(s))`
+can occur in `<>(Sum(s) = 0)` or a fair action's finite binder domain.
+State-level quantifiers, `CHOOSE`, set/function constructors, recursive function
+values and `LET` retain ordinary evaluator semantics. Planning does not unfold
+the recursive call or enumerate its internal domains. The call's actual
+arguments are checked in the caller's scope, including primed edge reads in
+action arguments. Evaluation keeps its normal
+resource limits and errors; admission does not prove termination.
+
+Both profiles apply the same rule, matching TLC's evaluation-leaf treatment.
+The independent trace validator evaluates the recursive atoms too: a reported
+violation still requires a validated counterexample. This checked fixture
+succeeds with 3 distinct and 7 generated states in both profiles:
+
+```sh
+dive check crates/dive-api/tests/fixtures/recursive-temporal/Rec.tla --config crates/dive-api/tests/fixtures/recursive-temporal/Rec.cfg --compat=tlc --fp 0 --seed 0 --workers 1 --output json
+```
+
+Action/temporal bodies, `ENABLED`, runtime effects, operator arguments,
+configured operator bindings/overrides, dynamic INSTANCE substitution contexts
+and local recursive operators keep explicit refusals. Value-bound constants
+are supported. The proof checks semantic levels, effects and binding scope,
+including reached and unused `LET` definitions; syntax and small actual
+arguments cannot hide an unproved dependency. Evaluation errors inside an atom
+retain the existing named temporal-atom refusal. The API controls in
+`crates/dive-api/tests/recursive_temporal.rs` cover success, violations and
+independent replay in both profiles.
 
 ## Finite local recursive functions
 
