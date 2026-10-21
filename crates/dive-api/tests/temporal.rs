@@ -1605,12 +1605,11 @@ Next == x'=~x
 }
 
 #[test]
-fn effectful_infinite_and_oversized_constructor_scopes_are_refused() {
+fn effectful_and_infinite_constructor_scopes_are_refused() {
     for property in [
         r"[]({Print(x,TRUE) : b \in BOOLEAN}={TRUE})",
         r#"[]({TLCGet("level") : b \in BOOLEAN}={TRUE})"#,
         r"[]({b : b \in Nat}={})",
-        r"[]({b : b \in 1..5000}={})",
     ] {
         let source = format!(
             "---- MODULE ConstructorRefused ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=TRUE\nNext == x'=~x\nP == {property}\n====\n"
@@ -1636,6 +1635,135 @@ fn effectful_infinite_and_oversized_constructor_scopes_are_refused() {
             model.take_output().is_empty(),
             "effectful preflight: {property}"
         );
+    }
+}
+
+#[test]
+fn large_pure_constructor_scopes_match_primary_truth_and_fresh_replay() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    for (name, truth) in [
+        ("LargeConstructorHolds", true),
+        ("LargeConstructorFails", false),
+    ] {
+        let relative = format!("constant-predicate-binders/specifications/{name}/{name}");
+        let file = root.join(format!("conformance/corpus/{relative}.tla"));
+        let source = std::fs::read_to_string(&file).expect("source");
+        let config = std::fs::read_to_string(file.with_extension("cfg")).expect("config");
+        let golden: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(root.join(format!(
+                "conformance/golden/tlc-2026.10.06.014338/{relative}.cfg.json"
+            )))
+            .expect("generated primary golden"),
+        )
+        .expect("golden JSON");
+        let (ir, cfg) = input(&source, &config);
+        for tlc in [true, false] {
+            let binding = if tlc {
+                dive_model::BindOptions::tlc()
+            } else {
+                dive_model::BindOptions::dive()
+            };
+            let model = dive_model::bind(ir.clone(), &cfg, &binding).expect("bind");
+            let def = ir.root_def("P").expect("P");
+            let pred =
+                dive_model::Pred::new(ir.def(def).body, model.evaluator.scope(def).expect("scope"));
+            let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                .expect("pure constructor admission");
+            let state: dive_trace::State = Arc::from([Some(true.into())]);
+            let st = dive_eval::St::action(state.clone(), state.clone());
+            let row = plan
+                .atoms
+                .iter()
+                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                .collect();
+            assert_eq!(
+                plan.formula
+                    .evaluate_word(&[row], &[vec![]], 0, 100)
+                    .expect("word"),
+                vec![truth]
+            );
+            let fresh =
+                dive_model::bind(ir.clone(), &cfg, &binding).expect("fresh validator model");
+            let independent = dive_model::Pred::new(
+                ir.def(def).body,
+                fresh.evaluator.scope(def).expect("fresh scope"),
+            );
+            assert_eq!(
+                dive_trace::temporal::evaluate_lasso(&fresh, &independent, &[state], 0)
+                    .expect("replay"),
+                vec![truth]
+            );
+            assert_large_constructor_report(&file, tlc, truth, &golden, &fresh, &cfg.model_values);
+        }
+    }
+}
+
+fn assert_large_constructor_report(
+    file: &std::path::Path,
+    tlc: bool,
+    truth: bool,
+    golden: &serde_json::Value,
+    fresh: &dive_model::Model,
+    model_values: &[String],
+) {
+    for store in [dive_api::Store::Exact, dive_api::Store::Fingerprint] {
+        let report = dive_api::check_file(&dive_api::CheckRequest {
+            file: file.to_path_buf(),
+            compat_tlc: tlc,
+            store,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            ..dive_api::CheckRequest::default()
+        })
+        .expect("check");
+        let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
+        assert_eq!(value["exit_code"], golden["result"]["exit_code"], "{value}");
+        assert_eq!(value["tlc"]["code"], golden["result"]["verdict_code"]);
+        assert_eq!(value["tlc"]["name"], golden["result"]["error_class"]);
+        assert_eq!(value["property"], golden["result"]["violated_property"]);
+        if truth {
+            assert_eq!(value["verdict"], "success");
+            for (native, primary) in [
+                ("generated", "states_generated"),
+                ("distinct", "distinct_states"),
+                ("depth", "depth"),
+            ] {
+                assert_eq!(
+                    value["statistics"][native],
+                    golden["result"]["counts"][primary]
+                );
+            }
+        } else {
+            assert_eq!(value["verdict"], "invariant-violation");
+            for (word, oracle) in [
+                (&value["counterexample"]["trace"], false),
+                (&golden["result"]["trace"]["json"], true),
+            ] {
+                let mut document = dive_trace::TraceDoc::from_json(word).expect("word");
+                let ending = dive_trace::Ending::Invariant("P".into());
+                if oracle {
+                    // TLC's dumped states omit the separately verified deciding claim.
+                    document = document.with_ending(ending);
+                } else {
+                    assert_eq!(document.ending, Some(ending));
+                }
+                assert_eq!(
+                    dive_trace::validate_doc(fresh, &document, model_values)
+                        .0
+                        .validation,
+                    Validation::Valid
+                );
+                let mut forged = document;
+                forged.states[0].insert("x".into(), false.into());
+                assert!(matches!(
+                    dive_trace::validate_doc(fresh, &forged, model_values)
+                        .0
+                        .validation,
+                    Validation::Invalid(_)
+                ));
+            }
+        }
     }
 }
 
