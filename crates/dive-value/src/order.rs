@@ -31,7 +31,6 @@
     reason = "ports keep short operand names (a, b, s, t, x, y)"
 )]
 
-use std::borrow::Cow;
 use std::cmp::Ordering;
 
 use crate::atom::Atom;
@@ -308,7 +307,7 @@ fn fcn_eq_step<'a>(f: &'a Fcn, g: &'a Fcn, work: &mut Vec<(&'a Value, &'a Value)
                 }
             } else {
                 for (d, v) in a {
-                    match b.iter().find(|(e, _)| e == d) {
+                    match b.iter().find(|(e, _)| *e == d) {
                         Some((_, w)) => work.push((v, w)),
                         None => return false,
                     }
@@ -512,17 +511,8 @@ impl Value {
 }
 
 /// A function's `(domain, value)` pairs sorted in `order`.
-fn pairs_in(f: &Fcn, order: ValueOrder) -> Cow<'_, [(Value, Value)]> {
-    match &f.0.repr {
-        FcnRepr::General(p) if f.order() == order => Cow::Borrowed(p),
-        _ => {
-            let mut v: Vec<(Value, Value)> = f.iter().map(|(d, x)| (d, x.clone())).collect();
-            if !matches!(f.0.repr, FcnRepr::Tuple(_)) && f.order() != order {
-                v.sort_by(|a, b| total_cmp(&a.0, &b.0, order));
-            }
-            Cow::Owned(v)
-        }
-    }
+fn pairs_in(f: &Fcn, order: ValueOrder) -> crate::function_domain::OrderedFcn<'_> {
+    crate::function_domain::OrderedFcn::new(f, order)
 }
 
 /// The order of scalars (and of values of different scalar kinds), or `None` when a
@@ -661,7 +651,7 @@ fn fcn_cmp_step<'a>(
         _ => {
             let (p, q) = (pairs_in(f, order), pairs_in(g, order));
             for ((d1, _), (d2, _)) in p.iter().zip(q.iter()) {
-                let c = total_cmp(d1, d2, order);
+                let c = total_cmp(&d1, &d2, order);
                 if c != Ordering::Equal {
                     return c;
                 }
@@ -1103,6 +1093,9 @@ impl Fcn {
     /// ```
     #[must_use]
     pub fn domain_equals(&self, dom: &Set) -> Option<bool> {
+        if let Some(same) = self.exact_domain_equals(dom) {
+            return Some(same);
+        }
         if !self.domain_comparable() {
             return None;
         }
@@ -1154,12 +1147,7 @@ impl Fcn {
         match &self.0.repr {
             // The integers `1..n`, or strings.
             FcnRepr::Tuple(_) | FcnRepr::Record(_) => true,
-            FcnRepr::General(p) => {
-                p.len() <= 1
-                    || p.iter()
-                        .all(|(d, _)| matches!(d, Value::Int(_) | Value::BigInt(_)))
-                    || join_all(p.iter().map(|(d, _)| d)) != Shape::Conflict
-            }
+            FcnRepr::General(p) => p.domain.comparable(),
         }
     }
 
@@ -1220,5 +1208,27 @@ fn contains_settled(s: &Set, x: &Value) -> Option<bool> {
             Some(elems.binary_search_by(|e| total_cmp(e, x, order)).is_ok())
         }
         _ => None,
+    }
+}
+
+/// Whether reading/comparing this already materialized key can avoid providers.
+pub(crate) fn stable_key(value: &Value) -> bool {
+    let Ok(_guard) = crate::depth::Guard::enter() else {
+        return false;
+    };
+    match value {
+        Value::Bool(_) | Value::Int(_) | Value::BigInt(_) | Value::Str(_) | Value::Model(_) => true,
+        Value::Set(set) => match set.repr() {
+            SetRepr::Interval(..) => true,
+            SetRepr::Enum => set
+                .stored_elements()
+                .is_some_and(|e| e.iter().all(stable_key)),
+            _ => false,
+        },
+        Value::Fcn(f) => match &f.0.repr {
+            FcnRepr::Tuple(values) => values.iter().all(stable_key),
+            FcnRepr::Record(fields) => fields.iter().all(|(_, v)| stable_key(v)),
+            FcnRepr::General(pairs) => pairs.iter().all(|(d, v)| stable_key(d) && stable_key(v)),
+        },
     }
 }
