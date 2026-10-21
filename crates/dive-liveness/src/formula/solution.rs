@@ -2,7 +2,7 @@
 //! Boolean alternative. This follows TLC's `OrderOfSolution` / `PossibleErrorModel`
 //! semantics, without reproducing Java grouping or tableau numbering.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 use super::{Formula, FormulaError, Limits, Nnf, Node, Normalizer, Recurrence};
 
@@ -143,6 +143,9 @@ pub(crate) fn decompose(
         conjuncts: Vec::new(),
     }];
     let mut groups: Vec<SolutionGroup> = Vec::new();
+    // This map is an index only. The ordered group vector retains construction
+    // order, independently of randomized hash-table iteration.
+    let mut indices: HashMap<Formula, usize> = HashMap::new();
     while let Some(mut branch) = pending.pop() {
         let mut impossible = false;
         while let Some(index) = branch.pending.pop() {
@@ -189,9 +192,10 @@ pub(crate) fn decompose(
             }
         }
         let core = core(&formula, &residual, &mut budget)?;
-        if let Some(group) = groups.iter_mut().find(|g| g.core == core) {
-            group.alternatives.push(conditions);
+        if let Some(&index) = indices.get(&core) {
+            groups[index].alternatives.push(conditions);
         } else {
+            indices.insert(core.clone(), groups.len());
             groups.push(SolutionGroup {
                 core,
                 alternatives: vec![conditions],

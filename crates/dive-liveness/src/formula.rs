@@ -32,7 +32,7 @@ pub struct Atom {
 
 /// A node of a flat, acyclic temporal formula. Child indices must precede
 /// their parent; this prevents cycles and avoids recursive ownership/drop.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Node {
     /// A boolean constant.
     Bool(bool),
@@ -52,7 +52,7 @@ pub enum Node {
 
 /// A checked flat formula. No formula evaluation or model binding is performed
 /// by construction; callers lower implication, leads-to and fairness explicitly.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Formula {
     nodes: Vec<Node>,
     root: usize,
