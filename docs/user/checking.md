@@ -89,7 +89,7 @@ graph capture and temporal analysis. After startup, nested quantifier, CHOOSE
 and filter predicate loops also poll at amortized work checkpoints, including
 when no complete successor is emitted (issue #374). Binding and `ASSUME`
 evaluation, value-only allocation/sorting/native operations, and diagnostic
-error/count reconstruction after an already deciding error are not interrupted
+error/count and predecessor-path reconstruction after an already deciding event are not interrupted
 (#349, #379). This diagnostic exclusion affects only the reconstructing thread;
 other workers retain control. It does not suspend ordinary checking. Fresh
 independent validation evaluators do not yet inherit this loop control, so

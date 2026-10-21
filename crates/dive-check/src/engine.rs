@@ -1975,6 +1975,15 @@ impl<S: Keyed> Search<'_, '_, S> {
 
     /// Rebuilds the path to state `id` by replay (ADR 0015 §4).
     fn replay(&self, id: StateId) -> Result<Vec<TraceState>, String> {
+        // This only reconstructs a path after search selected its deciding
+        // event and joined every worker phase. Preserve that event if the
+        // budget trips while regenerating its predecessors. This thread-owned
+        // scope does not pause independent witness certification or workers.
+        let _diagnostic = self
+            .m
+            .evaluator
+            .host_control(None)
+            .map_err(|error| error.to_string())?;
         let ev = &self.m.evaluator;
         let path = self.log.path(id).map_err(|e| e.to_string())?;
         let mut out: Vec<TraceState> = Vec::new();
@@ -2667,6 +2676,106 @@ fn finalize_predecessor(log: &mut PredecessorLog, mut outcome: Outcome) -> Outco
 #[allow(clippy::unwrap_used, reason = "storage-failure regression controls")]
 mod predecessor_tests {
     use super::*;
+
+    #[derive(Debug)]
+    struct TripDuringPathReplay {
+        visits: std::sync::atomic::AtomicUsize,
+        budget: crate::budget::Budget,
+    }
+
+    impl dive_eval::Host for TripDuringPathReplay {
+        fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), dive_eval::HostError> {
+            if key == "level"
+                && !write
+                && self
+                    .visits
+                    .fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+                    == 1
+            {
+                // Init alone calls TLCGet. The first call is ordinary search;
+                // the second trips during predecessor-path regeneration,
+                // before the long state-dependent predicate loop.
+                self.budget.trip_for_test();
+            }
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn deciding_violation_path_regeneration_preserves_control_and_the_original_event() {
+        use std::sync::Arc;
+        use std::time::Duration;
+
+        for width in [1, 4] {
+            let source = "---- MODULE ReplayBudget ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=0 /\\ TLCGet(\"level\")=0 /\\ \\A k \\in 1..4096: k+x=k\nNext == x'=x+1\nInv == x<2\n====\n";
+            let analyzed = dive_sema::analyze_source(
+                "ReplayBudget.tla",
+                source,
+                &dive_sema::Options::default(),
+            );
+            assert!(analyzed.accepted());
+            let ir = Arc::new(dive_ir::lower(&analyzed).unwrap());
+            let cfg =
+                dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n")
+                    .into_config()
+                    .unwrap();
+            let watchdog = crate::budget::Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .unwrap()
+                .unwrap();
+            let mut opts = CheckOptions::tlc(0, 0);
+            opts.workers = width;
+            opts.budget = watchdog.budget().clone();
+            let host = Arc::new(run_host(&opts));
+            let model = dive_model::bind(
+                ir,
+                &cfg,
+                &dive_model::BindOptions {
+                    eval: opts.eval,
+                    no_deadlock: opts.no_deadlock,
+                    host: Some(Arc::new(TripDuringPathReplay {
+                        visits: std::sync::atomic::AtomicUsize::new(0),
+                        budget: opts.budget.clone(),
+                    })),
+                },
+            )
+            .unwrap();
+            let control =
+                crate::budget::EvaluationControl::new(&opts.budget, crate::budget::Phase::Search)
+                    .unwrap();
+            let _outer = control.enter(&model.evaluator).unwrap();
+            let result = search(&model, &opts, &host, SearchHooks::default());
+            assert_eq!(
+                result.verdict,
+                Verdict::InvariantViolated {
+                    property: "Inv".into(),
+                    initial: false,
+                }
+            );
+            assert!(opts.budget.poll().is_some());
+            let word = result.counterexample.unwrap();
+            assert_eq!(word.states.len(), 3);
+            assert_eq!(
+                word.states
+                    .iter()
+                    .map(|state| state.values.clone())
+                    .collect::<Vec<_>>(),
+                vec![
+                    vec![Value::int(0.into())],
+                    vec![Value::int(1.into())],
+                    vec![Value::int(2.into())]
+                ]
+            );
+            // Search and diagnostic scopes restored the exact outer owner:
+            // ordinary regeneration still observes its exhausted budget.
+            let interrupted = model
+                .evaluator
+                .init_states(&model.init_actions, &mut |_| Flow::Continue)
+                .unwrap_err();
+            assert!(control.owns(&interrupted.error));
+        }
+    }
+
     #[test]
     fn diagnostic_text_never_creates_storage_failure_evidence() {
         let mut log = PredecessorLog::new(None, None);
