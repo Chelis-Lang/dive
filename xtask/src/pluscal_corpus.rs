@@ -67,7 +67,7 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
         println!("{USAGE}");
         return Ok(());
     }
-    let root = workspace_root();
+    let root = workspace_root()?;
     let inputs = pins::load(&root, &config.cache)?;
     let java = inputs.java;
     let jar = inputs.jar;
@@ -117,8 +117,7 @@ pub fn pluscal_corpus(args: &[String]) -> Result<()> {
 fn parse_args(args: &[String]) -> Result<Config> {
     let cwd =
         std::env::current_dir().map_err(|e| format!("cannot resolve invocation directory: {e}"))?;
-    let target = std::env::var_os("CARGO_TARGET_DIR")
-        .map_or_else(|| workspace_root().join("target"), PathBuf::from);
+    let target = std::env::var_os("CARGO_TARGET_DIR").map(PathBuf::from);
     let cache = std::env::var_os("DIVE_CACHE_DIR").map_or_else(
         || {
             std::env::var_os("HOME")
@@ -127,7 +126,24 @@ fn parse_args(args: &[String]) -> Result<Config> {
         },
         PathBuf::from,
     );
-    parse_args_at(args, &cwd, &target, cache)
+    parse_args_with_workspace(args, &cwd, target.as_deref(), cache, workspace_root)
+}
+
+fn parse_args_with_workspace(
+    args: &[String],
+    cwd: &Path,
+    target: Option<&Path>,
+    cache: PathBuf,
+    resolve_workspace: impl FnOnce() -> Result<PathBuf>,
+) -> Result<Config> {
+    // Parse before workspace discovery so genuine help never runs children.
+    // Only the parser knows whether "--help" is an option or another option's value.
+    let provisional = target.map_or_else(|| cwd.join("target"), Path::to_path_buf);
+    let config = parse_args_at(args, cwd, &provisional, cache.clone())?;
+    if config.help || target.is_some() {
+        return Ok(config);
+    }
+    parse_args_at(args, cwd, &resolve_workspace()?.join("target"), cache)
 }
 
 fn parse_args_at(args: &[String], cwd: &Path, target: &Path, cache: PathBuf) -> Result<Config> {
@@ -855,6 +871,51 @@ mod tests {
         fn drop(&mut self) {
             let _ = std::fs::remove_dir_all(&self.0);
         }
+    }
+
+    #[test]
+    fn help_values_resolve_workspace_but_help_flags_do_not() -> Result<()> {
+        let cwd = Path::new("/invocation/member");
+        let cache = PathBuf::from("/cache");
+        let no_discovery = || Err("Help must not run workspace discovery".to_owned());
+        let help = parse_args_with_workspace(
+            &["--help".to_owned()],
+            cwd,
+            None,
+            cache.clone(),
+            no_discovery,
+        )?;
+        assert!(help.help);
+        let value = parse_args_with_workspace(
+            &["--filter".to_owned(), "--help".to_owned()],
+            cwd,
+            None,
+            cache.clone(),
+            || Ok(PathBuf::from("/workspace")),
+        )?;
+        assert!(!value.help);
+        assert_eq!(value.filter.as_deref(), Some("--help"));
+        assert_eq!(value.out, Path::new("/workspace/target/pluscal-corpus"));
+        assert_eq!(value.dive, Path::new("/workspace/target/release/dive"));
+        assert!(
+            parse_args_with_workspace(
+                &["--filter".to_owned(), "--help".to_owned()],
+                cwd,
+                None,
+                cache.clone(),
+                no_discovery,
+            )
+            .is_err()
+        );
+        let explicit = parse_args_with_workspace(
+            &[],
+            cwd,
+            Some(Path::new("/shared-target")),
+            cache,
+            no_discovery,
+        )?;
+        assert_eq!(explicit.dive, Path::new("/shared-target/release/dive"));
+        Ok(())
     }
 
     #[test]
