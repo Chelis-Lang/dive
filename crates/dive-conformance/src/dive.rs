@@ -655,6 +655,17 @@ fn check_result_with_budget(
             "budgeted compat report contradicts the requested budget or TLC semantics".into(),
         );
     }
+    let search_ceiling = !v["options"]["budget"]["max_states"].is_null()
+        || !v["options"]["budget"]["max_depth"].is_null();
+    if tlc_profile
+        && search_ceiling
+        && (v["verdict"] != "stopped" || v["options"]["profile"] != "tlc+overrides")
+    {
+        return unclassified(
+            outcome.exit_code,
+            "compat report contains an unrequested search ceiling".into(),
+        );
+    }
     let temporal = match v.get("schema_version").and_then(Value::as_u64) {
         Some(1) if v.get("check_kind").is_none() => None,
         Some(2) => match v.get("check_kind").and_then(Value::as_str) {
@@ -1097,6 +1108,22 @@ mod tests {
         }
     }
 
+    // A forged plain TLC label cannot conceal result-changing search ceilings.
+    fn reject_unrequested_search_ceilings(value: &Value, status: i32) {
+        let mut unbudgeted = value.clone();
+        unbudgeted["options"]["profile"] = serde_json::json!("tlc");
+        unbudgeted["options"]["budget"]["time_limit_source"] = serde_json::json!("none");
+        unbudgeted["options"]["budget"]["time_limit_ms"] = Value::Null;
+        for resource in ["max_states", "max_depth"] {
+            let mut bad = unbudgeted.clone();
+            bad["options"]["budget"][resource] = serde_json::json!(0);
+            assert!(
+                matches!(check_result(&outcome(status, &bad.to_string()), true), CheckMapping::Result(r) if r.verdict == Verdict::Unclassified),
+                "unrequested {resource} with a plain TLC label"
+            );
+        }
+    }
+
     #[test]
     fn only_the_requested_budget_override_preserves_tlc_facts()
     -> std::result::Result<(), Box<dyn std::error::Error>> {
@@ -1170,6 +1197,7 @@ mod tests {
                     "{pointer}"
                 );
             }
+            reject_unrequested_search_ceilings(&value, status);
             let mut checkpoint = value.clone();
             checkpoint["options"]["checkpoint"] = json!({"counters": "retain"});
             assert!(
@@ -1267,6 +1295,21 @@ mod tests {
                 matches!(stopped(resource, 5), CheckMapping::Result(r) if r.verdict == Verdict::ResourceLimit)
             );
         }
+        let stopped_with_cap = serde_json::json!({
+            "schema_version": 1, "command": "check", "verdict": "stopped",
+            "options": {"profile": "tlc+overrides", "budget": {"max_states": 3}},
+            "stopped": {"resource": "states"}
+        });
+        assert!(matches!(
+            check_result(&outcome(5, &stopped_with_cap.to_string()), true),
+            CheckMapping::Result(r) if r.verdict == Verdict::ResourceLimit
+        ));
+        let mut forged = stopped_with_cap;
+        forged["options"]["profile"] = serde_json::json!("tlc");
+        assert!(matches!(
+            check_result(&outcome(5, &forged.to_string()), true),
+            CheckMapping::Result(r) if r.verdict == Verdict::Unclassified
+        ));
         // A stop must carry its own exit status and resource.
         assert!(matches!(
             stopped("time", 3),
