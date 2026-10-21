@@ -14,8 +14,10 @@ already has resolved local slots and typed variable IDs; `Core::eval_inner`
 interprets borrowed IR without cloning each node. A separate evaluator-private
 dispatch plan remains an unproven optimization, rather than missing resolution.
 
-This ADR records where the time goes now and orders the structural changes
-that should follow, each with the saving it is expected to deliver.
+This ADR records the original measurements and proposed changes. Its numeric
+cost tables describe the pinned historical build below. Later implementation
+checks and complete measurements qualify the remaining opportunities; historical
+shares and estimated savings do not establish a current optimization.
 
 ### Method
 
@@ -65,7 +67,8 @@ The EWD998PCal run uses the reduced configuration (callgrind on the pinned one
 would take hours); its implied action is checked inside the successor sink, so
 `holds` nests inside generation there.
 
-Exclusive cost is flat: no function exceeds 7%. The interpreter's own
+In that historical profile, exclusive cost is flat: no function exceeds 7%.
+The interpreter's own
 dispatch is the largest exclusive item: the bodies of `Core::eval` and
 `Core::eval_inner`, their prologues and the moves of `Result<Ev>` take 7–8% of
 SimpleRegular, about 12% of MCbtree and 12–16% of GameOfLife. Most of the rest
@@ -91,16 +94,16 @@ baselines.
    in both profiles (geometric mean 5.1%); on the pinned configurations,
    5.8% for SimpleRegular and 4.2% for GameOfLife (PR #329).
 
-2. **Activation records.** A call allocates a frame (`Arc<Frame>`) and a
-   separate slot vector, and each lazy argument allocates a 152-byte thunk.
-   Slots (`Sv`) are 56 bytes because they inline `OpVal`; boxing it makes them
-   24. Reading a local clones its whole `Sv` before forcing it, and
-   `next::Gen::eval` clones the 104-byte `St` and the `Env` on every call.
-   Planned: one allocation per frame with inline slots, `Sv` at 24 bytes,
-   local reads that borrow, and generator evaluation without per-call clones.
-   Target: freeing frames and slots alone costs up to 8% of GameOfLife and
-   2–3% of MCbtree and EWD998PCal, before their allocations; expected saving
-   3–8%.
+2. **Activation records.** The original profile motivated smaller slots,
+   inline frames and borrowed reads. Inspection at `d1eb36e3` on 2026-10-21
+   confirms that `Sv` is already 24 bytes, frames retain four inline slots,
+   local reads borrow their slot, and IR dispatch borrows its expression.
+   These are implemented premises, not further savings to claim. Frame
+   allocation and persistent context ownership remain measurable costs;
+   `next::Gen::eval` still clones `Env` and `St`, but lazy captures and
+   rebinding require persistence. Profile those costs before changing that
+   ownership model. The historical 3–8% estimate does not establish a new
+   optimization's expected saving.
 
 3. **Specialized dispatch from ADR 0014 §1.** Local slots and typed state
    reads already exist in the shared IR. Measure evaluator-private dispatch
@@ -124,12 +127,13 @@ baselines.
 
 5. **Normalization state as TLC keeps it.** TLC normalizes a set in place when
    it enumerates it in order (`CHOOSE`, `elements()`), and a difference or
-   intersection then inherits that state. dive re-sorts the same sets
-   repeatedly (`normalize_set` 7–8% of MCbtree and GameOfLife; GameOfLife's
-   `Sum` recursion re-normalizes `S \ {x}` on every step). Mirror TLC's
-   `isNorm` transitions exactly, with an oracle probe per transition before
-   any change, because normalization state is visible through TLC's errors.
-   Expected saving 3–7% on those models.
+   intersection then inherits that state. At `d1eb36e3`, dive's
+   `Set::elements` already marks/caches normalization, and difference and
+   intersection already inherit the left operand's normalization state.
+   The historical 3–7% estimate therefore does not identify missing
+   transitions. Profile remaining repeated normalization, and add a pinned
+   oracle probe before changing any transition: normalization remains
+   observable through TLC's errors.
 
 6. **`INSTANCE` substitutions.** In the reduced EWD998PCal, 52.6% of all
    instructions are under `Core::eval_subst_ref`: each reference to an
@@ -166,6 +170,16 @@ duplicating the existing resolution. The first dispatch and operand-storage
 experiments did not meet the acceptance bar; see the performance guide.
 
 Measured and not pursued:
+
+- Boxing cold `ValueError` details reduced hot result layouts but increased
+  instructions by 0.301% geometrically across the complete eight-cell matrix.
+  Four-byte fingerprint extension and a scalar traversal shortcut increased
+  them by 0.473%. All arms completed with identical counts and depth; both
+  runtime candidates were rejected. A later inline settled-leaf experiment
+  increased instructions by 2.263% geometrically, with all eight cells worse;
+  it was also rejected. The
+  [performance guide](../developer/performance.md#discarded-evaluator-prototypes)
+  links the compact paired measurements, exact inputs and startup tradeoffs.
 
 - Native unary/binary operand arrays and a compact dispatch prototype: the
   four reduced GameOfLife/SimpleRegular profile comparisons saved only
