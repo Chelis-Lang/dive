@@ -202,6 +202,19 @@ impl<K, P, T> Candidates<K, P, T> {
     pub fn shard_count(&self) -> usize {
         self.per_shard.len()
     }
+
+    /// Consumes buffered candidates in reference position order, retaining keys
+    /// and payloads without inserting any into a seen set. Coordinators can use
+    /// this to enforce an explicit admission ceiling before publication.
+    #[must_use]
+    pub fn into_position_order(self) -> Vec<Candidate<K, P, T>>
+    where
+        P: Ord,
+    {
+        let mut all: Vec<_> = self.per_shard.into_iter().flatten().collect();
+        all.sort_unstable_by(|a, b| a.pos.cmp(&b.pos));
+        all
+    }
 }
 
 /// The shard of `hash` among `2^bits` shards: its top `bits` bits.

@@ -106,6 +106,52 @@ whether each came from the default, an explicit setting, or none. See
 dive check docs/user/examples/Counter.tla --time-limit 2m --max-memory 4g --output json
 ```
 
+## State and depth budgets
+
+`--max-states N|none` bounds discovered in-model state identities, using the
+same VIEW, symmetry and fingerprint/exact identity as the reported distinct
+count. `--max-depth N|none` bounds BFS discovery depth; initial states have
+depth one. Both are unset by default, which is their TLC-equivalent setting.
+Zero is a valid explicit budget. TLC's simulation `-depth` option does not set
+an exhaustive BFS discovery bound.
+
+```sh
+dive check docs/user/examples/Counter.tla --max-states 3 --output json
+dive tlc --max-depth 3 --output json docs/user/examples/Counter
+```
+
+Both examples stop with exit 5 before discovering the fourth state; neither
+returns a counterexample. Raise the ceiling to five to finish this finite
+counter normally.
+
+The first new identity that would exceed either ceiling is left unadmitted.
+Duplicate identities do not consume the state budget. These limits bound
+admitted identity discovery. If constraints exclude every initial candidate,
+the empty retained graph can complete even with both ceilings zero; its
+reported depth still follows TLC's existing depth-one print convention.
+States at the depth boundary can still be expanded to already discovered identities, so a finite
+graph exactly at both limits may finish normally. A truncated search reports
+`verdict: "stopped"`, exit 5, resource `states` or `depth`, the attempted count
+or depth in `observed`, actual admitted progress and a continuation hint. It
+has no counterexample and makes no successful or temporal-completion claim;
+its statistics carry `exhaustive: false`. The resolved limits appear in
+`options.budget.max_states` and `max_depth`. An explicit finite ceiling labels
+the TLC profile `tlc+overrides`; `none` restores TLC's unbounded setting.
+
+Parallel workers retain their requested pool. Their generated candidates are
+published in reference order up to the admission boundary, retaining earlier
+errors and violations. Speculative candidates do not increase the admitted
+distinct count, trace log or retained graph past the limit. Memory and elapsed
+time remain separately governed by their run budgets. Recovery first checks
+that its whole saved graph fits the requested ceilings before admitting it.
+
+A prior genuine error or violation remains the deciding result. Diagnostic
+error replay also stops admitting identities at the ceiling, and does not
+check the invariants of an unadmitted state. Single evaluations and domains
+materialized before the first emitted state still need their time or memory
+budgets; discovery limits do not interrupt those operations. Rust callers set
+`CheckRequest::max_states` and `CheckRequest::max_depth` (`Option<u64>`).
+
 ## Process statuses
 
 `dive check` uses TLC process statuses by default, with native semantic choices
@@ -113,8 +159,7 @@ still active unless `--compat=tlc` selects TLC evaluation. An invariant violatio
 exits 12 and a rejected specification 150. Configuration rejection exits 151;
 initial/action properties and supported cyclic liveness use 13. Deciding error
 classes determine other verdict statuses. Success is 0; usage 2, unsupported or
-resource limit 3, internal error 4 and a stop by `--time-limit` or
-`--max-memory` 5 mean their existing distinct outcomes.
+resource limit 3, internal error 4 and a stop by an explicit or default run budget 5 mean their existing distinct outcomes.
 These statuses do not prove an unverified error class or validate a missing trace.
 
 ```sh

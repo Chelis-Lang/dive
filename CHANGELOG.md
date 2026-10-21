@@ -1,5 +1,16 @@
 # Changelog
 
+- `dive check` and `dive tlc` accept opt-in `--max-states N|none` and
+  `--max-depth N|none`. Initial states have BFS depth one; both defaults and
+  TLC-equivalent settings are `none`. The first new in-model identity that
+  would exceed a ceiling stops before admission, with resource `states` or
+  `depth`, actual partial statistics, no counterexample or completion claim,
+  and exit 5. Exact-bound finite graphs can still finish. Parallel generation
+  retains its worker pool and publishes only the admitted reference-order
+  prefix. Every stopped report with statistics marks them `exhaustive: false`.
+  Rust callers get optional `max_states`/`max_depth` request fields and new
+  `budget::Resource::States`/`Depth` variants; exhaustive matches must handle them.
+
 - The model gates and nightly conformance checks use explicit TLC-derived time
   and memory budgets in both profiles (ADR 0107), replacing fixed per-model
   timeouts. The harness retains strict comparison for its exact budget-only

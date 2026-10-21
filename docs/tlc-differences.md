@@ -2897,3 +2897,14 @@ be later because binding, `ASSUME` evaluation and a single long evaluation
 success, a violation or `unsupported`: nothing was proved about the model. To
 get TLC's unbounded behaviour, pass `--time-limit none --max-memory none`.
 
+Two further opt-in search budgets, `--max-states N|none` and
+`--max-depth N|none`, bound discovered in-model identities and BFS discovery
+depth (initial states have depth one). Both default to `none`, their
+TLC-equivalent setting; TLC's simulation `-depth` does not bound exhaustive
+search this way. Finite settings under `--compat=tlc` are reported as
+`tlc+overrides`. A new identity that would exceed either ceiling is not
+admitted; the run reports resource `states` or `depth`, actual admitted
+progress, `statistics.exhaustive: false`, and exit 5. A finite graph exactly
+at the ceiling can still exhaust and finish normally. See the
+[checking guide](user/checking.md) for worker and recovery semantics.
+

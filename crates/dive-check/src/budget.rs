@@ -87,6 +87,10 @@ pub enum Resource {
     Time,
     /// Resident memory of the whole process, in bytes.
     Memory,
+    /// Discovered in-model state identities.
+    States,
+    /// Breadth-first discovery depth (initial states have depth one).
+    Depth,
 }
 
 impl Resource {
@@ -96,6 +100,8 @@ impl Resource {
         match self {
             Self::Time => "time",
             Self::Memory => "memory",
+            Self::States => "states",
+            Self::Depth => "depth",
         }
     }
 
@@ -103,6 +109,8 @@ impl Resource {
         match self {
             Self::Time => 1,
             Self::Memory => 2,
+            Self::States => 3,
+            Self::Depth => 4,
         }
     }
 }
@@ -135,12 +143,12 @@ impl Phase {
 pub struct Stopped {
     /// What ran out.
     pub resource: Resource,
-    /// The limit: milliseconds for time, bytes for memory.
+    /// The limit: milliseconds, bytes, admitted states or BFS levels.
     pub limit: u64,
-    /// What the watchdog observed when it tripped, in the same unit.
+    /// The exhausted observation in the same unit. For state/depth ceilings,
+    /// this is the next admission that was prevented.
     pub observed: u64,
-    /// Milliseconds from arming the budget to the stop the engine reported,
-    /// at or after the trip.
+    /// Milliseconds from arming the relevant budget to the reported stop.
     pub elapsed_ms: u64,
     /// The phase the run was in.
     pub phase: Phase,
@@ -156,6 +164,12 @@ impl Stopped {
             }
             Resource::Memory => {
                 "raise --max-memory, or pass --max-memory=none; the run made no claim about the model"
+            }
+            Resource::States => {
+                "raise --max-states, or pass --max-states=none; the run made no claim about the model"
+            }
+            Resource::Depth => {
+                "raise --max-depth, or pass --max-depth=none; the run made no claim about the model"
             }
         }
     }
@@ -175,6 +189,14 @@ impl std::fmt::Display for Stopped {
                 f,
                 "stopped during {}: resident memory {} bytes exceeds the ceiling of {} bytes",
                 self.phase.name(),
+                self.observed,
+                self.limit
+            ),
+            Resource::States | Resource::Depth => write!(
+                f,
+                "stopped during {}: the next {} would be {}, exceeding the limit of {}",
+                self.phase.name(),
+                self.resource.name(),
                 self.observed,
                 self.limit
             ),
@@ -342,6 +364,8 @@ impl Budget {
                 .time
                 .map_or(0, |t| u64::try_from(t.as_millis()).unwrap_or(u64::MAX)),
             Resource::Memory => self.memory.unwrap_or(0),
+            // Search-admission limits never trip the watchdog's signal.
+            Resource::States | Resource::Depth => 0,
         };
         Some(Exhausted {
             resource,

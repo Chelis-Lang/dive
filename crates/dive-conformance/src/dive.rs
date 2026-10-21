@@ -590,6 +590,8 @@ fn budget_profile(options: &Value, time_limit: Option<Duration>) -> bool {
         && options["semantic_profile"] == "tlc"
         && options["budget"]["time_limit_source"] == "explicit"
         && options["budget"]["time_limit_ms"].as_u64() == Some(millis)
+        && options["budget"]["max_states"].is_null()
+        && options["budget"]["max_depth"].is_null()
         && options["int"] == "tlc"
         && options["choose_order"] == "tlc"
         && options["explore_order"] == "tlc"
@@ -651,6 +653,17 @@ fn check_result_with_budget(
         return unclassified(
             outcome.exit_code,
             "budgeted compat report contradicts the requested budget or TLC semantics".into(),
+        );
+    }
+    let search_ceiling = !v["options"]["budget"]["max_states"].is_null()
+        || !v["options"]["budget"]["max_depth"].is_null();
+    if tlc_profile
+        && search_ceiling
+        && (v["verdict"] != "stopped" || v["options"]["profile"] != "tlc+overrides")
+    {
+        return unclassified(
+            outcome.exit_code,
+            "compat report contains an unrequested search ceiling".into(),
         );
     }
     let temporal = match v.get("schema_version").and_then(Value::as_u64) {
@@ -765,6 +778,11 @@ fn map_check_document(
                     Verdict::Timeout,
                     outcome.exit_code,
                     format!("dive check stopped at its --max-memory: {message}"),
+                ))),
+                Some(resource @ ("states" | "depth")) => CheckMapping::Result(Box::new(bare(
+                    Verdict::ResourceLimit,
+                    outcome.exit_code,
+                    format!("dive check stopped at its --max-{resource}: {message}"),
                 ))),
                 _ => unclassified(
                     outcome.exit_code,
@@ -1090,6 +1108,22 @@ mod tests {
         }
     }
 
+    // A forged plain TLC label cannot conceal result-changing search ceilings.
+    fn reject_unrequested_search_ceilings(value: &Value, status: i32) {
+        let mut unbudgeted = value.clone();
+        unbudgeted["options"]["profile"] = serde_json::json!("tlc");
+        unbudgeted["options"]["budget"]["time_limit_source"] = serde_json::json!("none");
+        unbudgeted["options"]["budget"]["time_limit_ms"] = Value::Null;
+        for resource in ["max_states", "max_depth"] {
+            let mut bad = unbudgeted.clone();
+            bad["options"]["budget"][resource] = serde_json::json!(0);
+            assert!(
+                matches!(check_result(&outcome(status, &bad.to_string()), true), CheckMapping::Result(r) if r.verdict == Verdict::Unclassified),
+                "unrequested {resource} with a plain TLC label"
+            );
+        }
+    }
+
     #[test]
     fn only_the_requested_budget_override_preserves_tlc_facts()
     -> std::result::Result<(), Box<dyn std::error::Error>> {
@@ -1153,6 +1187,8 @@ mod tests {
                 ("/options/warnings", json!(false)),
                 ("/options/budget/time_limit_ms", json!(1)),
                 ("/options/budget/time_limit_source", json!("none")),
+                ("/options/budget/max_states", json!(0)),
+                ("/options/budget/max_depth", json!(0)),
             ] {
                 let mut bad = value.clone();
                 *bad.pointer_mut(pointer).ok_or("control field exists")? = replacement;
@@ -1161,6 +1197,7 @@ mod tests {
                     "{pointer}"
                 );
             }
+            reject_unrequested_search_ceilings(&value, status);
             let mut checkpoint = value.clone();
             checkpoint["options"]["checkpoint"] = json!({"counters": "retain"});
             assert!(
@@ -1252,6 +1289,26 @@ mod tests {
             stopped("memory", 5),
             CheckMapping::Result(r) if r.verdict == Verdict::Timeout
                 && r.note.as_deref().is_some_and(|n| n.contains("--max-memory"))
+        ));
+        for resource in ["states", "depth"] {
+            assert!(
+                matches!(stopped(resource, 5), CheckMapping::Result(r) if r.verdict == Verdict::ResourceLimit)
+            );
+        }
+        let stopped_with_cap = serde_json::json!({
+            "schema_version": 1, "command": "check", "verdict": "stopped",
+            "options": {"profile": "tlc+overrides", "budget": {"max_states": 3}},
+            "stopped": {"resource": "states"}
+        });
+        assert!(matches!(
+            check_result(&outcome(5, &stopped_with_cap.to_string()), true),
+            CheckMapping::Result(r) if r.verdict == Verdict::ResourceLimit
+        ));
+        let mut forged = stopped_with_cap;
+        forged["options"]["profile"] = serde_json::json!("tlc");
+        assert!(matches!(
+            check_result(&outcome(5, &forged.to_string()), true),
+            CheckMapping::Result(r) if r.verdict == Verdict::Unclassified
         ));
         // A stop must carry its own exit status and resource.
         assert!(matches!(

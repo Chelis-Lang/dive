@@ -196,6 +196,10 @@ pub struct CheckRequest {
     /// `--max-memory` (ADR 0107): the whole process's resident-memory
     /// ceiling, in bytes.
     pub max_memory: BudgetSetting<u64>,
+    /// Maximum admitted distinct in-model identities; `None` is TLC-equivalent.
+    pub max_states: Option<u64>,
+    /// Maximum BFS discovery depth (Init is depth one); `None` is TLC-equivalent.
+    pub max_depth: Option<u64>,
 }
 
 /// Completed-level schedule for ordinary dive-profile temporal checking.
@@ -416,6 +420,8 @@ fn check_file_in(
     opts.sequential = req.sequential;
     opts.chaos = req.chaos;
     opts.predecessor_memory_bytes = req.predecessor_memory_bytes;
+    opts.max_states = req.max_states;
+    opts.max_depth = req.max_depth;
     opts.predecessor_directory
         .clone_from(&req.predecessor_directory);
     let (time, time_source) = req.time_limit.resolve(if req.compat_tlc {
@@ -718,7 +724,8 @@ impl CheckReport {
                     })
                     // TLC has no time limit (D-026). A memory ceiling is
                     // TLC's `-Xmx` counterpart, a host resource (ADR 0107).
-                    || self.budget_sources.0 == "explicit" =>
+                    || self.budget_sources.0 == "explicit"
+                    || self.opts.max_states.is_some() || self.opts.max_depth.is_some() =>
             {
                 "tlc+overrides"
             }
@@ -824,6 +831,8 @@ impl CheckReport {
                 "time_limit_source": self.budget_sources.0,
                 "max_memory_bytes": o.budget.memory,
                 "max_memory_source": self.budget_sources.1,
+                "max_states": o.max_states,
+                "max_depth": o.max_depth,
                 "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
             },
         });
@@ -946,13 +955,13 @@ impl CheckReport {
     ///   "collision": { "store", "scheme", "optimistic", "actual", "assumption" } | null,
     ///   "output": [ string ], "warnings": [ { "code", "message" } ],
     ///   "diagnostics": [ ... ], "notes": [ string ],
-    ///   "stopped": { "resource": "time" | "memory", "limit", "observed", "elapsed_ms",
-    ///                "unit": "ms" | "bytes", "phase", "hint" }   (only when stopped),
+    ///   "stopped": { "resource": "time" | "memory" | "states" | "depth", "limit", "observed", "elapsed_ms",
+    ///                "unit": "ms" | "bytes" | "states" | "levels", "phase", "hint" }   (only when stopped),
     ///   "options": { "profile", "int", "choose_order", "explore_order",
     ///                "comparisons", "warnings", "store", "fingerprint",
     ///                "seed", "seed_source", "deadlock_flag",
     ///                "budget": { "time_limit_ms", "time_limit_source",
-    ///                            "max_memory_bytes", "max_memory_source", "scope" },
+    ///                            "max_memory_bytes", "max_memory_source", "max_states", "max_depth", "scope" },
     ///                "workers": { "requested", "used", "sequential", "reason",
     ///                             "chaos" } },
     ///   "elapsed_ms" }
@@ -1249,6 +1258,9 @@ impl CheckReport {
         if self.checkpoint_request.is_some() {
             doc["checkpoint"] = json!(self.checkpoint_receipt);
         }
+        if self.verdict() == "stopped" && doc["statistics"].is_object() {
+            doc["statistics"]["exhaustive"] = json!(false);
+        }
         doc
     }
 
@@ -1414,6 +1426,8 @@ fn stopped_json(stopped: &dive_check::budget::Stopped) -> Value {
         "unit": match stopped.resource {
             dive_check::budget::Resource::Time => "ms",
             dive_check::budget::Resource::Memory => "bytes",
+            dive_check::budget::Resource::States => "states",
+            dive_check::budget::Resource::Depth => "levels",
         },
         "phase": stopped.phase.name(),
         "hint": stopped.hint(),

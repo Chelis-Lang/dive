@@ -657,6 +657,11 @@ impl Session {
         let Some(snapshot) = self.imported.take() else {
             return Ok(None);
         };
+        if let Some(stop) =
+            search.admission_exhausted(snapshot.depth, snapshot.discoveries.len() as u64)
+        {
+            return Err(stop);
+        }
         let mut decoder = StateDecoder::new(&search.m.names);
         let first_frontier = snapshot.frontier.first().copied().unwrap_or(u64::MAX);
         for (i, discovery) in snapshot.discoveries.iter().enumerate() {

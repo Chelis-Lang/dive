@@ -159,6 +159,9 @@ fn mode(v: &Value, profile: &Profile, workers: u32) -> std::result::Result<(), S
         return Err("expected a schema-2 check document".into());
     }
     let o = &v["options"];
+    if !o["budget"]["max_states"].is_null() || !o["budget"]["max_depth"].is_null() {
+        return Err("study report contains an unrequested search ceiling".into());
+    }
     if o["lncheck"] != "final" || o["lasso"] != "short" || o["tlc_exact_temporal"] != false {
         return Err(
             "report does not declare final/short overrides without a TLC-exact claim".into(),
@@ -294,14 +297,16 @@ fn assess(
         return (Outcome::Unsupported, format!("{kind}: {message}"), Some(v));
     }
     if kind == "stopped" {
-        // Both resources are findings, just as in the strict harness. A
+        // Run budgets are findings, just as in the strict harness. A
         // memory blowup must not be hidden among unsupported features.
         if outcome.exit_code != Some(5) {
             return bad("budget stop has a contradictory exit code".into());
         }
         let message = v["message"].as_str().unwrap_or_default().to_owned();
         return match v["stopped"]["resource"].as_str() {
-            Some("time" | "memory") => (Outcome::Timeout, format!("stopped: {message}"), Some(v)),
+            Some("time" | "memory" | "states" | "depth") => {
+                (Outcome::Timeout, format!("stopped: {message}"), Some(v))
+            }
             _ => bad("budget stop must name its resource".into()),
         };
     }
@@ -721,13 +726,25 @@ mod tests {
             })
             .0
         };
-        for resource in ["time", "memory"] {
+        for resource in ["time", "memory", "states", "depth"] {
             let outcome = assess_at(&stopped(resource), 5);
             assert_eq!(outcome, Outcome::Timeout);
             assert!(outcome.finding());
         }
         assert_eq!(assess_at(&stopped("time"), 3), Outcome::MalformedReport);
         assert_eq!(assess_at(&stopped("disk"), 5), Outcome::MalformedReport);
+    }
+
+    #[test]
+    fn observations_reject_unrequested_search_ceilings() {
+        for resource in ["max_states", "max_depth"] {
+            let mut document = success();
+            document["options"]["budget"][resource] = json!(0);
+            assert_eq!(
+                mode(&document, &Profile::Tlc, 4),
+                Err("study report contains an unrequested search ceiling".into())
+            );
+        }
     }
 
     #[test]
