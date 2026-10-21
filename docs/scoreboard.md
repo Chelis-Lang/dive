@@ -41,6 +41,28 @@ Expected divergence never counts as agreement. The per-model outcomes are in
 [docs/conformance.md](conformance.md); earlier measurements are in the history
 of this file.
 
+## Full-tier measurement
+
+Measured 2026-10-20 on main `652a5334`, TLC profile, one worker: **174 agree
+of 217 in-scope models** (265 selected, 48 out of scope). Report
+`20261020T234025016-dive-all` used the same four corpora, `--tier all --no-sany`,
+16 concurrent models and a fixed 3,600-second per-model timeout.
+
+| Agree | Unsupported | Timeout | Missing reference | Disagree | Pending trace validation |
+|------:|------------:|--------:|------------------:|---------:|-------------------------:|
+| 174 | 28 | 5 | 9 | 1 | 0 |
+
+`conformance/baselines/full-tlc-w1.json` is the generated observation digest;
+no gate consumes it. It records every finding, including the disagreement.
+This is **not a clean full-tier acceptance result**. `MCNanoLarge` exited without
+JSON during a kernel-confirmed global OOM kill while 16 models shared a 128 GB
+host ([#351](https://github.com/Chelis-Lang/dive/issues/351)). Its standalone
+memory requirement remains unmeasured. The raw outcome stays `disagree`; it is
+neither agreement nor a timeout. Rerun with explicit resource budgets and
+controlled concurrency before treating this measurement as a release baseline.
+The small-tier accepted baselines above are unchanged. The remaining backlog
+is tracked in [#338](https://github.com/Chelis-Lang/dive/issues/338).
+
 ## Roadmap feature checklist
 
 Status is one word: `implemented`, `partial` or `missing`. `implemented` means

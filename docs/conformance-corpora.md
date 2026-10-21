@@ -226,3 +226,20 @@ configuration, including the new violation's property name.
 Twenty-five directories of the pinned Examples checkout have no
 `manifest.json`, and four (`BlockingQueue`, `CCF`, `azure-cosmos-tla`,
 `microwave`) are unfetched submodules; neither contributes models.
+
+
+## Full-tier implementation measurement
+
+Main `652a5334` was measured on 2026-10-20 with the recovered references above:
+174/217 in-scope models agree in the TLC profile at one worker. The generated
+observation digest is `conformance/baselines/full-tlc-w1.json`, source report
+`20261020T234025016-dive-all`; no gate uses this full-tier digest. It retains
+28 refusals, five timeouts, nine missing references and one disagreement.
+
+The disagreement is an unreported process termination for `MCNanoLarge` during
+a kernel-confirmed host OOM kill. Sixteen models ran concurrently on a 128 GB
+host with fixed 3,600-second per-model timeouts. This cannot establish the
+model's standalone memory demand or a clean acceptance baseline. See
+[the scoreboard](scoreboard.md#full-tier-measurement) and
+[#351](https://github.com/Chelis-Lang/dive/issues/351); no golden or existing
+small-tier acceptance baseline changed.
