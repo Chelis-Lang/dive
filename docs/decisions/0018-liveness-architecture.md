@@ -85,6 +85,27 @@ permitted `dive-liveness` edges to IR, evaluator, values and model binding;
 the checker/trace dependency boundary is unchanged. The full L1 pipeline
 and graph integration remain outstanding.
 
+**Fairness decomposition implementation, 2026-10-21:** The ordinary
+coordinator now normalizes and distributes top-level Boolean alternatives,
+separates Boolean `<>[]B` persistence and `[]<>B` recurrence conditions, and
+shares one residual-memory tableau/product across alternatives with identical
+cores. All alternatives are searched before a holding result. A borrowed
+acceptance view applies persistence only to recurrent edges and recurrence to
+visits; the finite prefix remains unrestricted. Source/action domains and
+original graph-edge positions are retained, including stuttering/closing
+edges. Conditions use reusable Boolean scratch without copying graph-sized
+truth columns per alternative. Its live scratch is checked together with the
+existing acceptance-buffer capacities, and legacy logical-cell bounds retain
+their original units. The original complete formula remains the
+property-attribution authority, and candidates still require independent trace
+validation. Decomposition and normalization poll the run budget; BFS, SCC,
+condition scanning and witness construction poll at amortized work boundaries.
+Exhaustion propagates as a typed search error into `stopped`, without changing
+predicate truth or manufacturing an acceptance result. This implements the
+decomposition in §2 and the acceptance in §5;
+TLC's arbitrary tableau numbering and SCC/lasso choices are outside observable
+parity (ADR 0086). No count default is raised by the decomposition itself.
+
 ### 3. The behaviour graph, built by the deterministic search
 
 The graph is stored **once**, as the state graph labelled with atom bits. The product with each tableau is not stored. It is explored on the fly by the searches (§5, §6), with pure bit operations.

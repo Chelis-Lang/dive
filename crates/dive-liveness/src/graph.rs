@@ -71,6 +71,19 @@ impl Graph {
     /// not a liveness violation until its acceptance conditions are checked.
     #[must_use]
     pub fn components(&self) -> Vec<Vec<usize>> {
+        match self.try_components(|| Ok::<(), std::convert::Infallible>(())) {
+            Ok(components) => components,
+            Err(never) => match never {},
+        }
+    }
+
+    // The public graph-only API has no run budget. Coordinated searches pass
+    // an explicit fallible poll here, including inside a single large SCC.
+    pub(crate) fn try_components<E>(
+        &self,
+        mut poll: impl FnMut() -> Result<(), E>,
+    ) -> Result<Vec<Vec<usize>>, E> {
+        poll()?;
         let n = self.edges.len();
         let mut index = vec![None; n];
         let mut low = vec![0; n];
@@ -80,6 +93,7 @@ impl Graph {
         let mut next_index = 0;
         let mut out = Vec::new();
         for &root in &self.roots {
+            poll()?;
             if index[root].is_some() {
                 continue;
             }
@@ -90,6 +104,7 @@ impl Graph {
             stack.push(root);
             dfs.push((root, 0));
             while let Some((v, edge)) = dfs.last_mut() {
+                poll()?;
                 let v = *v;
                 if let Some(&target) = self.edges[v].get(*edge) {
                     *edge += 1;
@@ -111,6 +126,7 @@ impl Graph {
                 if index[v] == Some(low[v]) {
                     let mut component = Vec::new();
                     while let Some(member) = stack.pop() {
+                        poll()?;
                         active[member] = false;
                         component.push(member);
                         if member == v {
@@ -125,8 +141,10 @@ impl Graph {
                 }
             }
         }
+        poll()?;
         out.sort_unstable();
-        out
+        poll()?;
+        Ok(out)
     }
 
     /// Reachable components containing a cycle, including singleton

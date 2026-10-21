@@ -8,7 +8,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 mod recurrence;
+mod solution;
 pub use recurrence::Recurrence;
+pub(crate) use solution::{CycleConditions, decompose};
 
 /// The evaluation domain of an atomic predicate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -30,7 +32,7 @@ pub struct Atom {
 
 /// A node of a flat, acyclic temporal formula. Child indices must precede
 /// their parent; this prevents cycles and avoids recursive ownership/drop.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Node {
     /// A boolean constant.
     Bool(bool),
@@ -50,7 +52,7 @@ pub enum Node {
 
 /// A checked flat formula. No formula evaluation or model binding is performed
 /// by construction; callers lower implication, leads-to and fairness explicitly.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Formula {
     nodes: Vec<Node>,
     root: usize,
@@ -323,6 +325,9 @@ impl Normalizer<'_> {
     }
 
     fn normalize(&mut self, i: usize, negative: bool, depth: usize) -> Result<usize, FormulaError> {
+        if crate::budget::exhausted() {
+            return Err(FormulaError::Limit(crate::budget::EXHAUSTED));
+        }
         if depth > 256 {
             return Err(FormulaError::Limit("normalization depth"));
         }
@@ -508,6 +513,13 @@ pub fn compile(formula: &Formula, limits: Limits) -> Result<Tableau, FormulaErro
     if formula.terms() > limits.formula_nodes {
         return Err(FormulaError::Limit("formula nodes"));
     }
+    compile_residual(formula, limits)
+}
+
+// Decomposition has already checked the original input's terms. Its synthetic
+// explicit atomic negations must not be charged as a second, larger user input.
+// The normalized-node, expansion, frontier and tableau limits still run here.
+pub(crate) fn compile_residual(formula: &Formula, limits: Limits) -> Result<Tableau, FormulaError> {
     let mut norm = Normalizer {
         formula,
         limit: limits.formula_nodes,

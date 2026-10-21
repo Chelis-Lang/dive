@@ -1863,3 +1863,29 @@ assert the primary counts and independently validated violations in both
 profiles; evaluator controls cover hidden semantic dependencies and unused
 local definitions. Raw process output is regenerated from these pinned inputs
 and is not committed.
+
+## Fairness and temporal-memory decomposition
+
+`dive-liveness::formula::solution` follows the semantic decomposition in pinned
+MIT `tlc2/tool/liveness/Liveness.java::processLiveness` and `classifyExpr`
+(revision `94d0c5070852b37b801bb8998c436383ab7ee37b`): normalize negation,
+retain every DNF alternative, separate `<>[]B` and `[]<>B` Boolean obligations,
+and group alternatives with the same remaining temporal-memory formula.
+The existing native tableau and SCC/lasso search are reused. The native
+`AcceptanceAccess` adapter reads original atom labels: persistence restricts
+only the recurrent cycle, recurrence requires a visit, and a finite prefix is
+unrestricted. No TLC tableau numbering, branch ordering or chosen lasso is
+claimed (ADR 0086). Compatibility classification/error handling remains in
+`tlc_plan`; the default profile retains its general temporal-language kernel.
+
+The consumed `crates/dive-liveness/tests/fixtures/solutions/Solutions.tla`
+control was run against the pinned jar before implementation with `N = 3`,
+worker 1, seed 0, fingerprint 0, a 1 GiB heap and a 20-second process deadline.
+`Hold` succeeds (2193/0); `Fail`, `Residual`, and the `Hold Fail FailOther`
+selection violate (2116/13). Every run generates 25 states, finds 8 distinct
+states and reports depth 4. Integration tests assert those counts and validate
+candidates against the original formulas with `dive-trace`, in both profiles.
+The short-word matrix compares all decomposition alternatives with direct
+infinite-word truth, including pointwise persistence disjunctions and closing
+edges. Raw output stays outside the repository and is regenerated from the
+pinned source, configuration and oracle.
