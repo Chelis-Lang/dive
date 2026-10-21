@@ -234,7 +234,19 @@ pub fn analyze_periodic(
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     // One budget for capture and every level check (ADR 0107); only the
     // budget's own limit becomes a stop.
-    let (_watchdog, armed) = dive_check::budget::arm(options);
+    let (_watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
+        failure(
+            AnalysisError::BudgetStartup(error.to_string()),
+            Stage::Planning,
+            None,
+            None,
+            Some(false),
+            Checks {
+                schedule,
+                ..Checks::default()
+            },
+        )
+    })?;
     let _scope = crate::budget::enter(&armed.budget);
     periodic_unbudgeted(model, &armed, limits, policy, schedule)
         .map_err(|failure| budget_failure(failure, &armed.budget))

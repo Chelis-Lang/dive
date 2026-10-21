@@ -499,7 +499,8 @@ fn check_file_in(
     };
     // One clock and one ceiling for every stage of the check itself; loading,
     // parsing and lowering above are not budgeted.
-    let (watchdog, armed) = dive_check::budget::arm(&report.opts);
+    let (watchdog, armed) =
+        dive_check::budget::arm(&report.opts).map_err(crate::ApiError::BudgetStartup)?;
     let armed = armed.into_owned();
     report.phase = if let Some(request) = checkpoint {
         let mut request = request.clone();
@@ -1479,6 +1480,7 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
         | Error::Analysis(
             AnalysisError::Inconsistent(_)
             | AnalysisError::CaptureThread(_)
+            | AnalysisError::BudgetStartup(_)
             | AnalysisError::Tableau(FormulaError::Reference(_))
             | AnalysisError::Planning(PlanningError::Formula {
                 error: FormulaError::Reference(_),
@@ -1743,6 +1745,7 @@ mod evidence_controls {
         let watchdog =
             dive_check::budget::Budget::new(Some(std::time::Duration::from_millis(1)), None)
                 .start()
+                .expect("watchdog thread starts")
                 .expect("watchdog");
         let started = std::time::Instant::now();
         while watchdog.budget().poll().is_none()

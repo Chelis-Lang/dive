@@ -153,3 +153,12 @@ than TLC, and 30-minute runaway jobs in any regular loop.
   R2 onward): predicate bindings first, then TLC-style tableau decomposition,
   then product and atom-cell representation, then a disk-backed behavior
   graph.
+
+### Watchdog startup failure
+
+A finite budget that cannot start its watchdog is an explicit runtime failure
+(`DIVE-R0001`), never an unlimited run or a model verdict. Arming is fallible in
+the library and every existing budget-arming call site propagates that failure. The CLI aborts
+with status 4 before checking; an explicit request disabling both budgets needs
+no watchdog. A deterministic injected-spawn-failure control covers this path
+without exhausting threads on the shared host.

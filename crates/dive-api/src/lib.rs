@@ -101,6 +101,8 @@ pub struct ParseReport {
 /// Errors from the API that are not diagnostics about the source.
 #[derive(Debug)]
 pub enum ApiError {
+    /// A requested run budget could not be enforced; no check ran.
+    BudgetStartup(dive_check::budget::StartError),
     /// The file could not be read.
     Io {
         /// The file.
@@ -125,6 +127,7 @@ pub enum ApiError {
 impl std::fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::BudgetStartup(error) => error.fmt(f),
             Self::Io { path, error } => write!(f, "cannot read {path}: {error}"),
             Self::Unsupported { feature } => write!(f, "unsupported: {feature}"),
             Self::Rejected { message } => f.write_str(message),
