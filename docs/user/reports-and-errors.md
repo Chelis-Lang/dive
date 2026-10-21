@@ -52,6 +52,27 @@ the status. Generated harness reports in
 [conformance](../conformance.md) are development evidence, not the schema for
 user commands. Keep profile and schema version in any automation protocol.
 
+Use `dive explain DIVE-L0020` or
+`dive explain DIVE-L0020 --output json` for a cause and a next action. This
+initial catalogue covers temporal `DIVE-L0020`–`DIVE-L0038` codes that are
+currently assigned, temporal API `DIVE-A0030`–`DIVE-A0034`, watchdog startup
+`DIVE-R0001`, and command adapter `DIVE-X0001`–`DIVE-X0004`. It does not yet
+cover every frontend, evaluation or storage diagnostic. An unknown code exits
+2; JSON reports `known: false` and `explanation: null`. Explanations have
+`command: "explain"` and the common report schema version. They are
+informational and contain no model verdict.
+
+Temporal failure diagnostics retain `code` and `message` and add the original
+`cause`, a `help` action and the available cause `span`/`location`. A span's
+`start` and `end` are UTF-8 byte offsets with an exclusive end; `file` is the
+IR source file ID, while `location` names the module and source position.
+Stage-wide failures have `span: null` and `location: null`; a root expression
+is not substituted for a missing cause location. The particular report's
+cause takes precedence over the general catalogue explanation. Budget
+exhaustion uses its resource-specific `stopped.hint`. Raising a time or memory
+budget does not remove a named algorithmic count limit or implement a missing
+feature.
+
 Conformance reports compare the physical numeric exit exactly, even when a
 worker-specific comparison omits counts. Native 10 versus TLC 12 is a real
 observable difference. The harness can label only an explicitly registered

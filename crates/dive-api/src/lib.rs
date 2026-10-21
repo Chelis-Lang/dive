@@ -39,6 +39,7 @@ pub use translate::{
     translate_source,
 };
 
+pub mod diagnostics;
 pub mod temporal;
 pub mod trace;
 
