@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "purpose": "diagnostic A/B of whole-process sampled resident memory; not a quiet wall-clock benchmark",
+  "baseline": {
+    "source_commit": "e2b9d9f8a1032950720e01de2161527b9f85ceb9",
+    "binary_sha256": "eb805d2692bac50237a97d5765bde584bd9fdd8f02fa596e47f967bf8291d10c"
+  },
+  "candidate": {
+    "source_commit": "c4fa21d22e4b4f339c8b032d354f5241080533d4",
+    "binary_sha256": "a3674dbf443f9d7592a51c625c2c16f2ebf0cf6e4a8c3f53ed48eead14aaea22"
+  },
+  "host": {
+    "model": "Mac15,13",
+    "architecture": "arm64",
+    "physical_cores": 8,
+    "logical_cpus": 8,
+    "physical_memory_bytes": 25769803776,
+    "kernel": "Darwin 25.5.0",
+    "rust": "1.99.0",
+    "build": "release; locked dependencies; 2 compile jobs"
+  },
+  "inputs": {
+    "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "module": "specifications/MultiCarElevator/Elevator.tla",
+    "config": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+    "golden_oracle": "tlc-2026.10.06.014338",
+    "workers": 1,
+    "seed": 0,
+    "fingerprint": 0,
+    "lncheck": "final",
+    "lasso": "short",
+    "time_limit_ms": 391180,
+    "max_memory_bytes": 4294967296
+  },
+  "sampling": {
+    "tool": "ps -o rss= -p <child-pid>",
+    "interval_ms": 500,
+    "unit": "bytes after converting ps KiB",
+    "order": "baseline then candidate, alternating five times per profile",
+    "limitations": "sampled resident pages, not an exact high-water mark; no wall-clock performance claim"
+  },
+  "results": [
+    {
+      "profile": "tlc",
+      "baseline": {
+        "median_rss_bytes": 41172992,
+        "min_rss_bytes": 38912000,
+        "max_rss_bytes": 41238528
+      },
+      "candidate": {
+        "median_rss_bytes": 34947072,
+        "min_rss_bytes": 34865152,
+        "max_rss_bytes": 35143680
+      },
+      "rss_change_percent": -15.121,
+      "repetitions_each": 5,
+      "all_runs": {
+        "verdict": "success",
+        "exit_code": 0,
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36,
+        "external_stop": false
+      }
+    },
+    {
+      "profile": "dive",
+      "baseline": {
+        "median_rss_bytes": 40878080,
+        "min_rss_bytes": 40615936,
+        "max_rss_bytes": 42352640
+      },
+      "candidate": {
+        "median_rss_bytes": 34865152,
+        "min_rss_bytes": 34816000,
+        "max_rss_bytes": 35094528
+      },
+      "rss_change_percent": -14.709,
+      "repetitions_each": 5,
+      "all_runs": {
+        "verdict": "success",
+        "exit_code": 0,
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36,
+        "external_stop": false
+      }
+    }
+  ],
+  "controls": {
+    "fairness_replay_and_enabled_false_prefix": {
+      "models_agree": 7,
+      "modules_agree": 9,
+      "profiles": [
+        "tlc",
+        "dive"
+      ],
+      "returned_traces_independently_validated": true
+    },
+    "full_liveness_all_targets": "passed",
+    "clippy_all_targets": "passed"
+  },
+  "instruction_diagnostic": {
+    "purpose": "whole-CLI instruction comparison; no evaluator-throughput or wall-clock acceptance claim",
+    "baseline_source_commit": "e2b9d9f8a1032950720e01de2161527b9f85ceb9",
+    "candidate_source_commit": "c4fa21d22e4b4f339c8b032d354f5241080533d4",
+    "baseline_binary_sha256": "7e6f2fc09df27994d43049ba38cd0bb068a0f086877f8d06d1955f55c384c7f6",
+    "candidate_binary_sha256": "5a1117c3864455c4f5bdb064b6c1861b46783c62ffb74da788515054de29db85",
+    "host": {
+      "architecture": "x86_64",
+      "cpu": "Intel Xeon Platinum 8488C",
+      "logical_cpus": 32,
+      "physical_cores": 16,
+      "kernel": "Linux 7.0.0-1014-aws",
+      "rust": "1.99.0",
+      "build": "profiling"
+    },
+    "tool": "Valgrind 3.22.0; --tool=cachegrind --cache-sim=no",
+    "time_limit_ms": 900000,
+    "max_memory_bytes": 4294967296,
+    "external_timeout_ms": 930000,
+    "repetitions_each": 1,
+    "quiet_window_certified": false,
+    "results": [
+      {
+        "profile": "dive",
+        "arms": {
+          "base": {
+            "exit": 0,
+            "instructions": 47458553257,
+            "verdict": "success",
+            "distinct": 4122,
+            "generated": 14296,
+            "depth": 36
+          },
+          "candidate": {
+            "exit": 0,
+            "instructions": 46969299886,
+            "verdict": "success",
+            "distinct": 4122,
+            "generated": 14296,
+            "depth": 36
+          }
+        },
+        "complete_and_expected_counts": true,
+        "delta_pct": -1.0309066278328616
+      },
+      {
+        "profile": "tlc",
+        "arms": {
+          "base": {
+            "exit": 0,
+            "instructions": 48125863874,
+            "verdict": "success",
+            "distinct": 4122,
+            "generated": 14296,
+            "depth": 36
+          },
+          "candidate": {
+            "exit": 0,
+            "instructions": 47636188871,
+            "verdict": "success",
+            "distinct": 4122,
+            "generated": 14296,
+            "depth": 36
+          }
+        },
+        "complete_and_expected_counts": true,
+        "delta_pct": -1.0174882351868697
+      }
+    ],
+    "external_archive_sha256": "973c91b06c8dfa7f167b1bad8259769965665ce750af8812e9b56b166ce1b6c2"
+  }
+}
