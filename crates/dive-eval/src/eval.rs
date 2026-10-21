@@ -1829,21 +1829,50 @@ impl Core {
         {
             return Ok(Some(v.clone()));
         }
-        let mut pairs: Vec<(Value, &Value)> = f.iter().collect();
-        if f.order() != crate::core::TLC_ORDER {
-            pairs.sort_by(|a, b| a.0.cmp_with(&b.0, crate::core::TLC_ORDER));
+        match f.checked_domain_index(arg) {
+            dive_value::DomainLookup::Found(index) => {
+                let Some((_, value)) = f.entry_cow(index) else {
+                    return Err(EvalError::bug("function domain index has no range value"));
+                };
+                return Ok(Some(value.clone()));
+            }
+            dive_value::DomainLookup::Missing => return Ok(None),
+            dive_value::DomainLookup::Unknown => {}
         }
-        for (d, v) in &pairs {
-            match tlc::equals(d, arg, self.ctx) {
-                Ok(true) => return Ok(Some((*v).clone())),
-                Ok(false) => {}
-                Err(err) => {
-                    if pairs.len() >= 32 {
-                        return Err(EvalError::unsupported(
-                            "applying a function of 32 or more arguments to a value TLC cannot compare with its domain (TLC's error depends on whether it has normalized the function)",
-                        ));
-                    }
-                    return Err(err.into());
+        let checked = |domain: &Value, value: &Value| -> Result<Option<Value>> {
+            match tlc::equals(domain, arg, self.ctx) {
+                Ok(true) => Ok(Some(value.clone())),
+                Ok(false) => Ok(None),
+                Err(_) if f.len() >= 32 => Err(EvalError::unsupported(
+                    "applying a function of 32 or more arguments to a value TLC cannot compare with its domain (TLC's error depends on whether it has normalized the function)",
+                )),
+                Err(err) => Err(err.into()),
+            }
+        };
+        if f.order() == crate::core::TLC_ORDER {
+            for i in 0..f.len() {
+                if let Some((domain, value)) = f.entry_cow(i)
+                    && let Some(value) = checked(&domain, value)?
+                {
+                    return Ok(Some(value));
+                }
+            }
+        } else if let Some(indices) = f.tlc_domain_indices() {
+            for &i in indices {
+                if let Some((domain, value)) = f.entry_cow(i)
+                    && let Some(value) = checked(&domain, value)?
+                {
+                    return Ok(Some(value));
+                }
+            }
+        } else {
+            // Unknown/provider-backed domains retain the old forcing and sort
+            // boundary; a cached index is not a normalization certificate.
+            let mut pairs: Vec<(Value, &Value)> = f.iter().collect();
+            pairs.sort_by(|a, b| a.0.cmp_with(&b.0, crate::core::TLC_ORDER));
+            for (domain, value) in pairs {
+                if let Some(value) = checked(&domain, value)? {
+                    return Ok(Some(value));
                 }
             }
         }
@@ -2119,20 +2148,49 @@ impl Core {
                 self.ctx,
             )?);
         }
-        let mut out = Vec::with_capacity(f.len());
-        let mut found = false;
-        for (d, x) in f.iter() {
-            if !found && tlc::equals(&d, first, self.ctx)? {
-                found = true;
-                out.push((d, self.take_except(x, rest, new.clone())?));
-            } else {
-                out.push((d, x.clone()));
+        let index = match f.checked_domain_index(first) {
+            dive_value::DomainLookup::Found(index) => Some(index),
+            dive_value::DomainLookup::Missing => None,
+            dive_value::DomainLookup::Unknown => {
+                let mut found = None;
+                for i in 0..f.len() {
+                    if let Some((domain, _)) = f.entry_cow(i)
+                        && tlc::equals(&domain, first, self.ctx)?
+                    {
+                        found = Some(i);
+                        break;
+                    }
+                }
+                found
+            }
+        };
+        let Some(index) = index else {
+            return Ok(v.clone());
+        };
+        let Some((_, old)) = f.entry_cow(index) else {
+            return Err(EvalError::bug("function domain index has no range value"));
+        };
+        let replacement = self.take_except(old, rest, new)?;
+        match f.with_value_at(index, replacement, self.ctx) {
+            Ok(updated) => Ok(Value::Fcn(updated)),
+            Err(replacement) => {
+                let pairs = f
+                    .iter()
+                    .enumerate()
+                    .map(|(i, (domain, value))| {
+                        (
+                            domain,
+                            if i == index {
+                                replacement.clone()
+                            } else {
+                                value.clone()
+                            },
+                        )
+                    })
+                    .collect();
+                Ok(Value::fcn(pairs, self.ctx)?)
             }
         }
-        if !found {
-            return Ok(v.clone());
-        }
-        Ok(Value::fcn(out, self.ctx)?)
     }
 
     // -----------------------------------------------------------------------------

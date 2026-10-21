@@ -30,7 +30,7 @@ use std::cmp::Ordering;
 use std::sync::Arc;
 
 use crate::atom::Atom;
-use crate::ctx::{Ctx, ValueOrder};
+use crate::ctx::Ctx;
 use crate::depth::Guard;
 use crate::error::{ErrorKind, Result, ValueError};
 use crate::int::Int;
@@ -132,7 +132,7 @@ fn enum_value(elems: &Arc<[Value]>, ctx: Ctx) -> Value {
 /// (sorted in the context's order).
 enum FcnView<'a> {
     Intv(&'a [Value]),
-    Array(Cow<'a, [(Value, Value)]>),
+    Array(crate::function_domain::OrderedFcn<'a>),
 }
 
 impl FcnView<'_> {
@@ -145,18 +145,9 @@ impl FcnView<'_> {
     fn value(&self, i: usize) -> &Value {
         match self {
             FcnView::Intv(v) => &v[i],
-            FcnView::Array(p) => &p[i].1,
+            FcnView::Array(p) => p.value(i),
         }
     }
-}
-
-/// A function's pairs sorted in `order`.
-fn sorted_pairs(f: &Fcn, order: ValueOrder) -> Vec<(Value, Value)> {
-    let mut v: Vec<(Value, Value)> = f.iter().map(|(d, x)| (d, x.clone())).collect();
-    if f.kind() != crate::FcnKind::Tuple && f.order() != order {
-        v.sort_by(|a, b| a.0.cmp_with(&b.0, order));
-    }
-    v
 }
 
 /// `Value.toFcnRcd()`.
@@ -164,9 +155,7 @@ fn to_fcn(v: &Value, ctx: Ctx) -> Option<FcnView<'_>> {
     match v {
         Value::Fcn(f) => Some(match &f.0.repr {
             FcnRepr::Tuple(e) => FcnView::Intv(e),
-            // A general domain already in the context's order is borrowed.
-            FcnRepr::General(ps) if f.order() == ctx.order => FcnView::Array(Cow::Borrowed(ps)),
-            _ => FcnView::Array(Cow::Owned(sorted_pairs(f, ctx.order))),
+            _ => FcnView::Array(crate::function_domain::OrderedFcn::new(f, ctx.order)),
         }),
         _ => None,
     }
@@ -459,7 +448,7 @@ fn compare_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
         }
         // A string-domain function that is not a record literal is a `FcnRcdValue`.
         FcnRepr::Record(_) | FcnRepr::General(_) => {
-            let view = FcnView::Array(Cow::Owned(sorted_pairs(f, ctx.order)));
+            let view = FcnView::Array(crate::function_domain::OrderedFcn::new(f, ctx.order));
             compare_fcnrcd(&view, a, b, ctx)
         }
     }
@@ -495,7 +484,7 @@ fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Or
         (FcnView::Intv(_), FcnView::Array(ps)) => {
             for (i, (d, _)) in ps.iter().enumerate() {
                 let Some(k) = d.as_int() else {
-                    return Err(non_int_domain(d, ctx, false));
+                    return Err(non_int_domain(&d, ctx, false));
                 };
                 let c = idx_value(i).cmp(&k);
                 if c != Ordering::Equal {
@@ -506,7 +495,7 @@ fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Or
         (FcnView::Array(ps), FcnView::Intv(_)) => {
             for (i, (d, _)) in ps.iter().enumerate() {
                 let Some(k) = d.as_int() else {
-                    return Err(non_int_domain(d, ctx, false));
+                    return Err(non_int_domain(&d, ctx, false));
                 };
                 let c = k.cmp(&idx_value(i));
                 if c != Ordering::Equal {
@@ -516,7 +505,7 @@ fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Or
         }
         (FcnView::Array(p1), FcnView::Array(p2)) => {
             for ((d1, _), (d2, _)) in p1.iter().zip(p2.iter()) {
-                let c = compare(d1, d2, ctx)?;
+                let c = compare(&d1, &d2, ctx)?;
                 if c != Ordering::Equal {
                     return Ok(c);
                 }
@@ -725,7 +714,7 @@ fn equals_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
         }
         // A string-domain function that is not a record literal is a `FcnRcdValue`.
         FcnRepr::Record(_) | FcnRepr::General(_) => {
-            let view = FcnView::Array(Cow::Owned(sorted_pairs(f, ctx.order)));
+            let view = FcnView::Array(crate::function_domain::OrderedFcn::new(f, ctx.order));
             equals_fcnrcd(&view, a, b, ctx)
         }
     }
@@ -750,7 +739,7 @@ fn equals_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<boo
         (FcnView::Intv(_), FcnView::Array(ps)) | (FcnView::Array(ps), FcnView::Intv(_)) => {
             for (i, (d, _)) in ps.iter().enumerate() {
                 let Some(k) = d.as_int() else {
-                    return Err(non_int_domain(d, ctx, true));
+                    return Err(non_int_domain(&d, ctx, true));
                 };
                 if k != idx_value(i) {
                     return Ok(false);
@@ -759,7 +748,7 @@ fn equals_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<boo
         }
         (FcnView::Array(p1), FcnView::Array(p2)) => {
             for ((d1, _), (d2, _)) in p1.iter().zip(p2.iter()) {
-                if !equals(d1, d2, ctx)? {
+                if !equals(&d1, &d2, ctx)? {
                     return Ok(false);
                 }
             }
@@ -1037,7 +1026,7 @@ fn member_fcn_set(
             } else {
                 let dom = Value::Set(Set::from_sorted(
                     ctx.order,
-                    ps.iter().map(|(d, _)| d.clone()).collect(),
+                    ps.iter().map(|(d, _)| d.into_owned()).collect(),
                 ));
                 equals(domain, &dom, ctx)?
             }
@@ -1059,7 +1048,11 @@ fn member_fcn_set(
 /// either element list: TLC compares the same pairs, in the same order, so
 /// the answer and any error are the same. `None` for other domains, and when
 /// the sizes differ (TLC then still sizes and enumerates `domain` first).
-fn domain_equals_keys(domain: &Value, keys: &[(Value, Value)], ctx: Ctx) -> Option<Result<bool>> {
+fn domain_equals_keys(
+    domain: &Value,
+    keys: &crate::function_domain::OrderedFcn<'_>,
+    ctx: Ctx,
+) -> Option<Result<bool>> {
     let Value::Set(d) = domain else {
         return None;
     };
@@ -1081,22 +1074,17 @@ fn domain_equals_keys(domain: &Value, keys: &[(Value, Value)], ctx: Ctx) -> Opti
             if hi.checked_sub(lo)?.checked_add(1)? != n {
                 return None;
             }
-            Some(pairwise(
-                (lo..=hi).map(Value::Int),
-                keys.iter().map(|(k, _)| k),
-                ctx,
-            ))
+            if let Some(same) = keys.exact_domain_equals(d) {
+                return Some(Ok(same));
+            }
+            Some(pairwise_fcn((lo..=hi).map(Value::Int), keys, ctx))
         }
         SetRepr::Enum if d.order() == ctx.order => {
             let elems = d.stored_elements()?;
             if elems.len() != keys.len() {
                 return None;
             }
-            Some(pairwise(
-                elems.iter().cloned(),
-                keys.iter().map(|(k, _)| k),
-                ctx,
-            ))
+            Some(pairwise_fcn(elems.iter().cloned(), keys, ctx))
         }
         SetRepr::Product(factors) if d.order() == ctx.order => {
             // The product's elements are the tuples of its factors' elements,
@@ -1111,6 +1099,9 @@ fn domain_equals_keys(domain: &Value, keys: &[(Value, Value)], ctx: Ctx) -> Opti
             }
             if size != keys.len() || size as u128 > u128::from(crate::enumerate::MAX_ENUMERATION) {
                 return None;
+            }
+            if let Some(same) = keys.exact_domain_equals(d) {
+                return Some(Ok(same));
             }
             Some(product_pairwise(&comps, keys, ctx))
         }
@@ -1163,12 +1154,29 @@ impl<'a> FactorElems<'a> {
     }
 }
 
-/// [`pairwise`] between a product's tuples, in order, and `keys`, comparing a
+fn pairwise_fcn(
+    mine: impl Iterator<Item = Value>,
+    keys: &crate::function_domain::OrderedFcn<'_>,
+    ctx: Ctx,
+) -> Result<bool> {
+    for (x, (key, _)) in mine.zip(keys.iter()) {
+        if !equals(&x, &key, ctx)? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// Checked equality between a product's tuples, in order, and `keys`, comparing a
 /// tuple key component by component without building the product's tuple.
-fn product_pairwise(comps: &[FactorElems<'_>], keys: &[(Value, Value)], ctx: Ctx) -> Result<bool> {
+fn product_pairwise(
+    comps: &[FactorElems<'_>],
+    keys: &crate::function_domain::OrderedFcn<'_>,
+    ctx: Ctx,
+) -> Result<bool> {
     let mut idx = vec![0usize; comps.len()];
-    for (key, _) in keys {
-        let same = if let Some(t) = to_tuple(key) {
+    for (key, _) in keys.iter() {
+        let same = if let Some(t) = to_tuple(&key) {
             // `TupleValue.equals`.
             let _guard = Guard::enter()?;
             if t.len() == comps.len() {
@@ -1186,7 +1194,7 @@ fn product_pairwise(comps: &[FactorElems<'_>], keys: &[(Value, Value)], ctx: Ctx
         } else {
             equals(
                 &Value::tuple(comps.iter().zip(&idx).map(|(c, &i)| c.get(i)).collect()),
-                key,
+                &key,
                 ctx,
             )?
         };
@@ -1200,20 +1208,6 @@ fn product_pairwise(comps: &[FactorElems<'_>], keys: &[(Value, Value)], ctx: Ctx
                 break;
             }
             idx[pos] = 0;
-        }
-    }
-    Ok(true)
-}
-
-/// `SetEnumValue.equals` once both sides are normalized and of one size.
-fn pairwise<'a>(
-    mine: impl Iterator<Item = Value>,
-    theirs: impl Iterator<Item = &'a Value>,
-    ctx: Ctx,
-) -> Result<bool> {
-    for (x, y) in mine.zip(theirs) {
-        if !equals(&x, y, ctx)? {
-            return Ok(false);
         }
     }
     Ok(true)

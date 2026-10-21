@@ -1,5 +1,10 @@
 # Changelog
 
+- General finite functions share immutable domain metadata across eligible
+  same-context EXCEPT updates, use exact integer/Cartesian lookup certificates,
+  and borrow checked domain views. Existing unknown-key comparison/refusal,
+  literal/order, hash, fingerprint and codec behavior is retained.
+
 - Live action-membership metadata uses iterative summaries of the original
   formula DAG instead of retaining copied normalization trees. Preserve original
   action IDs, Boolean simplification and exact direct atomic GF/FG classification,

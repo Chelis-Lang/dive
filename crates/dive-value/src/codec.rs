@@ -609,8 +609,8 @@ fn canonical_fcn<'a>(f: &'a Fcn, ctx: Ctx, out: &mut Vec<u8>, stack: &mut Vec<Fr
             }
         }
         FcnRepr::General(ps) => {
-            let mut ps: Vec<&(Value, Value)> = ps.iter().collect();
-            ps.sort_by(|a, b| a.0.cmp_with(&b.0, ctx.order));
+            let mut ps: Vec<(&Value, &Value)> = ps.iter().collect();
+            ps.sort_by(|a, b| a.0.cmp_with(b.0, ctx.order));
             out.push(tag::FCN | o);
             write_len(out, ps.len());
             for (d, x) in ps.into_iter().rev() {

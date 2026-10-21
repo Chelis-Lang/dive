@@ -16,6 +16,7 @@ use num_bigint::BigInt;
 use crate::atom::{Atom, mix64};
 use crate::ctx::{Ctx, ValueOrder};
 use crate::error::{ErrorKind, Result, ValueError};
+use crate::function_domain::{DomainInner, GeneralFcn};
 use crate::int::Int;
 
 /// A TLA+ value.
@@ -705,7 +706,18 @@ pub(crate) struct FcnInner {
 pub(crate) enum FcnRepr {
     Tuple(Box<[Value]>),
     Record(Box<[(Atom, Value)]>),
-    General(Box<[(Value, Value)]>),
+    General(GeneralFcn),
+}
+
+/// A conservative exact-domain lookup, without evaluating unknown keys.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DomainLookup {
+    /// The original checked lookup is required.
+    Unknown,
+    /// Every possible comparison is error-free and the key is absent.
+    Missing,
+    /// The key is at this index in the function's stored range order.
+    Found(usize),
 }
 
 /// The shape of a function's domain.
@@ -772,7 +784,7 @@ impl Fcn {
             order,
             literal: false,
             fp: crate::fp64::FpCache::new(),
-            repr: FcnRepr::General(pairs.into_boxed_slice()),
+            repr: FcnRepr::General(GeneralFcn::new(pairs, order)),
         }))
     }
 
@@ -852,6 +864,35 @@ impl Fcn {
         }
     }
 
+    /// The `i`-th entry, borrowing stored keys where possible.
+    #[must_use]
+    pub fn entry_cow(&self, i: usize) -> Option<(std::borrow::Cow<'_, Value>, &Value)> {
+        match &self.0.repr {
+            FcnRepr::General(p) => p.get(i).map(|(d, v)| (std::borrow::Cow::Borrowed(d), v)),
+            _ => self.entry(i).map(|(d, v)| (std::borrow::Cow::Owned(d), v)),
+        }
+    }
+
+    /// An exact index or miss for eager integer/Cartesian domains. `Unknown` means
+    /// the argument requires the caller's original checked comparison path.
+    #[must_use]
+    pub fn checked_domain_index(&self, argument: &Value) -> DomainLookup {
+        match &self.0.repr {
+            FcnRepr::General(p) => p.domain.checked_index(argument),
+            _ => DomainLookup::Unknown,
+        }
+    }
+
+    /// Cached TLC key positions for a proven provider-free general domain.
+    /// This implementation view does not mark the function TLC-normalized.
+    #[must_use]
+    pub fn tlc_domain_indices(&self) -> Option<&[usize]> {
+        match &self.0.repr {
+            FcnRepr::General(p) => p.domain.tlc_order(),
+            _ => None,
+        }
+    }
+
     /// Iterates over `(domain element, value)` in normalized domain order.
     pub fn iter(&self) -> impl Iterator<Item = (Value, &Value)> + '_ {
         (0..self.len()).filter_map(move |i| self.entry(i))
@@ -881,7 +922,76 @@ impl Fcn {
                 .and_then(|i| usize::try_from(i).ok())
                 .and_then(|i| e.get(i)),
             (FcnRepr::Record(f), Value::Str(a)) => f.iter().find(|(n, _)| n == a).map(|(_, v)| v),
-            (FcnRepr::General(p), _) => p.iter().find(|(d, _)| d == arg).map(|(_, v)| v),
+            (FcnRepr::General(p), _) => match p.domain.checked_index(arg) {
+                DomainLookup::Found(index) => p.values.get(index),
+                DomainLookup::Missing => None,
+                DomainLookup::Unknown => p.iter().find(|(d, _)| *d == arg).map(|(_, v)| v),
+            },
+            _ => None,
+        }
+    }
+
+    /// Replaces one range value while preserving an already canonical domain.
+    /// Returns `new` unchanged when rebuilding in `ctx` might normalize keys or
+    /// change the function's representation; callers then use their original path.
+    ///
+    /// # Errors
+    /// Returns the proposed value for an invalid index or an unproved domain.
+    pub fn with_value_at(
+        &self,
+        i: usize,
+        new: Value,
+        ctx: Ctx,
+    ) -> std::result::Result<Self, Value> {
+        if i >= self.len() {
+            return Err(new);
+        }
+        match &self.0.repr {
+            FcnRepr::Tuple(values) => {
+                let mut values = values.to_vec();
+                values[i] = new;
+                Ok(Self::tuple_as(values, self.0.literal))
+            }
+            FcnRepr::Record(fields) => {
+                if self.order() != ctx.order {
+                    return Err(new);
+                }
+                let mut fields = fields.to_vec();
+                fields[i].1 = new;
+                Ok(Self::record(fields, self.order(), self.0.literal))
+            }
+            FcnRepr::General(general) => {
+                if self.order() != ctx.order || !general.domain.canonical() {
+                    return Err(new);
+                }
+                let mut values = general.values.to_vec();
+                values[i] = new;
+                let hash = fcn_hash(
+                    general
+                        .domain
+                        .keys
+                        .iter()
+                        .zip(&values)
+                        .map(|(d, v)| (d.hash64(), v)),
+                    values.len(),
+                );
+                Ok(Self(Arc::new(FcnInner {
+                    hash,
+                    order: self.order(),
+                    literal: self.0.literal,
+                    fp: crate::fp64::FpCache::new(),
+                    repr: FcnRepr::General(GeneralFcn {
+                        domain: Arc::clone(&general.domain),
+                        values: values.into_boxed_slice(),
+                    }),
+                })))
+            }
+        }
+    }
+
+    pub(crate) fn exact_domain_equals(&self, set: &Set) -> Option<bool> {
+        match &self.0.repr {
+            FcnRepr::General(general) => general.domain.matches_set(set),
             _ => None,
         }
     }
@@ -948,10 +1058,12 @@ impl FcnInner {
                     queue(out, v);
                 }
             }
-            FcnRepr::General(ps) => {
-                for (d, v) in ps {
-                    queue(out, d);
+            FcnRepr::General(mut ps) => {
+                for v in std::mem::take(&mut ps.values) {
                     queue(out, v);
+                }
+                if let Some(domain) = Arc::get_mut(&mut ps.domain) {
+                    domain.take_children(out);
                 }
             }
         }
@@ -1015,9 +1127,11 @@ impl FcnInner {
         match &self.repr {
             FcnRepr::Tuple(e) => e.iter().any(frees_compound),
             FcnRepr::Record(fs) => fs.iter().any(|(_, v)| frees_compound(v)),
-            FcnRepr::General(ps) => ps
-                .iter()
-                .any(|(d, v)| frees_compound(d) || frees_compound(v)),
+            FcnRepr::General(ps) => {
+                ps.values.iter().any(frees_compound)
+                    || (Arc::strong_count(&ps.domain) == 1
+                        && ps.domain.keys.iter().any(frees_compound))
+            }
         }
     }
 }
@@ -1066,6 +1180,29 @@ impl Drop for SetInner {
         if let Some(_level) = NativeDrop::enter() {
             drop(std::mem::replace(&mut self.repr, SetRepr::Enum));
             drop(self.elems.take());
+            return;
+        }
+        let mut stack = Vec::new();
+        self.take_children(&mut stack);
+        drain(stack);
+    }
+}
+
+impl DomainInner {
+    fn take_children(&mut self, out: &mut Vec<Value>) {
+        for key in std::mem::take(&mut self.keys) {
+            queue(out, key);
+        }
+    }
+}
+
+impl Drop for DomainInner {
+    fn drop(&mut self) {
+        if !self.keys.iter().any(frees_compound) {
+            return;
+        }
+        if let Some(_level) = NativeDrop::enter() {
+            drop(std::mem::take(&mut self.keys));
             return;
         }
         let mut stack = Vec::new();

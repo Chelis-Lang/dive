@@ -482,3 +482,20 @@ workload performance, quiet wall time, TLC throughput or a new agreement. Raw
 outputs remain external. Generic control covers supplied native words; binding,
 serialization, quiet/bulk/native units, foreign deferred providers and legacy
 TLC/session/standalone validation retain their documented limitations.
+
+
+## Persistent function-domain experiment
+
+ADR 0110 proposes sharing immutable general-function keys and conservative
+facts across same-domain EXCEPT updates. Borrowed checked views and exact dense
+integer/Cartesian indices reuse those facts; tuple/record kinds, literal flags,
+eager native hashes, fresh fingerprint caches and unknown-key/error-order
+fallbacks stay intact. Descriptor lifetime never retains range or evaluator
+state, and deep domain keys use iterative destruction.
+
+This is an experimental candidate, with no measured instruction or throughput
+claim. Construction and metadata acquisition add costs, so retained profile
+headroom does not establish a win. Source review and focused semantic controls
+precede a paired complete eight-cell ADR 0104 campaign. Production acceptance
+requires at least 5% geometric instruction reduction, identical results and no
+material cell regression, followed by the complete checker gate.
