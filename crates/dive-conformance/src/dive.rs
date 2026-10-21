@@ -590,6 +590,8 @@ fn budget_profile(options: &Value, time_limit: Option<Duration>) -> bool {
         && options["semantic_profile"] == "tlc"
         && options["budget"]["time_limit_source"] == "explicit"
         && options["budget"]["time_limit_ms"].as_u64() == Some(millis)
+        && options["budget"]["max_states"].is_null()
+        && options["budget"]["max_depth"].is_null()
         && options["int"] == "tlc"
         && options["choose_order"] == "tlc"
         && options["explore_order"] == "tlc"
@@ -765,6 +767,11 @@ fn map_check_document(
                     Verdict::Timeout,
                     outcome.exit_code,
                     format!("dive check stopped at its --max-memory: {message}"),
+                ))),
+                Some(resource @ ("states" | "depth")) => CheckMapping::Result(Box::new(bare(
+                    Verdict::ResourceLimit,
+                    outcome.exit_code,
+                    format!("dive check stopped at its --max-{resource}: {message}"),
                 ))),
                 _ => unclassified(
                     outcome.exit_code,
@@ -1153,6 +1160,8 @@ mod tests {
                 ("/options/warnings", json!(false)),
                 ("/options/budget/time_limit_ms", json!(1)),
                 ("/options/budget/time_limit_source", json!("none")),
+                ("/options/budget/max_states", json!(0)),
+                ("/options/budget/max_depth", json!(0)),
             ] {
                 let mut bad = value.clone();
                 *bad.pointer_mut(pointer).ok_or("control field exists")? = replacement;
@@ -1253,6 +1262,11 @@ mod tests {
             CheckMapping::Result(r) if r.verdict == Verdict::Timeout
                 && r.note.as_deref().is_some_and(|n| n.contains("--max-memory"))
         ));
+        for resource in ["states", "depth"] {
+            assert!(
+                matches!(stopped(resource, 5), CheckMapping::Result(r) if r.verdict == Verdict::ResourceLimit)
+            );
+        }
         // A stop must carry its own exit status and resource.
         assert!(matches!(
             stopped("time", 3),

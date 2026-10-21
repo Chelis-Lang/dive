@@ -73,6 +73,12 @@ pub struct CheckOptions {
     /// Unlimited here; `dive_api` resolves the profile's defaults. TLC
     /// setting: no time limit, memory bounded by its heap.
     pub budget: crate::budget::Budget,
+    /// Maximum admitted distinct in-model identities; `None` is TLC-equivalent.
+    /// Duplicate states do not consume this budget.
+    pub max_states: Option<u64>,
+    /// Maximum breadth-first discovery depth; initial states have depth one.
+    /// `None` is TLC-equivalent; TLC's simulation `-depth` is unrelated.
+    pub max_depth: Option<u64>,
     /// Synchronizes the budget/event race in unit tests; absent from release builds.
     #[cfg(test)]
     pub(crate) parallel_budget_test:
@@ -100,6 +106,8 @@ impl CheckOptions {
             sequential: false,
             chaos: None,
             budget: crate::budget::Budget::unlimited(),
+            max_states: None,
+            max_depth: None,
             #[cfg(test)]
             parallel_budget_test: None,
         }
@@ -125,6 +133,8 @@ impl CheckOptions {
             sequential: false,
             chaos: None,
             budget: crate::budget::Budget::unlimited(),
+            max_states: None,
+            max_depth: None,
             #[cfg(test)]
             parallel_budget_test: None,
         }

@@ -10,6 +10,34 @@ fn dive(args: &[&str]) -> std::process::Output {
 }
 
 #[test]
+fn check_and_tlc_expose_search_caps_as_stopped_not_success() {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../docs/user/examples/Counter.tla");
+    for command in ["check", "tlc"] {
+        for (flag, resource) in [("--max-states=2", "states"), ("--max-depth=1", "depth")] {
+            let output = dive(&[
+                command,
+                &file.to_string_lossy(),
+                flag,
+                "--workers=4",
+                "--seed=0",
+                "--fp=0",
+                "--output=json",
+            ]);
+            assert_eq!(output.status.code(), Some(5), "{output:?}");
+            let report: serde_json::Value =
+                serde_json::from_slice(&output.stdout).unwrap_or_default();
+            assert_eq!(report["verdict"], "stopped");
+            assert_eq!(report["stopped"]["resource"], resource);
+            assert_eq!(report["statistics"]["exhaustive"], false);
+            assert_eq!(report["options"]["workers"]["requested"], 4);
+            assert!(report["counterexample"].is_null());
+            assert_eq!(output.stderr, [] as [u8; 0]);
+        }
+    }
+}
+
+#[test]
 fn symmetry_startup_general_errors_have_real_process_exit_parity() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-model/tests/fixtures/symmetry-group/specs");

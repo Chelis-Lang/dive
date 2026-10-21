@@ -29,6 +29,8 @@ pub enum SeenPhase {
     Creation,
     /// At one generated state's original key insertion position.
     Insertion,
+    /// Membership at an explicit search-admission ceiling, before insertion.
+    AdmissionMembership,
     /// A replay membership query at the original source/successor ordinal.
     ReplayMembership,
     /// A new key inserted after the original invariant-evaluation stop.
@@ -160,6 +162,24 @@ impl Run {
 
     pub(crate) fn semantic_entries(&self) -> u64 {
         self.usage.admitted_keys
+    }
+
+    pub(crate) fn admission_contains(
+        &mut self,
+        key: Key<'_>,
+        generated: u64,
+        predecessor: Option<u64>,
+        ordinal: u64,
+    ) -> Result<bool, SeenError> {
+        self.set.contains(key).inspect_err(|error| {
+            self.usage.first_failure.get_or_insert(SeenFailure {
+                phase: SeenPhase::AdmissionMembership,
+                error: error.clone(),
+                generated: Some(generated),
+                predecessor,
+                successor_ordinal: Some(ordinal),
+            });
+        })
     }
 
     pub(crate) fn replay_evidence(&self) -> Option<&SeenReplay> {

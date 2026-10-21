@@ -706,3 +706,72 @@ fn local_class_identity_preserves_resume_and_rejects_removed_or_mutated_bytes() 
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
+
+#[test]
+fn recovery_respects_search_ceilings_before_import_or_further_admission() {
+    let (ir, cfg) = model(
+        "---- MODULE Checkpoint ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = IF x < 3 THEN x + 1 ELSE x\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    let dir = directory();
+    for (index, base) in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)]
+        .into_iter()
+        .enumerate()
+    {
+        let request = checkpoint::Request {
+            path: dir.join(format!("limits-{index}.cp")),
+            action: checkpoint::Action::PauseAfterLevels(0),
+            counters: checkpoint::Counters::Retain,
+            config_source_sha256: None,
+        };
+        let paused = checkpoint::check(&ir, &cfg, &base, &request);
+        assert_eq!(paused.receipt.expect("snapshot").discovered, 1);
+        for workers in [1, 4] {
+            for (states, depth, admitted, success) in [
+                (Some(0), None, 0, false),
+                (Some(1), None, 1, false),
+                (Some(4), None, 4, true),
+                (None, Some(0), 0, false),
+                (None, Some(1), 1, false),
+                (None, Some(4), 4, true),
+            ] {
+                let result = checkpoint::check(
+                    &ir,
+                    &cfg,
+                    &CheckOptions {
+                        workers,
+                        max_states: states,
+                        max_depth: depth,
+                        ..base.clone()
+                    },
+                    &checkpoint::Request {
+                        action: checkpoint::Action::Recover,
+                        ..request.clone()
+                    },
+                );
+                assert_eq!(
+                    matches!(result.check.verdict, Verdict::Success),
+                    success,
+                    "{result:?}"
+                );
+                if !success {
+                    assert!(
+                        matches!(result.check.verdict, Verdict::Stopped(_)),
+                        "{result:?}"
+                    );
+                }
+                assert_eq!(
+                    result.check.stats.expect("actual admissions").distinct,
+                    admitted
+                );
+                assert!(result.check.counterexample.is_none());
+                assert_eq!(
+                    result.receipt.is_some(),
+                    admitted > 0,
+                    "import refused before receipt"
+                );
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}

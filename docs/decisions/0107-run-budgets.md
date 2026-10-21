@@ -162,3 +162,21 @@ the library and every existing budget-arming call site propagates that failure. 
 with status 4 before checking; an explicit request disabling both budgets needs
 no watchdog. A deterministic injected-spawn-failure control covers this path
 without exhausting threads on the shared host.
+
+### Explicit discovery budgets
+
+`--max-states N|none` and `--max-depth N|none` are opt-in search budgets in
+both profiles; their defaults and TLC-equivalent settings are unset. Initial
+states have BFS depth one, and state identities use the existing in-model
+identity policy. The first new identity over either ceiling stops before
+admission, while exact-bound exhaustion remains possible. A checkpoint whose
+whole imported graph exceeds a ceiling stops before importing its keys.
+
+Both resources use the existing stopped outcome, with names `states` and
+`depth`, units `states` and `levels`, actual admitted progress and exit 5.
+They never become unsupported features or successful checks. Parallel
+generation keeps its pool; explicit-limit publication uses ordered candidates
+so no key beyond the budget prefix is inserted. The unset resolver remains
+unchanged, and the normal path does no extra membership lookup or counter
+sampling. Cold limit metadata is allocated only when a limit is requested.
+The instruction-overhead acceptance bar remains at most 1% in both profiles.

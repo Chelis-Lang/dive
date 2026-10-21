@@ -6,7 +6,7 @@ use std::process::ExitCode;
 
 use serde_json::{Value, json};
 
-const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -modelcheck         explicit checking mode\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --max-memory SIZE|auto|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
+const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -modelcheck         explicit checking mode\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
 
 #[derive(Default)]
 struct Arguments {
@@ -174,6 +174,16 @@ fn parse(args: &[String]) -> Result<Arguments, Failure> {
                 "human" => parsed.json = false,
                 _ => return Err(Failure::Usage("--output expects human or json".into())),
             },
+            "--max-states" | "--max-depth" => {
+                let limit = crate::search_limit(value()?).map_err(|_| {
+                    Failure::Usage(format!("{flag} expects a nonnegative integer or none"))
+                })?;
+                if flag == "--max-states" {
+                    parsed.request.max_states = limit;
+                } else {
+                    parsed.request.max_depth = limit;
+                }
+            }
             // The memory ceiling stands for TLC's heap (ADR 0107): the JVM's
             // `-Xmx` spelling, or dive's `--max-memory` with `auto`/`none`.
             "--max-memory" => {
@@ -386,6 +396,29 @@ mod tests {
 
     fn words(args: &[&str]) -> Vec<String> {
         args.iter().map(|s| (*s).into()).collect()
+    }
+
+    #[test]
+    fn discovery_ceilings_allow_zero_none_and_equals_without_aliasing_tlc_depth()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let parsed = parse(&words(&["--max-states=0", "--max-depth", "42", "Spec"]))
+            .map_err(|e| e.message().to_owned())?;
+        assert_eq!(parsed.request.max_states, Some(0));
+        assert_eq!(parsed.request.max_depth, Some(42));
+        let parsed =
+            parse(&words(&["--max-states", "none", "Spec"])).map_err(|e| e.message().to_owned())?;
+        assert_eq!(parsed.request.max_states, None);
+        assert!(matches!(
+            parse(&words(&["-depth", "42", "Spec"])),
+            Err(Failure::Unsupported(_))
+        ));
+        for bad in ["-1", "1.5", "18446744073709551616"] {
+            assert!(matches!(
+                parse(&words(&["--max-depth", bad, "Spec"])),
+                Err(Failure::Usage(_))
+            ));
+        }
+        Ok(())
     }
 
     #[test]

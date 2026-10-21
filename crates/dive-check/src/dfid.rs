@@ -693,6 +693,11 @@ fn sequential_for_composition(model: &Model) -> bool {
 }
 
 fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
+    if opts.check.max_states.is_some() || opts.check.max_depth.is_some() {
+        return Some(Outcome::Unsupported(
+            "BFS discovery budgets --max-states/--max-depth with DFID are not implemented; use DFID-specific limits".into(),
+        ));
+    }
     if opts.check.seen_disk.is_some() {
         return Some(Outcome::Unsupported(
             "disk seen-state retention with DFID is not implemented".into(),

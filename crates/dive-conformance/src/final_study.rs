@@ -294,14 +294,16 @@ fn assess(
         return (Outcome::Unsupported, format!("{kind}: {message}"), Some(v));
     }
     if kind == "stopped" {
-        // Both resources are findings, just as in the strict harness. A
+        // Run budgets are findings, just as in the strict harness. A
         // memory blowup must not be hidden among unsupported features.
         if outcome.exit_code != Some(5) {
             return bad("budget stop has a contradictory exit code".into());
         }
         let message = v["message"].as_str().unwrap_or_default().to_owned();
         return match v["stopped"]["resource"].as_str() {
-            Some("time" | "memory") => (Outcome::Timeout, format!("stopped: {message}"), Some(v)),
+            Some("time" | "memory" | "states" | "depth") => {
+                (Outcome::Timeout, format!("stopped: {message}"), Some(v))
+            }
             _ => bad("budget stop must name its resource".into()),
         };
     }
@@ -721,7 +723,7 @@ mod tests {
             })
             .0
         };
-        for resource in ["time", "memory"] {
+        for resource in ["time", "memory", "states", "depth"] {
             let outcome = assess_at(&stopped(resource), 5);
             assert_eq!(outcome, Outcome::Timeout);
             assert!(outcome.finding());

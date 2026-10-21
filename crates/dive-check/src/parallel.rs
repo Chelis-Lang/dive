@@ -57,7 +57,7 @@ use dive_eval::capture::{Captured, PrintCapture};
 use dive_eval::next::{Flow, StateVals, Successor};
 use dive_model::Model;
 use dive_store::trace::StateId;
-use dive_store::{Candidates, ResolveOptions};
+use dive_store::{Candidate, Candidates, ResolveOptions};
 use dive_value::Ctx;
 
 use crate::class;
@@ -1288,17 +1288,34 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         },
         chaos: rng.as_mut().map(Rng::next),
     };
-    let resolved = set
-        .write()
-        .unwrap_or_else(PoisonError::into_inner)
-        .resolve(buffers, &resolve);
-    let resolved = match resolved {
-        Ok(r) => r,
-        Err(e) => return internal(e.to_string(), stats_now(search, 0)),
+    let resolved = if search.admission.is_some() {
+        match resolve_admitted(
+            search,
+            set,
+            buffers,
+            level,
+            narrow,
+            n_actions,
+            first.as_ref(),
+        ) {
+            Ok((winners, stop)) => {
+                first = earlier(first, stop);
+                winners
+            }
+            Err(error) => return internal(error, stats_now(search, 0)),
+        }
+    } else {
+        let resolved = set
+            .write()
+            .unwrap_or_else(PoisonError::into_inner)
+            .resolve(buffers, &resolve);
+        match resolved {
+            Ok(r) => r.into_position_order(),
+            Err(e) => return internal(e.to_string(), stats_now(search, 0)),
+        }
     };
     let winners: Arc<Vec<Winner<S::Key>>> = Arc::new(
         resolved
-            .into_position_order()
             .into_iter()
             .map(|c| Winner {
                 pos: c.pos,
@@ -1516,10 +1533,11 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             stats.left_on_queue += r.queued;
             verdict = r.apply(verdict);
         }
+        let no_path = e.stutter || matches!(&verdict, Verdict::Stopped(_));
         let stop = Stop {
             verdict,
             in_init: false,
-            path: if e.stutter {
+            path: if no_path {
                 None
             } else {
                 Some((first_id + pos.0, vals.clone()))
@@ -1580,6 +1598,75 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
         }
     }
     (None, stats_now(search, next_frontier.len() as u64))
+}
+
+type Admitted<K> = (Vec<Candidate<K, Pos, Payload>>, Option<Event>);
+
+/// Explicit search budgets use ordered admission while generation still uses
+/// the requested worker pool. No key beyond the stopping prefix is inserted.
+#[allow(
+    clippy::too_many_arguments,
+    reason = "reference positions retain source and action units"
+)]
+#[cold]
+#[inline(never)]
+fn resolve_admitted<S: Keyed>(
+    search: &Search<'_, '_, S>,
+    set: &RwLock<S>,
+    buffers: Vec<Candidates<S::Key, Pos, Payload>>,
+    level: u64,
+    narrow: bool,
+    actions: usize,
+    first: Option<&Event>,
+) -> Result<Admitted<S::Key>, String> {
+    let mut candidates: Vec<_> = buffers
+        .into_iter()
+        .flat_map(Candidates::into_position_order)
+        .collect();
+    candidates.sort_unstable_by_key(|candidate| candidate.pos);
+    if candidates
+        .windows(2)
+        .any(|pair| pair[0].pos == pair[1].pos && pair[0].key == pair[1].key)
+    {
+        return Err("duplicate candidate key and reference position".into());
+    }
+    let mut set = set.write().unwrap_or_else(PoisonError::into_inner);
+    let mut winners = Vec::new();
+    for candidate in candidates {
+        if first.is_some_and(|event| event.key < (candidate.pos, PH_NATIVE)) {
+            break;
+        }
+        if set.contains(&candidate.key) {
+            continue;
+        }
+        if let Some(verdict) = search.admission_stop(level + 1, set.len()) {
+            let state = usize::try_from(candidate.pos.0)
+                .map_err(|_| "candidate source outside native range")?;
+            let unit = if narrow {
+                state
+                    .checked_mul(actions)
+                    .and_then(|u| u.checked_add(candidate.pos.1 as usize))
+                    .ok_or("candidate action outside native range")?
+            } else {
+                state
+            };
+            let event = Event {
+                key: (candidate.pos, PH_NATIVE),
+                unit,
+                c: u64::from(candidate.pos.2) + 1,
+                verdict,
+                then: None,
+                resume: false,
+                stutter: false,
+            };
+            return Ok((winners, Some(event)));
+        }
+        if !set.insert(S::duplicate_key(&candidate.key)) {
+            return Err("candidate changed membership during exclusive admission".into());
+        }
+        winners.push(candidate);
+    }
+    Ok((winners, None))
 }
 
 #[cfg(test)]

@@ -335,3 +335,26 @@ fn pure_operator_scopes_supplied_by_rust_callers_complete_dfid() {
         assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
     }
 }
+
+#[test]
+fn bfs_discovery_budgets_are_never_silently_ignored_by_dfid() {
+    for base in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
+        for (max_states, max_depth) in [(Some(0), None), (None, Some(0))] {
+            let opts = Options::new(
+                CheckOptions {
+                    max_states,
+                    max_depth,
+                    ..base.clone()
+                },
+                6,
+            );
+            let result = run("DfidCycle", &opts);
+            assert!(
+                matches!(result.outcome, Outcome::Unsupported(ref s) if s.contains("BFS discovery budgets")),
+                "{result:?}"
+            );
+            assert_eq!(result.generated, 0);
+            assert_eq!(result.distinct, 0);
+        }
+    }
+}
