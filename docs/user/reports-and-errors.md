@@ -66,6 +66,10 @@ Temporal failure diagnostics retain `code` and `message` and add the original
 `cause`, a `help` action and the available cause `span`/`location`. A span's
 `start` and `end` are UTF-8 byte offsets with an exclusive end; `file` is the
 IR source file ID, while `location` names the module and source position.
+This temporal span is byte-only, with its file ID inside the span; frontend
+diagnostics retain their existing span shape and line/column fields. A formula
+construction bound retains its recorded predicate context, which need not be
+the exact child where the bound was reached.
 Stage-wide failures have `span: null` and `location: null`; a root expression
 is not substituted for a missing cause location. The particular report's
 cause takes precedence over the general catalogue explanation. Budget
