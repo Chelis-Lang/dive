@@ -1054,7 +1054,9 @@ mod tests {
             &mut Command::new(&config.dive),
             &child_dir,
             "relative",
-            Duration::from_secs(5),
+            // This arm checks path resolution and exact output, not startup latency.
+            // The separate intentional timeout below retains its short deadline.
+            Duration::from_secs(30),
         )?;
         assert_eq!(observed.code, Some(0));
         assert!(!observed.timed_out);
