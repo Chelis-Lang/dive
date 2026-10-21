@@ -9,6 +9,9 @@
   and value-only bulk/native work retain their explicit interruption limitations
   (#349, #379). Rust callers matching evaluation or
   value error classes must handle the additive `Interrupted` variants.
+  Fallible bag/function comparisons preserve typed interruption; quiet
+  infallible equality/order/hash units defer control checks to preserve truth
+  and cache identity, and remain an explicit uninterruptible value unit (#349).
 
 - Finite memory budgets sample before binding and before a holding result,
   including short checks in both profiles (ADR 0109). macOS uses safe native

@@ -15,7 +15,7 @@
 //! - Set enumerations are still normalized by TLC's rules: this option
 //!   changes comparisons, not set construction.
 
-use dive_value::{SetKind, Value, tlc};
+use dive_value::{ErrorKind, SetKind, Value, tlc};
 
 use crate::core::Core;
 use crate::error::Result;
@@ -108,6 +108,9 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
                     match tlc::equals(elem, x, core.ctx) {
                         Ok(true) => return Ok(true),
                         Ok(false) => {}
+                        Err(error) if matches!(error.kind(), ErrorKind::Interrupted { .. }) => {
+                            return Err(error.into());
+                        }
                         Err(_) => unspecified = true,
                     }
                 }

@@ -122,7 +122,10 @@ impl Core {
             counter.set(if remaining == 0 { 1024 } else { remaining });
             remaining == 0
         });
-        if due {
+        // Infallible value equality/order/hash can force a deferred provider.
+        // Those existing quiet units cannot transport interruption; do not
+        // invoke the host there or let a transient error poison cached truth.
+        if due && !dive_value::quiet_operation_active() {
             self.host.check_control()
         } else {
             Ok(())

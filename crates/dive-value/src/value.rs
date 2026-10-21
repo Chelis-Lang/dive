@@ -630,6 +630,20 @@ pub(crate) mod quiet {
     }
 }
 
+/// Whether this thread is normalizing a value without observable side effects.
+///
+/// Infallible equality, ordering and hashing can force deferred providers in
+/// this mode. A cooperative evaluator must defer host interruption until this
+/// unit returns: a transient interruption cannot stand in for a value or become
+/// a cached structural hash. Quiet mode records normalization observability,
+/// rather than whether an operation is infallible. Ordinary error propagation
+/// is unchanged; cooperative interruption is deferred for the entire quiet
+/// unit, including fallible peek work nested inside it.
+#[must_use]
+pub fn quiet_operation_active() -> bool {
+    quiet::active()
+}
+
 /// Sets with more elements than this hash by cardinality alone, so that hashing a
 /// huge lazy set (`0..2147483646`) is O(1). Equality still compares the elements.
 pub(crate) const HASH_ELEMENT_LIMIT: u128 = 1 << 16;

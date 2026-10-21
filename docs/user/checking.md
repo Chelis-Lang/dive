@@ -88,7 +88,8 @@ dive polls the budget for each initial state, each expanded state, and during
 graph capture and temporal analysis. After startup, nested quantifier, CHOOSE
 and filter predicate loops also poll at amortized work checkpoints, including
 when no complete successor is emitted (issue #374). Binding and `ASSUME`
-evaluation, value-only allocation/sorting/native operations, and diagnostic
+evaluation, value-only allocation/sorting/native operations, normalization in
+existing quiet equality/ordering/hash units, and diagnostic
 error/count and predecessor-path reconstruction after an already deciding event
 are not interrupted (#349, #379). This diagnostic exclusion affects only the reconstructing thread;
 other workers retain control. It does not suspend ordinary checking. Fresh
@@ -98,6 +99,10 @@ suppression is not applied to certification; the fresh evaluator's interruption
 support is a separate missing path. No universal wall-clock deadline is promised.
 Unavailable memory observations interrupt these loops with typed `DIVE-R0002`,
 preserving that failure rather than inventing an exhausted resource.
+Quiet value units defer calling the host control until they return: an
+infallible value operation cannot substitute a transient interruption for truth
+or cache it as a structural hash. Ordinary fallible enumeration and comparison
+retain typed interruption. These value units remain part of #349.
 Memory is the whole process's: resident
 plus swapped pages on Linux, resident pages on macOS. Where it cannot be
 measured, checking fails with diagnostic `DIVE-R0002`; it never substitutes
