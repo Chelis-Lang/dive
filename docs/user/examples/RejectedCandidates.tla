@@ -2,5 +2,5 @@
 EXTENDS Naturals
 VARIABLE x
 Init == x = 0
-Next == x' \in 1..50000000 /\ FALSE
+Next == x' \in 1..2147483647 /\ FALSE
 ====

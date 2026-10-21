@@ -20,7 +20,7 @@ fn run(compat_tlc: bool, workers: usize) -> Result<Output, Box<dyn std::error::E
         "--workers",
         &workers.to_string(),
         "--time-limit",
-        "100ms",
+        "1s",
         "--max-memory",
         "1g",
         "--output",
@@ -75,8 +75,8 @@ fn rejected_candidates_return_stopped_with_only_actual_external_progress() -> Te
             assert_eq!(json["verdict"], "stopped", "{json}");
             assert_eq!(json["stopped"]["resource"], "time", "{json}");
             assert_eq!(json["stopped"]["phase"], "safety-search", "{json}");
-            assert_eq!(json["stopped"]["limit"], 100, "{json}");
-            assert!(json["stopped"]["observed"].as_u64() >= Some(100), "{json}");
+            assert_eq!(json["stopped"]["limit"], 1000, "{json}");
+            assert!(json["stopped"]["observed"].as_u64() >= Some(1000), "{json}");
             assert_eq!(json["statistics"]["initial_generated"], 1, "{json}");
             assert_eq!(json["statistics"]["generated"], 1, "{json}");
             assert_eq!(json["statistics"]["distinct"], 1, "{json}");
