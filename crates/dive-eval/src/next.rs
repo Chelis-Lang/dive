@@ -1093,6 +1093,14 @@ impl Gen<'_, '_> {
                         if !is_enumerable(&rval) {
                             return Err(self.not_enumerable_in(e));
                         }
+                        if let Some((lo, hi)) = s.as_interval() {
+                            // IntervalValue.elements() walks ascending integers;
+                            // no normalized copy or history-sensitive lazy-set
+                            // decision is needed. Reach the sink before building
+                            // an entire domain so its stop can interrupt Init
+                            // and successor enumeration (ADR 0107, issue #349).
+                            return self.bind_interval(var, lo, hi, acts);
+                        }
                         let elems = core.in_elements(s)?;
                         self.bind_each(var, &elems, acts)
                     }
@@ -1144,11 +1152,43 @@ impl Gen<'_, '_> {
 
     fn bind_each(&mut self, var: usize, elems: &[Value], acts: &Acts) -> Result<Flow> {
         for x in elems {
-            self.bind(var, x.clone());
-            let flow = self.cont(acts);
-            self.unbind(var);
-            if flow? == Flow::Stop {
+            if self.bind_value(var, x.clone(), acts)? == Flow::Stop {
                 return Ok(Flow::Stop);
+            }
+        }
+        Ok(Flow::Continue)
+    }
+
+    fn bind_value(&mut self, var: usize, value: Value, acts: &Acts) -> Result<Flow> {
+        self.bind(var, value);
+        let flow = self.cont(acts);
+        self.unbind(var);
+        flow
+    }
+
+    fn bind_interval(
+        &mut self,
+        var: usize,
+        lo: &dive_value::Int,
+        hi: &dive_value::Int,
+        acts: &Acts,
+    ) -> Result<Flow> {
+        if let (Some(lo), Some(hi)) = (lo.to_i64(), hi.to_i64()) {
+            for value in lo..=hi {
+                if self.bind_value(var, Value::Int(value), acts)? == Flow::Stop {
+                    return Ok(Flow::Stop);
+                }
+            }
+        } else {
+            let mut value = lo.clone();
+            while value <= *hi {
+                if self.bind_value(var, Value::int(value.clone()), acts)? == Flow::Stop {
+                    return Ok(Flow::Stop);
+                }
+                if value == *hi {
+                    break;
+                }
+                value = value.add(&dive_value::Int::ONE, dive_value::IntMode::Big)?;
             }
         }
         Ok(Flow::Continue)

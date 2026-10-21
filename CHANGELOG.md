@@ -11,6 +11,10 @@
   Rust callers get optional `max_states`/`max_depth` request fields and new
   `budget::Resource::States`/`Depth` variants; exhaustive matches must handle them.
 
+- Unassigned initial/successor interval domains stream ascending integers to
+  their sink instead of materializing the whole range before the first state
+  (issue #349). Endpoint, ordering, error and big-integer semantics are retained.
+
 - The model gates and nightly conformance checks use explicit TLC-derived time
   and memory budgets in both profiles (ADR 0107), replacing fixed per-model
   timeouts. The harness retains strict comparison for its exact budget-only

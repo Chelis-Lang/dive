@@ -355,3 +355,19 @@ a billion-element domain. A constant `FALSE` invariant instead fails configurati
 validation before enumeration. The corresponding initial and successor witnesses
 and a complete five-state interval are recorded separately from the established
 conformance populations; see [the corpus guide](../conformance-corpora.md#interval-enumeration-resource-controls).
+
+Unassigned `x \in lo..hi` initial predicates and `x' \in lo..hi` successor
+assignments stream ascending integers without first retaining the whole domain.
+This lets existing checker guards run when a complete assignment reaches the
+sink. Already assigned variables still use the ordinary membership check. Other
+constructors, branches that never emit a complete assignment, and long individual
+evaluations remain potentially uninterruptible (issue #349). No fixed domain-size
+count is introduced. For a bounded first-state violation with an independently
+validated witness, run:
+
+```sh
+dive check conformance/corpus/interval-streaming/specifications/WideIntervalInit/WideIntervalInit.tla --compat=tlc --time-limit 1s --max-memory 1g --output json
+```
+
+The invariant fails on `x = 0` (TLC class `TLC_INVARIANT_VIOLATED_INITIAL`, exit
+12); this is not a successful proof over the rest of the interval.
