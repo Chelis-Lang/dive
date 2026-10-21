@@ -791,8 +791,14 @@ fn observer_call(callback: impl FnOnce() -> Result<(), Verdict>) -> Result<(), V
     }
 }
 
-/// The state of a search: the seen-state set, the trace log and the
-/// counters.
+/// Explicit state and depth ceilings, allocated only for bounded runs.
+pub(crate) struct AdmissionLimits {
+    max_states: Option<u64>,
+    max_depth: Option<u64>,
+    started: std::time::Instant,
+}
+
+/// The state of a search: the seen-state set, trace log and counters.
 pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) m: &'a Model,
     pub(crate) host: &'a RunHost,
@@ -815,9 +821,46 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) prefix_level: Option<u64>,
     /// The run's armed budget (ADR 0107), polled once per expanded state.
     pub(crate) budget: crate::budget::Budget,
+    pub(crate) admission: Option<Box<AdmissionLimits>>,
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
+    /// The next distinct identity must be admitted before any invariant check.
+    #[cold]
+    #[inline(never)]
+    pub(crate) fn admission_stop(&self, depth: u64, distinct: u64) -> Option<Verdict> {
+        self.admission_exhausted(depth, distinct.saturating_add(1))
+    }
+
+    /// Bulk recovery must fit the same ceilings before admitting its snapshot.
+    #[cold]
+    #[inline(never)]
+    pub(crate) fn admission_exhausted(&self, depth: u64, states: u64) -> Option<Verdict> {
+        let limits = self.admission.as_ref()?;
+        let (resource, limit, observed) = if let Some(limit) = limits.max_states
+            && states > limit
+        {
+            (crate::budget::Resource::States, limit, states)
+        } else if let Some(limit) = limits.max_depth
+            && depth > limit
+        {
+            (crate::budget::Resource::Depth, limit, depth)
+        } else {
+            return None;
+        };
+        Some(Verdict::Stopped(Box::new(crate::budget::Stopped {
+            resource,
+            limit,
+            observed,
+            elapsed_ms: u64::try_from(limits.started.elapsed().as_millis()).unwrap_or(u64::MAX),
+            phase: if self.capture.is_some() {
+                crate::budget::Phase::Capture
+            } else {
+                crate::budget::Phase::Search
+            },
+        })))
+    }
+
     /// The stop for an exhausted budget, in this search's phase.
     pub(crate) fn budget_stop(&self) -> Option<Stop> {
         let exhausted = self.budget.poll()?;
@@ -1096,6 +1139,26 @@ impl<S: Keyed> Search<'_, '_, S> {
                 Ok(k) => k,
                 Err(v) => return Some((v, false, false)),
             };
+            if self.admission.is_some()
+                && let Some(verdict) = self.admission_stop(new_level, self.seen_len())
+            {
+                let present = if let Some(disk) = &mut self.disk {
+                    match disk.admission_contains(
+                        S::disk_key(&key),
+                        self.generated,
+                        parent.map(|(_, id)| id),
+                        succ.ordinal,
+                    ) {
+                        Ok(present) => present,
+                        Err(error) => return Some((crate::seen::verdict(&error), false, false)),
+                    }
+                } else {
+                    self.set.contains(&key)
+                };
+                if !present {
+                    return Some((verdict, false, false));
+                }
+            }
             let graph_key = self.capture.as_ref().map(|_| S::duplicate_key(&key));
             let checkpoint_key = self.checkpoint.as_ref().map(|_| S::duplicate_key(&key));
             let inserted = match self.insert_key(key, parent.map(|(_, id)| id), succ.ordinal) {
@@ -1256,7 +1319,11 @@ impl<S: Keyed> Search<'_, '_, S> {
             // (fixtures `ErInit*`, `ErInvInitState`, `ErConstrInitState`).
             // After a violation it prints none.
             let mut stats = self.stats(self.seen_len());
-            stats.depth = u64::from(self.generated > 0);
+            stats.depth = if matches!(s.verdict, Verdict::Stopped(_)) {
+                self.depth
+            } else {
+                u64::from(self.generated > 0)
+            };
             return Some((s, stats));
         }
         // No action at all: success if no state was queued, otherwise TLC's
@@ -1371,10 +1438,12 @@ impl<S: Keyed> Search<'_, '_, S> {
                         if resumes {
                             resume = Some(succ.ordinal);
                         }
+                        let path =
+                            (!matches!(&verdict, Verdict::Stopped(_))).then(|| (id, s0.clone()));
                         stop = Some(Stop {
                             verdict,
                             in_init: false,
-                            path: Some((id, s0.clone())),
+                            path,
                             then: if with {
                                 Some(trace_state(m, succ, false))
                             } else {
@@ -1507,6 +1576,10 @@ impl<S: Keyed> Search<'_, '_, S> {
     ///
     /// `set` is the seen-state set at the stop, apart from the keys in
     /// `unseen` (states the parallel engine found after the stop).
+    #[allow(
+        clippy::too_many_lines,
+        reason = "keep TLC replay error order and bounded admission in one transaction"
+    )]
     pub(crate) fn replay_after(
         &self,
         set: &S,
@@ -1602,6 +1675,19 @@ impl<S: Keyed> Search<'_, '_, S> {
                     };
                     new = (!set.contains(&key) || unseen.contains(&key)) && !added.contains(&key);
                     if new {
+                        if self.admission.is_some()
+                            && self
+                                .admission_stop(
+                                    level + 1,
+                                    set.len().saturating_sub(unseen.len() as u64) + out.distinct,
+                                )
+                                .is_some()
+                        {
+                            // The original evaluation error already decided the
+                            // run. Stop its diagnostic replay at the ceiling
+                            // without checking an unadmitted state's invariant.
+                            return out;
+                        }
                         added.insert(key);
                         out.distinct += 1;
                     }
@@ -1762,6 +1848,15 @@ impl<S: Keyed> Search<'_, '_, S> {
                         };
                     new = !present;
                     if new {
+                        if self.admission.is_some()
+                            && self
+                                .admission_stop(level + 1, disk.semantic_entries())
+                                .is_some()
+                        {
+                            // Retain the earlier genuine error; this key and
+                            // its invariants lie beyond the admitted prefix.
+                            return out;
+                        }
                         match disk.replay_insert(S::disk_key(&key), self.generated, source, o) {
                             Ok(dive_store::seen::InsertOutcome::Inserted) => out.distinct += 1,
                             Ok(dive_store::seen::InsertOutcome::Present) => {
@@ -2144,6 +2239,13 @@ fn search_in<S: Keyed>(
         observer,
         prefix_level: None,
         budget: opts.budget.clone(),
+        admission: (opts.max_states.is_some() || opts.max_depth.is_some()).then(|| {
+            Box::new(AdmissionLimits {
+                max_states: opts.max_states,
+                max_depth: opts.max_depth,
+                started: std::time::Instant::now(),
+            })
+        }),
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());

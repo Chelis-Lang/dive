@@ -58,6 +58,65 @@ fn assert_stopped(json: &serde_json::Value, resource: &str, phase: &str) {
 }
 
 #[test]
+fn explicit_search_caps_report_actual_prefixes_and_never_temporal_completion()
+-> Result<(), Box<dyn std::error::Error>> {
+    let scratch = scratch()?;
+    for temporal in [false, true] {
+        let file = write(
+            &scratch.0,
+            if temporal {
+                "INIT Init\nNEXT Next\nPROPERTY Live\n"
+            } else {
+                "INIT Init\nNEXT Next\n"
+            },
+        )?;
+        for compat_tlc in [false, true] {
+            for workers in [1, 4] {
+                for (resource, states, depth, limit) in
+                    [("states", Some(5), None, 5), ("depth", None, Some(2), 2)]
+                {
+                    let report = check_file(&CheckRequest {
+                        max_states: states,
+                        max_depth: depth,
+                        ..request(&file, compat_tlc, workers)
+                    })?;
+                    let json = report.to_json();
+                    assert_stopped(
+                        &json,
+                        resource,
+                        if temporal {
+                            "graph-capture"
+                        } else {
+                            "safety-search"
+                        },
+                    );
+                    assert_eq!(json["stopped"]["limit"], limit);
+                    assert_eq!(json["stopped"]["observed"], limit + 1);
+                    assert_eq!(json["statistics"]["exhaustive"], false);
+                    assert_ne!(json["execution"]["capture_completed"], true);
+                    assert_eq!(
+                        json["options"]["budget"]["max_states"],
+                        serde_json::json!(states)
+                    );
+                    assert_eq!(
+                        json["options"]["budget"]["max_depth"],
+                        serde_json::json!(depth)
+                    );
+                    assert_eq!(
+                        json["options"]["profile"],
+                        if compat_tlc { "tlc+overrides" } else { "dive" }
+                    );
+                    for convention in [ExitConvention::Native, ExitConvention::Tlc] {
+                        assert_eq!(report.exit_code_for(convention), exit::STOPPED);
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn an_exhausted_time_limit_stops_safety_search_in_both_profiles_and_widths()
 -> Result<(), Box<dyn std::error::Error>> {
     let scratch = scratch()?;
