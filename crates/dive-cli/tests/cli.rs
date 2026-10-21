@@ -39,14 +39,16 @@ fn check_and_tlc_expose_search_caps_as_stopped_not_success() {
 
 #[test]
 fn diagnostic_explanations_are_informational_and_versioned() {
-    let output = dive(&["explain", "DIVE-L0020", "--output", "json"]);
-    assert!(output.status.success(), "{output:?}");
-    let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
-    assert_eq!(report["schema_version"], dive_api::REPORT_SCHEMA_VERSION);
-    assert_eq!(report["command"], "explain");
-    assert_eq!(report["known"], true);
-    assert!(report["explanation"]["remediation"].is_string());
-    assert!(report.get("verdict").is_none());
+    for code in ["DIVE-L0020", "DIVE-S0011", "DIVE-S0033"] {
+        let output = dive(&["explain", code, "--output", "json"]);
+        assert!(output.status.success(), "{output:?}");
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        assert_eq!(report["schema_version"], dive_api::REPORT_SCHEMA_VERSION);
+        assert_eq!(report["command"], "explain");
+        assert_eq!(report["known"], true);
+        assert!(report["explanation"]["remediation"].is_string());
+        assert!(report.get("verdict").is_none());
+    }
 }
 
 #[test]
