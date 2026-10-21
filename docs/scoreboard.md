@@ -22,7 +22,9 @@ Boolean recurrence and persistence conditions from shared temporal memory.
 and `specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg`
 each change from unsupported to agree in both profiles. They match 4,122 / 14,296
 and 5,196 / 28,170 distinct/generated states, with depths 36 and 18 respectively.
-The four-worker row is from `main` at `1f5ae5fa`.
+The four-worker row was remeasured at clean `main` source `52485957` on
+2026-10-21, with the same 156 model IDs as the committed default one-worker
+baseline.
 The selection is the small tier of `examples`, `probes`, `validation-smoke` and
 `configured-temporal-operators`: 156 models, plus 458 SANY module comparisons in
 the TLC profile.
@@ -31,7 +33,29 @@ the TLC profile.
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
 | TLC | 1 | 156 | 147 | 9 | 0 | 0 |
 | default | 1 | 156 | 142 | 9 | 5 | 0 |
-| default | 4 | 156 | 93 | 60 | 3 | 0 |
+| default | 4 | 156 | 144 | 9 | 3 | 0 |
+
+The fresh four-worker observation replaces the historical `1f5ae5fa` row
+(93 agree, 60 unsupported, three expected divergences). It used two concurrent
+model jobs, TLC-derived native time budgets capped at 900 seconds, an 8 GiB
+whole-process ceiling per run, and independent process/campaign backstops.
+All 156 raw native reports were retained; no run stopped, timed out or remained
+pending. SANY was not repeated for this model-only observation.
+
+Of the 144 agreements, 128 actually used four workers, 14 serialized to one,
+and two were expected parser rejections before any search. Across all outcomes,
+134 runs used four workers, 14 used one and eight ran no search. All 49 completed
+temporal runs (47 successes and two independently validated liveness violations)
+used four workers. These observations earn no throughput or scaling credit.
+
+The 144 agreements at four workers versus 142 at one worker reflect the
+maintained multi-worker comparison policy: `FiniteMonotonic/MCReplicatedLog`
+and `MissionariesAndCannibals` move from expected divergence to agreement under
+that policy. They earn no additional one-worker parity credit. The three
+remaining expected divergences stay separate from agreement, and the same nine
+named refusals remain. The [compact observation](survey/data/small-default-w4-2026-10-21.json)
+records every selected model, actual worker use, pins, budgets and raw-report
+hashes. This row is scoped to source `52485957`.
 
 The one-worker rows are committed as baselines in `conformance/baselines/`.
 `cargo xtask gate --full` and the nightly `baseline` job fail on any model or
