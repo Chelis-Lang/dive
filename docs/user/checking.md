@@ -87,7 +87,23 @@ The clock starts after the specification and configuration are loaded.
 dive polls the budget for each initial state, each expanded state, and during
 graph capture and temporal analysis. After startup, nested quantifier, CHOOSE
 and filter predicate loops also poll at amortized work checkpoints, including
-when no complete successor is emitted (issue #374). Binding and `ASSUME`
+when no complete successor is emitted (issue #374). Successor domain candidates
+poll before binding, so a rejecting continuation cannot bypass control. Action
+composition also polls while collecting those candidates and before each
+intermediate right step in next-state generation, action-predicate evaluation
+and `ENABLED` (issue #393). These checks retain the original mode-specific
+enumeration and counts. An interrupted private intermediate collection does
+not become reported generated states; progress describes the externally
+published prefix.
+
+For example, this rejects candidates without producing successors and stops
+with exit 5 under the explicit time budget:
+
+```sh
+dive check docs/user/examples/RejectedCandidates.tla --seed 0 --fp 0 --workers 4 --time-limit 100ms --max-memory 1g --output json
+```
+
+Binding and `ASSUME`
 evaluation, value-only allocation/sorting/native operations, normalization in
 existing quiet equality/ordering/hash units, and diagnostic
 error/count and predecessor-path reconstruction after an already deciding event

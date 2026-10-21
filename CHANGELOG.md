@@ -1,5 +1,12 @@
 # Changelog
 
+- Successor domain candidates and action-composition intermediate right steps
+  observe run budgets even when their continuation emits no successor (issue
+  #393). Interrupted private composition collection does not invent generated
+  states or a completed graph; earlier deciding errors and sink stops retain
+  their priority. Binding, assumptions and quiet/value-only bulk units remain
+  outside cooperative interruption (#349, #379).
+
 - General finite functions share immutable domain metadata across eligible
   same-context EXCEPT updates, use exact integer/Cartesian lookup certificates,
   and borrow checked domain views. Existing unknown-key comparison/refusal,
