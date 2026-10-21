@@ -105,12 +105,31 @@
         }
       }
     },
-    "scope": "Paired native instruction workload with exact module/config hashes, derived from recovered R1 inputs. This is not a fresh oracle campaign or proof of the complete imported-library ancestry."
+    "scope": "Paired native instruction workload with exact module/config hashes. Imported TLA files were independently byte-checked against the pinned module roots; no TLC oracle is executed in this campaign.",
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_roots": {
+      "module_path_order": [
+        "library",
+        "modules"
+      ],
+      "recovered_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+      "library_origin": {
+        "id": "tlapm-library-d8b9747",
+        "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      },
+      "modules_origin": {
+        "id": "community-modules-202610040242",
+        "jar_sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      "ancestry_verification": "All 49 TLA files byte-match their pinned local cache roots: 15 TLAPS and 34 community modules. The archive also contains 19 Java source files not executed by the native instruction campaign."
+    }
   },
   "evidence": {
     "archive_sha256": "d25abf2720113225f28fb6c0a5c08f80701111f34e988f09e6fcda2b7722af09",
     "producer_summary_sha256": "620b40a60b46d337cf21ec5802a81b5e438b61c068a2aab54d43013a06af766b",
-    "raw_retained_externally": true
+    "raw_retained_externally": true,
+    "identity_and_input_manifest_sha256": "3d29bdebcaeed6ead0be3774601c4036b594f48024b22eedaddc1049081666a7",
+    "identity_and_input_manifest_retained_externally": true
   },
   "results": {
     "single_worker_rows": [
