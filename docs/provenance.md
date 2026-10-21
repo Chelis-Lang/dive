@@ -1905,3 +1905,16 @@ predicate evaluation/error order and independent original-formula validation
 remain unchanged. Exhaustive two-vertex truth assignments compare products
 and conditioned witnesses with owned labels in both acceptance policies;
 word-boundary and malformed-capacity controls cover the native buffer layout.
+
+## Incremental interval assignment
+
+The reference for unassigned `x \in lo..hi` and `x' \in lo..hi` is
+`Tool.java`'s `getInitStates`/`getNextStates` membership branches and
+`tlc2/value/impl/IntervalValue.java:343-376` at pinned tlaplus commit
+`94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT). `Enumerator` retains only
+an integer index and a done flag; it yields the upper endpoint once before
+stopping, without incrementing past it. The separate `interval-streaming`
+primary corpus pins first-state failures, the constant-invariant validation
+priority and complete small-range order/counts before the native streaming
+change. No new policy count or model-shape admission rule follows from these
+controls.

@@ -348,3 +348,10 @@ its watchdog through capture and analysis. Use the returned armed options from
 does not mutate the original budget. An unarmed budget has no running clock and
 its polls return no exhaustion. These low-level primitives do not resolve CLI
 defaults or arm a watchdog themselves.
+
+The primary `interval-streaming` corpus records TLC's ascending, incremental
+`IntervalValue` enumeration: `x # x` fails on the first initial state even for
+a billion-element domain. A constant `FALSE` invariant instead fails configuration
+validation before enumeration. The corresponding initial and successor witnesses
+and a complete five-state interval are recorded separately from the established
+conformance populations; see [the corpus guide](../conformance-corpora.md#interval-enumeration-resource-controls).
