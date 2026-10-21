@@ -128,44 +128,62 @@ fn compare_formula(
     packed: &PackedTruth,
     edge_count: usize,
 ) {
+    let recurring = Formula::new(
+        vec![
+            Node::Atom(state(0)),
+            Node::Eventually(0),
+            Node::Always(1),
+            Node::Atom(action(1)),
+            Node::Eventually(3),
+            Node::Always(4),
+            Node::And(vec![2, 5]),
+        ],
+        6,
+    )
+    .expect("recurrences")
+    .factor_recurrences(4096)
+    .expect("factoring")
+    .1;
     for group in formula::decompose(formula, formula::Limits::default()).expect("groups") {
         let tableau =
             formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
-        for policy in [
-            AcceptancePolicy::Legacy,
-            AcceptancePolicy::Buffers {
-                bytes: 1_000_000,
-                work: 1_000_000,
-            },
-        ] {
-            let original = CompactProduct::with_policy_and_edges(
-                graph,
-                &tableau,
-                labels,
-                &[],
-                Limits::default(),
-                policy,
-                edge_count,
-            )
-            .expect("original product");
-            let actual = CompactProduct::with_policy_and_edges(
-                graph,
-                &tableau,
-                packed,
-                &[],
-                Limits::default(),
-                policy,
-                edge_count,
-            )
-            .expect("packed product");
-            assert_eq!(actual.parts.graph, original.parts.graph);
-            assert_eq!(actual.parts.behavior_states, original.parts.behavior_states);
-            assert_eq!(actual.parts.original_edges, original.parts.original_edges);
-            for conditions in &group.alternatives {
-                assert_eq!(
-                    actual.find_lasso_with_conditions(packed, conditions),
-                    original.find_lasso_with_conditions(labels, conditions)
-                );
+        for recurrences in [&[][..], &recurring[..]] {
+            for policy in [
+                AcceptancePolicy::Legacy,
+                AcceptancePolicy::Buffers {
+                    bytes: 1_000_000,
+                    work: 1_000_000,
+                },
+            ] {
+                let original = CompactProduct::with_policy_and_edges(
+                    graph,
+                    &tableau,
+                    labels,
+                    recurrences,
+                    Limits::default(),
+                    policy,
+                    edge_count,
+                )
+                .expect("original product");
+                let actual = CompactProduct::with_policy_and_edges(
+                    graph,
+                    &tableau,
+                    packed,
+                    recurrences,
+                    Limits::default(),
+                    policy,
+                    edge_count,
+                )
+                .expect("packed product");
+                assert_eq!(actual.parts.graph, original.parts.graph);
+                assert_eq!(actual.parts.behavior_states, original.parts.behavior_states);
+                assert_eq!(actual.parts.original_edges, original.parts.original_edges);
+                for conditions in &group.alternatives {
+                    assert_eq!(
+                        actual.find_lasso_with_conditions(packed, conditions),
+                        original.find_lasso_with_conditions(labels, conditions)
+                    );
+                }
             }
         }
     }

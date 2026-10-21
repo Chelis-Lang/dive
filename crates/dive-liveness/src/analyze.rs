@@ -389,6 +389,13 @@ fn labels(
         .and_then(|n| n.checked_mul(plan.atoms.len()))
         .filter(|n| *n <= limit)
         .ok_or(AnalysisError::Limit("atom cells"))?;
+    // Owned rows took their vertex dimension from actual captured states.
+    // Packing must not turn a missing state row into unwritten FALSE bits.
+    if graph.states.len() != shape.edges.len() || graph.edges.len() != shape.edges.len() {
+        return Err(AnalysisError::Product(product::ProductError::Shape(
+            "state predicate dimensions".into(),
+        )));
+    }
     let kinds = plan.atoms.iter().map(|atom| atom.kind).collect::<Vec<_>>();
     let mut labels = PackedTruth::new(shape, &kinds).map_err(AnalysisError::Product)?;
     for (index, pred) in plan.atoms.iter().enumerate() {
@@ -870,3 +877,6 @@ fn analyze_captured(
 
 /// Completed-level deterministic scheduling without weakening final completion.
 pub mod periodic;
+
+#[cfg(test)]
+mod label_shapes;
