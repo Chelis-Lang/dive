@@ -125,8 +125,11 @@ returns a counterexample. Raise the ceiling to five to finish this finite
 counter normally.
 
 The first new identity that would exceed either ceiling is left unadmitted.
-Duplicate identities do not consume the state budget. States at the depth
-boundary can still be expanded to already discovered identities, so a finite
+Duplicate identities do not consume the state budget. These limits bound
+admitted identity discovery. If constraints exclude every initial candidate,
+the empty retained graph can complete even with both ceilings zero; its
+reported depth still follows TLC's existing depth-one print convention.
+States at the depth boundary can still be expanded to already discovered identities, so a finite
 graph exactly at both limits may finish normally. A truncated search reports
 `verdict: "stopped"`, exit 5, resource `states` or `depth`, the attempted count
 or depth in `observed`, actual admitted progress and a continuation hint. It
