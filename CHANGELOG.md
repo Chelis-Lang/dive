@@ -14,6 +14,8 @@
 - Unassigned initial/successor interval domains stream ascending integers to
   their sink instead of materializing the whole range before the first state
   (issue #349). Endpoint, ordering, error and big-integer semantics are retained.
+  Parallel successor emission also observes the armed run budget (issue #362),
+  preserving prior ordered errors/violations and actual incomplete progress.
 
 - The model gates and nightly conformance checks use explicit TLC-derived time
   and memory budgets in both profiles (ADR 0107), replacing fixed per-model

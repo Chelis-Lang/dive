@@ -362,7 +362,13 @@ This lets existing checker guards run when a complete assignment reaches the
 sink. Already assigned variables still use the ordinary membership check. Other
 constructors, branches that never emit a complete assignment, and long individual
 evaluations remain potentially uninterruptible (issue #349). No fixed domain-size
-count is introduced. For a bounded first-state violation with an independently
+count is introduced. Parallel checking polls the armed run budget during
+successor emission (issue #362). A stop retains its actual ordered prefix and
+leaves the unfinished source queued; a later worker's violation cannot bypass an
+earlier incomplete expansion. A predicate such as
+`x' \in 0..50000000 /\ FALSE` emits no complete successors, so this emission
+guard does not interrupt its enumeration; single long evaluations retain the
+same limitation. For a bounded first-state violation with an independently
 validated witness, run:
 
 ```sh
