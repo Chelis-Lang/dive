@@ -529,6 +529,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- `dive explain <CODE>` provides human/JSON causes and concrete remediation for
+  the assigned temporal, temporal API, watchdog and command-adapter codes.
+  Temporal failure reports retain their actual cause spans and add help;
+  stage-wide failures keep unavailable spans null. Catalogue coverage is
+  explicit, and unknown codes return no guessed explanation.
+
 - All public JSON operation reports now use schema 2, including ordinary safety
   checks and trace validation. Check reports add `check_kind` to distinguish
   safety/temporal report families without claiming execution. Consumers must

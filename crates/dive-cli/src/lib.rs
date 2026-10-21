@@ -6,6 +6,7 @@
 //! return named refusals.
 #![forbid(unsafe_code)]
 
+mod explain;
 mod tlc;
 mod translate;
 
@@ -22,6 +23,7 @@ const COMMANDS: &[&str] = &[
     "analyze",
     "translate",
     "validate-trace",
+    "explain",
     "lsp",
 ];
 
@@ -35,7 +37,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
@@ -1236,6 +1238,7 @@ pub fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
+        Some("explain") => explain::command(&args[1..], &mut stdout, &mut stderr),
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),
         Some("translate") => translate::command(&args[1..], &mut stdout, &mut stderr),
