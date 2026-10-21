@@ -11,6 +11,10 @@ use dive_trace::temporal::evaluate_lasso;
 use dive_value::Value;
 
 fn model(definitions: &str, tlc: bool) -> Model {
+    configured_model(definitions, "", tlc)
+}
+
+fn configured_model(definitions: &str, extra_config: &str, tlc: bool) -> Model {
     let source = format!(
         "---- MODULE BinderAnalysis ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\n{definitions}\n====\n"
     );
@@ -20,7 +24,7 @@ fn model(definitions: &str, tlc: bool) -> Model {
         &dive_sema::Options::default(),
     );
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
-    let config = dive_config::parse("INIT Init\nNEXT Next\n")
+    let config = dive_config::parse(&format!("INIT Init\nNEXT Next\n{extra_config}"))
         .into_config()
         .expect("config");
     dive_model::bind(
@@ -83,7 +87,7 @@ P == []<>(Q /\ Dependent /\ Mixed /\ Map /\ Filter /\ Function)
                 vec![truth]
             );
         }
-        assert!(model.take_output().is_empty());
+        assert_eq!(model.take_output(), Vec::<String>::new());
     }
 }
 
@@ -138,7 +142,7 @@ Error == []<>(\A i \in 1..5000 : (i \div 0)=1 /\ x)
                 "{name}"
             );
         }
-        assert!(model.take_output().is_empty());
+        assert_eq!(model.take_output(), Vec::<String>::new());
         let pred = predicate(&model, "Error");
         let plan = lower(&model, &pred, Limits::default())
             .expect("runtime error is not evaluated during analysis");
@@ -184,5 +188,57 @@ P == \A i \in {1,2} : Temporal(i)
             evaluate_lasso(&model, &pred, &[state], 0).expect("independent temporal expansion"),
             vec![false]
         );
+    }
+}
+
+#[test]
+fn configured_and_substituted_helpers_retain_concrete_binder_contexts() {
+    let definitions = r"
+CONSTANT Op(_)
+Plain(v) == v>=1 /\ x
+---- MODULE BinderHelper ----
+CONSTANT C
+Same(v) == v=C
+====
+Unit == INSTANCE BinderHelper WITH C <- 1
+Configured == []<>(\A i \in 1..5000 : Op(i))
+Substituted == []<>(\A i \in 1..5000 : Unit!Same(i) \/ x)
+";
+    for tlc in [true, false] {
+        let model = configured_model(definitions, "CONSTANT Op <- Plain\n", tlc);
+        for name in ["Configured", "Substituted"] {
+            let pred = predicate(&model, name);
+            let plan = lower(&model, &pred, Limits::default()).expect(name);
+            for truth in [true, false] {
+                let state: dive_trace::State = Arc::from([Some(Value::Bool(truth))]);
+                assert_eq!(
+                    plan.atoms[0]
+                        .evaluate(&model, &St::action(state.clone(), state.clone()))
+                        .expect("concrete helper"),
+                    truth
+                );
+                assert_eq!(
+                    evaluate_lasso(&model, &pred, &[state], 0).expect("independent helper replay"),
+                    vec![truth]
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn configured_effects_cannot_be_hidden_by_constant_binder_analysis() {
+    for tlc in [true, false] {
+        let model = configured_model(
+            r"
+CONSTANT Op(_)
+Effect(v) == Print(v,v)
+P == []<>(\A i \in 1..5000 : Op(i)=i /\ x)
+",
+            "CONSTANT Op <- Effect\n",
+            tlc,
+        );
+        assert!(lower(&model, &predicate(&model, "P"), Limits::default()).is_err());
+        assert_eq!(model.take_output(), Vec::<String>::new());
     }
 }

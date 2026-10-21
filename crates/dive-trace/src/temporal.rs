@@ -1480,7 +1480,7 @@ impl Word<'_> {
         self.model
             .evaluator
             .scope_bindings_bounded(scope, expr, &St::constant(), 4096)
-            .map_err(|e| TemporalError::Unsupported(format!("predicate quantifier bindings: {e}")))
+            .map_err(|e| TemporalError::Unsupported(format!("temporal quantifier bindings: {e}")))
     }
 
     fn check_native(op: Option<StdOp>) -> Result<(), TemporalError> {

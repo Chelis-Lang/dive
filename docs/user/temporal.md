@@ -317,8 +317,8 @@ i >= 1 /\ x)` no longer refuses solely because the domain has over 4,096
 values. The predicate still evaluates its concrete domains and bodies in each
 state; static analysis never supplies a sample value or proves a verdict.
 Nested dependent domains and pure helper calls retain their lexical bindings.
-Effects, hidden action/temporal captures and opaque operators still refuse,
-including behind empty domains. Actual temporal quantifiers, such as `\A i
+Existing refusals for effects, unsupported action/temporal captures and opaque
+operators remain, including behind empty domains. Actual temporal quantifiers, such as `\A i
 \in S : []P(i)`, still expand concrete formulas and retain formula/storage
 limits. Recursive functions retain their separate admission rules.
 
