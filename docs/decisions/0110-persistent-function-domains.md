@@ -69,3 +69,17 @@ agreement and deep last-owner destruction. Source review precedes expensive
 profiling. Acceptance requires all eight measured cells with identical results,
 no material regression, and the full checker gate/both small baselines. A failed
 performance candidate remains unmerged with its negative evidence preserved.
+
+## Instruction screening evidence
+
+The complete 2026-10-21 screen compares `510dce00` with `239db53f` across four
+reduced ADR 0104 models in both profiles at one worker. All 16 arms completed
+with identical verdicts/counts/depth; geometric instruction reduction is
+5.365455%, and every cell improves. Original before-arm source/build/tool/input
+receipts and all raw arm hashes are retained. See the
+[compact evidence](../survey/data/persistent-function-domains-2026-10-21.json).
+
+The conditional full checker gate and both small-baseline comparisons remain
+pending. This ADR remains proposed until that evidence and final source review
+are complete. Instruction screening alone is not production acceptance or a
+wall-clock, TLC-throughput, parallel-scaling or release milestone claim.

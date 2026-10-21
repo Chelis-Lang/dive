@@ -494,9 +494,37 @@ fallbacks stay intact. Auxiliary metadata adds no range or evaluator ownership
 beyond the original keys, which may themselves retain provider contexts. Such
 keys keep the original fallbacks, and deep domain keys use iterative destruction.
 
-This is an experimental candidate, with no measured instruction or throughput
-claim. Construction and metadata acquisition add costs, so retained profile
-headroom does not establish a win. Source review and focused semantic controls
-precede a paired complete eight-cell ADR 0104 campaign. Production acceptance
-requires at least 5% geometric instruction reduction, identical results and no
-material cell regression, followed by the complete checker gate.
+A fresh complete screen measured **5.365455% fewer instructions**, geometric
+mean over all eight cells, against main `510dce00` using candidate `239db53f`.
+All 16 native arms completed with identical verdicts, distinct/generated counts
+and depths. Every cell improved; no historical arm or favorable repetition was
+substituted. The conditional full checker gate is still pending, so ADR 0110
+remains proposed and production acceptance is held.
+
+| Reduced model | Default Ir reduction | TLC-profile Ir reduction |
+|---|---:|---:|
+| SimpleRegular | 7.472831% | 7.816672% |
+| MCbtree | 12.868712% | 2.627899% |
+| GameOfLife | 6.478926% | 3.658053% |
+| EWD998PCal | 0.769651% | 0.574490% |
+
+[Compact evidence](../survey/data/persistent-function-domains-2026-10-21.json)
+records actual source trees, profiling binaries, tool/input identities, every
+arm and raw hash. This dedicated c7i.8xlarge campaign ran two sequential locked
+profiling builds and 16 sequential Cachegrind arms with explicit 900-second,
+8-GiB native budgets and a 930-second external backstop. Original source/build/
+library/manifest receipts were uploaded before the first arm; each arm retained
+before/after identities. Collection timestamps are recorded separately.
+
+The delivery retains the measured owned runtime and tests exactly. Main's later
+PR #399 changes only benchmark fake-child test headroom and corresponding expected
+values; its production prefix is unchanged and its fast gate qualified separately.
+The whole later delivery tree is therefore not claimed identical to measured
+`239db53f`. The pending full gate remains labelled with its actual measured pin.
+
+These are instruction counts for four reduced safety models at one worker,
+including CLI startup. They establish no quiet wall-clock gain, full-model or
+eight-worker scaling, TLC throughput, new corpus agreement or release milestone.
+Construction and metadata acquisition still add costs. Acceptance requires the
+complete checker gate and both small-profile baseline comparisons in addition
+to the complete instruction screen.
