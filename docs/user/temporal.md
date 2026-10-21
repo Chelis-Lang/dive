@@ -301,6 +301,18 @@ limit defaults or predicate-local lazy Boolean guards. A model can reach a
 separate existing graph/product bound after this temporary-copy refusal is
 removed; new corpus agreement is claimed only after bounded qualification.
 
+The [prior Allocator functional observations](../survey/data/active-action-membership-2026-10-21.json)
+were measured at source `dd2f0907` with an attested release binary, the unchanged
+pinned configuration, one worker, seed/fingerprint zero, and explicit
+361.620-second / 4 GiB budgets. Both profiles reached the next existing
+`atom cells` refusal after complete capture: 17,701 distinct states, 64,414
+generated states and depth 16. These results remove the temporary-copy refusal
+but prove no property, improve no agreement count and justify no further count
+removal. They are prior-pin native observations rather than qualification of a
+later integrated source. The compact evidence keeps their original source,
+binary, input hashes and sampled memory; early refusal timing is not compared
+with TLC's completed check.
+
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
 151 in both semantic profiles; `--exit-codes native` selects 1. Binding and
