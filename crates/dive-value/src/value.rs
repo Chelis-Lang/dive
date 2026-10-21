@@ -875,6 +875,18 @@ impl Fcn {
 
     /// An exact index or miss for eager integer/Cartesian domains. `Unknown` means
     /// the argument requires the caller's original checked comparison path.
+    ///
+    /// ```
+    /// use dive_value::{Ctx, DomainLookup, Value};
+    /// let Value::Fcn(f) = Value::fcn(
+    ///     vec![(Value::Int(0), Value::TRUE), (Value::Int(1), Value::FALSE)],
+    ///     Ctx::dive(),
+    /// )? else { unreachable!() };
+    /// assert_eq!(f.checked_domain_index(&Value::Int(1)), DomainLookup::Found(1));
+    /// assert_eq!(f.checked_domain_index(&Value::Int(4)), DomainLookup::Missing);
+    /// assert_eq!(f.checked_domain_index(&Value::TRUE), DomainLookup::Unknown);
+    /// # Ok::<(), dive_value::ValueError>(())
+    /// ```
     #[must_use]
     pub fn checked_domain_index(&self, argument: &Value) -> DomainLookup {
         match &self.0.repr {

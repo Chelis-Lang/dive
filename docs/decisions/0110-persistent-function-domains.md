@@ -44,8 +44,10 @@ coordinate is out of bounds. Domain equality shortcuts are limited to exact,
 settled integer intervals/products. TLC membership preserves its existing size
 and factor preparation before shortcuts, then checks range membership normally.
 
-The descriptor owns no range, state, evaluator, host or provider context.
-Unknown nested/provider values acquire no order certificate. Domain key release
+Auxiliary metadata adds no range, state, evaluator, host or provider ownership
+beyond the original keys. Those keys can themselves retain deferred providers
+and their contexts. Provider-bearing keys keep unknown order certificates and
+the original fallbacks; canonical EXCEPT does not share their domains. Domain key release
 participates in the existing bounded-native/iterative destruction scheme,
 including a final owner outside a function. Encodings, fingerprints, literal
 flags and function kinds retain their existing meanings. No dependency, flag,

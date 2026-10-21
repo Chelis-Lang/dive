@@ -490,8 +490,9 @@ ADR 0110 proposes sharing immutable general-function keys and conservative
 facts across same-domain EXCEPT updates. Borrowed checked views and exact dense
 integer/Cartesian indices reuse those facts; tuple/record kinds, literal flags,
 eager native hashes, fresh fingerprint caches and unknown-key/error-order
-fallbacks stay intact. Descriptor lifetime never retains range or evaluator
-state, and deep domain keys use iterative destruction.
+fallbacks stay intact. Auxiliary metadata adds no range or evaluator ownership
+beyond the original keys, which may themselves retain provider contexts. Such
+keys keep the original fallbacks, and deep domain keys use iterative destruction.
 
 This is an experimental candidate, with no measured instruction or throughput
 claim. Construction and metadata acquisition add costs, so retained profile
