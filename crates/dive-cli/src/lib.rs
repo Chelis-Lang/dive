@@ -35,13 +35,13 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tlc|tla]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--stats none|basic] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit and 4 internal error. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by --time-limit or --max-memory (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) also selects TLC semantics.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -294,6 +294,52 @@ fn number<T: std::str::FromStr>(
     parsed
 }
 
+/// `--time-limit`: `none`, or a positive duration in seconds by default, or
+/// with a unit (`ms`, `s`, `m`, `h`).
+fn time_limit(text: &str) -> Option<dive_api::BudgetSetting<std::time::Duration>> {
+    if text == "none" {
+        return Some(dive_api::BudgetSetting::Unlimited);
+    }
+    let split = text
+        .find(|c: char| !c.is_ascii_digit())
+        .unwrap_or(text.len());
+    let (digits, unit) = text.split_at(split);
+    let n: u64 = digits.parse().ok().filter(|n| *n > 0)?;
+    let duration = match unit {
+        "ms" => std::time::Duration::from_millis(n),
+        "" | "s" => std::time::Duration::from_secs(n),
+        "m" => std::time::Duration::from_secs(n.checked_mul(60)?),
+        "h" => std::time::Duration::from_secs(n.checked_mul(3600)?),
+        _ => return None,
+    };
+    Some(dive_api::BudgetSetting::Explicit(duration))
+}
+
+/// `--max-memory`: `auto`, `none`, or a positive byte count, optionally with a
+/// binary unit as for the JVM's `-Xmx` (`k`, `m`, `g`, `t`, either case).
+fn max_memory(text: &str) -> Option<dive_api::BudgetSetting<u64>> {
+    match text {
+        "auto" => return Some(dive_api::BudgetSetting::Default),
+        "none" => return Some(dive_api::BudgetSetting::Unlimited),
+        _ => {}
+    }
+    let split = text
+        .find(|c: char| !c.is_ascii_digit())
+        .unwrap_or(text.len());
+    let (digits, unit) = text.split_at(split);
+    let n: u64 = digits.parse().ok().filter(|n| *n > 0)?;
+    let shift = match unit.to_ascii_lowercase().as_str() {
+        "" => 0,
+        "k" => 10,
+        "m" => 20,
+        "g" => 30,
+        "t" => 40,
+        _ => return None,
+    };
+    n.checked_mul(1 << shift)
+        .map(dive_api::BudgetSetting::Explicit)
+}
+
 /// `dive check <file> [options]`: safety model checking (see `usage`).
 #[allow(clippy::too_many_lines, reason = "one flag per arm")]
 fn check_command(
@@ -525,6 +571,24 @@ fn check_command(
             "--predecessor-directory" => match value() {
                 Some(dir) => req.predecessor_directory = Some(dir.into()),
                 None => return usage_error(err, "--predecessor-directory expects a directory"),
+            },
+            "--time-limit" => match value().as_deref().map(time_limit) {
+                Some(Some(setting)) => req.time_limit = setting,
+                _ => {
+                    return usage_error(
+                        err,
+                        "--time-limit expects a positive duration (90, 90s, 500ms, 10m, 2h) or `none`",
+                    );
+                }
+            },
+            "--max-memory" => match value().as_deref().map(max_memory) {
+                Some(Some(setting)) => req.max_memory = setting,
+                _ => {
+                    return usage_error(
+                        err,
+                        "--max-memory expects a positive byte count (3g, 512m, 1048576), `auto` or `none`",
+                    );
+                }
             },
             // Hidden, test-only: randomized scheduling that must not change
             // any result (ADR 0015 §2, chaos mode).
@@ -1241,6 +1305,56 @@ mod seen_tests {
                     || error.contains("DIVE-S0700")
                     || error.contains("is not implemented"),
                 "{error}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod budget_tests {
+    use super::*;
+    use dive_api::BudgetSetting::{Default, Explicit, Unlimited};
+    use std::time::Duration;
+
+    #[test]
+    fn time_limits_parse_units_and_none() {
+        assert_eq!(time_limit("90"), Some(Explicit(Duration::from_secs(90))));
+        assert_eq!(time_limit("90s"), Some(Explicit(Duration::from_secs(90))));
+        assert_eq!(
+            time_limit("500ms"),
+            Some(Explicit(Duration::from_millis(500)))
+        );
+        assert_eq!(time_limit("10m"), Some(Explicit(Duration::from_secs(600))));
+        assert_eq!(time_limit("2h"), Some(Explicit(Duration::from_secs(7200))));
+        assert_eq!(time_limit("none"), Some(Unlimited));
+        for bad in ["", "0", "-1", "1.5s", "10d", "s", "auto"] {
+            assert_eq!(time_limit(bad), None, "{bad}");
+        }
+    }
+
+    #[test]
+    fn memory_ceilings_parse_jvm_units_auto_and_none() {
+        assert_eq!(max_memory("3g"), Some(Explicit(3 << 30)));
+        assert_eq!(max_memory("512M"), Some(Explicit(512 << 20)));
+        assert_eq!(max_memory("1048576"), Some(Explicit(1 << 20)));
+        assert_eq!(max_memory("auto"), Some(Default));
+        assert_eq!(max_memory("none"), Some(Unlimited));
+        for bad in ["", "0", "0g", "-1", "3gb", "1.5g", "99999999999t"] {
+            assert_eq!(max_memory(bad), None, "{bad}");
+        }
+    }
+
+    #[test]
+    fn malformed_budgets_are_usage_errors_before_reading_the_model() {
+        for flags in [["--time-limit", "0"], ["--max-memory", "lots"]] {
+            let args: Vec<String> = std::iter::once("missing.tla")
+                .chain(flags)
+                .map(Into::into)
+                .collect();
+            let (mut output, mut errors) = (Vec::new(), Vec::new());
+            assert_eq!(
+                check_command(&args, &mut output, &mut errors),
+                ExitCode::from(EXIT_USAGE)
             );
         }
     }

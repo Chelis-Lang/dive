@@ -154,6 +154,10 @@ pub enum Verdict {
         /// What.
         message: String,
     },
+    /// The run's budget (`--time-limit`, `--max-memory`) was exhausted
+    /// (ADR 0107). Never a verdict about the model; the statistics are those
+    /// at the stop.
+    Stopped(Box<crate::budget::Stopped>),
     /// An internal invariant of dive failed: a bug, never a verdict.
     InternalError {
         /// What.
@@ -202,6 +206,7 @@ impl Verdict {
             Self::EvaluationError { .. } => "evaluation-error",
             Self::Unsupported { .. } => "unsupported",
             Self::ResourceLimit { .. } => "resource-limit",
+            Self::Stopped(_) => "stopped",
             Self::InternalError { .. } => "internal-error",
         }
     }
@@ -224,7 +229,10 @@ impl Verdict {
     pub const fn is_verdict(&self) -> bool {
         !matches!(
             self,
-            Self::Unsupported { .. } | Self::ResourceLimit { .. } | Self::InternalError { .. }
+            Self::Unsupported { .. }
+                | Self::ResourceLimit { .. }
+                | Self::Stopped(_)
+                | Self::InternalError { .. }
         )
     }
 
@@ -279,7 +287,10 @@ impl Verdict {
                 reported: *reported,
                 ..class(*code, name, *verified)
             },
-            Self::Unsupported { .. } | Self::ResourceLimit { .. } | Self::InternalError { .. } => {
+            Self::Unsupported { .. }
+            | Self::ResourceLimit { .. }
+            | Self::Stopped(_)
+            | Self::InternalError { .. } => {
                 return None;
             }
         })

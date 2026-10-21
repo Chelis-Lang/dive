@@ -2853,3 +2853,47 @@ Independent INSTANCE query-word validation and general callable/temporal
 integration remain unfinished. Under D-022, composition still requires root-only
 intermediates; assigned hidden query names refuse instead of being silently
 dropped. This changes no comparison, model limit or approved default.
+
+## D-026: Run budgets stop a run with a structured result
+
+TLC runs until it finishes or its JVM runs out of memory. A runaway liveness
+check can occupy a machine for hours, and running out of heap prints
+`SYSTEM_OUT_OF_MEMORY` and exits 1 or 255 with nothing to act on. dive bounds
+every `dive check` by two budgets ([ADR 0107](decisions/0107-run-budgets.md)):
+
+```sh
+dive check Spec.tla --time-limit 10m --max-memory 8g --output json
+```
+
+- `--time-limit` defaults to 30 minutes in the default profile and to `none`
+  under `--compat=tlc`, which matches TLC. The default is provisional; the
+  release value is set from benchmark measurements.
+- `--max-memory` defaults to `auto`, half of physical memory, in both
+  profiles, including `--compat=tlc`. That is at least the footprint TLC gets
+  by default (a quarter of memory for its heap, plus off-heap fingerprints).
+  `none` removes it. Like the host-access grants of D-017, the ceiling is a
+  host-resource exception to compatibility mode: it protects the machine and
+  can only stop a run, never change a result. Its TLC spelling is `-Xmx`:
+  `dive tlc -Xmx8g Spec` sets it, as does `--max-memory 8g`. An explicit
+  `--time-limit` under `--compat=tlc` labels the profile `tlc+overrides`,
+  because TLC has none.
+
+When a budget runs out, dive stops and reports what it knows instead of a
+verdict:
+
+```json
+{ "verdict": "stopped",
+  "stopped": { "resource": "time", "limit": 600000, "observed": 600050,
+               "elapsed_ms": 600061, "unit": "ms", "phase": "safety-search",
+               "hint": "raise --time-limit, or pass --time-limit=none; ..." },
+  "statistics": { "distinct": 81234567, "left_on_queue": 412,
+                  "reported_by_tlc": false } }
+```
+
+The exit status is 5 under both `--exit-codes` conventions. `observed` is
+when the budget ran out; `elapsed_ms` is when dive actually stopped, which can
+be later because binding, `ASSUME` evaluation and a single long evaluation
+(for example an `Init` whose domain must first be built) are not interrupted. A stop is never a
+success, a violation or `unsupported`: nothing was proved about the model. To
+get TLC's unbounded behaviour, pass `--time-limit none --max-memory none`.
+

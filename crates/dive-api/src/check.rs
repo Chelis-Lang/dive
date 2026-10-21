@@ -36,6 +36,9 @@ pub mod exit {
     pub const UNSUPPORTED: u8 = 3;
     /// An internal error in dive; no verdict (both).
     pub const INTERNAL: u8 = 4;
+    /// The run's budget (`--time-limit`, `--max-memory`) ran out; no verdict
+    /// (both; ADR 0107).
+    pub const STOPPED: u8 = 5;
     /// An invariant, property, action property or postcondition is violated.
     pub const VIOLATION: u8 = 10;
     /// A deadlock was reached.
@@ -87,6 +90,32 @@ pub enum Store {
     Fingerprint,
     /// Full states (`--store exact`, D-007).
     Exact,
+}
+
+/// A run-budget setting (ADR 0107): the profile's default, no limit, or an
+/// explicit value.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum BudgetSetting<T> {
+    /// The profile's default: for the time limit
+    /// [`dive_check::budget::DEFAULT_TIME_LIMIT`] in the dive profile and none
+    /// under `--compat=tlc`; for memory [`dive_check::budget::default_memory`]
+    /// in both.
+    #[default]
+    Default,
+    /// No limit (`none`).
+    Unlimited,
+    /// This limit.
+    Explicit(T),
+}
+
+impl<T: Copy> BudgetSetting<T> {
+    fn resolve(self, default: Option<T>) -> (Option<T>, &'static str) {
+        match self {
+            Self::Default => (default, if default.is_some() { "default" } else { "none" }),
+            Self::Unlimited => (None, "none"),
+            Self::Explicit(value) => (Some(value), "explicit"),
+        }
+    }
 }
 
 /// Temporal checking strategy for a request.
@@ -162,6 +191,11 @@ pub struct CheckRequest {
     /// (D-014). The default is the documented [`PeriodicSchedule::DEFAULT`];
     /// TLC-profile and explicit final requests ignore it and check once at the end.
     pub periodic: PeriodicSchedule,
+    /// `--time-limit` (ADR 0107): wall-clock time for the whole check.
+    pub time_limit: BudgetSetting<std::time::Duration>,
+    /// `--max-memory` (ADR 0107): the whole process's resident-memory
+    /// ceiling, in bytes.
+    pub max_memory: BudgetSetting<u64>,
 }
 
 /// Completed-level schedule for ordinary dive-profile temporal checking.
@@ -197,6 +231,9 @@ pub struct CheckReport {
     fp_given: bool,
     workers_requested: usize,
     temporal: TemporalMode,
+    /// Where the time and memory limits came from: `default`, `explicit`
+    /// or `none`.
+    budget_sources: (&'static str, &'static str),
     phase: Phase,
 }
 
@@ -381,6 +418,21 @@ fn check_file_in(
     opts.predecessor_memory_bytes = req.predecessor_memory_bytes;
     opts.predecessor_directory
         .clone_from(&req.predecessor_directory);
+    let (time, time_source) = req.time_limit.resolve(if req.compat_tlc {
+        None
+    } else {
+        Some(dive_check::budget::DEFAULT_TIME_LIMIT)
+    });
+    let default_memory = dive_check::budget::default_memory();
+    let (mut memory, mut memory_source) = req.max_memory.resolve(default_memory);
+    if (req.max_memory == BudgetSetting::Default && default_memory.is_none())
+        || (memory.is_some() && !dive_check::budget::memory_readable())
+    {
+        // The platform cannot measure the process: no ceiling is claimed.
+        memory = None;
+        memory_source = "unavailable";
+    }
+    opts.budget = dive_check::budget::Budget::new(time, memory);
     let cfg_path = req
         .config
         .clone()
@@ -396,6 +448,7 @@ fn check_file_in(
         fp_given: req.fp.is_some(),
         workers_requested,
         temporal: req.temporal,
+        budget_sources: (time_source, memory_source),
         phase: Phase::Unlowered(String::new()),
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
@@ -444,17 +497,27 @@ fn check_file_in(
             return Ok(report);
         }
     };
+    // One clock and one ceiling for every stage of the check itself; loading,
+    // parsing and lowering above are not budgeted.
+    let (watchdog, armed) = dive_check::budget::arm(&report.opts);
+    let armed = armed.into_owned();
     report.phase = if let Some(request) = checkpoint {
         let mut request = request.clone();
         request.config_source_sha256 = Some(dive_check::checkpoint::config_source_hash(
             cfg.source_bytes(),
         ));
-        let native = dive_check::checkpoint::check(&ir, &model, &report.opts, &request);
+        let native = dive_check::checkpoint::check(&ir, &model, &armed, &request);
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
     } else {
-        check_backend(&ir, &model, &report.opts, req.temporal, req.periodic)
+        check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
+    drop(watchdog);
+    if armed.budget.memory_unavailable() {
+        // A sample failed during the run: the ceiling was not enforced.
+        report.opts.budget.memory = None;
+        report.budget_sources.1 = "unavailable";
+    }
     Ok(report)
 }
 
@@ -589,6 +652,7 @@ impl CheckReport {
             },
             Phase::TemporalError(e) => match temporal_failure_kind(e) {
                 "internal-error" => exit::INTERNAL,
+                "stopped" => exit::STOPPED,
                 "model-error" => {
                     if tlc {
                         if let crate::temporal::Error::Binding(failure) = e.error() {
@@ -620,6 +684,7 @@ impl CheckReport {
                     Verdict::Unsupported { .. } | Verdict::ResourceLimit { .. } => {
                         exit::UNSUPPORTED
                     }
+                    Verdict::Stopped(_) => exit::STOPPED,
                     Verdict::InternalError { .. } => exit::INTERNAL,
                     _ if tlc => v.tlc().map_or(exit::INTERNAL, |c| c.exit),
                     Verdict::Success => exit::SUCCESS,
@@ -649,7 +714,10 @@ impl CheckReport {
                     || self.opts.eval.action_composition == dive_eval::ActionComposition::Tla
                     || self.checkpoint_request.as_ref().is_some_and(|r| {
                         r.counters == dive_check::checkpoint::Counters::Retain
-                    }) =>
+                    })
+                    // TLC has no time limit (D-026). A memory ceiling is
+                    // TLC's `-Xmx` counterpart, a host resource (ADR 0107).
+                    || self.budget_sources.0 == "explicit" =>
             {
                 "tlc+overrides"
             }
@@ -750,6 +818,13 @@ impl CheckReport {
             "frontier_codec_nodes_per_value_limit": o.frontier_memory_bytes.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
             "predecessor_memory_bytes": o.predecessor_memory_bytes,
             "predecessor_path_steps_limit": o.predecessor_memory_bytes.map(|_| dive_store::predecessor::MAX_PATH_STEPS),
+            "budget": {
+                "time_limit_ms": o.budget.time.map(|t| u64::try_from(t.as_millis()).unwrap_or(u64::MAX)),
+                "time_limit_source": self.budget_sources.0,
+                "max_memory_bytes": o.budget.memory,
+                "max_memory_source": self.budget_sources.1,
+                "scope": "the check after loading: safety search (each initial state and each expanded state), graph capture and temporal analysis; binding, ASSUME evaluation and a single long evaluation are not interrupted; memory of the whole process",
+            },
         });
         if let Some(disk) = &o.seen_disk {
             options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
@@ -854,7 +929,8 @@ impl CheckReport {
     ///            | "action-property-violation" | "deadlock" | "assumption-failure"
     ///            | "postcondition-failure" | "assertion-failure" | "overflow"
     ///            | "evaluation-error" | "incomplete-state" | "model-error"
-    ///            | "rejected" | "unsupported" | "resource-limit" | "internal-error",
+    ///            | "rejected" | "unsupported" | "resource-limit" | "stopped"
+    ///            | "internal-error",
     ///   "property": string | null, "message": string | null,
     ///   "error_site": string | null,
     ///   "tlc": { "code", "name", "exit_status", "reported", "verified" } | null,
@@ -867,9 +943,13 @@ impl CheckReport {
     ///   "collision": { "store", "scheme", "optimistic", "actual", "assumption" } | null,
     ///   "output": [ string ], "warnings": [ { "code", "message" } ],
     ///   "diagnostics": [ ... ], "notes": [ string ],
+    ///   "stopped": { "resource": "time" | "memory", "limit", "observed", "elapsed_ms",
+    ///                "unit": "ms" | "bytes", "phase", "hint" }   (only when stopped),
     ///   "options": { "profile", "int", "choose_order", "explore_order",
     ///                "comparisons", "warnings", "store", "fingerprint",
     ///                "seed", "seed_source", "deadlock_flag",
+    ///                "budget": { "time_limit_ms", "time_limit_source",
+    ///                            "max_memory_bytes", "max_memory_source", "scope" },
     ///                "workers": { "requested", "used", "sequential", "reason",
     ///                             "chaos" } },
     ///   "elapsed_ms" }
@@ -978,6 +1058,12 @@ impl CheckReport {
                 if temporal_action_evaluation(e).is_some() {
                     doc["error_site"] = json!("temporal-action");
                 }
+                if let crate::temporal::Error::Analysis(
+                    dive_liveness::analyze::AnalysisError::Stopped(stopped),
+                ) = e.error()
+                {
+                    doc["stopped"] = stopped_json(stopped);
+                }
                 if let Some(capture) = e.exploration() {
                     temporal_evidence_json(&mut doc, capture, self.opts.tlc_fingerprints);
                     doc["notes"] = json!([
@@ -1071,8 +1157,12 @@ impl CheckReport {
                     | Verdict::ResourceLimit { message }
                     | Verdict::InternalError { message } => Value::from(message.as_str()),
                     Verdict::Unsupported { feature } => Value::from(feature.as_str()),
+                    Verdict::Stopped(stopped) => Value::from(stopped.to_string()),
                     _ => Value::Null,
                 };
+                if let Verdict::Stopped(stopped) = v {
+                    doc["stopped"] = stopped_json(stopped);
+                }
                 if let Verdict::EvaluationError { site, .. } = v {
                     doc["error_site"] = Value::from(site.name());
                 }
@@ -1092,7 +1182,9 @@ impl CheckReport {
                         "left_on_queue": s.left_on_queue,
                         "depth": s.depth,
                         "initial_generated": s.initial_generated,
-                        "reported_by_tlc": r.tlc_prints_stats,
+                        // A stop's statistics are progress, not TLC's report.
+                        "reported_by_tlc": r.tlc_prints_stats
+                            && !matches!(r.verdict, Verdict::Stopped(_)),
                     });
                 }
                 if let Some(cx) = &r.counterexample {
@@ -1308,6 +1400,22 @@ fn trace_doc(
     Ok(doc.to_json())
 }
 
+/// The `stopped` block of a run its budget stopped (ADR 0107).
+fn stopped_json(stopped: &dive_check::budget::Stopped) -> Value {
+    json!({
+        "resource": stopped.resource.name(),
+        "limit": stopped.limit,
+        "observed": stopped.observed,
+        "elapsed_ms": stopped.elapsed_ms,
+        "unit": match stopped.resource {
+            dive_check::budget::Resource::Time => "ms",
+            dive_check::budget::Resource::Memory => "bytes",
+        },
+        "phase": stopped.phase.name(),
+        "hint": stopped.hint(),
+    })
+}
+
 fn temporal_planning_evaluation(error: &crate::temporal::Error) -> Option<&dive_eval::EvalError> {
     match error {
         crate::temporal::Error::Analysis(dive_liveness::analyze::AnalysisError::Planning(
@@ -1341,6 +1449,9 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
     use dive_liveness::formula::FormulaError;
     use dive_liveness::plan::PlanningError;
     use dive_liveness::product::ProductError;
+    if matches!(failure.error(), Error::Analysis(AnalysisError::Stopped(_))) {
+        return "stopped";
+    }
     if let Some(action) = failure.action_evaluation() {
         return match action.cause().class() {
             dive_eval::ErrorClass::Eval if temporal_action_evaluation(failure).is_some() => {
@@ -1613,8 +1724,48 @@ mod evidence_controls {
             fp_given: true,
             workers_requested: 4,
             temporal: TemporalMode::FinalShort,
+            budget_sources: ("none", "none"),
             phase,
         }
+    }
+
+    #[test]
+    fn a_stop_during_temporal_analysis_reports_stopped_in_schema_two() {
+        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
+        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+            .into_config()
+            .expect("configuration");
+        let watchdog =
+            dive_check::budget::Budget::new(Some(std::time::Duration::from_millis(1)), None)
+                .start()
+                .expect("watchdog");
+        let started = std::time::Instant::now();
+        while watchdog.budget().poll().is_none()
+            && started.elapsed() < std::time::Duration::from_secs(10)
+        {
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+        let opts = CheckOptions {
+            budget: watchdog.budget().clone(),
+            ..CheckOptions::tlc(0, 0)
+        };
+        let limits = dive_liveness::analyze::Limits::default();
+        let Err(failure) = crate::temporal::check_final_with_evidence(&ir, &cfg, &opts, limits)
+        else {
+            panic!("an exhausted budget cannot produce a temporal result");
+        };
+        let mut report = limited_report(dive_liveness::analyze::Stage::Product);
+        report.phase = Phase::TemporalError(Box::new(failure));
+        let json = report.to_json();
+        assert_eq!(json["schema_version"], TEMPORAL_CHECK_SCHEMA_VERSION);
+        assert_eq!(json["verdict"], "stopped", "{json}");
+        assert_eq!(json["stopped"]["resource"], "time");
+        assert_eq!(json["stopped"]["phase"], "temporal-analysis");
+        assert!(json["tlc"].is_null());
+        assert_eq!(report.exit_code_for(ExitConvention::Tlc), exit::STOPPED);
+        assert_eq!(report.exit_code_for(ExitConvention::Native), exit::STOPPED);
     }
 
     #[test]

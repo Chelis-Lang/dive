@@ -59,6 +59,9 @@ fn headline(v: &Verdict) -> String {
         Verdict::ResourceLimit { message } => {
             format!("resource limit: {message}; no verdict produced")
         }
+        Verdict::Stopped(stopped) => {
+            format!("{stopped}; no verdict produced ({})", stopped.hint())
+        }
         Verdict::InternalError { message } => {
             format!("internal error: {message}; no verdict produced (please report this)")
         }

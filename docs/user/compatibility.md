@@ -15,6 +15,8 @@ TLC coverage.
 | Fingerprints | Native combination | TLC polynomial scheme, selectable with `--fp` |
 | Explicit bounded final temporal mode | Deterministic short selection | Same short selection, labeled `tlc+overrides`; TLC's exact lasso is not reproduced (`--lasso tlc` is a usage error) |
 | Ordinary periodic temporal scheduling | Pending | Pending; final mode does not implement periodic scheduling |
+| Wall-clock budget (`--time-limit`) | 30 minutes (provisional), then `stopped`, exit 5 | None, as TLC has none (D-026) |
+| Memory budget (`--max-memory`) | Half of physical memory, then `stopped`, exit 5 | Same ceiling; TLC itself dies with `SYSTEM_OUT_OF_MEMORY` |
 
 Named opt-ins can produce `tlc+overrides`. For example, final/short temporal
 checking and retained checkpoint counters must not claim pure TLC semantics.

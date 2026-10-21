@@ -66,6 +66,17 @@ pub struct CheckOptions {
     /// levels, whether small phases run inline, and insert random yields.
     /// Results must not change; any change is a determinism bug.
     pub chaos: Option<u64>,
+    /// The run's time and memory limits (ADR 0107). [`crate::check`] arms an
+    /// unarmed budget for its own run; a caller that runs several stages
+    /// (capture, then temporal analysis) arms it once with
+    /// [`crate::budget::Budget::start`] so the stages share one clock.
+    /// Unlimited here; `dive_api` resolves the profile's defaults. TLC
+    /// setting: no time limit, memory bounded by its heap.
+    pub budget: crate::budget::Budget,
+    /// Synchronizes the budget/event race in unit tests; absent from release builds.
+    #[cfg(test)]
+    pub(crate) parallel_budget_test:
+        Option<std::sync::Arc<crate::parallel::budget_cut_tests::Pause>>,
 }
 
 impl CheckOptions {
@@ -88,6 +99,9 @@ impl CheckOptions {
             workers: 1,
             sequential: false,
             chaos: None,
+            budget: crate::budget::Budget::unlimited(),
+            #[cfg(test)]
+            parallel_budget_test: None,
         }
     }
 
@@ -110,6 +124,9 @@ impl CheckOptions {
             workers: 1,
             sequential: false,
             chaos: None,
+            budget: crate::budget::Budget::unlimited(),
+            #[cfg(test)]
+            parallel_budget_test: None,
         }
     }
 }

@@ -14,6 +14,7 @@
 //! tableau numbering or SCC and lasso choice.
 #![forbid(unsafe_code)]
 
+mod budget;
 mod graph;
 
 pub use graph::{Graph, GraphError};

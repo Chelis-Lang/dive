@@ -6,7 +6,7 @@ use std::process::ExitCode;
 
 use serde_json::{Value, json};
 
-const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -modelcheck         explicit checking mode\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
+const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -modelcheck         explicit checking mode\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --max-memory SIZE|auto|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
 
 #[derive(Default)]
 struct Arguments {
@@ -174,6 +174,25 @@ fn parse(args: &[String]) -> Result<Arguments, Failure> {
                 "human" => parsed.json = false,
                 _ => return Err(Failure::Usage("--output expects human or json".into())),
             },
+            // The memory ceiling stands for TLC's heap (ADR 0107): the JVM's
+            // `-Xmx` spelling, or dive's `--max-memory` with `auto`/`none`.
+            "--max-memory" => {
+                parsed.request.max_memory = crate::max_memory(value()?).ok_or_else(|| {
+                    Failure::Usage(
+                        "--max-memory expects a positive byte count (3g, 512m), auto or none"
+                            .into(),
+                    )
+                })?;
+            }
+            flag if flag.starts_with("-Xmx") => {
+                parsed.request.max_memory = flag
+                    .strip_prefix("-Xmx")
+                    .and_then(crate::max_memory)
+                    .filter(|setting| matches!(setting, dive_api::BudgetSetting::Explicit(_)))
+                    .ok_or_else(|| {
+                        Failure::Usage(format!("{flag}: expects a heap size such as -Xmx8g"))
+                    })?;
+            }
             "-tool"
             | "-simulate"
             | "-generate"
@@ -363,6 +382,22 @@ mod tests {
 
     fn words(args: &[&str]) -> Vec<String> {
         args.iter().map(|s| (*s).into()).collect()
+    }
+
+    #[test]
+    fn the_memory_ceiling_takes_the_jvm_spelling_or_max_memory() {
+        use dive_api::BudgetSetting::{Default, Explicit, Unlimited};
+        let memory = |args: &[&str]| parse(&words(args)).map(|p| p.request.max_memory).ok();
+        assert_eq!(memory(&["Spec"]), Some(Default));
+        assert_eq!(memory(&["-Xmx8g", "Spec"]), Some(Explicit(8 << 30)));
+        assert_eq!(memory(&["--max-memory", "none", "Spec"]), Some(Unlimited));
+        assert_eq!(
+            memory(&["--max-memory=512m", "Spec"]),
+            Some(Explicit(512 << 20))
+        );
+        for bad in [["-Xmx", "Spec"], ["-Xmxnone", "Spec"], ["-Xmx8gb", "Spec"]] {
+            assert!(memory(&bad).is_none(), "{bad:?}");
+        }
     }
 
     #[test]

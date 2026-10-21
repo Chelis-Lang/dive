@@ -99,6 +99,10 @@ pub enum AnalysisError {
     Inconsistent(&'static str),
     /// A capture thread failure lost execution evidence.
     CaptureThread(String),
+    /// The run's budget ran out after capture (ADR 0107). Never a verdict;
+    /// a stop during capture is an [`Self::Exploration`] with
+    /// [`dive_check::Verdict::Stopped`].
+    Stopped(Box<dive_check::budget::Stopped>),
 }
 impl AnalysisError {
     /// Stable diagnostics for the library analysis stages. These are dive
@@ -115,6 +119,7 @@ impl AnalysisError {
             Self::Unsupported(_) => "DIVE-L0035",
             Self::Inconsistent(_) => "DIVE-L0036",
             Self::CaptureThread(_) => "DIVE-L0037",
+            Self::Stopped(_) => "DIVE-L0038",
         }
     }
 }
@@ -140,6 +145,7 @@ impl std::fmt::Display for AnalysisError {
             Self::Unsupported(s) => write!(f, "unsupported liveness analysis: {s}"),
             Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
             Self::CaptureThread(s) => write!(f, "liveness capture thread failure: {s}"),
+            Self::Stopped(s) => write!(f, "{}: {s}", self.code()),
         }
     }
 }
@@ -380,6 +386,9 @@ fn labels(
         let mut state_row = Vec::new();
         let mut action_rows = Vec::new();
         for (v, vals) in graph.states.iter().enumerate() {
+            if crate::budget::exhausted() {
+                return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+            }
             state_row.push(if pred.kind == AtomKind::State {
                 atom(model, plan, index, &St::state(vals.clone()), property)?
             } else {
@@ -600,7 +609,59 @@ fn validate_analysis_context(model: &Model) -> Result<(), AnalysisError> {
     })
 }
 
+/// Runs [`analyze_unbudgeted`] under the run's budget: armed once for capture
+/// and analysis alike, and installed on this thread for the analysis
+/// stages. Any failure while the budget is exhausted is reported as the stop
+/// it is (ADR 0107); a stop during capture stays the capture's own result.
 fn analyze_observed(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    stage: &mut Stage,
+    exploration: &mut Option<Box<ExplorationEvidence>>,
+    action_error: &mut Option<Box<ActionEvaluation>>,
+) -> Result<Analysis, AnalysisError> {
+    let (_watchdog, armed) = dive_check::budget::arm(opts);
+    let _scope = crate::budget::enter(&armed.budget);
+    analyze_unbudgeted(
+        model,
+        &armed,
+        limits,
+        policy,
+        stage,
+        exploration,
+        action_error,
+    )
+    .map_err(|error| match armed.budget.poll() {
+        // Only the budget's own limit is a stop; every other failure,
+        // including one raised just as the budget ran out, keeps its class.
+        Some(exhausted) if budget_limit(&error) => {
+            *action_error = None;
+            AnalysisError::Stopped(Box::new(
+                exhausted.during(dive_check::budget::Phase::Temporal),
+            ))
+        }
+        _ => error,
+    })
+}
+
+/// Whether `error` is the limit a stage reports for an exhausted budget.
+fn budget_limit(error: &AnalysisError) -> bool {
+    use crate::budget::EXHAUSTED;
+    match error {
+        AnalysisError::Limit(limit)
+        | AnalysisError::Product(product::ProductError::Limit(limit))
+        | AnalysisError::Tableau(formula::FormulaError::Limit(limit))
+        | AnalysisError::Planning(plan::PlanningError::Formula {
+            error: formula::FormulaError::Limit(limit),
+            ..
+        }) => *limit == EXHAUSTED,
+        _ => false,
+    }
+}
+
+fn analyze_unbudgeted(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,

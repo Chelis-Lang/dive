@@ -117,6 +117,9 @@ struct Builder<'a> {
 
 impl Builder<'_> {
     fn inspect(&mut self) -> Result<(), ProductError> {
+        if crate::budget::exhausted() {
+            return Err(ProductError::Limit(crate::budget::EXHAUSTED));
+        }
         self.steps = self
             .steps
             .checked_add(1)

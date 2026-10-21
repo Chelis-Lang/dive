@@ -105,6 +105,11 @@ LIMITS (golden generate, run; timeout options also apply to study final):
     --xmx <size>           JVM heap per run (default: 3g)
     --timeout <secs>       fixed per-model timeout (default: derived from recorded runtime)
     --timeout-cap <secs>   cap on derived timeouts (default: 3600)
+    --tlc-budgets          derive each model's budget from its golden's TLC time
+                           and pass it to dive as --time-limit, with --xmx as
+                           --max-memory (ADR 0107); off by default, as in the gate
+    --budget-cap <secs>    cap on those budgets, never below twice TLC's time
+                           (default: 900)
     --java <path>          use this java instead of the pinned JRE (recorded in provenance)
 
 EXIT STATUS:
@@ -158,6 +163,8 @@ struct Opts {
     xmx: Option<String>,
     timeout: Option<u64>,
     timeout_cap: Option<u64>,
+    budget_cap: Option<u64>,
+    tlc_budgets: bool,
     java: Option<PathBuf>,
     impl_options: Vec<String>,
     impl_profile: Option<String>,
@@ -218,6 +225,8 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             }
             "--timeout" => o.timeout = Some(parse_num(&a, &args.value(&a)?)?),
             "--timeout-cap" => o.timeout_cap = Some(parse_num(&a, &args.value(&a)?)?),
+            "--budget-cap" => o.budget_cap = Some(parse_num(&a, &args.value(&a)?)?),
+            "--tlc-budgets" => o.tlc_budgets = true,
             "--java" => o.java = Some(args.value(&a)?.into()),
             "--impl-option" => o.impl_options.push(args.value(&a)?),
             "--impl-profile" => o.impl_profile = Some(args.value(&a)?),
@@ -258,6 +267,9 @@ fn limits(o: &Opts) -> Limits {
         xmx: o.xmx.clone().unwrap_or_else(|| "3g".to_owned()),
         timeout: o.timeout.map(Duration::from_secs),
         timeout_cap: Duration::from_secs(o.timeout_cap.unwrap_or(3600)),
+        budget_cap: o
+            .tlc_budgets
+            .then(|| Duration::from_secs(o.budget_cap.unwrap_or(900))),
     }
 }
 

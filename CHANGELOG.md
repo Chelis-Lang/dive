@@ -1,5 +1,30 @@
 # Changelog
 
+- `dive check` runs under a wall-clock and a memory budget (ADR 0107, D-026):
+  `--time-limit DURATION|none` (30 minutes by default in the dive profile,
+  provisional until release; none under `--compat=tlc`) and `--max-memory
+  BYTES|auto|none` (half of physical memory by default in both profiles,
+  measured as the whole process's resident memory on Linux and macOS). An
+  exhausted budget stops safety search, graph capture or temporal analysis
+  with `verdict: "stopped"`, a `stopped` block (resource, limit, observed
+  value, phase, hint), the statistics reached so far, and exit status 5 under
+  both exit conventions. The JSON additions, including `options.budget`, are
+  additive within schema versions 1 and 2. Rust callers use
+  `CheckRequest::{time_limit, max_memory}` or `CheckOptions::budget`. No count
+  limit changes. `dive tlc` accepts `-Xmx8g` or `--max-memory` for the memory
+  ceiling, which applies under `--compat=tlc` too (a host-resource exception,
+  like D-017); an explicit `--time-limit` there labels the profile
+  `tlc+overrides`. The conformance harness keeps its timeouts and passes
+  `--time-limit none --max-memory none` unless `--tlc-budgets` is given, which
+  derives each model's budget from TLC's recorded time (`max(60 s, 10 × TLC)`,
+  `--budget-cap` default 900 s, never below twice TLC's time). For Oyster's
+  pilot and other strict consumers: the new keys are additive, and `stopped`
+  appears as a verdict only when a budget runs out; Oyster's runs under its
+  own short wall-clock limits are unaffected unless they exceed half of
+  physical memory or, in the dive profile, 30 minutes. Both `run` and
+  `study final` count time and memory stops as resource findings, rather
+  than unsupported features.
+
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that
   first walked every binder domain (issue #322, ADR 0103 follow-up). On the
