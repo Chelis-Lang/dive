@@ -1,0 +1,705 @@
+{
+  "format_version": 1,
+  "date": "2026-10-21",
+  "purpose": "Normal-input instruction overhead of streamed interval assignments and cooperative successor emission; no wall-clock or TLC throughput claim",
+  "baseline": {
+    "commit": "c82dd72c4fcbfe0c2224c3eac076029141e48a83",
+    "binary_sha256": "66611ac6e20b01abc89f490f5a12d5337301d63b9b528d85e831eaa09e5ec934"
+  },
+  "candidate": {
+    "commit": "f299eb070208611c112dd394c432f1687e95b369",
+    "binary_sha256": "8403ad0cc3f5a6a60d462b73023ecbee6c248552099a23c7627b3701b110d5c7"
+  },
+  "machine": {
+    "instance_type": "c7i.8xlarge",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "vcpu": 32,
+    "physical_cores": 16,
+    "ram_bytes": 66320338944,
+    "os": "Ubuntu 24.04",
+    "kernel": "7.0.0-1014-aws",
+    "architecture": "x86_64",
+    "rustc": "1.99.0 (b940084d7 2026-09-28)",
+    "valgrind": "3.22.0",
+    "shared_with_gate_jobs": true,
+    "quiet_window_certified": false
+  },
+  "settings": {
+    "build_profile": "profiling",
+    "seed": 0,
+    "fp": 0,
+    "time_limit_seconds": 900,
+    "max_memory": "8g",
+    "external_timeout_seconds": 930,
+    "max_states": null,
+    "max_depth": null,
+    "oracle_executed_in_campaign": false
+  },
+  "inputs": {
+    "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "reductions": {
+      "SimpleRegular": "Copy SimpleRegular.cfg, set N to6.",
+      "MCbtree": "Copy MCbtree.cfg, set MaxKey to3.",
+      "GameOfLife": "Copy GameOfLife.cfg, set N to3.",
+      "EWD998PCal": "Copy EWD998PCal.cfg unchanged; in EWD998PCal.tla change StateConstraint counter[i]<3 to counter[i]<2."
+    },
+    "models": {
+      "SimpleRegular": {
+        "module": {
+          "path": "specifications/TeachingConcurrency/SimpleRegular.tla",
+          "sha256": "bf3872f04d71f7b80fcb55cecd07bf1b38fac3861fbb3452eb179c593c1bcdb5"
+        },
+        "config": {
+          "path": "specifications/TeachingConcurrency/R1SimpleRegular.cfg",
+          "sha256": "aa129769c5d9a6bd1c3545dbbfbc98e1279d4b314b592b7801c9af71735fc3ff"
+        },
+        "expected": {
+          "distinct": 12097,
+          "generated": 47584,
+          "depth": 19
+        }
+      },
+      "MCbtree": {
+        "module": {
+          "path": "specifications/btree/MCbtree.tla",
+          "sha256": "64655fd6391422f27607da0c3d36617066249c68687d984bdb1113bc98f83ac3"
+        },
+        "config": {
+          "path": "specifications/btree/R1MCbtree.cfg",
+          "sha256": "de7bb2b0263d04833243ed7f09bec7cb496e4111f6777425161b9d8a5e119ffa"
+        },
+        "expected": {
+          "distinct": 21364,
+          "generated": 127825,
+          "depth": 24
+        }
+      },
+      "GameOfLife": {
+        "module": {
+          "path": "specifications/GameOfLife/GameOfLife.tla",
+          "sha256": "dcd6d626946faab35ac22ad38a031b0d9bd9bc274d8750340506acc407dccbc6"
+        },
+        "config": {
+          "path": "specifications/GameOfLife/R1GameOfLife.cfg",
+          "sha256": "842e3c2d93b0535783091687f76debde6dd42fc7b33983f154a9f892125ef4a9"
+        },
+        "expected": {
+          "distinct": 512,
+          "generated": 1024,
+          "depth": 1
+        }
+      },
+      "EWD998PCal": {
+        "module": {
+          "path": "specifications/ewd998/EWD998PCal.tla",
+          "sha256": "3342f5d865902f6e85defbcd6713cea1dac50e031d3f2281e7b7cc9deb545da4"
+        },
+        "config": {
+          "path": "specifications/ewd998/R1EWD998PCal.cfg",
+          "sha256": "44073c04a88dd7aa593cab099e59b7b1dd4be31ec2d5b59616b0426a3a84f892"
+        },
+        "expected": {
+          "distinct": 20870,
+          "generated": 168292,
+          "depth": 28
+        }
+      }
+    },
+    "scope": "Paired native instruction workload with exact module/config hashes. Imported TLA files were independently byte-checked against the pinned module roots; no TLC oracle is executed in this campaign.",
+    "workload_archive_sha256": "f1d3eb00d9f43c11e03a50be64a3115f8e2bb838299bb8d7033106a8ce0c53ef",
+    "module_roots": {
+      "module_path_order": [
+        "library",
+        "modules"
+      ],
+      "recovered_archive_sha256": "90a8757da7c179dcf04ec8f7530f99881e013eb76b92bfeb59808d9a0fe782ab",
+      "library_origin": {
+        "id": "tlapm-library-d8b9747",
+        "commit": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      },
+      "modules_origin": {
+        "id": "community-modules-202610040242",
+        "jar_sha256": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      "ancestry_verification": "All 49 TLA files byte-match their pinned local cache roots: 15 TLAPS and 34 community modules. The archive also contains 19 Java source files not executed by the native instruction campaign."
+    }
+  },
+  "evidence": {
+    "archive_sha256": "93e83ca5ff40e981ae143cb76378c2a1b397e80bf0c8a8b7a0a8b0bdbe4bcc79",
+    "producer_summary_sha256": "1664e6d36c7d16f59360e167ee81b60e8a611a65211721565331f2342f5f55bd",
+    "identity_and_input_manifest_sha256": "82986618eac5716c0eebf49ebca2f1725e309976c9317af9e23661f487c4afb2",
+    "identity_and_input_manifest_retained_externally": true,
+    "raw_retained_externally": true
+  },
+  "results": {
+    "single_worker_rows": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2794885766,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "9e79649ac9b9699f3b15827bade6814b7c2896acb63204cf67b292178dbf30df"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2795675868,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "5add2aa49bae69432da90e821bc2d6f0123ffed707f381cc59b9c66006963437"
+          }
+        },
+        "instruction_delta_pct": 0.028269563272020903,
+        "identical_counts": true
+      },
+      {
+        "model": "MCbtree",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 16444932586,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "8fc15e94a8d2b28ab33f9fdb41a4d3e225f214e162cb07443dda1484577502d5"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 16452530638,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "ba0a60ac5b0737e13360ab5b7170064ed718da75c39aa1b8163d1dd02409774c"
+          }
+        },
+        "instruction_delta_pct": 0.046202998767341796,
+        "identical_counts": true
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1224273024,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "b80b2f799a7d7d95ffeea866ec60a872ccb45a14b72e776ed84c26d0b545de81"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1224245261,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "347c485956fccf5dd16055bf5abbc80db730c1b45209ab54adad204b8439bd90"
+          }
+        },
+        "instruction_delta_pct": -0.0022677131208292955,
+        "identical_counts": true
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "dive",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 47268880512,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "c1ab733218ab4d710885c56904ff879596dd693f300da43a97a5274e43ea9b4a"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 47269534922,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "c1ab733218ab4d710885c56904ff879596dd693f300da43a97a5274e43ea9b4a"
+          }
+        },
+        "instruction_delta_pct": 0.0013844415033936741,
+        "identical_counts": true
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2875718134,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "70df55dbbb3b5be7c1dc31c32686f4c84adb25efbc1e2a45962b2734d705801f"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 12097,
+            "generated": 47584,
+            "depth": 19,
+            "instructions": 2876135153,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "32cd21d9d68056c49c8c967951be2f04b32742d334d9364e35485618c7505608"
+          }
+        },
+        "instruction_delta_pct": 0.014501386456111653,
+        "identical_counts": true
+      },
+      {
+        "model": "MCbtree",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 18652584565,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": true,
+            "report_sha256": "92785a9177883f5a33dc0ff2d0c81950d7ad5738d3b523e083d8ea0b7e80db88"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 21364,
+            "generated": 127825,
+            "depth": 24,
+            "instructions": 18652525459,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": true,
+            "report_sha256": "d5026b38cd03eaccad1c04c21fc18e8800f95c773b5a0cb4fa794468a4d88995"
+          }
+        },
+        "instruction_delta_pct": -0.0003168783381912732,
+        "identical_counts": true
+      },
+      {
+        "model": "GameOfLife",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1180010399,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "882eb42232941c01f42d98baa813287ae100e548c25a65d5d5630fb3b67165c3"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 512,
+            "generated": 1024,
+            "depth": 1,
+            "instructions": 1180014953,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "71ea1b223c3cf4293e1c576600ebc65335304e7f5a83b128f1c53abd55730470"
+          }
+        },
+        "instruction_delta_pct": 0.0003859288023155827,
+        "identical_counts": true
+      },
+      {
+        "model": "EWD998PCal",
+        "profile": "tlc",
+        "instrumentation": "cachegrind-cache-sim-no",
+        "workers": 1,
+        "arms": {
+          "base": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 48182278322,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "0f88e3067e8dfade7fab9ac645e44c213de6551988b81543e883d68627adb430"
+          },
+          "candidate": {
+            "exit": 0,
+            "verdict": "success",
+            "distinct": 20870,
+            "generated": 168292,
+            "depth": 28,
+            "instructions": 48183000188,
+            "workers_requested": 1,
+            "workers_used": 1,
+            "sequential": false,
+            "report_sha256": "0f88e3067e8dfade7fab9ac645e44c213de6551988b81543e883d68627adb430"
+          }
+        },
+        "instruction_delta_pct": 0.001498198144922469,
+        "identical_counts": true
+      }
+    ],
+    "eight_worker_rows": [
+      {
+        "model": "SimpleRegular",
+        "profile": "dive",
+        "instrumentation": "callgrind-cache-sim-no",
+        "workers": 8,
+        "pairs": [
+          {
+            "repetition": 1,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2812902027,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "8e68b8296d393dd5821c6fd01ba5fd8b8650588046caa6e9f35748541be06801",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2129132220,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2813939849,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "41b28ca387187b9d4ec838865ea3791578c46e177c1352245a8f8c9dde685045",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2117200137,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.036895063889130775
+          },
+          {
+            "repetition": 2,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2816817659,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "73f2db2516487778d0b097683e45ad068469b089022d636abaf3a2a8b65e4e4e",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2104446842,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2816230116,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "9adb5555e23f2ef3ae18a29f6093d9b91972ca756cab70a98874abbbbcf60d3a",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2007748807,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": -0.02085839664214273
+          },
+          {
+            "repetition": 3,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2816362761,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "6499c5d8821f78c76695d2871ef92586589bcdf13f95a7198f4cef173cbca1ca",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2122964809,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2815212103,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "14c340fa4ce41aab9066e99dce9db237445ac71a98f9ac048ce91965d0e56a0f",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2213129859,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": -0.04085617151078358
+          }
+        ],
+        "paired_median_instruction_delta_pct": -0.02085839664214273,
+        "arm_instruction_medians": {
+          "base": 2816362761,
+          "candidate": 2815212103
+        },
+        "arm_instruction_spread": {
+          "base": {
+            "min": 2812902027,
+            "max": 2816817659
+          },
+          "candidate": {
+            "min": 2813939849,
+            "max": 2816230116
+          }
+        },
+        "identical_counts": true
+      },
+      {
+        "model": "SimpleRegular",
+        "profile": "tlc",
+        "instrumentation": "callgrind-cache-sim-no",
+        "workers": 8,
+        "pairs": [
+          {
+            "repetition": 1,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2895566763,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "a8ba5f9c8279085b0a25540ac29fbff5781f968d8253b16ac71a921a58a35dcf",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2171031761,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2894328579,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "7f35cb98f650f221443e9418b8a23d806254be424f5d7820e2cb87b9b8e2212d",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2167056666,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": -0.04276136940862818
+          },
+          {
+            "repetition": 2,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2898478447,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "7eeb7acbaef57edaf7e5f4f31ddda678762fdccca9066cd80644674a5826a010",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2142237156,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2895004530,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "f511684376c4e228aa8e26d7d262e1bdc206c2a06505d367b273260946675684",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2170103021,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": -0.1198531251317636
+          },
+          {
+            "repetition": 3,
+            "arms": {
+              "base": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2893568012,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "d6bd2d6c5b0a5331c66ee0d2c8b5fe093e3fd43b8c8b345ee6a5b543891585fb",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2168429677,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              },
+              "candidate": {
+                "exit": 0,
+                "verdict": "success",
+                "distinct": 12097,
+                "generated": 47584,
+                "depth": 19,
+                "instructions": 2897619371,
+                "workers_requested": 8,
+                "workers_used": 8,
+                "sequential": false,
+                "report_sha256": "91bddf99cb8ada2ce5b4af6a4f3148cfbd3d3ad155428a6813e43180082612fc",
+                "parallel_commit_sources": {
+                  "recorded_call_instructions": 2131698944,
+                  "recorded_calls": 181,
+                  "nonzero": true
+                }
+              }
+            },
+            "instruction_delta_pct": 0.14001257213234197
+          }
+        ],
+        "paired_median_instruction_delta_pct": -0.04276136940862818,
+        "arm_instruction_medians": {
+          "base": 2895566763,
+          "candidate": 2895004530
+        },
+        "arm_instruction_spread": {
+          "base": {
+            "min": 2893568012,
+            "max": 2898478447
+          },
+          "candidate": {
+            "min": 2894328579,
+            "max": 2897619371
+          }
+        },
+        "identical_counts": true
+      }
+    ],
+    "single_worker_geomean_instruction_delta_pct": 0.011205897936927833,
+    "eight_worker_geomean_paired_median_instruction_delta_pct": -0.03181048289147004,
+    "all_single_worker_cells_at_most_one_percent": true,
+    "both_eight_worker_medians_at_most_one_percent": true,
+    "qualification": "Whole CLI instructions including startup; shared host, no wall-clock claim. Cachegrind and Callgrind totals are not pooled. W8 uses three paired interleaved observations per profile with genuine parallel-path proof; all counts/depth and null optional caps checked."
+  }
+}

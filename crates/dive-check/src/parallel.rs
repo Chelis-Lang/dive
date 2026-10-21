@@ -88,6 +88,9 @@ const PH_DEADLOCK: u8 = 9;
 /// Below this many candidates a level's resolve runs on one thread.
 const PARALLEL_RESOLVE: usize = 4096;
 
+/// At most this many emitted successors run between budget polls within a unit.
+const EMISSION_BUDGET_INTERVAL: u64 = 1024;
+
 /// What travels with a candidate to the next frontier.
 struct Payload {
     vals: StateVals,
@@ -111,6 +114,8 @@ struct Event {
     resume: bool,
     /// An implicit-stutter bound uses the inline engine's no-path/zero-queue stop.
     stutter: bool,
+    /// This unit stopped before its next successor; its source remains queued.
+    partial: bool,
 }
 
 fn earlier(a: Option<Event>, b: Option<Event>) -> Option<Event> {
@@ -238,7 +243,7 @@ struct Expand<'env, S: Keyed> {
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
     chaos: Option<u64>,
-    /// The run's armed budget, polled once per claimed block (ADR 0107).
+    /// The run's armed budget, polled per block and amortized during emission.
     budget: crate::budget::Budget,
     /// Whether a block was left unexpanded because the budget ran out; the
     /// wave is then not published.
@@ -384,6 +389,10 @@ impl<S: Keyed> Expand<'_, S> {
                 self.expand(set, u, buf, &cap, &mut out.lines, &mut out.accepted);
             out.gens.push(generated);
             if let Some(e) = event {
+                #[cfg(test)]
+                if let Some(pause) = &self.pause {
+                    pause.event(e.unit);
+                }
                 self.cut.fetch_min(u as u64, Ordering::Relaxed);
                 out.event = Some(e);
                 break;
@@ -423,6 +432,7 @@ impl<S: Keyed> Expand<'_, S> {
                         then: None,
                         resume: false,
                         stutter: false,
+                        partial: false,
                     }),
                 );
             }
@@ -459,6 +469,38 @@ impl<S: Keyed> Expand<'_, S> {
                             then: None,
                             resume: false,
                             stutter: false,
+                            partial: false,
+                        });
+                        return Flow::Stop;
+                    }
+                    #[cfg(test)]
+                    if let Some(pause) = &self.pause {
+                        pause.emitted(unit, generated, &self.budget);
+                    }
+                    // The first chunk was admitted by the block-start poll.
+                    // Keep already-in-flight events authoritative, then sample
+                    // the same armed signal at amortized emission boundaries.
+                    if generated != 0
+                        && generated.is_multiple_of(EMISSION_BUDGET_INTERVAL)
+                        && let Some(exhausted) = self.budget.poll()
+                    {
+                        let pos = (state, ua, u32::try_from(succ.ordinal).unwrap_or(u32::MAX));
+                        flush(cap, lines, (pos, PH_ENUM));
+                        self.exhausted.store(true, Ordering::Relaxed);
+                        let phase = if self.capture_limit.is_some() {
+                            crate::budget::Phase::Capture
+                        } else {
+                            crate::budget::Phase::Search
+                        };
+                        event = Some(Event {
+                            key: (pos, PH_ENUM),
+                            unit,
+                            c: generated,
+                            verdict: Verdict::Stopped(Box::new(exhausted.during(phase))),
+                            then: None,
+                            resume: false,
+                            stutter: false,
+                            partial: true,
                         });
                         return Flow::Stop;
                     }
@@ -474,6 +516,7 @@ impl<S: Keyed> Expand<'_, S> {
                             then: None,
                             resume: false,
                             stutter: false,
+                            partial: false,
                         });
                         return Flow::Stop;
                     };
@@ -490,6 +533,7 @@ impl<S: Keyed> Expand<'_, S> {
                             then: None,
                             resume: false,
                             stutter: false,
+                            partial: false,
                         });
                         return Flow::Stop;
                     }
@@ -519,6 +563,7 @@ impl<S: Keyed> Expand<'_, S> {
                                 verdict: s.verdict,
                                 resume: false,
                                 stutter: false,
+                                partial: false,
                             });
                             Flow::Stop
                         }
@@ -546,6 +591,7 @@ impl<S: Keyed> Expand<'_, S> {
                         then: None,
                         resume: false,
                         stutter: false,
+                        partial: false,
                     });
                     break;
                 }
@@ -568,6 +614,7 @@ impl<S: Keyed> Expand<'_, S> {
                 then: None,
                 resume: false,
                 stutter: false,
+                        partial: false,
             });
         }
         if event.is_none() {
@@ -694,6 +741,7 @@ fn deadlock(i: usize, unit: usize) -> Event {
         then: None,
         resume: false,
         stutter: false,
+        partial: false,
     }
 }
 
@@ -762,6 +810,7 @@ fn native_counter_event(
                 then: None,
                 resume: false,
                 stutter: false,
+                partial: false,
             });
         }
         remaining -= count;
@@ -846,6 +895,7 @@ impl<K> Check<'_, K> {
                     c: u64::from(w.pos.2) + 1,
                     resume: resumes(&verdict),
                     stutter: false,
+                    partial: false,
                     verdict,
                     then: values(&w.vals).map(|values| TraceState {
                         label: a.label().to_owned(),
@@ -966,6 +1016,7 @@ fn capture_wave<S: Keyed>(
                         then: None,
                         resume: false,
                         stutter: false,
+                        partial: false,
                     }),
                 );
             }
@@ -983,6 +1034,7 @@ fn capture_wave<S: Keyed>(
                         then: None,
                         resume: false,
                         stutter: true,
+                        partial: false,
                     }),
                 );
             }
@@ -1380,6 +1432,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
                         then: None,
                         resume: false,
                         stutter: false,
+                        partial: false,
                     }),
                     first,
                 );
@@ -1406,6 +1459,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
                         then: None,
                         resume: false,
                         stutter: false,
+                        partial: false,
                     }),
                     first,
                 );
@@ -1501,7 +1555,7 @@ fn commit_sources<'a: 'env, 'env, S: Keyed>(
             left_on_queue: if e.stutter {
                 0
             } else {
-                ((len - i - 1) + next_frontier.len() + before) as u64
+                ((len - i - 1) + next_frontier.len() + before + usize::from(e.partial)) as u64
             },
             depth,
             initial_generated: search.initial_generated,
@@ -1658,6 +1712,7 @@ fn resolve_admitted<S: Keyed>(
                 then: None,
                 resume: false,
                 stutter: false,
+                partial: false,
             };
             return Ok((winners, Some(event)));
         }
@@ -1680,6 +1735,7 @@ pub(crate) mod budget_cut_tests {
         entered: bool,
         tripped: bool,
         skipped: bool,
+        later_event: Option<usize>,
     }
 
     /// Holds the first expansion in flight until another worker observes a stop.
@@ -1687,6 +1743,8 @@ pub(crate) mod budget_cut_tests {
     pub(crate) struct Pause {
         state: Mutex<State>,
         wake: Condvar,
+        /// Emitted-prefix length and whether another worker must decide later.
+        emission: Option<(u64, bool)>,
     }
 
     impl Pause {
@@ -1703,12 +1761,18 @@ pub(crate) mod budget_cut_tests {
         }
 
         pub(super) fn before_poll(&self, unit: usize) {
+            if self.emission.is_some() {
+                return;
+            }
             if unit != 0 {
                 self.wait_for(|s| s.tripped);
             }
         }
 
         pub(super) fn after_poll(&self, unit: usize) {
+            if self.emission.is_some() {
+                return;
+            }
             if unit == 0 {
                 self.state
                     .lock()
@@ -1725,6 +1789,34 @@ pub(crate) mod budget_cut_tests {
                 .unwrap_or_else(PoisonError::into_inner)
                 .skipped = true;
             self.wake.notify_all();
+        }
+
+        pub(super) fn emitted(&self, unit: usize, generated: u64, budget: &crate::budget::Budget) {
+            let Some((at, later)) = self.emission else {
+                return;
+            };
+            if unit != 0 || generated != at {
+                return;
+            }
+            if later {
+                self.wait_for(|s| s.later_event.is_some());
+            }
+            budget.trip_for_test();
+            self.state
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .tripped = true;
+            self.wake.notify_all();
+        }
+
+        pub(super) fn event(&self, unit: usize) {
+            if self.emission.is_some() && unit > 0 {
+                self.state
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .later_event = Some(unit);
+                self.wake.notify_all();
+            }
         }
 
         fn trip(&self, budget: &crate::budget::Budget) {
@@ -1807,6 +1899,160 @@ pub(crate) mod budget_cut_tests {
         assert!(covers(&blocks, 3, |b| b == 0));
         // No event: nothing to publish.
         assert!(!covers(&blocks, u64::MAX, |_| true));
+    }
+
+    #[allow(
+        clippy::expect_used,
+        clippy::panic,
+        reason = "fixed models and deterministic emission-budget controls"
+    )]
+    mod emission_tests {
+        use super::*;
+        use crate::{CheckOptions, CheckResult, Stats, Verdict};
+
+        fn input(source: &str, config: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
+            let analysis =
+                dive_sema::analyze_source("Emission.tla", source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("valid IR"));
+            let cfg = dive_config::parse(config)
+                .into_config()
+                .expect("valid config");
+            (ir, cfg)
+        }
+
+        fn trip_after_chunk(
+            options: &mut CheckOptions,
+            wait_for_later: bool,
+        ) -> (crate::budget::Watchdog, Arc<Pause>) {
+            let watchdog = crate::budget::Budget::new(Some(Duration::from_secs(3600)), None)
+                .start()
+                .expect("watchdog starts")
+                .expect("watchdog");
+            let pause = Arc::new(Pause {
+                emission: Some((super::super::EMISSION_BUDGET_INTERVAL, wait_for_later)),
+                ..Pause::default()
+            });
+            options.workers = 4;
+            options.budget = watchdog.budget().clone();
+            options.parallel_budget_test = Some(pause.clone());
+            (watchdog, pause)
+        }
+
+        fn stopped(result: &CheckResult, generated: u64, phase: crate::budget::Phase) {
+            let Verdict::Stopped(stop) = &result.verdict else {
+                panic!("an incomplete source cannot decide a later property: {result:?}");
+            };
+            assert_eq!(stop.resource, crate::budget::Resource::Time);
+            assert_eq!(stop.phase, phase);
+            assert_eq!(result.workers.used, 4);
+            assert!(result.counterexample.is_none());
+            assert_eq!(
+                result.stats,
+                Some(Stats {
+                    generated,
+                    distinct: 1024,
+                    left_on_queue: 1024,
+                    depth: 2,
+                    initial_generated: generated - 1024,
+                })
+            );
+        }
+
+        #[test]
+        fn an_earlier_invariant_violation_or_error_survives_the_emission_stop() {
+            for (invariant, evaluation_error) in [
+                ("x < 512", false),
+                ("IF x < 512 THEN TRUE ELSE (x + TRUE = x)", true),
+            ] {
+                let source = format!(
+                    "---- MODULE Emission ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' \\in 0..4095\nSafe == {invariant}\n====\n"
+                );
+                let (ir, cfg) = input(&source, "INIT Init\nNEXT Next\nINVARIANT Safe\n");
+                for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+                    options.workers = 4;
+                    let reference = crate::check(&ir, &cfg, &options);
+                    if evaluation_error {
+                        assert!(matches!(
+                            reference.verdict,
+                            Verdict::EvaluationError {
+                                site: crate::ErrorSite::Invariant,
+                                ..
+                            }
+                        ));
+                    } else {
+                        assert!(matches!(
+                            &reference.verdict,
+                            Verdict::InvariantViolated { property, initial: false }
+                                if property == "Safe"
+                        ));
+                    }
+                    let (_watchdog, pause) = trip_after_chunk(&mut options, false);
+                    let result = crate::check(&ir, &cfg, &options);
+                    assert!(pause.state.lock().expect("state").tripped);
+                    assert_eq!(result.verdict, reference.verdict);
+                    assert_eq!(result.stats, reference.stats);
+                    assert_eq!(
+                        format!("{:?}", result.counterexample),
+                        format!("{:?}", reference.counterexample)
+                    );
+                }
+            }
+        }
+
+        #[test]
+        fn an_unprocessed_later_invariant_cannot_replace_the_emission_stop() {
+            let source = "---- MODULE Emission ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' \\in 0..4095\nSafe == x < 2048\n====\n";
+            let (ir, cfg) = input(source, "INIT Init\nNEXT Next\nINVARIANT Safe\n");
+            for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+                let (_watchdog, pause) = trip_after_chunk(&mut options, false);
+                let result = crate::check(&ir, &cfg, &options);
+                assert!(pause.state.lock().expect("state").tripped);
+                stopped(&result, 1025, crate::budget::Phase::Search);
+            }
+        }
+
+        #[test]
+        fn a_later_worker_violation_cannot_certify_an_earlier_partial_source() {
+            let source = "---- MODULE Emission ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..127\nNext == IF x = 0 THEN x' \\in 0..4095 ELSE x' = 9999\nSafe == [][x' < 9000]_x\n====\n";
+            let (ir, cfg) = input(source, "INIT Init\nNEXT Next\nPROPERTY Safe\n");
+            for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+                let (_watchdog, pause) = trip_after_chunk(&mut options, true);
+                let result = crate::check(&ir, &cfg, &options);
+                let state = pause.state.lock().expect("state");
+                assert!(state.tripped && state.later_event.is_some());
+                stopped(&result, 1152, crate::budget::Phase::Search);
+            }
+        }
+
+        #[test]
+        fn concrete_pool_partial_sources_never_receive_completion_evidence() {
+            let source = "---- MODULE Emission ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' \\in 0..4095\n====\n";
+            let (ir, cfg) = input(source, "INIT Init\nNEXT Next\n");
+            for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+                let model = dive_model::bind(
+                    ir.clone(),
+                    &cfg,
+                    &dive_model::BindOptions {
+                        eval: options.eval,
+                        no_deadlock: options.no_deadlock,
+                        host: None,
+                    },
+                )
+                .expect("model");
+                let (_watchdog, pause) = trip_after_chunk(&mut options, false);
+                let result = crate::capture::explore_concrete_parallel_with_evidence(
+                    &model,
+                    &options,
+                    crate::capture::Limits::default(),
+                )
+                .expect("actual capture pool");
+                assert!(pause.state.lock().expect("state").tripped);
+                let crate::capture::Exploration::Stopped(result) = result else {
+                    panic!("an incomplete source cannot receive GraphCompletion");
+                };
+                stopped(&result, 1025, crate::budget::Phase::Capture);
+            }
+        }
     }
 }
 

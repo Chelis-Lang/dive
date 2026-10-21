@@ -348,3 +348,32 @@ its watchdog through capture and analysis. Use the returned armed options from
 does not mutate the original budget. An unarmed budget has no running clock and
 its polls return no exhaustion. These low-level primitives do not resolve CLI
 defaults or arm a watchdog themselves.
+
+The primary `interval-streaming` corpus records TLC's ascending, incremental
+`IntervalValue` enumeration: `x # x` fails on the first initial state even for
+a billion-element domain. A constant `FALSE` invariant instead fails configuration
+validation before enumeration. The corresponding initial and successor witnesses
+and a complete five-state interval are recorded separately from the established
+conformance populations; see [the corpus guide](../conformance-corpora.md#interval-enumeration-resource-controls).
+
+Unassigned `x \in lo..hi` initial predicates and `x' \in lo..hi` successor
+assignments stream ascending integers without first retaining the whole domain.
+This lets existing checker guards run when a complete assignment reaches the
+sink. Already assigned variables still use the ordinary membership check. Other
+constructors, branches that never emit a complete assignment, and long individual
+evaluations remain potentially uninterruptible (issue #349). No fixed domain-size
+count is introduced. Parallel checking polls the armed run budget during
+successor emission (issue #362). A stop retains its actual ordered prefix and
+leaves the unfinished source queued; a later worker's violation cannot bypass an
+earlier incomplete expansion. A predicate such as
+`x' \in 0..50000000 /\ FALSE` emits no complete successors, so this emission
+guard does not interrupt its enumeration; single long evaluations retain the
+same limitation. For a bounded first-state violation with an independently
+validated witness, run:
+
+```sh
+dive check conformance/corpus/interval-streaming/specifications/WideIntervalInit/WideIntervalInit.tla --compat=tlc --time-limit 1s --max-memory 1g --output json
+```
+
+The invariant fails on `x = 0` (TLC class `TLC_INVARIANT_VIOLATED_INITIAL`, exit
+12); this is not a successful proof over the rest of the interval.
