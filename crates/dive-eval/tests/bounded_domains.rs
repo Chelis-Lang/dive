@@ -428,3 +428,28 @@ Q(p) == \A v \in {f \in [{1} -> BOOLEAN] : TRUE} : v
         assert_eq!(ev.take_output(), Vec::<String>::new());
     }
 }
+
+#[test]
+fn constant_analysis_slots_never_become_runtime_values_or_string_classified_errors() {
+    for opts in [Options::tlc(), Options::dive()] {
+        let (ev, def) = evaluator("1..1000000000", opts);
+        let expr = ev.ir().def(def).body;
+        let Expr::Quant { body, .. } = ev.ir().expr(expr) else {
+            panic!("quantifier fixture");
+        };
+        let scope = ev.scope(def).expect("scope");
+        assert!(
+            ev.scope_constant_binder_analysis(&scope, dive_ir::ExprId(u32::MAX))
+                .is_err()
+        );
+        let analysis = ev
+            .scope_constant_binder_analysis(&scope, expr)
+            .expect("static scope");
+        let error = ev
+            .eval_scoped(&analysis, *body, &St::constant())
+            .expect_err("no guessed value");
+        assert!(error.is_analysis_only());
+        assert_eq!(error.class(), ErrorClass::Unsupported);
+        assert!(!dive_eval::EvalError::unsupported(error.message()).is_analysis_only());
+    }
+}

@@ -37,6 +37,12 @@
   bindings retain named refusals. Both profiles match TLC's evaluation-leaf
   rule; the checked three-state fixture produces 7 generated states.
 
+- Temporal admission no longer enumerates constant-domain predicate binders or
+  refuses them at 4,096 bindings. Quantifiers, maps, filters and nonrecursive
+  function constructors are inspected once in both profiles; runtime evaluation
+  and independent trace replay retain concrete bindings. Formula/storage limits
+  still bound actual temporal expansion.
+
 - Liveness checking evaluates its atoms with the core evaluator and its
   definition and lazy-value caches, instead of a bounded re-evaluation that
   first walked every binder domain (issue #322, ADR 0103 follow-up). On the

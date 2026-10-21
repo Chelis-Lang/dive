@@ -270,6 +270,9 @@ pub(crate) enum Sv {
     Val(Value),
     /// A pure unknown binder value used only by static level/purity analysis.
     AnalysisBound,
+    /// A pure unknown constant-level binder value (a binder over a constant
+    /// domain) used only by static level/purity analysis.
+    AnalysisConstant,
     /// A lazy function.
     Fcn(Arc<LazyFcn>),
     /// A `LazyValue`.
@@ -689,7 +692,7 @@ fn captures_with_effects(
                         }
                     }
                 }
-                Sv::Unset | Sv::Val(_) | Sv::AnalysisBound => {}
+                Sv::Unset | Sv::Val(_) | Sv::AnalysisBound | Sv::AnalysisConstant => {}
             }
         } else {
             return false;

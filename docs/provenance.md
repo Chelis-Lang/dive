@@ -158,6 +158,7 @@ bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
 
 | Component | Reference | License | Evidence |
 |---|---|---|---|
+| Constant-domain predicate analysis (`scope_constant_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original static level/purity analysis with non-evaluable constant binder slots; runtime semantics remain the existing TLC-compatible evaluator | Original implementation | Large-domain, dependent-domain, callback, effect, concrete-error and independent-word controls in `constant_binder_analysis.rs`; no domain enumeration or sampled values during admission |
 | State-dependent finite predicate preflight (`dive-eval::finite`, `scope_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original conservative scoped analysis and bounded concrete walks; TLA+ quantifier/constructor truth compared with TLC `ContextEnumerator`, `SetOfAllValue`, `SetPredValue`, `FcnLambdaValue` at `94d0c50` | Original implementation; MIT reference | Eight `Df*` pinned truth/count probes, independent periodic validation and exhaustive short words; no sample values, frozen domains or validator successor enumeration |
 
 Finite CHOOSE predicate scopes extend the original conservative analysis in
