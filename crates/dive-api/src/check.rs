@@ -910,7 +910,7 @@ impl CheckReport {
                 "max_memory_requested_source": self.memory_requested_source,
                 "max_states": o.max_states,
                 "max_depth": o.max_depth,
-                "scope": "the check after loading: safety search, graph capture, temporal analysis and fresh native temporal-candidate validation, including amortized predicate-loop, successor-candidate and composition-intermediate checkpoints; binding, ASSUME, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
+                "scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, using existing amortized loop checkpoints; structural binding, ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
             },
         });
         if let Some(disk) = &o.seen_disk {
@@ -1144,6 +1144,12 @@ impl CheckReport {
                 doc["diagnostics"] = json!([crate::diagnostics::temporal_failure(e)]);
                 doc["execution"] =
                     json!({"stage": e.stage().name(), "capture_completed": e.capture_completed()});
+                if e.stage() == crate::temporal::Stage::Binding
+                    && e.exploration().is_none()
+                    && !matches!(e.error(), crate::temporal::Error::Binding(_))
+                {
+                    doc["resources"]["checking_started"] = json!(false);
+                }
                 if let Some(checks) = e.periodic() {
                     doc["periodic"] = periodic_json(checks);
                 }
@@ -1184,10 +1190,9 @@ impl CheckReport {
                     doc["notes"] = json!([
                         "Temporal checking failed; capture_completed records whether these actual exploration statistics describe completion. No temporal verdict was produced."
                     ]);
-                } else if let crate::temporal::Error::Binding(failure) = e.error() {
+                } else {
                     doc["warnings"] = json!(
-                        failure
-                            .output
+                        e.binding_output()
                             .iter()
                             .filter_map(|m| {
                                 if let dive_model::Message::Warning { code, message } = m {
@@ -1199,8 +1204,7 @@ impl CheckReport {
                             .collect::<Vec<_>>()
                     );
                     doc["output"] = json!(
-                        failure
-                            .output
+                        e.binding_output()
                             .iter()
                             .filter_map(|m| match m {
                                 dive_model::Message::Print(text) => Some(text.clone()),
@@ -1237,7 +1241,9 @@ impl CheckReport {
                     "search_event_before_storage_failure": r.frontier.deciding_event_before_failure,
                 });
                 if self.temporal != TemporalMode::Ordinary {
-                    let stage = if r.binding_model_error {
+                    let stage = if r.binding_model_error
+                        || matches!(&r.verdict, Verdict::Stopped(stop) if stop.phase == dive_check::budget::Phase::Binding)
+                    {
                         "binding"
                     } else {
                         "capture"
@@ -1461,6 +1467,17 @@ impl CheckReport {
                         "Capture completed: {} generated, {} distinct, depth {}; no temporal verdict.",
                         stats.generated, stats.distinct, stats.depth
                     );
+                } else if !matches!(e.error(), crate::temporal::Error::Binding(_)) {
+                    for message in e.binding_output() {
+                        match message {
+                            dive_model::Message::Print(text) => {
+                                let _ = writeln!(out, "{text}");
+                            }
+                            dive_model::Message::Warning { message, .. } => {
+                                let _ = writeln!(out, "Warning: {message}");
+                            }
+                        }
+                    }
                 }
             }
             Phase::Checked(r) => {
@@ -2264,3 +2281,7 @@ mod evidence_controls {
         );
     }
 }
+
+#[cfg(test)]
+#[path = "binding_report_controls.rs"]
+mod binding_report_controls;

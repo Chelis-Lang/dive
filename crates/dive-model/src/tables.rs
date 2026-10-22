@@ -38,6 +38,7 @@ pub(crate) enum Look {
 pub(crate) struct Tables {
     pub(crate) ir: Arc<Ir>,
     ev: Evaluator,
+    pub(crate) controlled: bool,
     root_vars: HashSet<String>,
     /// Root constants' tool objects, by `ConstId`.
     pub(crate) consts: Vec<Option<Look>>,
@@ -64,6 +65,7 @@ impl Tables {
         Ok(Self {
             ir,
             ev,
+            controlled: false,
             root_vars,
             consts: vec![None; n],
             tool_obj: HashMap::new(),
@@ -71,8 +73,17 @@ impl Tables {
         })
     }
 
-    pub(crate) fn set_evaluator(&mut self, ev: Evaluator) {
+    pub(crate) fn set_evaluator(&mut self, ev: Evaluator, controlled: bool) {
         self.ev = ev;
+        self.controlled = controlled;
+    }
+
+    pub(crate) fn eval_error(
+        &self,
+        error: dive_eval::EvalError,
+        legacy: impl FnOnce(dive_eval::EvalError) -> crate::BindError,
+    ) -> crate::control::StepError {
+        crate::control::eval_error(self.controlled, error, legacy)
     }
 
     /// The evaluator (a placeholder until the constants are bound).

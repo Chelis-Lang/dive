@@ -17,30 +17,23 @@ use crate::{BindError, Ec, bind::Binder, tables::Look};
 /// `TlcConfigIdRequiresNoArg` for an operator with parameters. An entry that
 /// is not a definition is refused by name: TLC fails there with a Java
 /// `ClassCastException`, which has no message code to reproduce.
-pub(crate) fn resolve(
-    b: &Binder<'_>,
-    name: &str,
-    entry: Option<&Look>,
-) -> Result<DefId, BindError> {
+pub(crate) fn resolve(b: &Binder<'_>, name: &str, entry: Option<&Look>) -> crate::bind::R<DefId> {
     let definition = match entry {
         Some(Look::Def(definition)) => *definition,
         None => {
-            return Err(BindError::tlc(
-                Ec::TlcConfigSpecifiedNotDefined,
-                &["periodic", name],
-            ));
+            return Err(
+                BindError::tlc(Ec::TlcConfigSpecifiedNotDefined, &["periodic", name]).into(),
+            );
         }
         Some(_) => {
             return Err(BindError::unsupported(
                 "non-definition _PERIODIC entry (TLC ClassCastException boundary)",
-            ));
+            )
+            .into());
         }
     };
     if !b.t.ir.def(definition).params.is_empty() {
-        return Err(BindError::tlc(
-            Ec::TlcConfigIdRequiresNoArg,
-            &["periodic", name],
-        ));
+        return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &["periodic", name]).into());
     }
     Ok(definition)
 }

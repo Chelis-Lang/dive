@@ -320,6 +320,7 @@ pub struct Failure {
     incomplete: bool,
     periodic: Option<Box<Checks>>,
     configuration: Option<Box<Configuration>>,
+    binding_output: Vec<dive_model::Message>,
 }
 impl Failure {
     /// Actual configured owner limits when admitted by the enclosing API.
@@ -340,6 +341,7 @@ impl Failure {
             incomplete: false,
             periodic: None,
             configuration: None,
+            binding_output: Vec::new(),
         }
     }
     fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
@@ -353,6 +355,7 @@ impl Failure {
             incomplete: false,
             periodic: None,
             configuration: None,
+            binding_output: Vec::new(),
         }
     }
     /// The actual typed active action-label error, when one occurred.
@@ -361,6 +364,19 @@ impl Failure {
     pub fn action_evaluation(&self) -> Option<&dive_liveness::analyze::ActionEvaluation> {
         self.action_evaluation.as_deref()
     }
+    /// Output retained from the binding invocation which failed.
+    ///
+    /// For validation rebinding this is replay evidence, not additional output
+    /// from the original execution. Report writers retain the capture's output.
+    #[must_use]
+    pub fn binding_output(&self) -> &[dive_model::Message] {
+        if let Error::Binding(failure) = self.error() {
+            &failure.output
+        } else {
+            &self.binding_output
+        }
+    }
+
     /// Actual progress from an interrupted independent validation invocation.
     #[must_use]
     pub fn validation_progress(&self) -> Option<&ValidationProgress> {
@@ -440,6 +456,7 @@ impl std::error::Error for Failure {
     }
 }
 
+#[cfg(test)]
 fn bind(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Result<Model, Error> {
     if options.seen_disk.is_some() {
         return Err(Error::Analysis(AnalysisError::Unsupported(
@@ -467,22 +484,122 @@ fn bind(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Result<Mo
     .map_err(Error::Binding)
 }
 
+fn controlled_binding_failure(
+    failure: dive_model::ControlledBindError,
+    control: &dive_check::budget::EvaluationControl,
+) -> Failure {
+    let output = failure.output().to_vec();
+    let error = match failure {
+        dive_model::ControlledBindError::Binding(failure) => Error::Binding(failure),
+        dive_model::ControlledBindError::Interrupted { error, .. } => {
+            Error::Analysis(match control.verdict(&error) {
+                Some(dive_check::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
+                Some(dive_check::Verdict::BudgetMeasurement { error }) => {
+                    AnalysisError::BudgetMeasurement(error)
+                }
+                _ => AnalysisError::Inconsistent(
+                    "binding interruption lacks matching active resource authority",
+                ),
+            })
+        }
+        dive_model::ControlledBindError::ControlConflict { .. } => Error::Analysis(
+            AnalysisError::Inconsistent("binding control ownership conflict"),
+        ),
+    };
+    let mut failure = Failure::before(error, Stage::Binding);
+    failure.binding_output = output;
+    failure
+}
+
+fn bind_controlled(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    control: &Arc<dive_check::budget::EvaluationControl>,
+) -> Result<Model, Failure> {
+    if options.seen_disk.is_some() {
+        return Err(Failure::before(
+            Error::Analysis(AnalysisError::Unsupported(
+                "disk seen-state retention with temporal capture is not implemented",
+            )),
+            Stage::Binding,
+        ));
+    }
+    let mode = if options.profile == dive_eval::Profile::Tlc {
+        dive_stdlib::random::RandomMode::Tlc
+    } else {
+        dive_stdlib::random::RandomMode::Dive
+    };
+    let host = Arc::new(dive_stdlib::host::RunHost::new(
+        dive_stdlib::random::Streams::new(options.seed, mode),
+        None,
+    ));
+    dive_model::bind_controlled(
+        ir.clone(),
+        config,
+        &BindOptions {
+            eval: options.eval,
+            no_deadlock: options.no_deadlock,
+            host: Some(host),
+        },
+        control.clone(),
+    )
+    .map_err(|failure| controlled_binding_failure(failure, control))
+}
+
+fn validation_binding_failure(mut failure: Failure) -> Failure {
+    failure.stage = Stage::Validation;
+    if matches!(
+        failure.error(),
+        Error::Analysis(AnalysisError::Stopped(_) | AnalysisError::BudgetMeasurement(_))
+    ) {
+        failure.validation_progress = Some(ValidationProgress {
+            checks_passed: 0,
+            state: None,
+            check: None,
+        });
+    }
+    failure
+}
+
+fn final_binding_validation_failure(failure: Failure, capture: &capture::Complete) -> Failure {
+    let mut failure = validation_binding_failure(failure);
+    failure.exploration = Some(Box::new(capture.into()));
+    failure
+}
+
+fn prefix_binding_validation_failure(failure: Failure, capture: &capture::Prefix) -> Failure {
+    let mut failure = validation_binding_failure(failure);
+    failure.exploration = Some(Box::new(capture.into()));
+    failure.incomplete = true;
+    failure
+}
+
 fn run(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
     configuration: Configuration,
 ) -> Result<Outcome, Failure> {
-    let model = match dive_check::final_roles::dispatch(ir, config, options) {
-        Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
-            return Ok(Outcome::Safety(result));
-        }
-        Some(Ok(dive_check::final_roles::Dispatch::Temporal(model))) => *model,
-        Some(Err(error)) => return Err(Failure::before(Error::Binding(error), Stage::Binding)),
-        None => {
-            bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?
-        }
-    };
+    let control = dive_check::budget::EvaluationControl::new(
+        &options.budget,
+        dive_check::budget::Phase::Binding,
+    )
+    .map_err(|_| {
+        Failure::before(
+            Error::Analysis(AnalysisError::Inconsistent("binding control identity")),
+            Stage::Binding,
+        )
+    })?;
+    let model =
+        match dive_check::final_roles::dispatch_controlled(ir, config, options, control.clone()) {
+            Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
+                return Ok(Outcome::Safety(result));
+            }
+            Some(Ok(dive_check::final_roles::Dispatch::Temporal(model))) => *model,
+            Some(Err(error)) => return Err(controlled_binding_failure(error, &control)),
+            None => bind_controlled(ir, config, options, &control)?,
+        };
     run_bound(ir, config, options, &model, configuration)
 }
 
@@ -779,9 +896,10 @@ fn finish_final(
             })?;
             // Rebind separately: validation cannot inspect the checker's graph
             // or depend on its mutable evaluator/host state.
-            let validation_model = bind(ir, config, options).map_err(|error| {
-                Failure::after(error, Stage::Validation, &candidate.exploration)
-            })?;
+            let validation_model =
+                bind_controlled(ir, config, options, &control).map_err(|failure| {
+                    final_binding_validation_failure(failure, &candidate.exploration)
+                })?;
             let trace = Trace {
                 states: candidate.states.clone(),
                 // Labels are optional; the validator checks the relation itself.
@@ -837,6 +955,7 @@ fn finish_final(
                     incomplete: false,
                     periodic: None,
                     configuration: None,
+                    binding_output: Vec::new(),
                 })
             }
         }
@@ -858,6 +977,7 @@ fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> F
         incomplete: false,
         periodic: None,
         configuration: None,
+        binding_output: Vec::new(),
     }
 }
 
@@ -872,6 +992,7 @@ fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failu
         incomplete: true,
         periodic: None,
         configuration: None,
+        binding_output: Vec::new(),
     }
 }
 
@@ -890,6 +1011,7 @@ fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationRepor
         incomplete: true,
         periodic: None,
         configuration: None,
+        binding_output: Vec::new(),
     }
 }
 
@@ -915,8 +1037,8 @@ fn validate_prefix(
         .map_err(|error| prefix_failure(error, Stage::Validation, &candidate.exploration))?;
     validation_checkpoint(&control)
         .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
-    let model = bind(ir, config, options)
-        .map_err(|error| prefix_failure(error, Stage::Validation, &candidate.exploration))?;
+    let model = bind_controlled(ir, config, options, &control)
+        .map_err(|failure| prefix_binding_validation_failure(failure, &candidate.exploration))?;
     let trace = Trace {
         states: candidate.states.clone(),
         labels: vec![None; candidate.states.len()],
@@ -982,6 +1104,7 @@ fn run_periodic(
                 incomplete: failure.capture_completed == Some(false),
                 periodic: Some(Box::new(failure.checks)),
                 configuration: None,
+                binding_output: Vec::new(),
             });
         }
     };
@@ -1013,7 +1136,24 @@ pub(crate) fn check_ordinary_final(
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
             .spawn_scoped(scope, || {
-                dive_check::final_roles::dispatch_ordinary(ir, config, options).map(|bound| {
+                let Ok(control) = dive_check::budget::EvaluationControl::new(
+                    &options.budget,
+                    dive_check::budget::Phase::Binding,
+                ) else {
+                    return Some(Err(Failure::before(
+                        Error::Analysis(AnalysisError::Inconsistent("binding control identity")),
+                        Stage::Binding,
+                    )));
+                };
+                dive_check::final_roles::dispatch_ordinary_controlled(
+                    ir,
+                    config,
+                    options,
+                    control.clone(),
+                )
+                .map(|result| {
+                    let bound =
+                        result.map_err(|failure| controlled_binding_failure(failure, &control))?;
                     match bound {
                         dive_check::final_roles::Dispatch::Safety(result) => {
                             Ok((Outcome::Safety(result), None))
@@ -1559,3 +1699,7 @@ mod prefix_controls {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "binding_controls.rs"]
+pub(crate) mod binding_controls;

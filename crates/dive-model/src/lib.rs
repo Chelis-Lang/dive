@@ -70,6 +70,7 @@
 
 mod actions;
 mod bind;
+mod control;
 mod error;
 pub mod intern;
 pub mod level;
@@ -89,6 +90,7 @@ use dive_config::ModelConfig;
 use dive_ir::Ir;
 
 pub use bind::{BindOptions, HANOI_BITS_CLASS_SHA256, local_java_class_digests};
+pub use control::ControlledBindError;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
 pub use randomness::transformed_randomness;
@@ -143,6 +145,35 @@ impl Recipe {
             },
             None,
             true,
+            None,
+        )
+        .map_err(ControlledBindError::legacy)
+    }
+
+    /// Repeats startup with a separate typed evaluator control capability.
+    ///
+    /// Structural preprocessing and evaluator construction remain uninterruptible.
+    /// The capability covers evaluator loop checkpoints during constant evaluation
+    /// and role binding; it is removed before the fresh model is returned.
+    ///
+    /// # Errors
+    /// Ordinary binding failures, typed interruption, or control registration failure.
+    pub fn bind_controlled(
+        &self,
+        host: Arc<dyn dive_eval::Host>,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<Model, ControlledBindError> {
+        bind_in(
+            self.ir.clone(),
+            &self.config,
+            &BindOptions {
+                eval: self.options,
+                no_deadlock: self.no_deadlock,
+                host: Some(host),
+            },
+            None,
+            true,
+            Some(control),
         )
     }
 
@@ -170,7 +201,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None, false)
+    bind_in(ir, cfg, opts, None, false, None).map_err(ControlledBindError::legacy)
 }
 
 /// Binds a trusted native recovered ordered name table before evaluating constants.
@@ -186,7 +217,54 @@ pub fn bind_with_names(
     opts: &BindOptions,
     restored: &[String],
 ) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored), false)
+    bind_in(ir, cfg, opts, Some(restored), false, None).map_err(ControlledBindError::legacy)
+}
+
+/// Binds a fresh model with typed cooperative evaluator control.
+///
+/// The capability is installed after structural configuration validation and
+/// real evaluator construction. It covers existing evaluator loop checkpoints,
+/// not every structural, quiet-value or bulk startup operation.
+///
+/// ```
+/// use std::sync::Arc;
+/// use dive_eval::{HostControl, Interrupted};
+/// #[derive(Debug)]
+/// struct Continue;
+/// impl HostControl for Continue {
+///     fn check(&self) -> Result<(), Interrupted> { Ok(()) }
+/// }
+/// # fn example(ir: Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
+/// let result = dive_model::bind_controlled(ir, cfg,
+///     &dive_model::BindOptions::tlc(), Arc::new(Continue));
+/// # let _ = result;
+/// # }
+/// ```
+///
+/// # Errors
+/// Ordinary binding failures, original typed interruption with startup output,
+/// or a control registration conflict. The caller classifies run exhaustion.
+pub fn bind_controlled(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    control: Arc<dyn dive_eval::HostControl>,
+) -> Result<Model, ControlledBindError> {
+    bind_in(ir, cfg, opts, None, false, Some(control))
+}
+
+/// Like [`bind_controlled`], restoring a checked native ordered name table.
+///
+/// # Errors
+/// The errors of [`bind_with_names`] and typed evaluator control failures.
+pub fn bind_with_names_controlled(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    restored: &[String],
+    control: Arc<dyn dive_eval::HostControl>,
+) -> Result<Model, ControlledBindError> {
+    bind_in(ir, cfg, opts, Some(restored), false, Some(control))
 }
 
 fn bind_in(
@@ -195,7 +273,8 @@ fn bind_in(
     opts: &BindOptions,
     restored: Option<&[String]>,
     predicates_only: bool,
-) -> Result<Model, Box<Failure>> {
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
             error: BindError::unsupported(error.to_string()),
@@ -206,7 +285,8 @@ fn bind_in(
         return Err(Box::new(Failure {
             error: BindError::unsupported(feature),
             output: Vec::new(),
-        }));
+        })
+        .into());
     }
     let walk = {
         let t = tables::Tables::new(ir.clone()).map_err(|error| {
@@ -222,7 +302,8 @@ fn bind_in(
         return Err(Box::new(Failure {
             error,
             output: Vec::new(),
-        }));
+        })
+        .into());
     }
     let feed = intern::feed(&ir, cfg);
     let names = if let Some(restored) = restored {
@@ -246,7 +327,7 @@ fn bind_in(
                 .try_fold(0usize, |n, s| n.checked_add(s.len()))
                 .is_none_or(|n| n > 64 << 20)
         {
-            return Err(refuse());
+            return Err(refuse().into());
         }
         let names = dive_value::Interner::new();
         for (i, text) in restored.iter().enumerate() {
@@ -256,7 +337,7 @@ fn bind_in(
                     .is_none_or(|a| a.as_str() != text))
                 || names.get(text).is_some()
             {
-                return Err(refuse());
+                return Err(refuse().into());
             }
             names.intern(text);
         }
@@ -264,24 +345,17 @@ fn bind_in(
     } else {
         Arc::new(feed)
     };
-    let mut b = bind::Binder::new(ir, cfg, opts, names).map_err(|error| {
-        Box::new(Failure {
-            error,
-            output: Vec::new(),
-        })
-    })?;
+    let mut b = bind::Binder::new(ir, cfg, opts, names, control)
+        .map_err(|error| error.with_output(Vec::new()))?;
     let result = run(&mut b, predicates_only);
     b.drain_prints();
     match result {
         Ok(model) => Ok(model),
-        Err(error) => Err(Box::new(Failure {
-            error,
-            output: std::mem::take(&mut b.output),
-        })),
+        Err(error) => Err(error.with_output(std::mem::take(&mut b.output))),
     }
 }
 
-fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindError> {
+fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     b.process_spec()?;
     // SpecProcessor snapshots defns immediately after processSpec, before
     // constant definitions replace their entries with values.
@@ -302,14 +376,26 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
     // executing predicates. Refuse unknown classes before constant definitions,
     // ASSUMEs or configured roles can run their unlike TLA fallback.
     if let Some(feature) = b.unsupported.first() {
-        return Err(BindError::unsupported(feature.clone()));
+        return Err(BindError::unsupported(feature.clone()).into());
+    }
+    // Own this fresh evaluator's capability only through binding. The guard
+    // drops before a caller registers search, ASSUME, or validation control.
+    let _control = b
+        .control
+        .as_ref()
+        .map(|control| b.ev().host_control(Some(control.clone())))
+        .transpose()?;
+    if let Some(control) = &b.control {
+        control.check().map_err(|interruption| {
+            control::StepError::Interrupted(dive_eval::EvalError::interrupted(interruption))
+        })?;
     }
     b.process_constant_defns()?;
     b.process_config()?;
     if let Some(name) = &b.cfg.periodic {
         // Bound with TLC's errors, then refused: dive does not run the hook.
         periodic::resolve(b, &name.text, periodic_definition.as_ref())?;
-        return Err(BindError::unsupported("_PERIODIC"));
+        return Err(BindError::unsupported("_PERIODIC").into());
     }
     let view = b.process_view()?;
     let (init_actions, actions) = if predicates_only {
@@ -327,6 +413,17 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
         .filter(|(_, ax)| !**ax)
         .map(|(d, _)| *d)
         .collect();
+    let alias = b
+        .process_alias()
+        .map(|result| match result {
+            Ok(alias) => Ok(Ok(alias)),
+            Err(error) => error.ordinary().map(Err),
+        })
+        .transpose()?;
+    let postconditions = match b.process_postconditions() {
+        Ok(predicates) => Ok(predicates),
+        Err(error) => Err(error.ordinary()?),
+    };
     let mut model = Model {
         ir: ir.clone(),
         evaluator: b.ev().clone(),
@@ -346,8 +443,8 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> Result<Model, BindErr
         constraints: std::mem::take(&mut b.constraints),
         action_constraints: std::mem::take(&mut b.action_constraints),
         view,
-        alias: b.process_alias(),
-        postconditions: b.process_postconditions(),
+        alias,
+        postconditions,
         symmetry: b.cfg.symmetry.as_ref().map(|n| n.text.clone()),
         symmetry_definition,
         symmetry_reduction: None,

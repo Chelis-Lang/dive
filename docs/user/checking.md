@@ -103,21 +103,37 @@ with exit 5 under the explicit time budget:
 dive check docs/user/examples/RejectedCandidates.tla --seed 0 --fp 0 --workers 4 --time-limit 100ms --max-memory 1g --output json
 ```
 
-Binding and `ASSUME`
-evaluation, value-only allocation/sorting/native operations, normalization in
-existing quiet equality/ordering/hash units, and diagnostic
-error/count and predecessor-path reconstruction after an already deciding event
-are not interrupted (#349, #379). This diagnostic exclusion affects only the reconstructing thread;
-other workers retain control. It does not suspend ordinary checking. Fresh
-independent replay of final and prefix native temporal candidates inherits the
-same armed control, and both supplied and serialized native words must validate
-before a violation is certified. Interruption there reports `stopped` at
-`trace-validation`, with real capture evidence and optional validation progress,
-without an uncertified word. General TLC/session interpretation and standalone
-`validate-trace` budgets remain follow-ups. Fresh binding/`ASSUME`, serialization,
-and supplied deferred providers retained by another evaluator remain outside
-this control (#349). Diagnostic suppression never pauses candidate certification.
-No universal wall-clock deadline is promised.
+Fresh model binding installs the same run control after structural configuration
+validation and real evaluator construction. Existing evaluator loop checkpoints
+then cover constant startup evaluation, evaluator-backed role binding and action
+expansion. An interrupted startup definition is returned as typed control flow;
+it is never swallowed as a TLC evaluation error or relabelled `unsupported`.
+A binding stop reports `model-binding`, retains output already emitted, and
+reports no search statistics or used workers. The additive Rust
+`dive_model::bind_controlled`, `bind_with_names_controlled` and
+`Recipe::bind_controlled` entry points expose this capability separately from
+`BindOptions`; their uncontrolled counterparts retain their original behavior.
+
+Structural binding and evaluator construction, `ASSUME` evaluation,
+post-binding symmetry preparation, value-only allocation/sorting/native
+operations, normalization in existing quiet equality/ordering/hash units, and
+diagnostic error/count and predecessor-path reconstruction after an already
+deciding event remain outside this control (#349, #379). The diagnostic exclusion
+affects only the reconstructing thread; other workers retain control. It does
+not suspend ordinary checking.
+
+Fresh independent replay of final and prefix native temporal candidates inherits
+the same armed control, including evaluator-backed rebinding. Both supplied and
+serialized native words must validate before a violation is certified.
+Interruption there reports `stopped` at `trace-validation`, with real capture
+evidence and optional validation progress, without an uncertified word. A stop
+while rebinding has no passed validation checks or supplied state position.
+Rebinding output is retained as validation evidence and is not printed again as
+original execution output. General TLC/session interpretation and standalone
+`validate-trace` budgets remain follow-ups. Independent validator `ASSUME`,
+serialization, and supplied deferred providers retained by another evaluator
+remain outside this control. Diagnostic suppression never pauses candidate
+certification. No universal wall-clock deadline is promised.
 Unavailable memory observations interrupt these loops with typed `DIVE-R0002`,
 preserving that failure rather than inventing an exhausted resource.
 Quiet value units defer calling the host control until they return: an
