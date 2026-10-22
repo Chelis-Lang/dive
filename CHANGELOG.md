@@ -640,6 +640,16 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add `--symmetry-liveness=unreduced|refuse|tlc` for checking and independent
+  trace replay (D-005). The dive profile disables symmetry reduction for the
+  entire run only when actual bound roles include genuine temporal properties;
+  safety-only checks retain their existing reduction. Reports retain the declared
+  symmetry and requested/effective policy. Explicit unreduced TLC evaluation is
+  `tlc+overrides`; TLC quotient liveness and VIEW remain named refusals.
+  The default-profile P4 count exception binds the exact full count tuple and
+  reported unreduced mode; it is expected divergence, never agreement.
+
+
 - Explain five semantic argument-shape families: operator/function argument
   counts, required operator arguments, and operator/LAMBDA arity. Analysis reports
   fill absent help while retaining producer suggestions and diagnostic evidence;

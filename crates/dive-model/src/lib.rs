@@ -95,6 +95,7 @@ pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
 pub use randomness::transformed_randomness;
 pub use reach::TLC_CDOT;
+pub use symmetry::{SymmetryLiveness, SymmetryLivenessResolution};
 
 /// Immutable inputs for reconstructing a model's startup runtime.
 ///
@@ -106,6 +107,7 @@ pub struct Recipe {
     config: ModelConfig,
     options: dive_eval::Options,
     no_deadlock: bool,
+    symmetry_liveness: SymmetryLiveness,
 }
 
 impl Recipe {
@@ -122,7 +124,23 @@ impl Recipe {
             config,
             options,
             no_deadlock,
+            symmetry_liveness: SymmetryLiveness::Refuse,
         }
+    }
+
+    /// Retains an explicit independent binding policy for temporal symmetry.
+    /// The legacy constructor refuses periodic symmetry unless this is selected.
+    ///
+    /// ```
+    /// # fn example(recipe: dive_model::Recipe) {
+    /// let recipe = recipe.with_symmetry_liveness(dive_model::SymmetryLiveness::Unreduced);
+    /// # let _ = recipe;
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn with_symmetry_liveness(mut self, policy: SymmetryLiveness) -> Self {
+        self.symmetry_liveness = policy;
+        self
     }
 
     /// Repeats the real binder's complete startup operation with a new runtime.
@@ -140,6 +158,7 @@ impl Recipe {
             &self.config,
             &BindOptions {
                 eval: self.options,
+                symmetry_liveness: self.symmetry_liveness,
                 no_deadlock: self.no_deadlock,
                 host: Some(host),
             },
@@ -168,6 +187,7 @@ impl Recipe {
             &self.config,
             &BindOptions {
                 eval: self.options,
+                symmetry_liveness: self.symmetry_liveness,
                 no_deadlock: self.no_deadlock,
                 host: Some(host),
             },
@@ -424,6 +444,11 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         Ok(predicates) => Ok(predicates),
         Err(error) => Err(error.ordinary()?),
     };
+    let symmetry_liveness = SymmetryLivenessResolution::new(
+        b.opts.symmetry_liveness,
+        b.cfg.symmetry.as_ref().map(|name| name.text.clone()),
+        !b.implied_temporals.is_empty(),
+    );
     let mut model = Model {
         ir: ir.clone(),
         evaluator: b.ev().clone(),
@@ -447,6 +472,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         postconditions,
         symmetry: b.cfg.symmetry.as_ref().map(|n| n.text.clone()),
         symmetry_definition,
+        symmetry_liveness,
         symmetry_reduction: None,
         settings: model::Settings {
             check_deadlock: b.cfg.checks_deadlock() && !b.opts.no_deadlock,

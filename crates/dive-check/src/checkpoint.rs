@@ -1235,6 +1235,7 @@ mod tests {
                 &cfg,
                 &dive_model::BindOptions {
                     eval: opts.eval,
+                    symmetry_liveness: opts.symmetry_liveness,
                     no_deadlock: false,
                     host: None,
                 },

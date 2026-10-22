@@ -828,6 +828,7 @@ fn public_pure_action_property_replay_matches_memory_and_private_disk() {
             let host = Arc::new(crate::engine::run_host(&options));
             let bind = dive_model::BindOptions {
                 eval: options.eval,
+                symmetry_liveness: options.symmetry_liveness,
                 no_deadlock: options.no_deadlock,
                 host: Some(Arc::new(crate::host::EngineHost::new(host.clone()))),
             };

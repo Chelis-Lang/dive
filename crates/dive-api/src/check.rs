@@ -161,6 +161,9 @@ pub struct CheckRequest {
     pub module_paths: Vec<PathBuf>,
     /// `--compat=tlc`.
     pub compat_tlc: bool,
+    /// Whole-run symmetry/liveness policy; profile default when omitted.
+    /// TLC-equivalent: `Tlc`, currently refused for quotient temporal checking.
+    pub symmetry_liveness: Option<dive_model::SymmetryLiveness>,
     /// `--action-composition off|tlc|tla` (D-022); `None` is the profile's
     /// setting: `tla` by default, `off` under `--compat=tlc` (TLC without
     /// `-Dtlc2.tool.impl.Tool.cdot=true`).
@@ -235,6 +238,7 @@ pub struct CheckReport {
     profile: Profile,
     opts: CheckOptions,
     seed_given: bool,
+    symmetry_liveness_explicit: bool,
     fp_given: bool,
     workers_requested: usize,
     temporal: TemporalMode,
@@ -416,6 +420,9 @@ fn check_file_in(
         Store::Exact => StoreMode::Exact,
     };
     opts.no_deadlock = req.no_deadlock;
+    if let Some(policy) = req.symmetry_liveness {
+        opts.symmetry_liveness = policy;
+    }
     if let Some(mode) = req.action_composition {
         opts.eval.action_composition = mode;
     }
@@ -455,6 +462,7 @@ fn check_file_in(
         profile,
         opts,
         seed_given: req.seed.is_some(),
+        symmetry_liveness_explicit: req.symmetry_liveness.is_some(),
         fp_given: req.fp.is_some(),
         workers_requested,
         temporal: req.temporal,
@@ -792,7 +800,8 @@ impl CheckReport {
                     // TLC has no time limit (D-026). A memory ceiling is
                     // TLC's `-Xmx` counterpart, a host resource (ADR 0107).
                     || self.budget_sources.0 == "explicit"
-                    || self.opts.max_states.is_some() || self.opts.max_depth.is_some() =>
+                    || self.opts.max_states.is_some() || self.opts.max_depth.is_some()
+                    || self.opts.symmetry_liveness != dive_model::SymmetryLiveness::Tlc =>
             {
                 "tlc+overrides"
             }
@@ -844,6 +853,15 @@ impl CheckReport {
     }
 
     /// The `options` block: profile, options and seed (ADR 0010).
+    fn symmetry_liveness(&self) -> Option<&dive_model::SymmetryLivenessResolution> {
+        match &self.phase {
+            Phase::Checked(result) => result.symmetry_liveness.as_ref(),
+            Phase::Temporal(report) => report.symmetry_liveness(),
+            Phase::TemporalError(failure) => failure.symmetry_liveness(),
+            _ => None,
+        }
+    }
+
     fn analysis_configuration(&self) -> crate::temporal::Configuration {
         match &self.phase {
             Phase::Temporal(report) => report.configuration(),
@@ -881,6 +899,8 @@ impl CheckReport {
         });
         let mut options = json!({
             "profile": self.profile_name(),
+            "symmetry_liveness": o.symmetry_liveness.as_str(),
+            "symmetry_liveness_source": if self.symmetry_liveness_explicit { "explicit" } else { "profile-default" },
             "int": int,
             "choose_order": order,
             "explore_order": explore,
@@ -1078,6 +1098,7 @@ impl CheckReport {
             "diagnostics": [],
             "notes": [],
             "options": self.options_json(),
+            "symmetry_liveness": self.symmetry_liveness().map(symmetry_liveness_json),
             "elapsed_ms": 0,
         });
         let samples = self.memory_samples.unwrap_or_default();
@@ -1415,6 +1436,15 @@ impl CheckReport {
             self.workers_requested,
             self.workers_used()
         );
+        if let Some(symmetry) = self.symmetry_liveness()
+            && symmetry.unreduced()
+        {
+            let _ = writeln!(
+                out,
+                "Declared SYMMETRY {}; whole-run policy unreduced (no symmetry reduction); actual progress follows.",
+                symmetry.declared().unwrap_or_default()
+            );
+        }
         if let Phase::Checked(r) = &self.phase
             && let Some(why) = &r.workers.reason
         {
@@ -1906,6 +1936,7 @@ mod evidence_controls {
             profile: Profile::Tlc,
             opts,
             seed_given: true,
+            symmetry_liveness_explicit: false,
             fp_given: true,
             workers_requested: 4,
             temporal: TemporalMode::FinalShort,
@@ -2285,3 +2316,14 @@ mod evidence_controls {
 #[cfg(test)]
 #[path = "binding_report_controls.rs"]
 mod binding_report_controls;
+
+// Explanatory bound metadata only. It never supplies execution or proof facts.
+fn symmetry_liveness_json(resolution: &dive_model::SymmetryLivenessResolution) -> Value {
+    json!({
+        "declared": resolution.declared(),
+        "requested": resolution.requested().as_str(),
+        "genuine_temporal": resolution.genuine_temporal(),
+        "effective": resolution.effective(),
+        "scope": if resolution.unreduced() { Some("whole-run") } else { None },
+    })
+}

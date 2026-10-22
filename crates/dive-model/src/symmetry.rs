@@ -6,7 +6,9 @@
 //! random symmetry interactions still require separate implementations.
 //! Indices refer to one caller-supplied table of model values, not intern tokens.
 
+mod liveness;
 mod prepare;
+pub use liveness::{SymmetryLiveness, SymmetryLivenessResolution};
 
 pub use prepare::{Prepared, Reduction};
 

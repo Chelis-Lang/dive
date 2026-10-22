@@ -49,6 +49,7 @@ fn bound(definitions: &str, call: &str, configured: bool, options: &CheckOptions
         &dive_config::parse(&config).into_config().expect("config"),
         &dive_model::BindOptions {
             eval: options.eval,
+            symmetry_liveness: options.symmetry_liveness,
             no_deadlock: false,
             host: None,
         },

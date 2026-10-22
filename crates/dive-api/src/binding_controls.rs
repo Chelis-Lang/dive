@@ -291,6 +291,7 @@ P == <>(x=3)
     });
     let opts = BindOptions {
         eval: options.eval,
+        symmetry_liveness: options.symmetry_liveness,
         no_deadlock: options.no_deadlock,
         host: Some(adapter.clone()),
     };

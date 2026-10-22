@@ -34,8 +34,11 @@ a symmetry of the spec (D-016, planned).
 **Liveness.** The intended default is `--symmetry-liveness=unreduced`: disable
 reduction for the whole liveness run and say so (D-005). `refuse` and TLC's
 quotient-graph behaviour (`tlc`, selected by `--compat=tlc`) are explicit modes.
-Until these modes are implemented, symmetry combined with temporal properties is
-refused by name.
+The unreduced and refusal branches implement this accepted policy for supported
+temporal runs. TLC quotient liveness remains refused by name until its separate
+transition-label and witness semantics are implemented. Safety-only roles retain
+their existing reduction. The declared symmetry and effective whole-run mode
+are reported separately; no new trace payload or quotient closing claim is added.
 
 **Other modes.** DFID, simulation with randomness, and unsupported value or
 startup shapes refuse symmetry by name until they are supported.

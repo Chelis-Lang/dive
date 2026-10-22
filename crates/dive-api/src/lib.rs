@@ -25,6 +25,8 @@
 #![forbid(unsafe_code)]
 
 mod config;
+/// Shared whole-run policy for symmetry combined with temporal properties.
+pub use dive_model::SymmetryLiveness;
 mod rewrite;
 pub use rewrite::{
     ChecksumPolicy, RewriteOptions, RewriteReport, RewriteRequest, rewrite_file, rewrite_source,

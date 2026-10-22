@@ -21,6 +21,8 @@
 # those that actually differ. Numeric exits require exit_code_pair with integer
 # expected/actual codes in 0..255; field globs cannot excuse exits. The declared
 # pair must occur alongside only permitted other differences. An optional
+# unreduced_symmetry_counts additionally binds all distinct/generated/depth facts
+# and the actual native whole-run unreduced mode, only under default dive.
 # generated_count_pair requires exact unsigned expected/actual generated counts;
 # when present, no field glob may cover counts.states_generated. Trace validation
 # can never be excused.
@@ -260,3 +262,16 @@ fields = []
 generated_count_pair = { expected = 1350001, actual = 900001 }
 justification = "Action composition with its TLA+ meaning (D-022) generates 900001 states without TLC's 450000 composition intermediates (TLC: 1350001); success, physical exit 0, 25000 distinct states and depth 16 agree; issue #413 records the original full-gate finding"
 link = "docs/divergences.md#registry"
+
+# D-005: exact declared-symmetry temporal run, fully unreduced by default.
+# Numeric equality alone is insufficient: the strict native reader must also
+# observe the bound whole-run unreduced policy. Never counted as agreement.
+[[divergence]]
+id = "symmetry-liveness-unreduced-p4"
+pattern = "specifications/P4SymLive/P4SymLive.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+unreduced_symmetry_counts = { expected = [1, 2, 1], actual = [2, 3, 2] }
+justification = "D-005: approved whole-run unreduced symmetry, with the exact no-SYMMETRY primary reference (2 distinct, 3 generated, depth 2). The reduced TLC original is 1/2/1. The actual native unreduced mode and every tuple fact are required; no arbitrary verdict or count difference is excused."
+link = "docs/divergences.md#symmetry-with-liveness"

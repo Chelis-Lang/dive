@@ -2732,6 +2732,7 @@ mod predecessor_tests {
                 &cfg,
                 &dive_model::BindOptions {
                     eval: opts.eval,
+                    symmetry_liveness: opts.symmetry_liveness,
                     no_deadlock: opts.no_deadlock,
                     host: Some(Arc::new(TripDuringPathReplay {
                         visits: std::sync::atomic::AtomicUsize::new(0),
@@ -2905,6 +2906,7 @@ mod configured_stream_tests {
         let host = Arc::new(run_host(&opts));
         let bind = dive_model::BindOptions {
             eval: opts.eval,
+            symmetry_liveness: opts.symmetry_liveness,
             no_deadlock: opts.no_deadlock,
             host: Some(Arc::new(crate::host::EngineHost::new(host.clone()))),
         };

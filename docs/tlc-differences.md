@@ -259,7 +259,7 @@ Measured on the pinned TLC:
 | **Kind** | Different answer |
 | **Intended default** | Unreduced checking; disable symmetry for the whole liveness run |
 | **TLC behaviour** | `--symmetry-liveness=tlc` (included in `--compat=tlc`): warn and proceed |
-| **Status** | planned (with `dive-liveness`) |
+| **Status** | unreduced/refuse implemented for supported temporal runs; TLC quotient remains refused |
 
 **What TLC does.** Symmetry reduction lets TLC explore only one representative of each group of states that differ only by a permutation of interchangeable values, such as process ids. Combined with liveness checking ("something good eventually happens"), symmetry can make TLC miss real violations. TLC knows this. It prints a warning ("Declaring symmetry during liveness checking is dangerous. It might cause TLC to miss violations…", `EC.TLC_FEATURE_UNSUPPORTED_LIVENESS_SYMMETRY`), but then carries on and can report success.
 
@@ -283,7 +283,7 @@ Under `--symmetry-liveness=tlc` dive reproduces TLC's answers, both wrong ones i
 
 ---
 
-**Owner update, 2026-10-09.** The intended default is now `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` selects `=tlc`, including TLC's missed and false violations in the probes. Today these modes are planned; symmetry and temporal properties remain explicit refusals. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences.
+**Owner update, 2026-10-09.** The intended default is now `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` selects `=tlc`, including TLC's missed and false violations in the probes. The unreduced and explicit refusal modes now implement this policy for supported temporal checks. TLC quotient liveness remains a named refusal, including under `--compat=tlc`; it does not silently select the sound mode. Explicit `--compat=tlc --symmetry-liveness=unreduced` reports `tlc+overrides`. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences. Original declared symmetry and the actual bound whole-run choice are reported separately. VIEW quotient checking and its concrete witness reconstruction remain unsupported (issue #428).
 
 ## D-006: `CHOOSE` does not depend on unrelated text in the module
 

@@ -2042,3 +2042,17 @@ implementation change. [Compact evidence](survey/data/liveness-quotient-primary-
 records the producer and input hashes, with the explicit limitation that internal
 raw Java transcripts are unavailable. No algorithm is ported and no checker,
 validator, report or trace policy changes in these primary controls.
+
+
+### Whole-run unreduced temporal symmetry (D-005)
+
+The accepted ADR 0085/0019 policy disables reduction only after actual binding
+finds genuine temporal properties; it preserves the declared `SYMMETRY` and
+ordinary startup/role error order. The implementation is a native policy route,
+not a port of TLC's quotient graph or witness reconstruction. Pure concrete
+checking and fresh independent replay retain the original scopes, literal
+closing and full fairness. TLC-equivalent requested mode `tlc` and all VIEW
+quotient paths remain unsupported. Primary unreduced references and the distinct
+VIEW order/witness gap were recorded before implementation in the separate
+`liveness-quotient-primary` corpus; no primary golden is edited. See its
+[compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json).
