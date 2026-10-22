@@ -148,7 +148,7 @@ fn concrete_violations_keep_literal_closure_fairness_and_private_fresh_replay() 
             assert_eq!(report["property"], "InfOftenA");
             let document =
                 TraceDoc::from_json(&report["counterexample"]).expect("native lossless word");
-            assert_eq!(report["counterexample"]["version"], 1);
+            assert_eq!(report["counterexample"]["trace"]["version"], 1);
             let options = TraceOptions {
                 compat_tlc: tlc,
                 symmetry_liveness: Some(SymmetryLiveness::Unreduced),
@@ -159,7 +159,7 @@ fn concrete_violations_keep_literal_closure_fairness_and_private_fresh_replay() 
                 .expect("fresh independent bind");
             assert_eq!(fresh.validate(&document).validation, Validation::Valid);
             // A reduced one-state representative cannot erase weak fairness.
-            let mut forged = report["counterexample"].clone();
+            let mut forged = report["counterexample"]["trace"].clone();
             forged["states"].as_array_mut().expect("states").truncate(1);
             forged["ending"] = json!({"kind":"stuttering"});
             let forged = TraceDoc::from_json(&forged).expect("well-formed false word");
