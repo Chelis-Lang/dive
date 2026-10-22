@@ -1,4 +1,4 @@
-//! Explanations for stable syntax, temporal and command diagnostic codes.
+//! Explanations for stable syntax, selected semantic, temporal and command codes.
 //!
 //! Explanations describe a diagnostic family. A concrete report's message and
 //! source remain authoritative for the particular failure. An explanation is
@@ -102,6 +102,39 @@ syntax_explanations! {
     InputTooLarge => ("DIVE-S0041", "The input exceeds the parser's 4 GiB source-size capacity.", "Split the source into smaller modules and import their definitions; time and memory budgets do not change the source-offset capacity.");
 }
 
+// Semantic coverage is deliberately partial. Only these typed argument-shape
+// families are registered; another assigned code must not borrow their help.
+macro_rules! semantic_explanations {
+    ($($variant:ident => ($code:literal, $cause:literal, $help:literal);)*) => {
+        const SEMANTIC_CODES: &[dive_sema::Code] = &[$(dive_sema::Code::$variant,)*];
+
+        fn semantic_explanation(code: dive_sema::Code) -> Option<&'static Explanation> {
+            match code {
+                $(dive_sema::Code::$variant => Some(&Explanation {
+                    code: $code,
+                    cause: $cause,
+                    remediation: $help,
+                }),)*
+                _ => None,
+            }
+        }
+    };
+}
+
+semantic_explanations! {
+    WrongArgumentCount => ("DIVE-E0107", "An operator application supplies a different number of arguments than its declared arity.", "Match the application to the declared parameter list and the required/provided counts in the message. Reference a zero-argument operator without an argument list; apply function values using brackets.");
+    FunctionArgumentCount => ("DIVE-E0110", "A recognized function definition rules out the supplied number of comma-separated bracket arguments.", "Check the function definition and its bracketed indices. Match comma-separated index parameters; a tuple-pattern parameter counts as one index. A complete tuple index can be supplied as one expression when it matches the function's domain.");
+    OperatorArgumentExpected => ("DIVE-E0112", "A higher-order parameter requires an operator, but its argument is an expression.", "Pass an operator name of the required arity or a LAMBDA with that many parameters; inspect the declared higher-order parameter in the message.");
+    OperatorArgumentArity => ("DIVE-E0113", "An operator supplied to a higher-order parameter has the wrong number of formal parameters.", "Pass an operator with the arity required by the higher-order parameter. If an adapter is intended, define a named operator or LAMBDA with that parameter count and the intended body.");
+    LambdaArgumentArity => ("DIVE-E0114", "A LAMBDA supplied as an operator argument declares the wrong parameter count.", "Match the LAMBDA parameter list to the required operator arity in the message, and make its body use the intended arguments.");
+}
+
+pub(crate) fn semantic_help(code: dive_sema::Code, existing: Option<&str>) -> Option<String> {
+    existing
+        .map(str::to_owned)
+        .or_else(|| semantic_explanation(code).map(|entry| entry.remediation.to_owned()))
+}
+
 /// Looks up an explicitly documented code. Unknown codes return `None`;
 /// guessing an explanation from a code prefix would hide new failure classes.
 ///
@@ -122,6 +155,13 @@ pub fn explain(code: &str) -> Option<&'static Explanation> {
                 .copied()
                 .find(|syntax| syntax.as_str() == code)
                 .map(syntax_explanation)
+        })
+        .or_else(|| {
+            SEMANTIC_CODES
+                .iter()
+                .copied()
+                .find(|semantic| semantic.as_str() == code)
+                .and_then(semantic_explanation)
         })
 }
 
@@ -183,6 +223,36 @@ pub(crate) fn temporal_failure(failure: &crate::temporal::Failure) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn semantic_explanations_cover_only_the_selected_typed_codes() {
+        for &code in dive_sema::Code::ALL {
+            let expected = SEMANTIC_CODES.contains(&code);
+            let entry = semantic_explanation(code);
+            assert_eq!(entry.is_some(), expected, "{}", code.as_str());
+            assert_eq!(explain(code.as_str()), entry);
+            if let Some(entry) = entry {
+                assert_eq!(entry.code, code.as_str());
+                assert!(!entry.cause.is_empty() && !entry.remediation.is_empty());
+                assert_eq!(
+                    semantic_help(code, None).as_deref(),
+                    Some(entry.remediation)
+                );
+            } else {
+                assert_eq!(semantic_help(code, None), None);
+            }
+            for existing in ["", "specific producer suggestion"] {
+                assert_eq!(
+                    semantic_help(code, Some(existing)).as_deref(),
+                    Some(existing)
+                );
+            }
+        }
+        for code in ["DIVE-E9999", "DIVE-E0107 extra", "dive-e0107", "DIVE-E0100"] {
+            assert!(explain(code).is_none());
+            assert_eq!(explanation_json(code)["known"], false);
+        }
+    }
 
     #[test]
     fn syntax_codes_have_exact_explanations_without_prefix_guessing() {
