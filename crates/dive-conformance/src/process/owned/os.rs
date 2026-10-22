@@ -176,8 +176,8 @@ fn snapshot(storage: &mut Option<Observer>, deadline: Instant) -> Result<String>
     let observer = storage
         .as_mut()
         .ok_or_else(|| command("missing ps owner"))?;
-    let observed = observer.wait(deadline.min(Instant::now() + OBSERVER_LIMIT));
-    let result = match observed {
+    let outcome = observer.wait(deadline.min(Instant::now() + OBSERVER_LIMIT));
+    let result = match outcome {
         Ok(status) if status.success() => observer.text(),
         Ok(status) => Err(command(format!("ps observer exited with {status}"))),
         Err(error) => Err(error),
@@ -254,8 +254,8 @@ fn parse(text: &str, group: u32, expected_uid: u32) -> Result<bool> {
     let mut leader = false;
     let mut live = false;
     for line in text.lines() {
-        let (pid, pgid, uid, is_live) = row(line)?;
-        if pgid != group {
+        let (pid, process_group, uid, is_live) = row(line)?;
+        if process_group != group {
             continue;
         }
         if uid != expected_uid {
