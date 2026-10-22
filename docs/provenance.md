@@ -2028,5 +2028,17 @@ states with the same VIEW fingerprint using linear probing, while the
 non-tableau `LiveCheck.addNextState` may retain only the first action label for
 an already-written successor class. The pair reverses concrete generation
 order and uses one strong-fairness requirement; it prescribes no oracle result.
-Primary runs and generated goldens are pending. This preparation ports no
-algorithm and changes no checker, validator, report or trace policy.
+The pinned harness generated all four primary goldens with the recorded reason
+“Record unreduced symmetry references and concrete VIEW successor-order controls
+before any liveness reduction policy change”, one worker, seed/fingerprint zero,
+final liveness checking and a 512 MB Java heap. Its `--timeout 10` is an external
+per-pass budget; each harness arm also had a 15-second owned process-group
+backstop. All four completed uncensored. Both symmetry-disabled controls report
+success (2 distinct, 3 generated, depth 2). VIEW forward reports success;
+reverse reports a violation of `Bad` (both 2 distinct, 5 generated, depth 2).
+The reverse literal trace fails its `SF(A)` by source inspection; no independent
+validator was executed. The actual result difference is preserved before any
+implementation change. [Compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json)
+records the producer and input hashes, with the explicit limitation that internal
+raw Java transcripts are unavailable. No algorithm is ported and no checker,
+validator, report or trace policy changes in these primary controls.
