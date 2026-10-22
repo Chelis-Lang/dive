@@ -15,27 +15,31 @@ timing, thread or queue order, tableau numbering or SCC and lasso choice.
 
 ## Corpus scoreboard
 
-Measured 2026-10-21 (pinned TLC `tlc-2026.10.06.014338` goldens, unchanged
-comparison rules). The one-worker rows are from `11b4eefb`, separating pure
-Boolean recurrence and persistence conditions from shared temporal memory.
-`examples` models `specifications/MultiCarElevator/ElevatorLivenessMedium.cfg`
-and `specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg`
-each change from unsupported to agree in both profiles. They match 4,122 / 14,296
-and 5,196 / 28,170 distinct/generated states, with depths 36 and 18 respectively.
-The four-worker row was remeasured at clean `main` source `52485957` on
-2026-10-21, with the same 156 model IDs as the committed default one-worker
-baseline.
+Measured 2026-10-22 against pinned TLC `tlc-2026.10.06.014338` goldens.
+The one-worker rows are from exact source `866c00ba` on `4e219ea8`, with an
+explicit file graph-label policy over packed atom truth. The complete 156-model
+population is unchanged. `FiniteMonotonic/MCCRDT` moves from unsupported to
+agreement under TLC semantics (25,000 distinct / 1,350,001 generated / depth 16).
+Its default-profile result (25,000 / 900,001 / 16) remains the exact registered
+D-022 expected divergence, never agreement. `allocator/AllocatorImplementation`
+moves from unsupported to agree in both profiles (17,701 / 64,414 / 16).
+All other retained one-worker observable fields match their baselines.
+
+The earlier `11b4eefb` improvements for ElevatorLivenessMedium and
+MCLiveWriteThroughCache remain unchanged. The four-worker row is a separate
+historical observation at clean `main` source `52485957` on 2026-10-21; it was
+not repeated by the newer one-worker qualification.
 The selection is the small tier of `examples`, `probes`, `validation-smoke` and
 `configured-temporal-operators`: 156 models, plus 458 SANY module comparisons in
 the TLC profile.
 
 | Profile | Workers | Models | Agree | Unsupported | Expected divergence | Disagree / timeout / pending / oracle error |
 |---------|--------:|-------:|------:|------------:|--------------------:|-------------------------------------------:|
-| TLC | 1 | 156 | 147 | 9 | 0 | 0 |
-| default | 1 | 156 | 142 | 9 | 5 | 0 |
+| TLC | 1 | 156 | 149 | 7 | 0 | 0 |
+| default | 1 | 156 | 143 | 7 | 6 | 0 |
 | default | 4 | 156 | 144 | 9 | 3 | 0 |
 
-The fresh four-worker observation replaces the historical `1f5ae5fa` row
+The four-worker observation replaces the historical `1f5ae5fa` row
 (93 agree, 60 unsupported, three expected divergences). It used two concurrent
 model jobs, TLC-derived native time budgets capped at 900 seconds, an 8 GiB
 whole-process ceiling per run, and independent process/campaign backstops.
@@ -48,12 +52,13 @@ and two were expected parser rejections before any search. Across all outcomes,
 temporal runs (47 successes and two independently validated liveness violations)
 used four workers. These observations earn no throughput or scaling credit.
 
-The 144 agreements at four workers versus 142 at one worker reflect the
-maintained multi-worker comparison policy: `FiniteMonotonic/MCReplicatedLog`
+The historical 144 agreements at four workers versus its contemporaneous 142
+at one worker (both source `52485957`) reflect the maintained multi-worker
+comparison policy: `FiniteMonotonic/MCReplicatedLog`
 and `MissionariesAndCannibals` move from expected divergence to agreement under
 that policy. They earn no additional one-worker parity credit. The three
-remaining expected divergences stay separate from agreement, and the same nine
-named refusals remain. The [compact observation](survey/data/small-default-w4-2026-10-21.json)
+remaining expected divergences and nine named refusals belong to that historical
+source; do not compare its aggregate directly with the newer one-worker row. The [compact observation](survey/data/small-default-w4-2026-10-21.json)
 records every selected model, actual worker use, pins, budgets and raw-report
 hashes. This row is scoped to source `52485957`.
 
@@ -103,7 +108,8 @@ baseline`; no gate consumes this full-tier observation digest. This remains
 **an incomplete full-tier result, not clean release acceptance**. The
 [compact summary](survey/data/full-tier-budgeted-2026-10-21.json) retains exact
 pins, hashes, selection counts and every model-specific resource finding.
-The accepted small-tier baselines above are unchanged; the backlog remains
+This full-tier digest does not refresh the independent small-tier measurements
+above. No newer full-tier agreement count is inferred; the backlog remains
 [#338](https://github.com/Chelis-Lang/dive/issues/338).
 
 ## Roadmap feature checklist

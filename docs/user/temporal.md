@@ -49,7 +49,7 @@ on a prefix is also a violation on the complete graph, where the final check
 would name it first. Violations of later properties wait for the final check,
 so the reported property is the one `--lncheck final` reports.
 
-Schema 2 reports the schedule (`min_states`, `growth_factor`), prefix check
+Schema 3 reports the schedule (`min_states`, `growth_factor`), prefix check
 count, last checked level/size, exhaustion and final-check truth in `periodic`.
 Rust callers can choose another schedule with `CheckRequest::periodic`
 (`dive_api::PeriodicSchedule`); the CLI always uses the default. Capture bounds are
@@ -106,10 +106,10 @@ Rust custom-limit APIs keep legacy logical acceptance cells; the additive
 [covered allocations and exclusions](../temporal-api.md) and ADR 0098.
 
 Binding happens once under the ordinary startup host. If the configured roles
-are all safety obligations, their complete ordinary result uses schema 2 with
+are all safety obligations, their complete ordinary result uses schema 3 with
 `check_kind: "safety"`,
 including startup Print output, randomness and error ordering. Genuine temporal
-analysis uses schema 2. A completed holding result or violation reports actual
+analysis uses schema 3. A completed holding result or violation reports actual
 generated/distinct/queue/depth counters and `execution.exhausted: true`, even
 though the legacy `reported_by_tlc` print marker is false. A violation names its
 property and carries a lossless periodic word independently replayed against a
@@ -249,8 +249,8 @@ for invariants. An enabledness atom runs the evaluator's `ENABLED` search
 (ADR 0103). Planning still inspects callback sources without evaluating them.
 Both value profiles use this same subset.
 
-Schema 2 reports explicit final requests and actual ordinary temporal analysis;
-ordinary safety results also use schema 2 with `check_kind: "safety"`.
+Schema 3 reports explicit final requests and actual ordinary temporal analysis;
+ordinary safety results also use schema 3 with `check_kind: "safety"`.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
@@ -303,7 +303,7 @@ removed; new corpus agreement is claimed only after bounded qualification.
 
 The [source-specific Allocator observations](../survey/data/active-action-membership-2026-10-21.json)
 preserve the prior `dd2f0907` measurements separately from fresh integrated
-`85592819` results. Both profiles at the integrated source use the unchanged
+`85592819` results. Both profiles at that historical source use the unchanged
 pinned configuration, one worker, seed/fingerprint zero, and explicit
 361.620-second / 4 GiB budgets. They complete capture with 17,701 distinct
 states, 64,414 generated states and depth 16, then report `DIVE-L0034`,
@@ -314,7 +314,7 @@ and justify no further count removal. Early refusal timing is not compared
 with TLC's completed check; sampled process memory is neither a true peak nor
 a projected allocation lower bound.
 
-The exact integrated source also passes the full gate: 2,178 tests with no
+That historical source passed the full gate: 2,178 tests with no
 skips, 458 SANY modules, and the small corpus at 147/156 in the TLC profile and
 142/156 plus five expected divergences in the default profile. Both profiles
 retain nine unsupported models, with no baseline changes, disagreements,
@@ -723,7 +723,7 @@ profiles by:
 cargo test -p dive-liveness --test solutions
 ```
 
-All operation reports use schema 2. A check's top-level `check_kind: "temporal"`
+All operation reports use schema 3. A check's top-level `check_kind: "temporal"`
 identifies its request/report family; it is not capture, completion or proof
 evidence. Final/short requests that encounter a safety failure keep this family
 and the actual incomplete-capture facts. Read the required `execution`, property,
@@ -735,5 +735,50 @@ Liveness atom truth is stored as bit columns in the atom's actual state or
 action domain, with one shared index of original outgoing edges. Unused false
 rows for the other domain are not allocated. Atom identities and predicate
 evaluation order are unchanged, including first source errors, parallel
-transitions and closing edges. The existing `atom_cells` guard still applies
-to labelling and attribution; compact storage does not remove that bound.
+transitions and closing edges. File checking uses run budgets rather than an
+arbitrary graph-label cell ceiling. Reports distinguish that policy from the
+unchanged attribution-row and word-truth cell ceilings under
+`options.temporal_bounds.cell_limits`; they never present a shared 8,000,000
+number as a graph limit that is no longer enforced. Packed layout arithmetic,
+shape checks and fallible allocation remain. This is not an allocation-time
+process-memory or universal wall-clock hard cap; individual bulk/quiet/native
+units retain the interruption limitations described in the checking guide.
+
+Existing Rust analysis APIs retain `GraphLabelPolicy::Cells(limits.atom_cells)`,
+including caller-supplied zero and default-valued ceilings. New final and
+periodic `*_with_policies` variants select graph admission explicitly, separate
+from acceptance-buffer policy. `NoCellLimit` affects only graph labels;
+attribution rows and word truth retain their original bounds and failure order.
+See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).
+
+The `866c00ba` qualification retains the unchanged 156-model small tier:
+149 agreements in the TLC profile, and 143 agreements plus six registered
+expected divergences in the default profile. Both profiles retain seven named
+refusals and have zero disagreements or timeouts. MCCRDT and
+AllocatorImplementation are newly admitted; default-profile MCCRDT retains
+D-022's generated-count difference and earns no agreement credit.
+
+Six ordinary affected-model checks completed in both profiles under explicit
+8 GiB ceilings and TLC-derived native time budgets: 165.8 seconds for MCCRDT,
+230.82 seconds for Huang and 361.62 seconds for AllocatorImplementation, each
+with 30 seconds of external cleanup grace. Every check exhausted capture and
+completed temporal analysis. Their counts are:
+
+| Model | Distinct | Generated (TLC / default) | Depth |
+|---|---:|---:|---:|
+| MCCRDT | 25,000 | 1,350,001 / 900,001 | 16 |
+| Huang | 81,256 | 1,165,101 / 1,165,101 | 21 |
+| AllocatorImplementation | 17,701 | 64,414 / 64,414 | 16 |
+
+All eight normal instruction cells changed by less than 1%; geometric overhead
+was 0.0113%, with identical verdicts, counts, depth, initial counts and final
+queues. The [compact qualification](../survey/data/graph-label-policy-2026-10-22.json)
+records actual source, input, binary and producer identities. These are bounded
+capacity and instruction observations; historical full-tier and four-worker
+measurements retain their own sources and counts.
+
+A separate [historical CLI interoperability check](../survey/data/native31-cli-evidence-2026-10-22.json)
+used source `eeae5dd1` and its own frozen binary on 31 exported Oyster fixtures.
+Its 126 native commands cover 62 checks, 32 genuine trace validations and 32
+forged-trace rejections. These observations retain that source's identity;
+they do not qualify an Oyster report reader, typed consumer or new pilot pin.

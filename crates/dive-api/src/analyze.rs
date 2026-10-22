@@ -210,10 +210,10 @@ impl AnalyzeReport {
 
     /// The versioned JSON report.
     ///
-    /// Shape (schema version 2):
+    /// Shape (schema version 3):
     ///
     /// ```text
-    /// { "schema_version": 2, "command": "analyze", "file": "...",
+    /// { "schema_version": 3, "command": "analyze", "file": "...",
     ///   "accepted": bool, "module": "Root" | null, "modules": ["Dep", ..., "Root"],
     ///   "files": [ { "id", "path", "origin": "file"|"standard"|"monolith"|"text" } ],
     ///   "diagnostics": [ { "code", "severity", "message", "help", "sany_code",

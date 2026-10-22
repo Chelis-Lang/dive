@@ -15,7 +15,7 @@ use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate, Schedule};
-use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, Limits};
+use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
 use dive_trace::{
@@ -95,6 +95,26 @@ impl ValidatedPrefix {
     }
 }
 
+/// Configured analysis owners, independent of whether execution reached them.
+/// Existing APIs retain their exact caller-supplied logical cell ceilings.
+#[derive(Clone, Copy, Debug)]
+pub struct Configuration {
+    /// Existing formula, capture, product and attribution/word bounds.
+    pub limits: Limits,
+    /// Acceptance-buffer admission, independent of graph-label admission.
+    pub acceptance: AcceptancePolicy,
+    /// Admission for graph labels only; attribution and word bounds stay finite.
+    pub graph_labels: GraphLabelPolicy,
+}
+
+pub(crate) fn file_configuration() -> Configuration {
+    Configuration {
+        limits: Limits::default(),
+        acceptance: AcceptancePolicy::compact_default(),
+        graph_labels: GraphLabelPolicy::NoCellLimit,
+    }
+}
+
 /// A temporal result with total binding, exploration and validation time.
 #[derive(Clone, Debug)]
 pub struct Report {
@@ -103,8 +123,15 @@ pub struct Report {
     elapsed: Duration,
     periodic: Option<Checks>,
     memory_samples: Option<dive_check::budget::MemorySamples>,
+    configuration: Option<Configuration>,
 }
 impl Report {
+    /// Actual configured owner limits and policies. Their presence establishes
+    /// neither execution nor completion; safety dispatch can leave them unused.
+    #[must_use]
+    pub const fn configuration(&self) -> Option<Configuration> {
+        self.configuration
+    }
     /// Actual observations when this temporal call returned. Nested already-armed
     /// calls return a snapshot; the enclosing file report includes its owner's
     /// later terminal observation.
@@ -167,6 +194,7 @@ pub(crate) fn finish_report(
             );
             failure.elapsed = report.elapsed;
             failure.periodic = report.periodic.map(Box::new);
+            failure.configuration = report.configuration.map(Box::new);
             Some(failure)
         }
         Outcome::Safety(result) => {
@@ -291,8 +319,16 @@ pub struct Failure {
     validation_progress: Option<ValidationProgress>,
     incomplete: bool,
     periodic: Option<Box<Checks>>,
+    configuration: Option<Box<Configuration>>,
 }
 impl Failure {
+    /// Actual configured owner limits when admitted by the enclosing API.
+    /// Internal failures without a configuration retain `None`, never guessed
+    /// default settings. This does not certify that any bound was exercised.
+    #[must_use]
+    pub fn configuration(&self) -> Option<Configuration> {
+        self.configuration.as_deref().copied()
+    }
     fn before(error: Error, stage: Stage) -> Self {
         Self {
             error: Box::new(error),
@@ -303,6 +339,7 @@ impl Failure {
             validation_progress: None,
             incomplete: false,
             periodic: None,
+            configuration: None,
         }
     }
     fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
@@ -315,6 +352,7 @@ impl Failure {
             validation_progress: None,
             incomplete: false,
             periodic: None,
+            configuration: None,
         }
     }
     /// The actual typed active action-label error, when one occurred.
@@ -433,8 +471,7 @@ fn run(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
+    configuration: Configuration,
 ) -> Result<Outcome, Failure> {
     let model = match dive_check::final_roles::dispatch(ir, config, options) {
         Some(Ok(dive_check::final_roles::Dispatch::Safety(result))) => {
@@ -446,22 +483,27 @@ fn run(
             bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?
         }
     };
-    run_bound(ir, config, options, limits, &model, policy)
+    run_bound(ir, config, options, &model, configuration)
 }
 
 fn run_bound(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
-    limits: Limits,
     model: &Model,
-    policy: AcceptancePolicy,
+    configuration: Configuration,
 ) -> Result<Outcome, Failure> {
     finish_final(
         ir,
         config,
         options,
-        dive_liveness::analyze::analyze_final_with_policy(model, options, limits, policy),
+        dive_liveness::analyze::analyze_final_with_policies(
+            model,
+            options,
+            configuration.limits,
+            configuration.acceptance,
+            configuration.graph_labels,
+        ),
     )
 }
 
@@ -794,6 +836,7 @@ fn finish_final(
                     validation_progress: None,
                     incomplete: false,
                     periodic: None,
+                    configuration: None,
                 })
             }
         }
@@ -814,6 +857,7 @@ fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> F
         validation_progress: None,
         incomplete: false,
         periodic: None,
+        configuration: None,
     }
 }
 
@@ -827,6 +871,7 @@ fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failu
         validation_progress: None,
         incomplete: true,
         periodic: None,
+        configuration: None,
     }
 }
 
@@ -844,6 +889,7 @@ fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationRepor
         validation_progress: None,
         incomplete: true,
         periodic: None,
+        configuration: None,
     }
 }
 
@@ -909,12 +955,16 @@ fn run_periodic(
     config: &ModelConfig,
     options: &CheckOptions,
     model: &Model,
-    limits: Limits,
-    policy: AcceptancePolicy,
     schedule: Schedule,
+    configuration: Configuration,
 ) -> Result<(Outcome, Checks), Failure> {
-    let (analysis, checks) = match dive_liveness::analyze::periodic::analyze_periodic(
-        model, options, limits, policy, schedule,
+    let (analysis, checks) = match dive_liveness::analyze::periodic::analyze_periodic_with_policies(
+        model,
+        options,
+        configuration.limits,
+        configuration.acceptance,
+        configuration.graph_labels,
+        schedule,
     ) {
         Ok(result) => result,
         Err(failure) => {
@@ -931,6 +981,7 @@ fn run_periodic(
                 validation_progress: None,
                 incomplete: failure.capture_completed == Some(false),
                 periodic: Some(Box::new(failure.checks)),
+                configuration: None,
             });
         }
     };
@@ -974,21 +1025,13 @@ pub(crate) fn check_ordinary_final(
                                     config,
                                     options,
                                     &model,
-                                    Limits::default(),
-                                    AcceptancePolicy::compact_default(),
                                     schedule,
+                                    file_configuration(),
                                 )
                                 .map(|(outcome, checks)| (outcome, Some(checks)))
                             } else {
-                                run_bound(
-                                    ir,
-                                    config,
-                                    options,
-                                    Limits::default(),
-                                    &model,
-                                    AcceptancePolicy::compact_default(),
-                                )
-                                .map(|outcome| (outcome, None))
+                                run_bound(ir, config, options, &model, file_configuration())
+                                    .map(|outcome| (outcome, None))
                             }
                         }
                     }
@@ -1012,15 +1055,18 @@ pub(crate) fn check_ordinary_final(
                     options: options.clone(),
                     elapsed: started.elapsed(),
                     periodic,
+                    configuration: Some(file_configuration()),
                     memory_samples: options.budget.memory_samples(),
                 })
                 .map_err(|mut failure| {
                     failure.elapsed = started.elapsed();
+                    failure.configuration = Some(Box::new(file_configuration()));
                     failure
                 }),
         ),
         Err(mut failure) => {
             failure.elapsed = started.elapsed();
+            failure.configuration = Some(Box::new(file_configuration()));
             Some(Err(failure))
         }
     }
@@ -1112,6 +1158,63 @@ pub fn check_final_with_policy(
     limits: Limits,
     policy: AcceptancePolicy,
 ) -> Result<Report, Failure> {
+    check_final_with_policies(
+        ir,
+        config,
+        options,
+        limits,
+        policy,
+        GraphLabelPolicy::Cells(limits.atom_cells),
+    )
+}
+
+/// Like [`check_final_with_policy`], explicitly selecting graph-label admission.
+/// Every existing entrypoint retains its supplied graph cell ceiling, including
+/// zero and an explicitly supplied default value. No other owner is changed.
+///
+/// ```no_run
+/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
+/// use dive_liveness::{analyze::{GraphLabelPolicy, Limits}, product::AcceptancePolicy};
+/// let result = dive_api::temporal::check_final_with_policies(ir, cfg,
+///     &dive_check::CheckOptions::tlc(0, 0), Limits::default(),
+///     AcceptancePolicy::compact_default(), GraphLabelPolicy::NoCellLimit);
+/// // Violations, if any, have passed both independent native validations.
+/// # let _ = result;
+/// # }
+/// ```
+///
+/// # Errors
+/// The same typed failures and retained execution facts as [`check_final_with_policy`].
+pub fn check_final_with_policies(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+) -> Result<Report, Failure> {
+    let configuration = Configuration {
+        limits,
+        acceptance: policy,
+        graph_labels,
+    };
+    check_final_configured(ir, config, options, configuration)
+        .map(|mut report| {
+            report.configuration = Some(configuration);
+            report
+        })
+        .map_err(|mut failure| {
+            failure.configuration = Some(Box::new(configuration));
+            failure
+        })
+}
+
+fn check_final_configured(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    configuration: Configuration,
+) -> Result<Report, Failure> {
     let started = Instant::now();
     let report_options = options.clone();
     let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
@@ -1152,7 +1255,7 @@ pub fn check_final_with_policy(
         std::thread::scope(|s| {
             std::thread::Builder::new()
                 .stack_size(dive_eval::RECOMMENDED_STACK)
-                .spawn_scoped(s, || run(ir, config, options, limits, policy))
+                .spawn_scoped(s, || run(ir, config, options, configuration))
                 .map_err(|e| Failure::before(Error::Thread(e.to_string()), Stage::Unknown))?
                 .join()
                 .map_err(|_| {
@@ -1172,6 +1275,7 @@ pub fn check_final_with_policy(
         options: report_options,
         elapsed: started.elapsed(),
         periodic: None,
+        configuration: None,
         memory_samples: None,
     };
     if let Some(watchdog) = &mut watchdog {
@@ -1341,12 +1445,15 @@ mod prefix_controls {
             &config,
             &options,
             &model,
-            Limits {
-                atom_cells: 0,
-                ..Limits::default()
-            },
-            AcceptancePolicy::compact_default(),
             EVERY_LEVEL,
+            Configuration {
+                limits: Limits {
+                    atom_cells: 0,
+                    ..Limits::default()
+                },
+                acceptance: AcceptancePolicy::compact_default(),
+                graph_labels: GraphLabelPolicy::Cells(0),
+            },
         )
         .expect_err("prefix label bound");
         assert_eq!(failure.error().code(), "DIVE-L0034");
@@ -1372,15 +1479,18 @@ mod prefix_controls {
             &config,
             &options,
             &model,
-            Limits {
-                capture: capture::Limits {
-                    states: 1,
-                    ..capture::Limits::default()
-                },
-                ..Limits::default()
-            },
-            AcceptancePolicy::compact_default(),
             EVERY_LEVEL,
+            Configuration {
+                limits: Limits {
+                    capture: capture::Limits {
+                        states: 1,
+                        ..capture::Limits::default()
+                    },
+                    ..Limits::default()
+                },
+                acceptance: AcceptancePolicy::compact_default(),
+                graph_labels: GraphLabelPolicy::Cells(Limits::default().atom_cells),
+            },
         )
         .expect("safety stop");
         assert!(

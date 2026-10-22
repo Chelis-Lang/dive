@@ -6,7 +6,7 @@
 
 use super::{
     ActionEvaluation, Analysis, AnalysisError, CandidateWord, DetailedFailure, ExplorationEvidence,
-    Failure, Limits, Stage, analyze_captured, prepare, validate_analysis_context,
+    Failure, GraphLabelPolicy, Limits, Stage, analyze_captured, prepare, validate_analysis_context,
 };
 use crate::product::AcceptancePolicy;
 use dive_check::{CheckOptions, Stats, capture};
@@ -124,6 +124,7 @@ struct Observe<'a> {
     plans: &'a [super::PreparedProperty],
     limits: Limits,
     policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
     checks: Checks,
     stage: Stage,
     action: Option<Box<ActionEvaluation>>,
@@ -161,6 +162,7 @@ impl capture::Observer for Observe<'_> {
             graph,
             self.limits,
             self.policy,
+            self.graph_labels,
             &mut self.stage,
             &mut self.action,
             &self.control,
@@ -234,6 +236,40 @@ pub fn analyze_periodic(
     policy: AcceptancePolicy,
     schedule: Schedule,
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
+    analyze_periodic_with_policies(
+        model,
+        options,
+        limits,
+        policy,
+        GraphLabelPolicy::Cells(limits.atom_cells),
+        schedule,
+    )
+}
+
+/// Like [`analyze_periodic`], explicitly choosing only graph-label admission.
+/// All existing entrypoints retain every caller-supplied logical cell ceiling.
+///
+/// ```no_run
+/// # fn example(model: &dive_model::Model) {
+/// use dive_liveness::{analyze::{GraphLabelPolicy, Limits, periodic}, product::AcceptancePolicy};
+/// let result = periodic::analyze_periodic_with_policies(model,
+///     &dive_check::CheckOptions::dive(0), Limits::default(),
+///     AcceptancePolicy::compact_default(), GraphLabelPolicy::Cells(31),
+///     periodic::Schedule::DEFAULT);
+/// # let _ = result;
+/// # }
+/// ```
+///
+/// # Errors
+/// The same typed failures and actual prefix evidence as [`analyze_periodic`].
+pub fn analyze_periodic_with_policies(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
+    schedule: Schedule,
+) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     // One budget for capture and every level check (ADR 0107); only the
     // budget's own limit becomes a stop.
     let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
@@ -257,7 +293,7 @@ pub fn analyze_periodic(
         )
     })?;
     let _scope = crate::budget::enter(&armed.budget);
-    let result = periodic_unbudgeted(model, &armed, limits, policy, schedule)
+    let result = periodic_unbudgeted(model, &armed, limits, policy, graph_labels, schedule)
         .map_err(|failure| budget_failure(failure, &armed.budget));
     if let Some(watchdog) = &mut watchdog {
         let finished = watchdog.finish();
@@ -333,6 +369,7 @@ fn periodic_unbudgeted(
     options: &CheckOptions,
     limits: Limits,
     policy: AcceptancePolicy,
+    graph_labels: GraphLabelPolicy,
     schedule: Schedule,
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     let checks = Checks {
@@ -365,6 +402,7 @@ fn periodic_unbudgeted(
         plans: &plans,
         limits,
         policy,
+        graph_labels,
         checks,
         stage: Stage::Capture,
         action: None,
@@ -441,6 +479,7 @@ fn periodic_unbudgeted(
                 &complete.graph,
                 limits,
                 policy,
+                graph_labels,
                 &mut observer.stage,
                 &mut observer.action,
                 &control,

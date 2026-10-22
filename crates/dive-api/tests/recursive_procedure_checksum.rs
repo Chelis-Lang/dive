@@ -96,7 +96,7 @@ fn check_primary_rewrite(
         };
         let report = rewrite_source(&format!("{id}.tla"), source, &request);
         let doc = report.to_json();
-        assert_eq!(doc["schema_version"], 2);
+        assert_eq!(doc["schema_version"], 3);
         assert!(doc.get("model_proved").is_none());
         assert!(doc.get("exhaustive").is_none());
         assert!(doc.get("pending").is_none());

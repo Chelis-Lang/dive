@@ -269,7 +269,7 @@ fn ordinary_tlc_profile_uses_validated_final_analysis() -> TestResult {
     )?;
     assert_eq!(ordinary.status.code(), Some(13));
     let doc: Value = serde_json::from_slice(&ordinary.stdout)?;
-    assert_eq!(doc["schema_version"], 2);
+    assert_eq!(doc["schema_version"], 3);
     assert_eq!(doc["verdict"], "liveness-violation");
     assert_eq!(doc["options"]["profile"], "tlc");
     assert_eq!(doc["options"]["lncheck"], "final");

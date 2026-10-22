@@ -62,7 +62,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert!(report.result().is_none());
             assert!(report.temporal_result().is_some());
-            assert_eq!(value["schema_version"], 2);
+            assert_eq!(value["schema_version"], 3);
             assert_eq!(value["check_kind"], "temporal");
             assert_eq!(value["options"]["profile"], "tlc");
             assert_eq!(value["options"]["lncheck"], "final");
@@ -125,7 +125,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             native.periodic = EVERY_LEVEL;
             let native = dive_api::check_file(&native)?;
             let value = native.to_json();
-            assert_eq!(value["schema_version"], 2);
+            assert_eq!(value["schema_version"], 3);
             assert_eq!(value["options"]["lncheck"], "deterministic");
             assert_eq!(value["periodic"]["exhausted"], !violation);
             assert_eq!(value["execution"]["capture_completed"], !violation);
@@ -187,7 +187,7 @@ fn configured_initial_invariant_action_and_mixed_safety_roles_keep_the_full_tail
                 format!("{:?}", actual.counterexample),
                 format!("{:?}", expected.counterexample)
             );
-            assert_eq!(report.to_json()["schema_version"], 2);
+            assert_eq!(report.to_json()["schema_version"], 3);
             assert_eq!(report.to_json()["check_kind"], "safety");
         }
     }
@@ -216,7 +216,7 @@ fn configured_safety_roles_keep_safety_family_and_the_original_print_rng_stream(
         assert_eq!(actual.output.len(), 1);
         later_draw |= actual.stats.ok_or("counts")?.distinct > 1;
         let value = report.to_json();
-        assert_eq!(value["schema_version"], 2);
+        assert_eq!(value["schema_version"], 3);
         assert!(value.get("execution").is_none());
         assert!(value["options"].get("lncheck").is_none());
     }
@@ -239,7 +239,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     assert_eq!(actual.verdict, expected.verdict);
     assert_eq!(actual.output, expected.output);
     assert_eq!(actual.binding_model_error, expected.binding_model_error);
-    assert_eq!(report.to_json()["schema_version"], 2);
+    assert_eq!(report.to_json()["schema_version"], 3);
     assert_eq!(report.to_json()["check_kind"], "safety");
     let temporal = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
     let mut requests = Vec::new();
@@ -268,7 +268,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
         let report = dive_api::check_file(&request)?;
         assert_eq!(report.verdict(), "unsupported");
         assert!(report.result().is_some());
-        assert_eq!(report.to_json()["schema_version"], 2);
+        assert_eq!(report.to_json()["schema_version"], 3);
         assert_eq!(report.to_json()["check_kind"], "safety");
         assert!(
             report.to_json()["message"]
@@ -286,7 +286,7 @@ fn ordinary_temporal_planning_errors_never_turn_into_holds() -> TestResult {
     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
     assert_eq!(report.verdict(), "evaluation-error");
     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 255);
-    assert_eq!(value["schema_version"], 2);
+    assert_eq!(value["schema_version"], 3);
     assert_eq!(value["execution"]["capture_completed"], false);
     assert_eq!(value["tlc"]["code"], 2215);
     assert!(value["statistics"].is_null());
@@ -338,7 +338,7 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
         let report = dive_api::check_file(&request)?;
         let value = report.to_json();
         assert_eq!(value["verdict"], "liveness-violation");
-        assert_eq!(value["schema_version"], 2);
+        assert_eq!(value["schema_version"], 3);
         assert_eq!(value["options"]["lncheck"], "deterministic");
         assert_eq!(value["options"]["seed"], 7);
         assert_eq!(value["options"]["workers"]["used"], workers);
@@ -402,7 +402,7 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
             assert_eq!(actual.stats, expected.stats);
             assert_eq!(actual.output, expected.output);
             assert_eq!(actual.workers, expected.workers);
-            assert_eq!(report.to_json()["schema_version"], 2);
+            assert_eq!(report.to_json()["schema_version"], 3);
             assert_eq!(report.to_json()["check_kind"], "safety");
         }
     }
@@ -419,7 +419,7 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
         dive_check::Verdict::InvariantViolated { initial: true, .. }
     ));
     assert_eq!(actual.output.len(), 1);
-    assert_eq!(report.to_json()["schema_version"], 2);
+    assert_eq!(report.to_json()["schema_version"], 3);
     assert_eq!(report.to_json()["check_kind"], "safety");
     assert!(report.temporal_result().is_none());
     Ok(())

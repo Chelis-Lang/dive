@@ -1,5 +1,24 @@
 # Changelog
 
+- Qualify file graph-label admission on the unchanged 156-model small tier:
+  149 TLC agreements; default 143 agreements and six expected divergences,
+  including MCCRDT's registered D-022 counts; seven named refusals each.
+  All six affected checks complete and all eight normal instruction cells stay
+  within 1% overhead. Historical full-tier and four-worker results keep their
+  original sources and counts.
+
+- **Report migration:** every public operation now emits report major 3.
+  Temporal settings replace ambiguous `atom_cells` with explicit graph-label,
+  attribution-row and word-truth owners and report actual acceptance policy.
+  Readers must migrate before moving their pin; supported immutable report-1/2
+  inputs and native dive-trace v1 remain unchanged. Advance notice: Oyster #70.
+  No DFID/simulation outcome tags change (ADR 0111).
+- Add explicit graph-label policy to new final/periodic `*_with_policies` APIs.
+  Existing Rust APIs preserve every custom finite ceiling. File checking removes
+  only the graph-label count ceiling; attribution, word, capture, tableau,
+  product and acceptance bounds remain. Native budgets retain their documented
+  cooperative scope; no hard allocation-time memory guarantee is added.
+
 - Default-profile conformance recognizes only the exact documented D-022
   generated-count pairs for MCCRDT and MCReplicatedLog. Matching runs remain
   expected divergences; other counts, verdicts, exits, depth and trace facts

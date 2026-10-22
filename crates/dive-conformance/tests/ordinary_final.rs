@@ -228,12 +228,55 @@ fn different_valid_periodic_words_do_not_waive_any_observable_fact() -> TestResu
 }
 
 #[test]
+fn actual_pure_state_property_dispatch_has_no_unused_temporal_policy() -> TestResult {
+    let spec = Spec::new()?;
+    let source = std::fs::read_to_string(&spec.0)?.replace("P == <>(x=3)", "P == x<=2");
+    std::fs::write(&spec.0, source)?;
+    for compat_tlc in [false, true] {
+        let request = CheckRequest {
+            file: spec.0.clone(),
+            compat_tlc,
+            fp: Some(0),
+            seed: Some(0),
+            workers: Some(1),
+            ..CheckRequest::default()
+        };
+        let report =
+            dive_api::check_file(&request)?.to_json_with_exit_convention(ExitConvention::Tlc);
+        assert_eq!(report["schema_version"], 3);
+        assert_eq!(report["check_kind"], "safety");
+        assert_eq!(report["verdict"], "success");
+        for field in ["temporal_bounds", "lncheck", "lasso"] {
+            assert!(report["options"].get(field).is_none(), "{field}");
+        }
+        assert!(report.get("execution").is_none());
+        let CheckMapping::Result(result) = mapped(&report, Some(0), compat_tlc) else {
+            return Err("classified pure-state safety result".into());
+        };
+        assert_eq!(result.verdict, Verdict::Success);
+        assert_eq!(result.counts.distinct_states, Some(3));
+        assert_eq!(result.counts.states_generated, Some(4));
+        assert_eq!(result.counts.depth, Some(3));
+        let mut forged = report.clone();
+        forged["options"]["temporal_bounds"] = json!({});
+        rejected(&forged, Some(0), compat_tlc);
+        let mut missing_kind = report;
+        missing_kind
+            .as_object_mut()
+            .ok_or("object")?
+            .remove("check_kind");
+        rejected(&missing_kind, Some(0), compat_tlc);
+    }
+    Ok(())
+}
+
+#[test]
 fn actual_finite_safety_words_keep_strict_length_and_ending_comparisons() -> TestResult {
     let spec = Spec::new()?;
     let source = std::fs::read_to_string(&spec.0)?.replace("P == <>(x=3)", "P == [](x<2)");
     std::fs::write(&spec.0, source)?;
     let report = spec.report()?;
-    assert_eq!(report["schema_version"], 2);
+    assert_eq!(report["schema_version"], 3);
     assert_eq!(report["check_kind"], "safety");
     let CheckMapping::Result(result) = mapped(&report, Some(12), true) else {
         return Err("finite safety result".into());
