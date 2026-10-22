@@ -138,3 +138,11 @@ id = "interval-streaming"
 path = "conformance/corpus/interval-streaming"
 license = "MIT"
 layout = "examples-manifest"
+
+# State-time pure Json conversion and native encounter-order guard (#407).
+# Separate validation microcorpus; no existing parity population changes.
+[[corpus]]
+id = "json-runtime-names"
+path = "conformance/corpus/json-runtime-names"
+license = "MIT"
+layout = "examples-manifest"

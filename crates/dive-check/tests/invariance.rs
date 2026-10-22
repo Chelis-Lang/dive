@@ -384,6 +384,127 @@ fn runtime_name_wrappers_aliases_and_operator_arguments_are_reachable() {
 }
 
 #[test]
+fn json_runtime_names_follow_bound_native_authority_and_grow_after_startup() {
+    on_big_stack(|| {
+        for (defs, expression, extra_cfg) in [
+            ("", "ToJson(<<x>>)", ""),
+            ("Wrap(v) == ToJson(v)\n", "Wrap(<<x>>)", ""),
+            ("Wrap(v) == v\n", "Wrap(<<x>>)", "CONSTANT Wrap <- ToJson\n"),
+            ("Call(F(_),v) == F(v)\n", "Call(ToJson,<<x>>)", ""),
+        ] {
+            let source = format!(
+                "---- MODULE JsonNames ----\nEXTENDS Naturals, Json\nVARIABLE x\n{defs}Observed == {expression}\nInit == x = 0\nNext == x' = x /\\ Observed = Observed\n====\n"
+            );
+            let analysis =
+                dive_sema::analyze_source("JsonNames.tla", &source, &dive_sema::Options::default());
+            assert!(
+                analysis.accepted(),
+                "{source}: {:?}",
+                analysis.diagnostics()
+            );
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("lowers"));
+            let observed = ir.root_def("Observed").expect("state expression");
+            let cfg = dive_config::parse(&format!("INIT Init\nNEXT Next\n{extra_cfg}"))
+                .into_config()
+                .expect("cfg");
+            for (eval, ordered) in [
+                (dive_eval::Options::dive(), false),
+                (dive_eval::Options::tlc(), true),
+            ] {
+                let m = dive_model::bind(
+                    ir.clone(),
+                    &cfg,
+                    &dive_model::BindOptions {
+                        eval,
+                        ..dive_model::BindOptions::default()
+                    },
+                )
+                .expect("bind");
+                assert_eq!(
+                    m.runtime_name_order, ordered,
+                    "{source}: {:?}",
+                    m.sequential
+                );
+                assert_eq!(m.sequential_names_only, ordered);
+                assert_eq!(
+                    m.sequential.iter().any(|r| r.contains("Json!ToJson")),
+                    ordered
+                );
+                assert!(!m.has_runtime_names());
+                assert!(m.names.get("[407]").is_none());
+                let before = m.names.len();
+                let value = m
+                    .evaluator
+                    .eval_def(
+                        observed,
+                        &dive_eval::St::state(Arc::from([Some(dive_value::Value::Int(407))])),
+                    )
+                    .expect("state-time JSON conversion");
+                let dive_value::Value::Str(json) = value else {
+                    panic!("JSON string")
+                };
+                assert_eq!(json.as_str(), "[407]");
+                assert!(m.names.len() > before);
+                assert!(m.names.get("[407]").is_some());
+                assert_eq!(m.has_runtime_names(), ordered);
+            }
+        }
+    });
+}
+
+#[test]
+fn state_time_json_matches_generated_oracle_in_both_profiles_and_worker_widths() {
+    on_big_stack(|| {
+        let fixture = crate_dir().join("../../conformance/corpus/json-runtime-names/specifications/JsonRuntimeNames/JsonRuntimeNames.tla");
+        let cfg =
+            std::fs::read_to_string(fixture.with_extension("cfg")).expect("exact primary config");
+        let golden: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../conformance/golden/tlc-2026.10.06.014338/json-runtime-names/specifications/JsonRuntimeNames/JsonRuntimeNames.cfg.json"
+        )).expect("generated pinned golden");
+        assert_eq!(golden["result"]["verdict"], "success");
+        assert_eq!(golden["result"]["exit_code"], 0);
+        let (ir, cfg) = load(&fixture, &cfg);
+        for base in profiles() {
+            for width in [1, 4] {
+                let mut opts = base.clone();
+                opts.workers = width;
+                let result = check(&ir, &cfg, &opts);
+                assert!(
+                    matches!(result.verdict, Verdict::Success),
+                    "{:?}",
+                    result.verdict
+                );
+                let stats = result.stats.as_ref().expect("completed statistics");
+                for (field, actual) in [
+                    ("states_generated", stats.generated),
+                    ("distinct_states", stats.distinct),
+                    ("depth", stats.depth),
+                ] {
+                    assert_eq!(
+                        Some(actual),
+                        golden["result"]["counts"][field].as_u64(),
+                        "{field}"
+                    );
+                }
+                assert!(result.counterexample.is_none());
+                let ordered = opts.profile == dive_eval::Profile::Tlc;
+                assert_eq!(result.workers.requested, width);
+                assert_eq!(result.workers.used, if ordered { 1 } else { width });
+                assert_eq!(result.workers.sequential, ordered);
+                assert_eq!(
+                    result
+                        .workers
+                        .reason
+                        .as_deref()
+                        .is_some_and(|s| s.contains("Json!ToJson")),
+                    ordered
+                );
+            }
+        }
+    });
+}
+
+#[test]
 fn runtime_choice_matches_clean_pinned_tlc_at_fixed_seeds() {
     on_big_stack(|| {
         let tla = crate_dir().join("tests/fixtures/runtime-names/DynamicStringOrder.tla");
